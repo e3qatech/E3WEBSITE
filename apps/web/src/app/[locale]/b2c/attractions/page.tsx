@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   title: 'Experiences | E3',
 };
 
+export const dynamic = 'force-dynamic';
+
 // Next.js App Router server component
 export default async function AttractionsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Save, CheckCircle2, Image as ImageIcon, Video, Box, MonitorPlay, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
+import { MediaUploader } from "@/components/ui/MediaUploader"
 
 export function B2CLandingCMSView({ initialData }: { initialData: any }) {
   const router = useRouter()
@@ -36,6 +37,19 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
       buttonTextEn: initialData?.cta?.buttonTextEn || "Contact Us",
       buttonTextAr: initialData?.cta?.buttonTextAr || "اتصل بنا",
       buttonUrl: initialData?.cta?.buttonUrl || "/contact"
+    },
+    careersCta: {
+      titleEn: initialData?.careersCta?.titleEn || "Join Our Team",
+      titleAr: initialData?.careersCta?.titleAr || "انضم لفريقنا",
+      subtitleEn: initialData?.careersCta?.subtitleEn || "We're always looking for talented individuals to join our crew.",
+      subtitleAr: initialData?.careersCta?.subtitleAr || "نحن نبحث دائماً عن الموهوبين.",
+      buttonTextEn: initialData?.careersCta?.buttonTextEn || "View Careers",
+      buttonTextAr: initialData?.careersCta?.buttonTextAr || "عرض الوظائف",
+      buttonUrl: initialData?.careersCta?.buttonUrl || "/careers"
+    },
+    footer: {
+      mediaType: initialData?.footer?.mediaType || "IMAGE",
+      mediaUrl: initialData?.footer?.mediaUrl || "",
     },
     faqs: initialData?.faqs || []
   })
@@ -156,13 +170,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
 
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Media URL</label>
-                <input 
-                  type="text" 
-                  value={data.hero.mediaUrl} 
-                  onChange={e => handleChange("hero", "mediaUrl", e.target.value)}
-                  placeholder="https://..."
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                />
+                <MediaUploader value={data.hero.mediaUrl} onChange={url => handleChange("hero", "mediaUrl", url)} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -373,6 +381,119 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                   onChange={e => handleChange("cta", "buttonUrl", e.target.value)}
                   className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Careers CTA Section */}
+          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4">Careers CTA Section</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Title (En)</label>
+                  <input 
+                    type="text" 
+                    value={data.careersCta.titleEn} 
+                    onChange={e => handleChange("careersCta", "titleEn", e.target.value)}
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Title (Ar)</label>
+                  <input 
+                    type="text" 
+                    value={data.careersCta.titleAr} 
+                    onChange={e => handleChange("careersCta", "titleAr", e.target.value)}
+                    dir="rtl"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] text-right"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Subtitle (En)</label>
+                  <textarea 
+                    value={data.careersCta.subtitleEn} 
+                    onChange={e => handleChange("careersCta", "subtitleEn", e.target.value)}
+                    className="w-full h-16 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Subtitle (Ar)</label>
+                  <textarea 
+                    value={data.careersCta.subtitleAr} 
+                    onChange={e => handleChange("careersCta", "subtitleAr", e.target.value)}
+                    dir="rtl"
+                    className="w-full h-16 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none text-right"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Button Text (En)</label>
+                  <input 
+                    type="text" 
+                    value={data.careersCta.buttonTextEn} 
+                    onChange={e => handleChange("careersCta", "buttonTextEn", e.target.value)}
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Button Text (Ar)</label>
+                  <input 
+                    type="text" 
+                    value={data.careersCta.buttonTextAr} 
+                    onChange={e => handleChange("careersCta", "buttonTextAr", e.target.value)}
+                    dir="rtl"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] text-right"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Button URL</label>
+                <input 
+                  type="text" 
+                  value={data.careersCta.buttonUrl} 
+                  onChange={e => handleChange("careersCta", "buttonUrl", e.target.value)}
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Section */}
+          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4">Footer Section</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2">Background Media Type</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: 'IMAGE', icon: ImageIcon, label: 'Image' },
+                    { id: 'VIDEO', icon: Video, label: 'Video' },
+                    { id: 'MODEL_3D', icon: Box, label: '3D Model' },
+                    { id: 'IFRAME', icon: MonitorPlay, label: 'Iframe' },
+                  ].map(type => (
+                    <button
+                      key={type.id}
+                      onClick={() => handleChange('footer', 'mediaType', type.id)}
+                      className={`flex flex-col items-center justify-center p-3 rounded-xl border ${
+                        data.footer.mediaType === type.id 
+                        ? 'bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]' 
+                        : 'bg-[var(--surface-hover)] border-[var(--border-default)] text-[var(--text-secondary)]'
+                      }`}
+                    >
+                      <type.icon size={20} className="mb-1" />
+                      <span className="text-[10px] font-bold">{type.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Media URL</label>
+                <MediaUploader value={data.footer.mediaUrl} onChange={url => handleChange("footer", "mediaUrl", url)} />
               </div>
             </div>
           </div>

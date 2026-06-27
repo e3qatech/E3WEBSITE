@@ -73,6 +73,8 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
   const cta = cmsData?.cta || {};
   const subscribe = cmsData?.subscribe || {};
   const faqs = cmsData?.faqs || [];
+  const careersCta = cmsData?.careersCta || {};
+  const footer = cmsData?.footer || {};
 
   return (
     <main className="min-h-screen bg-[#0C0C0C] text-[#FAFAFA] font-sans selection:bg-[#F59E0B] selection:text-[#0C0C0C] relative overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
@@ -376,9 +378,55 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               </Link>
             </section>
 
+            {/* Careers CTA Section */}
+            <section className="w-full bg-[#141414] border border-[#27272A] rounded-3xl p-8 md:p-16 flex flex-col items-center justify-center text-center">
+              <h2 className="text-3xl md:text-4xl font-black mb-4">{isAr ? careersCta.titleAr || "انضم لفريقنا" : careersCta.titleEn || "Join Our Team"}</h2>
+              <p className="text-[#A1A1AA] text-lg mb-8 max-w-xl">
+                {isAr ? careersCta.subtitleAr || "نحن نبحث دائماً عن الموهوبين." : careersCta.subtitleEn || "We're always looking for talented individuals to join our crew."}
+              </p>
+              <Link 
+                href={careersCta.buttonUrl || "/careers"}
+                className="bg-[#FAFAFA] text-[#0C0C0C] px-8 py-4 rounded-xl font-bold hover:bg-[#F59E0B] hover:text-[#0C0C0C] transition-colors active:scale-95 min-h-[48px] inline-flex items-center"
+              >
+                {isAr ? careersCta.buttonTextAr || "عرض الوظائف" : careersCta.buttonTextEn || "View Careers"}
+              </Link>
+            </section>
+
           </>
         )}
       </div>
+
+      {/* Landing Page Footer Background */}
+      <section className="relative w-full min-h-[50vh] flex flex-col items-center justify-center overflow-hidden border-t border-[#27272A]">
+        {/* Dynamic Background */}
+        <div className="absolute inset-0 z-0 bg-[#0C0C0C]">
+          {footer.mediaType === 'IMAGE' && footer.mediaUrl && (
+            <img src={footer.mediaUrl} alt="Footer" className="w-full h-full object-cover opacity-60" />
+          )}
+          {footer.mediaType === 'VIDEO' && footer.mediaUrl && (
+            <video src={footer.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60" />
+          )}
+          {footer.mediaType === 'IFRAME' && footer.mediaUrl && (
+            <iframe src={footer.mediaUrl} className="w-full h-full border-none opacity-60 pointer-events-none" />
+          )}
+          {footer.mediaType === 'MODEL_3D' && footer.mediaUrl && (
+            <iframe src={footer.mediaUrl} className="w-full h-full border-none opacity-80" />
+          )}
+          {(!footer.mediaUrl || !footer.mediaType) && (
+            <div className="w-full h-full bg-[#0C0C0C]" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-transparent to-[#0C0C0C]" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-24 text-center">
+          <h2 className="text-4xl md:text-6xl font-black mb-6 text-white drop-shadow-lg">
+            {isAr ? 'عش اللحظة.' : 'Live the Moment.'}
+          </h2>
+          <p className="text-[#A1A1AA] text-lg font-medium drop-shadow">
+            {isAr ? 'نصنع ذكريات لا تُنسى في قطر' : 'Creating unforgettable memories in Qatar.'}
+          </p>
+        </div>
+      </section>
     </main>
   );
 }
