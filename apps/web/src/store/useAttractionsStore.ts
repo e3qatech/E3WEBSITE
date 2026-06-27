@@ -33,6 +33,8 @@ export interface Attraction {
   gallery: AttractionGallery[];
   pricing: AttractionPricing[];
   schedules: AttractionSchedule[];
+  heroMediaType?: string;
+  heroMediaUrl?: string | null;
   
   // Client-side enriched state
   liveOccupancy?: LiveOccupancy;

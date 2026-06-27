@@ -29,6 +29,7 @@ const sidebarConfig = [
     { label: "Partners", href: "/dashboard/b2b/partners" }
   ] },
   { label: "B2C Management", icon: Users, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Landing Page", href: "/dashboard/b2c/landing" },
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
     { label: "Feedback", href: "/dashboard/b2c/feedback" }
   ] },
