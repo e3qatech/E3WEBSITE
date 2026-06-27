@@ -6,16 +6,7 @@ import { BarChart3, FileDown, Calendar, Search } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import dynamic from "next/dynamic"
 
-// Dynamically import PDF components to avoid SSR issues
-const PDFDownloadLink = dynamic(
-  () => import("@react-pdf/renderer").then(mod => mod.PDFDownloadLink),
-  { ssr: false }
-)
-const Document = dynamic(() => import("@react-pdf/renderer").then(mod => mod.Document), { ssr: false })
-const Page = dynamic(() => import("@react-pdf/renderer").then(mod => mod.Page), { ssr: false })
-const Text = dynamic(() => import("@react-pdf/renderer").then(mod => mod.Text), { ssr: false })
-const View = dynamic(() => import("@react-pdf/renderer").then(mod => mod.View), { ssr: false })
-const StyleSheet = dynamic(() => import("@react-pdf/renderer").then(mod => mod.StyleSheet), { ssr: false })
+const RecapPDFDownload = dynamic(() => import('./RecapPDFDocument'), { ssr: false });
 
 export function RecapGeneratorView({ attractions }: { attractions: any[] }) {
   const [selectedAttraction, setSelectedAttraction] = useState("")
@@ -42,56 +33,6 @@ export function RecapGeneratorView({ attractions }: { attractions: any[] }) {
       setIsGenerating(false)
     }, 1000)
   }
-
-  // Simple PDF Styles
-  const styles = StyleSheet.create({
-    page: { padding: 40, fontFamily: 'Helvetica' },
-    title: { fontSize: 24, marginBottom: 10, fontWeight: 'bold' },
-    subtitle: { fontSize: 14, marginBottom: 30, color: '#666' },
-    section: { marginBottom: 20 },
-    row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 5 },
-    label: { fontSize: 12, color: '#333' },
-    value: { fontSize: 12, fontWeight: 'bold' },
-    headerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, backgroundColor: '#f5f5f5', padding: 5 },
-  })
-
-  const RecapPDF = () => (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>Performance Recap Report</Text>
-        <Text style={styles.subtitle}>{recapData?.attractionName} | {recapData?.dateRange}</Text>
-        
-        <View style={styles.section}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Total Visitors</Text>
-            <Text style={styles.value}>{recapData?.visitors.toLocaleString()}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Total Revenue (QAR)</Text>
-            <Text style={styles.value}>{recapData?.revenue.toLocaleString()}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Average Rating</Text>
-            <Text style={styles.value}>{recapData?.avgRating} / 5.0</Text>
-          </View>
-        </View>
-
-        <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 10, fontWeight: 'bold' }}>Top Ticket Types</Text>
-        <View style={styles.section}>
-          <View style={styles.headerRow}>
-            <Text style={styles.label}>Ticket Name</Text>
-            <Text style={styles.label}>Quantity Sold</Text>
-          </View>
-          {recapData?.topTickets.map((t: any, i: number) => (
-            <View style={styles.row} key={i}>
-              <Text style={styles.label}>{t.name}</Text>
-              <Text style={styles.value}>{t.count.toLocaleString()}</Text>
-            </View>
-          ))}
-        </View>
-      </Page>
-    </Document>
-  )
 
   return (
     <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto p-4 md:p-8">
@@ -152,13 +93,7 @@ export function RecapGeneratorView({ attractions }: { attractions: any[] }) {
                 <h3 className="font-bold text-[var(--text-primary)]">Preview: {recapData.attractionName}</h3>
                 
                 {typeof window !== 'undefined' && (
-                  <PDFDownloadLink document={<RecapPDF />} fileName={`recap_${recapData.attractionName.replace(/\s+/g, '_').toLowerCase()}.pdf`}>
-                    {({ loading }: { loading: boolean }) => (
-                      <Button variant="outline" size="sm" disabled={loading} className="gap-2">
-                        {loading ? 'Preparing PDF...' : <><FileDown className="w-4 h-4" /> Export PDF</>}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
+                  <RecapPDFDownload recapData={recapData} />
                 )}
               </div>
               

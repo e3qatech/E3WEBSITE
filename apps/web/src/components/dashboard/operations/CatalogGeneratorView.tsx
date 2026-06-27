@@ -6,16 +6,7 @@ import { BookOpen, FileDown, Search, CheckSquare, Square } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import dynamic from "next/dynamic"
 
-// Dynamically import PDF components
-const PDFDownloadLink = dynamic(
-  () => import("@react-pdf/renderer").then(mod => mod.PDFDownloadLink),
-  { ssr: false }
-)
-const Document = dynamic(() => import("@react-pdf/renderer").then(mod => mod.Document), { ssr: false })
-const Page = dynamic(() => import("@react-pdf/renderer").then(mod => mod.Page), { ssr: false })
-const Text = dynamic(() => import("@react-pdf/renderer").then(mod => mod.Text), { ssr: false })
-const View = dynamic(() => import("@react-pdf/renderer").then(mod => mod.View), { ssr: false })
-const StyleSheet = dynamic(() => import("@react-pdf/renderer").then(mod => mod.StyleSheet), { ssr: false })
+const CatalogPDFDownload = dynamic(() => import('./CatalogPDFDocument'), { ssr: false });
 
 export function CatalogGeneratorView({ services }: { services: any[] }) {
   const [selectedServices, setSelectedServices] = useState<string[]>([])
@@ -39,34 +30,6 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
       setIsGenerating(false)
     }, 800)
   }
-
-  // Simple PDF Styles
-  const styles = StyleSheet.create({
-    page: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#ffffff' },
-    coverPage: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#000000', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'center' },
-    coverTitle: { fontSize: 36, fontWeight: 'bold', marginBottom: 20 },
-    coverSubtitle: { fontSize: 18, color: '#aaaaaa' },
-    section: { marginBottom: 30, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 20 },
-    title: { fontSize: 24, marginBottom: 10, fontWeight: 'bold', color: '#ff3b00' },
-    desc: { fontSize: 12, color: '#333', lineHeight: 1.5 },
-  })
-
-  const CatalogPDF = () => (
-    <Document>
-      <Page size="A4" style={styles.coverPage}>
-        <Text style={styles.coverTitle}>E3 {catalogData?.template}</Text>
-        <Text style={styles.coverSubtitle}>Service Portfolio & Capabilities</Text>
-      </Page>
-      <Page size="A4" style={styles.page}>
-        {catalogData?.items.map((item: any, i: number) => (
-          <View style={styles.section} key={i}>
-            <Text style={styles.title}>{item.titleEn}</Text>
-            <Text style={styles.desc}>{item.taglineEn || "Professional event engineering and management services."}</Text>
-          </View>
-        ))}
-      </Page>
-    </Document>
-  )
 
   return (
     <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto p-4 md:p-8">
@@ -136,13 +99,7 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
                 <h3 className="font-bold text-[var(--text-primary)]">Preview: {catalogData.template}</h3>
                 
                 {typeof window !== 'undefined' && (
-                  <PDFDownloadLink document={<CatalogPDF />} fileName={`E3_${catalogData.template.replace(/\s+/g, '_')}.pdf`}>
-                    {({ loading }: { loading: boolean }) => (
-                      <Button variant="outline" size="sm" disabled={loading} className="gap-2">
-                        {loading ? 'Preparing PDF...' : <><FileDown className="w-4 h-4" /> Export PDF</>}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
+                  <CatalogPDFDownload catalogData={catalogData} />
                 )}
               </div>
               
