@@ -466,6 +466,9 @@ model Attractions {
   latitude        Float?
   longitude       Float?
   isVisible       Boolean          @default(true)
+  isPublished     Boolean          @default(false)
+  isPermanent     Boolean          @default(false)
+  statusOverride  String           @default("NONE")
   isFeatured      Boolean          @default(false)
   sortOrder       Int              @default(0)
   seo             Json?

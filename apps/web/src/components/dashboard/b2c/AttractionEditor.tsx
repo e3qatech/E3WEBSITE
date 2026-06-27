@@ -120,6 +120,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     { id: "partners", label: "Partners", icon: Users },
     { id: "social", label: "Social & News", icon: Share2 },
     { id: "ops", label: "Booking & Ops", icon: MapPin },
+    { id: "visibility", label: "Visibility", icon: Calendar },
     { id: "faqs", label: "FAQs", icon: HelpCircle },
   ]
 
@@ -582,36 +583,37 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
               </div>
 
-              <div>
-                <h2 className="text-lg font-black mb-6">Temporal Rules</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--surface-subtle)] p-6 rounded-2xl border border-[var(--border-default)]">
-                  <div className="md:col-span-2">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" checked={temporalStatus.isPermanent} onChange={e => setTemporalStatus({...temporalStatus, isPermanent: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
-                      <span className="text-sm font-bold text-[var(--text-primary)]">Is Permanent Attraction</span>
-                    </label>
-                  </div>
-                  {!temporalStatus.isPermanent && (
-                    <>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Start Date</label>
-                        <input type="datetime-local" value={temporalStatus.startDate} onChange={e => setTemporalStatus({...temporalStatus, startDate: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">End Date</label>
-                        <input type="datetime-local" value={temporalStatus.endDate} onChange={e => setTemporalStatus({...temporalStatus, endDate: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                      </div>
-                    </>
-                  )}
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Admin Status Override</label>
-                    <select value={temporalStatus.statusOverride} onChange={e => setTemporalStatus({...temporalStatus, statusOverride: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none">
-                      <option value="">None (Auto-Calculate)</option>
-                      <option value="OPEN">Force Open</option>
-                      <option value="CLOSED">Force Closed</option>
-                      <option value="MAINTENANCE">Under Maintenance</option>
-                    </select>
-                  </div>
+          {/* 9. VISIBILITY TAB */}
+          {activeTab === "visibility" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <h2 className="text-lg font-black mb-6">Visibility & Temporal Rules</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--surface-subtle)] p-6 rounded-2xl border border-[var(--border-default)]">
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={temporalStatus.isPermanent} onChange={e => setTemporalStatus({...temporalStatus, isPermanent: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                    <span className="text-sm font-bold text-[var(--text-primary)]">Is Permanent Attraction</span>
+                  </label>
+                </div>
+                {!temporalStatus.isPermanent && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Start Date</label>
+                      <input type="datetime-local" value={temporalStatus.startDate} onChange={e => setTemporalStatus({...temporalStatus, startDate: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">End Date</label>
+                      <input type="datetime-local" value={temporalStatus.endDate} onChange={e => setTemporalStatus({...temporalStatus, endDate: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                    </div>
+                  </>
+                )}
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Admin Status Override</label>
+                  <select value={temporalStatus.statusOverride} onChange={e => setTemporalStatus({...temporalStatus, statusOverride: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none">
+                    <option value="">None (Auto-Calculate)</option>
+                    <option value="FORCE_ACTIVE">FORCE ACTIVE</option>
+                    <option value="FORCE_INCOMING">FORCE INCOMING</option>
+                    <option value="FORCE_PAST">FORCE PAST</option>
+                  </select>
                 </div>
               </div>
             </div>
