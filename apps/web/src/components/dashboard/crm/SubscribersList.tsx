@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Mail, Phone, CheckCircle, XCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Search, Mail, Phone, CheckCircle, XCircle, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 
@@ -16,8 +17,22 @@ type Subscriber = {
 }
 
 export function SubscribersList({ initialSubscribers }: { initialSubscribers: Subscriber[] }) {
-  const [subscribers] = useState(initialSubscribers)
+  const router = useRouter()
+  const [subscribers, setSubscribers] = useState(initialSubscribers)
   const [search, setSearch] = useState("")
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this subscriber?")) return
+    try {
+      const res = await fetch(`/api/crm/subscribers/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+
+      setSubscribers(prev => prev.filter(s => s.id !== id))
+      router.refresh()
+    } catch {
+      alert("Failed to delete subscriber")
+    }
+  }
 
   const filtered = subscribers.filter(s => 
     (s.email?.toLowerCase().includes(search.toLowerCase()) || false) || 
@@ -60,7 +75,28 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
               className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
             />
           </div>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => {
+            const csv = [
+              ["Email", "Phone", "Verified", "Verified At", "Preferences", "Subscribed On"].join(","),
+              ...subscribers.map(s => [
+                s.email || "",
+                s.phone || "",
+                s.isVerified ? "Yes" : "No",
+                s.verifiedAt ? new Date(s.verifiedAt).toLocaleDateString() : "",
+                s.preferences ? JSON.stringify(s.preferences).replace(/,/g, ";") : "",
+                new Date(s.createdAt).toLocaleDateString()
+              ].join(","))
+            ].join("\n")
+            const blob = new Blob([csv], { type: "text/csv" })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = "subscribers.csv"
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+          }}>
             Export CSV
           </Button>
         </div>
@@ -75,12 +111,13 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
                 <th className="px-6 py-4 font-medium">Verification</th>
                 <th className="px-6 py-4 font-medium">Preferences</th>
                 <th className="px-6 py-4 font-medium">Subscribed On</th>
+                <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-default)]">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-[var(--text-tertiary)]">
+                  <td colSpan={5} className="px-6 py-12 text-center text-[var(--text-tertiary)]">
                     No subscribers found.
                   </td>
                 </tr>
@@ -116,6 +153,11 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
                     </td>
                     <td className="px-6 py-4 text-[var(--text-secondary)]">
                       {new Date(s.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="text-red-500 hover:text-red-600 hover:bg-red-500/10">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </td>
                   </tr>
                 ))

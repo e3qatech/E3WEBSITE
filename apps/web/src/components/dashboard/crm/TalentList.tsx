@@ -26,6 +26,42 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
   const [talent, setTalent] = useState(initialTalent)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("ALL")
+  const [isAdding, setIsAdding] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleAddCandidate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      position: formData.get("position"),
+      department: formData.get("department"),
+      experienceLevel: formData.get("experienceLevel")
+    }
+
+    try {
+      const res = await fetch("/api/crm/talent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+
+      if (!res.ok) throw new Error()
+      
+      const newCandidate = await res.json()
+      setTalent(prev => [newCandidate, ...prev])
+      setIsAdding(false)
+      router.refresh()
+    } catch {
+      alert("Failed to add candidate")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   const filtered = talent.filter(t => {
     const matchesSearch = 
@@ -110,11 +146,75 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
             <option value="HIRED">Hired</option>
             <option value="REJECTED">Rejected</option>
           </select>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setIsAdding(true)}>
             <Plus className="w-4 h-4" /> Add Candidate
           </Button>
         </div>
       </div>
+
+      {isAdding && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <form 
+            onSubmit={handleAddCandidate}
+            className="bg-[var(--surface-default)] rounded-2xl w-full max-w-lg p-6 border border-[var(--border-default)] shadow-xl animate-in fade-in zoom-in duration-200"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">New Candidate</h2>
+              <button type="button" onClick={() => setIsAdding(false)} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Name *</label>
+                  <input required name="name" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Email *</label>
+                  <input required type="email" name="email" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Phone</label>
+                  <input name="phone" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Position</label>
+                  <input name="position" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Department</label>
+                  <input name="department" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Experience Level</label>
+                  <select name="experienceLevel" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm">
+                    <option value="">Select...</option>
+                    <option value="JUNIOR">Junior</option>
+                    <option value="MID">Mid-Level</option>
+                    <option value="SENIOR">Senior</option>
+                    <option value="LEAD">Lead/Manager</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Add Candidate"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">

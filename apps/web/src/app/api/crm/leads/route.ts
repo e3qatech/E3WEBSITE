@@ -46,13 +46,12 @@ export async function POST(request: Request) {
         value: value ? parseFloat(value) : null,
         probability: probability ? parseInt(probability) : null,
         assignedToId,
-        interestServices: interestServices || [],
-        notes
+        interestServices: interestServices || []
       }
     })
 
     // Create an initial activity note
-    await db.leadActivity.create({
+    const activity = await db.leadActivity.create({
       data: {
         type: "NOTE",
         description: "Lead created manually.",
@@ -61,7 +60,7 @@ export async function POST(request: Request) {
       }
     })
 
-    return NextResponse.json(lead)
+    return NextResponse.json({ ...lead, activities: [activity] })
   } catch (error: any) {
     console.error("[LEADS_POST_ERROR]", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })

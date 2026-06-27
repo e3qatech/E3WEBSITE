@@ -66,7 +66,6 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
           name: inquiry.name,
           email: inquiry.email,
           phone: inquiry.phone,
-          notes: `Converted from Inquiry: ${inquiry.subject || 'General Inquiry'}`
         })
       })
       if (!leadRes.ok) throw new Error("Failed to create lead")

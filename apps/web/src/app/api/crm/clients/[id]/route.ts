@@ -2,30 +2,6 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await auth()
-    if (!session || !["SUPER_ADMIN", "HR", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { id } = await params
-    const talent = await db.talent.findUnique({
-      where: { id }
-    })
-
-    if (!talent) return NextResponse.json({ error: "Talent not found" }, { status: 404 })
-
-    return NextResponse.json(talent)
-  } catch (error: any) {
-    console.error("[TALENT_GET_ERROR]", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
-  }
-}
-
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -34,30 +10,30 @@ export async function PATCH(
     const session = await auth();
     const userRole = (session?.user as any)?.role;
 
-    if (!session || !['SUPER_ADMIN', 'HR', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
+    if (!session || !['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'SALES'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await request.json();
 
-    const talent = await db.talent.update({
+    const client = await db.client.update({
       where: { id },
       data: body,
     });
 
     await db.systemLog.create({
       data: {
-        action: `TALENT_UPDATED`,
-        entity: `Talent ${id}`,
+        action: `CLIENT_UPDATED`,
+        entity: `Client ${id}`,
         entityId: id,
         userId: (session.user as any)?.id,
       }
     });
 
-    return NextResponse.json(talent);
+    return NextResponse.json(client);
   } catch (error) {
-    console.error('Error updating talent:', error);
+    console.error('Error updating client:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -76,13 +52,13 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await db.talent.delete({
+    await db.client.delete({
       where: { id }
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting talent:', error);
+    console.error('Error deleting client:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

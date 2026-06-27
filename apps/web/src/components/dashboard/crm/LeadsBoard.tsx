@@ -34,6 +34,42 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
   const router = useRouter()
   const [leads, setLeads] = useState(initialLeads)
   const [search, setSearch] = useState("")
+  const [isAdding, setIsAdding] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleAddLead = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get("name"),
+      company: formData.get("company"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      value: formData.get("value"),
+      probability: formData.get("probability"),
+    }
+
+    try {
+      const res = await fetch("/api/crm/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+
+      if (!res.ok) throw new Error()
+      
+      const newLead = await res.json()
+      setLeads(prev => [newLead, ...prev])
+      setIsAdding(false)
+      router.refresh()
+    } catch {
+      alert("Failed to add lead")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   const filteredLeads = leads.filter(l => 
     l.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -94,11 +130,70 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
               className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
             />
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setIsAdding(true)}>
             <Plus className="w-4 h-4" /> Add Lead
           </Button>
         </div>
       </div>
+
+      {isAdding && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <form 
+            onSubmit={handleAddLead}
+            className="bg-[var(--surface-default)] rounded-2xl w-full max-w-lg p-6 border border-[var(--border-default)] shadow-xl animate-in fade-in zoom-in duration-200"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">New Lead</h2>
+              <button type="button" onClick={() => setIsAdding(false)} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Name *</label>
+                  <input required name="name" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Company</label>
+                  <input name="company" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Email *</label>
+                  <input required type="email" name="email" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Phone</label>
+                  <input name="phone" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Value (QAR)</label>
+                  <input type="number" name="value" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[var(--text-secondary)]">Probability (%)</label>
+                  <input type="number" min="0" max="100" name="probability" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Create Lead"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
 
       <div className="flex-1 flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
         {COLUMNS.map(col => {

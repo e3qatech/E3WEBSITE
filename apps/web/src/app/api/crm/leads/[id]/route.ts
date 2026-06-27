@@ -44,7 +44,7 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
-    const { name, company, email, phone, status, value, probability, assignedToId, interestServices, notes } = body
+    const { name, company, email, phone, status, value, probability, assignedToId, interestServices } = body
 
     const data: any = {}
     if (name !== undefined) data.name = name
@@ -56,7 +56,6 @@ export async function PATCH(
     if (probability !== undefined) data.probability = probability ? parseInt(probability) : null
     if (assignedToId !== undefined) data.assignedToId = assignedToId
     if (interestServices !== undefined) data.interestServices = interestServices
-    if (notes !== undefined) data.notes = notes
 
     const lead = await db.lead.update({
       where: { id },

@@ -101,7 +101,9 @@ export function Sidebar() {
 
       <div className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2 hide-scrollbar">
         {sidebarConfig.filter(item => item.roles.includes(userRole)).map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isBaseActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isSubItemActive = item.subItems ? item.subItems.some(sub => pathname === sub.href || pathname.startsWith(`${sub.href}/`)) : false;
+          const isActive = isBaseActive || isSubItemActive;
           return (
             <div key={item.href} className="flex flex-col">
               <Link

@@ -14,10 +14,7 @@ export default async function TalentPage() {
   }
 
   const talent = await db.talent.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      job: { select: { title: true } }
-    }
+    orderBy: { appliedDate: "desc" }
   })
 
   // Format dates for client
