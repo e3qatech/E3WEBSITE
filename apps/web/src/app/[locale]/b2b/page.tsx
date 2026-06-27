@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { E3Image as Image } from '@/lib/images';
 import { Metadata } from 'next';
 import { SEO } from '@/components/shared/SEO';
 
