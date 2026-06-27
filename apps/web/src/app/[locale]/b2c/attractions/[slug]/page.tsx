@@ -22,14 +22,6 @@ async function getAttractionData(slug: string) {
       faqs: { orderBy: { orderIndex: 'asc' } },
       gallery: { orderBy: { orderIndex: 'asc' } },
       temporalRules: true,
-      features: true,
-      partnerOffers: true,
-      partners: true,
-      socialPreviews: true,
-      newsCoverage: true,
-      operations: true,
-      temporalStatus: true,
-      testimonials: true,
     }
   });
 

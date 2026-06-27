@@ -24,7 +24,6 @@ export async function GET(
         offers: true,
         faqs: { orderBy: { orderIndex: 'asc' } },
         gallery: { orderBy: { orderIndex: 'asc' } },
-        socialLinks: true,
         temporalRules: true,
       },
     });
