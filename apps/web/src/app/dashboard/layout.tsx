@@ -5,11 +5,16 @@ import { SystemBroadcastBanner } from "@/components/dashboard/SystemBroadcastBan
 import db from "@/lib/db"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // Fetch active broadcast
-  const activeBroadcast = await db.systemBroadcast.findFirst({
-    where: { isActive: true },
-    orderBy: { createdAt: 'desc' }
-  })
+  // Fetch active broadcast (with error handling for missing tables)
+  let activeBroadcast = null;
+  try {
+    activeBroadcast = await db.systemBroadcast.findFirst({
+      where: { isActive: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (e) {
+    console.error("Failed to fetch system broadcast:", e);
+  }
 
   return (
     <ToastProvider>

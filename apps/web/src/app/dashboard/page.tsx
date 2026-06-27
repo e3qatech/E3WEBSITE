@@ -18,33 +18,42 @@ export default async function DashboardOverviewPage() {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"
 
-  // 1. Fetch Real Data
-  const [
-    projectsCount,
-    leads,
-    events,
-    feedbacks,
-    systemLogs
-  ] = await Promise.all([
-    db.caseStudy.count({ where: { isPublished: true } }),
-    db.lead.findMany({ orderBy: { updatedAt: 'desc' } }),
-    db.eventSchedule.findMany({
-      where: { startTime: { gte: new Date() } },
-      orderBy: { startTime: 'asc' },
-      take: 5,
-      include: { attraction: true }
-    }),
-    db.feedback.findMany({
-      where: { rating: { not: null } }
-    }),
-    db.systemLog.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 10
-    })
-  ]);
+  // 1. Fetch Real Data (with error handling for empty/mismatched databases)
+  let projectsCount = 0;
+  let leads: any[] = [];
+  let events: any[] = [];
+  let feedbacks: any[] = [];
+  let systemLogs: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      db.caseStudy.count({ where: { isPublished: true } }).catch(() => 0),
+      db.lead.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
+      db.eventSchedule.findMany({
+        where: { startTime: { gte: new Date() } },
+        orderBy: { startTime: 'asc' },
+        take: 5,
+        include: { attraction: true }
+      }).catch(() => []),
+      db.feedback.findMany({
+        where: { rating: { not: null } }
+      }).catch(() => []),
+      db.systemLog.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 10
+      }).catch(() => [])
+    ]);
+    projectsCount = results[0] as number;
+    leads = results[1] as any[];
+    events = results[2] as any[];
+    feedbacks = results[3] as any[];
+    systemLogs = results[4] as any[];
+  } catch (e) {
+    console.error("Dashboard data fetch error:", e);
+  }
 
   // Aggregate Stats
-  const thisMonthLeads = leads.filter(l => l.createdAt.getMonth() === new Date().getMonth()).length;
+  const thisMonthLeads = leads.filter(l => l.createdAt?.getMonth() === new Date().getMonth()).length;
   
   let avgFeedback = 5.0;
   if (feedbacks.length > 0) {
@@ -80,9 +89,9 @@ export default async function DashboardOverviewPage() {
   // Map Logs to Feed
   const feedItems: FeedItem[] = systemLogs.map(log => {
     let type: FeedItem['type'] = 'broadcast'
-    if (log.action.includes("LEAD")) type = 'lead'
-    else if (log.action.includes("TICKET")) type = 'ticket'
-    else if (log.action.includes("FEEDBACK")) type = 'feedback'
+    if (log.action?.includes("LEAD")) type = 'lead'
+    else if (log.action?.includes("TICKET")) type = 'ticket'
+    else if (log.action?.includes("FEEDBACK")) type = 'feedback'
     
     return {
       id: log.id,
