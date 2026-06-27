@@ -67,7 +67,11 @@ export const initSocket = (server: HttpServer) => {
   })
 
   // Setup Redis Adapter for horizontal scaling
-  const pubClient = new Redis((process.env.REDIS_URL || 'redis://localhost:6379').replace(/^"|"$/g, '').replace(/^'|'$/g, ''))
+  let redisUrl = (process.env.REDIS_URL || 'redis://localhost:6379').replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+  if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
+    redisUrl = redisUrl.startsWith('//') ? 'rediss:' + redisUrl : 'rediss://' + redisUrl;
+  }
+  const pubClient = new Redis(redisUrl)
   const subClient = pubClient.duplicate()
   io.adapter(createAdapter(pubClient, subClient))
 
