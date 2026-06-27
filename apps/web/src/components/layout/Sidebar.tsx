@@ -22,11 +22,31 @@ import { cn } from "@/lib/utils";
 
 const sidebarConfig = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
-  { label: "B2B Management", icon: Briefcase, href: "/dashboard/b2b", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"] },
-  { label: "B2C Management", icon: Users, href: "/dashboard/b2c", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"] },
-  { label: "Operations", icon: Activity, href: "/dashboard/operations", roles: ["SUPER_ADMIN"] },
-  { label: "CRM", icon: Database, href: "/dashboard/crm", roles: ["SUPER_ADMIN", "SALES_ADMIN"] },
-  { label: "Settings", icon: Settings, href: "/dashboard/settings", roles: ["SUPER_ADMIN"] },
+  { label: "B2B Management", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+    { label: "Services CMS", href: "/dashboard/b2b/services" }
+  ] },
+  { label: "B2C Management", icon: Users, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Attractions", href: "/dashboard/b2c/attractions" },
+    { label: "Feedback", href: "/dashboard/b2c/feedback" }
+  ] },
+  { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
+    { label: "Events", href: "/dashboard/operations/events" },
+    { label: "Temporal Rules", href: "/dashboard/operations/temporal-rules" },
+    { label: "Broadcast", href: "/dashboard/operations/broadcast" }
+  ] },
+  { label: "CRM", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+    { label: "Leads Funnel", href: "/dashboard/crm/leads" },
+    { label: "Clients", href: "/dashboard/crm/clients" },
+    { label: "Inquiries", href: "/dashboard/crm/inquiries" },
+    { label: "Talent AI", href: "/dashboard/crm/talent" },
+    { label: "Subscribers", href: "/dashboard/crm/subscribers" }
+  ] },
+  { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN"], subItems: [
+    { label: "General", href: "/dashboard/settings/general" },
+    { label: "SEO", href: "/dashboard/settings/seo" },
+    { label: "UI", href: "/dashboard/settings/ui" },
+    { label: "Users", href: "/dashboard/settings/users" }
+  ] },
 ];
 
 export function Sidebar() {
@@ -80,41 +100,69 @@ export function Sidebar() {
         {sidebarConfig.filter(item => item.roles.includes(userRole)).map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "relative flex items-center gap-3 px-3 py-2.5 rounded-sg transition-all group",
-                isActive 
-                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]" 
-                  : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]",
-                collapsed && !mobileOpen ? "justify-center px-0" : ""
-              )}
-              title={collapsed && !mobileOpen ? item.label : undefined}
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="active-sidebar-tab"
-                  className="absolute start-0 top-1.5 bottom-1.5 w-1 bg-[var(--color-primary)] rounded-e-md"
-                />
-              )}
-              
-              <item.icon size={20} className={cn("shrink-0", isActive ? "text-[var(--color-primary)]" : "")} />
-              
-              {(!collapsed || mobileOpen) && (
-                <span className="font-medium text-sm whitespace-nowrap flex-1">{item.label}</span>
-              )}
+            <div key={item.href} className="flex flex-col">
+              <Link
+                href={item.href}
+                className={cn(
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-sg transition-all group",
+                  isActive 
+                    ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]" 
+                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]",
+                  collapsed && !mobileOpen ? "justify-center px-0" : ""
+                )}
+                title={collapsed && !mobileOpen ? item.label : undefined}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="active-sidebar-tab"
+                    className="absolute start-0 top-1.5 bottom-1.5 w-1 bg-[var(--color-primary)] rounded-e-md"
+                  />
+                )}
+                
+                <item.icon size={20} className={cn("shrink-0", isActive ? "text-[var(--color-primary)]" : "")} />
+                
+                {(!collapsed || mobileOpen) && (
+                  <span className="font-medium text-sm whitespace-nowrap flex-1">{item.label}</span>
+                )}
 
-              {(!collapsed || mobileOpen) && item.badge && (
-                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-bold">
-                  {item.badge}
-                </span>
-              )}
+                {(!collapsed || mobileOpen) && item.badge && (
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-bold">
+                    {item.badge}
+                  </span>
+                )}
+                
+                {collapsed && !mobileOpen && item.badge && (
+                  <span className="absolute top-1 end-1 w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+                )}
+              </Link>
               
-              {collapsed && !mobileOpen && item.badge && (
-                <span className="absolute top-1 end-1 w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+              {isActive && (!collapsed || mobileOpen) && (item as any).subItems && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="flex flex-col gap-1 mt-1 pl-9 pr-2"
+                >
+                  {(item as any).subItems.map((sub: any) => {
+                    const isSubActive = pathname === sub.href;
+                    return (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className={cn(
+                          "text-xs py-2 px-3 rounded-md transition-colors relative flex items-center",
+                          isSubActive 
+                            ? "bg-[var(--surface-active)] text-[var(--color-primary)] font-bold" 
+                            : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                        )}
+                      >
+                        {isSubActive && <span className="absolute left-0 top-2 bottom-2 w-0.5 bg-[var(--color-primary)] rounded-r-md" />}
+                        {sub.label}
+                      </Link>
+                    )
+                  })}
+                </motion.div>
               )}
-            </Link>
+            </div>
           );
         })}
       </div>
