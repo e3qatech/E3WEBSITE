@@ -29,6 +29,7 @@ const nextConfig = {
       },
     ];
   },
+  serverExternalPackages: ['@react-pdf/renderer'],
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
