@@ -2,8 +2,10 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Calendar, Ticket, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { SEO } from "@/components/shared/SEO"
 
 const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL
   if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   return 'http://localhost:3000'
@@ -11,9 +13,23 @@ const getBaseUrl = () => {
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const params = await props.params;
+  const baseUrl = getBaseUrl()
+  
   return {
-    title: params.locale === 'ar' ? 'التجارب العامة | E3 Qatar' : 'Public Experiences | E3 Qatar',
-    description: params.locale === 'ar' ? 'اكتشف فعاليات ومهرجانات قطر الحية.' : 'Discover live events, festivals, and attractions in Qatar.',
+    title: params.locale === 'ar' ? 'التجارب العامة | E3 Qatar' : 'Public Experiences & Attractions | E3 Qatar',
+    description: params.locale === 'ar' ? 'اكتشف فعاليات ومهرجانات قطر الحية.' : 'Discover world-class live events, festivals, and immersive family entertainment centers in Qatar.',
+    alternates: {
+      canonical: `${baseUrl}/b2c`,
+      languages: {
+        'en': `${baseUrl}/en/b2c`,
+        'ar': `${baseUrl}/ar/b2c`,
+      },
+    },
+    openGraph: {
+      title: params.locale === 'ar' ? 'التجارب العامة | E3 Qatar' : 'Public Experiences & Attractions | E3 Qatar',
+      description: params.locale === 'ar' ? 'اكتشف فعاليات ومهرجانات قطر الحية.' : 'Discover world-class live events, festivals, and immersive family entertainment centers in Qatar.',
+      url: `${baseUrl}/b2c`,
+    }
   }
 }
 
@@ -21,6 +37,7 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
   const params = await props.params;
   const { locale } = params;
   const isRTL = locale === 'ar'
+  const baseUrl = getBaseUrl()
   
   let attractions = []
   
@@ -43,6 +60,19 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
 
   return (
     <main className="bg-[#fafafa] min-h-screen text-[#09090b] selection:bg-amber-500/30 selection:text-amber-900">
+      <SEO 
+        type="Service"
+        data={{
+          name: "E3 B2C Public Experiences",
+          provider: {
+            "@type": "Organization",
+            name: "Event Engineering Experts (E3)"
+          },
+          areaServed: ["Qatar"],
+          description: "Discover world-class live events, festivals, and immersive family entertainment centers in Qatar.",
+          url: `${baseUrl}/b2c`
+        }}
+      />
       
       {/* 1. HERO BENTO GRID (Pristine Snow Aesthetic) */}
       <section className="pt-24 pb-12 md:pt-32 md:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

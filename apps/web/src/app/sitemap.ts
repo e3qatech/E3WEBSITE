@@ -1,74 +1,139 @@
-import { MetadataRoute } from 'next'
-
-// In a real app, these would come from your CMS/Database
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+import { MetadataRoute } from 'next';
+import db from '@/lib/db';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Mock fetching dynamic data
-  const attractions = ['winter-wonderland', 'lusail-boulevard', 'doha-quest']
-  const services = ['event-engineering', 'immersive-installations', 'talent-management']
-  const caseStudies = ['world-cup-2022', 'qatar-economic-forum']
-
-  const languages = ['en', 'ar']
-
-  const generateAlternates = (path: string) => {
-    return {
-      languages: {
-        'en': `${baseUrl}/en${path}`,
-        'ar': `${baseUrl}/ar${path}`,
-      }
-    }
-  }
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
 
   // 1. Static Routes
-  const staticRoutes = [
-    '',
-    '/b2c',
-    '/b2c/tickets',
-    '/b2c/contact',
-    '/b2b',
-    '/b2b/services',
-    '/b2b/case-studies',
-    '/b2b/contact',
-  ].map((route) => ({
-    url: `${baseUrl}/en${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: route === '' ? 1 : 0.8,
-    alternates: generateAlternates(route)
-  }))
+  const routes: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+      alternates: {
+        languages: {
+          en: `${baseUrl}/en`,
+          ar: `${baseUrl}/ar`,
+        },
+      },
+    },
+    {
+      url: `${baseUrl}/b2b`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      alternates: {
+        languages: {
+          en: `${baseUrl}/en/b2b`,
+          ar: `${baseUrl}/ar/b2b`,
+        },
+      },
+    },
+    {
+      url: `${baseUrl}/b2c`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      alternates: {
+        languages: {
+          en: `${baseUrl}/en/b2c`,
+          ar: `${baseUrl}/ar/b2c`,
+        },
+      },
+    },
+    {
+      url: `${baseUrl}/auth/login`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+      alternates: {
+        languages: {
+          en: `${baseUrl}/en/auth/login`,
+          ar: `${baseUrl}/ar/auth/login`,
+        },
+      },
+    },
+  ];
 
-  // 2. Dynamic Routes (Attractions)
-  const attractionRoutes = attractions.map((slug) => ({
-    url: `${baseUrl}/en/b2c/attractions/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
-    alternates: generateAlternates(`/b2c/attractions/${slug}`)
-  }))
+  try {
+    // 2. Fetch Dynamic Routes
+    const [attractions, services, caseStudies, teamMembers, events] = await Promise.all([
+      db.attraction.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      db.service.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      db.caseStudy.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      db.teamMember.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
+      db.calendarEvent.findMany({ where: { status: 'PUBLISHED' }, select: { id: true, updatedAt: true } }).catch(() => []),
+    ]);
 
-  // 3. Dynamic Routes (Services)
-  const serviceRoutes = services.map((slug) => ({
-    url: `${baseUrl}/en/b2b/services/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.9,
-    alternates: generateAlternates(`/b2b/services/${slug}`)
-  }))
+    // 3. Map Dynamic Routes to Sitemap
+    const dynamicRoutes: MetadataRoute.Sitemap = [
+      ...attractions.map((item) => ({
+        url: `${baseUrl}/b2c/attractions/${item.slug}`,
+        lastModified: item.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/en/b2c/attractions/${item.slug}`,
+            ar: `${baseUrl}/ar/b2c/attractions/${item.slug}`,
+          },
+        },
+      })),
+      ...services.map((item) => ({
+        url: `${baseUrl}/b2b/services/${item.slug}`,
+        lastModified: item.updatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/en/b2b/services/${item.slug}`,
+            ar: `${baseUrl}/ar/b2b/services/${item.slug}`,
+          },
+        },
+      })),
+      ...caseStudies.map((item) => ({
+        url: `${baseUrl}/b2b/case-studies/${item.slug}`,
+        lastModified: item.updatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/en/b2b/case-studies/${item.slug}`,
+            ar: `${baseUrl}/ar/b2b/case-studies/${item.slug}`,
+          },
+        },
+      })),
+      ...teamMembers.map((item) => ({
+        url: `${baseUrl}/b2b/team/${item.id}`,
+        lastModified: item.updatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/en/b2b/team/${item.id}`,
+            ar: `${baseUrl}/ar/b2b/team/${item.id}`,
+          },
+        },
+      })),
+      ...events.map((item) => ({
+        url: `${baseUrl}/b2c/events/${item.id}`,
+        lastModified: item.updatedAt,
+        changeFrequency: 'daily' as const,
+        priority: 0.7,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/en/b2c/events/${item.id}`,
+            ar: `${baseUrl}/ar/b2c/events/${item.id}`,
+          },
+        },
+      })),
+    ];
 
-  // 4. Dynamic Routes (Case Studies)
-  const caseStudyRoutes = caseStudies.map((slug) => ({
-    url: `${baseUrl}/en/b2b/case-studies/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-    alternates: generateAlternates(`/b2b/case-studies/${slug}`)
-  }))
-
-  return [
-    ...staticRoutes,
-    ...attractionRoutes,
-    ...serviceRoutes,
-    ...caseStudyRoutes
-  ]
+    return [...routes, ...dynamicRoutes];
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    // Graceful degradation: return just static routes if DB fails
+    return routes;
+  }
 }

@@ -1,29 +1,38 @@
-# E3 (Event Engineering Experts)
+# E3 - We Build Experiences | Event Engineering Experts
 
-> We Build Experiences. End-to-end event engineering, entertainment solutions, and immersive installations.
+> Event Engineering Experts (E3) is Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B and B2C clients in Qatar and across the MENA region.
 
-E3 is Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B corporate clients and B2C consumers across the MENA region.
+## About E3
+E3 (Event Engineering Experts) is a leading provider of end-to-end event engineering, entertainment solutions, and immersive installations. Based in Qatar, we deliver world-class experiences that merge cutting-edge technology with creative storytelling.
 
-## Key Facts
-- **Headquarters**: Doha, Qatar
-- **Experience**: 15+ Years
-- **Projects Delivered**: 200+
-- **Primary Audience**: B2B (Corporate, Government, Venue Operators) and B2C (Event Attendees)
+## Operating Regions
+- Qatar (Headquarters)
+- Middle East and North Africa (MENA)
 
-## B2B Services
-We provide comprehensive event solutions for corporate clients:
-1. **Event Engineering**: Structural design, rigging, power distribution, and safety compliance.
-2. **Immersive Installations**: Projection mapping, interactive 3D spaces, AR/VR activations.
-3. **Talent Management**: Sourcing global performers, artists, and keynote speakers.
-4. **Venue Operations**: Full-scale crowd management, ticketing integrations, and staffing.
+## Services (B2B)
+We provide comprehensive event engineering services for corporate clients, agencies, and government entities:
+- **Event Engineering**: Structural design, rigging, and technical production.
+- **Immersive Installations**: Interactive exhibits, projection mapping, and kinetic structures.
+- **Entertainment Solutions**: Talent booking, show production, and artistic direction.
+- **Audio Visual (AV)**: State-of-the-art sound, lighting, and video systems.
+- **Set & Stage Design**: Custom fabrication and scenography.
 
-## B2C Attractions
-We operate and manage major entertainment destinations in Qatar, including:
-- Winter Wonderland
-- Lusail Boulevard Activations
-- Doha Quest
+## Attractions (B2C)
+We design and operate world-class public attractions and entertainment venues:
+- Family Entertainment Centers
+- Themed Experiences
+- Pop-up Events
+- Cultural Festivals
+
+## Key Statistics
+- Over 15 years of industry experience
+- 500+ successful projects delivered
+- Dedicated team of 50+ event professionals
 
 ## Contact Information
 - **Website**: https://e3.qa
-- **B2B Inquiries**: https://e3.qa/en/b2b/contact
-- **General Support**: https://e3.qa/en/b2c/contact
+- **Phone**: +974-4400-0000
+- **Email**: info@e3.qa
+- **Address**: Doha, Qatar
+- **LinkedIn**: https://www.linkedin.com/company/e3qatar
+- **Twitter**: https://twitter.com/e3qatar

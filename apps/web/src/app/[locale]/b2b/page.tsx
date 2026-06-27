@@ -1,5 +1,28 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Metadata } from 'next';
+import { SEO } from '@/components/shared/SEO';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+  
+  return {
+    title: "B2B Event Services & Engineering | E3 Qatar",
+    description: "Enterprise-grade event engineering, immersive XR installations, and structural staging for corporate clients and agencies across the MENA region.",
+    alternates: {
+      canonical: `${baseUrl}/b2b`,
+      languages: {
+        'en': `${baseUrl}/en/b2b`,
+        'ar': `${baseUrl}/ar/b2b`,
+      },
+    },
+    openGraph: {
+      title: "B2B Event Services & Engineering | E3 Qatar",
+      description: "Enterprise-grade event engineering and immersive XR installations.",
+      url: `${baseUrl}/b2b`,
+    }
+  }
+}
 
 const services = [
   {
@@ -43,10 +66,25 @@ const numbers = [
   { value: '200+', label: 'Stages Built' },
 ];
 
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-x-hidden">
+export default function B2bPortal() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
 
+  return (
+    <div className="min-h-screen bg-[var(--surface-default)] text-[var(--text-primary)]">
+      <SEO 
+        type="Service"
+        data={{
+          name: "E3 B2B Event Engineering Services",
+          provider: {
+            "@type": "Organization",
+            name: "Event Engineering Experts (E3)"
+          },
+          areaServed: ["Qatar", "Middle East"],
+          description: "Enterprise-grade event engineering, immersive XR installations, and structural staging.",
+          url: `${baseUrl}/b2b`
+        }}
+      />
+      
       {/* ─── NAVIGATION ─────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5"
         style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.9), transparent)', backdropFilter: 'blur(12px)' }}>
@@ -313,6 +351,6 @@ export default function Home() {
         </div>
       </footer>
 
-    </main>
+    </div>
   );
 }
