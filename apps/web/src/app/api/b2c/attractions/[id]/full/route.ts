@@ -14,36 +14,53 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { nameEn, nameAr, slug, descriptionEn, descriptionAr, pricing, faqs } = body
+    const { 
+      nameEn, nameAr, slug, descriptionEn, descriptionAr, 
+      taglineEn, taglineAr, mapUrl, ticketingUrl,
+      heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
+      isPublished, isFeatured, isHidden,
+      features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus,
+      pricing, faqs, socialLinks 
+    } = body
 
     // Use a transaction for deleting old relations and creating new ones
     await db.$transaction([
       db.attractionPricing.deleteMany({ where: { attractionId: id } }),
       db.attractionFaq.deleteMany({ where: { attractionId: id } }),
+      db.attractionSocialLink.deleteMany({ where: { attractionId: id } }),
       db.attraction.update({
         where: { id },
         data: {
-          nameEn,
-          nameAr,
-          slug,
-          descriptionEn,
-          descriptionAr,
+          nameEn, nameAr, slug, descriptionEn, descriptionAr,
+          taglineEn, taglineAr, mapUrl, ticketingUrl,
+          heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
+          isPublished, isFeatured, isHidden,
+          features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus,
           pricing: {
-            create: pricing.map((p: any) => ({
+            create: (pricing || []).map((p: any) => ({
               titleEn: p.titleEn,
               titleAr: p.titleAr,
+              descriptionEn: p.descriptionEn,
+              descriptionAr: p.descriptionAr,
               price: p.price,
+              discount: p.discount,
               currency: p.currency,
               type: p.type
             }))
           },
           faqs: {
-            create: faqs.map((f: any, i: number) => ({
+            create: (faqs || []).map((f: any, i: number) => ({
               questionEn: f.questionEn,
               questionAr: f.questionAr,
               answerEn: f.answerEn,
               answerAr: f.answerAr,
               orderIndex: i
+            }))
+          },
+          socialLinks: {
+            create: (socialLinks || []).map((s: any) => ({
+              platform: s.platform,
+              url: s.url
             }))
           }
         }

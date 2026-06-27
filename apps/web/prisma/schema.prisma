@@ -93,15 +93,30 @@ model Attraction {
   slug           String   @unique
   nameEn         String
   nameAr         String
+  taglineEn      String?
+  taglineAr      String?
   descriptionEn  String?  @db.Text
   descriptionAr  String?  @db.Text
   coordinates    Json?    // Store Lat/Lng or 3D map coordinates
   isPublished    Boolean  @default(false)
   isFeatured     Boolean  @default(false)
   isHidden       Boolean  @default(false)
-  heroMediaType  String   @default("IMAGE")
-  heroMediaUrl   String?
-  features       Json?
+  
+  heroMediaType    String   @default("IMAGE")
+  heroMediaUrl     String?
+  heroFallbackUrl  String?
+  heroThumbnailUrl String?
+  
+  mapUrl           String?
+  ticketingUrl     String?
+  
+  features         Json?
+  partnerOffers    Json?
+  partners         Json?
+  socialPreviews   Json?
+  newsCoverage     Json?
+  operations       Json?
+  temporalStatus   Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -124,7 +139,10 @@ model AttractionPricing {
   attractionId   String
   titleEn        String
   titleAr        String
+  descriptionEn  String?
+  descriptionAr  String?
   price          Float
+  discount       Float?
   currency       String     @default("QAR")
   type           String     @default("GENERAL")
   createdAt      DateTime   @default(now())

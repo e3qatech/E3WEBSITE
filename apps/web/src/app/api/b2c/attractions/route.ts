@@ -10,31 +10,47 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { nameEn, nameAr, slug, descriptionEn, descriptionAr, pricing, faqs } = body
+    const { 
+      nameEn, nameAr, slug, descriptionEn, descriptionAr, 
+      taglineEn, taglineAr, mapUrl, ticketingUrl,
+      heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
+      isPublished, isFeatured, isHidden,
+      features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus,
+      pricing, faqs, socialLinks 
+    } = body
 
     const attraction = await db.attraction.create({
       data: {
-        nameEn,
-        nameAr,
-        slug,
-        descriptionEn,
-        descriptionAr,
+        nameEn, nameAr, slug, descriptionEn, descriptionAr,
+        taglineEn, taglineAr, mapUrl, ticketingUrl,
+        heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
+        isPublished, isFeatured, isHidden,
+        features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus,
         pricing: {
-          create: pricing.map((p: any) => ({
+          create: (pricing || []).map((p: any) => ({
             titleEn: p.titleEn,
             titleAr: p.titleAr,
+            descriptionEn: p.descriptionEn,
+            descriptionAr: p.descriptionAr,
             price: p.price,
+            discount: p.discount,
             currency: p.currency,
             type: p.type
           }))
         },
-        faqs: {
-          create: faqs.map((f: any, i: number) => ({
+          faqs: {
+          create: (faqs || []).map((f: any, i: number) => ({
             questionEn: f.questionEn,
             questionAr: f.questionAr,
             answerEn: f.answerEn,
             answerAr: f.answerAr,
             orderIndex: i
+          }))
+        },
+        socialLinks: {
+          create: (socialLinks || []).map((s: any) => ({
+            platform: s.platform,
+            url: s.url
           }))
         }
       }

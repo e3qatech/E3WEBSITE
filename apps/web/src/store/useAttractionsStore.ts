@@ -8,7 +8,13 @@ export interface AttractionGallery {
 
 export interface AttractionPricing {
   price: number;
+  discount?: number | null;
   currency: string;
+  titleEn?: string;
+  titleAr?: string;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  type?: string;
 }
 
 export interface AttractionSchedule {
@@ -26,15 +32,32 @@ export interface Attraction {
   slug: string;
   nameEn: string;
   nameAr: string;
-  descriptionEn?: string;
-  descriptionAr?: string;
+  taglineEn?: string | null;
+  taglineAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
   isPublished: boolean;
   isFeatured: boolean;
+  isHidden: boolean;
   gallery: AttractionGallery[];
   pricing: AttractionPricing[];
   schedules: AttractionSchedule[];
+  
   heroMediaType?: string;
   heroMediaUrl?: string | null;
+  heroFallbackUrl?: string | null;
+  heroThumbnailUrl?: string | null;
+  
+  mapUrl?: string | null;
+  ticketingUrl?: string | null;
+  
+  features?: any | null;
+  partnerOffers?: any | null;
+  partners?: any | null;
+  socialPreviews?: any | null;
+  newsCoverage?: any | null;
+  operations?: any | null;
+  temporalStatus?: any | null;
   
   // Client-side enriched state
   liveOccupancy?: LiveOccupancy;
