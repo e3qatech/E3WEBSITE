@@ -53,9 +53,20 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, status }: Hero
           </video>
         )}
 
-        {mediaType === '3D' && mediaUrl && (
+        {mediaType === 'MODEL_3D' && mediaUrl && (
           <div className="w-full h-full opacity-80 cursor-grab active:cursor-grabbing">
             <ModelViewer url={mediaUrl} />
+          </div>
+        )}
+
+        {mediaType === 'IFRAME' && mediaUrl && (
+          <div className="w-full h-full">
+            <iframe 
+              src={mediaUrl} 
+              className="w-full h-full border-none pointer-events-auto"
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              sandbox="allow-scripts allow-same-origin allow-popups"
+            />
           </div>
         )}
       </div>

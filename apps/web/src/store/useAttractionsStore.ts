@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type AttractionStatus = 'All' | 'Active Now' | 'Coming Soon' | 'Special Events';
+export type AttractionStatus = 'All' | 'Active Now' | 'Coming Soon' | 'Special Events' | 'Past';
 
 export interface AttractionGallery {
   url: string;
@@ -61,7 +61,8 @@ export interface Attraction {
   
   // Client-side enriched state
   liveOccupancy?: LiveOccupancy;
-  isOpenNow?: boolean;
+  computedStatus?: string;
+  isSpecialEvent?: boolean;
 }
 
 interface AttractionsState {
@@ -86,16 +87,33 @@ export const useAttractionsStore = create<AttractionsState>((set) => ({
   isLoading: true,
   
   setAttractions: (attractions) => {
-    // Process initial state (determine featured, compute `isOpenNow` safely)
-    const featured = attractions.find(a => a.isFeatured) || null;
-    
-    // Naive local time check for `isOpenNow` - could be advanced using `date-fns-tz` 
-    // against the schedule times. For now, we rely on the API `schedules` array 
-    // being populated if it's open today.
-    const enrichedAttractions = attractions.map(a => ({
-      ...a,
-      isOpenNow: a.schedules?.length > 0
-    }));
+    const enrichedAttractions = attractions.map(a => {
+      const temporal = a.temporalStatus || {};
+      let status = "COMING SOON";
+      
+      if (temporal.statusOverride && temporal.statusOverride !== "NONE" && temporal.statusOverride !== "") {
+         if (temporal.statusOverride === "FORCE_ACTIVE") status = "ACTIVE";
+         else if (temporal.statusOverride === "FORCE_INCOMING") status = "COMING SOON";
+         else if (temporal.statusOverride === "FORCE_PAST") status = "PAST";
+      } else if (temporal.isPermanent) {
+         status = "ACTIVE";
+      } else if (temporal.startDate && temporal.endDate) {
+         const now = new Date();
+         const start = new Date(temporal.startDate);
+         const end = new Date(temporal.endDate);
+         if (now < start) status = "COMING SOON";
+         else if (now > end) status = "PAST";
+         else status = "ACTIVE";
+      }
+      
+      return { 
+        ...a,
+        computedStatus: status,
+        isSpecialEvent: !!temporal.isSpecialEvent
+      };
+    });
+
+    const featured = enrichedAttractions.find(a => a.isFeatured) || null;
 
     set({ attractions: enrichedAttractions, featuredAttraction: featured, isLoading: false });
   },

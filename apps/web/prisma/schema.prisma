@@ -117,6 +117,7 @@ model Attraction {
   newsCoverage     Json?
   operations       Json?
   temporalStatus   Json?
+  testimonials     Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

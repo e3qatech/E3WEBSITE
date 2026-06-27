@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       taglineEn, taglineAr, mapUrl, ticketingUrl,
       heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
       isPublished, isFeatured, isHidden,
-      features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus,
+      features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
       pricing, faqs, socialLinks 
     } = body
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         taglineEn, taglineAr, mapUrl, ticketingUrl,
         heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
         isPublished, isFeatured, isHidden,
-        features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus,
+        features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
         pricing: {
           create: (pricing || []).map((p: any) => ({
             titleEn: p.titleEn,

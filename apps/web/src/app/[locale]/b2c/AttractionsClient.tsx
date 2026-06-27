@@ -55,12 +55,14 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
   const filteredAttractions = useMemo(() => {
     return attractions.filter(a => {
       const matchSearch = 
-        a.nameEn.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        a.nameAr.toLowerCase().includes(searchQuery.toLowerCase());
+        (a.nameEn?.toLowerCase() || '').includes(searchQuery.toLowerCase()) || 
+        (a.nameAr?.toLowerCase() || '').includes(searchQuery.toLowerCase());
       
       let matchStatus = true;
-      if (statusFilter === 'Active Now') matchStatus = !!a.isOpenNow;
-      if (statusFilter === 'Coming Soon') matchStatus = !a.isOpenNow;
+      if (statusFilter === 'Active Now') matchStatus = a.computedStatus === 'ACTIVE';
+      if (statusFilter === 'Coming Soon') matchStatus = a.computedStatus === 'COMING SOON';
+      if (statusFilter === 'Special Events') matchStatus = !!a.isSpecialEvent;
+      if (statusFilter === 'Past') matchStatus = a.computedStatus === 'PAST';
       
       return matchSearch && matchStatus && (a.id !== featuredAttraction?.id);
     });
@@ -227,15 +229,26 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   </div>
                   
                   <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center relative z-20">
-                    <div className="flex items-center gap-3 mb-4">
-                      {featuredAttraction.isOpenNow ? (
+                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                      {featuredAttraction.computedStatus === 'ACTIVE' && (
                         <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold tracking-wide border border-emerald-500/20">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                           LIVE NOW
                         </div>
-                      ) : (
-                        <div className="flex items-center gap-2 bg-[#27272A] text-[#A1A1AA] px-3 py-1 rounded-full text-xs font-bold tracking-wide">
-                          CLOSED
+                      )}
+                      {featuredAttraction.computedStatus === 'COMING SOON' && (
+                        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full text-xs font-bold tracking-wide border border-amber-500/20">
+                          COMING SOON
+                        </div>
+                      )}
+                      {featuredAttraction.computedStatus === 'PAST' && (
+                        <div className="flex items-center gap-2 bg-gray-500/10 text-gray-400 px-3 py-1 rounded-full text-xs font-bold tracking-wide border border-gray-500/20">
+                          PAST
+                        </div>
+                      )}
+                      {featuredAttraction.isSpecialEvent && (
+                        <div className="flex items-center gap-2 bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-bold tracking-wide border border-purple-500/20">
+                          ★ SPECIAL EVENT
                         </div>
                       )}
                       <span className="text-[#F59E0B] text-xs font-bold uppercase tracking-widest flex items-center gap-1">
@@ -471,19 +484,29 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
         </div>
 
         <div className="relative z-10 p-6 flex flex-col h-full justify-end">
-          <div className="absolute top-6 left-6">
-             {attraction.isOpenNow ? (
+            <div className="absolute top-6 left-6 flex flex-col gap-2 items-start">
+             {attraction.computedStatus === 'ACTIVE' && (
                 <div className="flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-emerald-500/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   LIVE
                 </div>
-              ) : (
-                <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md text-[#A1A1AA] px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-white/10">
-                  CLOSED
+              )}
+             {attraction.computedStatus === 'COMING SOON' && (
+                <div className="flex items-center gap-2 bg-amber-500/20 backdrop-blur-md text-amber-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-amber-500/30">
+                  INCOMING
                 </div>
               )}
-          </div>
-
+             {attraction.computedStatus === 'PAST' && (
+                <div className="flex items-center gap-2 bg-gray-500/20 backdrop-blur-md text-gray-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-gray-500/30">
+                  PAST
+                </div>
+              )}
+             {attraction.isSpecialEvent && (
+                <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-md text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-purple-500/30">
+                  ★ SPECIAL EVENT
+                </div>
+              )}
+            </div>
           <div className="mt-auto">
             <h3 className={`font-bold mb-2 text-[#FAFAFA] group-hover:text-[#F59E0B] transition-colors line-clamp-1 ${isLarge ? 'text-3xl' : 'text-xl'}`}>
               {isNameAr ? attraction.nameAr : attraction.nameEn}

@@ -36,7 +36,7 @@ export function LiveBookingCard({
 
   const currentOccupancy = attractionInStore?.liveOccupancy?.currentCount ?? 0;
   const maxCapacity = attractionInStore?.liveOccupancy?.maxCapacity ?? 100;
-  const isOpen = attractionInStore?.isOpenNow ?? false;
+  const isOpen = attractionInStore?.computedStatus === 'ACTIVE';
 
   const occupancyPercentage = maxCapacity > 0 ? (currentOccupancy / maxCapacity) * 100 : 0;
   

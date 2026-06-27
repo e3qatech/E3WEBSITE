@@ -65,10 +65,13 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [mapUrl, setMapUrl] = useState(initialData?.mapUrl || "")
   const [ticketingUrl, setTicketingUrl] = useState(initialData?.ticketingUrl || "")
   const [operations, setOperations] = useState<any>(
-    initialData?.operations || { venueName: "", ageGroup: "", hours: "", schedules: [] }
+    initialData?.operations || { venueName: "", ageGroup: "", hours: "", schedules: [], contactDetails: { phone: "", email: "", whatsapp: "", chatLink: "" } }
   )
   const [temporalStatus, setTemporalStatus] = useState<any>(
-    initialData?.temporalStatus || { isPermanent: true, startDate: "", endDate: "", statusOverride: "" }
+    initialData?.temporalStatus || { isPermanent: true, startDate: "", endDate: "", statusOverride: "", isSpecialEvent: false }
+  )
+  const [testimonials, setTestimonials] = useState<any[]>(
+    Array.isArray(initialData?.testimonials) ? initialData.testimonials : []
   )
 
   // 8. FAQs
@@ -88,7 +91,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
         partnerOffers, partners,
         socialLinks, socialPreviews, newsCoverage,
         mapUrl, ticketingUrl, operations, temporalStatus,
-        faqs
+        faqs, testimonials
       }
       
       const url = isEditing 
@@ -500,21 +503,31 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black">Social Previews</h2>
-                  <Button type="button" onClick={() => setSocialPreviews([...socialPreviews, { id: Date.now(), platform: "Instagram", url: "", previewUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Button type="button" onClick={() => setSocialPreviews([...socialPreviews, { id: Date.now(), platform: "Instagram", url: "", previewUrl: "", fetchSource: "LINK", tagToFetch: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                     <Plus className="w-4 h-4" /> Add Post
                   </Button>
                 </div>
                 <div className="space-y-4">
                   {socialPreviews.map((post, index) => (
-                    <div key={post.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pr-10">
+                    <div key={post.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex flex-col gap-4 pr-10">
                       <button type="button" onClick={() => setSocialPreviews(socialPreviews.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
-                      <select value={post.platform} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "platform", e.target.value)} className="w-32 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
-                        <option>Instagram</option><option>TikTok</option>
-                      </select>
-                      <input type="text" placeholder="Post URL" value={post.url} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "url", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <div className="w-1/3">
+                      <div className="flex gap-4">
+                        <select value={post.platform} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "platform", e.target.value)} className="w-32 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
+                          <option>Instagram</option><option>TikTok</option>
+                        </select>
+                        <select value={post.fetchSource || "LINK"} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "fetchSource", e.target.value)} className="w-40 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
+                          <option value="LINK">Fetch by Link</option>
+                          <option value="TAG">Fetch by Tag</option>
+                        </select>
+                        {post.fetchSource === "TAG" ? (
+                          <input type="text" placeholder="#TagToFetch" value={post.tagToFetch} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "tagToFetch", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        ) : (
+                          <input type="text" placeholder="Post URL" value={post.url} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "url", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        )}
+                      </div>
+                      <div className="w-full">
                         <MediaUploader value={post.previewUrl} onChange={val => updateArrayItem(setSocialPreviews, socialPreviews, index, "previewUrl", val)} placeholder="Preview Image/Video URL" />
                       </div>
                     </div>
@@ -540,6 +553,40 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                       <input type="date" placeholder="Date" value={news.date} onChange={e => updateArrayItem(setNewsCoverage, newsCoverage, index, "date", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
                       <input type="text" placeholder="Article Title" value={news.title} onChange={e => updateArrayItem(setNewsCoverage, newsCoverage, index, "title", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
                       <input type="text" placeholder="Article URL" value={news.url} onChange={e => updateArrayItem(setNewsCoverage, newsCoverage, index, "url", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* What People Say (Testimonials) */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-black">What People Say (Feedback)</h2>
+                  <Button type="button" onClick={() => setTestimonials([...testimonials, { id: Date.now(), author: "", quote: "", mediaUrl: "", rating: 5, link: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                    <Plus className="w-4 h-4" /> Add Feedback
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {testimonials.map((testimonial, index) => (
+                    <div key={testimonial.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex flex-col gap-4 pr-10">
+                      <button type="button" onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Author / Name" value={testimonial.author} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "author", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase">Rating:</span>
+                          <input type="number" min="1" max="5" value={testimonial.rating} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "rating", parseInt(e.target.value) || 5)} className="w-20 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        </div>
+                      </div>
+                      
+                      <textarea placeholder="Quote / Feedback" value={testimonial.quote} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "quote", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm min-h-[80px]" />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Source Link (Optional)" value={testimonial.link} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "link", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        <MediaUploader value={testimonial.mediaUrl} onChange={val => updateArrayItem(setTestimonials, testimonials, index, "mediaUrl", val)} placeholder="Media URL (Image/Video)" />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -584,8 +631,32 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
 
                 <div className="mt-8 border-t border-[var(--border-default)] pt-6">
                   <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-md font-bold">Venue Contact Details</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Phone</label>
+                      <input type="text" placeholder="+974..." value={operations.contactDetails?.phone || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, phone: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Email</label>
+                      <input type="email" placeholder="info@..." value={operations.contactDetails?.email || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, email: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">WhatsApp</label>
+                      <input type="text" placeholder="wa.me/..." value={operations.contactDetails?.whatsapp || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, whatsapp: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Chat Link</label>
+                      <input type="text" placeholder="URL..." value={operations.contactDetails?.chatLink || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, chatLink: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 border-t border-[var(--border-default)] pt-6">
+                  <div className="flex items-center justify-between mb-4">
                     <h3 className="text-md font-bold">Specific Date & Timing Rules</h3>
-                    <Button type="button" onClick={() => setOperations({...operations, schedules: [...(operations.schedules || []), { id: Date.now(), title: "", details: "" }]})} variant="outline" size="sm" className="gap-2 rounded-xl">
+                    <Button type="button" onClick={() => setOperations({...operations, schedules: [...(operations.schedules || []), { id: Date.now(), title: "", daysOfWeek: "", startDate: "", endDate: "", timeSlots: "" }]})} variant="outline" size="sm" className="gap-2 rounded-xl">
                       <Plus className="w-4 h-4" /> Add Rule
                     </Button>
                   </div>
@@ -610,9 +681,34 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                             }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Timing Details</label>
-                            <input type="text" placeholder="e.g. 4 PM - 12 AM" value={schedule.details} onChange={e => {
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Days of Week (e.g. Thu-Sat, Mon-Wed)</label>
+                            <input type="text" placeholder="Leave empty for specific dates" value={schedule.daysOfWeek} onChange={e => {
                               const newSchedules = [...(operations.schedules || [])];
+                              newSchedules[index].daysOfWeek = e.target.value;
+                              setOperations({...operations, schedules: newSchedules});
+                            }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Date Range (Optional)</label>
+                            <div className="flex items-center gap-2">
+                              <input type="date" value={schedule.startDate} onChange={e => {
+                                const newSchedules = [...(operations.schedules || [])];
+                                newSchedules[index].startDate = e.target.value;
+                                setOperations({...operations, schedules: newSchedules});
+                              }} className="w-1/2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                              <span className="text-[var(--text-secondary)]">to</span>
+                              <input type="date" value={schedule.endDate} onChange={e => {
+                                const newSchedules = [...(operations.schedules || [])];
+                                newSchedules[index].endDate = e.target.value;
+                                setOperations({...operations, schedules: newSchedules});
+                              }} className="w-1/2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Time Slots</label>
+                            <input type="text" placeholder="e.g. 4 PM - 12 AM" value={schedule.timeSlots || schedule.details} onChange={e => {
+                              const newSchedules = [...(operations.schedules || [])];
+                              newSchedules[index].timeSlots = e.target.value;
                               newSchedules[index].details = e.target.value;
                               setOperations({...operations, schedules: newSchedules});
                             }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
@@ -636,10 +732,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <h2 className="text-lg font-black mb-6">Visibility & Temporal Rules</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--surface-subtle)] p-6 rounded-2xl border border-[var(--border-default)]">
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 flex flex-col sm:flex-row gap-6">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" checked={temporalStatus.isPermanent} onChange={e => setTemporalStatus({...temporalStatus, isPermanent: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
                     <span className="text-sm font-bold text-[var(--text-primary)]">Is Permanent Attraction</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={temporalStatus.isSpecialEvent} onChange={e => setTemporalStatus({...temporalStatus, isSpecialEvent: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                    <span className="text-sm font-bold text-[var(--text-primary)] px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full">★ Mark as Special Event</span>
                   </label>
                 </div>
                 {!temporalStatus.isPermanent && (

@@ -30,6 +30,7 @@ const dictionaries: Record<Locale, Record<string, string>> = {
   en: {
     // Navigation
     "nav.home": "Home",
+    "nav.attractions": "Attractions",
     "nav.about": "About",
     "nav.contact": "Contact",
     "nav.events": "Events",
@@ -59,6 +60,7 @@ const dictionaries: Record<Locale, Record<string, string>> = {
   ar: {
     // Navigation
     "nav.home": "الرئيسية",
+    "nav.attractions": "التجارب",
     "nav.about": "معلومات عنا",
     "nav.contact": "اتصل بنا",
     "nav.events": "الفعاليات",
