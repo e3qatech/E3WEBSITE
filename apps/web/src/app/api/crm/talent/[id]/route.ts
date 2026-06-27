@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server"
 import db from "@/lib/db"
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const data = await req.json()
     
     const talent = await db.talent.update({
-      where: { id: params.id },
+      where: { id },
       data
     })
 
@@ -17,10 +18,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const talent = await db.talent.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
     
     if (!talent) return NextResponse.json({ error: "Not found" }, { status: 404 })

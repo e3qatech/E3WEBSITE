@@ -1,48 +1,48 @@
-import { NextResponse } from "next/server"
-import db from "@/lib/db"
+import { NextResponse, NextRequest } from "next/server";
+import db from "@/lib/db";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const lead = await db.lead.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         activities: { orderBy: { timestamp: 'desc' } },
-        inquiries: { orderBy: { createdAt: 'desc' } }
-      }
-    })
-
+        inquiries: { orderBy: { createdAt: 'desc' } },
+      },
+    });
     if (!lead) {
-      return NextResponse.json({ error: "Lead not found" }, { status: 404 })
+      return NextResponse.json({ error: "Lead not found" }, { status: 404 });
     }
-
-    return NextResponse.json(lead)
+    return NextResponse.json(lead);
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    const body = await req.json()
-    const { activity, ...data } = body
+    const body = await request.json();
+    const { activity, ...data } = body;
 
     // If an activity is included, create it
     if (activity) {
       await db.leadActivity.create({
         data: {
-          leadId: params.id,
+          leadId: id,
           type: activity.type,
           description: activity.description,
-          author: activity.author
-        }
-      })
+          author: activity.author,
+        },
+      });
     }
 
     // Update lead data if any is provided
-    let updatedLead = null
+    let updatedLead = null;
     if (Object.keys(data).length > 0) {
       updatedLead = await db.lead.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           ...data,
           value: data.value !== undefined ? (data.value ? parseFloat(data.value) : null) : undefined,
@@ -50,33 +50,32 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         },
         include: {
           activities: { orderBy: { timestamp: 'desc' } },
-          inquiries: { orderBy: { createdAt: 'desc' } }
-        }
-      })
+          inquiries: { orderBy: { createdAt: 'desc' } },
+        },
+      });
     } else {
       updatedLead = await db.lead.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
           activities: { orderBy: { timestamp: 'desc' } },
-          inquiries: { orderBy: { createdAt: 'desc' } }
-        }
-      })
+          inquiries: { orderBy: { createdAt: 'desc' } },
+        },
+      });
     }
 
-    return NextResponse.json({ success: true, lead: updatedLead })
+    return NextResponse.json({ success: true, lead: updatedLead });
   } catch (error) {
-    console.error("Error updating lead:", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("Error updating lead:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    await db.lead.delete({
-      where: { id: params.id }
-    })
-    return NextResponse.json({ success: true })
+    await db.lead.delete({ where: { id } });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
