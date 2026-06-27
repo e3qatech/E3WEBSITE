@@ -628,6 +628,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
 
           {/* 9. VISIBILITY TAB */}
           {activeTab === "visibility" && (
