@@ -1,65 +1,78 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { isWithinInterval } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+import { NextResponse } from "next/server"
+import { db } from "@/lib/db"
+import { auth } from "@/lib/auth"
 
-const QATAR_TZ = 'Asia/Qatar';
-
-export async function GET(
-  req: NextRequest,
+export async function POST(
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: teamMemberId } = await params;
-    const { searchParams } = new URL(req.url);
-    const dateQuery = searchParams.get('date');
-
-    if (!dateQuery) {
-      return NextResponse.json({ error: 'Missing date parameter (YYYY-MM-DD)' }, { status: 400 });
+    const session = await auth()
+    if (!session || !["SUPER_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const startOfDay = toZonedTime(`${dateQuery}T00:00:00Z`, QATAR_TZ);
-    const endOfDay = toZonedTime(`${dateQuery}T23:59:59Z`, QATAR_TZ);
+    const { id: teamMemberId } = await params
+    const body = await request.json()
+    const { daysOfWeek, startTime, endTime, duration, buffer } = body
 
-    const [slots, meetings] = await Promise.all([
-      db.availabilitySlot.findMany({
-        where: {
-          teamMemberId,
-          startTime: { gte: startOfDay, lte: endOfDay }
-        },
-        orderBy: { startTime: 'asc' }
-      }),
-      db.meeting.findMany({
-        where: {
-          startTime: { gte: startOfDay, lte: endOfDay }
+    // 1. Clear existing unbooked slots for this member to prevent duplicates
+    await db.availabilitySlot.deleteMany({
+      where: {
+        teamMemberId,
+        isBooked: false,
+        startTime: { gte: new Date() }
+      }
+    })
+
+    const slots = []
+    const startHour = parseInt(startTime.split(":")[0])
+    const startMin = parseInt(startTime.split(":")[1])
+    const endHour = parseInt(endTime.split(":")[0])
+    const endMin = parseInt(endTime.split(":")[1])
+
+    // Generate slots for the next 7 days
+    for (let i = 0; i < 7; i++) {
+      const targetDate = new Date()
+      targetDate.setDate(targetDate.getDate() + i)
+      const day = targetDate.getDay()
+
+      if (daysOfWeek.includes(day)) {
+        // Set start time for the day
+        const slotStart = new Date(targetDate)
+        slotStart.setHours(startHour, startMin, 0, 0)
+
+        // Set end time for the day
+        const dayEnd = new Date(targetDate)
+        dayEnd.setHours(endHour, endMin, 0, 0)
+
+        let currentStart = new Date(slotStart)
+
+        while (currentStart.getTime() + duration * 60 * 1000 <= dayEnd.getTime()) {
+          const currentEnd = new Date(currentStart.getTime() + duration * 60 * 1000)
+          
+          slots.push({
+            teamMemberId,
+            startTime: new Date(currentStart),
+            endTime: new Date(currentEnd),
+            isBooked: false
+          })
+
+          // Advance by duration + buffer
+          currentStart = new Date(currentEnd.getTime() + buffer * 60 * 1000)
         }
+      }
+    }
+
+    if (slots.length > 0) {
+      await db.availabilitySlot.createMany({
+        data: slots
       })
-    ]);
+    }
 
-    const availableSlots = slots.map(slot => {
-      // If slot is marked as booked, it's not available
-      if (slot.isBooked) return { ...slot, available: false };
-
-      // Also check if any Meeting overlaps with this slot
-      const hasConflict = meetings.some(meeting => {
-        return (
-          isWithinInterval(meeting.startTime, { start: slot.startTime, end: slot.endTime }) ||
-          isWithinInterval(meeting.endTime, { start: slot.startTime, end: slot.endTime }) ||
-          (meeting.startTime <= slot.startTime && meeting.endTime >= slot.endTime)
-        );
-      });
-
-      return {
-        id: slot.id,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        available: !hasConflict
-      };
-    });
-
-    return NextResponse.json(availableSlots);
+    return NextResponse.json({ success: true, count: slots.length })
   } catch (error: any) {
-    console.error('[TEAM_AVAILABILITY_GET]', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("[SLOTS_POST_ERROR]", error)
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
   }
 }

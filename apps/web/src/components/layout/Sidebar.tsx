@@ -23,7 +23,10 @@ import { cn } from "@/lib/utils";
 const sidebarConfig = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
   { label: "B2B Management", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
-    { label: "Services CMS", href: "/dashboard/b2b/services" }
+    { label: "Services CMS", href: "/dashboard/b2b/services" },
+    { label: "Case Studies", href: "/dashboard/b2b/cases" },
+    { label: "Team & Roster", href: "/dashboard/b2b/team" },
+    { label: "Partners", href: "/dashboard/b2b/partners" }
   ] },
   { label: "B2C Management", icon: Users, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
