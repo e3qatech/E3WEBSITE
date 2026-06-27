@@ -148,7 +148,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     image: attraction.heroMediaUrl,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: operations?.venueName || 'Doha, Qatar',
+      streetAddress: (attraction.operations as any)?.venueName || 'Doha, Qatar',
       addressCountry: 'QA'
     }
   }
@@ -184,7 +184,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       {displayDesc && (
         <WhatsInside 
           description={displayDesc} 
-          features={attraction.features || []}
+          features={(attraction.features as any) || []}
         />
       )}
 
@@ -206,7 +206,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         name={displayName}
         latitude={null}
         longitude={null}
-        locationAddress={operations?.venueName || "Doha, Qatar"}
+        locationAddress={(attraction.operations as any)?.venueName || "Doha, Qatar"}
         mapUrl={attraction.mapUrl}
         schedule={schedule}
         bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}

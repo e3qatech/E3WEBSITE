@@ -46,6 +46,9 @@ export default async function AttractionsPage() {
     isPublished: a.isPublished,
     isFeatured: a.isFeatured,
     heroMediaUrl: a.heroMediaUrl,
+    heroFallbackUrl: a.heroFallbackUrl,
+    heroThumbnailUrl: a.heroThumbnailUrl,
+    heroMediaType: a.heroMediaType,
     _count: a._count
   }))
 
