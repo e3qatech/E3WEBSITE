@@ -19,6 +19,15 @@ interface HeroViewerProps {
   status?: string;
 }
 
+const extractUrl = (raw: string | null | undefined) => {
+  if (!raw) return '';
+  if (raw.includes('iframe') && raw.includes('src=')) {
+    const match = raw.match(/src=["'](.*?)["']/);
+    if (match) return match[1];
+  }
+  return raw;
+};
+
 export function HeroViewer({ title, tagline, mediaType, mediaUrl, status }: HeroViewerProps) {
   return (
     <section className="relative w-full h-[100vh] overflow-hidden bg-black flex items-center justify-center">
@@ -55,14 +64,14 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, status }: Hero
 
         {mediaType === 'MODEL_3D' && mediaUrl && (
           <div className="w-full h-full opacity-80 cursor-grab active:cursor-grabbing">
-            <ModelViewer url={mediaUrl} />
+            <ModelViewer url={extractUrl(mediaUrl)} />
           </div>
         )}
 
         {mediaType === 'IFRAME' && mediaUrl && (
           <div className="w-full h-full">
             <iframe 
-              src={mediaUrl} 
+              src={extractUrl(mediaUrl)} 
               className="w-full h-full border-none pointer-events-auto"
               allow="autoplay; fullscreen; xr-spatial-tracking"
               sandbox="allow-scripts allow-same-origin allow-popups"

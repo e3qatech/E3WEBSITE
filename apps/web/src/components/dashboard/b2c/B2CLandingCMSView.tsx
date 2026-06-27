@@ -170,7 +170,17 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
 
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Media URL</label>
-                <MediaUploader value={data.hero.mediaUrl} onChange={url => handleChange("hero", "mediaUrl", url)} />
+                {(data.hero.mediaType === 'IFRAME' || data.hero.mediaType === 'MODEL_3D') ? (
+                  <input 
+                    type="text" 
+                    value={data.hero.mediaUrl || ''} 
+                    onChange={e => handleChange("hero", "mediaUrl", e.target.value)} 
+                    placeholder="https://my.spline.design/..." 
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                ) : (
+                  <MediaUploader value={data.hero.mediaUrl} onChange={url => handleChange("hero", "mediaUrl", url)} />
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -493,7 +503,17 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
 
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Media URL</label>
-                <MediaUploader value={data.footer.mediaUrl} onChange={url => handleChange("footer", "mediaUrl", url)} />
+                {(data.footer.mediaType === 'IFRAME' || data.footer.mediaType === 'MODEL_3D') ? (
+                  <input 
+                    type="text" 
+                    value={data.footer.mediaUrl || ''} 
+                    onChange={e => handleChange("footer", "mediaUrl", e.target.value)} 
+                    placeholder="https://my.spline.design/..." 
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                ) : (
+                  <MediaUploader value={data.footer.mediaUrl} onChange={url => handleChange("footer", "mediaUrl", url)} />
+                )}
               </div>
             </div>
           </div>

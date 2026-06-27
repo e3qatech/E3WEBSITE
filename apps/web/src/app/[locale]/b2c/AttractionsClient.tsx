@@ -8,6 +8,15 @@ import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
 import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
+const extractUrl = (raw: string | null | undefined) => {
+  if (!raw) return '';
+  if (raw.includes('iframe') && raw.includes('src=')) {
+    const match = raw.match(/src=["'](.*?)["']/);
+    if (match) return match[1];
+  }
+  return raw;
+};
+
 export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: { locale: string, cmsData: any, initialAttractions?: Attraction[] }) {
   useLiveOccupancy();
   
@@ -133,10 +142,20 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             <video src={hero.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60" />
           )}
           {hero.mediaType === 'IFRAME' && hero.mediaUrl && (
-            <iframe src={hero.mediaUrl} className="w-full h-full border-none opacity-60 pointer-events-none" />
+            <iframe 
+              src={extractUrl(hero.mediaUrl)} 
+              className="w-full h-full border-none opacity-60 pointer-events-none" 
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              sandbox="allow-scripts allow-same-origin allow-popups"
+            />
           )}
           {hero.mediaType === 'MODEL_3D' && hero.mediaUrl && (
-            <iframe src={hero.mediaUrl} className="w-full h-full border-none opacity-80" />
+            <iframe 
+              src={extractUrl(hero.mediaUrl)} 
+              className="w-full h-full border-none opacity-80" 
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              sandbox="allow-scripts allow-same-origin allow-popups"
+            />
           )}
           {/* Default ambient mesh if no media */}
           {(!hero.mediaUrl || !hero.mediaType) && (
@@ -475,10 +494,20 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             <video src={footer.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60" />
           )}
           {footer.mediaType === 'IFRAME' && footer.mediaUrl && (
-            <iframe src={footer.mediaUrl} className="w-full h-full border-none opacity-60 pointer-events-none" />
+            <iframe 
+              src={extractUrl(footer.mediaUrl)} 
+              className="w-full h-full border-none opacity-60 pointer-events-none" 
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              sandbox="allow-scripts allow-same-origin allow-popups"
+            />
           )}
           {footer.mediaType === 'MODEL_3D' && footer.mediaUrl && (
-            <iframe src={footer.mediaUrl} className="w-full h-full border-none opacity-80" />
+            <iframe 
+              src={extractUrl(footer.mediaUrl)} 
+              className="w-full h-full border-none opacity-80" 
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              sandbox="allow-scripts allow-same-origin allow-popups"
+            />
           )}
           {(!footer.mediaUrl || !footer.mediaType) && (
             <div className="w-full h-full bg-[#0C0C0C]" />
