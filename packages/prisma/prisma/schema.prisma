@@ -1,0 +1,1051 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+
+enum SettingGroup {
+  SEO
+  UI
+  GENERAL
+  SOCIAL
+  ANALYTICS
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PortalType {
+  B2B
+  B2C
+  SHARED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  MODEL_3D
+  DOCUMENT
+  IFRAME
+}
+
+enum AgeGroup {
+  ADULT
+  CHILD
+  SENIOR
+  FAMILY
+  VIP
+}
+
+enum AttractionStatus {
+  UPCOMING
+  ACTIVE
+  CLOSED
+  MAINTENANCE
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  TWITTER
+  FACEBOOK
+  TIKTOK
+  WEBSITE
+}
+
+enum GalleryCategory {
+  HERO
+  GALLERY
+  SOCIAL_PREVIEW
+  PARTNER
+}
+
+enum TemporalRuleType {
+  OPERATING_HOURS
+  SPECIAL_CLOSURE
+  MAINTENANCE
+  CAPACITY_OVERRIDE
+}
+
+enum EventType {
+  ATTRACTION_EVENT
+  SPECIAL_EVENT
+  FESTIVAL
+  PRIVATE
+}
+
+enum TimeSlotStatus {
+  AVAILABLE
+  LIMITED
+  SOLD_OUT
+}
+
+enum CaseStudySection {
+  HERO
+  PROCESS
+  RESULT
+  BEHIND_THE_SCENES
+}
+
+enum Department {
+  MANAGEMENT
+  CREATIVE
+  TECHNICAL
+  OPERATIONS
+  SALES
+  MARKETING
+  HR
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  SALES_ADMIN
+  SUPPORT_ADMIN
+  STAFF
+  CLIENT
+}
+
+enum Language {
+  EN
+  AR
+}
+
+enum ThemePref {
+  DARK
+  LIGHT
+}
+
+enum CompanyType {
+  CORPORATE
+  GOVERNMENT
+  MALL
+  VENUE
+  INDIVIDUAL
+}
+
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  PUBLISH
+}
+
+enum LeadSource {
+  WEBSITE
+  REFERRAL
+  EVENT
+  COLD
+  PARTNER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+  ARCHIVED
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  STATUS_CHANGE
+  PROPOSAL_SENT
+}
+
+enum InquiryType {
+  GENERAL
+  PROJECT_REQUEST
+  PARTNERSHIP
+  CAREER
+  OTHER
+  SUPPORT
+}
+
+enum InquiryStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWED
+  RESPONDED
+  FEATURED
+}
+
+enum Channel {
+  EMAIL
+  WHATSAPP
+  BOTH
+}
+
+enum AvailabilityStatus {
+  IMMEDIATE
+  TWO_WEEKS
+  ONE_MONTH
+  FLEXIBLE
+}
+
+enum CandidateStatus {
+  NEW
+  SCREENING
+  INTERVIEW
+  OFFERED
+  REJECTED
+  HIRED
+  ARCHIVED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+}
+
+enum MeetingType {
+  INTERNAL
+  CLIENT_B2B
+  CLIENT_EXTERNAL
+  INTERVIEW
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PartnerCategory {
+  SPONSOR
+  VENUE
+  TECHNOLOGY
+  MEDIA
+  GOVERNMENT
+  VENDOR
+}
+
+enum BroadcastChannel {
+  WEBSITE_BANNER
+  PUSH
+  EMAIL
+  WHATSAPP
+  ALL
+}
+
+enum TargetAudience {
+  ALL
+  B2B
+  B2C
+  SUBSCRIBERS
+  STAFF
+}
+
+// -----------------------------------------------------------------------------
+// SYSTEM & CONTENT MODELS
+// -----------------------------------------------------------------------------
+
+/// Global settings like SEO metadata, brand colors, contact info
+model SiteSettings {
+  id        String       @id @default(cuid())
+  key       String       @unique
+  value     Json
+  group     SettingGroup
+  updatedBy String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([group])
+}
+
+/// Core pages like Home, About, Terms with modular JSON content blocks
+model Pages {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  title     Json
+  content   Json
+  seo       Json?
+  status    PageStatus @default(DRAFT)
+  portal    PortalType @default(SHARED)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([portal])
+}
+
+/// Centralized media library
+model Media {
+  id           String    @id @default(cuid())
+  url          String
+  thumbnailUrl String?
+  type         MediaType
+  mimeType     String
+  size         Int
+  alt          Json?
+  metadata     Json?
+  uploadedBy   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Inverse relations
+  servicesHero         Services[]                @relation("ServiceHeroMedia")
+  serviceGallery       ServiceGallery[]
+  serviceProjects      ServiceProjects[]         @relation("ProjectThumbnail")
+  attractionsHero      Attractions[]             @relation("AttractionHeroMedia")
+  attractionPartnerOff AttractionPartnerOffers[] @relation("PartnerOfferLogo")
+  attractionGallery    AttractionGallery[]
+  calendarEventsThumb  CalendarEvents[]          @relation("EventThumbnail")
+  caseStudyClientLogo  CaseStudies[]             @relation("CaseStudyClientLogo")
+  caseStudyHero        CaseStudies[]             @relation("CaseStudyHeroMedia")
+  caseStudyGallery     CaseStudyGallery[]
+  teamPhoto            TeamMembers[]             @relation("TeamPhoto")
+  teamCoverPhoto       TeamMembers[]             @relation("TeamCoverPhoto")
+  userAvatar           UserProfiles[]            @relation("UserAvatar")
+  partnerLogo          Partners[]                @relation("PartnerLogo")
+  recapReportsMedia    RecapReports[]            @relation("RecapReportMedia")
+}
+
+// -----------------------------------------------------------------------------
+// B2B: SERVICES & CASE STUDIES
+// -----------------------------------------------------------------------------
+
+/// B2B Services offered by E3 Qatar
+model Services {
+  id             String      @id @default(cuid())
+  slug           String      @unique
+  name           Json
+  tagline        Json?
+  description    Json
+  process        Json?
+  heroMediaType  MediaType   @default(IMAGE)
+  heroMediaId    String?
+  heroMedia      Media?      @relation("ServiceHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
+  heroIframeUrl  String?
+  ctaPrimary     Json?
+  ctaSecondary   Json?
+  sortOrder      Int         @default(0)
+  isFeatured     Boolean     @default(false)
+  isVisible      Boolean     @default(true)
+  seo            Json?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  gallery        ServiceGallery[]
+  projects       ServiceProjects[]
+  caseStudies    CaseStudies[]     @relation("CaseStudyServices")
+  leads          Leads[]           @relation("LeadServices")
+
+  @@index([slug])
+  @@index([isVisible])
+  @@index([sortOrder])
+}
+
+/// Images/Videos associated with a service
+model ServiceGallery {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Services @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  mediaId   String
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  sortOrder Int      @default(0)
+  caption   Json?
+
+  @@index([serviceId])
+  @@index([sortOrder])
+}
+
+/// Mini projects linked to a service (when not a full case study)
+model ServiceProjects {
+  id          String       @id @default(cuid())
+  serviceId   String
+  service     Services     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  caseStudyId String?
+  caseStudy   CaseStudies? @relation(fields: [caseStudyId], references: [id], onDelete: SetNull)
+  title       Json
+  description Json?
+  thumbnailId String?
+  thumbnail   Media?       @relation("ProjectThumbnail", fields: [thumbnailId], references: [id], onDelete: SetNull)
+  clientName  String?
+  year        Int?
+  sortOrder   Int          @default(0)
+
+  @@index([serviceId])
+  @@index([sortOrder])
+}
+
+/// Detailed case studies for B2B portal
+model CaseStudies {
+  id            String             @id @default(cuid())
+  slug          String             @unique
+  title         Json
+  clientName    String
+  clientLogoId  String?
+  clientLogo    Media?             @relation("CaseStudyClientLogo", fields: [clientLogoId], references: [id], onDelete: SetNull)
+  category      Json
+  year          Int
+  duration      String?
+  location      Json?
+  challenge     Json
+  solution      Json
+  results       Json?
+  testimonial   Json?
+  heroMediaId   String?
+  heroMedia     Media?             @relation("CaseStudyHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
+  servicesUsed  Services[]         @relation("CaseStudyServices")
+  isPublished   Boolean            @default(false)
+  isFeatured    Boolean            @default(false)
+  seo           Json?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  gallery       CaseStudyGallery[]
+  projects      ServiceProjects[]
+  teamMembers   TeamMembers[]      @relation("TeamProjects")
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+/// Images/Videos for a case study sections
+model CaseStudyGallery {
+  id          String           @id @default(cuid())
+  caseStudyId String
+  caseStudy   CaseStudies      @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  mediaId     String
+  media       Media            @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  section     CaseStudySection @default(GALLERY)
+  sortOrder   Int              @default(0)
+  caption     Json?
+
+  @@index([caseStudyId])
+  @@index([sortOrder])
+}
+
+// -----------------------------------------------------------------------------
+// B2C: ATTRACTIONS & EVENTS
+// -----------------------------------------------------------------------------
+
+/// Venues, experiences and permanent attractions
+model Attractions {
+  id              String           @id @default(cuid())
+  slug            String           @unique
+  name            Json
+  tagline         Json?
+  description     Json
+  whatsInside     Json?
+  heroMediaType   MediaType        @default(IMAGE)
+  heroMediaId     String?
+  heroMedia       Media?           @relation("AttractionHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
+  bookingUrl      String?
+  mapEmbedUrl     String?
+  locationAddress Json?
+  latitude        Float?
+  longitude       Float?
+  isVisible       Boolean          @default(true)
+  isFeatured      Boolean          @default(false)
+  sortOrder       Int              @default(0)
+  seo             Json?
+  startDate       DateTime?
+  endDate         DateTime?
+  status          AttractionStatus @default(UPCOMING)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  pricing         AttractionPricing[]
+  partnerOffers   AttractionPartnerOffers[]
+  socialLinks     AttractionSocialLinks[]
+  gallery         AttractionGallery[]
+  faq             AttractionFAQ[]
+  temporalRules   AttractionTemporalRules[]
+  operations      AttractionOperations?
+  events          CalendarEvents[]
+  feedback        Feedback[]
+  inquiries       Inquiries[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([isVisible])
+  @@index([sortOrder])
+}
+
+/// Ticket pricing tiers for attractions
+model AttractionPricing {
+  id                  String      @id @default(cuid())
+  attractionId        String
+  attraction          Attractions @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  ticketType          Json
+  price               Decimal     @db.Decimal(10, 2)
+  currency            String      @default("QAR")
+  ageGroup            AgeGroup    @default(ADULT)
+  description         Json?
+  bookingQubeProductId String?
+  sortOrder           Int         @default(0)
+  isActive            Boolean     @default(true)
+
+  @@index([attractionId])
+  @@index([sortOrder])
+}
+
+/// Discounts and partner offers for an attraction
+model AttractionPartnerOffers {
+  id                 String      @id @default(cuid())
+  attractionId       String
+  attraction         Attractions @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  partnerName        String
+  offerTitle         Json
+  offerDescription   Json?
+  discountPercentage Decimal?    @db.Decimal(5, 2)
+  promoCode          String?
+  validFrom          DateTime?
+  validUntil         DateTime?
+  terms              Json?
+  logoId             String?
+  logo               Media?      @relation("PartnerOfferLogo", fields: [logoId], references: [id], onDelete: SetNull)
+
+  @@index([attractionId])
+}
+
+/// Social media links for a specific attraction
+model AttractionSocialLinks {
+  id           String         @id @default(cuid())
+  attractionId String
+  attraction   Attractions    @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  platform     SocialPlatform
+  url          String
+  isActive     Boolean        @default(true)
+
+  @@index([attractionId])
+}
+
+/// Media gallery for an attraction
+model AttractionGallery {
+  id           String          @id @default(cuid())
+  attractionId String
+  attraction   Attractions     @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  mediaId      String
+  media        Media           @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  category     GalleryCategory @default(GALLERY)
+  sortOrder    Int             @default(0)
+  caption      Json?
+
+  @@index([attractionId])
+  @@index([sortOrder])
+}
+
+/// Frequently asked questions for an attraction
+model AttractionFAQ {
+  id           String      @id @default(cuid())
+  attractionId String
+  attraction   Attractions @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  question     Json
+  answer       Json
+  sortOrder    Int         @default(0)
+  isPublished  Boolean     @default(true)
+
+  @@index([attractionId])
+  @@index([sortOrder])
+}
+
+/// Operating hours and special closures
+model AttractionTemporalRules {
+  id             String           @id @default(cuid())
+  attractionId   String
+  attraction     Attractions      @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  ruleType       TemporalRuleType @default(OPERATING_HOURS)
+  applicableDate DateTime?        @db.Date
+  dayOfWeek      Int?             // 0=Sun, 6=Sat
+  openTime       String?          // e.g. "09:00"
+  closeTime      String?          // e.g. "18:00"
+  maxCapacity    Int?
+  note           Json?
+  isRecurring    Boolean          @default(false)
+
+  @@index([attractionId])
+}
+
+/// Real-time operations and IoT sensor data
+model AttractionOperations {
+  id                   String      @id @default(cuid())
+  attractionId         String      @unique
+  attraction           Attractions @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  defaultOpenTime      String?
+  defaultCloseTime     String?
+  maxCapacity          Int
+  currentOccupancy     Int         @default(0)
+  averageVisitDuration Int?        // in minutes
+  iotSensorId          String?
+  lastUpdated          DateTime    @default(now())
+
+  @@index([attractionId])
+}
+
+/// Temporary events or scheduled happenings (can be linked to attractions)
+model CalendarEvents {
+  id                 String      @id @default(cuid())
+  attractionId       String?
+  attraction         Attractions? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+  title              Json
+  description        Json?
+  eventType          EventType   @default(SPECIAL_EVENT)
+  startDate          DateTime
+  endDate            DateTime
+  venue              Json?
+  thumbnailId        String?
+  thumbnail          Media?      @relation("EventThumbnail", fields: [thumbnailId], references: [id], onDelete: SetNull)
+  ticketUrl          String?
+  bookingQubeEventId String?
+  maxCapacity        Int?
+  currentBookings    Int         @default(0)
+  isFeatured         Boolean     @default(false)
+  isPublished        Boolean     @default(true)
+  seo                Json?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  timeSlots          EventTimeSlots[]
+
+  @@index([attractionId])
+  @@index([startDate])
+  @@index([isPublished])
+}
+
+/// Specific ticketable time slots for an event
+model EventTimeSlots {
+  id                String         @id @default(cuid())
+  eventId           String
+  event             CalendarEvents @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  startTime         DateTime
+  endTime           DateTime
+  availableCapacity Int
+  bookedCapacity    Int            @default(0)
+  price             Decimal?       @db.Decimal(10, 2)
+  status            TimeSlotStatus @default(AVAILABLE)
+
+  @@index([eventId])
+}
+
+// -----------------------------------------------------------------------------
+// TEAM
+// -----------------------------------------------------------------------------
+
+/// E3 Qatar Team Members for the B2B portal
+model TeamMembers {
+  id            String       @id @default(cuid())
+  userId        String?      @unique
+  user          Users?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  slug          String       @unique
+  name          Json
+  designation   Json
+  department    Department
+  bio           Json?
+  experience    Json?
+  certifications Json?
+  projects      CaseStudies[] @relation("TeamProjects")
+  photoId       String?
+  photo         Media?       @relation("TeamPhoto", fields: [photoId], references: [id], onDelete: SetNull)
+  coverPhotoId  String?
+  coverPhoto    Media?       @relation("TeamCoverPhoto", fields: [coverPhotoId], references: [id], onDelete: SetNull)
+  socialLinks   Json?
+  isPublished   Boolean      @default(true)
+  sortOrder     Int          @default(0)
+  seo           Json?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([slug])
+  @@index([department])
+  @@index([sortOrder])
+}
+
+// -----------------------------------------------------------------------------
+// USERS, AUTH & ROLES
+// -----------------------------------------------------------------------------
+
+/// System users (Staff, Admins, Clients)
+model Users {
+  id               String       @id @default(cuid())
+  email            String       @unique
+  password         String
+  phone            String?
+  role             UserRole     @default(CLIENT)
+  isActive         Boolean      @default(true)
+  lastLogin        DateTime?
+  emailVerified    DateTime?
+  twoFactorEnabled Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  profile          UserProfiles?
+  clientProfile    ClientProfiles?
+  teamMember       TeamMembers?
+  
+  assignedLeads    Leads[]          @relation("LeadAssignee")
+  leadActivities   LeadActivities[] @relation("ActivityCreator")
+  assignedInquiries Inquiries[]     @relation("InquiryAssignee")
+  respondedFeedback Feedback[]      @relation("FeedbackResponder")
+  hostedMeetings   Meetings[]       @relation("MeetingHost")
+  attendedMeetings Meetings[]       @relation("MeetingAttendees")
+  createdMeetings  Meetings[]       @relation("MeetingCreator")
+  availability     AvailabilitySlots[]
+  createdBroadcasts Broadcasts[]    @relation("BroadcastCreator")
+  createdReports   RecapReports[]   @relation("ReportCreator")
+  systemLogs       SystemLogs[]     @relation("LogUser")
+
+  @@index([email])
+  @@index([role])
+}
+
+/// Personal profile for a user
+model UserProfiles {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName         String?
+  lastName          String?
+  avatarId          String?
+  avatar            Media?    @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
+  preferredLanguage Language  @default(EN)
+  preferredTheme    ThemePref @default(DARK)
+  timezone          String    @default("Asia/Qatar")
+
+  @@index([userId])
+}
+
+/// Business profile for a client user
+model ClientProfiles {
+  id               String      @id @default(cuid())
+  userId           String      @unique
+  user             Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName      String
+  companyType      CompanyType @default(CORPORATE)
+  industry         String?
+  website          String?
+  assignedSalesRep String?
+  notes            String?
+
+  @@index([userId])
+}
+
+/// Fine-grained permission matrix for roles
+model Permissions {
+  id        String           @id @default(cuid())
+  role      UserRole
+  resource  String
+  action    PermissionAction
+  condition Json?
+
+  @@unique([role, resource, action])
+  @@index([role])
+}
+
+// -----------------------------------------------------------------------------
+// CRM: LEADS, INQUIRIES & FEEDBACK
+// -----------------------------------------------------------------------------
+
+/// Sales pipeline leads
+model Leads {
+  id             String       @id @default(cuid())
+  source         LeadSource   @default(WEBSITE)
+  status         LeadStatus   @default(NEW)
+  firstName      String
+  lastName       String
+  email          String
+  phone          String?
+  company        String?
+  industry       String?
+  estimatedValue Decimal?     @db.Decimal(12, 2)
+  probability    Int?         // 0-100
+  assignedTo     String?
+  assignee       Users?       @relation("LeadAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  description    String?      @db.Text
+  interestServices Services[] @relation("LeadServices")
+  nextFollowUp   DateTime?
+  lostReason     String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  activities     LeadActivities[]
+  meetings       Meetings[]       @relation("MeetingLead")
+
+  @@index([status])
+  @@index([assignedTo])
+}
+
+/// Timeline of interactions with a lead
+model LeadActivities {
+  id          String       @id @default(cuid())
+  leadId      String
+  lead        Leads        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type        ActivityType
+  description String       @db.Text
+  createdById String?
+  createdBy   Users?       @relation("ActivityCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  @@index([leadId])
+  @@index([createdById])
+}
+
+/// General contact form submissions and requests
+model Inquiries {
+  id                 String        @id @default(cuid())
+  type               InquiryType   @default(GENERAL)
+  name               String
+  email              String
+  phone              String?
+  subject            String?
+  message            String        @db.Text
+  status             InquiryStatus @default(OPEN)
+  assignedTo         String?
+  assignee           Users?        @relation("InquiryAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  portal             PortalType    @default(SHARED)
+  relatedAttractionId String?
+  relatedAttraction  Attractions?  @relation(fields: [relatedAttractionId], references: [id], onDelete: SetNull)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([status])
+  @@index([portal])
+}
+
+/// Visitor feedback for attractions
+model Feedback {
+  id           String         @id @default(cuid())
+  attractionId String?
+  attraction   Attractions?   @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+  rating       Int            // 1-5
+  title        String?
+  comment      String?        @db.Text
+  visitorName  String?
+  visitorEmail String?
+  visitorPhone String?
+  response     String?        @db.Text
+  respondedById String?
+  respondedBy  Users?         @relation("FeedbackResponder", fields: [respondedById], references: [id], onDelete: SetNull)
+  status       FeedbackStatus @default(PENDING)
+  isPublic     Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([attractionId])
+  @@index([status])
+}
+
+/// Newsletter/Updates subscribers
+model Subscribers {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  phone          String?
+  channel        Channel   @default(EMAIL)
+  preferences    Json?
+  isVerified     Boolean   @default(false)
+  verifiedAt     DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([email])
+}
+
+// -----------------------------------------------------------------------------
+// HR: CAREERS & TALENT
+// -----------------------------------------------------------------------------
+
+/// Applicants and potential hires
+model TalentPool {
+  id              String          @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  resumeId        String?         // Consider linking to Media if resumes are stored there
+  parsedData      Json?
+  department      String?
+  position        String?
+  availability    AvailabilityStatus @default(FLEXIBLE)
+  experienceYears Int?
+  status          CandidateStatus @default(NEW)
+  rating          Int?            // 1-5
+  notes           String?         @db.Text
+  assignedTo      String?
+  tags            String[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status])
+  @@index([department])
+}
+
+/// Open job positions
+model Careers {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  title               Json
+  department          String
+  location            String
+  type                JobType  @default(FULL_TIME)
+  description         Json
+  requirements        Json?
+  salaryRange         Json?
+  isPublished         Boolean  @default(false)
+  applicationDeadline DateTime?
+  maxApplications     Int?
+  applicationsCount   Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+// -----------------------------------------------------------------------------
+// SCHEDULING: MEETINGS & AVAILABILITY
+// -----------------------------------------------------------------------------
+
+/// Scheduled meetings (internal, client, interview)
+model Meetings {
+  id               String        @id @default(cuid())
+  title            String
+  description      String?       @db.Text
+  meetingType      MeetingType   @default(INTERNAL)
+  scheduledAt      DateTime
+  duration         Int           // minutes
+  location         Json
+  hostId           String
+  host             Users         @relation("MeetingHost", fields: [hostId], references: [id], onDelete: Cascade)
+  attendees        Users[]       @relation("MeetingAttendees")
+  externalAttendees Json?
+  relatedLeadId    String?
+  relatedLead      Leads?        @relation("MeetingLead", fields: [relatedLeadId], references: [id], onDelete: SetNull)
+  relatedProjectId String?
+  status           MeetingStatus @default(SCHEDULED)
+  meetingNotes     String?       @db.Text
+  followUpTasks    Json?
+  createdById      String
+  createdBy        Users         @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([hostId])
+  @@index([scheduledAt])
+}
+
+/// Staff availability for booking meetings
+model AvailabilitySlots {
+  id             String   @id @default(cuid())
+  userId         String
+  user           Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayOfWeek      Int      // 0=Sun, 6=Sat
+  startTime      String   // e.g. "09:00"
+  endTime        String   // e.g. "17:00"
+  slotDuration   Int      @default(30)
+  bufferBetween  Int      @default(15)
+  isAvailable    Boolean  @default(true)
+
+  @@index([userId])
+}
+
+// -----------------------------------------------------------------------------
+// MISC: PARTNERS, BROADCASTS, REPORTS, LOGS
+// -----------------------------------------------------------------------------
+
+/// External partners (Sponsors, Vendors, etc.)
+model Partners {
+  id           String          @id @default(cuid())
+  name         String
+  logoId       String?
+  logo         Media?          @relation("PartnerLogo", fields: [logoId], references: [id], onDelete: SetNull)
+  website      String?
+  category     PartnerCategory @default(SPONSOR)
+  description  Json?
+  sortOrder    Int             @default(0)
+  isPublished  Boolean         @default(true)
+  showOnWebsite Boolean        @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([category])
+  @@index([sortOrder])
+}
+
+/// System-wide announcements and notifications
+model Broadcasts {
+  id             String           @id @default(cuid())
+  title          String
+  message        Json
+  channel        BroadcastChannel @default(WEBSITE_BANNER)
+  targetAudience TargetAudience   @default(ALL)
+  isActive       Boolean          @default(true)
+  scheduledAt    DateTime?
+  expiresAt      DateTime?
+  createdById    String
+  createdBy      Users            @relation("BroadcastCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+
+  @@index([isActive])
+}
+
+/// Generated performance reports
+model RecapReports {
+  id           String       @id @default(cuid())
+  title        Json
+  attractionId String?
+  eventId      String?
+  periodStart  DateTime
+  periodEnd    DateTime
+  metrics      Json?
+  highlights   Json?
+  media        Media[]      @relation("RecapReportMedia")
+  isPublished  Boolean      @default(false)
+  createdById  String
+  createdBy    Users        @relation("ReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([attractionId])
+  @@index([eventId])
+}
+
+/// Audit trail for important actions
+model SystemLogs {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       Users?   @relation("LogUser", fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  resource   String
+  resourceId String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+}

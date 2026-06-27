@@ -1,0 +1,619 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------------------------------------------------------
+// Core Enums
+// ---------------------------------------------------------
+
+enum RoleType {
+  SUPER_ADMIN
+  SALES_ADMIN
+  SUPPORT_ADMIN
+  STAFF
+  CLIENT
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  WON
+  LOST
+}
+
+// ---------------------------------------------------------
+// NextAuth Core Models
+// ---------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          RoleType  @default(CLIENT)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  systemLogs    SystemLog[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------
+// B2C Experiences Layer
+// ---------------------------------------------------------
+
+model Attraction {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  nameEn         String
+  nameAr         String
+  descriptionEn  String?  @db.Text
+  descriptionAr  String?  @db.Text
+  coordinates    Json?    // Store Lat/Lng or 3D map coordinates
+  isPublished    Boolean  @default(false)
+  isFeatured     Boolean  @default(false)
+  isHidden       Boolean  @default(false)
+  heroMediaType  String   @default("IMAGE")
+  heroMediaUrl   String?
+  features       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  schedules      EventSchedule[]
+  telemetry      TelemetryLog[]
+  pricing        AttractionPricing[]
+  offers         AttractionOffer[]
+  faqs           AttractionFaq[]
+  gallery        AttractionGalleryItem[]
+  socialLinks    AttractionSocialLink[]
+  temporalRules  AttractionTemporalRule[]
+  feedbacks      Feedback[]
+  calendarEvents CalendarEvent[]
+
+  @@index([isPublished, isHidden])
+}
+
+model AttractionPricing {
+  id             String     @id @default(cuid())
+  attractionId   String
+  titleEn        String
+  titleAr        String
+  price          Float
+  currency       String     @default("QAR")
+  type           String     @default("GENERAL")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  @@index([attractionId])
+}
+
+model AttractionOffer {
+  id             String     @id @default(cuid())
+  attractionId   String
+  code           String     @unique
+  discount       Float      // Percentage or flat rate
+  validUntil     DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  @@index([attractionId])
+  @@index([code])
+}
+
+model AttractionFaq {
+  id             String     @id @default(cuid())
+  attractionId   String
+  questionEn     String     @db.Text
+  questionAr     String     @db.Text
+  answerEn       String     @db.Text
+  answerAr       String     @db.Text
+  orderIndex     Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  @@index([attractionId])
+}
+
+model AttractionGalleryItem {
+  id             String     @id @default(cuid())
+  attractionId   String
+  url            String
+  captionEn      String?
+  captionAr      String?
+  orderIndex     Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  @@index([attractionId])
+}
+
+model AttractionSocialLink {
+  id             String     @id @default(cuid())
+  attractionId   String
+  platform       String
+  url            String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  @@index([attractionId])
+}
+
+model AttractionTemporalRule {
+  id             String     @id @default(cuid())
+  attractionId   String
+  ruleType       String     // RECURRING, OVERRIDE, CLOSURE
+  startDate      DateTime?
+  endDate        DateTime?
+  openTime       String?    // HH:mm format
+  closeTime      String?    // HH:mm format
+  daysOfWeek     Json?      // Array of 0-6 (0 = Sunday)
+  notes          String?    @db.Text
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  @@index([attractionId])
+}
+
+model EventSchedule {
+  id             String     @id @default(cuid())
+  attractionId   String
+  startTime      DateTime
+  endTime        DateTime
+  eventType      String     @default("REGULAR") // REGULAR, SPECIAL, FESTIVAL, PRIVATE
+  capacityGate   Int        @default(100)
+  currentCount   Int        @default(0)
+  
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+
+  @@index([startTime, endTime])
+}
+
+model TelemetryLog {
+  id             String     @id @default(cuid())
+  attractionId   String
+  sensorId       String
+  payload        Json
+  healthStatus   String     @default("OK")
+  timestamp      DateTime   @default(now())
+
+  attraction     Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+
+  @@index([timestamp])
+  @@index([healthStatus])
+}
+
+// ---------------------------------------------------------
+// B2B Enterprise Engine
+// ---------------------------------------------------------
+
+model Service {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  titleEn        String
+  titleAr        String
+  taglineEn      String?
+  taglineAr      String?
+  thumbnail      String?
+  contentEn      String?  @db.Text
+  contentAr      String?  @db.Text
+  isFeatured     Boolean  @default(false)
+  isVisible      Boolean  @default(false)
+  isPublished    Boolean  @default(false) // Keeping for backwards compatibility if needed
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  heroMediaType  String   @default("IMAGE") // IMAGE, VIDEO, MODEL_3D, IFRAME
+  heroMediaUrl   String?
+  process        Json?    // Array of { title, desc, icon }
+  ctaPrimary     String   @default("CONTACT") // CONTACT, LEARN_MORE, BOOK_APPOINTMENT
+  ctaSecondary   String?
+  seo            Json?    // { metaTitle, metaDescription, keywords }
+
+  gallery        ServiceGalleryItem[]
+  projects       ServiceProject[]
+
+  @@index([isVisible])
+  @@index([isFeatured])
+}
+
+model ServiceGalleryItem {
+  id             String   @id @default(cuid())
+  serviceId      String
+  url            String
+  captionEn      String?
+  captionAr      String?
+  orderIndex     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  service        Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@index([orderIndex])
+}
+
+model ServiceProject {
+  id             String   @id @default(cuid())
+  serviceId      String
+  titleEn        String
+  titleAr        String
+  descriptionEn  String?  @db.Text
+  descriptionAr  String?  @db.Text
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  service        Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+}
+
+model CaseStudy {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  titleEn        String
+  titleAr        String
+  clientName     String   @default("Unknown Client")
+  year           Int      @default(2024)
+  category       String   @default("Corporate") // FEC, Corporate, Government, Festival
+  isFeatured     Boolean  @default(false)
+  
+  heroImageUrl   String?
+  thumbnailUrl   String?
+  clientLogoUrl  String?
+  
+  challengeEn    String?  @db.Text
+  challengeAr    String?  @db.Text
+  solutionEn     String?  @db.Text
+  solutionAr     String?  @db.Text
+  
+  metrics        Json?    // Array of { value, label, trend, prefix, suffix }
+  testimonial    Json?    // { quote, authorName, authorTitle, authorImage }
+  gallery        Json?    // Array of { url, type, caption }
+  beforeAfter    Json?    // { beforeUrl, afterUrl }
+  servicesUsed   Json?    // Array of service slugs/names
+  technicalSpecs Json?    // Array of { label, value }
+  
+  isPublished    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([category])
+  @@index([year])
+}
+
+model Lead {
+  id               String     @id @default(cuid())
+  name             String
+  company          String?
+  email            String
+  phone            String?
+  status           LeadStatus @default(NEW)
+  value            Float?
+  probability      Int?
+  assignedToId     String?
+  interestServices Json?
+  notes            String?    @db.Text
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  inquiries        Inquiry[]
+  activities       LeadActivity[]
+
+  @@index([status])
+}
+
+model LeadActivity {
+  id          String   @id @default(cuid())
+  type        String   // CALL, EMAIL, MEETING, NOTE
+  description String   @db.Text
+  author      String
+  leadId      String
+  timestamp   DateTime @default(now())
+  
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  @@index([leadId])
+}
+
+// ---------------------------------------------------------
+// Logistics & Scheduling Hub
+// ---------------------------------------------------------
+
+model TeamMember {
+  id             String   @id @default(cuid())
+  nameEn         String
+  nameAr         String
+  roleTitleEn    String
+  roleTitleAr    String
+  bioEn          String?  @db.Text
+  bioAr          String?  @db.Text
+  imageUrl       String?
+  orderIndex     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  availability   AvailabilitySlot[]
+}
+
+model AvailabilitySlot {
+  id             String     @id @default(cuid())
+  teamMemberId   String
+  startTime      DateTime
+  endTime        DateTime
+  isBooked       Boolean    @default(false)
+
+  teamMember     TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  @@index([startTime, endTime])
+  @@index([isBooked])
+}
+
+model Meeting {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?  @db.Text
+  startTime      DateTime
+  endTime        DateTime
+  isVirtual      Boolean  @default(true)
+  location       String?
+  meetingLink    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([startTime, endTime])
+}
+
+model Talent {
+  id               String   @id @default(cuid())
+  name             String
+  email            String
+  phone            String?
+  position         String?
+  department       String?
+  experienceLevel  String?
+  status           String   @default("NEW") // NEW, SCREENING, INTERVIEW, OFFERED, HIRED, REJECTED
+  rating           Int?
+  appliedDate      DateTime @default(now())
+  resumeUrl        String?
+  skills           Json?    // Parsed CV skills
+  languages        Json?
+  education        Json?
+  certifications   Json?
+  assignedToId     String?
+  notes            String?  @db.Text
+  jobId            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  job              Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+}
+
+model Job {
+  id              String   @id @default(cuid())
+  title           String
+  department      String?
+  location        String?
+  type            String   @default("FULL_TIME") // FULL_TIME, PART_TIME, CONTRACT
+  description     String   @db.Text
+  requirements    String?  @db.Text
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  applications    Talent[]
+}
+
+model Partner {
+  id             String   @id @default(cuid())
+  name           String
+  website        String?
+  category       String   @default("TECHNOLOGY")
+  description    String?  @db.Text
+  logoUrl        String?
+  isVisible      Boolean  @default(true)
+  orderIndex     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@index([category])
+}
+
+model Setting {
+  id             String   @id @default(cuid())
+  key            String   @unique
+  value          Json
+  type           String   @default("GENERAL") // GENERAL, SEO, UI
+  updatedAt      DateTime @updatedAt
+  
+  @@index([type])
+}
+
+model CalendarEvent {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?  @db.Text
+  attractionId   String?
+  status         String   @default("DRAFT") // DRAFT, PUBLISHED, CANCELLED
+  startDate      DateTime
+  endDate        DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  timeSlots      EventTimeSlot[]
+  attraction     Attraction? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+  
+  @@index([attractionId])
+}
+
+model EventTimeSlot {
+  id               String   @id @default(cuid())
+  eventId          String
+  startTime        DateTime
+  endTime          DateTime
+  capacity         Int      @default(100)
+  priceOverride    Float?
+  status           String   @default("AVAILABLE") // AVAILABLE, SOLD_OUT, CANCELLED
+
+  event            CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@index([eventId])
+}
+
+// ---------------------------------------------------------
+// System Telemetry & Notifications
+// ---------------------------------------------------------
+
+model SystemBroadcast {
+  id             String   @id @default(cuid())
+  titleEn        String
+  titleAr        String
+  messageEn      String   @db.Text
+  messageAr      String   @db.Text
+  isActive       Boolean  @default(true)
+  type           String   @default("INFO") // INFO, WARNING, CRITICAL
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+model RecapReport {
+  id             String   @id @default(cuid())
+  eventName      String
+  date           DateTime
+  metrics        Json     // Automated event performance metrics
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SystemLog {
+  id             String   @id @default(cuid())
+  action         String
+  entity         String
+  entityId       String?
+  userId         String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([action])
+}
+
+model Client {
+  id             String   @id @default(cuid())
+  company        String
+  type           String   @default("B2B") // B2B, GOVERNMENT, AGENCY
+  industry       String?
+  website        String?
+  assignedRepId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@index([type])
+}
+
+model Inquiry {
+  id             String   @id @default(cuid())
+  type           String   // PROJECT, GENERAL, SUPPORT
+  subject        String?
+  name           String
+  email          String
+  phone          String?
+  message        String   @db.Text
+  status         String   @default("NEW") // NEW, IN_PROGRESS, RESOLVED
+  leadId         String?
+  assignedToId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  lead           Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  @@index([type])
+  @@index([status])
+}
+
+model Feedback {
+  id             String   @id @default(cuid())
+  title          String?
+  name           String?
+  email          String?
+  message        String   @db.Text
+  rating         Int?
+  status         String   @default("NEW") // NEW, REVIEWED, RESOLVED
+  isFeatured     Boolean  @default(false)
+  attractionId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  attraction     Attraction? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+  @@index([attractionId])
+}
+
+model Subscriber {
+  id             String   @id @default(cuid())
+  email          String?  @unique
+  phone          String?  @unique
+  isVerified     Boolean  @default(false)
+  verifiedAt     DateTime?
+  token          String?  @unique
+  preferences    Json?    // User notification preferences (attractions, event types)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isVerified])
+}

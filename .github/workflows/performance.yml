@@ -1,0 +1,44 @@
+name: Performance Budget Guardrails
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  performance-checks:
+    name: Enforce Web Vitals & Bundle Size
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node & pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Application
+        run: pnpm --filter web build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Enforce Bundle Size Limit (JS/CSS)
+        run: pnpm dlx size-limit
+        # size-limit reads the configuration from package.json and will fail the build 
+        # if the total JS/CSS payload breaches the 200KB (public) or 400KB (dashboard) limits.
+
+      - name: Run Lighthouse CI
+        run: pnpm dlx @lhci/cli autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+        # This will fail the build if LCP > 1.1s, CLS > 0.1, etc., as configured in lighthouserc.js
