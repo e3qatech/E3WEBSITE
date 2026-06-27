@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SALES_ADMIN"].includes(session.user?.role)) {
+    if (!session || !["SUPER_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

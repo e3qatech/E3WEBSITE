@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SALES_ADMIN"].includes(session.user?.role)) {
+    if (!session || !["SUPER_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -30,8 +30,8 @@ export async function PATCH(
         leadId,
         type: "SYSTEM",
         title: "Financials Updated",
-        description: `Lead financials updated by ${session.user.name}.`,
-        userId: session.user.id
+        description: `Lead financials updated by ${(session.user as any)?.name}.`,
+        userId: (session.user as any)?.id
       }
     })
 
