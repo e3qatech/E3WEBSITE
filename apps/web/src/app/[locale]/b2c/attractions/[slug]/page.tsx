@@ -111,15 +111,16 @@ async function getAttractionData(slug: string) {
 
 export async function generateMetadata(props: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {
   const params = await props.params;
-  const baseUrl = getBaseUrl()
-  const res = await fetch(`${baseUrl}/api/attractions/${params.slug}`)
-  if (!res.ok) return { title: 'Attraction Not Found' }
-  const json = await res.json()
-  const data = json.data !== undefined ? json.data : json
+  const attraction = await db.attraction.findUnique({
+    where: { slug: params.slug },
+    select: { nameEn: true, descriptionEn: true }
+  })
+  
+  if (!attraction) return { title: 'Attraction Not Found' }
 
   return {
-    title: `${data.nameEn || 'Attraction'} | E3 Qatar`,
-    description: data.descriptionEn || '',
+    title: `${attraction.nameEn || 'Attraction'} | E3 Qatar`,
+    description: attraction.descriptionEn || '',
   }
 }
 
