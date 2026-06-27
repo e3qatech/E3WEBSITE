@@ -4,6 +4,32 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "BLOB_READ_WRITE_TOKEN",
+        "BLOB_STORE_ID",
+        "BLOB_WEBHOOK_PUBLIC_KEY",
+        "DATABASE_URL",
+        "DATABASE_URL_UNPOOLED",
+        "NEON_AUTH_BASE_URL",
+        "NEON_PROJECT_ID",
+        "PGDATABASE",
+        "PGHOST",
+        "PGHOST_UNPOOLED",
+        "PGPASSWORD",
+        "PGUSER",
+        "POSTGRES_DATABASE",
+        "POSTGRES_HOST",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_PRISMA_URL",
+        "POSTGRES_URL",
+        "POSTGRES_URL_NON_POOLING",
+        "POSTGRES_URL_NO_SSL",
+        "POSTGRES_USER",
+        "REDIS_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "UPSTASH_REDIS_REST_URL",
+        "VITE_NEON_AUTH_URL"
+      ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "lint": {
