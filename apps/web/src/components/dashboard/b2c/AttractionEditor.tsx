@@ -77,6 +77,9 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   // 8. FAQs
   const [faqs, setFaqs] = useState<any[]>(initialData?.faqs || [])
 
+  // 9. Gallery
+  const [gallery, setGallery] = useState<any[]>(initialData?.gallery || [])
+
   const handleSave = async () => {
     if (!nameEn || !slug) return alert("English Name and Slug are required")
     
@@ -91,7 +94,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
         partnerOffers, partners,
         socialLinks, socialPreviews, newsCoverage,
         mapUrl, ticketingUrl, operations, temporalStatus,
-        faqs, testimonials
+        faqs, testimonials, gallery
       }
       
       const url = isEditing 
@@ -124,6 +127,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     { id: "social", label: "Social & News", icon: Share2 },
     { id: "ops", label: "Booking & Ops", icon: MapPin },
     { id: "visibility", label: "Visibility", icon: Calendar },
+    { id: "gallery", label: "Gallery", icon: ImageIcon },
     { id: "faqs", label: "FAQs", icon: HelpCircle },
   ]
 
@@ -813,6 +817,79 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* 9. GALLERY */}
+          {activeTab === "gallery" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">Media Gallery</h2>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">
+                    Upload images and videos for the attraction's lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setGallery([...gallery, { url: "", captionEn: "", captionAr: "" }])}
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Media
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {gallery.map((item, index) => (
+                  <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
+                    <button
+                      onClick={() => setGallery(gallery.filter((_, i) => i !== index))}
+                      className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                      <div className="md:col-span-4">
+                        <label className="block text-sm font-semibold mb-2">Media File/URL</label>
+                        <MediaUploader
+                          value={item.url}
+                          onChange={(url) => updateArrayItem(setGallery, gallery, index, "url", url)}
+                        />
+                      </div>
+                      <div className="md:col-span-8 space-y-4 pt-2">
+                        <div>
+                          <label className="block text-sm font-semibold mb-1">Caption (English)</label>
+                          <input
+                            type="text"
+                            value={item.captionEn || ""}
+                            onChange={(e) => updateArrayItem(setGallery, gallery, index, "captionEn", e.target.value)}
+                            className="w-full px-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none"
+                            placeholder="e.g. Inside the trampoline park"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold mb-1">Caption (Arabic)</label>
+                          <input
+                            type="text"
+                            value={item.captionAr || ""}
+                            onChange={(e) => updateArrayItem(setGallery, gallery, index, "captionAr", e.target.value)}
+                            className="w-full px-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-right"
+                            dir="rtl"
+                            placeholder="وصف الصورة"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {gallery.length === 0 && (
+                  <div className="text-center py-12 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-secondary)]">
+                    <ImageIcon className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                    <p>No gallery items yet</p>
+                    <p className="text-sm mt-1">Click "Add Media" to upload images or videos</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

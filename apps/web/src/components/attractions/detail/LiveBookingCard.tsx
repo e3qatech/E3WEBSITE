@@ -11,6 +11,7 @@ interface LiveBookingCardProps {
   attractionId: string;
   name: string;
   bookingUrl?: string | null;
+  mapUrl?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   locationAddress?: string | null;
@@ -21,6 +22,7 @@ export function LiveBookingCard({
   attractionId,
   name,
   bookingUrl,
+  mapUrl,
   latitude,
   longitude,
   locationAddress,
@@ -117,22 +119,49 @@ export function LiveBookingCard({
             className="relative h-[400px] lg:h-auto min-h-[500px] bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden group"
           >
             {/* Embedded Google Map */}
-            {(latitude && longitude) ? (
-              <iframe 
-                src={`https://www.google.com/maps?q=${latitude},${longitude}&hl=es;z=14&output=embed`} 
-                width="100%" 
-                height="100%" 
-                style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
-                allowFullScreen 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:filter-none"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600">
-                <MapPin className="w-12 h-12" />
-              </div>
-            )}
+            {(() => {
+              let extractedMapSrc = mapUrl || '';
+              if (extractedMapSrc.includes('iframe') && extractedMapSrc.includes('src=')) {
+                const match = extractedMapSrc.match(/src=["'](.*?)["']/);
+                if (match) extractedMapSrc = match[1];
+              }
+
+              if (extractedMapSrc) {
+                return (
+                  <iframe 
+                    src={extractedMapSrc} 
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:filter-none"
+                  />
+                );
+              }
+
+              if (latitude && longitude) {
+                return (
+                  <iframe 
+                    src={`https://www.google.com/maps?q=${latitude},${longitude}&hl=es;z=14&output=embed`} 
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:filter-none"
+                  />
+                );
+              }
+
+              return (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600">
+                  <MapPin className="w-12 h-12" />
+                </div>
+              );
+            })()}
 
             {/* Location Overlay Card */}
             <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/80 backdrop-blur-md rounded-2xl border border-white/10 pointer-events-none">

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
       isPublished, isFeatured, isHidden,
       features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
-      pricing, faqs, socialLinks 
+      pricing, faqs, socialLinks, gallery
     } = body
 
     const attraction = await db.attraction.create({
@@ -51,6 +51,14 @@ export async function POST(request: Request) {
           create: (socialLinks || []).map((s: any) => ({
             platform: s.platform,
             url: s.url
+          }))
+        },
+        gallery: {
+          create: (gallery || []).map((g: any, i: number) => ({
+            url: g.url,
+            captionEn: g.captionEn,
+            captionAr: g.captionAr,
+            orderIndex: i
           }))
         }
       }

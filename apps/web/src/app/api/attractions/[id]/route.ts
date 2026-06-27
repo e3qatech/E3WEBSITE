@@ -16,13 +16,9 @@ export async function GET(
       return NextResponse.json(JSON.parse(cached));
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
     const attraction = await db.attraction.findFirst({
-      where: { 
-        OR: [
-          { id },
-          { slug: id }
-        ]
-      },
+      where: isUuid ? { id } : { slug: id },
       include: {
         pricing: true,
         offers: true,

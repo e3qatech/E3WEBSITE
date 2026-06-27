@@ -84,7 +84,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     image: attraction.heroMediaUrl,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Doha, Qatar',
+      streetAddress: operations?.venueName || 'Doha, Qatar',
       addressCountry: 'QA'
     }
   }
@@ -128,7 +128,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       <PricingCards 
         pricing={pricing}
         offers={attraction.offers || []}
-        bookingUrl={`${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+        bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
       />
 
       {/* 5. Gallery Lightbox */}
@@ -140,11 +140,12 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       <LiveBookingCard 
         attractionId={attraction.id}
         name={displayName}
-        latitude={attraction.coordinates?.lat}
-        longitude={attraction.coordinates?.lng}
-        locationAddress={attraction.coordinates?.location}
+        latitude={null}
+        longitude={null}
+        locationAddress={operations?.venueName || "Doha, Qatar"}
+        mapUrl={attraction.mapUrl}
         schedule={schedule}
-        bookingUrl={`${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+        bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
       />
 
       {/* 7. FAQ */}
@@ -160,7 +161,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
           </h2>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a 
-              href={`${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+              href={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-4 bg-emerald-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-colors"

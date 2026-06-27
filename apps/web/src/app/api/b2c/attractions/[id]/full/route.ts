@@ -20,7 +20,7 @@ export async function PUT(
       heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
       isPublished, isFeatured, isHidden,
       features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
-      pricing, faqs, socialLinks 
+      pricing, faqs, socialLinks, gallery
     } = body
 
     // Use a transaction for deleting old relations and creating new ones
@@ -28,6 +28,7 @@ export async function PUT(
       db.attractionPricing.deleteMany({ where: { attractionId: id } }),
       db.attractionFaq.deleteMany({ where: { attractionId: id } }),
       db.attractionSocialLink.deleteMany({ where: { attractionId: id } }),
+      db.attractionGalleryItem.deleteMany({ where: { attractionId: id } }),
       db.attraction.update({
         where: { id },
         data: {
@@ -61,6 +62,14 @@ export async function PUT(
             create: (socialLinks || []).map((s: any) => ({
               platform: s.platform,
               url: s.url
+            }))
+          },
+          gallery: {
+            create: (gallery || []).map((g: any, i: number) => ({
+              url: g.url,
+              captionEn: g.captionEn,
+              captionAr: g.captionAr,
+              orderIndex: i
             }))
           }
         }
