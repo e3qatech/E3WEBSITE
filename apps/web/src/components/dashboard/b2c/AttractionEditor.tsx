@@ -290,7 +290,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-black">What's Inside</h2>
-                <Button onClick={() => setFeatures([...features, { id: Date.now(), title: "", description: "", imageUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                <Button type="button" onClick={() => setFeatures([...features, { id: Date.now(), title: "", description: "", imageUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                   <Plus className="w-4 h-4" /> Add Item
                 </Button>
               </div>
@@ -298,7 +298,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div className="space-y-4">
                 {features.map((item, index) => (
                   <div key={item.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                    <button onClick={() => setFeatures(features.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <button type="button" onClick={() => setFeatures(features.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
@@ -331,7 +331,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-black">Pricing & Tickets</h2>
-                <Button onClick={() => setPricing([...pricing, { id: Date.now().toString(), titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", price: 0, discount: 0, currency: "QAR", type: "GENERAL" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                <Button type="button" onClick={() => setPricing([...pricing, { id: Date.now().toString(), titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", price: 0, discount: 0, currency: "QAR", type: "GENERAL" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                   <Plus className="w-4 h-4" /> Add Tier
                 </Button>
               </div>
@@ -339,7 +339,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div className="space-y-4">
                 {pricing.map((tier, index) => (
                   <div key={tier.id || index} className="p-5 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                    <button onClick={() => setPricing(pricing.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <button type="button" onClick={() => setPricing(pricing.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pr-10">
@@ -374,14 +374,9 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                       <div className="md:col-span-4 space-y-3">
                          <div>
                           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1 block">Ticket Type</label>
-                          <select value={tier.type} onChange={e => updateArrayItem(setPricing, pricing, index, "type", e.target.value)}
+                          <input type="text" placeholder="e.g. VIP, General, Family" value={tier.type} onChange={e => updateArrayItem(setPricing, pricing, index, "type", e.target.value)}
                             className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                          >
-                            <option value="GENERAL">General Admission</option>
-                            <option value="VIP">VIP</option>
-                            <option value="GROUP">Group Pass</option>
-                            <option value="FAMILY">Family Pass</option>
-                          </select>
+                          />
                         </div>
                       </div>
                       <div className="md:col-span-12 space-y-3 mt-2">
@@ -411,14 +406,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black">Partner Offers</h2>
-                  <Button onClick={() => setPartnerOffers([...partnerOffers, { id: Date.now(), name: "", discount: "", description: "", image: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Button type="button" onClick={() => setPartnerOffers([...partnerOffers, { id: Date.now(), name: "", discount: "", description: "", image: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                     <Plus className="w-4 h-4" /> Add Offer
                   </Button>
                 </div>
                 <div className="space-y-4">
                   {partnerOffers.map((offer, index) => (
                     <div key={offer.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                      <button onClick={() => setPartnerOffers(partnerOffers.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setPartnerOffers(partnerOffers.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
@@ -450,14 +445,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black">General Partners</h2>
-                  <Button onClick={() => setPartners([...partners, { id: Date.now(), name: "", tagline: "", logo: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Button type="button" onClick={() => setPartners([...partners, { id: Date.now(), name: "", tagline: "", logo: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                     <Plus className="w-4 h-4" /> Add Partner
                   </Button>
                 </div>
                 <div className="space-y-4">
                   {partners.map((partner, index) => (
                     <div key={partner.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pr-10">
-                      <button onClick={() => setPartners(partners.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setPartners(partners.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <input type="text" placeholder="Name (e.g. Visit Qatar)" value={partner.name} onChange={e => updateArrayItem(setPartners, partners, index, "name", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
@@ -481,7 +476,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black">Official Social Links</h2>
-                  <Button onClick={() => setSocialLinks([...socialLinks, { id: Date.now(), platform: "Instagram", url: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Button type="button" onClick={() => setSocialLinks([...socialLinks, { id: Date.now(), platform: "Instagram", url: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                     <Plus className="w-4 h-4" /> Add Link
                   </Button>
                 </div>
@@ -492,7 +487,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                         <option>Instagram</option><option>TikTok</option><option>Facebook</option><option>X / Twitter</option><option>LinkedIn</option>
                       </select>
                       <input type="text" placeholder="Profile URL" value={link.url} onChange={e => updateArrayItem(setSocialLinks, socialLinks, index, "url", e.target.value)} className="flex-1 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <button onClick={() => setSocialLinks(socialLinks.filter((_, i) => i !== index))} className="absolute top-1.5 right-0 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setSocialLinks(socialLinks.filter((_, i) => i !== index))} className="absolute top-1.5 right-0 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -504,14 +499,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black">Social Previews</h2>
-                  <Button onClick={() => setSocialPreviews([...socialPreviews, { id: Date.now(), platform: "Instagram", url: "", previewUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Button type="button" onClick={() => setSocialPreviews([...socialPreviews, { id: Date.now(), platform: "Instagram", url: "", previewUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                     <Plus className="w-4 h-4" /> Add Post
                   </Button>
                 </div>
                 <div className="space-y-4">
                   {socialPreviews.map((post, index) => (
                     <div key={post.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pr-10">
-                      <button onClick={() => setSocialPreviews(socialPreviews.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setSocialPreviews(socialPreviews.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <select value={post.platform} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "platform", e.target.value)} className="w-32 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
@@ -530,14 +525,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black">News & Coverage</h2>
-                  <Button onClick={() => setNewsCoverage([...newsCoverage, { id: Date.now(), publisher: "", date: "", title: "", url: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Button type="button" onClick={() => setNewsCoverage([...newsCoverage, { id: Date.now(), publisher: "", date: "", title: "", url: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                     <Plus className="w-4 h-4" /> Add Link
                   </Button>
                 </div>
                 <div className="space-y-4">
                   {newsCoverage.map((news, index) => (
                     <div key={news.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative grid grid-cols-2 gap-4 pr-10">
-                      <button onClick={() => setNewsCoverage(newsCoverage.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setNewsCoverage(newsCoverage.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <input type="text" placeholder="Publisher (e.g. Forbes)" value={news.publisher} onChange={e => updateArrayItem(setNewsCoverage, newsCoverage, index, "publisher", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
@@ -627,7 +622,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-black">Frequently Asked Questions</h2>
-                <Button onClick={() => setFaqs([...faqs, { id: Date.now().toString(), questionEn: "", questionAr: "", answerEn: "", answerAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                <Button type="button" onClick={() => setFaqs([...faqs, { id: Date.now().toString(), questionEn: "", questionAr: "", answerEn: "", answerAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                   <Plus className="w-4 h-4" /> Add FAQ
                 </Button>
               </div>
@@ -640,7 +635,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 <div className="space-y-4">
                   {faqs.map((faq, index) => (
                     <div key={faq.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] space-y-4 relative">
-                      <button onClick={() => setFaqs(faqs.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                      <button type="button" onClick={() => setFaqs(faqs.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       

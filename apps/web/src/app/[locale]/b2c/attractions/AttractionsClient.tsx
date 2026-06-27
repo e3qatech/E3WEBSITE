@@ -208,6 +208,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   transition={{ duration: 0.6, ease: "easeOut" }}
                   className="w-full bg-[#141414] border border-[#27272A] rounded-2xl overflow-hidden flex flex-col md:flex-row group"
                 >
+                  <Link href={`/${locale}/b2c/attractions/${featuredAttraction.slug}`} className="w-full flex flex-col md:flex-row h-full focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
                   <div className="w-full md:w-3/5 h-72 md:h-auto relative overflow-hidden bg-[#0C0C0C]">
                     <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#141414] to-transparent z-10" />
                     {featuredAttraction.heroMediaType === 'VIDEO' ? (
@@ -246,14 +247,12 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     </p>
 
                     <div className="flex items-center gap-4 mt-auto">
-                      <Link 
-                        href={`/${locale}/b2c/attractions/${featuredAttraction.slug}`}
-                        className="flex-1 bg-[#FAFAFA] text-[#0C0C0C] px-6 py-3 rounded-xl font-bold hover:bg-[#F59E0B] hover:text-[#0C0C0C] transition-colors active:scale-95 flex items-center justify-center min-h-[48px] gap-2"
-                      >
+                      <div className="flex-1 bg-[#FAFAFA] text-[#0C0C0C] px-6 py-3 rounded-xl font-bold hover:bg-[#F59E0B] hover:text-[#0C0C0C] transition-colors active:scale-95 flex items-center justify-center min-h-[48px] gap-2">
                         <Ticket className="w-5 h-5" /> Get Ticket
-                      </Link>
+                      </div>
                     </div>
                   </div>
+                  </Link>
                 </motion.div>
               </section>
             )}
