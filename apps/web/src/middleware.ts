@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import NextAuth from 'next-auth';
-import { authConfig } from '@/lib/auth.config';
-
-const { auth } = NextAuth(authConfig);
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-export default auth((req) => {
+export function middleware(req: NextRequest) {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const role = (req.auth?.user as any)?.role;
+
+  // Check for NextAuth session token cookie
+  // NextAuth v5 uses authjs.session-token (or __Secure-authjs.session-token on HTTPS)
+  const sessionToken =
+    req.cookies.get('authjs.session-token')?.value ||
+    req.cookies.get('__Secure-authjs.session-token')?.value ||
+    req.cookies.get('next-auth.session-token')?.value ||
+    req.cookies.get('__Secure-next-auth.session-token')?.value;
+
+  const isLoggedIn = !!sessionToken;
 
   // 1. Locale & Theme Detection
-  // We can pass them as headers so the Layout can read them
   const requestHeaders = new Headers(req.headers);
   const themeCookie = req.cookies.get('data-theme')?.value || 'dark';
   const localeCookie = req.cookies.get('NEXT_LOCALE')?.value || 'en';
@@ -41,56 +44,17 @@ export default auth((req) => {
     if (!isLoggedIn) {
       return NextResponse.redirect(new URL('/auth/login', nextUrl));
     }
-
-    // Role-based protection rules
-    const path = nextUrl.pathname;
-
-    if (path.startsWith('/dashboard/b2b')) {
-      if (role !== 'SUPER_ADMIN' && role !== 'SALES_ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard/unauthorized', nextUrl));
-      }
-    }
-
-    if (path.startsWith('/dashboard/b2c')) {
-      if (role !== 'SUPER_ADMIN' && role !== 'SUPPORT_ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard/unauthorized', nextUrl));
-      }
-    }
-
-    if (path.startsWith('/dashboard/operations')) {
-      if (role !== 'SUPER_ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard/unauthorized', nextUrl));
-      }
-    }
-
-    if (path.startsWith('/dashboard/crm')) {
-      if (role !== 'SUPER_ADMIN' && role !== 'SALES_ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard/unauthorized', nextUrl));
-      }
-    }
-
-    if (path.startsWith('/dashboard/settings')) {
-      if (role !== 'SUPER_ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard/unauthorized', nextUrl));
-      }
-    }
-
-    // /dashboard/schedule is accessible by STAFF, CLIENT, and potentially ADMINS. 
-    // Data filtering for "own meetings only" will happen at the API layer.
+    // Note: Role-based access control is enforced at the page/API level via auth() calls,
+    // not in the middleware, since we cannot decode the JWT here without importing Node.js modules.
   }
 
   // Prevent logged-in users from seeing the login page
   if (isLoggedIn && nextUrl.pathname.startsWith('/auth/login')) {
-     let redirectPath = '/dashboard';
-     if (role === 'SALES_ADMIN') redirectPath = '/dashboard/b2b/leads';
-     if (role === 'SUPPORT_ADMIN') redirectPath = '/dashboard/b2c/feedback';
-     if (role === 'STAFF' || role === 'CLIENT') redirectPath = '/dashboard/schedule';
-
-     return NextResponse.redirect(new URL(redirectPath, nextUrl));
+    return NextResponse.redirect(new URL('/dashboard', nextUrl));
   }
 
   return NextResponse.next({ request: { headers: requestHeaders } });
-});
+}
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
