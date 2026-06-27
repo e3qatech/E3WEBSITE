@@ -16,7 +16,7 @@ export async function PATCH(
     const body = await request.json()
     const { value, probability } = body
 
-    const updatedLead = await db.leads.update({
+    const updatedLead = await db.lead.update({
       where: { id: leadId },
       data: {
         ...(value !== undefined && { value }),
@@ -25,7 +25,7 @@ export async function PATCH(
     })
 
     // Log the activity
-    await db.leadActivities.create({
+    await db.leadActivity.create({
       data: {
         leadId,
         type: "SYSTEM",
