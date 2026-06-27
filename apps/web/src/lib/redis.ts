@@ -5,7 +5,7 @@ const globalForRedis = globalThis as unknown as {
 };
 
 // Initialize ioredis. Use REDIS_URL from env, or a fallback for local dev.
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = (process.env.REDIS_URL || 'redis://localhost:6379').replace(/^"|"$/g, '').replace(/^'|'$/g, '');
 
 export const redis =
   globalForRedis.redis ??
