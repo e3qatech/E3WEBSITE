@@ -36,7 +36,7 @@ export default function LoginPage() {
           setError("Invalid email or password.");
         }
       } else {
-        // Successful login will trigger the session update, which re-renders and triggers the redirect above.
+        router.push("/dashboard/overview");
         router.refresh();
       }
     } catch (err) {
