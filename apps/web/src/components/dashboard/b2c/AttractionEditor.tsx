@@ -8,6 +8,7 @@ import {
   Users, CheckCircle2, List, Calendar
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
 
 export function AttractionEditor({ initialData }: { initialData?: any }) {
@@ -268,22 +269,16 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Primary Media URL</label>
-                  <input type="text" value={heroMediaUrl} onChange={e => setHeroMediaUrl(e.target.value)} placeholder="https://..."
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                  />
+                  <MediaUploader value={heroMediaUrl} onChange={setHeroMediaUrl} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Fallback Image URL</label>
-                    <input type="text" value={heroFallbackUrl} onChange={e => setHeroFallbackUrl(e.target.value)}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                    />
+                    <MediaUploader value={heroFallbackUrl} onChange={setHeroFallbackUrl} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Thumbnail Image URL</label>
-                    <input type="text" value={heroThumbnailUrl} onChange={e => setHeroThumbnailUrl(e.target.value)}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                    />
+                    <MediaUploader value={heroThumbnailUrl} onChange={setHeroThumbnailUrl} />
                   </div>
                 </div>
               </div>
@@ -315,9 +310,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Media URL</label>
-                        <input type="text" value={item.imageUrl} onChange={e => updateArrayItem(setFeatures, features, index, "imageUrl", e.target.value)}
-                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                        />
+                        <MediaUploader value={item.imageUrl} onChange={val => updateArrayItem(setFeatures, features, index, "imageUrl", val)} />
                       </div>
                       <div className="space-y-2 md:col-span-2">
                         <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Short Description</label>
@@ -439,7 +432,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Image/Logo URL</label>
-                          <input type="text" value={offer.image} onChange={e => updateArrayItem(setPartnerOffers, partnerOffers, index, "image", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                          <MediaUploader value={offer.image} onChange={val => updateArrayItem(setPartnerOffers, partnerOffers, index, "image", val)} />
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Short Description</label>
@@ -467,9 +460,11 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                       <button onClick={() => setPartners(partners.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
-                      <input type="text" placeholder="Name (e.g. Visit Qatar)" value={partner.name} onChange={e => updateArrayItem(setPartners, partners, index, "name", e.target.value)} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <input type="text" placeholder="Tagline (e.g. Official Tourism Partner)" value={partner.tagline} onChange={e => updateArrayItem(setPartners, partners, index, "tagline", e.target.value)} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <input type="text" placeholder="Logo URL" value={partner.logo} onChange={e => updateArrayItem(setPartners, partners, index, "logo", e.target.value)} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      <input type="text" placeholder="Name (e.g. Visit Qatar)" value={partner.name} onChange={e => updateArrayItem(setPartners, partners, index, "name", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      <input type="text" placeholder="Tagline (e.g. Official Tourism Partner)" value={partner.tagline} onChange={e => updateArrayItem(setPartners, partners, index, "tagline", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      <div className="w-1/3">
+                        <MediaUploader value={partner.logo} onChange={val => updateArrayItem(setPartners, partners, index, "logo", val)} placeholder="Logo URL" />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -522,8 +517,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                       <select value={post.platform} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "platform", e.target.value)} className="w-32 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
                         <option>Instagram</option><option>TikTok</option>
                       </select>
-                      <input type="text" placeholder="Post URL" value={post.url} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "url", e.target.value)} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <input type="text" placeholder="Preview Image/Video URL" value={post.previewUrl} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "previewUrl", e.target.value)} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      <input type="text" placeholder="Post URL" value={post.url} onChange={e => updateArrayItem(setSocialPreviews, socialPreviews, index, "url", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      <div className="w-1/3">
+                        <MediaUploader value={post.previewUrl} onChange={val => updateArrayItem(setSocialPreviews, socialPreviews, index, "previewUrl", val)} placeholder="Preview Image/Video URL" />
+                      </div>
                     </div>
                   ))}
                 </div>
