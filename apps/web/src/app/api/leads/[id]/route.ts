@@ -28,10 +28,9 @@ export async function PATCH(
     await db.leadActivity.create({
       data: {
         leadId,
-        type: "SYSTEM",
-        title: "Financials Updated",
-        description: `Lead financials updated by ${(session.user as any)?.name}.`,
-        userId: (session.user as any)?.id
+        type: "NOTE",
+        description: `Financials updated: value=${value}, probability=${probability}.`,
+        author: (session.user as any)?.name ?? "Admin",
       }
     })
 
