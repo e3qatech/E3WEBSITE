@@ -14,20 +14,20 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
-    const { isPublished, isFeatured } = body
+    const { status, isFeatured } = body
 
     const data: any = {}
-    if (isPublished !== undefined) data.isPublished = isPublished
+    if (status !== undefined) data.status = status
     if (isFeatured !== undefined) data.isFeatured = isFeatured
 
-    const attraction = await db.attraction.update({
+    const feedback = await db.feedback.update({
       where: { id },
       data
     })
 
-    return NextResponse.json(attraction)
+    return NextResponse.json(feedback)
   } catch (error: any) {
-    console.error("[ATTRACTION_PATCH_ERROR]", error)
+    console.error("[FEEDBACK_PATCH_ERROR]", error)
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
   }
 }
@@ -43,13 +43,13 @@ export async function DELETE(
     }
 
     const { id } = await params
-    await db.attraction.delete({
+    await db.feedback.delete({
       where: { id }
     })
 
-    return NextResponse.json({ success: true, message: "Attraction deleted" })
+    return NextResponse.json({ success: true, message: "Feedback deleted" })
   } catch (error: any) {
-    console.error("[ATTRACTION_DELETE_ERROR]", error)
+    console.error("[FEEDBACK_DELETE_ERROR]", error)
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
   }
 }

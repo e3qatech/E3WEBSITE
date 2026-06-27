@@ -1,17 +1,29 @@
-import { notFound } from "next/navigation"
-import db from "@/lib/db"
-import { AttractionEditForm } from "@/components/dashboard/b2c/AttractionEditForm"
+import { db } from "@/lib/db"
+import { AttractionEditor } from "@/components/dashboard/b2c/AttractionEditor"
+import { auth } from "@/lib/auth"
+import { redirect, notFound } from "next/navigation"
 
-export default async function EditAttractionPage({ params }: { params: { id: string } }) {
+export const metadata = {
+  title: "Edit Attraction | E3 Admin",
+}
+
+export default async function EditAttractionPage({
+  params
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const session = await auth()
+  if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    redirect("/login")
+  }
+
+  const { id } = await params
+  
   const attraction = await db.attraction.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
-      gallery: { orderBy: { orderIndex: 'asc' } },
       pricing: true,
-      offers: true,
-      faqs: { orderBy: { orderIndex: 'asc' } },
-      socialLinks: true,
-      temporalRules: true,
+      faqs: true
     }
   })
 
@@ -19,9 +31,5 @@ export default async function EditAttractionPage({ params }: { params: { id: str
     notFound()
   }
 
-  return (
-    <div className="flex-1 h-[calc(100vh-4rem)] overflow-hidden">
-      <AttractionEditForm initialData={attraction} />
-    </div>
-  )
+  return <AttractionEditor initialData={attraction} />
 }

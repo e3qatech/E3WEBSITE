@@ -5,20 +5,20 @@ import { auth } from "@/lib/auth"
 export async function GET() {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "HR", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    if (!session || !["SUPER_ADMIN", "SALES", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const talents = await db.talent.findMany({
+    const inquiries = await db.inquiry.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        job: { select: { title: true } }
+        lead: { select: { id: true, name: true } }
       }
     })
 
-    return NextResponse.json(talents)
+    return NextResponse.json(inquiries)
   } catch (error: any) {
-    console.error("[TALENT_GET_ERROR]", error)
+    console.error("[INQUIRIES_GET_ERROR]", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

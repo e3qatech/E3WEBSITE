@@ -1,14 +1,18 @@
-import { Metadata } from "next"
-import db from "@/lib/db"
-import { AttractionsTable } from "@/components/dashboard/b2c/AttractionsTable"
+import { db } from "@/lib/db"
+import { AttractionsList } from "@/components/dashboard/b2c/AttractionsList"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "B2C Attractions | E3 Admin",
 }
 
-export const dynamic = 'force-dynamic'
-
 export default async function AttractionsPage() {
+  const session = await auth()
+  if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    redirect("/login")
+  }
+
   const attractions = await db.attraction.findMany({
     orderBy: { createdAt: "desc" },
     select: {
@@ -16,21 +20,31 @@ export default async function AttractionsPage() {
       slug: true,
       nameEn: true,
       nameAr: true,
-      heroMediaUrl: true,
       isPublished: true,
-      isHidden: true,
-      createdAt: true
+      isFeatured: true,
+      heroMediaUrl: true,
+      _count: {
+        select: {
+          pricing: true,
+          offers: true,
+          faqs: true
+        }
+      }
     }
   })
 
-  return (
-    <div className="p-6 md:p-8 max-w-[1400px] mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-[var(--text-primary)]">B2C Attractions</h1>
-        <p className="text-[var(--text-secondary)] mt-2">Manage consumer experiences, tickets, and rules.</p>
-      </div>
+  const formattedAttractions = attractions.map(a => ({
+    id: a.id,
+    slug: a.slug,
+    name: {
+      en: a.nameEn,
+      ar: a.nameAr
+    },
+    isPublished: a.isPublished,
+    isFeatured: a.isFeatured,
+    heroMediaUrl: a.heroMediaUrl,
+    _count: a._count
+  }))
 
-      <AttractionsTable attractions={attractions} />
-    </div>
-  )
+  return <AttractionsList initialAttractions={formattedAttractions} />
 }

@@ -8,27 +8,28 @@ export async function PATCH(
 ) {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    if (!session || !["SUPER_ADMIN", "SALES", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
     const body = await request.json()
-    const { isPublished, isFeatured } = body
+    const { status, leadId, assignedToId } = body
 
     const data: any = {}
-    if (isPublished !== undefined) data.isPublished = isPublished
-    if (isFeatured !== undefined) data.isFeatured = isFeatured
+    if (status !== undefined) data.status = status
+    if (leadId !== undefined) data.leadId = leadId
+    if (assignedToId !== undefined) data.assignedToId = assignedToId
 
-    const attraction = await db.attraction.update({
+    const inquiry = await db.inquiry.update({
       where: { id },
       data
     })
 
-    return NextResponse.json(attraction)
+    return NextResponse.json(inquiry)
   } catch (error: any) {
-    console.error("[ATTRACTION_PATCH_ERROR]", error)
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
+    console.error("[INQUIRY_PATCH_ERROR]", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
 
@@ -43,13 +44,13 @@ export async function DELETE(
     }
 
     const { id } = await params
-    await db.attraction.delete({
+    await db.inquiry.delete({
       where: { id }
     })
 
-    return NextResponse.json({ success: true, message: "Attraction deleted" })
+    return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error("[ATTRACTION_DELETE_ERROR]", error)
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
+    console.error("[INQUIRY_DELETE_ERROR]", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

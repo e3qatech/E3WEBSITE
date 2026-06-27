@@ -1,0 +1,129 @@
+"use client"
+
+import { useState } from "react"
+import { Search, Mail, Phone, CheckCircle, XCircle } from "lucide-react"
+import { Badge } from "@/components/ui/Badge"
+import { Button } from "@/components/ui/Button"
+
+type Subscriber = {
+  id: string
+  email: string | null
+  phone: string | null
+  isVerified: boolean
+  verifiedAt: string | null
+  preferences: any | null
+  createdAt: string
+}
+
+export function SubscribersList({ initialSubscribers }: { initialSubscribers: Subscriber[] }) {
+  const [subscribers] = useState(initialSubscribers)
+  const [search, setSearch] = useState("")
+
+  const filtered = subscribers.filter(s => 
+    (s.email?.toLowerCase().includes(search.toLowerCase()) || false) || 
+    (s.phone?.includes(search) || false)
+  )
+
+  const renderPreferences = (prefs: any) => {
+    if (!prefs) return <span className="text-[var(--text-tertiary)]">-</span>
+    let parsed: any = {}
+    if (typeof prefs === "string") {
+      try { parsed = JSON.parse(prefs) } catch { parsed = {} }
+    } else {
+      parsed = prefs
+    }
+    
+    return (
+      <div className="flex flex-wrap gap-1">
+        {Object.entries(parsed).map(([key, val]) => (
+          val ? <Badge key={key} variant="default" className="text-[10px] bg-transparent border border-[var(--border-default)]">{key}</Badge> : null
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-[var(--text-primary)]">Subscribers</h1>
+          <p className="text-sm text-[var(--text-secondary)]">Manage newsletter and event subscribers.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <input 
+              type="text" 
+              placeholder="Search email/phone..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+            />
+          </div>
+          <Button variant="outline" className="gap-2">
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-[var(--surface-subtle)] border-b border-[var(--border-default)] text-[var(--text-secondary)]">
+              <tr>
+                <th className="px-6 py-4 font-medium">Contact</th>
+                <th className="px-6 py-4 font-medium">Verification</th>
+                <th className="px-6 py-4 font-medium">Preferences</th>
+                <th className="px-6 py-4 font-medium">Subscribed On</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--border-default)]">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-[var(--text-tertiary)]">
+                    No subscribers found.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map(s => (
+                  <tr key={s.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                    <td className="px-6 py-4">
+                      {s.email && (
+                        <div className="flex items-center gap-2 text-[var(--text-primary)] font-medium">
+                          <Mail className="w-4 h-4 text-[var(--text-tertiary)]" /> {s.email}
+                        </div>
+                      )}
+                      {s.phone && (
+                        <div className="flex items-center gap-2 text-[var(--text-primary)] font-medium mt-1">
+                          <Phone className="w-4 h-4 text-[var(--text-tertiary)]" /> {s.phone}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      {s.isVerified ? (
+                        <div className="flex items-center gap-1.5 text-[var(--color-success)]">
+                          <CheckCircle className="w-4 h-4" /> Verified
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-[var(--text-tertiary)]">
+                          <XCircle className="w-4 h-4" /> Unverified
+                        </div>
+                      )}
+                      {s.verifiedAt && <div className="text-xs text-[var(--text-tertiary)] mt-1">{new Date(s.verifiedAt).toLocaleDateString()}</div>}
+                    </td>
+                    <td className="px-6 py-4">
+                      {renderPreferences(s.preferences)}
+                    </td>
+                    <td className="px-6 py-4 text-[var(--text-secondary)]">
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}

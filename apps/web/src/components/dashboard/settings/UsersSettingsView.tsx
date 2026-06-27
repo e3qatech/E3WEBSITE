@@ -10,20 +10,26 @@ export function UsersSettingsView({ initialUsers }: { initialUsers: any[] }) {
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteData, setInviteData] = useState({ name: "", email: "", role: "STAFF" })
 
-  const handleInvite = (e: React.FormEvent) => {
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock user creation
-    setUsers([{
-      id: Math.random().toString(),
-      name: inviteData.name,
-      email: inviteData.email,
-      role: inviteData.role,
-      isActive: true,
-      createdAt: new Date().toISOString()
-    }, ...users])
-    setShowInviteForm(false)
-    setInviteData({ name: "", email: "", role: "STAFF" })
-    alert(`Invitation link sent to ${inviteData.email}`)
+    try {
+      const res = await fetch("/api/settings/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inviteData)
+      })
+
+      if (!res.ok) throw new Error("Failed to invite user")
+
+      const newUser = await res.json()
+      setUsers([newUser, ...users])
+      setShowInviteForm(false)
+      setInviteData({ name: "", email: "", role: "STAFF" })
+      alert(`Invitation sent and user created for ${inviteData.email}`)
+    } catch (error) {
+      alert("Failed to invite user.")
+      console.error(error)
+    }
   }
 
   const ROLES = ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"]

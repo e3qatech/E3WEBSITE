@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { db } from '@/lib/db'
 
 const WEBHOOK_SECRET = process.env.BOOKINGQUBE_WEBHOOK_SECRET || 'mock_secret'
 
@@ -41,18 +42,38 @@ export async function POST(req: NextRequest) {
     // 4. Handle Event
     console.log(`BookingQube Webhook: Processing ${eventType} [${eventId}]`)
     
-    switch (eventType) {
-      case 'ticket.purchased':
-        // Update database occupancy
-        // Try to emit to socket server via internal fetch
-        // In a real Vercel/serverless env, you'd use Pusher or Redis PubSub here
-        break
-      case 'ticket.cancelled':
-        break
-      case 'event.capacity_changed':
-        break
-      default:
-        console.log(`BookingQube Webhook: Unhandled event type ${eventType}`)
+    // We assume the payload includes the scheduleId (which maps to our EventSchedule.id) 
+    // and quantity (number of tickets purchased/cancelled).
+    const scheduleId = payload.scheduleId
+    const quantity = payload.quantity || 1
+
+    if (scheduleId) {
+      switch (eventType) {
+        case 'ticket.purchased':
+          await db.eventSchedule.update({
+            where: { id: scheduleId },
+            data: { currentCount: { increment: quantity } }
+          })
+          break
+        case 'ticket.cancelled':
+          await db.eventSchedule.update({
+            where: { id: scheduleId },
+            data: { currentCount: { decrement: quantity } }
+          })
+          break
+        case 'event.capacity_changed':
+          if (payload.newCapacity) {
+            await db.eventSchedule.update({
+              where: { id: scheduleId },
+              data: { capacityGate: payload.newCapacity }
+            })
+          }
+          break
+        default:
+          console.log(`BookingQube Webhook: Unhandled event type ${eventType}`)
+      }
+    } else {
+      console.warn(`BookingQube Webhook: Ignored event ${eventType} because scheduleId is missing.`)
     }
 
     // Mark as processed

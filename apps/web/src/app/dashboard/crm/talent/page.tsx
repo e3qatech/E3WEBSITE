@@ -1,17 +1,30 @@
-import { Metadata } from "next"
-import db from "@/lib/db"
-import { TalentTable } from "@/components/dashboard/crm/TalentTable"
+import { db } from "@/lib/db"
+import { TalentList } from "@/components/dashboard/crm/TalentList"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Talent Pool | E3 Admin",
+export const metadata = {
+  title: "Talent Acquisition | CRM | E3 Admin",
 }
 
-export const dynamic = 'force-dynamic'
-
 export default async function TalentPage() {
-  const talents = await db.talent.findMany({
+  const session = await auth()
+  if (!session || !["SUPER_ADMIN", "HR", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    redirect("/login")
+  }
+
+  const talent = await db.talent.findMany({
     orderBy: { createdAt: "desc" },
+    include: {
+      job: { select: { title: true } }
+    }
   })
 
-  return <TalentTable initialData={talents} />
+  // Format dates for client
+  const formattedTalent = talent.map(t => ({
+    ...t,
+    appliedDate: t.appliedDate.toISOString(),
+  }))
+
+  return <TalentList initialTalent={formattedTalent as any} />
 }

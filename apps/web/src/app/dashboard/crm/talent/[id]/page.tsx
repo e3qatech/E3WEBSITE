@@ -1,27 +1,41 @@
-import { Metadata } from "next"
-import { notFound } from "next/navigation"
-import db from "@/lib/db"
-import { TalentDetailView } from "@/components/dashboard/crm/TalentDetailView"
+import { db } from "@/lib/db"
+import { TalentDetail } from "@/components/dashboard/crm/TalentDetail"
+import { auth } from "@/lib/auth"
+import { redirect, notFound } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Talent Details | E3 Admin",
+export const metadata = {
+  title: "Candidate Details | CRM | E3 Admin",
 }
 
-export const dynamic = 'force-dynamic'
+export default async function TalentDetailPage({
+  params
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const session = await auth()
+  if (!session || !["SUPER_ADMIN", "HR", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    redirect("/login")
+  }
 
-export default async function TalentDetailPage({ params }: { params: { id: string } }) {
+  const { id } = await params
+  
   const talent = await db.talent.findUnique({
-    where: { id: params.id },
+    where: { id },
+    include: {
+      job: { select: { title: true } }
+    }
   })
 
   if (!talent) {
     notFound()
   }
 
-  const team = await db.user.findMany({
-    where: { role: { in: ["SUPER_ADMIN", "SALES_ADMIN", "STAFF"] }, isActive: true },
-    select: { id: true, name: true, email: true }
-  })
+  const formattedTalent = {
+    ...talent,
+    appliedDate: talent.appliedDate.toISOString(),
+    createdAt: talent.createdAt.toISOString(),
+    updatedAt: talent.updatedAt.toISOString(),
+  }
 
-  return <TalentDetailView initialData={talent} team={team} />
+  return <TalentDetail initialTalent={formattedTalent as any} />
 }

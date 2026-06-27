@@ -1,20 +1,33 @@
-import { Metadata } from "next"
-import { notFound } from "next/navigation"
-import db from "@/lib/db"
-import { LeadDetailView } from "@/components/dashboard/crm/LeadDetailView"
+import { db } from "@/lib/db"
+import { LeadDetail } from "@/components/dashboard/crm/LeadDetail"
+import { auth } from "@/lib/auth"
+import { redirect, notFound } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Lead Details | E3 Admin",
+export const metadata = {
+  title: "Lead Details | CRM | E3 Admin",
 }
 
-export const dynamic = 'force-dynamic'
+export default async function LeadDetailPage({
+  params
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const session = await auth()
+  if (!session || !["SUPER_ADMIN", "SALES", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+    redirect("/login")
+  }
 
-export default async function LeadDetailPage({ params }: { params: { id: string } }) {
+  const { id } = await params
+  
   const lead = await db.lead.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
-      activities: { orderBy: { timestamp: "desc" } },
-      inquiries: { orderBy: { createdAt: "desc" } }
+      activities: {
+        orderBy: { timestamp: "desc" }
+      },
+      inquiries: {
+        orderBy: { createdAt: "desc" }
+      }
     }
   })
 
@@ -22,11 +35,20 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
     notFound()
   }
 
-  // Find users for the assignment dropdown
-  const salesTeam = await db.user.findMany({
-    where: { role: { in: ["SUPER_ADMIN", "SALES_ADMIN"] }, isActive: true },
-    select: { id: true, name: true, email: true }
-  })
+  const formattedLead = {
+    ...lead,
+    createdAt: lead.createdAt.toISOString(),
+    updatedAt: lead.updatedAt.toISOString(),
+    activities: lead.activities.map(a => ({
+      ...a,
+      timestamp: a.timestamp.toISOString()
+    })),
+    inquiries: lead.inquiries.map(i => ({
+      ...i,
+      createdAt: i.createdAt.toISOString(),
+      updatedAt: i.updatedAt.toISOString()
+    }))
+  }
 
-  return <LeadDetailView initialLead={lead} salesTeam={salesTeam} />
+  return <LeadDetail initialLead={formattedLead as any} />
 }
