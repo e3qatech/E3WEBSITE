@@ -9,43 +9,112 @@ import { GalleryLightbox } from "@/components/attractions/detail/GalleryLightbox
 import { LiveBookingCard } from "@/components/attractions/detail/LiveBookingCard"
 import { FaqAccordion } from "@/components/attractions/detail/FaqAccordion"
 
-const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return 'http://localhost:3000'
-}
+import { db } from "@/lib/db"
+import { toZonedTime, format } from 'date-fns-tz';
+import { getDay, isWithinInterval } from 'date-fns';
 
 async function getAttractionData(slug: string) {
-  const baseUrl = getBaseUrl()
-  
-  // 1. First fetch base attraction to get its ID
-  const res = await fetch(`${baseUrl}/api/attractions/${slug}`, { next: { revalidate: 60 } })
-  if (!res.ok) return null
-  const json = await res.json()
-  const attraction = json.data !== undefined ? json.data : json
+  const attraction = await db.attraction.findFirst({
+    where: { slug },
+    include: {
+      pricing: true,
+      offers: true,
+      faqs: { orderBy: { orderIndex: 'asc' } },
+      gallery: { orderBy: { orderIndex: 'asc' } },
+      temporalRules: true,
+      features: true,
+      partnerOffers: true,
+      partners: true,
+      socialPreviews: true,
+      newsCoverage: true,
+      operations: true,
+      temporalStatus: true,
+      testimonials: true,
+    }
+  });
 
-  if (!attraction) return null
+  if (!attraction) return null;
 
-  const id = attraction.id
+  // Calculate live operations status
+  const now = new Date();
+  const QATAR_TZ = 'Asia/Qatar';
+  const qatarNow = toZonedTime(now, QATAR_TZ);
+  const currentDay = getDay(qatarNow);
+  const currentTimeStr = format(qatarNow, 'HH:mm');
 
-  // 2. Parallel Fetch related data
-  const [pricingRes, galleryRes, faqRes, scheduleRes, operationsRes] = await Promise.all([
-    fetch(`${baseUrl}/api/attractions/${id}/pricing`, { next: { revalidate: 60 } }),
-    fetch(`${baseUrl}/api/attractions/${id}/gallery`, { next: { revalidate: 60 } }),
-    fetch(`${baseUrl}/api/attractions/${id}/faq`, { next: { revalidate: 60 } }),
-    fetch(`${baseUrl}/api/attractions/${id}/schedule?date=today`, { next: { revalidate: 60 } }),
-    fetch(`${baseUrl}/api/attractions/${id}/operations`, { next: { revalidate: 0 } }), // Live, no cache
-  ])
+  let isOpen = false;
+  const rules = attraction.temporalRules || [];
 
-  const [pricing, gallery, faq, schedule, operations] = await Promise.all([
-    pricingRes.ok ? pricingRes.json().then(r => r.data !== undefined ? r.data : r) : [],
-    galleryRes.ok ? galleryRes.json().then(r => r.data !== undefined ? r.data : r) : [],
-    faqRes.ok ? faqRes.json().then(r => r.data !== undefined ? r.data : r) : [],
-    scheduleRes.ok ? scheduleRes.json().then(r => r.data !== undefined ? r.data : r) : [],
-    operationsRes.ok ? operationsRes.json().then(r => r.data !== undefined ? r.data : r) : null,
-  ])
+  // 1. RECURRING
+  const recurring = rules.filter(r => r.ruleType === 'RECURRING');
+  for (const rule of recurring) {
+     if (rule.daysOfWeek && Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.includes(currentDay)) {
+       if (rule.openTime && rule.closeTime && currentTimeStr >= rule.openTime && currentTimeStr <= rule.closeTime) {
+         isOpen = true;
+       }
+     }
+  }
 
-  return { attraction, pricing, gallery, faq, schedule, operations }
+  // 2. OVERRIDE
+  const overrides = rules.filter(r => r.ruleType === 'OVERRIDE');
+  for (const rule of overrides) {
+     if (rule.startDate && rule.endDate) {
+        const start = toZonedTime(rule.startDate, QATAR_TZ);
+        const end = toZonedTime(rule.endDate, QATAR_TZ);
+        if (isWithinInterval(qatarNow, { start, end })) {
+           if (rule.openTime && rule.closeTime && currentTimeStr >= rule.openTime && currentTimeStr <= rule.closeTime) {
+             isOpen = true;
+           } else {
+             isOpen = false;
+           }
+        }
+     }
+  }
+
+  // 3. CLOSURE
+  const closures = rules.filter(r => r.ruleType === 'CLOSURE');
+  for (const rule of closures) {
+     if (rule.startDate && rule.endDate) {
+        const start = toZonedTime(rule.startDate, QATAR_TZ);
+        const end = toZonedTime(rule.endDate, QATAR_TZ);
+        if (isWithinInterval(qatarNow, { start, end })) {
+           isOpen = false;
+        }
+     }
+  }
+
+  // Latest telemetry for live occupancy
+  const telemetry = await db.telemetryLog.findFirst({
+    where: { attractionId: attraction.id },
+    orderBy: { timestamp: 'desc' }
+  });
+
+  const schedule = await db.eventSchedule.findFirst({
+     where: { attractionId: attraction.id, startTime: { lte: now }, endTime: { gte: now } }
+  });
+
+  let currentOccupancy = 0;
+  if (telemetry?.payload && typeof telemetry.payload === 'object' && 'count' in telemetry.payload) {
+    currentOccupancy = (telemetry.payload as any).count;
+  } else {
+    currentOccupancy = schedule?.currentCount || 0;
+  }
+
+  const operations = {
+    isOpen,
+    currentOccupancy,
+    maxCapacity: schedule?.capacityGate || 1000,
+    averageVisitDuration: 90,
+  };
+
+  return { 
+    attraction, 
+    pricing: attraction.pricing, 
+    gallery: attraction.gallery, 
+    faq: attraction.faqs, 
+    schedule: null, 
+    operations 
+  }
 }
 
 export async function generateMetadata(props: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {

@@ -23,6 +23,9 @@ export default async function AttractionsPage() {
       isPublished: true,
       isFeatured: true,
       heroMediaUrl: true,
+      heroFallbackUrl: true,
+      heroThumbnailUrl: true,
+      heroMediaType: true,
       _count: {
         select: {
           pricing: true,

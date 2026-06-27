@@ -24,6 +24,9 @@ type Attraction = {
   isPublished: boolean
   isFeatured: boolean
   heroMediaUrl: string | null
+  heroFallbackUrl: string | null
+  heroThumbnailUrl: string | null
+  heroMediaType: string | null
   _count: {
     pricing: number
     offers: number
@@ -96,17 +99,36 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
           >
             {/* Hero Image */}
             <div className="relative aspect-video bg-[var(--surface-subtle)] overflow-hidden">
-              {attraction.heroMediaUrl ? (
-                <img 
-                  src={attraction.heroMediaUrl} 
-                  alt={attraction.name.en} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <MapPin className="w-8 h-8 text-[var(--text-tertiary)] opacity-50" />
-                </div>
-              )}
+              {(() => {
+                const isIframe = attraction.heroMediaType === 'IFRAME';
+                const imgSrc = attraction.heroThumbnailUrl || attraction.heroFallbackUrl || (!isIframe ? attraction.heroMediaUrl : null);
+                
+                if (imgSrc) {
+                  return (
+                    <img 
+                      src={imgSrc} 
+                      alt={attraction.name.en} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextElementSibling) {
+                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                        }
+                      }}
+                    />
+                  );
+                }
+
+                return null;
+              })()}
+              
+              {/* Fallback Icon (shown if no imgSrc or image fails to load) */}
+              <div 
+                className="w-full h-full flex items-center justify-center bg-[var(--surface-subtle)]"
+                style={{ display: attraction.heroThumbnailUrl || attraction.heroFallbackUrl || (!attraction.heroMediaType || attraction.heroMediaType !== 'IFRAME' ? attraction.heroMediaUrl : null) ? 'none' : 'flex' }}
+              >
+                <MapPin className="w-8 h-8 text-[var(--text-tertiary)] opacity-50" />
+              </div>
               
               <div className="absolute top-3 left-3 flex flex-col gap-1">
                 <Badge variant={attraction.isPublished ? "success" : "default"} className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-black/90">
