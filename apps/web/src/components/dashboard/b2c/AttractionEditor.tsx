@@ -273,7 +273,17 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Primary Media URL</label>
-                  <MediaUploader value={heroMediaUrl} onChange={setHeroMediaUrl} />
+                  {(heroMediaType === 'IFRAME' || heroMediaType === 'MODEL_3D') ? (
+                    <input 
+                      type="text" 
+                      value={heroMediaUrl || ''} 
+                      onChange={e => setHeroMediaUrl(e.target.value)} 
+                      placeholder="https://my.spline.design/..." 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                    />
+                  ) : (
+                    <MediaUploader value={heroMediaUrl} onChange={setHeroMediaUrl} />
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">

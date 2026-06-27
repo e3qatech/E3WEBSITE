@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useAttractionsStore, AttractionStatus, Attraction } from '@/store/useAttractionsStore';
 import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
-import { Search, Activity, ChevronDown, ChevronUp, Ticket } from 'lucide-react';
+import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: { locale: string, cmsData: any, initialAttractions?: Attraction[] }) {
@@ -19,7 +19,11 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
     setSearchQuery, 
     setStatusFilter,
     setAttractions,
-    isLoading
+    isLoading,
+    sortMode,
+    setSortMode,
+    userLocation,
+    setUserLocation
   } = useAttractionsStore();
 
   const [localSearch, setLocalSearch] = useState('');
@@ -52,8 +56,24 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
     }
   }, [setAttractions, initialAttractions]);
 
+  const requestLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.error("Error obtaining location", error);
+          alert("Unable to retrieve your location.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
+
   const filteredAttractions = useMemo(() => {
-    return attractions.filter(a => {
+    const result = attractions.filter(a => {
       const matchSearch = 
         (a.nameEn?.toLowerCase() || '').includes(searchQuery.toLowerCase()) || 
         (a.nameAr?.toLowerCase() || '').includes(searchQuery.toLowerCase());
@@ -66,7 +86,18 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
       
       return matchSearch && matchStatus && (a.id !== featuredAttraction?.id);
     });
-  }, [attractions, searchQuery, statusFilter, featuredAttraction]);
+    
+    // Sort logic
+    if (sortMode === 'Distance') {
+      result.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
+    } else if (sortMode === 'PriceLowToHigh') {
+      result.sort((a, b) => (a.pricing?.[0]?.price ?? 0) - (b.pricing?.[0]?.price ?? 0));
+    } else if (sortMode === 'PriceHighToLow') {
+      result.sort((a, b) => (b.pricing?.[0]?.price ?? 0) - (a.pricing?.[0]?.price ?? 0));
+    }
+    
+    return result;
+  }, [attractions, searchQuery, statusFilter, featuredAttraction, sortMode]);
 
   const filterChips: AttractionStatus[] = ['All', 'Active Now', 'Coming Soon', 'Special Events'];
   const isAr = locale === 'ar';
@@ -178,6 +209,30 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     {chip}
                   </button>
                 ))}
+              </div>
+
+              {/* Sorting and Location Tools */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+                <button
+                  onClick={requestLocation}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${userLocation ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-[#141414]/80 border-[#27272A] text-[#A1A1AA] hover:border-[#52525B]'}`}
+                >
+                  <MapPin className="w-4 h-4" />
+                  {isAr ? (userLocation ? 'الموقع مفعل' : 'استخدم موقعي') : (userLocation ? 'Location Active' : 'Use My Location')}
+                </button>
+                <div className="relative flex items-center">
+                  <select
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as any)}
+                    className="appearance-none bg-[#141414]/80 border border-[#27272A] rounded-xl pl-4 pr-10 py-2 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#F59E0B] transition-colors"
+                  >
+                    <option value="Recommended">{isAr ? 'موصى به' : 'Recommended'}</option>
+                    <option value="Distance">{isAr ? 'المسافة' : 'Distance'}</option>
+                    <option value="PriceLowToHigh">{isAr ? 'السعر: من الأقل للأعلى' : 'Price: Low to High'}</option>
+                    <option value="PriceHighToLow">{isAr ? 'السعر: من الأعلى للأقل' : 'Price: High to Low'}</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 w-4 h-4 text-[#A1A1AA] pointer-events-none" />
+                </div>
               </div>
             </motion.div>
           )}
@@ -507,6 +562,26 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
                 </div>
               )}
             </div>
+            
+            <div className="absolute top-6 right-6 flex flex-col gap-2 items-end text-right">
+               {attraction.distanceKm !== undefined && (
+                 <div className="flex items-center gap-1.5 bg-[#141414]/80 backdrop-blur-md text-[#FAFAFA] px-3 py-1.5 rounded-xl text-xs font-bold border border-[#27272A]">
+                   <MapPin className="w-3.5 h-3.5 text-[#F59E0B]" />
+                   {attraction.distanceKm < 1 ? 'Nearby' : `${attraction.distanceKm.toFixed(1)} km`}
+                 </div>
+               )}
+               {attraction.timingStatus && attraction.timingStatus.status !== 'UNKNOWN' && (
+                 <div className={`flex items-center gap-1.5 backdrop-blur-md px-3 py-1.5 rounded-xl text-xs font-bold border ${
+                    attraction.timingStatus.status === 'OPEN' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                    attraction.timingStatus.status === 'CLOSING_SOON' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                    'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                 }`}>
+                   <Clock className="w-3.5 h-3.5" />
+                   {attraction.timingStatus.label}
+                 </div>
+               )}
+            </div>
+            
           <div className="mt-auto">
             <h3 className={`font-bold mb-2 text-[#FAFAFA] group-hover:text-[#F59E0B] transition-colors line-clamp-1 ${isLarge ? 'text-3xl' : 'text-xl'}`}>
               {isNameAr ? attraction.nameAr : attraction.nameEn}

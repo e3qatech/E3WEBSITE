@@ -58,12 +58,17 @@ export interface Attraction {
   newsCoverage?: any | null;
   operations?: any | null;
   temporalStatus?: any | null;
+  coordinates?: { lat: number; lng: number } | null;
   
   // Client-side enriched state
   liveOccupancy?: LiveOccupancy;
   computedStatus?: string;
   isSpecialEvent?: boolean;
+  distanceKm?: number;
+  timingStatus?: import('@/lib/timingUtils').TimingStatus;
 }
+
+export type SortMode = 'Recommended' | 'Distance' | 'PriceLowToHigh' | 'PriceHighToLow';
 
 interface AttractionsState {
   attractions: Attraction[];
@@ -71,20 +76,26 @@ interface AttractionsState {
   searchQuery: string;
   statusFilter: AttractionStatus;
   isLoading: boolean;
+  userLocation: { lat: number, lng: number } | null;
+  sortMode: SortMode;
   
   // Actions
   setAttractions: (attractions: Attraction[]) => void;
   setSearchQuery: (query: string) => void;
   setStatusFilter: (status: AttractionStatus) => void;
   updateOccupancy: (attractionId: string, currentCount: number, maxCapacity: number) => void;
+  setUserLocation: (lat: number, lng: number) => void;
+  setSortMode: (mode: SortMode) => void;
 }
 
-export const useAttractionsStore = create<AttractionsState>((set) => ({
+export const useAttractionsStore = create<AttractionsState>((set, get) => ({
   attractions: [],
   featuredAttraction: null,
   searchQuery: '',
   statusFilter: 'All',
   isLoading: true,
+  userLocation: null,
+  sortMode: 'Recommended',
   
   setAttractions: (attractions) => {
     const enrichedAttractions = attractions.map(a => {
@@ -105,11 +116,23 @@ export const useAttractionsStore = create<AttractionsState>((set) => ({
          else if (now > end) status = "PAST";
          else status = "ACTIVE";
       }
-      
+      let distanceKm = undefined;
+      const state = get();
+      if (state.userLocation && a.coordinates?.lat && a.coordinates?.lng) {
+        // Dynamic import to avoid breaking build if not available immediately
+        const { calculateDistance } = require('@/lib/geoUtils');
+        distanceKm = calculateDistance(state.userLocation.lat, state.userLocation.lng, a.coordinates.lat, a.coordinates.lng);
+      }
+
+      const { getLiveTimingStatus } = require('@/lib/timingUtils');
+      const timingStatus = getLiveTimingStatus(a.operations?.schedules || []);
+
       return { 
         ...a,
         computedStatus: status,
-        isSpecialEvent: !!temporal.isSpecialEvent
+        isSpecialEvent: !!temporal.isSpecialEvent,
+        distanceKm,
+        timingStatus
       };
     });
 
@@ -132,4 +155,12 @@ export const useAttractionsStore = create<AttractionsState>((set) => ({
       ? { ...state.featuredAttraction, liveOccupancy: { currentCount, maxCapacity } }
       : state.featuredAttraction
   })),
+  
+  setUserLocation: (lat, lng) => {
+    set({ userLocation: { lat, lng } });
+    // Re-trigger distances
+    get().setAttractions(get().attractions);
+  },
+  
+  setSortMode: (mode) => set({ sortMode: mode }),
 }));
