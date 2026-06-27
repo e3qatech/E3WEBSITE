@@ -65,7 +65,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [mapUrl, setMapUrl] = useState(initialData?.mapUrl || "")
   const [ticketingUrl, setTicketingUrl] = useState(initialData?.ticketingUrl || "")
   const [operations, setOperations] = useState<any>(
-    initialData?.operations || { venueName: "", ageGroup: "", hours: "" }
+    initialData?.operations || { venueName: "", ageGroup: "", hours: "", schedules: [] }
   )
   const [temporalStatus, setTemporalStatus] = useState<any>(
     initialData?.temporalStatus || { isPermanent: true, startDate: "", endDate: "", statusOverride: "" }
@@ -577,8 +577,54 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                     <input type="text" value={operations.ageGroup} onChange={e => setOperations({...operations, ageGroup: e.target.value})} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hours</label>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hours (General)</label>
                     <input type="text" value={operations.hours} onChange={e => setOperations({...operations, hours: e.target.value})} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                  </div>
+                </div>
+
+                <div className="mt-8 border-t border-[var(--border-default)] pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-md font-bold">Specific Date & Timing Rules</h3>
+                    <Button type="button" onClick={() => setOperations({...operations, schedules: [...(operations.schedules || []), { id: Date.now(), title: "", details: "" }]})} variant="outline" size="sm" className="gap-2 rounded-xl">
+                      <Plus className="w-4 h-4" /> Add Rule
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    {(operations.schedules || []).map((schedule: any, index: number) => (
+                      <div key={schedule.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
+                        <button type="button" onClick={() => {
+                          const newSchedules = [...(operations.schedules || [])];
+                          newSchedules.splice(index, 1);
+                          setOperations({...operations, schedules: newSchedules});
+                        }} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Rule Title</label>
+                            <input type="text" placeholder="e.g. Weekends, National Day" value={schedule.title} onChange={e => {
+                              const newSchedules = [...(operations.schedules || [])];
+                              newSchedules[index].title = e.target.value;
+                              setOperations({...operations, schedules: newSchedules});
+                            }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Timing Details</label>
+                            <input type="text" placeholder="e.g. 4 PM - 12 AM" value={schedule.details} onChange={e => {
+                              const newSchedules = [...(operations.schedules || [])];
+                              newSchedules[index].details = e.target.value;
+                              setOperations({...operations, schedules: newSchedules});
+                            }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(!operations.schedules || operations.schedules.length === 0) && (
+                      <div className="text-center py-6 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-tertiary)] font-medium text-sm">
+                        No specific timing rules added.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
