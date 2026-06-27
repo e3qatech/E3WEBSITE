@@ -94,6 +94,7 @@ enum CaseStudySection {
   PROCESS
   RESULT
   BEHIND_THE_SCENES
+  GALLERY
 }
 
 enum Department {
