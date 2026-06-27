@@ -18,10 +18,10 @@ const contactInfo = {
 
 const quickLinks = {
   b2c: [
-    { label: "nav.events", href: "/b2c/events" },
+    { label: "nav.events", href: "/b2c/calendar" },
     { label: "nav.tickets", href: "/b2c/tickets" },
-    { label: "nav.faq", href: "/faq" },
-    { label: "nav.support", href: "/support" },
+    { label: "nav.faq", href: "/b2c/contact" },
+    { label: "nav.support", href: "/b2c/contact" },
   ],
   b2b: [
     { label: "nav.services", href: "/b2b/services" },

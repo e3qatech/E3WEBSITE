@@ -36,20 +36,31 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
 }
 
 const getFeaturedAttractions = cache(async (baseUrl: string) => {
+  const fallbacks = [
+    { id: 'mock-1', slug: 'winter-wonderland', name: { en: 'Winter Wonderland', ar: 'ونتر وندرلاند' }, image: 'https://images.unsplash.com/photo-1540839045646-19f7381eb6c7' },
+    { id: 'mock-2', slug: 'desert-safari', name: { en: 'Desert Safari', ar: 'سفاري الصحراء' }, image: 'https://images.unsplash.com/photo-1540839045646-19f7381eb6c7' },
+    { id: 'mock-3', slug: 'music-festival', name: { en: 'Summer Music Fest', ar: 'مهرجان الصيف الموسيقي' }, image: 'https://images.unsplash.com/photo-1540839045646-19f7381eb6c7' },
+  ];
+
   try {
-    const res = await fetch(`${baseUrl}/api/attractions?isVisible=true&limit=3`, { next: { revalidate: 60 } })
+    const res = await fetch(`${baseUrl}/api/attractions?isPublished=true&limit=3`, { next: { revalidate: 60 } })
     if (res.ok) {
       const { data } = await res.json()
-      return data || []
+      if (data && data.length > 0) {
+        const dbItems = data.map((a: any) => ({
+          id: a.id,
+          slug: a.slug,
+          name: { en: a.nameEn, ar: a.nameAr },
+          image: a.gallery?.[0]?.url || fallbacks[0].image
+        }))
+        // Ensure we always have 3 items by appending fallbacks if needed
+        return [...dbItems, ...fallbacks].slice(0, Math.max(3, dbItems.length));
+      }
     }
-    return []
+    return fallbacks;
   } catch (error) {
     console.error("Failed to fetch featured attractions", error)
-    return [
-      { id: '1', slug: 'winter-wonderland', name: { en: 'Winter Wonderland', ar: 'ونتر وندرلاند' }, image: '/hero/hero-1.webp' },
-      { id: '2', slug: 'desert-safari', name: { en: 'Desert Safari', ar: 'سفاري الصحراء' }, image: '/hero/hero-2.webp' },
-      { id: '3', slug: 'music-festival', name: { en: 'Summer Music Fest', ar: 'مهرجان الصيف الموسيقي' }, image: '/hero/hero-3.webp' },
-    ]
+    return fallbacks;
   }
 })
 

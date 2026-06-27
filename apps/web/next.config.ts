@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'booking.e3.qa' },
       { protocol: 'https', hostname: 'cdn.e3.qa' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
   async headers() {

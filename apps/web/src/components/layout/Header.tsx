@@ -15,9 +15,9 @@ interface HeaderProps {
 const navConfig = {
   b2c: [
     { label: "nav.home", href: "/b2c" },
-    { label: "nav.events", href: "/b2c/events" },
+    { label: "nav.events", href: "/b2c/calendar" },
     { label: "nav.tickets", href: "/b2c/tickets" },
-    { label: "nav.about", href: "/about" },
+    { label: "nav.about", href: "/b2c/about" },
   ],
   b2b: [
     { label: "nav.home", href: "/b2b" },
@@ -105,7 +105,16 @@ export function Header({ portal }: HeaderProps) {
             </button>
             
             <button
-              onClick={() => setLocale(locale === "en" ? "ar" : "en")}
+              onClick={() => {
+                const newLocale = locale === "en" ? "ar" : "en";
+                setLocale(newLocale);
+                // Also update the URL to reflect the new locale
+                if (typeof window !== "undefined") {
+                  const path = window.location.pathname;
+                  const newPath = path.replace(`/${locale}`, `/${newLocale}`);
+                  window.location.href = newPath;
+                }
+              }}
               className="flex items-center gap-1 p-2 rounded-full text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors font-medium text-sm"
               aria-label="Toggle language"
             >
