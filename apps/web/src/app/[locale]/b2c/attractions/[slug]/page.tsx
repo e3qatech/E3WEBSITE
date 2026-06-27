@@ -21,7 +21,8 @@ async function getAttractionData(slug: string) {
   // 1. First fetch base attraction to get its ID
   const res = await fetch(`${baseUrl}/api/attractions/${slug}`, { next: { revalidate: 60 } })
   if (!res.ok) return null
-  const { data: attraction } = await res.json()
+  const json = await res.json()
+  const attraction = json.data !== undefined ? json.data : json
 
   if (!attraction) return null
 
@@ -37,11 +38,11 @@ async function getAttractionData(slug: string) {
   ])
 
   const [pricing, gallery, faq, schedule, operations] = await Promise.all([
-    pricingRes.ok ? pricingRes.json().then(r => r.data) : [],
-    galleryRes.ok ? galleryRes.json().then(r => r.data) : [],
-    faqRes.ok ? faqRes.json().then(r => r.data) : [],
-    scheduleRes.ok ? scheduleRes.json().then(r => r.data) : [],
-    operationsRes.ok ? operationsRes.json().then(r => r.data) : null,
+    pricingRes.ok ? pricingRes.json().then(r => r.data !== undefined ? r.data : r) : [],
+    galleryRes.ok ? galleryRes.json().then(r => r.data !== undefined ? r.data : r) : [],
+    faqRes.ok ? faqRes.json().then(r => r.data !== undefined ? r.data : r) : [],
+    scheduleRes.ok ? scheduleRes.json().then(r => r.data !== undefined ? r.data : r) : [],
+    operationsRes.ok ? operationsRes.json().then(r => r.data !== undefined ? r.data : r) : null,
   ])
 
   return { attraction, pricing, gallery, faq, schedule, operations }
@@ -52,11 +53,12 @@ export async function generateMetadata(props: { params: Promise<{ slug: string, 
   const baseUrl = getBaseUrl()
   const res = await fetch(`${baseUrl}/api/attractions/${params.slug}`)
   if (!res.ok) return { title: 'Attraction Not Found' }
-  const { data } = await res.json()
+  const json = await res.json()
+  const data = json.data !== undefined ? json.data : json
 
   return {
-    title: `${data.nameEn} | E3 Qatar`,
-    description: data.descriptionEn,
+    title: `${data.nameEn || 'Attraction'} | E3 Qatar`,
+    description: data.descriptionEn || '',
   }
 }
 

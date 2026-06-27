@@ -32,10 +32,9 @@ export async function GET(
     if (!attraction || attraction.isHidden) {
       return NextResponse.json({ error: 'Attraction not found' }, { status: 404 });
     }
+    await redis.set(cacheKey, JSON.stringify({ data: attraction }), 'EX', 600);
 
-    await redis.set(cacheKey, JSON.stringify(attraction), 'EX', 600);
-
-    return NextResponse.json(attraction);
+    return NextResponse.json({ data: attraction });
   } catch (error: any) {
     console.error('[ATTRACTIONS_DETAIL_GET]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
