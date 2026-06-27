@@ -446,8 +446,20 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
     >
       <Link href={`/${locale}/b2c/attractions/${attraction.slug}`} className="flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
         <div className="absolute inset-0 z-0 bg-[#27272A]">
-          {attraction.heroMediaType === 'VIDEO' && attraction.heroMediaUrl ? (
+          {attraction.heroThumbnailUrl ? (
+            <img 
+              src={attraction.heroThumbnailUrl} 
+              alt={isNameAr ? attraction.nameAr : attraction.nameEn}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+          ) : attraction.heroMediaType === 'VIDEO' && attraction.heroMediaUrl ? (
              <video src={attraction.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+          ) : attraction.heroFallbackUrl ? (
+            <img 
+              src={attraction.heroFallbackUrl} 
+              alt={isNameAr ? attraction.nameAr : attraction.nameEn}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
           ) : attraction.gallery?.[0] ? (
             <img 
               src={attraction.gallery[0].url} 
