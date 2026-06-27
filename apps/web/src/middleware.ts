@@ -81,7 +81,7 @@ export default auth((req) => {
 
   // Prevent logged-in users from seeing the login page
   if (isLoggedIn && nextUrl.pathname.startsWith('/auth/login')) {
-     let redirectPath = '/dashboard/overview';
+     let redirectPath = '/dashboard';
      if (role === 'SALES_ADMIN') redirectPath = '/dashboard/b2b/leads';
      if (role === 'SUPPORT_ADMIN') redirectPath = '/dashboard/b2c/feedback';
      if (role === 'STAFF' || role === 'CLIENT') redirectPath = '/dashboard/schedule';
