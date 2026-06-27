@@ -16,8 +16,13 @@ export async function GET(
       return NextResponse.json(JSON.parse(cached));
     }
 
-    const attraction = await db.attraction.findUnique({
-      where: { id },
+    const attraction = await db.attraction.findFirst({
+      where: { 
+        OR: [
+          { id },
+          { slug: id }
+        ]
+      },
       include: {
         pricing: true,
         offers: true,

@@ -55,14 +55,32 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
               {/* Using a placeholder height for masonry effect. In a real app with next/image, 
                   you might need width/height if using layout="responsive" or rely on layout="fill" inside an aspect-ratio box.
                   For masonry without known heights, standard img is often easier, but we'll use a trick. */}
-              <img
-                src={item.url}
-                alt={item.captionEn || `Gallery Image ${idx + 1}`}
-                className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
+              {/* Media Rendering */}
+              {item.url.match(/\.(mp4|webm|mov)$/i) ? (
+                <video
+                  src={item.url}
+                  className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={item.url}
+                  alt={item.captionEn || `Gallery Image ${idx + 1}`}
+                  className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <Maximize2 className="w-8 h-8 text-white" />
+                {item.url.match(/\.(mp4|webm|mov)$/i) ? (
+                  <div className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center bg-black/50">
+                    <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white border-b-8 border-b-transparent ml-1" />
+                  </div>
+                ) : (
+                  <Maximize2 className="w-8 h-8 text-white" />
+                )}
               </div>
             </motion.div>
           ))}
@@ -105,14 +123,24 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
               className="relative w-full max-w-5xl aspect-video mx-20"
               onClick={(e) => e.stopPropagation()}
             >
-              <Image
-                src={items[selectedIndex].url}
-                alt={items[selectedIndex].captionEn || `Gallery Image ${selectedIndex + 1}`}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                priority
-              />
+              {items[selectedIndex].url.match(/\.(mp4|webm|mov)$/i) ? (
+                <video
+                  src={items[selectedIndex].url}
+                  className="w-full h-full object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                />
+              ) : (
+                <Image
+                  src={items[selectedIndex].url}
+                  alt={items[selectedIndex].captionEn || `Gallery Image ${selectedIndex + 1}`}
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  priority
+                />
+              )}
               {items[selectedIndex].captionEn && (
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
                   <p className="text-white text-lg text-center">
