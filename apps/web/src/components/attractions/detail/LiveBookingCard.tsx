@@ -16,6 +16,7 @@ interface LiveBookingCardProps {
   longitude?: number | null;
   locationAddress?: string | null;
   schedule?: any; // You can type this properly based on TemporalRules
+  operations?: any; // JSON field with operational data
 }
 
 export function LiveBookingCard({
@@ -27,6 +28,7 @@ export function LiveBookingCard({
   longitude,
   locationAddress,
   schedule,
+  operations,
 }: LiveBookingCardProps) {
   // Start the socket subscription
   useLiveOccupancy();
@@ -178,6 +180,21 @@ export function LiveBookingCard({
               >
                 <Navigation className="w-4 h-4" /> Get Directions
               </a>
+
+              {/* Contact Details overlay */}
+              {operations?.venueContactPhone && (
+                <div className="mt-4 pt-4 border-t border-white/10 pointer-events-auto">
+                   <p className="text-zinc-400 text-xs uppercase tracking-widest font-bold mb-2">Venue Contact</p>
+                   <a href={`tel:${operations.venueContactPhone}`} className="text-white hover:text-emerald-400 font-medium block">
+                     {operations.venueContactPhone}
+                   </a>
+                   {operations.venueContactEmail && (
+                     <a href={`mailto:${operations.venueContactEmail}`} className="text-white hover:text-emerald-400 font-medium block mt-1">
+                       {operations.venueContactEmail}
+                     </a>
+                   )}
+                </div>
+              )}
             </div>
           </motion.div>
 

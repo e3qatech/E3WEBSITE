@@ -8,6 +8,8 @@ import { PricingCards } from "@/components/attractions/detail/PricingCards"
 import { GalleryLightbox } from "@/components/attractions/detail/GalleryLightbox"
 import { LiveBookingCard } from "@/components/attractions/detail/LiveBookingCard"
 import { FaqAccordion } from "@/components/attractions/detail/FaqAccordion"
+import { PartnersSection } from '@/components/attractions/detail/PartnersSection';
+import { SocialNewsSection } from '@/components/attractions/detail/SocialNewsSection';
 
 import { db } from "@/lib/db"
 import { toZonedTime, format } from 'date-fns-tz';
@@ -195,12 +197,26 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
       />
 
-      {/* 5. Gallery Lightbox */}
+      {/* 5. Partners */}
+      <PartnersSection 
+        partners={(attraction.partners as any) || []}
+        locale={locale}
+      />
+
+      {/* 6. Social & What People Say */}
+      <SocialNewsSection 
+        socialPreviews={(attraction.socialPreviews as any) || []}
+        testimonials={(attraction.testimonials as any) || []}
+        newsCoverage={(attraction.newsCoverage as any) || []}
+        locale={locale}
+      />
+
+      {/* 7. Gallery Lightbox */}
       <GalleryLightbox 
         items={gallery}
       />
 
-      {/* 6. Live Booking & Map */}
+      {/* 8. Live Booking & Map */}
       <LiveBookingCard 
         attractionId={attraction.id}
         name={displayName}
@@ -209,10 +225,11 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         locationAddress={(attraction.operations as any)?.venueName || "Doha, Qatar"}
         mapUrl={attraction.mapUrl}
         schedule={schedule}
+        operations={attraction.operations}
         bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
       />
 
-      {/* 7. FAQ */}
+      {/* 9. FAQ */}
       <FaqAccordion 
         faqs={faq}
       />
