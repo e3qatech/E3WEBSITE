@@ -21,11 +21,14 @@ export function EventList({
 
 
 
-  // Group events by day
+  // Group events by day, ONLY for the currentDate
+  const targetDayStr = format(currentDate, 'yyyy-MM-dd');
   const groupedEvents = events.reduce((acc, event) => {
     const day = format(new Date(event.startTime), 'yyyy-MM-dd');
-    if (!acc[day]) acc[day] = [];
-    acc[day].push(event);
+    if (day === targetDayStr) {
+      if (!acc[day]) acc[day] = [];
+      acc[day].push(event);
+    }
     return acc;
   }, {} as Record<string, CalendarEvent[]>);
 
@@ -65,7 +68,7 @@ export function EventList({
               <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
             </div>
             
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {Object.values(
                 dayEvents.reduce((acc, ev) => {
                   if (!acc[ev.attractionId]) acc[ev.attractionId] = [];

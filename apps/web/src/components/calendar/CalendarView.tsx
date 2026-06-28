@@ -1,26 +1,34 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Filter } from 'lucide-react';
-import { CalendarSidebar, EventType, AvailabilityType } from './CalendarSidebar';
+import { motion } from "framer-motion";
+import { TopFilterBar, EventType, AvailabilityType } from './TopFilterBar';
 import { EventList } from './EventList';
 import { SubscribeSection } from './SubscribeSection';
 import { TicketSelectionModal } from './TicketSelectionModal';
+import { BulkBookingModal } from './BulkBookingModal';
 import { CalendarEvent } from './EventCard';
+import { HeroViewer } from '@/components/attractions/detail/HeroViewer';
 
 interface CalendarViewProps {
   initialAttractions: { id: string; nameEn: string; nameAr: string }[];
+  heroMediaType?: string;
+  heroMediaUrl?: string;
+  title?: string;
+  tagline?: string;
+  discounts?: any[];
 }
 
-export function CalendarView({ initialAttractions }: CalendarViewProps) {
+export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, title, tagline, discounts = [] }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedAttractions, setSelectedAttractions] = useState<string[]>([]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<EventType[]>([]);
-  const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityType>('ALL');
   
-  const [isMobileFilterOpen, setMobileFilterOpen] = useState(false);
+  // New Filter States
+  const [isDiscountActive, setIsDiscountActive] = useState(false);
   
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [isBulkBookingOpen, setIsBulkBookingOpen] = useState(false);
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,46 +37,25 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
     async function fetchEvents() {
       setLoading(true);
       try {
-        const { format } = await import('date-fns');
+        const { format, startOfMonth, endOfMonth } = await import('date-fns');
         const month = format(currentDate, 'MM');
         const year = format(currentDate, 'yyyy');
         
-        let url = `/api/calendar?month=${month}&year=${year}`;
+        const queryParams = new URLSearchParams();
+        queryParams.append('startDate', startOfMonth(currentDate).toISOString());
+        queryParams.append('endDate', endOfMonth(currentDate).toISOString());
         
-        if (selectedAttractions.length === 1) {
-          url += `&attractionId=${selectedAttractions[0]}`;
-        }
+        selectedAttractions.forEach(id => queryParams.append('attractions', id));
+        selectedEventTypes.forEach(type => queryParams.append('types', type));
+        if (isDiscountActive) queryParams.append('discount', 'true');
+
+        const res = await fetch(`/api/calendar?${queryParams.toString()}`);
+        if (!res.ok) throw new Error('Failed to fetch events');
         
-        if (selectedEventTypes.length === 1) {
-           url += `&eventType=${selectedEventTypes[0]}`;
-        }
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to fetch');
-        
-        let data: CalendarEvent[] = await res.json();
-
-        if (selectedAttractions.length > 0) {
-          data = data.filter(e => selectedAttractions.includes(e.attractionId));
-        }
-
-        if (selectedEventTypes.length > 0) {
-          data = data.filter(e => selectedEventTypes.includes(e.eventType));
-        }
-
-        if (availabilityFilter !== 'ALL') {
-          data = data.filter(e => {
-            const remaining = e.capacityGate - e.currentCount;
-            if (availabilityFilter === 'SOLD_OUT') return remaining <= 0;
-            if (availabilityFilter === 'LIMITED') return remaining > 0 && remaining < 20;
-            if (availabilityFilter === 'AVAILABLE') return remaining >= 20;
-            return true;
-          });
-        }
-
+        const data = await res.json();
         setEvents(data);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching calendar events:', err);
       } finally {
         setLoading(false);
       }
@@ -79,7 +66,7 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
     }, 150);
 
     return () => clearTimeout(timeoutId);
-  }, [currentDate, selectedAttractions, selectedEventTypes, availabilityFilter]);
+  }, [currentDate, selectedAttractions, selectedEventTypes, isDiscountActive]);
 
   const toggleAttraction = (id: string) => {
     setSelectedAttractions(prev => 
@@ -93,71 +80,91 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
     );
   };
 
+  const resetFilters = () => {
+    setSelectedAttractions([]);
+    setSelectedEventTypes([]);
+    setIsDiscountActive(false);
+    setCurrentDate(new Date());
+  };
+
   return (
     <div className="min-h-screen bg-[#0C0C0C] font-sans text-zinc-50 relative selection:bg-amber-500 selection:text-black">
       
-      {/* Industrial Grain Texture */}
-      <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <filter id="noise">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#noise)" />
-        </svg>
-      </div>
-
-      {/* Mobile Header / Filter Toggle */}
-      <div className="md:hidden sticky top-20 z-30 bg-[#0C0C0C]/80 backdrop-blur-md border-b border-zinc-800 p-4 flex items-center justify-between">
-        <h1 className="text-xl font-black text-white uppercase tracking-widest font-satoshi">Calendar</h1>
-        <button 
-          onClick={() => setMobileFilterOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm font-bold text-white uppercase"
-        >
-          <Filter className="w-4 h-4" /> Filters
-          {(selectedAttractions.length > 0 || selectedEventTypes.length > 0) && (
-            <span className="w-5 h-5 flex items-center justify-center bg-amber-500 text-black rounded-full text-xs font-mono font-bold">
-              {selectedAttractions.length + selectedEventTypes.length}
-            </span>
-          )}
-        </button>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        
-        {/* Desktop Header */}
-        <div className="hidden md:block mb-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight mb-4 font-satoshi">
-            Events <span className="text-amber-500">Calendar</span>
-          </h1>
-          <p className="text-lg text-zinc-400 font-medium max-w-2xl font-sans">
-            Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions.
-          </p>
+      {/* Dynamic Hero Viewer or Fallback Background */}
+      {heroMediaUrl ? (
+        <div className="absolute inset-0 z-0 h-[100vh] w-full">
+          <HeroViewer 
+            title={title || "Events Calendar"}
+            tagline={tagline || "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions."}
+            mediaType={heroMediaType || 'IMAGE'}
+            mediaUrl={heroMediaUrl}
+          />
         </div>
-
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12 relative">
-          
-          {/* Sidebar */}
-          <div className="md:w-80 shrink-0">
-            <div className="md:sticky md:top-32">
-              <CalendarSidebar 
-                currentDate={currentDate}
-                onDateChange={setCurrentDate}
-                attractions={initialAttractions}
-                selectedAttractions={selectedAttractions}
-                onAttractionToggle={toggleAttraction}
-                selectedEventTypes={selectedEventTypes}
-                onEventTypeToggle={toggleEventType}
-                availabilityFilter={availabilityFilter}
-                onAvailabilityChange={setAvailabilityFilter}
-                isMobileFilterOpen={isMobileFilterOpen}
-                setMobileFilterOpen={setMobileFilterOpen}
-                events={events}
-              />
-            </div>
+      ) : (
+        <>
+          {/* Industrial Grain Texture */}
+          <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+              <filter id="noise">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+              </filter>
+              <rect width="100%" height="100%" filter="url(#noise)" />
+            </svg>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 min-w-0">
+          <div className="pt-24 pb-8 text-center max-w-4xl mx-auto px-4 relative z-10">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white uppercase tracking-tight mb-6 font-satoshi drop-shadow-lg">
+              {title ? title : <>Events <span className="text-amber-500">Calendar</span></>}
+            </h1>
+            <p className="text-lg md:text-xl text-zinc-400 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-lg">
+              {tagline || "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions."}
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* Main Content Area */}
+      <div className={`relative z-10 ${heroMediaUrl ? 'pt-[70vh]' : ''}`}>
+        <TopFilterBar
+          currentDate={currentDate}
+          onDateChange={setCurrentDate}
+          attractions={initialAttractions}
+          selectedAttractions={selectedAttractions}
+          onAttractionToggle={toggleAttraction}
+          selectedEventTypes={selectedEventTypes}
+          onEventTypeToggle={toggleEventType}
+          isDiscountActive={isDiscountActive}
+          onDiscountToggle={() => setIsDiscountActive(!isDiscountActive)}
+          onResetFilters={resetFilters}
+          onBulkBookingClick={() => setIsBulkBookingOpen(true)}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+          
+          {/* Partner Discounts Section (Scroll Ticker) */}
+          {discounts && discounts.length > 0 && (
+            <div className="mb-12 w-full overflow-hidden bg-amber-500/10 border-y border-amber-500/20 py-4 relative">
+              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-zinc-950 to-transparent z-10" />
+              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
+              <motion.div 
+                className="flex gap-16 w-max px-8"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ ease: "linear", duration: discounts.length * 5, repeat: Infinity }}
+              >
+                {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
+                  <div key={`${discount.id}-${idx}`} className="flex items-center gap-4 shrink-0">
+                    <span className="text-amber-500 font-bold uppercase tracking-widest">{discount.title}</span>
+                    <span className="text-zinc-600 font-black">/</span>
+                    <span className="text-white font-black text-lg">{discount.discount}</span>
+                    <span className="text-zinc-600 font-black">/</span>
+                    <span className="text-zinc-400 text-sm tracking-wider uppercase">Code: <span className="text-white font-mono bg-white/10 px-2 py-1 rounded ml-1 border border-white/20">{discount.promoCode}</span></span>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          )}
+
+          <div className="w-full">
             <EventList 
               currentDate={currentDate}
               events={events}
@@ -165,18 +172,25 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
               onSelectTickets={setSelectedEvent}
             />
           </div>
-
+          <SubscribeSection />
         </div>
 
-        <SubscribeSection />
+        <TicketSelectionModal 
+          isOpen={!!selectedEvent} 
+          onClose={() => setSelectedEvent(null)}
+          event={selectedEvent}
+          onOpenBulkBooking={() => {
+            setSelectedEvent(null);
+            setIsBulkBookingOpen(true);
+          }}
+        />
 
+        <BulkBookingModal
+          isOpen={isBulkBookingOpen}
+          onClose={() => setIsBulkBookingOpen(false)}
+          attractions={initialAttractions}
+        />
       </div>
-
-      <TicketSelectionModal 
-        isOpen={!!selectedEvent} 
-        onClose={() => setSelectedEvent(null)}
-        event={selectedEvent}
-      />
     </div>
   );
 }

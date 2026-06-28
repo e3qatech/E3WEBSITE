@@ -17,9 +17,10 @@ interface TicketSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   event: CalendarEvent | null;
+  onOpenBulkBooking?: () => void;
 }
 
-export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelectionModalProps) {
+export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking }: TicketSelectionModalProps) {
   const [pricing, setPricing] = useState<PricingTier[]>([]);
   const [loading, setLoading] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -179,6 +180,14 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
 
           {/* Footer */}
           <div className="p-6 border-t border-zinc-800 bg-zinc-950">
+            {onOpenBulkBooking && (
+              <button 
+                onClick={onOpenBulkBooking}
+                className="w-full text-center text-sm text-zinc-500 hover:text-amber-500 transition-colors mb-4 underline underline-offset-4"
+              >
+                Need 10 or more tickets? Request a Group Booking
+              </button>
+            )}
             <div className="flex justify-between items-center mb-4">
               <span className="text-zinc-400 font-bold font-mono uppercase tracking-widest text-sm">Subtotal</span>
               <span className="text-2xl font-black font-mono text-white">QAR {subtotal}</span>

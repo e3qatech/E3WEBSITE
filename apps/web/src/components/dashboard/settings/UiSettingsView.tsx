@@ -18,7 +18,9 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
     enable3DMap: initialSettings.enable3DMap !== undefined ? initialSettings.enable3DMap : true,
     enableLiveOccupancy: initialSettings.enableLiveOccupancy !== undefined ? initialSettings.enableLiveOccupancy : true,
     enableSocialPreviews: initialSettings.enableSocialPreviews !== undefined ? initialSettings.enableSocialPreviews : true,
-    customCss: initialSettings.customCss || ""
+    customCss: initialSettings.customCss || "",
+    calendarHeroMediaType: initialSettings.calendarHeroMediaType || "IMAGE",
+    calendarHeroMediaUrl: initialSettings.calendarHeroMediaUrl || ""
   })
 
   const handleChange = (field: string, value: any) => {
@@ -118,6 +120,45 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 />
               </div>
             </div>
+            </div>
+          </div>
+
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
+              <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
+                <Palette className="w-5 h-5 mr-2 text-purple-500" /> Calendar Hero Settings
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Media Type</label>
+                  <select 
+                    value={data.calendarHeroMediaType} 
+                    onChange={e => handleChange("calendarHeroMediaType", e.target.value)}
+                    className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="MODEL_3D">3D Model</option>
+                    <option value="IFRAME">iframe (e.g. YouTube)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Media URL</label>
+                  <input 
+                    type="text" 
+                    value={data.calendarHeroMediaUrl} 
+                    onChange={e => handleChange("calendarHeroMediaUrl", e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                  />
+                  <p className="text-xs text-[var(--text-secondary)] mt-2">
+                    Set a dynamic background for the global B2C Calendar page. Use a video URL, image URL, or 3D model URL.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 

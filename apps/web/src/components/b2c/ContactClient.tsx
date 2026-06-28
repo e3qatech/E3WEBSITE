@@ -2,13 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, MessageSquare, HeadphonesIcon, HelpCircle, Phone, Mail, Clock, Search, ChevronDown, ChevronUp, FileUp } from "lucide-react";
+import { Star, MessageSquare, HeadphonesIcon, HelpCircle, Phone, Mail, Clock, Search, ChevronDown, ChevronUp, FileUp, Quote } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 
-export function ContactClient({ attractions, faqs }: { attractions: any[], faqs: any[] }) {
+export function ContactClient({ 
+  attractions, 
+  attractionFaqs, 
+  generalFaqs, 
+  pageSettings,
+  featuredFeedbacks
+}: { 
+  attractions: any[], 
+  attractionFaqs: any[], 
+  generalFaqs: any[],
+  pageSettings: any,
+  featuredFeedbacks: any[]
+}) {
   const [activeTab, setActiveTab] = useState("support");
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
@@ -18,31 +30,53 @@ export function ContactClient({ attractions, faqs }: { attractions: any[], faqs:
     setActiveFaq(prev => (prev === id ? null : id));
   };
 
-  const filteredFaqs = faqs.filter(faq => {
-    const matchesSearch = faq.questionEn.toLowerCase().includes(faqSearch.toLowerCase()) || faq.answerEn.toLowerCase().includes(faqSearch.toLowerCase());
-    const matchesFilter = faqFilter === "all" || faq.attractionId === faqFilter;
+  const allFaqs = [
+    ...generalFaqs.map(f => ({ ...f, type: 'general', attractionId: null })),
+    ...attractionFaqs.map(f => ({ ...f, type: 'attraction' }))
+  ];
+
+  const filteredFaqs = allFaqs.filter(faq => {
+    const matchesSearch = faq.questionEn?.toLowerCase().includes(faqSearch.toLowerCase()) || faq.answerEn?.toLowerCase().includes(faqSearch.toLowerCase());
+    const matchesFilter = faqFilter === "all" || (faqFilter === "general" && faq.type === "general") || faq.attractionId === faqFilter;
     return matchesSearch && matchesFilter;
   });
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 md:p-8">
+    <div className="min-h-screen">
       {/* HERO SECTION */}
-      <div className="text-center py-16 md:py-24">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", bounce: 0.5 }}
-          className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] mb-6"
-        >
-          <HeadphonesIcon className="w-10 h-10" />
-        </motion.div>
-        <h1 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] mb-4">
-          How Can We Help?
-        </h1>
-        <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-          Need support with a ticket, want to leave feedback, or just have a general question? We're here for you.
-        </p>
+      <div className="relative pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden bg-zinc-900 border-b border-[var(--border-subtle)]">
+        {pageSettings.heroMediaType === "VIDEO" && pageSettings.heroMediaUrl && (
+          <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-40">
+            <source src={pageSettings.heroMediaUrl} type="video/mp4" />
+          </video>
+        )}
+        {pageSettings.heroMediaType === "IMAGE" && pageSettings.heroMediaUrl && (
+          <img src={pageSettings.heroMediaUrl} alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+        )}
+        {pageSettings.heroMediaType === "IFRAME" && pageSettings.heroMediaUrl && (
+          <iframe src={pageSettings.heroMediaUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] to-transparent" />
+        
+        <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-8 text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", bounce: 0.5 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-amber-500/10 text-amber-500 mb-8 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+          >
+            <HeadphonesIcon className="w-8 h-8" />
+          </motion.div>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight">
+            {pageSettings.title || "How Can We Help?"}
+          </h1>
+          <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
+            {pageSettings.tagline || "Need support with a ticket, want to leave feedback, or just have a general question? We're here for you."}
+          </p>
+        </div>
       </div>
+
+      <div className="max-w-6xl mx-auto p-4 md:p-8 pt-12 relative z-20">
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* MAIN CONTENT AREA */}
@@ -54,7 +88,8 @@ export function ContactClient({ attractions, faqs }: { attractions: any[], faqs:
               <TabsTrigger value="faq" className="gap-2"><HelpCircle className="w-4 h-4" /> FAQ</TabsTrigger>
             </TabsList>
           
-            <div className="mt-8 bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-3xl p-6 md:p-8 shadow-sm">
+            <div className="mt-8 bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+              <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
               <TabsContent value="support"><SupportForm attractions={attractions} /></TabsContent>
               <TabsContent value="feedback"><FeedbackForm attractions={attractions} /></TabsContent>
               <TabsContent value="faq">
@@ -76,42 +111,105 @@ export function ContactClient({ attractions, faqs }: { attractions: any[], faqs:
 
         {/* SIDEBAR AREA */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-3xl p-8">
-            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-6">Quick Contact</h3>
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5" />
+          <div className="bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-xl p-8 shadow-sm relative overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+            <h3 className="text-xl font-black text-[var(--text-primary)] mb-6 tracking-tight relative z-10">Quick Contact</h3>
+            <div className="space-y-6 relative z-10">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] transition-colors hover:border-amber-500/50 group cursor-pointer">
+                <div className="w-12 h-12 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)]">WhatsApp Support</h4>
-                  <p className="text-sm text-[var(--text-secondary)] mb-1">+974 4400 0000</p>
-                  <a href="#" className="text-sm text-[var(--color-primary)] font-medium hover:underline">Message us on WhatsApp</a>
+                  <h4 className="font-bold text-[var(--text-primary)] font-mono text-sm uppercase tracking-wider">WhatsApp Support</h4>
+                  <p className="text-sm text-[var(--text-secondary)] mb-1 font-mono">+974 4400 0000</p>
+                  <span className="text-sm text-green-500 font-bold group-hover:underline">Message us &rarr;</span>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5" />
+              
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] transition-colors hover:border-amber-500/50 group cursor-pointer">
+                <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)]">Email Us</h4>
-                  <p className="text-sm text-[var(--text-secondary)]">support@e3.qa</p>
+                  <h4 className="font-bold text-[var(--text-primary)] font-mono text-sm uppercase tracking-wider">Email Us</h4>
+                  <p className="text-sm text-[var(--text-secondary)] mb-1 font-mono">support@e3.qa</p>
+                  <span className="text-sm text-amber-500 font-bold group-hover:underline">Send email &rarr;</span>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5" />
+              
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)]">
+                <div className="w-12 h-12 rounded-lg bg-zinc-500/10 text-zinc-400 flex items-center justify-center shrink-0">
+                  <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)]">Operating Hours</h4>
-                  <p className="text-sm text-[var(--text-secondary)]">Sun - Thu: 9:00 AM - 6:00 PM</p>
-                  <p className="text-sm text-[var(--text-secondary)]">Fri - Sat: 1:00 PM - 9:00 PM</p>
+                  <h4 className="font-bold text-[var(--text-primary)] font-mono text-sm uppercase tracking-wider">Operating Hours</h4>
+                  <p className="text-sm text-[var(--text-secondary)] font-medium mt-1 font-mono">Sun - Thu: <span className="text-[var(--text-primary)]">9:00 AM - 6:00 PM</span></p>
+                  <p className="text-sm text-[var(--text-secondary)] font-medium font-mono">Fri - Sat: <span className="text-[var(--text-primary)]">1:00 PM - 9:00 PM</span></p>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* SOCIAL LINKS */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 relative overflow-hidden group">
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+              <Instagram className="w-32 h-32 text-amber-500" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-6 relative z-10 tracking-tight">Connect with Us</h3>
+            <p className="text-zinc-400 mb-6 relative z-10 font-mono text-sm">Follow us for the latest updates, event announcements, and exclusive offers.</p>
+            <div className="flex gap-4 relative z-10">
+              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+                <Linkedin className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
+      </div>
+
+      {/* WHAT PEOPLE ARE SAYING */}
+      {featuredFeedbacks && featuredFeedbacks.length > 0 && (
+        <div className="max-w-6xl mx-auto p-4 md:p-8 mt-12 mb-24 relative">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">What People Are Saying</h2>
+            <p className="text-[var(--text-secondary)] mt-4 font-mono">Real feedback from our amazing customers and partners.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredFeedbacks.map((fb, idx) => (
+              <motion.div 
+                key={fb.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-xl p-8 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+                <Quote className="absolute top-6 right-6 w-12 h-12 text-[var(--border-subtle)] opacity-50" />
+                <div className="flex gap-1 mb-6">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className={`w-5 h-5 ${i < (fb.rating || 5) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} />
+                  ))}
+                </div>
+                <p className="text-[var(--text-primary)] italic mb-6 relative z-10 leading-relaxed text-lg">&quot;{fb.message}&quot;</p>
+                <div>
+                  <p className="font-bold text-[var(--text-primary)]">{fb.name || "Anonymous"}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -372,6 +470,7 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
             onChange={(e: any) => setFilter(e.target.value)}
             options={[
               { value: "all", label: "All Topics" },
+              { value: "general", label: "General" },
               ...attractions.map((a: any) => ({ value: a.id, label: a.nameEn }))
             ]}
           />
@@ -409,5 +508,41 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
         <Button variant="outline" onClick={switchToSupport}>Contact Support</Button>
       </div>
     </div>
+  );
+}
+
+function Instagram({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+    </svg>
+  );
+}
+
+function Facebook({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+  );
+}
+
+function Twitter({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+    </svg>
+  );
+}
+
+function Linkedin({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+      <rect width="4" height="12" x="2" y="9"/>
+      <circle cx="4" cy="4" r="2"/>
+    </svg>
   );
 }

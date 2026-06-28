@@ -31,6 +31,8 @@ const sidebarConfig = [
   { label: "B2C Management", icon: Users, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Page", href: "/dashboard/b2c/landing" },
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
+    { label: "Events Calendar", href: "/dashboard/b2c/calendar" },
+    { label: "Discover Page", href: "/dashboard/b2c/discover" },
     { label: "Feedback", href: "/dashboard/b2c/feedback" }
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [

@@ -1,0 +1,23 @@
+import { Metadata } from "next";
+import { DiscoverClient } from "@/components/b2c/DiscoverClient";
+
+import prisma from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Discover E3 | Event Engineering Experts",
+  description: "Learn about the E3 story, our heritage, corporate team, and how to book VIP or corporate experiences.",
+};
+
+export default async function DiscoverPage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
+  const setting = await prisma.setting.findUnique({
+    where: { key: "B2C_DISCOVER_PAGE_SETTINGS" }
+  });
+
+  const settings = setting ? JSON.parse(setting.value) : null;
+
+  return <DiscoverClient locale={locale} initialSettings={settings} />;
+}

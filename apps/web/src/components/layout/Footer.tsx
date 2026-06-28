@@ -16,7 +16,6 @@ interface FooterProps {
 const quickLinks = {
   b2c: [
     { label: "nav.events", href: "/b2c/calendar" },
-    { label: "nav.tickets", href: "/b2c/tickets" },
     { label: "nav.faq", href: "/b2c/contact" },
     { label: "nav.support", href: "/b2c/contact" },
   ],
@@ -140,8 +139,8 @@ export function Footer({ portal, settings = {} }: FooterProps) {
               {t("footer.quickLinks")}
             </h3>
             <ul className="flex flex-col gap-3">
-              {links.map((link) => (
-                <li key={link.href}>
+              {links.map((link, index) => (
+                <li key={`${link.href}-${index}`}>
                   <Link href={link.href} className="text-[var(--text-secondary)] hover:text-[var(--color-primary)] text-sm transition-colors">
                     {t(link.label)}
                   </Link>

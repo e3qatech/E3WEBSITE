@@ -1,3 +1,5 @@
+process.env.TURBOPACK = '0';
+process.env.NEXT_PRIVATE_LOCAL_WEBPACK = 'true';
 import { createServer } from 'http'
 import { parse } from 'url'
 import next from 'next'
@@ -8,7 +10,7 @@ const hostname = 'localhost'
 const port = parseInt(process.env.PORT || '3000', 10)
 
 // when using middleware `hostname` and `port` must be provided below
-const app = next({ dev, hostname, port })
+const app = next({ dev, hostname, port, turbo: false } as any)
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {

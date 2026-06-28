@@ -15,6 +15,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'booking.e3.qa' },
       { protocol: 'https', hostname: 'cdn.e3.qa' },
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
   async headers() {

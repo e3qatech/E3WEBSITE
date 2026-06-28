@@ -12,13 +12,13 @@ export async function GET(req: NextRequest) {
     const year = searchParams.get('year');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
-    const attractionId = searchParams.get('attractionId');
+    const attractionIds = searchParams.getAll('attractions');
     const availableNow = searchParams.get('availableNow') === 'true';
-
+    const hasDiscount = searchParams.get('discount') === 'true';
     const eventType = searchParams.get('eventType');
 
     // Caching based on query
-    const cacheKey = `calendar:list:${month}:${year}:${startDate}:${endDate}:${attractionId}:${availableNow}:${eventType}`;
+    const cacheKey = `calendar:list:${month}:${year}:${startDate}:${endDate}:${attractionIds.join(',')}:${availableNow}:${eventType}:${hasDiscount}`;
     
     let cached = null;
     try {
@@ -33,12 +33,19 @@ export async function GET(req: NextRequest) {
 
     const where: any = {};
 
-    if (attractionId) {
-      where.attractionId = attractionId;
+    if (attractionIds && attractionIds.length > 0) {
+      where.attractionId = { in: attractionIds };
     }
     
     if (eventType) {
       where.eventType = eventType;
+    }
+
+    if (hasDiscount) {
+      where.attraction = {
+        ...(where.attraction || {}),
+        offers: { some: {} }
+      };
     }
 
     if (availableNow) {
@@ -64,6 +71,8 @@ export async function GET(req: NextRequest) {
             nameEn: true,
             nameAr: true,
             slug: true,
+            ticketingUrl: true,
+            offers: { select: { id: true } },
             // Assuming we use gallery[0] as thumbnail for B2C if a specific thumbnail doesn't exist
             gallery: { take: 1 },
             pricing: {
@@ -88,6 +97,9 @@ export async function GET(req: NextRequest) {
         attractionNameEn: event.attraction.nameEn,
         attractionNameAr: event.attraction.nameAr,
         attractionSlug: event.attraction.slug,
+        ticketingUrl: event.attraction.ticketingUrl,
+        title: event.title,
+        description: event.description,
         thumbnail,
         startTime: event.startTime,
         endTime: event.endTime,
@@ -95,7 +107,8 @@ export async function GET(req: NextRequest) {
         price: lowestPrice,
         capacityGate: event.capacityGate,
         currentCount: event.currentCount,
-        isAvailable
+        isAvailable,
+        hasOffer: (event.attraction as any).offers?.length > 0
       };
     });
 

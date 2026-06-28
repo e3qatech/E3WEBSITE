@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { MapPin, Clock, Tag, ChevronRight } from 'lucide-react';
+import { format, isPast, differenceInMinutes } from 'date-fns';
+import { MapPin, Clock, Tag, ChevronRight, ExternalLink } from 'lucide-react';
 import { EventType } from './CalendarSidebar';
 
 export interface CalendarEvent {
@@ -10,6 +10,9 @@ export interface CalendarEvent {
   attractionNameEn: string;
   attractionNameAr: string;
   attractionSlug: string;
+  ticketingUrl?: string | null;
+  title: string | null;
+  description: string | null;
   thumbnail: string | null;
   startTime: string | Date;
   endTime: string | Date;
@@ -18,6 +21,7 @@ export interface CalendarEvent {
   capacityGate: number;
   currentCount: number;
   isAvailable: boolean;
+  hasOffer?: boolean;
 }
 
 interface EventCardProps {
@@ -28,17 +32,20 @@ interface EventCardProps {
 export function EventCard({ events, onSelectTickets }: EventCardProps) {
   const event = events[0]; // Base details on the first event
   const startDate = new Date(event.startTime);
-  const endDate = new Date(event.endTime);
-  
-  const remaining = event.capacityGate - event.currentCount;
+  const endDate = new Date(events[events.length - 1].endTime);
   
   // Status logic for overall availability
   const totalRemaining = events.reduce((sum, e) => sum + (e.capacityGate - e.currentCount), 0);
   let statusBadge = null;
-  if (totalRemaining <= 0) {
+  const now = new Date();
+  const minsLeft = differenceInMinutes(endDate, now);
+
+  if (minsLeft < 0) {
+    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-500/20 text-zinc-400 rounded-sm border border-zinc-500/30">Not Available</div>;
+  } else if (minsLeft <= 60) {
+    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-rose-500/20 text-rose-500 rounded-sm border border-rose-500/30">Closing Soon</div>;
+  } else if (totalRemaining <= 0) {
     statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/20 text-red-500 rounded-sm border border-red-500/30">Sold Out</div>;
-  } else if (totalRemaining < 20) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-500 rounded-sm border border-amber-500/30">Limited: {totalRemaining}</div>;
   } else {
     statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">Available</div>;
   }
@@ -91,18 +98,30 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
         <div className="flex-1 p-6 flex flex-col justify-between relative z-10 bg-gradient-to-b from-transparent to-zinc-950/50">
           <div>
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-tight font-satoshi">
-                <Link href={`/en/b2c/attractions/${event.attractionSlug}`} className="hover:text-amber-500 transition-colors">
+              <div className="flex flex-col">
+                {event.title && (
+                  <h3 className="text-xl md:text-2xl font-bold text-white leading-tight font-satoshi mb-1">
+                    {event.title}
+                  </h3>
+                )}
+                <Link href={`/en/b2c/attractions/${event.attractionSlug}`} className={`hover:text-amber-500 transition-colors ${event.title ? 'text-sm text-zinc-400 font-medium' : 'text-xl md:text-2xl font-bold text-white leading-tight font-satoshi'}`}>
                   {event.attractionNameEn}
                 </Link>
-              </h3>
-              {statusBadge}
+              </div>
+              <div className="flex flex-col items-end gap-2 ml-4 shrink-0">
+                {statusBadge}
+                {event.hasOffer && (
+                  <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-500 rounded-sm border border-amber-500/30">
+                    Offer
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 font-medium mb-6 font-mono">
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-zinc-500" />
-                {events.length} {events.length === 1 ? 'Slot' : 'Slots'} Available
+                {format(startDate, 'h:mm a')} - {format(endDate, 'h:mm a')}
               </div>
               <div className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-zinc-500" />
@@ -120,40 +139,24 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
           <div className="flex items-center justify-between border-t border-zinc-800/60 pt-5 mt-auto">
             <Link 
               href={`/en/b2c/attractions/${event.attractionSlug}`}
-              className="text-sm font-bold text-zinc-400 hover:text-white uppercase tracking-widest flex items-center gap-1 transition-colors"
+              className="px-5 py-2 text-sm font-bold text-zinc-300 hover:text-black hover:bg-white bg-zinc-900 border border-zinc-700 rounded-lg uppercase tracking-widest transition-all"
             >
-              View Detail <ChevronRight className="w-4 h-4" />
+              Explore
             </Link>
 
-            <div className="flex flex-wrap gap-2">
-              {events.map((slot) => {
-                const slotRemaining = slot.capacityGate - slot.currentCount;
-                const isSoldOut = slotRemaining <= 0;
-                const isLimited = slotRemaining > 0 && slotRemaining < 10;
-                
-                return (
-                  <button
-                    key={slot.id}
-                    disabled={isSoldOut}
-                    onClick={() => onSelectTickets(slot)}
-                    className={`
-                      px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest rounded-md border transition-all
-                      ${isSoldOut 
-                        ? 'bg-zinc-900 border-zinc-800 text-zinc-600 cursor-not-allowed' 
-                        : 'bg-[#141414] border-zinc-700 text-zinc-300 hover:bg-amber-500 hover:text-black hover:border-amber-500'}
-                    `}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span>{format(new Date(slot.startTime), 'h:mm a')}</span>
-                      {!isSoldOut && isLimited && (
-                        <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1 rounded">
-                          {slotRemaining} LEFT
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="flex gap-2">
+              <a
+                href={event.ticketingUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`px-6 py-2 text-sm font-bold uppercase tracking-widest rounded-lg transition-all border flex items-center gap-2
+                  ${isPast(endDate) || totalRemaining <= 0
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-600 cursor-not-allowed pointer-events-none' 
+                    : 'bg-amber-500 text-black hover:bg-white border-amber-500'}
+                `}
+              >
+                Book Now <ExternalLink className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>

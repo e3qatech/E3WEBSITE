@@ -16,9 +16,9 @@ interface HeaderProps {
 
 const navConfig = {
   b2c: [
+    { label: "nav.discover", href: "/b2c/discover" },
     { label: "nav.attractions", href: "/b2c" },
     { label: "nav.events", href: "/b2c/calendar" },
-    { label: "nav.tickets", href: "/b2c/tickets" },
     { label: "nav.contact", href: "/b2c/contact" },
   ],
   b2b: [
