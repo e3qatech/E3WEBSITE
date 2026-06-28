@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { format, isPast, differenceInMinutes } from 'date-fns';
 import { MapPin, Clock, Tag, ChevronRight, ExternalLink } from 'lucide-react';
-import { EventType } from './CalendarSidebar';
+export type EventType = 'REGULAR' | 'SPECIAL' | 'FESTIVAL' | 'PRIVATE';
 
 export interface CalendarEvent {
   id: string;
