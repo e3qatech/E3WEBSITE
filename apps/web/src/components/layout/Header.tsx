@@ -92,7 +92,7 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
                   : "bg-transparent border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white"
               )}
             >
-              Switch to {portal === 'b2c' ? 'B2B' : 'B2C'}
+              Switch to {portal === 'b2c' ? 'Organizers' : 'Visitors'}
             </Link>
           </div>
 
