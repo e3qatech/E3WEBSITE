@@ -52,6 +52,7 @@ export function LiveBookingCard({
   if (occupancyPercentage > 60) capacityColor = 'bg-yellow-500';
   if (occupancyPercentage > 90) capacityColor = 'bg-red-500';
 
+  return (
     <section className="py-32 bg-black text-white relative border-t border-white/5">
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black pointer-events-none" />
