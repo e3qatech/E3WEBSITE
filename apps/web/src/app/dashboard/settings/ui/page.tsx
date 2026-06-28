@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function UiSettingsPage() {
-  const settingsRecords = await db.siteSettings.findMany({
+  const settingsRecords = await db.setting.findMany({
     where: { type: "UI" }
   })
   

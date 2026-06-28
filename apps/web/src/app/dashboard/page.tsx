@@ -27,9 +27,9 @@ export default async function DashboardOverviewPage() {
 
   try {
     const results = await Promise.all([
-      db.caseStudies.count({ where: { isPublished: true } }).catch(() => 0),
-      db.leads.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
-      db.calendarEvents.findMany({
+      db.caseStudy.count({ where: { isPublished: true } }).catch(() => 0),
+      db.lead.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
+      db.calendarEvent.findMany({
         where: { startDate: { gte: new Date() } },
         orderBy: { startDate: 'asc' },
         take: 5,
@@ -38,7 +38,7 @@ export default async function DashboardOverviewPage() {
       db.feedback.findMany({
         where: { rating: { gte: 1 } }
       }).catch(() => []),
-      db.systemLogs.findMany({
+      db.systemLog.findMany({
         orderBy: { createdAt: 'desc' },
         take: 10
       }).catch(() => [])

@@ -59,11 +59,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // 2. Fetch Dynamic Routes
     const [attractions, services, caseStudies, teamMembers, events] = await Promise.all([
-      db.attractions.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
-      db.services.findMany({ where: { isVisible: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
-      db.caseStudies.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
-      db.teamMembers.findMany({ where: { isPublished: true }, select: { id: true, updatedAt: true } }).catch(() => []),
-      db.calendarEvents.findMany({ where: { isPublished: true }, select: { id: true, updatedAt: true } }).catch(() => []),
+      db.attraction.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      db.service.findMany({ where: { isVisible: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      db.caseStudy.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      db.teamMember.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
+      db.calendarEvent.findMany({ where: { status: 'PUBLISHED' }, select: { id: true, updatedAt: true } }).catch(() => []),
     ]);
 
     // 3. Map Dynamic Routes to Sitemap

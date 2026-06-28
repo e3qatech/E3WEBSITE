@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function UsersSettingsPage() {
-  const users = await db.users.findMany({
+  const users = await db.user.findMany({
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
