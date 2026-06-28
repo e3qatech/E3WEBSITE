@@ -70,12 +70,15 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
       const res = await fetch(`/api/b2c/attractions/${id}`, {
         method: "DELETE",
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete attraction");
+      }
       
       setAttractions(prev => prev.filter(a => a.id !== id))
       router.refresh()
-    } catch {
-      alert("Failed to delete attraction")
+    } catch (err: any) {
+      alert(err.message || "Failed to delete attraction")
     }
   }
 
