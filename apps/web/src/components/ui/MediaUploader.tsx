@@ -9,9 +9,10 @@ interface MediaUploaderProps {
   onChange: (url: string) => void
   placeholder?: string
   className?: string
+  accept?: string
 }
 
-export function MediaUploader({ value, onChange, placeholder = "https://...", className }: MediaUploaderProps) {
+export function MediaUploader({ value, onChange, placeholder = "https://...", className, accept = "image/*,video/*,audio/*" }: MediaUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -64,7 +65,7 @@ export function MediaUploader({ value, onChange, placeholder = "https://...", cl
         ref={fileInputRef} 
         onChange={handleUpload} 
         className="hidden" 
-        accept="image/*,video/*,audio/*"
+        accept={accept}
       />
       <button 
         type="button"
