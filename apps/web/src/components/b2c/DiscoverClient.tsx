@@ -157,7 +157,7 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, i) => (
+            {team.map((member: { name: string; role: string; desc: string }, i: number) => (
               <motion.div 
                 key={member.name}
                 whileHover={{ y: -5, rotate: i % 2 === 0 ? 1 : -1 }}
