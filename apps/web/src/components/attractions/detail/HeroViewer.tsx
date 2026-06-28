@@ -31,11 +31,16 @@ const extractUrl = (raw: string | null | undefined) => {
 };
 
 export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl }: HeroViewerProps) {
+  const [mediaError, setMediaError] = React.useState(false);
+  
+  const currentMediaUrl = mediaError && fallbackUrl ? fallbackUrl : mediaUrl;
+  const currentMediaType = mediaError && fallbackUrl ? 'IMAGE' : mediaType; // assume fallback is image
+
   return (
     <section className="relative w-full h-[100vh] overflow-hidden bg-black flex items-center justify-center">
       {/* Background Media */}
       <div className="absolute inset-0 z-0">
-        {mediaType === 'IMAGE' && mediaUrl && (
+        {currentMediaType === 'IMAGE' && currentMediaUrl && (
           <motion.div
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
@@ -43,24 +48,26 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
             className="w-full h-full"
           >
             <Image
-              src={mediaUrl}
+              src={currentMediaUrl}
               alt={title}
               fill
               className="object-cover opacity-60"
               priority
+              onError={() => setMediaError(true)}
             />
           </motion.div>
         )}
 
-        {mediaType === 'VIDEO' && mediaUrl && (
+        {currentMediaType === 'VIDEO' && currentMediaUrl && (
           <video
             autoPlay
             loop
             muted
             playsInline
+            onError={() => setMediaError(true)}
             className="w-full h-full object-cover opacity-60"
           >
-            <source src={mediaUrl} type="video/mp4" />
+            <source src={currentMediaUrl} type="video/mp4" />
           </video>
         )}
 
@@ -89,10 +96,10 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
       <div className="relative z-20 flex flex-col items-center justify-center text-center px-6 max-w-5xl mx-auto mt-20">
         {logoUrl && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-10 relative w-48 h-48 md:w-72 md:h-72"
+            className="mb-8 relative w-32 h-32 md:w-48 md:h-48"
           >
             <Image
               src={logoUrl}
@@ -122,7 +129,7 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl md:text-8xl lg:text-[10rem] font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl"
+          className="text-5xl md:text-7xl lg:text-[7rem] font-black text-white tracking-tighter uppercase leading-[0.9] drop-shadow-2xl max-w-6xl break-words"
         >
           {title}
         </motion.h1>

@@ -241,8 +241,8 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       {/* 8. Footer CTA */}
       <section className="relative w-full bg-black py-32 text-center overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-black to-black pointer-events-none" />
-        <div className="relative z-10 max-w-4xl mx-auto px-6">
-          <h2 className="text-5xl md:text-7xl font-black text-white mb-10 tracking-tighter uppercase leading-[0.9]">
+        <div className="relative z-10 max-w-5xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-10 tracking-tighter uppercase leading-[1.1] max-w-4xl mx-auto break-words">
             {locale === 'ar' ? `هل أنت مستعد لتجربة ${displayName}؟` : `Ready to Experience ${displayName}?`}
           </h2>
           <div className="flex flex-col sm:flex-row justify-center gap-6 items-center">
