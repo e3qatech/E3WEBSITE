@@ -9,10 +9,12 @@ export const metadata: Metadata = {
 };
 
 export default async function DiscoverPage({
-  params: { locale }
+  params
 }: {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params;
+
   const setting = await prisma.setting.findUnique({
     where: { key: "B2C_DISCOVER_PAGE_SETTINGS" }
   });

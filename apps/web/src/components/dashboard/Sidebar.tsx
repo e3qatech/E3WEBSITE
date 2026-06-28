@@ -25,6 +25,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { name: "Projects", href: "/dashboard/projects", icon: Briefcase },
     { name: "Leads", href: "/dashboard/leads", icon: Target },
+    { name: "Team", href: "/dashboard/team", icon: Users },
     { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ]
