@@ -21,22 +21,24 @@ export interface CalendarEvent {
 }
 
 interface EventCardProps {
-  event: CalendarEvent;
+  events: CalendarEvent[];
   onSelectTickets: (event: CalendarEvent) => void;
 }
 
-export function EventCard({ event, onSelectTickets }: EventCardProps) {
+export function EventCard({ events, onSelectTickets }: EventCardProps) {
+  const event = events[0]; // Base details on the first event
   const startDate = new Date(event.startTime);
   const endDate = new Date(event.endTime);
   
   const remaining = event.capacityGate - event.currentCount;
   
-  // Status logic
+  // Status logic for overall availability
+  const totalRemaining = events.reduce((sum, e) => sum + (e.capacityGate - e.currentCount), 0);
   let statusBadge = null;
-  if (remaining <= 0) {
+  if (totalRemaining <= 0) {
     statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/20 text-red-500 rounded-sm border border-red-500/30">Sold Out</div>;
-  } else if (remaining < 20) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-500 rounded-sm border border-amber-500/30">Limited: {remaining}</div>;
+  } else if (totalRemaining < 20) {
+    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-500 rounded-sm border border-amber-500/30">Limited: {totalRemaining}</div>;
   } else {
     statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">Available</div>;
   }
@@ -100,7 +102,7 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
             <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 font-medium mb-6 font-mono">
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-zinc-500" />
-                {format(startDate, 'h:mm a')} - {format(endDate, 'h:mm a')}
+                {events.length} {events.length === 1 ? 'Slot' : 'Slots'} Available
               </div>
               <div className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-zinc-500" />
@@ -123,13 +125,36 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
               View Detail <ChevronRight className="w-4 h-4" />
             </Link>
 
-            <button
-              disabled={remaining <= 0}
-              onClick={() => onSelectTickets(event)}
-              className="px-6 py-2.5 bg-zinc-800 text-white font-bold uppercase tracking-widest text-sm rounded-md border border-zinc-700 hover:bg-amber-500 hover:text-black hover:border-amber-500 disabled:opacity-50 disabled:hover:bg-zinc-800 disabled:hover:text-white transition-colors"
-            >
-              {remaining <= 0 ? 'Sold Out' : 'Select Tickets'}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              {events.map((slot) => {
+                const slotRemaining = slot.capacityGate - slot.currentCount;
+                const isSoldOut = slotRemaining <= 0;
+                const isLimited = slotRemaining > 0 && slotRemaining < 10;
+                
+                return (
+                  <button
+                    key={slot.id}
+                    disabled={isSoldOut}
+                    onClick={() => onSelectTickets(slot)}
+                    className={`
+                      px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest rounded-md border transition-all
+                      ${isSoldOut 
+                        ? 'bg-zinc-900 border-zinc-800 text-zinc-600 cursor-not-allowed' 
+                        : 'bg-[#141414] border-zinc-700 text-zinc-300 hover:bg-amber-500 hover:text-black hover:border-amber-500'}
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{format(new Date(slot.startTime), 'h:mm a')}</span>
+                      {!isSoldOut && isLimited && (
+                        <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1 rounded">
+                          {slotRemaining} LEFT
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

@@ -79,10 +79,11 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
       .map(([id, qty]) => `${id}:${qty}`)
       .join(',');
 
-    const baseUrl = 'https://booking.e3.qa/checkout';
+    const baseUrl = 'https://bookingqube.com/checkout';
     const params = new URLSearchParams({
-      event: event.id,
-      attraction: event.attractionSlug,
+      landmark: event.attractionId,
+      slot: event.id,
+      partner: 'e3qa',
       tickets: selectedTickets
     });
     
@@ -109,11 +110,11 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
           {/* Header */}
           <div className="p-6 border-b border-zinc-800 flex justify-between items-start bg-zinc-900/50">
             <div>
-              <h2 className="text-xl font-bold text-white mb-1">{event.attractionNameEn}</h2>
-              <p className="text-zinc-400 text-sm font-medium flex items-center gap-2">
+              <h2 className="text-xl font-black text-white mb-1 font-satoshi uppercase tracking-wide">{event.attractionNameEn}</h2>
+              <p className="text-zinc-400 text-sm font-medium flex items-center gap-2 font-mono">
                 {format(new Date(event.startTime), 'EEEE, MMMM d, yyyy')} <br className="sm:hidden" />
                 <span className="hidden sm:inline">•</span>
-                <span className="text-emerald-400">{format(new Date(event.startTime), 'h:mm a')}</span>
+                <span className="text-amber-500">{format(new Date(event.startTime), 'h:mm a')}</span>
               </p>
             </div>
             <button 
@@ -128,8 +129,8 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
           <div className="p-6 overflow-y-auto flex-1">
             {loading ? (
               <div className="py-12 flex flex-col items-center justify-center text-zinc-500">
-                <Loader2 className="w-8 h-8 animate-spin mb-4 text-emerald-500" />
-                <p className="text-sm font-bold uppercase tracking-widest">Loading Tickets...</p>
+                <Loader2 className="w-8 h-8 animate-spin mb-4 text-amber-500" />
+                <p className="text-sm font-bold font-mono uppercase tracking-widest">Loading Tickets...</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -141,8 +142,8 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
                   pricing.map(tier => (
                     <div key={tier.id} className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-2xl">
                       <div>
-                        <h4 className="font-bold text-white text-lg">{tier.titleEn}</h4>
-                        <p className="text-emerald-400 font-bold">{tier.currency} {tier.price}</p>
+                        <h4 className="font-bold font-satoshi text-white text-lg">{tier.titleEn}</h4>
+                        <p className="text-amber-500 font-bold font-mono uppercase tracking-widest text-sm">{tier.currency} {tier.price}</p>
                       </div>
                       
                       <div className="flex items-center gap-3 bg-zinc-950 border border-zinc-800 rounded-xl p-1">
@@ -168,9 +169,9 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
                   ))
                 )}
 
-                <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex justify-between items-center text-emerald-400">
-                  <span className="text-sm font-bold uppercase tracking-widest">Remaining Capacity</span>
-                  <span className="text-lg font-black">{remainingCapacity}</span>
+                <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex justify-between items-center text-amber-500">
+                  <span className="text-sm font-bold font-mono uppercase tracking-widest">Remaining Capacity</span>
+                  <span className="text-xl font-black font-mono">{remainingCapacity}</span>
                 </div>
               </div>
             )}
@@ -179,13 +180,13 @@ export function TicketSelectionModal({ isOpen, onClose, event }: TicketSelection
           {/* Footer */}
           <div className="p-6 border-t border-zinc-800 bg-zinc-950">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Subtotal</span>
-              <span className="text-2xl font-black text-white">QAR {subtotal}</span>
+              <span className="text-zinc-400 font-bold font-mono uppercase tracking-widest text-sm">Subtotal</span>
+              <span className="text-2xl font-black font-mono text-white">QAR {subtotal}</span>
             </div>
             <button
               onClick={handleProceed}
               disabled={totalSelected === 0}
-              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-emerald-500 flex items-center justify-center gap-2 group"
+              className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-amber-500 flex items-center justify-center gap-2 group font-satoshi"
             >
               Proceed to Booking
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

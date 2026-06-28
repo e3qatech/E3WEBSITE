@@ -1,97 +1,102 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { isWithinInterval, getDay } from 'date-fns';
+import { getDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
-const QATAR_TZ = 'Asia/Qatar';
-
 export async function GET(
-  req: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: attractionId } = await params;
-    const { searchParams } = new URL(req.url);
-    const dateQuery = searchParams.get('date');
-
-    if (!dateQuery) {
-      return NextResponse.json({ error: 'Missing date parameter (YYYY-MM-DD)' }, { status: 400 });
+    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const dateStr = searchParams.get('date');
+    if (!dateStr) {
+      return NextResponse.json({ error: 'date parameter is required (YYYY-MM-DD)' }, { status: 400 });
     }
 
+    // Parse the target date explicitly in Asia/Qatar timezone
+    const timeZone = 'Asia/Qatar';
+    
+    // Create a Date object for midnight in Qatar time
+    const qatarDate = toZonedTime(`${dateStr}T00:00:00Z`, timeZone);
+    const dayOfWeek = getDay(qatarDate);
+
+    // Fetch all rules for the attraction
     const rules = await db.attractionTemporalRule.findMany({
-      where: { attractionId },
+      where: { attractionId: id },
     });
 
-    // Evaluate in priority: CLOSURE > OVERRIDE > RECURRING
-    const targetDateStr = `${dateQuery}T12:00:00`; // Local time string
-    // This is safe assuming dateQuery is YYYY-MM-DD
-    const targetDate = toZonedTime(new Date(targetDateStr), QATAR_TZ);
-    const targetDayOfWeek = getDay(targetDate); 
-
-    let openTime = null;
-    let closeTime = null;
-    let isOpen = false;
-    let notes = null;
-
-    // 1. RECURRING
-    const recurring = rules.filter(r => r.ruleType === 'RECURRING');
-    for (const rule of recurring) {
-       if (rule.daysOfWeek && Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.includes(targetDayOfWeek)) {
-         isOpen = true;
-         openTime = rule.openTime;
-         closeTime = rule.closeTime;
-         notes = rule.notes;
-       }
-    }
-
-    // 2. OVERRIDE
-    const overrides = rules.filter(r => r.ruleType === 'OVERRIDE');
-    for (const rule of overrides) {
-       if (rule.startDate && rule.endDate) {
-          const start = toZonedTime(rule.startDate, QATAR_TZ);
-          const end = toZonedTime(rule.endDate, QATAR_TZ);
-          // Compare using midday to see if it falls within the day ranges
-          if (isWithinInterval(targetDate, { start, end })) {
-             isOpen = true;
-             openTime = rule.openTime;
-             closeTime = rule.closeTime;
-             notes = rule.notes;
-          }
-       }
-    }
-
-    // 3. CLOSURE
-    const closures = rules.filter(r => r.ruleType === 'CLOSURE');
-    for (const rule of closures) {
-       if (rule.startDate && rule.endDate) {
-          const start = toZonedTime(rule.startDate, QATAR_TZ);
-          const end = toZonedTime(rule.endDate, QATAR_TZ);
-          if (isWithinInterval(targetDate, { start, end })) {
-             isOpen = false;
-             openTime = null;
-             closeTime = null;
-             notes = rule.notes || 'Closed';
-          }
-       }
-    }
-
-    // Schedule query (Capacity check for the day)
-    const schedule = await db.eventSchedule.findFirst({
-       where: { attractionId },
-       orderBy: { startTime: 'desc' }
+    // Filter rules that are active for the targetDate
+    const activeRules = rules.filter(rule => {
+      // If rule has start/end date, ensure targetDate is within it
+      if (rule.startDate && rule.endDate) {
+        if (!isWithinInterval(qatarDate, { start: startOfDay(rule.startDate), end: endOfDay(rule.endDate) })) {
+          return false;
+        }
+      } else if (rule.startDate && qatarDate < startOfDay(rule.startDate)) {
+         return false;
+      } else if (rule.endDate && qatarDate > endOfDay(rule.endDate)) {
+         return false;
+      }
+      return true;
     });
 
+    // 1. Check for CLOSURE
+    const closure = activeRules.find(r => r.ruleType === 'CLOSURE');
+    if (closure) {
+      return NextResponse.json({
+        isOpen: false,
+        status: 'CLOSURE',
+        openTime: null,
+        closeTime: null,
+        notes: closure.notes
+      });
+    }
+
+    // 2. Check for OVERRIDE
+    const override = activeRules.find(r => r.ruleType === 'OVERRIDE');
+    if (override) {
+      return NextResponse.json({
+        isOpen: true,
+        status: 'OVERRIDE',
+        openTime: override.openTime,
+        closeTime: override.closeTime,
+        notes: override.notes
+      });
+    }
+
+    // 3. Fallback to RECURRING
+    const recurringRules = activeRules.filter(r => r.ruleType === 'RECURRING');
+    
+    const applicableRecurring = recurringRules.find(r => {
+       if (r.daysOfWeek && Array.isArray(r.daysOfWeek)) {
+          return (r.daysOfWeek as number[]).includes(dayOfWeek);
+       }
+       return false;
+    });
+
+    if (applicableRecurring) {
+      return NextResponse.json({
+        isOpen: true,
+        status: 'RECURRING',
+        openTime: applicableRecurring.openTime,
+        closeTime: applicableRecurring.closeTime,
+        notes: applicableRecurring.notes
+      });
+    }
+
+    // Default if no rules match
     return NextResponse.json({
-      isOpen,
-      openTime,
-      closeTime,
-      maxCapacity: schedule?.capacityGate || null,
-      currentCapacity: schedule?.currentCount || null,
-      notes
+      isOpen: false,
+      status: 'NO_RULE_FOUND',
+      openTime: null,
+      closeTime: null,
+      notes: null
     });
 
-  } catch (error: any) {
-    console.error('[ATTRACTIONS_SCHEDULE_GET]', error);
+  } catch (error) {
+    console.error('Schedule resolution error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

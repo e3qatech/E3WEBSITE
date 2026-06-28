@@ -1,85 +1,25 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { format } from 'date-fns';
 import { Loader2, CalendarX2 } from 'lucide-react';
 import { EventCard, CalendarEvent } from './EventCard';
-import { EventType, AvailabilityType } from './CalendarSidebar';
 
 interface EventListProps {
   currentDate: Date;
-  selectedAttractions: string[];
-  selectedEventTypes: EventType[];
-  availabilityFilter: AvailabilityType;
+  events: CalendarEvent[];
+  loading: boolean;
   onSelectTickets: (event: CalendarEvent) => void;
 }
 
 export function EventList({
   currentDate,
-  selectedAttractions,
-  selectedEventTypes,
-  availabilityFilter,
+  events,
+  loading,
   onSelectTickets
 }: EventListProps) {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchEvents() {
-      setLoading(true);
-      try {
-        const month = format(currentDate, 'MM');
-        const year = format(currentDate, 'yyyy');
-        
-        let url = `/api/calendar?month=${month}&year=${year}`;
-        
-        if (selectedAttractions.length === 1) {
-          url += `&attractionId=${selectedAttractions[0]}`;
-        }
-        
-        if (selectedEventTypes.length === 1) {
-           url += `&eventType=${selectedEventTypes[0]}`;
-        }
 
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to fetch');
-        
-        let data: CalendarEvent[] = await res.json();
-
-        // Client-side filtering for multiple selections and availability
-        if (selectedAttractions.length > 0) {
-          data = data.filter(e => selectedAttractions.includes(e.attractionId));
-        }
-
-        if (selectedEventTypes.length > 0) {
-          data = data.filter(e => selectedEventTypes.includes(e.eventType));
-        }
-
-        if (availabilityFilter !== 'ALL') {
-          data = data.filter(e => {
-            const remaining = e.capacityGate - e.currentCount;
-            if (availabilityFilter === 'SOLD_OUT') return remaining <= 0;
-            if (availabilityFilter === 'LIMITED') return remaining > 0 && remaining < 20;
-            if (availabilityFilter === 'AVAILABLE') return remaining >= 20;
-            return true;
-          });
-        }
-
-        setEvents(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    // Debounce slightly to prevent rapid fetching on filter spam
-    const timeoutId = setTimeout(() => {
-      fetchEvents();
-    }, 150);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentDate, selectedAttractions, selectedEventTypes, availabilityFilter]);
 
   // Group events by day
   const groupedEvents = events.reduce((acc, event) => {
@@ -126,10 +66,16 @@ export function EventList({
             </div>
             
             <div className="grid grid-cols-1 gap-4">
-              {dayEvents.map(event => (
+              {Object.values(
+                dayEvents.reduce((acc, ev) => {
+                  if (!acc[ev.attractionId]) acc[ev.attractionId] = [];
+                  acc[ev.attractionId].push(ev);
+                  return acc;
+                }, {} as Record<string, CalendarEvent[]>)
+              ).map(groupedEvents => (
                 <EventCard 
-                  key={event.id} 
-                  event={event} 
+                  key={groupedEvents[0].id} 
+                  events={groupedEvents} 
                   onSelectTickets={onSelectTickets} 
                 />
               ))}

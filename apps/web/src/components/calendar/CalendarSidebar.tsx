@@ -14,8 +14,13 @@ import {
   isSameMonth, 
   isSameDay, 
   addDays, 
-  isToday 
+  isToday,
+  isWeekend, 
+  nextFriday, 
+  startOfToday, 
+  endOfToday 
 } from 'date-fns';
+import { CalendarEvent } from './EventCard';
 
 interface Attraction {
   id: string;
@@ -38,6 +43,7 @@ interface CalendarSidebarProps {
   onAvailabilityChange: (av: AvailabilityType) => void;
   isMobileFilterOpen: boolean;
   setMobileFilterOpen: (open: boolean) => void;
+  events?: CalendarEvent[];
 }
 
 export function CalendarSidebar({
@@ -51,7 +57,8 @@ export function CalendarSidebar({
   availabilityFilter,
   onAvailabilityChange,
   isMobileFilterOpen,
-  setMobileFilterOpen
+  setMobileFilterOpen,
+  events = []
 }: CalendarSidebarProps) {
   
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(currentDate));
@@ -63,6 +70,27 @@ export function CalendarSidebar({
     setCurrentMonth(startOfMonth(today));
     onDateChange(today);
   };
+
+  const goToThisWeekend = () => {
+    const today = startOfToday();
+    let weekendStart = today;
+    if (!isWeekend(today)) {
+      weekendStart = nextFriday(today);
+    }
+    setCurrentMonth(startOfMonth(weekendStart));
+    onDateChange(weekendStart);
+  };
+
+  const goToThisMonth = () => {
+    const today = startOfToday();
+    setCurrentMonth(startOfMonth(today));
+    onDateChange(today);
+  };
+
+  // Compute days with events
+  const daysWithEvents = new Set(
+    events.map(e => format(new Date(e.startTime), 'yyyy-MM-dd'))
+  );
 
   // Build calendar days
   const monthStart = startOfMonth(currentMonth);
@@ -85,18 +113,26 @@ export function CalendarSidebar({
       const isSelectedDay = isSameDay(day, currentDate);
       const isTodayDay = isToday(day);
 
+      const hasEvent = daysWithEvents.has(format(day, 'yyyy-MM-dd'));
+
       days.push(
         <button
           key={day.toString()}
           onClick={() => onDateChange(cloneDay)}
           className={`
-            p-2 w-10 h-10 flex items-center justify-center rounded-md text-sm font-medium font-mono transition-colors
+            relative p-2 w-10 h-10 flex flex-col items-center justify-center rounded-md text-sm font-medium font-mono transition-colors
             ${!isCurrentMonth ? 'text-zinc-600' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}
             ${isSelectedDay ? 'bg-amber-500 text-black font-bold hover:bg-amber-400' : ''}
             ${isTodayDay && !isSelectedDay ? 'border border-amber-500/50 text-amber-500' : ''}
           `}
         >
-          {formattedDate}
+          <span>{formattedDate}</span>
+          {hasEvent && !isSelectedDay && (
+            <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-amber-500" />
+          )}
+          {hasEvent && isSelectedDay && (
+            <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-black" />
+          )}
         </button>
       );
       day = addDays(day, 1);
@@ -140,12 +176,20 @@ export function CalendarSidebar({
           {rows}
         </div>
 
-        <button 
-          onClick={goToToday}
-          className="w-full py-2 bg-[#141414] border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-md text-sm font-bold tracking-widest uppercase transition-colors text-zinc-300"
-        >
-          Today
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={goToToday}
+            className="flex-1 py-2 bg-[#141414] border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-md text-xs font-bold tracking-widest uppercase transition-colors text-zinc-300"
+          >
+            Today
+          </button>
+          <button 
+            onClick={goToThisWeekend}
+            className="flex-1 py-2 bg-[#141414] border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-md text-xs font-bold tracking-widest uppercase transition-colors text-zinc-300"
+          >
+            Weekend
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

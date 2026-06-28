@@ -22,6 +22,65 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
   
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function fetchEvents() {
+      setLoading(true);
+      try {
+        const { format } = await import('date-fns');
+        const month = format(currentDate, 'MM');
+        const year = format(currentDate, 'yyyy');
+        
+        let url = `/api/calendar?month=${month}&year=${year}`;
+        
+        if (selectedAttractions.length === 1) {
+          url += `&attractionId=${selectedAttractions[0]}`;
+        }
+        
+        if (selectedEventTypes.length === 1) {
+           url += `&eventType=${selectedEventTypes[0]}`;
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch');
+        
+        let data: CalendarEvent[] = await res.json();
+
+        if (selectedAttractions.length > 0) {
+          data = data.filter(e => selectedAttractions.includes(e.attractionId));
+        }
+
+        if (selectedEventTypes.length > 0) {
+          data = data.filter(e => selectedEventTypes.includes(e.eventType));
+        }
+
+        if (availabilityFilter !== 'ALL') {
+          data = data.filter(e => {
+            const remaining = e.capacityGate - e.currentCount;
+            if (availabilityFilter === 'SOLD_OUT') return remaining <= 0;
+            if (availabilityFilter === 'LIMITED') return remaining > 0 && remaining < 20;
+            if (availabilityFilter === 'AVAILABLE') return remaining >= 20;
+            return true;
+          });
+        }
+
+        setEvents(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    const timeoutId = setTimeout(() => {
+      fetchEvents();
+    }, 150);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentDate, selectedAttractions, selectedEventTypes, availabilityFilter]);
+
   const toggleAttraction = (id: string) => {
     setSelectedAttractions(prev => 
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
@@ -92,6 +151,7 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
                 onAvailabilityChange={setAvailabilityFilter}
                 isMobileFilterOpen={isMobileFilterOpen}
                 setMobileFilterOpen={setMobileFilterOpen}
+                events={events}
               />
             </div>
           </div>
@@ -100,9 +160,8 @@ export function CalendarView({ initialAttractions }: CalendarViewProps) {
           <div className="flex-1 min-w-0">
             <EventList 
               currentDate={currentDate}
-              selectedAttractions={selectedAttractions}
-              selectedEventTypes={selectedEventTypes}
-              availabilityFilter={availabilityFilter}
+              events={events}
+              loading={loading}
               onSelectTickets={setSelectedEvent}
             />
           </div>
