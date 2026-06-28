@@ -346,8 +346,26 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   <Link href={`/${locale}/b2c/attractions/${featuredAttraction.slug}`} className="w-full flex flex-col md:flex-row h-full focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
                   <div className="w-full md:w-3/5 h-72 md:h-auto relative overflow-hidden bg-[#0C0C0C]">
                     <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#141414] to-transparent z-10" />
-                    {featuredAttraction.heroMediaType === 'VIDEO' ? (
-                      <video src={featuredAttraction.heroMediaUrl || ''} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                    {featuredAttraction.heroMediaType === 'VIDEO' && featuredAttraction.heroMediaUrl ? (
+                      <video src={featuredAttraction.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                    ) : featuredAttraction.heroThumbnailUrl ? (
+                      <img 
+                        src={featuredAttraction.heroThumbnailUrl} 
+                        alt={featuredAttraction.nameEn}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : featuredAttraction.heroFallbackUrl ? (
+                      <img 
+                        src={featuredAttraction.heroFallbackUrl} 
+                        alt={featuredAttraction.nameEn}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : featuredAttraction.heroMediaType === 'IMAGE' && featuredAttraction.heroMediaUrl ? (
+                      <img 
+                        src={featuredAttraction.heroMediaUrl} 
+                        alt={featuredAttraction.nameEn}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
                     ) : featuredAttraction.gallery?.[0] ? (
                       <img 
                         src={featuredAttraction.gallery[0].url} 
@@ -612,6 +630,12 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
           ) : attraction.heroFallbackUrl ? (
             <img 
               src={attraction.heroFallbackUrl} 
+              alt={isNameAr ? attraction.nameAr : attraction.nameEn}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+          ) : attraction.heroMediaType === 'IMAGE' && attraction.heroMediaUrl ? (
+            <img 
+              src={attraction.heroMediaUrl} 
               alt={isNameAr ? attraction.nameAr : attraction.nameEn}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
