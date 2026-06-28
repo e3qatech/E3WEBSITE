@@ -20,7 +20,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        const user = await db.user.findUnique({
+        const user = await db.users.findUnique({
           where: { email: credentials.email as string }
         })
 

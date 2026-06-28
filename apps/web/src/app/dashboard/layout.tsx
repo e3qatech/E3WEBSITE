@@ -8,7 +8,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // Fetch active broadcast (with error handling for missing tables)
   let activeBroadcast = null;
   try {
-    activeBroadcast = await db.systemBroadcast.findFirst({
+    activeBroadcast = await db.broadcasts.findFirst({
       where: { isActive: true },
       orderBy: { createdAt: 'desc' }
     });
