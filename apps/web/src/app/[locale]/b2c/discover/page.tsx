@@ -17,7 +17,7 @@ export default async function DiscoverPage({
     where: { key: "B2C_DISCOVER_PAGE_SETTINGS" }
   });
 
-  const settings = setting ? JSON.parse(setting.value) : null;
+  const settings = setting ? (typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value) : null;
 
   return <DiscoverClient locale={locale} initialSettings={settings} />;
 }

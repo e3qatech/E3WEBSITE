@@ -40,7 +40,7 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json(JSON.parse(setting.value));
+    return NextResponse.json(typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value);
   } catch (error) {
     console.error("Failed to fetch discover settings", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -58,8 +58,8 @@ export async function POST(req: Request) {
 
     const setting = await prisma.setting.upsert({
       where: { key: "B2C_DISCOVER_PAGE_SETTINGS" },
-      update: { value: JSON.stringify(data) },
-      create: { key: "B2C_DISCOVER_PAGE_SETTINGS", value: JSON.stringify(data) }
+      update: { value: data },
+      create: { key: "B2C_DISCOVER_PAGE_SETTINGS", value: data }
     });
 
     return NextResponse.json({ success: true, setting });
