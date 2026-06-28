@@ -180,6 +180,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         mediaType={attraction.heroMediaType || 'IMAGE'}
         mediaUrl={attraction.heroMediaUrl}
         status={attraction.isFeatured ? "Featured Experience" : undefined}
+        logoUrl={attraction.logoUrl}
       />
 
       {/* 2 & 3. Intro + What's Inside */}

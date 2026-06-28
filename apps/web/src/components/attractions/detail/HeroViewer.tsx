@@ -17,6 +17,7 @@ interface HeroViewerProps {
   mediaType: string;
   mediaUrl?: string | null;
   status?: string;
+  logoUrl?: string | null;
 }
 
 const extractUrl = (raw: string | null | undefined) => {
@@ -28,7 +29,7 @@ const extractUrl = (raw: string | null | undefined) => {
   return raw;
 };
 
-export function HeroViewer({ title, tagline, mediaType, mediaUrl, status }: HeroViewerProps) {
+export function HeroViewer({ title, tagline, mediaType, mediaUrl, status, logoUrl }: HeroViewerProps) {
   return (
     <section className="relative w-full h-[100vh] overflow-hidden bg-black flex items-center justify-center">
       {/* Background Media */}
@@ -85,6 +86,23 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, status }: Hero
 
       {/* Hero Content */}
       <div className="relative z-20 flex flex-col items-center justify-center text-center px-6 max-w-4xl mx-auto mt-20">
+        {logoUrl && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mb-8 relative w-48 h-48 md:w-64 md:h-64"
+          >
+            <Image
+              src={logoUrl}
+              alt={`${title} Logo`}
+              fill
+              className="object-contain drop-shadow-2xl"
+              priority
+            />
+          </motion.div>
+        )}
+        
         {status && (
           <motion.span
             initial={{ opacity: 0, y: 20 }}

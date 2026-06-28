@@ -23,7 +23,11 @@ export default async function EditAttractionPage({
     where: { id },
     include: {
       pricing: true,
-      faqs: true
+      faqs: { orderBy: { orderIndex: 'asc' } },
+      gallery: { orderBy: { orderIndex: 'asc' } },
+      socialLinks: true,
+      offers: true,
+      temporalRules: true
     }
   })
 

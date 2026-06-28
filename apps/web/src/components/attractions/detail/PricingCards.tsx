@@ -12,6 +12,7 @@ interface PricingTier {
   currency: string;
   type: string;
   descriptionEn?: string | null;
+  discount?: number | null;
 }
 
 interface PartnerOffer {
@@ -72,32 +73,38 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
               </div>
 
               <div className="mb-8 relative">
-                {offers && offers.length > 0 ? (() => {
-                  const maxDiscount = Math.max(...offers.map(o => o.discount));
-                  const discountedPrice = tier.price * (1 - maxDiscount / 100);
+                {(() => {
+                  const maxOfferDiscount = offers && offers.length > 0 ? Math.max(...offers.map(o => o.discount)) : 0;
+                  const activeDiscount = (tier.discount && tier.discount > 0) ? tier.discount : maxOfferDiscount;
+                  
+                  if (activeDiscount > 0) {
+                    const discountedPrice = tier.price * (1 - activeDiscount / 100);
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4">
+                          <span className="bg-emerald-500 text-black text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider shadow-lg transform rotate-3">
+                            {activeDiscount}% OFF
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-5xl font-black text-emerald-400">{discountedPrice.toFixed(0)}</span>
+                          <span className="text-zinc-500 font-bold">{tier.currency}</span>
+                        </div>
+                        <div className="flex items-baseline gap-2 opacity-50 line-through">
+                          <span className="text-xl font-bold">{tier.price}</span>
+                          <span className="text-sm font-bold">{tier.currency}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
                   return (
-                    <div className="flex flex-col gap-1">
-                      <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4">
-                        <span className="bg-emerald-500 text-black text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider shadow-lg transform rotate-3">
-                          {maxDiscount}% OFF
-                        </span>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-black text-emerald-400">{discountedPrice.toFixed(0)}</span>
-                        <span className="text-zinc-500 font-bold">{tier.currency}</span>
-                      </div>
-                      <div className="flex items-baseline gap-2 opacity-50 line-through">
-                        <span className="text-xl font-bold">{tier.price}</span>
-                        <span className="text-sm font-bold">{tier.currency}</span>
-                      </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-black">{tier.price}</span>
+                      <span className="text-zinc-500 font-bold">{tier.currency}</span>
                     </div>
                   );
-                })() : (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-black">{tier.price}</span>
-                    <span className="text-zinc-500 font-bold">{tier.currency}</span>
-                  </div>
-                )}
+                })()}
               </div>
 
               <div className="mt-auto pt-8 border-t border-zinc-800">

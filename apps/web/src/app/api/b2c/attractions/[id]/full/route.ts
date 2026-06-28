@@ -16,7 +16,7 @@ export async function PUT(
     const body = await request.json()
     const { 
       nameEn, nameAr, slug, descriptionEn, descriptionAr, 
-      taglineEn, taglineAr, mapUrl, ticketingUrl,
+      taglineEn, taglineAr, mapUrl, ticketingUrl, logoUrl,
       heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
       isPublished, isFeatured, isHidden,
       features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
@@ -33,7 +33,7 @@ export async function PUT(
         where: { id },
         data: {
           nameEn, nameAr, slug, descriptionEn, descriptionAr,
-          taglineEn, taglineAr, mapUrl, ticketingUrl,
+          taglineEn, taglineAr, mapUrl, ticketingUrl, logoUrl,
           heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
           isPublished, isFeatured, isHidden,
           features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,

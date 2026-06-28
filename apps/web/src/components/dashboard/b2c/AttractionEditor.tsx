@@ -35,6 +35,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [heroMediaUrl, setHeroMediaUrl] = useState(initialData?.heroMediaUrl || "")
   const [heroFallbackUrl, setHeroFallbackUrl] = useState(initialData?.heroFallbackUrl || "")
   const [heroThumbnailUrl, setHeroThumbnailUrl] = useState(initialData?.heroThumbnailUrl || "")
+  const [logoUrl, setLogoUrl] = useState(initialData?.logoUrl || "")
 
   // 3. What's Inside (Features)
   const [features, setFeatures] = useState<any[]>(
@@ -88,7 +89,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
       const payload = {
         nameEn, nameAr, slug, taglineEn, taglineAr, descriptionEn, descriptionAr,
         isPublished, isFeatured, isHidden,
-        heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
+        heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl, logoUrl,
         features,
         pricing,
         partnerOffers, partners,
@@ -297,6 +298,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Thumbnail Image URL</label>
                     <MediaUploader value={heroThumbnailUrl} onChange={setHeroThumbnailUrl} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Attraction Logo URL</label>
+                    <MediaUploader value={logoUrl} onChange={setLogoUrl} />
                   </div>
                 </div>
               </div>
@@ -830,12 +835,49 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                     Upload images and videos for the attraction's lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
                   </p>
                 </div>
-                <Button 
-                  onClick={() => setGallery([...gallery, { url: "", captionEn: "", captionAr: "" }])}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" /> Add Media
-                </Button>
+                <div className="flex gap-2">
+                  <label className="cursor-pointer">
+                    <input 
+                      type="file" 
+                      multiple 
+                      className="hidden" 
+                      accept="image/*,video/*"
+                      onChange={async (e) => {
+                        const files = e.target.files;
+                        if (!files || files.length === 0) return;
+                        
+                        setIsSaving(true);
+                        try {
+                          const newItems: any[] = [];
+                          for (let i = 0; i < files.length; i++) {
+                            const formData = new FormData();
+                            formData.append("file", files[i]);
+                            const res = await fetch("/api/upload", { method: "POST", body: formData });
+                            const data = await res.json();
+                            if (data.success && data.url) {
+                              newItems.push({ url: data.url, captionEn: "", captionAr: "" });
+                            }
+                          }
+                          setGallery(prev => [...prev, ...newItems]);
+                        } catch (error) {
+                          alert("Failed to upload some files.");
+                        } finally {
+                          setIsSaving(false);
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+                    <div className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+                      <ImageIcon className="w-4 h-4" /> Bulk Upload
+                    </div>
+                  </label>
+                  <Button 
+                    onClick={() => setGallery([...gallery, { url: "", captionEn: "", captionAr: "" }])}
+                    className="gap-2 rounded-xl"
+                  >
+                    <Plus className="w-4 h-4" /> Add Media
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-4">

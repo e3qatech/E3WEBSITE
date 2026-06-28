@@ -106,6 +106,7 @@ model Attraction {
   heroMediaUrl     String?
   heroFallbackUrl  String?
   heroThumbnailUrl String?
+  logoUrl          String?
   
   mapUrl           String?
   ticketingUrl     String?
