@@ -38,6 +38,16 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
   const [localSearch, setLocalSearch] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  
+  const dropdownResults = useMemo(() => {
+    if (!localSearch.trim()) return [];
+    const lowerSearch = localSearch.toLowerCase();
+    return attractions.filter(a => {
+      return (a.nameEn?.toLowerCase() || '').includes(lowerSearch) || 
+             (a.nameAr?.toLowerCase() || '').includes(lowerSearch);
+    }).slice(0, 5);
+  }, [attractions, localSearch]);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -201,16 +211,63 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="w-full max-w-xl relative"
             >
-              <div className="relative flex items-center">
-                <Search className={`absolute ${isAr ? 'right-4' : 'left-4'} w-5 h-5 text-[#A1A1AA] peer-focus:text-[#F59E0B] transition-colors`} />
+              <div className="relative flex items-center w-full">
+                <Search className={`absolute ${isAr ? 'right-4' : 'left-4'} w-5 h-5 text-[#A1A1AA] peer-focus:text-[#F59E0B] transition-colors z-20`} />
                 <input
                   type="search"
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                   placeholder={isAr ? "ابحث عن التجارب..." : "Search attractions..."}
-                  className={`w-full bg-[#141414]/80 backdrop-blur-md border border-[#27272A] rounded-xl py-4 ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B] transition-all`}
+                  className={`w-full bg-[#141414]/80 backdrop-blur-md border border-[#27272A] rounded-xl py-4 ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B] transition-all relative z-10 peer`}
                   dir="auto"
                 />
+
+                {/* Search Dropdown */}
+                <AnimatePresence>
+                  {isSearchFocused && localSearch.trim() && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-[#141414] border border-[#27272A] rounded-xl shadow-2xl z-50 overflow-hidden text-left"
+                    >
+                      {dropdownResults.length > 0 ? (
+                        <ul className="flex flex-col">
+                          {dropdownResults.map(attr => (
+                            <li key={attr.id} className="border-b border-[#27272A] last:border-b-0">
+                              <Link 
+                                href={`/${locale}/b2c/attractions/${attr.slug}`}
+                                className={`flex items-center gap-4 px-4 py-3 hover:bg-[#27272A]/50 transition-colors ${isAr ? 'text-right' : ''}`}
+                              >
+                                {attr.heroThumbnailUrl || attr.gallery?.[0]?.url ? (
+                                  <img src={attr.heroThumbnailUrl || attr.gallery?.[0]?.url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-md bg-[#27272A] flex items-center justify-center flex-shrink-0">
+                                    <MapPin className="w-4 h-4 text-[#A1A1AA]" />
+                                  </div>
+                                )}
+                                <div className="flex flex-col">
+                                  <span className="text-[#FAFAFA] font-bold text-sm">
+                                    {isAr ? attr.nameAr : attr.nameEn}
+                                  </span>
+                                  {attr.computedStatus === 'ACTIVE' && (
+                                    <span className="text-emerald-400 text-[10px] uppercase font-bold tracking-wider">Live Now</span>
+                                  )}
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="px-4 py-6 text-center text-[#A1A1AA] text-sm">
+                          {isAr ? "لا توجد نتائج" : "No results found"}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               
               <div className="flex flex-wrap justify-center gap-2 mt-6">
