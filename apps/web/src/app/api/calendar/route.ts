@@ -19,7 +19,14 @@ export async function GET(req: NextRequest) {
 
     // Caching based on query
     const cacheKey = `calendar:list:${month}:${year}:${startDate}:${endDate}:${attractionId}:${availableNow}:${eventType}`;
-    const cached = await redis.get(cacheKey);
+    
+    let cached = null;
+    try {
+      cached = await redis.get(cacheKey);
+    } catch (e: any) {
+      console.warn('[REDIS_ERROR] Redis connection error: ', e.message);
+    }
+    
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
@@ -95,11 +102,19 @@ export async function GET(req: NextRequest) {
     if (availableNow) {
       // If asking for available now, strictly return those with capacity
       const filtered = result.filter(r => r.isAvailable);
-      await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60); // 1 min cache for live availability
+      try {
+        await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60); // 1 min cache for live availability
+      } catch (e: any) {
+        console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
+      }
       return NextResponse.json(filtered);
     }
 
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 300); // 5 min cache for generic calendars
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300); // 5 min cache for generic calendars
+    } catch (e: any) {
+      console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
+    }
 
     return NextResponse.json(result);
 

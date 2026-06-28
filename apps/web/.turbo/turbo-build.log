@@ -1,0 +1,279 @@
+
+> web@0.1.0 build A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web
+> prisma generate && prisma db push --accept-data-loss && npm run seed:events && next build
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 125ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "e3_db", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client
+@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 126ms
+
+
+> web@0.1.0 seed:events
+> tsx prisma/seed-events.ts
+
+Seeding 10 attractions and events...
+Upserted Attraction and Event: LEGO® Shows Qatar 2024
+Upserted Attraction and Event: Lusail Winter Wonderland
+Upserted Attraction and Event: Qatar Toy Festival 2024
+Upserted Attraction and Event: Doha Quest
+Upserted Attraction and Event: Meryal Waterpark
+Upserted Attraction and Event: Katara Cultural Festival
+Upserted Attraction and Event: Souq Waqif Spring Festival
+Upserted Attraction and Event: Snow Dunes
+Upserted Attraction and Event: Angry Birds World
+Upserted Attraction and Event: Expo 2023 Doha
+Database seeding completed successfully!
+npm notice
+npm notice New major version of npm available! 10.9.2 -> 11.17.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+npm notice To update run: npm install -g npm@11.17.0
+npm notice
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env
+- Experiments (use with caution):
+  · optimizePackageImports
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 15.9s
+  Running TypeScript ...
+  Finished TypeScript in 13.2s ...
+  Collecting page data using 23 workers ...
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+  Generating static pages using 23 workers (0/57) ...
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+  Generating static pages using 23 workers (14/57) 
+[REDIS_ERROR] Redis connection error: 
+prisma:info Starting a postgresql pool with 25 connections.
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+prisma:info Starting a postgresql pool with 25 connections.
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+prisma:info Starting a postgresql pool with 25 connections.
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 127ms
+  Generating static pages using 23 workers (28/57) 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 117ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 126ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 157ms
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 180ms
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 225ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 216ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 231ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 251ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 270ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 273ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 299ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 233ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 297ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 296ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 303ms
+  Generating static pages using 23 workers (42/57) 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 291ms
+prisma:info Starting a postgresql pool with 25 connections.
+[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 101ms
+[PRISMA PERFORMANCE BREACH] TeamMember.findMany took 111ms
+[PRISMA PERFORMANCE BREACH] Attraction.findMany took 119ms
+[PRISMA PERFORMANCE BREACH] Service.findMany took 125ms
+✓ Generating static pages using 23 workers (57/57) in 642ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /[locale]/b2b
+├ ƒ /[locale]/b2b/case-studies
+├ ƒ /[locale]/b2b/case-studies/[slug]
+├ ƒ /[locale]/b2b/contact
+├ ƒ /[locale]/b2b/services
+├ ƒ /[locale]/b2b/services/[slug]
+├ ƒ /[locale]/b2b/services/[slug]/projects
+├ ƒ /[locale]/b2b/team
+├ ƒ /[locale]/b2b/team/[slug]
+├ ƒ /[locale]/b2c
+├ ƒ /[locale]/b2c/attractions
+├ ƒ /[locale]/b2c/attractions/[slug]
+├ ƒ /[locale]/b2c/calendar
+├ ƒ /[locale]/b2c/contact
+├ ƒ /[locale]/b2c/tickets
+├ ƒ /api/attractions
+├ ƒ /api/attractions/[id]
+├ ƒ /api/attractions/[id]/faq
+├ ƒ /api/attractions/[id]/gallery
+├ ƒ /api/attractions/[id]/offers
+├ ƒ /api/attractions/[id]/operations
+├ ƒ /api/attractions/[id]/pricing
+├ ƒ /api/attractions/[id]/schedule
+├ ƒ /api/attractions/[id]/social
+├ ƒ /api/attractions/[id]/telemetry
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/b2b/services
+├ ƒ /api/b2b/services/[id]
+├ ƒ /api/b2b/services/bulk
+├ ƒ /api/b2c/attractions
+├ ƒ /api/b2c/attractions/[id]
+├ ƒ /api/b2c/attractions/[id]/full
+├ ƒ /api/b2c/attractions/bulk
+├ ƒ /api/b2c/feedback/[id]
+├ ƒ /api/calendar
+├ ƒ /api/case-studies
+├ ƒ /api/case-studies/[id]
+├ ƒ /api/cases
+├ ƒ /api/cases/[id]
+├ ƒ /api/contact/b2b
+├ ƒ /api/contact/b2c
+├ ƒ /api/crm/clients
+├ ƒ /api/crm/clients/[id]
+├ ƒ /api/crm/inquiries
+├ ƒ /api/crm/inquiries/[id]
+├ ƒ /api/crm/leads
+├ ƒ /api/crm/leads/[id]
+├ ƒ /api/crm/leads/[id]/notes
+├ ƒ /api/crm/subscribers
+├ ƒ /api/crm/subscribers/[id]
+├ ƒ /api/crm/talent
+├ ƒ /api/crm/talent/[id]
+├ ƒ /api/crm/talent/parse-resume
+├ ƒ /api/health
+├ ƒ /api/leads/[id]
+├ ƒ /api/leads/[id]/notes
+├ ƒ /api/leads/[id]/status
+├ ƒ /api/operations/broadcasts
+├ ƒ /api/operations/broadcasts/[id]
+├ ƒ /api/operations/schedules
+├ ƒ /api/operations/schedules/[id]
+├ ƒ /api/partners
+├ ƒ /api/partners/[id]
+├ ƒ /api/partners/reorder
+├ ƒ /api/services
+├ ƒ /api/services/[id]
+├ ƒ /api/services/[id]/gallery
+├ ƒ /api/services/[id]/projects
+├ ƒ /api/settings
+├ ƒ /api/settings/users
+├ ƒ /api/subscribe
+├ ƒ /api/talent/parse
+├ ƒ /api/team
+├ ƒ /api/team/[id]
+├ ƒ /api/team/[id]/availability
+├ ƒ /api/temporal-rules
+├ ƒ /api/temporal-rules/[id]
+├ ƒ /api/tickets
+├ ƒ /api/upload
+├ ƒ /api/webhooks/bookingqube
+├ ƒ /auth/forgot-password
+├ ƒ /auth/login
+├ ƒ /auth/reset-password
+├ ƒ /dashboard
+├ ƒ /dashboard/b2b/cases
+├ ƒ /dashboard/b2b/cases/[id]/edit
+├ ƒ /dashboard/b2b/cases/new
+├ ƒ /dashboard/b2b/partners
+├ ƒ /dashboard/b2b/services
+├ ƒ /dashboard/b2b/services/[id]/edit
+├ ƒ /dashboard/b2b/services/new
+├ ƒ /dashboard/b2b/team
+├ ƒ /dashboard/b2c/attractions
+├ ƒ /dashboard/b2c/attractions/[id]/edit
+├ ƒ /dashboard/b2c/attractions/new
+├ ƒ /dashboard/b2c/feedback
+├ ƒ /dashboard/b2c/landing
+├ ƒ /dashboard/careers
+├ ƒ /dashboard/careers/[id]
+├ ƒ /dashboard/careers/new
+├ ƒ /dashboard/crm/clients
+├ ƒ /dashboard/crm/inquiries
+├ ƒ /dashboard/crm/leads
+├ ƒ /dashboard/crm/leads/[id]
+├ ƒ /dashboard/crm/subscribers
+├ ƒ /dashboard/crm/talent
+├ ƒ /dashboard/crm/talent/[id]
+├ ƒ /dashboard/operations/broadcast
+├ ƒ /dashboard/operations/catalog
+├ ƒ /dashboard/operations/events
+├ ƒ /dashboard/operations/recap
+├ ƒ /dashboard/operations/temporal-rules
+├ ƒ /dashboard/operations/ticketing
+├ ƒ /dashboard/partners
+├ ƒ /dashboard/partners/new
+├ ƒ /dashboard/settings/general
+├ ƒ /dashboard/settings/seo
+├ ƒ /dashboard/settings/ui
+├ ƒ /dashboard/settings/users
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
