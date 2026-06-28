@@ -1,30 +1,81 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowUpRight, Search, Filter, Briefcase, Award } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 export function TeamClient({ locale, initialMembers }: { locale: string; initialMembers: any[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeDepartment, setActiveDepartment] = useState("All");
+  const [activeMember, setActiveMember] = useState<any | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const departments = ["All", ...Array.from(new Set(initialMembers.map(m => m.department)))];
+  // Smooth mouse following
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
-  const filteredMembers = initialMembers.filter(member => {
-    const matchesSearch = member.firstName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          member.designation.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDept = activeDepartment === "All" || member.department === activeDepartment;
-    return matchesSearch && matchesDept;
-  });
+  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500/30">
+    <div className="min-h-screen bg-[#0A0A0A] text-zinc-100 font-sans selection:bg-[#8A2BE2]/30 relative" ref={containerRef}>
+      
       {/* Noise Texture */}
-      <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-50" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+      <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
 
-      <main className="pt-32 pb-24 max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+      {/* Floating Image Card */}
+      <motion.div
+        className="fixed top-0 left-0 w-[280px] md:w-[320px] aspect-[3/4] pointer-events-none z-50 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-zinc-900"
+        style={{
+          x: smoothX,
+          y: smoothY,
+          translateX: "-50%",
+          translateY: "-50%",
+          opacity: activeMember ? 1 : 0,
+          scale: activeMember ? 1 : 0.8,
+        }}
+        transition={{ opacity: { duration: 0.2 }, scale: { duration: 0.2 } }}
+      >
+        <AnimatePresence mode="wait">
+          {activeMember && (
+            <motion.div
+              key={activeMember.slug}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0"
+            >
+              {activeMember.profileImage ? (
+                <img src={activeMember.profileImage} alt={activeMember.firstName} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-5xl font-black text-zinc-700">
+                  {activeMember.firstName[0]}{activeMember.lastName[0]}
+                </div>
+              )}
+              {/* Bottom Gradient & Info overlay like the design */}
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex flex-col justify-end p-6">
+                <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                  <h3 className="text-white font-bold text-lg leading-tight mb-1">{activeMember.firstName} {activeMember.lastName}</h3>
+                  <p className="text-[#00E5FF] text-xs font-black uppercase tracking-widest">{activeMember.department}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      <main className="pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         
         {/* HERO */}
         <header className="mb-24">
@@ -39,104 +90,41 @@ export function TeamClient({ locale, initialMembers }: { locale: string; initial
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-xl md:text-2xl text-zinc-400 max-w-3xl leading-relaxed"
+            className="text-lg md:text-xl text-zinc-400 max-w-2xl font-medium leading-relaxed"
           >
             A collective of industrial designers, master fabricators, and event strategists redefining what's possible in the MENA region.
           </motion.p>
         </header>
 
-        {/* FILTERS & SEARCH */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16 border-b border-zinc-900 pb-8">
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
-            {departments.map(dept => (
-              <button
-                key={dept}
-                onClick={() => setActiveDepartment(dept)}
-                className={`px-5 py-2 rounded-full text-sm font-bold tracking-wide transition-colors whitespace-nowrap ${
-                  activeDepartment === dept 
-                    ? "bg-amber-500 text-zinc-950" 
-                    : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700"
-                }`}
-              >
-                {dept}
-              </button>
-            ))}
-          </div>
+        {/* LIST */}
+        <div className="border-t border-zinc-900">
+          {initialMembers.map((member, i) => (
+            <Link 
+              key={member.slug}
+              href={`/${locale}/b2c/team/${member.slug}`}
+              className="group flex flex-col md:flex-row items-start md:items-center justify-between py-10 md:py-12 border-b border-zinc-900 hover:border-zinc-700 transition-colors relative z-20"
+              onMouseEnter={() => setActiveMember(member)}
+              onMouseLeave={() => setActiveMember(null)}
+            >
+              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-12 w-full md:w-auto">
+                <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white group-hover:text-zinc-300 transition-colors">
+                  {member.firstName} {member.lastName}
+                </h2>
+                <span className="text-[#8A2BE2] font-bold text-sm md:text-base uppercase tracking-widest mt-2 md:mt-0">
+                  {member.designation}
+                </span>
+              </div>
 
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-            <input 
-              type="text"
-              placeholder="Search visionaries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-full py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors"
-            />
-          </div>
-        </div>
-
-        {/* LIST / GRID */}
-        <div className="space-y-4">
-          <AnimatePresence>
-            {filteredMembers.map((member, i) => (
-              <motion.div
-                key={member.slug}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <Link 
-                  href={`/en/b2c/team/${member.slug}`}
-                  className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:p-8 rounded-3xl bg-transparent hover:bg-zinc-900/50 border border-transparent hover:border-zinc-800 transition-all duration-500"
-                >
-                  <div className="flex items-center gap-8 mb-6 md:mb-0">
-                    {/* Image */}
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-zinc-900 shrink-0 border border-zinc-800 group-hover:border-amber-500/50 transition-colors">
-                      {member.profileImage ? (
-                        <img src={member.profileImage} alt={member.firstName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-700 font-black text-2xl">
-                          {member.firstName.charAt(0)}{member.lastName.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Name */}
-                    <div>
-                      <h2 className="text-3xl md:text-5xl font-black tracking-tight text-zinc-300 group-hover:text-white transition-colors mb-2">
-                        {member.firstName} {member.lastName}
-                      </h2>
-                      <div className="flex flex-wrap items-center gap-3 text-sm font-mono text-zinc-500">
-                        <span className="text-amber-500 font-bold uppercase tracking-widest">{member.designation}</span>
-                        <span className="w-1 h-1 rounded-full bg-zinc-700"></span>
-                        <span className="flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> {member.yearsOfExperience} YRS EXP</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Side / Tags */}
-                  <div className="flex items-center justify-between w-full md:w-auto gap-8">
-                    <div className="hidden lg:flex gap-2">
-                      {(member.expertiseTags as string[])?.slice(0, 3).map(tag => (
-                        <span key={tag} className="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-lg text-xs font-medium text-zinc-400 group-hover:border-zinc-700 transition-colors">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="w-12 h-12 rounded-full border border-zinc-800 group-hover:border-amber-500 flex items-center justify-center group-hover:bg-amber-500 text-zinc-500 group-hover:text-zinc-950 transition-all duration-300 shrink-0">
-                      <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    </div>
-                  </div>
-                </Link>
-                <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-900 to-transparent my-2" />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          {filteredMembers.length === 0 && (
+              <div className="hidden md:flex items-center gap-4 text-zinc-500 group-hover:text-white transition-colors">
+                <span className="text-sm font-bold tracking-widest uppercase">{member.department}</span>
+                <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </div>
+            </Link>
+          ))}
+          
+          {initialMembers.length === 0 && (
             <div className="text-center py-32">
-              <p className="text-zinc-500 text-xl font-medium">No visionaries found matching your criteria.</p>
+              <p className="text-zinc-500 text-xl font-medium">No visionaries found.</p>
             </div>
           )}
         </div>
