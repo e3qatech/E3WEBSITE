@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Calendar, Award, Briefcase, FileBadge, CheckCircle2, ChevronRight, Mail, Linkedin } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Award, Briefcase, FileBadge, CheckCircle2, ChevronRight, Mail, ExternalLink } from "lucide-react";
 
 export function TeamMemberClient({ locale, member }: { locale: string; member: any }) {
   const isRtl = locale === 'ar';
@@ -73,7 +73,7 @@ export function TeamMemberClient({ locale, member }: { locale: string; member: a
                 )}
                 {member.linkedinUrl && (
                   <a href={member.linkedinUrl} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-zinc-900 border border-zinc-800 text-white hover:border-zinc-600 rounded-xl font-bold transition-colors flex items-center gap-2">
-                    <Linkedin className="w-4 h-4" /> LinkedIn
+                    <ExternalLink className="w-4 h-4" /> LinkedIn
                   </a>
                 )}
               </div>
