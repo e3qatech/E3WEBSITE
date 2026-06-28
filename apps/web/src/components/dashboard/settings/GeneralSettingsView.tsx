@@ -208,9 +208,9 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
           </div>
 
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Key className="w-5 h-5 mr-2 text-purple-500" /> API Integrations
-            </h2>
+            <h3 className="font-bold text-[var(--text-primary)] mb-6 flex items-center border-b border-[var(--border-default)] pb-4">
+              <Key className="w-5 h-5 me-2 text-[var(--color-primary)]" /> API Integrations
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">BookingQube API Key</label>

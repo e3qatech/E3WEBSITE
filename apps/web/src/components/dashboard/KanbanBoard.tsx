@@ -67,9 +67,9 @@ function KanbanCard({ lead, isOverlay, onClick }: { lead: Lead, isOverlay?: bool
       `}
     >
       <div className="flex justify-between items-start mb-2">
-        <h4 className="font-bold text-[var(--text-primary)] text-sm line-clamp-1 pr-6">{lead.name}</h4>
+        <h4 className="font-bold text-[var(--text-primary)] text-sm line-clamp-2 pe-6">{lead.name}</h4>
         <button 
-          className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] absolute top-4 right-4"
+          className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] absolute top-4 end-4"
           onClick={(e) => { e.stopPropagation(); onClick && onClick(); }}
         >
           <MoreHorizontal className="w-4 h-4" />
@@ -96,8 +96,8 @@ function KanbanColumn({ id, title, leads, onLeadClick }: { id: LeadStatus, title
       ref={setNodeRef}
       className={`
         flex-shrink-0 w-80 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-2xl flex flex-col max-h-full
-        transition-colors duration-200
-        ${isOver ? 'bg-[var(--surface-hover)] border-[var(--color-primary)]/50' : ''}
+        transition-all duration-300
+        ${isOver ? 'bg-[var(--surface-hover)] border-[var(--color-primary)] shadow-[0_0_15px_rgba(5,150,105,0.15)]' : ''}
       `}
     >
       <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between shrink-0">
@@ -185,7 +185,7 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
           <p className="text-sm text-[var(--text-secondary)]">Drag and drop leads to update status</p>
         </div>
         <Button size="sm" className="gap-2">
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 me-2" />
           Create Lead
         </Button>
       </div>
@@ -221,15 +221,15 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black z-40"
+              className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm z-40"
               onClick={() => setSelectedLead(null)}
             />
             <motion.div 
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[var(--surface-default)] shadow-2xl z-50 flex flex-col border-l border-[var(--border-default)]"
+              transition={{ type: "spring", damping: 15, stiffness: 400 }}
+              className="fixed top-0 end-0 bottom-0 w-full max-w-md bg-[var(--surface-default)] shadow-2xl z-50 flex flex-col border-s border-[var(--border-default)]"
             >
               <div className="flex items-center justify-between p-6 border-b border-[var(--border-default)]">
                 <div>
@@ -266,9 +266,9 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
                           type="number" 
                           min="0" max="100" 
                           defaultValue={selectedLead.probability || 50}
-                          className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-md px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] pr-8"
+                          className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-md px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] pe-8"
                         />
-                        <Percent className="w-3 h-3 absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+                        <Percent className="w-3 h-3 absolute end-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
                       </div>
                     </div>
                     <Button size="sm" className="w-full gap-2 mt-2">

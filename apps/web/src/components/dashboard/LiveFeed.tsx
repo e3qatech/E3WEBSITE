@@ -70,7 +70,7 @@ export function LiveFeed({ initialItems = [] }: { initialItems?: FeedItem[] }) {
       case 'broadcast':
         return (
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-purple-500/20 text-purple-400 mt-0.5">
+            <div className="p-2 rounded-full bg-cyan-500/20 text-cyan-400 mt-0.5">
               <Radio className="w-4 h-4" />
             </div>
             <div>
@@ -85,9 +85,9 @@ export function LiveFeed({ initialItems = [] }: { initialItems?: FeedItem[] }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] rounded-2xl border border-white/5 overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/40">
+      <div className="p-4 border-b border-[var(--border-default)] flex justify-between items-center bg-zinc-950/40">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[#00e676] animate-pulse' : 'bg-red-500'}`} />
           <h3 className="font-bold text-sm text-white">Live Feed</h3>

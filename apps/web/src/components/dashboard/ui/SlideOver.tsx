@@ -34,7 +34,7 @@ export function SlideOver({ isOpen, onClose, title, children }: SlideOverProps) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm z-50"
           />
           
           {/* Panel */}

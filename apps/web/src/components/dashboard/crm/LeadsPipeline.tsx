@@ -30,12 +30,12 @@ import { CSS } from "@dnd-kit/utilities"
 import { format } from "date-fns"
 
 const STAGES = [
-  { id: "NEW", label: "New Leads", color: "bg-blue-500" },
-  { id: "CONTACTED", label: "Contacted", color: "bg-amber-500" },
-  { id: "QUALIFIED", label: "Qualified", color: "bg-purple-500" },
-  { id: "PROPOSAL", label: "Proposal", color: "bg-orange-500" },
-  { id: "WON", label: "Won", color: "bg-green-500" },
-  { id: "LOST", label: "Lost", color: "bg-red-500" }
+  { id: "NEW", label: "New Leads", color: "bg-blue-600" },
+  { id: "CONTACTED", label: "Contacted", color: "bg-amber-600" },
+  { id: "QUALIFIED", label: "Qualified", color: "bg-[var(--color-primary)]" },
+  { id: "PROPOSAL", label: "Proposal", color: "bg-orange-600" },
+  { id: "WON", label: "Won", color: "bg-[var(--color-success)]" },
+  { id: "LOST", label: "Lost", color: "bg-[var(--color-error)]" }
 ]
 
 function SortableLeadCard({ lead }: { lead: any }) {
@@ -63,11 +63,11 @@ function SortableLeadCard({ lead }: { lead: any }) {
       </div>
       {lead.company && (
         <div className="flex items-center text-xs text-[var(--text-secondary)] mb-1">
-          <Building className="w-3 h-3 mr-1" /> {lead.company}
+          <Building className="w-3 h-3 me-1" /> {lead.company}
         </div>
       )}
       <div className="flex items-center text-xs text-[var(--text-secondary)] mb-3">
-        <Mail className="w-3 h-3 mr-1" /> {lead.email}
+        <Mail className="w-3 h-3 me-1" /> {lead.email}
       </div>
       <div className="flex justify-between items-center text-xs border-t border-[var(--border-default)] pt-2 mt-2">
         <span className="font-bold text-[var(--color-primary)]">
@@ -151,13 +151,13 @@ export function LeadsPipeline({ initialLeads }: { initialLeads: any[] }) {
         
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
             <input 
               type="text" 
               placeholder="Search leads..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--color-primary)] text-sm"
+              className="w-full ps-9 pe-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--color-primary)] text-sm"
             />
           </div>
           <div className="flex bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] p-1">
@@ -165,7 +165,7 @@ export function LeadsPipeline({ initialLeads }: { initialLeads: any[] }) {
             <button onClick={() => setView('table')} className={`p-1.5 rounded-lg transition-colors ${view === 'table' ? 'bg-[var(--surface-hover)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}><List className="w-4 h-4" /></button>
           </div>
           <Button asChild>
-            <Link href="/dashboard/crm/leads/new"><Plus className="w-4 h-4 mr-2" /> Add Lead</Link>
+            <Link href="/dashboard/crm/leads/new"><Plus className="w-4 h-4 me-2" /> Add Lead</Link>
           </Button>
         </div>
       </div>

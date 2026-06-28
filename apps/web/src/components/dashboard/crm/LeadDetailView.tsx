@@ -21,12 +21,12 @@ import { format } from "date-fns"
 import { useSession } from "next-auth/react"
 
 const STAGES = [
-  { id: "NEW", label: "New Lead", color: "bg-blue-500" },
-  { id: "CONTACTED", label: "Contacted", color: "bg-amber-500" },
-  { id: "QUALIFIED", label: "Qualified", color: "bg-purple-500" },
-  { id: "PROPOSAL", label: "Proposal", color: "bg-orange-500" },
-  { id: "WON", label: "Won", color: "bg-green-500" },
-  { id: "LOST", label: "Lost", color: "bg-red-500" }
+  { id: "NEW", label: "New Leads", color: "bg-blue-600" },
+  { id: "CONTACTED", label: "Contacted", color: "bg-amber-600" },
+  { id: "QUALIFIED", label: "Qualified", color: "bg-[var(--color-primary)]" },
+  { id: "PROPOSAL", label: "Proposal", color: "bg-orange-600" },
+  { id: "WON", label: "Won", color: "bg-[var(--color-success)]" },
+  { id: "LOST", label: "Lost", color: "bg-[var(--color-error)]" }
 ]
 
 export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, salesTeam: any[] }) {
@@ -73,10 +73,10 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case "CALL": return <PhoneCall className="w-4 h-4 text-blue-500" />
-      case "EMAIL": return <MailIcon className="w-4 h-4 text-amber-500" />
-      case "MEETING": return <Video className="w-4 h-4 text-purple-500" />
-      default: return <FileText className="w-4 h-4 text-gray-500" />
+      case "EMAIL": return <Mail className="w-4 h-4 text-blue-500" />
+      case "CALL": return <Phone className="w-4 h-4 text-green-500" />
+      case "MEETING": return <Video className="w-4 h-4 text-[var(--color-primary)]" />
+      case "NOTE": return <FileText className="w-4 h-4 text-amber-500" />
     }
   }
 

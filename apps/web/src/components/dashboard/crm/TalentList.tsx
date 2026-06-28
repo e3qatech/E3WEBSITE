@@ -6,20 +6,8 @@ import { Search, Plus, Filter, FileText, UserCheck, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
-
-type Talent = {
-  id: string
-  name: string
-  email: string
-  phone: string | null
-  position: string | null
-  department: string | null
-  status: string
-  rating: number | null
-  appliedDate: string
-  resumeUrl: string | null
-  job: { title: string } | null
-}
+import { SlideOver } from "@/components/dashboard/ui/SlideOver"
+import { TalentDetail, type Talent } from "./TalentDetail"
 
 export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
   const router = useRouter()
@@ -28,6 +16,7 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
   const [statusFilter, setStatusFilter] = useState("ALL")
   const [isAdding, setIsAdding] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null)
 
   const handleAddCandidate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -124,13 +113,13 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input 
               type="text" 
               placeholder="Search candidates..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
             />
           </div>
           <select 
@@ -153,7 +142,7 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
       </div>
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4">
           <form 
             onSubmit={handleAddCandidate}
             className="bg-[var(--surface-default)] rounded-2xl w-full max-w-lg p-6 border border-[var(--border-default)] shadow-xl animate-in fade-in zoom-in duration-200"
@@ -242,9 +231,9 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
                   <tr key={t.id} className="hover:bg-[var(--surface-hover)] transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-bold text-[var(--text-primary)]">
-                        <Link href={`/dashboard/crm/talent/${t.id}`} className="hover:text-[var(--color-primary)]">
+                        <button onClick={() => setSelectedTalentId(t.id)} className="hover:text-[var(--color-primary)] cursor-pointer text-start">
                           {t.name}
-                        </Link>
+                        </button>
                       </div>
                       <div className="text-xs text-[var(--text-tertiary)]">{t.email}</div>
                     </td>
@@ -287,8 +276,8 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
                           <a href={t.resumeUrl} target="_blank" rel="noopener noreferrer"><FileText className="w-4 h-4" /></a>
                         </Button>
                       )}
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/crm/talent/${t.id}`}>View</Link>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedTalentId(t.id)}>
+                        View
                       </Button>
                       <button onClick={() => deleteTalent(t.id)} className="p-2 text-[var(--color-error)] hover:bg-[#EF444415] rounded-md transition-colors">
                         <Trash2 className="w-4 h-4" />
@@ -301,6 +290,20 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
           </table>
         </div>
       </div>
+
+      <SlideOver
+        isOpen={!!selectedTalentId}
+        onClose={() => setSelectedTalentId(null)}
+        title="Candidate Details"
+      >
+        {selectedTalentId && (
+          <TalentDetail 
+            key={selectedTalentId}
+            initialTalent={talent.find(t => t.id === selectedTalentId)!}
+            onClose={() => setSelectedTalentId(null)}
+          />
+        )}
+      </SlideOver>
     </div>
   )
 }

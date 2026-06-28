@@ -119,9 +119,9 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
           </div>
 
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <ImageIcon className="w-5 h-5 mr-2 text-purple-500" /> Logo Assets
-            </h2>
+            <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center">
+              <ImageIcon className="w-5 h-5 me-2 text-[var(--color-primary)]" /> Logo Assets
+            </h3>
             <div className="space-y-4">
               <div className="p-4 border border-dashed border-[var(--border-default)] rounded-xl text-center bg-[var(--surface-hover)]">
                 <Button variant="outline" className="mb-2">Upload Light Logo</Button>

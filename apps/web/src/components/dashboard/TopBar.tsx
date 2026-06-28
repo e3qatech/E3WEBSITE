@@ -8,7 +8,7 @@ export function TopBar() {
   const paths = pathname.split('/').filter(Boolean);
   
   return (
-    <header className="hidden md:flex h-16 bg-[var(--surface-default)] border-b border-[var(--border-level-2)] items-center justify-between px-6 shrink-0 z-20 sticky top-0">
+    <header className="hidden md:flex h-16 backdrop-blur-md bg-[var(--surface-default)]/60 border-b border-[var(--border-level-2)] items-center justify-between px-6 shrink-0 z-20 sticky top-0 transition-colors duration-300">
       
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">

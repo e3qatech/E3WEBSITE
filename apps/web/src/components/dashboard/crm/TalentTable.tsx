@@ -142,13 +142,13 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
         
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
             <input 
               type="text" 
               placeholder="Search talent..." 
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--color-primary)] text-sm"
+              className="w-full ps-9 pe-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--color-primary)] text-sm"
             />
           </div>
           
@@ -161,7 +161,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
               disabled={isParsing}
             />
             <Button disabled={isParsing}>
-              {isParsing ? <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+              {isParsing ? <div className="w-4 h-4 me-2 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Upload className="w-4 h-4 me-2" />}
               {isParsing ? "Parsing AI..." : "Upload CV (PDF)"}
             </Button>
           </div>

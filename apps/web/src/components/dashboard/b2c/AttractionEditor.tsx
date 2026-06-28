@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+import { useEffect } from "react"
 
 export function AttractionEditor({ initialData }: { initialData?: any }) {
   const router = useRouter()
@@ -81,8 +83,39 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   // 9. Gallery
   const [gallery, setGallery] = useState<any[]>(initialData?.gallery || [])
 
+  const [errors, setErrors] = useState<string[]>([])
+
+  const currentData = JSON.stringify({
+    nameEn, nameAr, slug, taglineEn, taglineAr, descriptionEn, descriptionAr,
+    isPublished, isFeatured, isHidden,
+    heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl, logoUrl,
+    features, pricing, partnerOffers, partners, socialLinks, socialPreviews, newsCoverage,
+    mapUrl, ticketingUrl, operations, temporalStatus, faqs, testimonials, gallery
+  })
+  const [initialDataStr] = useState(currentData)
+  const isDirty = currentData !== initialDataStr
+
+  useEffect(() => {
+    if (!isDirty) return
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
+
   const handleSave = async () => {
-    if (!nameEn || !slug) return alert("English Name and Slug are required")
+    const newErrors = []
+    if (!nameEn) newErrors.push("nameEn")
+    if (!slug) newErrors.push("slug")
+    
+    if (newErrors.length > 0) {
+      setActiveTab("general")
+      setErrors(newErrors)
+      setTimeout(() => setErrors([]), 800)
+      return
+    }
     
     setIsSaving(true)
     try {
@@ -145,7 +178,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-default)] shadow-sm sticky top-6 z-30 gap-4">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => router.back()}
+            onClick={() => {
+              if (isDirty && !window.confirm("You have unsaved changes. Discard them?")) return;
+              router.back()
+            }}
             className="p-2 hover:bg-[var(--surface-hover)] rounded-xl transition-colors text-[var(--text-secondary)]"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -205,16 +241,19 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <h2 className="text-lg font-black mb-6">Core Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
+                <motion.div animate={{ x: errors.includes("nameEn") ? [0, -10, 10, -10, 10, 0] : 0 }} transition={{ duration: 0.4 }} className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Attraction Name (EN) *</label>
                   <input type="text" value={nameEn}
                     onChange={e => {
                       setNameEn(e.target.value)
                       if (!isEditing) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"))
                     }}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none transition-colors"
+                    className={cn(
+                      "w-full bg-[var(--surface-subtle)] border rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors",
+                      errors.includes("nameEn") ? "border-[var(--color-error)] focus:border-[var(--color-error)]" : "border-[var(--border-default)] focus:border-[var(--color-primary)]"
+                    )}
                   />
-                </div>
+                </motion.div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Attraction Name (AR)</label>
                   <input type="text" dir="rtl" value={nameAr} onChange={e => setNameAr(e.target.value)}
@@ -233,12 +272,15 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                     className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none transition-colors text-right"
                   />
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <motion.div animate={{ x: errors.includes("slug") ? [0, -10, 10, -10, 10, 0] : 0 }} transition={{ duration: 0.4 }} className="space-y-2 md:col-span-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">URL Slug *</label>
                   <input type="text" value={slug} onChange={e => setSlug(e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none transition-colors"
+                    className={cn(
+                      "w-full bg-[var(--surface-subtle)] border rounded-xl px-4 py-3 text-sm font-mono focus:outline-none transition-colors",
+                      errors.includes("slug") ? "border-[var(--color-error)] focus:border-[var(--color-error)]" : "border-[var(--border-default)] focus:border-[var(--color-primary)]"
+                    )}
                   />
-                </div>
+                </motion.div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Description (EN)</label>
                   <textarea value={descriptionEn} onChange={e => setDescriptionEn(e.target.value)} rows={5}

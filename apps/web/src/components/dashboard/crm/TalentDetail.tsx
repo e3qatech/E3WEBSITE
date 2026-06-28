@@ -6,7 +6,7 @@ import { ArrowLeft, Save, Mail, Phone, Briefcase, FileText, Download } from "luc
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 
-type Talent = {
+export type Talent = {
   id: string
   name: string
   email: string
@@ -26,7 +26,7 @@ type Talent = {
   job: { title: string } | null
 }
 
-export function TalentDetail({ initialTalent }: { initialTalent: Talent }) {
+export function TalentDetail({ initialTalent, onClose }: { initialTalent: Talent; onClose?: () => void }) {
   const router = useRouter()
   const [talent, setTalent] = useState(initialTalent)
   const [isSaving, setIsSaving] = useState(false)
@@ -81,12 +81,12 @@ export function TalentDetail({ initialTalent }: { initialTalent: Talent }) {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-24">
+    <div className="space-y-6 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between bg-[var(--surface-default)] p-4 rounded-xl border border-[var(--border-default)] shadow-sm sticky top-6 z-10">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => router.push("/dashboard/crm/talent")}
+            onClick={onClose ? onClose : () => router.push("/dashboard/crm/talent")}
             className="p-2 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-[var(--text-secondary)]"
           >
             <ArrowLeft className="w-5 h-5" />

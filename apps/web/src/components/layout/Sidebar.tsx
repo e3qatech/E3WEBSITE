@@ -146,7 +146,7 @@ export function Sidebar() {
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="flex flex-col gap-1 mt-1 pl-9 pr-2"
+                  className="flex flex-col gap-1 mt-1 ps-9 pe-2"
                 >
                   {(item as any).subItems.map((sub: any) => {
                     const isSubActive = pathname === sub.href;
@@ -161,7 +161,7 @@ export function Sidebar() {
                             : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                         )}
                       >
-                        {isSubActive && <span className="absolute left-0 top-2 bottom-2 w-0.5 bg-[var(--color-primary)] rounded-r-md" />}
+                        {isSubActive && <span className="absolute start-0 top-2 bottom-2 w-0.5 bg-[var(--color-primary)] rounded-e-md" />}
                         {sub.label}
                       </Link>
                     )
@@ -250,7 +250,7 @@ export function Sidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
+              className="fixed inset-0 bg-zinc-950/50 z-40 md:hidden backdrop-blur-sm"
             />
             <motion.aside
               initial={{ x: "-100%" }}
