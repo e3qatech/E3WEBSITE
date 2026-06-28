@@ -69,7 +69,9 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
               <Globe className="w-5 h-5 mr-2 text-blue-500" /> Global Meta Tags
             </h2>
@@ -81,7 +83,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
                   type="text" 
                   value={data.metaTitleEn} 
                   onChange={e => handleChange("metaTitleEn", e.target.value)}
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                 />
               </div>
               <div>
@@ -91,7 +93,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
                   value={data.metaTitleAr} 
                   onChange={e => handleChange("metaTitleAr", e.target.value)}
                   dir="rtl"
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] text-right"
+                  className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] text-right transition-colors"
                 />
               </div>
               <div>
@@ -99,7 +101,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
                 <textarea 
                   value={data.metaDescriptionEn} 
                   onChange={e => handleChange("metaDescriptionEn", e.target.value)}
-                  className="w-full h-24 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  className="w-full h-24 bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none transition-colors"
                 />
               </div>
               <div>
@@ -108,13 +110,16 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
                   value={data.metaDescriptionAr} 
                   onChange={e => handleChange("metaDescriptionAr", e.target.value)}
                   dir="rtl"
-                  className="w-full h-24 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none text-right"
+                  className="w-full h-24 bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none text-right transition-colors"
                 />
               </div>
             </div>
+            </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
               <Search className="w-5 h-5 mr-2 text-amber-500" /> Tracking IDs
             </h2>
@@ -134,15 +139,18 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
                   type="text" 
                   value={data.tagManagerId} 
                   onChange={e => handleChange("tagManagerId", e.target.value)}
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono transition-colors"
                 />
               </div>
+            </div>
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
               <FileJson className="w-5 h-5 mr-2 text-green-500" /> Advanced SEO
             </h2>
@@ -180,6 +188,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
                 </Button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

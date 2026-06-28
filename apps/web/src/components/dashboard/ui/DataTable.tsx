@@ -37,12 +37,13 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-[var(--border-default)] overflow-hidden bg-[var(--surface-default)]">
-        <div className="overflow-x-auto">
+      <div className="rounded-3xl border-gradient bg-zinc-950 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+        <div className="overflow-x-auto relative z-10 custom-scrollbar">
           <table className="w-full text-start border-collapse">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="bg-[var(--surface-hover)] border-b border-[var(--border-default)] text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                <tr key={headerGroup.id} className="bg-zinc-950/50 border-b border-zinc-800/50 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   {headerGroup.headers.map((header) => {
                     return (
                       <th key={header.id} className="p-4 whitespace-nowrap">
@@ -71,13 +72,13 @@ export function DataTable<TData, TValue>({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-[var(--border-default)]">
+            <tbody className="divide-y divide-zinc-800/30">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-[var(--surface-hover)] transition-colors group"
+                    className="hover:bg-zinc-900/50 transition-colors group cursor-pointer"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="p-4 whitespace-nowrap">

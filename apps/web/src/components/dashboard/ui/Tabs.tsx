@@ -36,7 +36,7 @@ export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
               {isActive && (
                 <motion.div 
                   layoutId="activeTabIndicator"
-                  className="absolute bottom-0 start-0 end-0 h-0.5 bg-[var(--color-primary)]"
+                  className="absolute bottom-0 start-0 end-0 h-0.5 bg-[var(--color-primary)] shadow-[0_0_12px_var(--color-primary)] rounded-full"
                 />
               )}
             </button>

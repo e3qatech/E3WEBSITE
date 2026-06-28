@@ -43,51 +43,68 @@ export function TicketingDashboard({ schedules }: { schedules: EventSchedule[] }
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[var(--surface-default)] p-5 rounded-xl border border-[var(--border-default)] shadow-sm">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg">
-              <Ticket className="w-5 h-5" />
+        <div className="glass p-5 rounded-3xl border-gradient relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-primary)]/10 blur-[50px] rounded-full group-hover:bg-[var(--color-primary)]/20 transition-colors"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg">
+                <Ticket className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-[var(--text-secondary)] text-sm">Tickets Booked</h3>
             </div>
-            <h3 className="font-bold text-[var(--text-secondary)] text-sm">Tickets Booked</h3>
+            <div className="text-3xl font-black text-[var(--text-primary)]">{totalBooked.toLocaleString()}</div>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">{totalBooked.toLocaleString()}</div>
         </div>
 
-        <div className="bg-[var(--surface-default)] p-5 rounded-xl border border-[var(--border-default)] shadow-sm">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-[var(--color-accent)]/10 text-[var(--color-accent)] rounded-lg">
-              <Users className="w-5 h-5" />
+        <div className="glass p-5 rounded-3xl border-gradient relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-accent)]/10 blur-[50px] rounded-full group-hover:bg-[var(--color-accent)]/20 transition-colors"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-[var(--color-accent)]/10 text-[var(--color-accent)] rounded-lg">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-[var(--text-secondary)] text-sm">Total Capacity</h3>
             </div>
-            <h3 className="font-bold text-[var(--text-secondary)] text-sm">Total Capacity</h3>
+            <div className="text-3xl font-black text-[var(--text-primary)]">{totalCapacity.toLocaleString()}</div>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">{totalCapacity.toLocaleString()}</div>
         </div>
 
-        <div className="bg-[var(--surface-default)] p-5 rounded-xl border border-[var(--border-default)] shadow-sm">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-[var(--color-success)]/10 text-[var(--color-success)] rounded-lg">
-              <TrendingUp className="w-5 h-5" />
+        <div className="glass p-5 rounded-3xl border-gradient relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-success)]/10 blur-[50px] rounded-full group-hover:bg-[var(--color-success)]/20 transition-colors"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-[var(--color-success)]/10 text-[var(--color-success)] rounded-lg">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-[var(--text-secondary)] text-sm">Utilization</h3>
             </div>
-            <h3 className="font-bold text-[var(--text-secondary)] text-sm">Utilization</h3>
+            <div className="text-3xl font-black text-[var(--text-primary)]">{utilization.toFixed(1)}%</div>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">{utilization.toFixed(1)}%</div>
         </div>
 
-        <div className="bg-[var(--surface-default)] p-5 rounded-xl border border-[var(--border-default)] shadow-sm">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-[var(--color-warning)]/10 text-[var(--color-warning)] rounded-lg">
-              <Activity className="w-5 h-5" />
+        <div className="glass p-5 rounded-3xl border-gradient relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-warning)]/10 blur-[50px] rounded-full group-hover:bg-[var(--color-warning)]/20 transition-colors"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-[var(--color-warning)]/10 text-[var(--color-warning)] rounded-lg">
+                <Activity className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-[var(--text-secondary)] text-sm">Active Events</h3>
             </div>
-            <h3 className="font-bold text-[var(--text-secondary)] text-sm">Active Events</h3>
+            <div className="text-3xl font-black text-[var(--text-primary)]">{filteredSchedules.length}</div>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">{filteredSchedules.length}</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Attraction Capacity Breakdown */}
-        <div className="lg:col-span-2 bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-[var(--border-default)]">
+        <div className="lg:col-span-2 glass rounded-3xl border-gradient relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="p-6 border-b border-zinc-800/50 relative z-10 bg-zinc-950/40">
             <h2 className="font-bold text-[var(--text-primary)]">Capacity by Attraction</h2>
           </div>
           <div className="p-5 space-y-6">
@@ -132,8 +149,9 @@ export function TicketingDashboard({ schedules }: { schedules: EventSchedule[] }
         </div>
 
         {/* Real-time Webhook Activity Mock Log */}
-        <div className="bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] shadow-sm flex flex-col h-[500px]">
-          <div className="p-5 border-b border-[var(--border-default)] flex items-center justify-between">
+        <div className="glass rounded-3xl border-gradient relative overflow-hidden flex flex-col h-[500px]">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between relative z-10 bg-zinc-950/40">
             <h2 className="font-bold text-[var(--text-primary)]">BookingQube Feed</h2>
             <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-success)]">
               <span className="relative flex h-2 w-2">

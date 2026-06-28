@@ -34,7 +34,7 @@ export function SlideOver({ isOpen, onClose, title, children }: SlideOverProps) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-zinc-950/60 backdrop-blur-md z-50"
           />
           
           {/* Panel */}
@@ -43,9 +43,10 @@ export function SlideOver({ isOpen, onClose, title, children }: SlideOverProps) 
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 end-0 w-full max-w-2xl bg-[var(--surface-default)] shadow-2xl border-s border-[var(--border-default)] z-50 flex flex-col"
+            className="fixed inset-y-0 end-0 w-full max-w-2xl bg-zinc-950/90 backdrop-blur-3xl shadow-2xl border-s border-zinc-800/50 z-50 flex flex-col"
           >
-            <div className="flex items-center justify-between p-6 border-b border-[var(--border-default)]">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="flex items-center justify-between p-6 border-b border-zinc-800/50 relative z-10">
               <h2 className="text-xl font-black text-[var(--text-primary)]">{title}</h2>
               <button
                 onClick={onClose}

@@ -179,7 +179,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl md:text-7xl font-black tracking-tight"
+            className="text-balance text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase drop-shadow-2xl leading-[1.1]"
             style={{ fontFamily: 'var(--font-satoshi, inherit)' }}
           >
             {isAr ? hero.headerAr || "اكتشف التجارب" : hero.headerEn || "Discover Experiences"}
@@ -336,8 +336,9 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     </p>
 
                     <div className="flex items-center gap-4 mt-auto">
-                      <div className="flex-1 bg-[#FAFAFA] text-[#0C0C0C] px-6 py-3 rounded-xl font-bold hover:bg-[#F59E0B] hover:text-[#0C0C0C] transition-colors active:scale-95 flex items-center justify-center min-h-[48px] gap-2">
-                        <Ticket className="w-5 h-5" /> Get Ticket
+                      <div className="flex-1 bg-amber-500/10 text-amber-500 px-6 py-3 rounded-xl font-black uppercase tracking-widest border border-amber-500/30 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all duration-300 active:scale-95 flex items-center justify-center min-h-[48px] gap-2 relative group overflow-hidden">
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                        <Ticket className="w-5 h-5 relative z-10" /> <span className="relative z-10">Get Ticket</span>
                       </div>
                     </div>
                   </div>

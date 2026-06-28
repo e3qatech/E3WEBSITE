@@ -95,8 +95,8 @@ async function FeaturedAttractionsHero({ locale, baseUrl }: { locale: string, ba
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px] md:auto-rows-[300px]">
       {/* Main Hero Card (Spans 2 cols, 2 rows) */}
-      <div className="md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden relative group bg-zinc-100 border border-zinc-200">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+      <div className="md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden relative group bg-zinc-900 border border-zinc-800 shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 pointer-events-none" />
         <E3Image 
           src={attractions[0]?.heroImage || "https://images.unsplash.com/photo-1540839045646-19f7381eb6c7"} 
           alt={attractions[0]?.name?.[locale as 'en'|'ar'] || "Featured Attraction"}
@@ -120,15 +120,15 @@ async function FeaturedAttractionsHero({ locale, baseUrl }: { locale: string, ba
       </div>
 
       {/* Metric Card 1 */}
-      <div className="rounded-3xl p-8 bg-white border border-zinc-200 flex flex-col justify-between hover:shadow-xl transition-shadow duration-500 relative overflow-hidden group">
+      <div className="rounded-3xl p-8 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/50 flex flex-col justify-between hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all duration-500 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors" />
-        <div>
-          <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">
+        <div className="relative z-10">
+          <p className="text-zinc-400 text-sm font-bold uppercase tracking-wider mb-2">
             {locale === 'ar' ? 'فعاليات نشطة' : 'Active Events'}
           </p>
-          <h2 className="text-6xl font-black text-amber-500">12<span className="text-3xl text-zinc-300">+</span></h2>
+          <h2 className="text-6xl font-black text-amber-500">12<span className="text-3xl text-zinc-700">+</span></h2>
         </div>
-        <p className="text-zinc-600 font-medium">
+        <p className="text-zinc-400 font-medium relative z-10">
           {locale === 'ar' ? 'تجارب حية تقام حالياً في قطر.' : 'Live experiences happening right now across Qatar.'}
         </p>
       </div>
@@ -179,8 +179,8 @@ async function FeaturedAttractionsList({ locale, baseUrl }: { locale: string, ba
               <ArrowRight className="w-5 h-5 text-amber-600 rtl:-scale-x-100" />
             </div>
           </div>
-          <h3 className="text-2xl font-bold text-zinc-900 mb-2">{attr.name?.[locale as 'en'|'ar']}</h3>
-          <div className="flex items-center text-zinc-500 text-sm gap-2">
+          <h3 className="text-2xl font-bold text-white mb-2">{attr.name?.[locale as 'en'|'ar']}</h3>
+          <div className="flex items-center text-zinc-400 text-sm gap-2">
             <MapPin className="w-4 h-4" />
             <span>{locale === 'ar' ? 'مواقع متعددة في قطر' : 'Multiple Locations, Qatar'}</span>
           </div>
@@ -197,7 +197,16 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
   const baseUrl = getBaseUrl()
 
   return (
-    <main className="bg-[#fafafa] min-h-screen text-[#09090b] selection:bg-amber-500/30 selection:text-amber-900">
+    <main className="bg-zinc-950 min-h-screen text-zinc-50 selection:bg-amber-500/30 selection:text-amber-900 relative overflow-hidden">
+      {/* Industrial Grain Texture */}
+      <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise)" />
+        </svg>
+      </div>
       <SEO 
         type="Service"
         data={{
@@ -220,17 +229,18 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
       </section>
 
       {/* 2. LIVE ATTRACTIONS SCROLLER */}
-      <section className="py-24 bg-white border-t border-zinc-200 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 flex justify-between items-end">
+      <section className="py-24 bg-zinc-950 border-t border-zinc-900 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/5 via-zinc-950 to-zinc-950 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 flex justify-between items-end relative z-10">
           <div>
-            <h2 className="text-4xl font-black text-zinc-900 tracking-tight">
+            <h2 className="text-4xl font-black text-white tracking-tight">
               {locale === 'ar' ? 'الوجهات الحالية' : 'Current Attractions'}
             </h2>
-            <p className="text-zinc-500 mt-2 text-lg">
+            <p className="text-zinc-400 mt-2 text-lg">
               {locale === 'ar' ? 'تجارب لا تفوت هذا الموسم.' : 'Unmissable experiences this season.'}
             </p>
           </div>
-          <Button asChild variant="outline" className="hidden sm:inline-flex rounded-full border-zinc-300 text-zinc-700 hover:bg-zinc-100">
+          <Button asChild variant="outline" className="hidden sm:inline-flex rounded-full border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white hover:border-zinc-700">
             <Link href={`/${locale}/b2c/attractions`}>
               {locale === 'ar' ? 'عرض الكل' : 'View All'}
             </Link>
@@ -244,22 +254,25 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
       </section>
 
       {/* 3. QUICK TICKETING CTA */}
-      <section className="py-24 bg-amber-50">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <Ticket className="w-16 h-16 text-amber-500 mx-auto mb-6" />
-          <h2 className="text-4xl md:text-5xl font-black text-zinc-900 mb-6">
+      <section className="py-32 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <Ticket className="w-16 h-16 text-amber-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tighter uppercase drop-shadow-lg">
             {locale === 'ar' ? 'جاهز للحجز؟' : 'Ready to Book?'}
           </h2>
-          <p className="text-xl text-zinc-600 mb-10 max-w-2xl mx-auto">
+          <p className="text-xl text-zinc-400 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
             {locale === 'ar' 
               ? 'احصل على تذاكرك لجميع الفعاليات والوجهات الكبرى في مكان واحد.' 
               : 'Secure your tickets for all major events and attractions in one place.'}
           </p>
-          <Button asChild size="xl" className="bg-amber-500 hover:bg-amber-600 text-black text-lg px-12 rounded-full border-none shadow-xl shadow-amber-500/20">
-            <Link href={`/${locale}/b2c/tickets`}>
+          
+          <Link href={`/${locale}/b2c/tickets`} className="inline-block relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full blur opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200" />
+            <div className="relative bg-black border border-amber-500/30 hover:border-amber-500/80 px-12 py-5 rounded-full text-amber-500 hover:text-amber-400 font-black tracking-widest uppercase transition-all duration-300">
               {locale === 'ar' ? 'شراء التذاكر' : 'Buy Tickets'}
-            </Link>
-          </Button>
+            </div>
+          </Link>
         </div>
       </section>
 

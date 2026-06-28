@@ -71,13 +71,15 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
         
         {/* Left Column */}
         <div className="space-y-6">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
               <Palette className="w-5 h-5 mr-2 text-pink-500" /> Brand Colors
             </h2>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-[var(--surface-hover)] rounded-xl border border-[var(--border-default)]">
+              <div className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 transition-colors hover:border-zinc-700">
                 <div>
                   <label className="block text-sm font-bold text-[var(--text-primary)]">Primary Color</label>
                   <span className="text-xs text-[var(--text-secondary)] font-mono">{data.colorPrimary}</span>
@@ -90,7 +92,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-[var(--surface-hover)] rounded-xl border border-[var(--border-default)]">
+              <div className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 transition-colors hover:border-zinc-700">
                 <div>
                   <label className="block text-sm font-bold text-[var(--text-primary)]">Secondary Color</label>
                   <span className="text-xs text-[var(--text-secondary)] font-mono">{data.colorSecondary}</span>
@@ -103,7 +105,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-[var(--surface-hover)] rounded-xl border border-[var(--border-default)]">
+              <div className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 transition-colors hover:border-zinc-700">
                 <div>
                   <label className="block text-sm font-bold text-[var(--text-primary)]">Accent Color</label>
                   <span className="text-xs text-[var(--text-secondary)] font-mono">{data.colorAccent}</span>
@@ -116,9 +118,12 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 />
               </div>
             </div>
+            </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center">
               <ImageIcon className="w-5 h-5 me-2 text-[var(--color-primary)]" /> Logo Assets
             </h3>
@@ -132,12 +137,15 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 <p className="text-xs text-[var(--text-tertiary)]">PNG or SVG, max 2MB</p>
               </div>
             </div>
+            </div>
           </div>
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
               <Layout className="w-5 h-5 mr-2 text-blue-500" /> Interface Options
             </h2>
@@ -148,7 +156,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 <select 
                   value={data.fontFamily} 
                   onChange={e => handleChange("fontFamily", e.target.value)}
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                 >
                   <option value="Inter">Inter (Sans-Serif)</option>
                   <option value="Roboto">Roboto (Sans-Serif)</option>
@@ -161,7 +169,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 <select 
                   value={data.defaultTheme} 
                   onChange={e => handleChange("defaultTheme", e.target.value)}
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                 >
                   <option value="system">System Preference</option>
                   <option value="light">Light Mode</option>
@@ -171,7 +179,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
 
               <div className="pt-4 border-t border-[var(--border-default)] space-y-3">
                 <label className="flex items-center space-x-3 cursor-pointer">
-                  <input type="checkbox" checked={data.enable3DMap} onChange={e => handleChange("enable3DMap", e.target.checked)} className="form-checkbox h-5 w-5 rounded border-[var(--border-default)] text-[var(--color-primary)] bg-[var(--surface-hover)]" />
+                  <input type="checkbox" checked={data.enable3DMap} onChange={e => handleChange("enable3DMap", e.target.checked)} className="form-checkbox h-5 w-5 rounded border-zinc-800/50 text-[var(--color-primary)] bg-zinc-900/50 focus:ring-[var(--color-primary)]" />
                   <span className="text-sm font-bold text-[var(--text-primary)]">Enable 3D Map View</span>
                 </label>
                 <label className="flex items-center space-x-3 cursor-pointer">
@@ -186,7 +194,9 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
             </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
               <Code className="w-5 h-5 mr-2 text-green-500" /> Custom CSS
             </h2>
@@ -199,6 +209,8 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
                 className="w-full h-32 bg-[#0a0a0a] text-blue-400 border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] font-mono resize-none"
               />
             </div>
+          </div>
+          </div>
           </div>
 
         </div>

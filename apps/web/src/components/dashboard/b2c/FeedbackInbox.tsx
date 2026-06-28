@@ -145,10 +145,11 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative h-[600px]">
         {/* Inbox List */}
         <div className={cn(
-          "bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] shadow-sm overflow-hidden flex flex-col h-full",
+          "glass rounded-3xl border-gradient flex flex-col h-full overflow-hidden shadow-2xl relative",
           selectedFeedback ? "hidden lg:flex lg:col-span-5" : "col-span-1 lg:col-span-12"
         )}>
-          <div className="overflow-y-auto flex-1 divide-y divide-[var(--border-default)]">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="overflow-y-auto flex-1 divide-y divide-zinc-800/30 relative z-10 custom-scrollbar">
             {filtered.length === 0 ? (
               <div className="p-8 text-center text-[var(--text-tertiary)] flex flex-col items-center">
                 <MessageSquare className="w-12 h-12 mb-3 opacity-20" />
@@ -160,8 +161,8 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
                   key={f.id}
                   onClick={() => setSelectedFeedback(f)}
                   className={cn(
-                    "w-full text-left p-4 hover:bg-[var(--surface-hover)] transition-colors relative",
-                    selectedFeedback?.id === f.id ? "bg-[var(--surface-subtle)] border-l-2 border-[var(--color-primary)]" : "border-l-2 border-transparent"
+                    "w-full text-left p-5 hover:bg-zinc-900/50 transition-all relative group",
+                    selectedFeedback?.id === f.id ? "bg-zinc-900/80 border-l-2 border-[var(--color-primary)] shadow-inner" : "border-l-2 border-transparent"
                   )}
                 >
                   <div className="flex justify-between items-start mb-1">
@@ -196,8 +197,9 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
 
         {/* Detail Panel */}
         {selectedFeedback && (
-          <div className="col-span-1 lg:col-span-7 bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] shadow-sm overflow-hidden flex flex-col h-full animate-in slide-in-from-right-4 lg:slide-in-from-bottom-0 duration-300">
-            <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]">
+          <div className="col-span-1 lg:col-span-7 glass rounded-3xl border-gradient shadow-2xl overflow-hidden flex flex-col h-full animate-in slide-in-from-right-4 lg:slide-in-from-bottom-0 duration-300 relative">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between bg-zinc-950/40 relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center font-bold text-lg">
                   {selectedFeedback.name ? selectedFeedback.name.charAt(0).toUpperCase() : "?"}
@@ -244,7 +246,7 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
               </div>
             </div>
 
-            <div className="p-4 bg-[var(--surface-subtle)] border-t border-[var(--border-default)] flex items-center justify-between gap-4">
+            <div className="p-6 bg-zinc-950/40 border-t border-zinc-800/50 flex items-center justify-between gap-4 relative z-10 backdrop-blur-md">
               <div className="flex items-center gap-2">
                 <Button 
                   size="sm" 

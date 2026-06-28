@@ -102,7 +102,9 @@ export function EventScheduleManager({
       </div>
 
       {isAdding && (
-        <form onSubmit={handleAddSchedule} className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm space-y-4 animate-in fade-in zoom-in duration-200">
+        <form onSubmit={handleAddSchedule} className="glass rounded-3xl p-6 border-gradient relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+          <div className="relative z-10 space-y-4">
           <h2 className="font-bold text-[var(--text-primary)]">New Schedule Block</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
@@ -163,13 +165,16 @@ export function EventScheduleManager({
           <div className="flex justify-end pt-2">
             <Button type="submit">Create Schedule</Button>
           </div>
+          </div>
         </form>
       )}
 
-      <div className="bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] shadow-sm overflow-hidden">
-        <table className="w-full text-left text-sm whitespace-nowrap">
-          <thead className="bg-[var(--surface-subtle)] border-b border-[var(--border-default)] text-[var(--text-secondary)]">
-            <tr>
+      <div className="glass rounded-3xl border-gradient relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+        <div className="relative z-10 overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
+            <thead className="bg-zinc-950/50 border-b border-zinc-800/50 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+              <tr>
               <th className="px-6 py-4 font-medium">Attraction</th>
               <th className="px-6 py-4 font-medium">Date & Time</th>
               <th className="px-6 py-4 font-medium">Type</th>
@@ -192,7 +197,7 @@ export function EventScheduleManager({
                 const fillPercentage = (s.currentCount / s.capacityGate) * 100
 
                 return (
-                  <tr key={s.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                  <tr key={s.id} className="hover:bg-zinc-900/50 transition-colors group cursor-pointer border-b border-zinc-800/30">
                     <td className="px-6 py-4 font-bold text-[var(--text-primary)]">
                       {s.attraction.nameEn}
                     </td>
@@ -233,7 +238,8 @@ export function EventScheduleManager({
               })
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   )

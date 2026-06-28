@@ -203,11 +203,12 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
           return (
             <div 
               key={col.id} 
-              className="w-80 shrink-0 flex flex-col bg-[var(--surface-subtle)] rounded-xl border border-[var(--border-default)]"
+              className="w-80 shrink-0 flex flex-col glass rounded-3xl border-gradient relative overflow-hidden"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, col.id)}
             >
-              <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between">
+              <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+              <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between relative z-10 bg-zinc-950/40">
                 <div>
                   <h3 className="font-bold text-[var(--text-primary)]">{col.title}</h3>
                   <p className="text-xs text-[var(--text-tertiary)]">
@@ -217,16 +218,21 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
                 </div>
               </div>
 
-              <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+              <div className="flex-1 p-3 space-y-3 overflow-y-auto relative z-10 custom-scrollbar">
                 {columnLeads.map(lead => (
-                  <div 
+                  <motion.div 
+                    layout
+                    layoutId={lead.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                     key={lead.id}
                     draggable
-                    onDragStart={(e) => handleDragStart(e, lead.id)}
-                    className="bg-[var(--surface-default)] p-4 rounded-lg border border-[var(--border-default)] shadow-sm cursor-grab active:cursor-grabbing hover:border-[var(--color-primary)] transition-colors"
+                    onDragStart={(e: any) => handleDragStart(e, lead.id)}
+                    className="bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 shadow-lg cursor-grab active:cursor-grabbing hover:border-zinc-700 hover:shadow-xl transition-all"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <Link href={`/dashboard/crm/leads/${lead.id}`} className="font-bold text-sm hover:text-[var(--color-primary)] transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <Link href={`/dashboard/crm/leads/${lead.id}`} className="font-bold text-sm text-zinc-200 hover:text-white transition-colors">
                         {lead.name}
                       </Link>
                       {lead.value && (
@@ -259,7 +265,7 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
                         View Details
                       </Link>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
