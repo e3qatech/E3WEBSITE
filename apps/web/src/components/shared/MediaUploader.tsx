@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef } from "react"
-import { UploadCloud, X, File as FileIcon, Loader2 } from "lucide-react"
+import { UploadCloud, X, File as FileIcon, Loader2, Box } from "lucide-react"
 
 interface MediaUploaderProps {
   value?: string | null
@@ -88,6 +88,12 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*", c
       <div className={`relative rounded-xl border border-[var(--border-default)] overflow-hidden group ${className}`}>
         {value.match(/\.(mp4|webm)$/i) ? (
           <video src={value} className="w-full h-48 object-cover" controls />
+        ) : value.match(/\.(glb|gltf)$/i) ? (
+          <div className="w-full h-48 bg-[var(--surface-hover)] flex flex-col items-center justify-center text-[var(--text-secondary)]">
+            <Box className="w-12 h-12 mb-2 text-[var(--color-primary)] opacity-50" />
+            <span className="text-sm font-bold">3D Model Uploaded</span>
+            <span className="text-xs max-w-[80%] truncate mt-1">{value.split('/').pop()}</span>
+          </div>
         ) : (
           <img src={value} alt="Uploaded Media" className="w-full h-48 object-cover" />
         )}

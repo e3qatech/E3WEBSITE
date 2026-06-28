@@ -277,8 +277,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Primary Media URL</label>
-                  {(heroMediaType === 'IFRAME' || heroMediaType === 'MODEL_3D') ? (
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Primary Media Source (Upload or URL)</label>
+                  {heroMediaType === 'IFRAME' ? (
                     <input 
                       type="text" 
                       value={heroMediaUrl || ''} 
@@ -287,7 +287,23 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                       className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
                     />
                   ) : (
-                    <MediaUploader value={heroMediaUrl} onChange={setHeroMediaUrl} />
+                    <div className="space-y-4">
+                      <MediaUploader 
+                        value={heroMediaUrl} 
+                        onChange={setHeroMediaUrl} 
+                        accept={heroMediaType === 'VIDEO' ? "video/*" : heroMediaType === 'MODEL_3D' ? ".glb,.gltf" : "image/*"}
+                      />
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase whitespace-nowrap">OR EXTERNAL URL:</span>
+                        <input 
+                          type="text" 
+                          value={heroMediaUrl || ''} 
+                          onChange={e => setHeroMediaUrl(e.target.value)} 
+                          placeholder="https://..." 
+                          className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

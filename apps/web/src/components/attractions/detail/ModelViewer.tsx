@@ -10,6 +10,8 @@ function Model({ url }: { url: string }) {
 }
 
 export default function ModelViewer({ url }: { url: string }) {
+  if (!url) return null;
+  
   return (
     <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
       <ambientLight intensity={0.5} />

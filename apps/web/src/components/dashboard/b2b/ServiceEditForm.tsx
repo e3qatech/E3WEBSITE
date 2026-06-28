@@ -266,8 +266,8 @@ export function ServiceEditForm({ initialData }: { initialData: any }) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold">Upload Media (Or URL)</label>
-                  {formData.heroMediaType === 'IFRAME' || formData.heroMediaType === 'MODEL_3D' ? (
+                  <label className="text-sm font-bold">Media Source (Upload or URL)</label>
+                  {formData.heroMediaType === 'IFRAME' ? (
                     <input 
                       type="text" 
                       value={formData.heroMediaUrl} 
@@ -276,11 +276,23 @@ export function ServiceEditForm({ initialData }: { initialData: any }) {
                       className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)]" 
                     />
                   ) : (
-                    <MediaUploader 
-                      value={formData.heroMediaUrl} 
-                      onChange={url => handleChange('heroMediaUrl', url)} 
-                      accept={formData.heroMediaType === 'VIDEO' ? "video/*" : "image/*"}
-                    />
+                    <div className="space-y-4">
+                      <MediaUploader 
+                        value={formData.heroMediaUrl} 
+                        onChange={url => handleChange('heroMediaUrl', url)} 
+                        accept={formData.heroMediaType === 'VIDEO' ? "video/*" : formData.heroMediaType === 'MODEL_3D' ? ".glb,.gltf" : "image/*"}
+                      />
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[var(--text-secondary)] font-bold whitespace-nowrap">OR EXTERNAL URL:</span>
+                        <input 
+                          type="text" 
+                          value={formData.heroMediaUrl} 
+                          onChange={e => handleChange('heroMediaUrl', e.target.value)} 
+                          placeholder="https://..." 
+                          className="flex-1 px-4 py-2 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)]" 
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
