@@ -40,6 +40,7 @@ const sidebarConfig = [
     { label: "Temporal Rules", href: "/dashboard/operations/temporal-rules" },
     { label: "Broadcast", href: "/dashboard/operations/broadcast" }
   ] },
+  { label: "Team CMS", icon: Users, href: "/dashboard/team", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"] },
   { label: "CRM", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Leads Funnel", href: "/dashboard/crm/leads" },
     { label: "Clients", href: "/dashboard/crm/clients" },
