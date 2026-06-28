@@ -58,9 +58,9 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
             >
               {partner.websiteUrl ? (
                 <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full relative">
-                  {partner.logoUrl ? (
+                  {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
-                      src={partner.logoUrl} 
+                      src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
                       alt={partner.name || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
@@ -72,9 +72,9 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
                 </a>
               ) : (
                 <div className="block w-full h-full relative">
-                  {partner.logoUrl ? (
+                  {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
-                      src={partner.logoUrl} 
+                      src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
                       alt={partner.name || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
@@ -95,9 +95,9 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
             >
               {partner.websiteUrl ? (
                 <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full relative">
-                  {partner.logoUrl ? (
+                  {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
-                      src={partner.logoUrl} 
+                      src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
                       alt={partner.name || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
@@ -109,9 +109,9 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
                 </a>
               ) : (
                 <div className="block w-full h-full relative">
-                  {partner.logoUrl ? (
+                  {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
-                      src={partner.logoUrl} 
+                      src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
                       alt={partner.name || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />

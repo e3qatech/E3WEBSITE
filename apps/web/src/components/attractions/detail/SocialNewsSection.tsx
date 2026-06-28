@@ -87,10 +87,10 @@ export function SocialNewsSection({
               transition={{ delay: idx * 0.1 }}
               className="block w-80 md:w-96 shrink-0 bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors group relative"
             >
-              {social.imageUrl ? (
+              {(social.imageUrl || (social as any).image) ? (
                 <div className="h-48 w-full bg-zinc-800 relative overflow-hidden">
                   <img 
-                    src={social.imageUrl} 
+                    src={social.imageUrl || (social as any).image} 
                     alt={social.title || 'Social preview'} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

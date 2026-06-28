@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, MapPin, Users, Navigation } from 'lucide-react';
 import Link from 'next/link';
@@ -34,6 +34,7 @@ export function LiveBookingCard({
 }: LiveBookingCardProps) {
   // Start the socket subscription
   useLiveOccupancy();
+  const [imageError, setImageError] = useState(false);
   
   // Get live data from store for this specific attraction
   const attractionInStore = useAttractionsStore(state => 
@@ -162,9 +163,14 @@ export function LiveBookingCard({
                 );
               }
 
-              if (mapImageFallback) {
+              if (mapImageFallback && !imageError) {
                 return (
-                  <img src={mapImageFallback} alt="Location map" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+                  <img 
+                    src={mapImageFallback} 
+                    alt="Location map" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-50" 
+                    onError={() => setImageError(true)}
+                  />
                 );
               }
 

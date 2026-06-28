@@ -11,6 +11,7 @@ interface PricingTier {
   price: number;
   currency: string;
   type: string;
+  descriptionEn?: string | null;
 }
 
 interface PartnerOffer {
@@ -62,7 +63,12 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                   <Ticket className="w-3 h-3 mr-2" />
                   {tier.type}
                 </span>
-                <h3 className="text-2xl font-bold">{tier.titleEn}</h3>
+                <h3 className="text-2xl font-bold mb-2">{tier.titleEn}</h3>
+                {tier.descriptionEn && (
+                  <p className="text-zinc-400 text-sm mb-4 leading-relaxed">
+                    {tier.descriptionEn}
+                  </p>
+                )}
               </div>
 
               <div className="mb-8 relative">
