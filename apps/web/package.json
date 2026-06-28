@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "prisma generate && prisma db push --accept-data-loss && next build",
+    "build": "prisma generate && prisma db push --accept-data-loss && npm run seed:events && next build",
     "start": "NODE_ENV=production tsx server.ts",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:events": "tsx prisma/seed-events.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
