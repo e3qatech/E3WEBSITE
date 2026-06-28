@@ -34,18 +34,18 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
   // Status logic
   let statusBadge = null;
   if (remaining <= 0) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-500 rounded-md border border-red-500/30">Sold Out</div>;
+    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/20 text-red-500 rounded-sm border border-red-500/30">Sold Out</div>;
   } else if (remaining < 20) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-500 rounded-md border border-amber-500/30">Limited: {remaining} Left</div>;
+    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-500 rounded-sm border border-amber-500/30">Limited: {remaining}</div>;
   } else {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-md border border-emerald-500/30">Available</div>;
+    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">Available</div>;
   }
 
   // Type badge colors
   const typeColors = {
     REGULAR: 'bg-zinc-800 text-zinc-300',
-    SPECIAL: 'bg-indigo-500 text-white font-bold',
-    FESTIVAL: 'bg-fuchsia-500 text-white font-bold',
+    SPECIAL: 'bg-amber-500 text-black font-bold',
+    FESTIVAL: 'bg-indigo-500 text-white font-bold',
     PRIVATE: 'bg-rose-500 text-white font-bold',
   };
 
@@ -76,10 +76,10 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
 
           {/* Date Block Overlay */}
           <div className="absolute bottom-4 left-4 text-white">
-            <div className="text-sm font-medium text-emerald-400 uppercase tracking-widest">
+            <div className="text-sm font-medium text-amber-500 font-mono uppercase tracking-widest">
               {format(startDate, 'MMM')}
             </div>
-            <div className="text-3xl font-black leading-none">
+            <div className="text-3xl font-black leading-none font-satoshi">
               {format(startDate, 'dd')}
             </div>
           </div>
@@ -89,15 +89,15 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
         <div className="flex-1 p-6 flex flex-col justify-between relative z-10 bg-gradient-to-b from-transparent to-zinc-950/50">
           <div>
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-tight">
-                <Link href={`/en/b2c/attractions/${event.attractionSlug}`} className="hover:text-emerald-400 transition-colors">
+              <h3 className="text-xl md:text-2xl font-bold text-white leading-tight font-satoshi">
+                <Link href={`/en/b2c/attractions/${event.attractionSlug}`} className="hover:text-amber-500 transition-colors">
                   {event.attractionNameEn}
                 </Link>
               </h3>
               {statusBadge}
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 font-medium mb-6">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 font-medium mb-6 font-mono">
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-zinc-500" />
                 {format(startDate, 'h:mm a')} - {format(endDate, 'h:mm a')}
@@ -108,7 +108,7 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
               </div>
               {event.price && (
                 <div className="flex items-center gap-1.5 text-white bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-700">
-                  <Tag className="w-3.5 h-3.5 text-emerald-400" />
+                  <Tag className="w-3.5 h-3.5 text-amber-500" />
                   From {event.price}
                 </div>
               )}
@@ -126,7 +126,7 @@ export function EventCard({ event, onSelectTickets }: EventCardProps) {
             <button
               disabled={remaining <= 0}
               onClick={() => onSelectTickets(event)}
-              className="px-6 py-2.5 bg-white text-black font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+              className="px-6 py-2.5 bg-zinc-800 text-white font-bold uppercase tracking-widest text-sm rounded-md border border-zinc-700 hover:bg-amber-500 hover:text-black hover:border-amber-500 disabled:opacity-50 disabled:hover:bg-zinc-800 disabled:hover:text-white transition-colors"
             >
               {remaining <= 0 ? 'Sold Out' : 'Select Tickets'}
             </button>

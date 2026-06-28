@@ -90,10 +90,10 @@ export function CalendarSidebar({
           key={day.toString()}
           onClick={() => onDateChange(cloneDay)}
           className={`
-            p-2 w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-colors
-            ${!isCurrentMonth ? 'text-zinc-600' : 'text-white hover:bg-zinc-800'}
-            ${isSelectedDay ? 'bg-emerald-500 text-black hover:bg-emerald-400' : ''}
-            ${isTodayDay && !isSelectedDay ? 'border border-emerald-500/50 text-emerald-400' : ''}
+            p-2 w-10 h-10 flex items-center justify-center rounded-md text-sm font-medium font-mono transition-colors
+            ${!isCurrentMonth ? 'text-zinc-600' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}
+            ${isSelectedDay ? 'bg-amber-500 text-black font-bold hover:bg-amber-400' : ''}
+            ${isTodayDay && !isSelectedDay ? 'border border-amber-500/50 text-amber-500' : ''}
           `}
         >
           {formattedDate}
@@ -142,7 +142,7 @@ export function CalendarSidebar({
 
         <button 
           onClick={goToToday}
-          className="w-full py-2 bg-zinc-900 hover:bg-zinc-800 rounded-xl text-sm font-bold tracking-widest uppercase transition-colors"
+          className="w-full py-2 bg-[#141414] border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 rounded-md text-sm font-bold tracking-widest uppercase transition-colors text-zinc-300"
         >
           Today
         </button>
@@ -159,10 +159,10 @@ export function CalendarSidebar({
               <button
                 key={attr.id}
                 onClick={() => onAttractionToggle(attr.id)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors border ${
+                className={`px-3 py-1.5 rounded-md text-sm transition-colors border ${
                   selectedAttractions.includes(attr.id) 
-                    ? 'bg-white text-black border-white' 
-                    : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-600'
+                    ? 'bg-amber-500 text-black border-amber-500 font-bold' 
+                    : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
                 }`}
               >
                 {attr.nameEn}
@@ -179,10 +179,10 @@ export function CalendarSidebar({
               <button
                 key={type}
                 onClick={() => onEventTypeToggle(type)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors border ${
+                className={`px-3 py-1.5 rounded-md text-sm transition-colors border ${
                   selectedEventTypes.includes(type) 
-                    ? 'bg-emerald-500 text-black border-emerald-500 font-bold' 
-                    : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-600'
+                    ? 'bg-amber-500 text-black border-amber-500 font-bold' 
+                    : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
                 }`}
               >
                 {type}
@@ -198,11 +198,11 @@ export function CalendarSidebar({
             {(['ALL', 'AVAILABLE', 'LIMITED', 'SOLD_OUT'] as AvailabilityType[]).map(av => (
               <label key={av} className="flex items-center gap-3 cursor-pointer group">
                 <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
-                  availabilityFilter === av ? 'bg-white border-white' : 'bg-zinc-900 border-zinc-700 group-hover:border-zinc-500'
+                  availabilityFilter === av ? 'bg-amber-500 border-amber-500' : 'bg-[#141414] border-zinc-700 group-hover:border-zinc-500'
                 }`}>
                   {availabilityFilter === av && <div className="w-2 h-2 bg-black rounded-sm" />}
                 </div>
-                <span className={`text-sm ${availabilityFilter === av ? 'text-white font-medium' : 'text-zinc-400'}`}>
+                <span className={`text-sm font-mono uppercase tracking-widest ${availabilityFilter === av ? 'text-white font-bold' : 'text-zinc-500'}`}>
                   {av.replace('_', ' ')}
                 </span>
               </label>

@@ -102,9 +102,9 @@ export function EventList({
 
   if (events.length === 0) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-zinc-600 border border-dashed border-zinc-800 rounded-3xl bg-zinc-900/20">
+      <div className="w-full h-96 flex flex-col items-center justify-center text-zinc-600 border border-dashed border-zinc-800 rounded-lg bg-[#141414] shadow-inner">
         <CalendarX2 className="w-12 h-12 mb-4 opacity-50" />
-        <h3 className="text-xl font-bold text-zinc-300 mb-2">No Events Found</h3>
+        <h3 className="text-xl font-bold text-zinc-300 mb-2 font-satoshi">No Events Found</h3>
         <p className="text-sm font-medium">Try adjusting your filters or selecting a different month.</p>
       </div>
     );
@@ -119,7 +119,7 @@ export function EventList({
         return (
           <div key={dayStr} className="space-y-6">
             <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-black text-white">
+              <h2 className="text-2xl font-black text-white font-satoshi">
                 {format(dateObj, 'EEEE, MMMM d')}
               </h2>
               <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
