@@ -16,15 +16,21 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
   if (!faqs || faqs.length === 0) return null;
 
   return (
-    <section className="py-24 bg-black text-white">
+    <section className="py-32 bg-black text-white relative border-t border-white/5">
       <div className="max-w-4xl mx-auto px-6">
         
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight">Got Questions?</h2>
-          <p className="mt-4 text-zinc-400">Everything you need to know about your visit</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-6">FAQ</h2>
+          <p className="text-xl text-zinc-400 font-light">Everything you need to know</p>
+        </motion.div>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             
@@ -34,16 +40,18 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="border border-zinc-800 rounded-2xl overflow-hidden bg-zinc-900/50 hover:bg-zinc-900 transition-colors"
+                transition={{ delay: idx * 0.1, duration: 0.6 }}
+                className="border-b border-white/10 last:border-0 group"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full flex items-center justify-between p-6 md:p-8 text-left focus:outline-none"
+                  className="w-full flex items-center justify-between py-8 text-left focus:outline-none"
                 >
-                  <span className="text-lg md:text-xl font-bold pr-8">{faq.questionEn}</span>
-                  <div className={`p-2 rounded-full border transition-colors ${isOpen ? 'border-white bg-white text-black' : 'border-zinc-700 text-zinc-400 group-hover:border-zinc-500'}`}>
-                    {isOpen ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  <span className={`text-xl md:text-2xl font-bold pr-8 transition-colors duration-300 ${isOpen ? 'text-emerald-400' : 'text-white group-hover:text-zinc-300'}`}>
+                    {faq.questionEn}
+                  </span>
+                  <div className={`shrink-0 ml-4 transition-transform duration-500 ease-[0.22,1,0.36,1] ${isOpen ? 'rotate-180 text-emerald-400' : 'text-zinc-500 group-hover:text-white'}`}>
+                    {isOpen ? <Minus className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
                   </div>
                 </button>
                 
@@ -53,10 +61,9 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <div className="px-6 md:px-8 pb-8 text-zinc-400 leading-relaxed prose prose-invert max-w-none">
-                        {/* We use dangerouslySetInnerHTML in case answers have basic rich text (e.g. <br>, <a>, <strong>) */}
+                      <div className="pb-8 text-lg text-zinc-400 font-light leading-relaxed prose prose-invert max-w-none pr-12">
                         <div dangerouslySetInnerHTML={{ __html: faq.answerEn }} />
                       </div>
                     </motion.div>

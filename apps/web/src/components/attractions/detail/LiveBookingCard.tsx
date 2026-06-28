@@ -52,67 +52,77 @@ export function LiveBookingCard({
   if (occupancyPercentage > 60) capacityColor = 'bg-yellow-500';
   if (occupancyPercentage > 90) capacityColor = 'bg-red-500';
 
-  return (
-    <section className="py-24 bg-zinc-950 text-white border-t border-zinc-900">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
+    <section className="py-32 bg-black text-white relative border-t border-white/5">
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black pointer-events-none" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
           
           {/* Left: Booking & Live Status */}
           <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 md:p-12 flex flex-col justify-between"
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="relative bg-white/[0.02] border border-white/5 backdrop-blur-3xl rounded-[2.5rem] p-10 md:p-14 flex flex-col justify-between overflow-hidden"
           >
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold uppercase tracking-tight mb-4">
-                Plan Your Visit
+            {/* Subtle glow overlay */}
+            <div className={`absolute -top-40 -right-40 w-80 h-80 blur-[100px] rounded-full pointer-events-none ${isOpen ? 'bg-emerald-500/10' : 'bg-red-500/10'}`} />
+
+            <div className="relative z-10">
+              <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
+                Mission Control
               </h2>
-              <p className="text-zinc-400 text-lg mb-8">
-                Secure your spot at {name} before we reach full capacity.
+              <p className="text-zinc-400 text-lg mb-12 font-light">
+                Monitor live occupancy and secure your spot at {name}.
               </p>
 
               {/* Live Operations Panel */}
-              <div className="bg-black/50 rounded-2xl p-6 border border-white/5 mb-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                    <span className="font-bold tracking-widest uppercase text-sm text-zinc-300">
-                      {isOpen ? 'Open Now' : 'Closed'}
+              <div className="bg-black/40 backdrop-blur-md rounded-3xl p-8 border border-white/5 mb-10 shadow-inner">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="relative flex h-4 w-4">
+                      <div className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isOpen ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
+                      <div className={`relative inline-flex rounded-full h-4 w-4 shadow-[0_0_15px_rgba(16,185,129,0.8)] ${isOpen ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                    </div>
+                    <span className="font-black tracking-[0.2em] uppercase text-sm text-white">
+                      {isOpen ? 'Live Status: Open' : 'Status: Closed'}
                     </span>
                   </div>
-                  <Clock className="w-5 h-5 text-zinc-500" />
+                  <Clock className="w-6 h-6 text-zinc-600" />
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-                      <Users className="w-4 h-4" /> Live Occupancy
+                  <div className="flex justify-between items-end mb-4">
+                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                      <Users className="w-4 h-4" /> Current Occupancy
                     </span>
-                    <span className="text-lg font-bold font-mono">
-                      {currentOccupancy} <span className="text-sm text-zinc-500">/ {maxCapacity}</span>
+                    <span className="text-3xl font-black font-mono tracking-tighter">
+                      {currentOccupancy} <span className="text-lg text-zinc-600">/ {maxCapacity}</span>
                     </span>
                   </div>
                   
                   {/* Progress Bar */}
-                  <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden shadow-inner relative">
                     <motion.div 
-                      className={`h-full ${capacityColor}`}
+                      className={`absolute top-0 left-0 h-full ${capacityColor}`}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min(occupancyPercentage, 100)}%` }}
-                      transition={{ duration: 1, ease: 'easeOut' }}
+                      transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                     />
                   </div>
-                  <p className="text-xs text-zinc-500 text-right mt-1">Updates in real-time</p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-600 text-right mt-3 font-mono">Synched: Just Now</p>
                 </div>
               </div>
             </div>
 
             <Link
               href={bookingUrl || '#'}
-              className="w-full flex justify-center items-center py-5 rounded-xl bg-white text-black font-black uppercase tracking-widest hover:bg-zinc-200 transition-colors"
+              className="relative group w-full flex justify-center items-center py-5 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-300 z-10"
             >
-              Book Your Visit
+              <span className="relative z-10">Initiate Booking</span>
+              <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
             </Link>
           </motion.div>
 

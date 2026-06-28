@@ -239,23 +239,25 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       />
 
       {/* 8. Footer CTA */}
-      <section className="w-full bg-zinc-900 py-24 text-center border-t border-zinc-800">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tighter uppercase">
+      <section className="relative w-full bg-black py-32 text-center overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-black to-black pointer-events-none" />
+        <div className="relative z-10 max-w-4xl mx-auto px-6">
+          <h2 className="text-5xl md:text-7xl font-black text-white mb-10 tracking-tighter uppercase leading-[0.9]">
             {locale === 'ar' ? `هل أنت مستعد لتجربة ${displayName}؟` : `Ready to Experience ${displayName}?`}
           </h2>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-6 items-center">
             <a 
               href={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-emerald-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-colors"
+              className="relative group px-10 py-5 bg-emerald-500 text-black font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-400 transition-all duration-300 overflow-hidden"
             >
-              {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
+              <span className="relative z-10">{locale === 'ar' ? 'احجز الآن' : 'Book Now'}</span>
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
             </a>
             <a 
               href={`/${locale}/contact`}
-              className="px-8 py-4 bg-zinc-800 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-zinc-700 transition-colors"
+              className="px-10 py-5 bg-white/5 backdrop-blur-md border border-white/10 text-white font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-colors duration-300"
             >
               {locale === 'ar' ? 'اتصل بنا' : 'Contact Us'}
             </a>
