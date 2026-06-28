@@ -12,7 +12,8 @@ import {
   Eye, 
   EyeOff, 
   Star, 
-  CalendarDays 
+  CalendarDays,
+  Trash2
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
@@ -59,6 +60,22 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
       router.refresh()
     } catch {
       alert(`Failed to update ${field}`)
+    }
+  }
+
+  const deleteAttraction = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this attraction? This action cannot be undone.")) return;
+
+    try {
+      const res = await fetch(`/api/b2c/attractions/${id}`, {
+        method: "DELETE",
+      })
+      if (!res.ok) throw new Error()
+      
+      setAttractions(prev => prev.filter(a => a.id !== id))
+      router.refresh()
+    } catch {
+      alert("Failed to delete attraction")
     }
   }
 
@@ -186,6 +203,13 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
                     className={`p-2 rounded-md transition-colors ${attraction.isFeatured ? 'text-[var(--color-warning)] bg-white dark:bg-neutral-800 shadow-sm' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}`}
                   >
                     <Star className={`w-4 h-4 ${attraction.isFeatured ? 'fill-current' : ''}`} />
+                  </button>
+                  <button 
+                    title="Delete Attraction"
+                    onClick={() => deleteAttraction(attraction.id)}
+                    className="p-2 rounded-md transition-colors text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
