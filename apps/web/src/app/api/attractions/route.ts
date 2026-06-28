@@ -15,7 +15,13 @@ export async function GET(req: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
     const cacheKey = `attractions:list:${page}:${limit}:${search}:${isPublished}:${sortBy}:${sortOrder}`;
-    const cached = await redis.get(cacheKey);
+    let cached = null;
+    try {
+      cached = await redis.get(cacheKey);
+    } catch (e) {
+      console.warn('[REDIS_ERROR] Failed to get cache:', e);
+    }
+    
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
@@ -75,7 +81,11 @@ export async function GET(req: NextRequest) {
       },
     };
 
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+    } catch (e) {
+      console.warn('[REDIS_ERROR] Failed to set cache:', e);
+    }
 
     return NextResponse.json(result);
   } catch (error: any) {
@@ -114,9 +124,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const keys = await redis.keys('attractions:list:*');
-    if (keys.length > 0) {
-      await redis.del(...keys);
+    try {
+      const keys = await redis.keys('attractions:list:*');
+      if (keys.length > 0) {
+        await redis.del(...keys);
+      }
+    } catch (e) {
+      console.warn('[REDIS_ERROR] Failed to clear cache:', e);
     }
 
     return NextResponse.json(newAttraction, { status: 201 });

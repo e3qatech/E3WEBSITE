@@ -22,7 +22,17 @@ export const redis =
   globalForRedis.redis ??
   new Redis(redisUrl, {
     maxRetriesPerRequest: 3,
+    retryStrategy(times) {
+      if (times > 3) return null; // stop retrying after 3 times
+      return Math.min(times * 50, 2000);
+    }
   });
+
+if (!globalForRedis.redis) {
+  redis.on('error', (err) => {
+    console.warn('[REDIS_ERROR] Redis connection error:', err.message);
+  });
+}
 
 if (process.env.NODE_ENV !== 'production') {
   globalForRedis.redis = redis;
