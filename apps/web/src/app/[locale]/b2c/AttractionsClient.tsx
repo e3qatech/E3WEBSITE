@@ -443,21 +443,36 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                 ) : (
                   <motion.div 
                     layout
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-[300px] gap-4"
+                    className="flex flex-col gap-6"
                   >
-                    {filteredAttractions.map((attraction, index) => {
-                      // Make every 4th item span 2 columns and 2 rows for a brick layout
-                      const isLarge = index % 5 === 0;
-                      return (
+                    {/* 1 Full Rectangle for the first attraction */}
+                    {filteredAttractions[0] && (
+                      <div className="w-full h-[400px] md:h-[500px]">
                         <AttractionBrick 
-                          key={attraction.id} 
-                          attraction={attraction} 
-                          index={index} 
+                          key={filteredAttractions[0].id} 
+                          attraction={filteredAttractions[0]} 
+                          index={0} 
                           locale={locale} 
-                          isLarge={isLarge}
+                          isLarge={true}
                         />
-                      )
-                    })}
+                      </div>
+                    )}
+                    
+                    {/* Slider for the rest */}
+                    {filteredAttractions.length > 1 && (
+                      <div className="flex overflow-x-auto gap-6 snap-x snap-mandatory pb-8 scrollbar-hide">
+                        {filteredAttractions.slice(1).map((attraction, index) => (
+                          <div key={attraction.id} className="min-w-[300px] md:min-w-[400px] h-[350px] md:h-[400px] snap-center shrink-0">
+                            <AttractionBrick 
+                              attraction={attraction} 
+                              index={index + 1} 
+                              locale={locale} 
+                              isLarge={false}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -615,7 +630,7 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
       whileHover={{ y: -4, scale: 1.01 }}
-      className={`bg-[#141414] border border-[#27272A] rounded-3xl overflow-hidden group hover:border-[#52525B] hover:shadow-2xl hover:shadow-[#F59E0B]/5 transition-all flex flex-col relative ${isLarge ? 'md:col-span-2 md:row-span-2' : ''}`}
+      className={`bg-[#141414] border border-[#27272A] rounded-3xl overflow-hidden group hover:border-[#52525B] hover:shadow-2xl hover:shadow-[#F59E0B]/5 transition-all flex flex-col relative w-full h-full`}
     >
       <Link href={`/${locale}/b2c/attractions/${attraction.slug}`} className="flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
         <div className="absolute inset-0 z-0 bg-[#27272A]">
