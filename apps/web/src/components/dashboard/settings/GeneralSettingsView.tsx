@@ -23,11 +23,16 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     socialInstagram: initialSettings.socialInstagram || "",
     socialTwitter: initialSettings.socialTwitter || "",
     socialLinkedin: initialSettings.socialLinkedin || "",
+    socialYoutube: initialSettings.socialYoutube || "",
+    socialSnapchat: initialSettings.socialSnapchat || "",
+    socialFacebook: initialSettings.socialFacebook || "",
+    bookingqubeWebsite: initialSettings.bookingqubeWebsite || "",
     bookingQubeApiKey: initialSettings.bookingQubeApiKey || "",
     mapsApiKey: initialSettings.mapsApiKey || "",
     emailGatewayKey: initialSettings.emailGatewayKey || "",
     lightLogoUrl: initialSettings.lightLogoUrl || "",
     darkLogoUrl: initialSettings.darkLogoUrl || "",
+    faviconUrl: initialSettings.faviconUrl || "",
     gatewayB2CTitle: initialSettings.gatewayB2CTitle || "PRISTINE\\nSNOW",
     gatewayB2CDesc: initialSettings.gatewayB2CDesc || "Discover Qatar's premier live events, permanent attractions, and immersive experiences.",
     gatewayB2BTitle: initialSettings.gatewayB2BTitle || "COSMIC\\nVOID",
@@ -197,6 +202,11 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Dark Mode Logo</label>
                 <MediaUploader value={data.darkLogoUrl} onChange={(val) => handleChange("darkLogoUrl", val)} />
               </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Site Favicon</label>
+                <MediaUploader value={data.faviconUrl} onChange={(val) => handleChange("faviconUrl", val)} />
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">Recommended: 32x32px or 64x64px ICO/PNG</p>
+              </div>
             </div>
             </div>
           </div>
@@ -234,6 +244,42 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   type="url" 
                   value={data.socialLinkedin} 
                   onChange={e => handleChange("socialLinkedin", e.target.value)}
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">YouTube URL</label>
+                <input 
+                  type="url" 
+                  value={data.socialYoutube} 
+                  onChange={e => handleChange("socialYoutube", e.target.value)}
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Snapchat URL</label>
+                <input 
+                  type="url" 
+                  value={data.socialSnapchat} 
+                  onChange={e => handleChange("socialSnapchat", e.target.value)}
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Facebook URL</label>
+                <input 
+                  type="url" 
+                  value={data.socialFacebook} 
+                  onChange={e => handleChange("socialFacebook", e.target.value)}
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">BookingQube Website URL</label>
+                <input 
+                  type="url" 
+                  value={data.bookingqubeWebsite} 
+                  onChange={e => handleChange("bookingqubeWebsite", e.target.value)}
                   className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>

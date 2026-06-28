@@ -81,14 +81,18 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
                   <path d="M12 20H28M12 14H28M12 26H20" stroke="white" strokeWidth="3" strokeLinecap="round"/>
                 </svg>
               )}
-              <span className="font-bold text-xl tracking-tight hidden sm:block">E3 Qatar</span>
             </Link>
-            <div className={cn(
-              "px-2 py-0.5 text-xs font-semibold rounded-full uppercase tracking-wider relative z-50",
-              portal === "b2b" ? "bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]" : "bg-[var(--color-primary)]/15 text-[var(--color-primary)]"
-            )}>
-              {portal}
-            </div>
+            <Link 
+              href={`/${portal === 'b2c' ? 'b2b' : 'b2c'}`}
+              className={cn(
+                "px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider relative z-50 transition-colors border",
+                portal === "b2c" 
+                  ? "bg-transparent border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white" 
+                  : "bg-transparent border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white"
+              )}
+            >
+              Switch to {portal === 'b2c' ? 'B2B' : 'B2C'}
+            </Link>
           </div>
 
           {/* Desktop Nav */}

@@ -9,7 +9,13 @@ export default async function B2BLayout({
 }) {
   const settings = await db.setting.findMany({
     where: {
-      key: { in: ['lightLogoUrl', 'darkLogoUrl'] }
+      key: { in: [
+        'lightLogoUrl', 'darkLogoUrl',
+        'contactEmail', 'contactPhone', 'addressEn', 'addressAr', 
+        'siteNameEn', 'siteNameAr', 'socialInstagram', 'socialTwitter', 
+        'socialLinkedin', 'socialYoutube', 'socialSnapchat', 'socialFacebook', 
+        'bookingqubeWebsite'
+      ] }
     }
   });
   
@@ -22,7 +28,10 @@ export default async function B2BLayout({
       <main className="flex-1 pt-24">
         {children}
       </main>
-      <Footer portal="b2b" />
+      <Footer 
+        portal="b2b" 
+        settings={settings.reduce((acc, curr) => ({...acc, [curr.key]: curr.value}), {})}
+      />
     </div>
   );
 }

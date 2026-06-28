@@ -5,7 +5,7 @@
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
 
-✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 127ms
+✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 125ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
@@ -29,9 +29,9 @@ Running generate... (Use --skip-generate to skip the generators)
 
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-✓ Compiled successfully in 9.4s
+✓ Compiled successfully in 8.6s
   Running TypeScript ...
-  Finished TypeScript in 12.8s ...
+  Finished TypeScript in 10.3s ...
   Collecting page data using 23 workers ...
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
@@ -96,18 +96,9 @@ Running generate... (Use --skip-generate to skip the generators)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -136,6 +127,11 @@ Running generate... (Use --skip-generate to skip the generators)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -143,7 +139,6 @@ Running generate... (Use --skip-generate to skip the generators)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -162,6 +157,7 @@ prisma:info Starting a postgresql pool with 25 connections.
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+prisma:info Starting a postgresql pool with 25 connections.
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -181,15 +177,43 @@ prisma:info Starting a postgresql pool with 25 connections.
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
+prisma:info Starting a postgresql pool with 25 connections.
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
   Generating static pages using 23 workers (28/57) 
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 127ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 159ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 179ms
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -206,6 +230,34 @@ prisma:info Starting a postgresql pool with 25 connections.
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 216ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 215ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 227ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 245ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 250ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 268ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 274ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 285ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 289ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 299ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 315ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 240ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 304ms
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -218,55 +270,7 @@ prisma:info Starting a postgresql pool with 25 connections.
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 176ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-prisma:info Starting a postgresql pool with 25 connections.
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 193ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 190ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 202ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 219ms
   Generating static pages using 23 workers (42/57) 
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 213ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 234ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 112ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -295,7 +299,24 @@ prisma:info Starting a postgresql pool with 25 connections.
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 424ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] CaseStudy.findMany took 152ms
+[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 154ms
+[PRISMA PERFORMANCE BREACH] TeamMember.findMany took 157ms
+[PRISMA PERFORMANCE BREACH] Service.findMany took 159ms
+✓ Generating static pages using 23 workers (57/57) in 660ms
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -307,14 +328,7 @@ prisma:info Starting a postgresql pool with 25 connections.
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
-[PRISMA PERFORMANCE BREACH] Service.findMany took 103ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 113ms
-[PRISMA PERFORMANCE BREACH] TeamMember.findMany took 115ms
-✓ Generating static pages using 23 workers (57/57) in 546ms
   Finalizing page optimization ...
 
 Route (app)

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
 import { PortalSwitcher } from "@/components/layout/PortalSwitcher"
 import { auth } from "@/lib/auth"
+import db from "@/lib/db"
 import "./globals.css"
 
 const inter = Inter({
@@ -22,42 +23,53 @@ const notoSansArabic = Noto_Sans_Arabic({
   preload: true
 })
 
-export const metadata: Metadata = {
-  title: {
-    template: "%s | E3 - Event Engineering Experts",
-    default: "E3 - We Build Experiences | Event Engineering Experts",
-  },
-  description: "Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B and B2C clients.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'),
-  openGraph: {
-    title: "E3 - We Build Experiences",
-    description: "End-to-end event engineering, entertainment solutions, and immersive installations in Qatar and the MENA region.",
-    url: "/",
-    siteName: "E3 Qatar",
-    locale: "en_QA",
-    type: "website",
-    images: [
-      {
-        url: "/og-image-default.jpg", // Generated via @vercel/og in a real setup
-        width: 1200,
-        height: 630,
-        alt: "E3 Event Engineering Experts",
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await db.setting.findMany({
+    where: { key: 'faviconUrl' }
+  });
+  const faviconUrl = settings.find(s => s.key === 'faviconUrl')?.value as string | undefined;
+
+  return {
+    title: {
+      template: "%s | E3 - Event Engineering Experts",
+      default: "E3 - We Build Experiences | Event Engineering Experts",
+    },
+    description: "Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B and B2C clients.",
+    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'),
+    icons: faviconUrl ? {
+      icon: faviconUrl,
+      apple: faviconUrl,
+    } : undefined,
+    openGraph: {
+      title: "E3 - We Build Experiences",
+      description: "End-to-end event engineering, entertainment solutions, and immersive installations in Qatar and the MENA region.",
+      url: "/",
+      siteName: "E3 Qatar",
+      locale: "en_QA",
+      type: "website",
+      images: [
+        {
+          url: "/og-image-default.jpg", 
+          width: 1200,
+          height: 630,
+          alt: "E3 Event Engineering Experts",
+        }
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "E3 - We Build Experiences",
+      description: "Qatar's premier event engineering agency.",
+      images: ["/og-image-default.jpg"],
+    },
+    alternates: {
+      canonical: "/",
+      languages: {
+        "en": "/en/",
+        "ar": "/ar/"
       }
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "E3 - We Build Experiences",
-    description: "Qatar's premier event engineering agency.",
-    images: ["/og-image-default.jpg"],
-  },
-  alternates: {
-    canonical: "/",
-    languages: {
-      "en": "/en/",
-      "ar": "/ar/"
     }
-  }
+  };
 }
 
 export default async function RootLayout({
