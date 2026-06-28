@@ -129,16 +129,18 @@ export function LiveBookingCard({
               }
 
               if (extractedMapSrc) {
+                const isSpline = extractedMapSrc.includes('spline.design');
                 return (
                   <iframe 
                     src={extractedMapSrc} 
                     width="100%" 
                     height="100%" 
-                    style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
+                    style={isSpline ? { border: 0 } : { border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
+                    allow="autoplay; fullscreen"
                     allowFullScreen 
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:filter-none"
+                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${isSpline ? '' : 'group-hover:filter-none'}`}
                   />
                 );
               }

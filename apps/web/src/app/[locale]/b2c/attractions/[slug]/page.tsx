@@ -187,6 +187,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         <WhatsInside 
           description={displayDesc} 
           features={(attraction.features as any) || []}
+          imageUrl={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
         />
       )}
 

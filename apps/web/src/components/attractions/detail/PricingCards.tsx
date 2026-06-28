@@ -65,9 +65,28 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                 <h3 className="text-2xl font-bold">{tier.titleEn}</h3>
               </div>
 
-              <div className="mb-8 flex items-baseline gap-2">
-                <span className="text-5xl font-black">{tier.price}</span>
-                <span className="text-zinc-500 font-bold">{tier.currency}</span>
+              <div className="mb-8">
+                {offers && offers.length > 0 ? (() => {
+                  const maxDiscount = Math.max(...offers.map(o => o.discount));
+                  const discountedPrice = tier.price * (1 - maxDiscount / 100);
+                  return (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-black text-emerald-400">{discountedPrice.toFixed(0)}</span>
+                        <span className="text-zinc-500 font-bold">{tier.currency}</span>
+                      </div>
+                      <div className="flex items-baseline gap-2 opacity-50 line-through">
+                        <span className="text-xl font-bold">{tier.price}</span>
+                        <span className="text-sm font-bold">{tier.currency}</span>
+                      </div>
+                    </div>
+                  );
+                })() : (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-black">{tier.price}</span>
+                    <span className="text-zinc-500 font-bold">{tier.currency}</span>
+                  </div>
+                )}
               </div>
 
               <div className="mt-auto pt-8 border-t border-zinc-800">

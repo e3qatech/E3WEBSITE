@@ -13,9 +13,10 @@ interface Feature {
 interface WhatsInsideProps {
   description: string;
   features?: Feature[] | null;
+  imageUrl?: string | null;
 }
 
-export function WhatsInside({ description, features }: WhatsInsideProps) {
+export function WhatsInside({ description, features, imageUrl }: WhatsInsideProps) {
   // Container variants for staggered children
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -38,19 +39,33 @@ export function WhatsInside({ description, features }: WhatsInsideProps) {
     <section className="py-24 md:py-32 bg-black text-white relative">
       <div className="max-w-7xl mx-auto px-6">
         
-        {/* Intro Description */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.8 }}
-          className="max-w-3xl mx-auto text-center mb-24"
-        >
-          <h2 className="text-3xl md:text-5xl font-bold mb-8 uppercase tracking-tight">The Experience</h2>
-          <p className="text-lg md:text-xl text-zinc-400 font-light leading-relaxed">
-            {description}
-          </p>
-        </motion.div>
+        {/* Intro Description & Image */}
+        <div className={`grid grid-cols-1 ${imageUrl ? 'lg:grid-cols-2' : ''} gap-12 items-center mb-24`}>
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.8 }}
+            className={`max-w-3xl ${imageUrl ? '' : 'mx-auto text-center'}`}
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-8 uppercase tracking-tight">The Experience</h2>
+            <p className="text-lg md:text-xl text-zinc-400 font-light leading-relaxed">
+              {description}
+            </p>
+          </motion.div>
+
+          {imageUrl && (
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8 }}
+              className="relative w-full h-[400px] rounded-3xl overflow-hidden border border-zinc-800"
+            >
+              <img src={imageUrl} alt="What's inside" className="absolute inset-0 w-full h-full object-cover" />
+            </motion.div>
+          )}
+        </div>
 
         {/* Features Bento Grid */}
         {features && features.length > 0 && (
