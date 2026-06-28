@@ -1,0 +1,1034 @@
+{
+  "seedVersion": "2026-06-28",
+  "languageMode": "bilingual_en_ar",
+  "notes": {
+    "en": "Draft seed data for E3 live activations. Asset URLs, pricing, map links, ticketing links, and exact opening hours can be replaced by the website admin or AI seeding model.",
+    "ar": "بيانات أولية مقترحة للفعاليات والتجارب الحية الخاصة بـ E3. يمكن استبدال روابط الصور، الأسعار، روابط الخرائط، روابط التذاكر، وساعات العمل الدقيقة من خلال لوحة الإدارة أو نموذج الذكاء الاصطناعي."
+  },
+  "activations": [
+    {
+      "slug": "crayons-and-bricks-place-vendome",
+      "coreDetails": {
+        "name": {
+          "en": "Crayons & Bricks – Place Vendôme",
+          "ar": "كرايونز آند بريكس – بلاس فاندوم"
+        },
+        "tagline": {
+          "en": "A Creative Play Studio Where Art, Bricks, and Imagination Come Together",
+          "ar": "استوديو لعب إبداعي يجمع بين الفن والمكعبات والخيال"
+        },
+        "description": {
+          "en": "Crayons & Bricks – Place Vendôme is a colourful indoor children’s activation designed to inspire creativity, hands-on learning, and family-friendly play inside one of Qatar’s leading retail destinations. The concept brings together brick-building, drawing, colouring, dough modelling, face painting, caricature-style fun, and guided creative activities in a safe and welcoming environment. Operated by E3, the activation gives children the freedom to build, design, colour, create, and express themselves while parents enjoy a convenient mall-based entertainment experience.",
+          "ar": "كرايونز آند بريكس – بلاس فاندوم هي تجربة داخلية ملونة مخصصة للأطفال، تهدف إلى تحفيز الإبداع والتعلم العملي واللعب العائلي داخل أحد أبرز وجهات التسوق في قطر. يجمع المفهوم بين بناء المكعبات، الرسم، التلوين، تشكيل العجين، الرسم على الوجه، الكاريكاتير، والأنشطة الإبداعية الموجهة ضمن بيئة آمنة ومرحبة. وتوفر التجربة التي تديرها E3 للأطفال مساحة للبناء والتصميم والتلوين والإبداع والتعبير عن أنفسهم، مع توفير تجربة ترفيهية مريحة للعائلات داخل المول."
+        }
+      },
+      "whatsInside": [
+        {
+          "title": {
+            "en": "Brick Building Play Zone",
+            "ar": "منطقة اللعب وبناء المكعبات"
+          },
+          "description": {
+            "en": "A hands-on construction area where children can build towers, vehicles, houses, and creative structures using colourful bricks.",
+            "ar": "منطقة بناء تفاعلية تتيح للأطفال تصميم الأبراج والمركبات والمنازل والمجسمات الإبداعية باستخدام مكعبات ملونة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/brick-building-zone.jpg"
+        },
+        {
+          "title": {
+            "en": "Colouring & Drawing Tables",
+            "ar": "طاولات التلوين والرسم"
+          },
+          "description": {
+            "en": "Activity tables filled with colouring sheets, crayons, markers, and drawing materials for children to explore their artistic side.",
+            "ar": "طاولات أنشطة تحتوي على أوراق تلوين وأقلام شمعية وأقلام رسم ومواد فنية تساعد الأطفال على اكتشاف جانبهم الإبداعي."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/colouring-tables.jpg"
+        },
+        {
+          "title": {
+            "en": "Dough Modelling Corner",
+            "ar": "ركن تشكيل العجين"
+          },
+          "description": {
+            "en": "A tactile creative corner where children shape, roll, mould, and design playful characters and objects.",
+            "ar": "ركن إبداعي حسي يتيح للأطفال تشكيل ولف وتصميم شخصيات وأشكال مرحة باستخدام العجين."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/dough-modelling.jpg"
+        },
+        {
+          "title": {
+            "en": "Face Painting & Creative Makeover",
+            "ar": "الرسم على الوجه والتجميل الإبداعي"
+          },
+          "description": {
+            "en": "A fun artist-led experience where children can choose colourful face-painting designs and playful looks.",
+            "ar": "تجربة مرحة بإشراف فنانين، حيث يمكن للأطفال اختيار تصاميم ملونة للرسم على الوجه وإطلالات ممتعة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/face-painting.jpg"
+        },
+        {
+          "title": {
+            "en": "Mini Art Showcase",
+            "ar": "معرض فني صغير للأطفال"
+          },
+          "description": {
+            "en": "A display moment where children can proudly show their drawings, builds, and creative pieces to family members.",
+            "ar": "مساحة عرض بسيطة تتيح للأطفال إظهار رسوماتهم ومجسماتهم وأعمالهم الإبداعية للعائلة بكل فخر."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/art-showcase.jpg"
+        }
+      ],
+      "pricingAndTickets": [
+        {
+          "tierTitle": {
+            "en": "General Play Session",
+            "ar": "جلسة لعب عامة"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Standard access to the creative play and activity areas. Final pricing to be updated by admin.",
+            "ar": "دخول أساسي إلى مناطق اللعب والأنشطة الإبداعية. يتم تحديث السعر النهائي من خلال لوحة الإدارة."
+          }
+        },
+        {
+          "tierTitle": {
+            "en": "Birthday & Group Package",
+            "ar": "باقة أعياد الميلاد والمجموعات"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Custom package for birthdays, school visits, and group bookings, subject to availability.",
+            "ar": "باقة مخصصة لأعياد الميلاد والزيارات المدرسية وحجوزات المجموعات حسب التوفر."
+          }
+        }
+      ],
+      "partnerOffer": {
+        "partnerName": {
+          "en": "Place Vendôme",
+          "ar": "بلاس فاندوم"
+        },
+        "discountDetail": {
+          "en": "Mall-based seasonal offers may be activated during selected campaigns.",
+          "ar": "يمكن تفعيل عروض موسمية داخل المول خلال حملات محددة."
+        },
+        "shortDescription": {
+          "en": "A premium retail destination hosting a family-focused creative entertainment concept.",
+          "ar": "وجهة تسوق راقية تستضيف مفهوماً ترفيهياً إبداعياً موجهاً للعائلات."
+        },
+        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/place-vendome-logo.svg"
+      },
+      "generalPartners": [
+        {
+          "partnerName": {
+            "en": "Events & Entertainment Enterprises (E3)",
+            "ar": "إيفنتس آند إنترتينمنت إنتربرايزس E3"
+          },
+          "partnerDetailTagline": {
+            "en": "Owner & Operator",
+            "ar": "المالك والمشغل"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "Place Vendôme",
+            "ar": "بلاس فاندوم"
+          },
+          "partnerDetailTagline": {
+            "en": "Host Venue",
+            "ar": "الوجهة المستضيفة"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/place-vendome-logo.svg"
+        }
+      ],
+      "officialSocialLinks": [
+        {
+          "platform": "Instagram",
+          "profileUrl": "https://instagram.com/e3qatar"
+        },
+        {
+          "platform": "Website",
+          "profileUrl": "https://eeeqa.com"
+        }
+      ],
+      "socialPreviews": [
+        {
+          "platform": "Instagram",
+          "postUrl": "https://instagram.com/p/crayons-bricks-vendome",
+          "previewImageVideoUrl": "https://eeeqa.com/assets/social/crayons-bricks-vendome-01.jpg"
+        }
+      ],
+      "newsAndCoverage": [],
+      "mediaGallery": [
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/gallery-01.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/gallery-02.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/gallery-03.jpg"
+        }
+      ],
+      "heroMediaController": {
+        "mediaType": "IMAGE_CAROUSEL",
+        "primaryMediaUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/hero.jpg",
+        "fallbackImageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/fallback.jpg",
+        "thumbnailImageUrl": "https://eeeqa.com/assets/attractions/crayons-bricks-vendome/thumb.jpg"
+      },
+      "bookingAndMaps": {
+        "mapUrl": "https://maps.google.com/?q=Place+Vendome+Mall+Lusail+Qatar",
+        "ticketingUrl": null
+      },
+      "temporalRules": {
+        "isPermanentAttraction": true,
+        "startDate": "2023-01-01T10:00:00.000+03:00",
+        "endDate": null,
+        "adminStatusOverride": "Live"
+      },
+      "operations": {
+        "venueName": {
+          "en": "Place Vendôme Mall, Lusail, Qatar",
+          "ar": "بلاس فاندوم مول، لوسيل، قطر"
+        },
+        "ageGroup": {
+          "en": "Children & Families",
+          "ar": "الأطفال والعائلات"
+        },
+        "hours": {
+          "en": "Mall operating hours; final timing to be updated by admin.",
+          "ar": "حسب ساعات عمل المول؛ يتم تحديث التوقيت النهائي من خلال لوحة الإدارة."
+        }
+      }
+    },
+    {
+      "slug": "kidz-driving-school-city-center-doha",
+      "coreDetails": {
+        "name": {
+          "en": "Kidz Driving School",
+          "ar": "مدرسة القيادة للأطفال"
+        },
+        "tagline": {
+          "en": "Where Young Drivers Learn Safety, Responsibility, and Confidence Through Play",
+          "ar": "حيث يتعلم السائقون الصغار السلامة والمسؤولية والثقة من خلال اللعب"
+        },
+        "description": {
+          "en": "Kidz Driving School is an edutainment activation by E3 designed to introduce children to road safety, traffic awareness, and responsible driving in a fun miniature-city environment. Children begin their journey with a short briefing, learn about basic road signs and safe behaviour, then drive themed electric cars through streets, stations, crossings, and mission points. The experience blends role-play, safety education, and interactive driving to create a memorable activity for children and families inside City Center Doha.",
+          "ar": "مدرسة القيادة للأطفال هي تجربة تعليمية ترفيهية من E3 تهدف إلى تعريف الأطفال بمبادئ السلامة المرورية والوعي بالطريق والقيادة المسؤولة ضمن مدينة مصغرة ممتعة. يبدأ الأطفال رحلتهم بجلسة توجيه قصيرة، ويتعرفون على إشارات المرور والسلوك الآمن، ثم يقودون سيارات كهربائية مخصصة عبر الشوارع والمحطات والمعابر ونقاط المهام. تمزج التجربة بين لعب الأدوار والتعليم التفاعلي والقيادة الآمنة لتقديم نشاط لا يُنسى للأطفال والعائلات داخل سيتي سنتر الدوحة."
+        }
+      },
+      "whatsInside": [
+        {
+          "title": {
+            "en": "Mini Driving Track",
+            "ar": "مسار قيادة مصغر"
+          },
+          "description": {
+            "en": "A child-friendly driving route with lanes, turns, road markings, and safety guidance throughout the experience.",
+            "ar": "مسار قيادة مناسب للأطفال يحتوي على مسارات ومنعطفات وعلامات طريق وإرشادات سلامة طوال التجربة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/mini-driving-track.jpg"
+        },
+        {
+          "title": {
+            "en": "Traffic Signs & Safety Briefing",
+            "ar": "إشارات المرور وجلسة السلامة"
+          },
+          "description": {
+            "en": "Children learn simple traffic rules, safe driving behaviour, pedestrian awareness, and how to follow signs before starting the activity.",
+            "ar": "يتعلم الأطفال قواعد مرورية مبسطة وسلوك القيادة الآمنة والوعي بالمشاة وكيفية اتباع الإشارات قبل بدء النشاط."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/safety-briefing.jpg"
+        },
+        {
+          "title": {
+            "en": "Mission-Based Driving",
+            "ar": "مهام قيادة تفاعلية"
+          },
+          "description": {
+            "en": "Children receive simple driving missions and navigate the mini city to complete their route in a playful and structured way.",
+            "ar": "يحصل الأطفال على مهام قيادة بسيطة ويتنقلون داخل المدينة المصغرة لإكمال المسار بطريقة منظمة وممتعة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/mission-driving.jpg"
+        },
+        {
+          "title": {
+            "en": "Role-Play City Elements",
+            "ar": "عناصر مدينة للعب الأدوار"
+          },
+          "description": {
+            "en": "Themed buildings, stations, crossings, and city props help children feel part of a real miniature driving environment.",
+            "ar": "مبانٍ ومحطات ومعابر وديكورات مدينة مصممة لتمنح الأطفال إحساساً بأنهم داخل بيئة قيادة مصغرة حقيقية."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/city-elements.jpg"
+        },
+        {
+          "title": {
+            "en": "Young Driver Certificate Moment",
+            "ar": "لحظة شهادة السائق الصغير"
+          },
+          "description": {
+            "en": "A fun completion moment where children can celebrate finishing their drive and capture a family memory.",
+            "ar": "لحظة ختامية مرحة يحتفل فيها الأطفال بإكمال تجربة القيادة والتقاط ذكرى عائلية مميزة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/certificate-moment.jpg"
+        }
+      ],
+      "pricingAndTickets": [
+        {
+          "tierTitle": {
+            "en": "Single Driving Session",
+            "ar": "جلسة قيادة فردية"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Access to one driving experience including briefing and supervised track activity. Final pricing to be updated by admin.",
+            "ar": "دخول لتجربة قيادة واحدة تشمل جلسة التوجيه والنشاط على المسار بإشراف الفريق. يتم تحديث السعر النهائي من خلال لوحة الإدارة."
+          }
+        },
+        {
+          "tierTitle": {
+            "en": "Group / School Visit",
+            "ar": "زيارة مدرسية أو جماعية"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Custom educational package for schools, groups, and organised visits.",
+            "ar": "باقة تعليمية مخصصة للمدارس والمجموعات والزيارات المنظمة."
+          }
+        }
+      ],
+      "partnerOffer": {
+        "partnerName": {
+          "en": "City Center Doha",
+          "ar": "سيتي سنتر الدوحة"
+        },
+        "discountDetail": {
+          "en": "Family and seasonal offers may be available during selected campaigns.",
+          "ar": "قد تتوفر عروض عائلية وموسمية خلال حملات محددة."
+        },
+        "shortDescription": {
+          "en": "A central mall destination hosting an educational children’s driving experience.",
+          "ar": "وجهة مول مركزية تستضيف تجربة قيادة تعليمية للأطفال."
+        },
+        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+      },
+      "generalPartners": [
+        {
+          "partnerName": {
+            "en": "Events & Entertainment Enterprises (E3)",
+            "ar": "إيفنتس آند إنترتينمنت إنتربرايزس E3"
+          },
+          "partnerDetailTagline": {
+            "en": "Owner & Operator",
+            "ar": "المالك والمشغل"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "City Center Doha",
+            "ar": "سيتي سنتر الدوحة"
+          },
+          "partnerDetailTagline": {
+            "en": "Host Venue",
+            "ar": "الوجهة المستضيفة"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+        }
+      ],
+      "officialSocialLinks": [
+        {
+          "platform": "Instagram",
+          "profileUrl": "https://instagram.com/e3qatar"
+        },
+        {
+          "platform": "Website",
+          "profileUrl": "https://eeeqa.com"
+        }
+      ],
+      "socialPreviews": [
+        {
+          "platform": "Instagram",
+          "postUrl": "https://instagram.com/p/kidz-driving-school",
+          "previewImageVideoUrl": "https://eeeqa.com/assets/social/kidz-driving-school-01.jpg"
+        }
+      ],
+      "newsAndCoverage": [],
+      "mediaGallery": [
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/gallery-01.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/gallery-02.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/gallery-03.jpg"
+        }
+      ],
+      "heroMediaController": {
+        "mediaType": "IMAGE_CAROUSEL",
+        "primaryMediaUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/hero.jpg",
+        "fallbackImageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/fallback.jpg",
+        "thumbnailImageUrl": "https://eeeqa.com/assets/attractions/kidz-driving-school/thumb.jpg"
+      },
+      "bookingAndMaps": {
+        "mapUrl": "https://maps.google.com/?q=City+Center+Doha+Qatar",
+        "ticketingUrl": null
+      },
+      "temporalRules": {
+        "isPermanentAttraction": true,
+        "startDate": "2025-01-01T10:00:00.000+03:00",
+        "endDate": null,
+        "adminStatusOverride": "Live"
+      },
+      "operations": {
+        "venueName": {
+          "en": "City Center Doha, Qatar",
+          "ar": "سيتي سنتر الدوحة، قطر"
+        },
+        "ageGroup": {
+          "en": "Children & Families",
+          "ar": "الأطفال والعائلات"
+        },
+        "hours": {
+          "en": "Mall operating hours; final timing to be updated by admin.",
+          "ar": "حسب ساعات عمل المول؛ يتم تحديث التوقيت النهائي من خلال لوحة الإدارة."
+        }
+      }
+    },
+    {
+      "slug": "urban-arena-doha-mall",
+      "coreDetails": {
+        "name": {
+          "en": "Urban Arena",
+          "ar": "أوربان أرينا"
+        },
+        "tagline": {
+          "en": "A High-Energy Indoor Arena for Games, Challenges, and Urban Entertainment",
+          "ar": "ساحة داخلية مليئة بالحماس للألعاب والتحديات والترفيه الحضري"
+        },
+        "description": {
+          "en": "Urban Arena is a high-energy indoor entertainment destination by E3, designed for teenagers, families, groups, and competitive players looking for action-driven experiences in a modern mall environment. The concept combines arcade action, skill-based challenges, interactive games, sports-inspired activities, and group competitions in one urban-themed arena. From fast-paced game stations to friendly competitions and team-based play, Urban Arena is built to deliver repeatable entertainment, social fun, and memorable moments for guests of different age groups.",
+          "ar": "أوربان أرينا هي وجهة ترفيهية داخلية عالية الحماس من E3، مصممة للمراهقين والعائلات والمجموعات واللاعبين الباحثين عن تجارب مليئة بالحركة داخل بيئة مول عصرية. يجمع المفهوم بين ألعاب الأركيد، التحديات المهارية، الألعاب التفاعلية، الأنشطة المستوحاة من الرياضة، والمنافسات الجماعية ضمن ساحة بطابع حضري. من محطات اللعب السريعة إلى المنافسات الودية وتجارب الفرق، تم تصميم أوربان أرينا لتقديم ترفيه متجدد وتجربة اجتماعية ممتعة وذكريات مميزة للزوار من مختلف الفئات العمرية."
+        }
+      },
+      "whatsInside": [
+        {
+          "title": {
+            "en": "Arcade Madness",
+            "ar": "منطقة الأركيد"
+          },
+          "description": {
+            "en": "A vibrant selection of arcade machines and quick-play games designed for casual fun, friendly competition, and repeat visits.",
+            "ar": "مجموعة حيوية من أجهزة الأركيد والألعاب السريعة المصممة للمتعة والمنافسة الودية وتكرار الزيارة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/urban-arena/arcade-madness.jpg"
+        },
+        {
+          "title": {
+            "en": "Paintless Paintball / Bazooka Ball",
+            "ar": "بازوكا بول / بينتبول بدون طلاء"
+          },
+          "description": {
+            "en": "A safe, action-based team challenge with protective gear, trained staff, and a structured safety briefing before play.",
+            "ar": "تحدٍ جماعي حماسي وآمن مع معدات حماية وفريق مدرب وجلسة سلامة منظمة قبل بدء اللعب."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/urban-arena/bazooka-ball.jpg"
+        },
+        {
+          "title": {
+            "en": "Ping Pong Challenge",
+            "ar": "تحدي تنس الطاولة"
+          },
+          "description": {
+            "en": "A fast and social skill-based game area suitable for casual matches, group challenges, and friendly tournaments.",
+            "ar": "منطقة ألعاب مهارية وسريعة مناسبة للمباريات الودية وتحديات المجموعات والبطولات المصغرة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/urban-arena/ping-pong.jpg"
+        },
+        {
+          "title": {
+            "en": "Console & Screen Gaming",
+            "ar": "ألعاب الشاشات والكونسول"
+          },
+          "description": {
+            "en": "Large-screen gaming stations for multiplayer experiences, sports titles, racing games, and casual group entertainment.",
+            "ar": "محطات ألعاب بشاشات كبيرة لتجارب اللعب الجماعي وألعاب الرياضة والسباقات والترفيه الجماعي."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/urban-arena/console-gaming.jpg"
+        },
+        {
+          "title": {
+            "en": "Skill Games & Group Challenges",
+            "ar": "ألعاب المهارة والتحديات الجماعية"
+          },
+          "description": {
+            "en": "Competitive activities where friends, families, and teams can test reaction speed, accuracy, coordination, and teamwork.",
+            "ar": "أنشطة تنافسية تتيح للأصدقاء والعائلات والفرق اختبار سرعة الاستجابة والدقة والتنسيق والعمل الجماعي."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/urban-arena/skill-challenges.jpg"
+        }
+      ],
+      "pricingAndTickets": [
+        {
+          "tierTitle": {
+            "en": "Game Credit / Pay-to-Play",
+            "ar": "رصيد ألعاب / دفع حسب اللعب"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Flexible game access based on selected activities and credits. Final pricing to be updated by admin.",
+            "ar": "دخول مرن حسب الأنشطة المختارة ورصيد الألعاب. يتم تحديث السعر النهائي من خلال لوحة الإدارة."
+          }
+        },
+        {
+          "tierTitle": {
+            "en": "Group Challenge Package",
+            "ar": "باقة تحديات المجموعات"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Package option for birthdays, corporate groups, school trips, and team challenges.",
+            "ar": "باقة مناسبة لأعياد الميلاد والمجموعات المؤسسية والرحلات المدرسية وتحديات الفرق."
+          }
+        }
+      ],
+      "partnerOffer": {
+        "partnerName": {
+          "en": "Doha Mall",
+          "ar": "دوحة مول"
+        },
+        "discountDetail": {
+          "en": "Opening and seasonal offers may be available through venue campaigns.",
+          "ar": "قد تتوفر عروض افتتاحية أو موسمية من خلال حملات الوجهة."
+        },
+        "shortDescription": {
+          "en": "An urban indoor entertainment concept hosted within a modern mall environment.",
+          "ar": "مفهوم ترفيهي داخلي بطابع حضري ضمن بيئة مول عصرية."
+        },
+        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/doha-mall-logo.svg"
+      },
+      "generalPartners": [
+        {
+          "partnerName": {
+            "en": "Events & Entertainment Enterprises (E3)",
+            "ar": "إيفنتس آند إنترتينمنت إنتربرايزس E3"
+          },
+          "partnerDetailTagline": {
+            "en": "Owner & Operator",
+            "ar": "المالك والمشغل"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "Doha Mall",
+            "ar": "دوحة مول"
+          },
+          "partnerDetailTagline": {
+            "en": "Host Venue",
+            "ar": "الوجهة المستضيفة"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/doha-mall-logo.svg"
+        }
+      ],
+      "officialSocialLinks": [
+        {
+          "platform": "Instagram",
+          "profileUrl": "https://instagram.com/e3qatar"
+        },
+        {
+          "platform": "Website",
+          "profileUrl": "https://eeeqa.com"
+        }
+      ],
+      "socialPreviews": [
+        {
+          "platform": "Instagram",
+          "postUrl": "https://instagram.com/p/urban-arena-doha-mall",
+          "previewImageVideoUrl": "https://eeeqa.com/assets/social/urban-arena-01.jpg"
+        }
+      ],
+      "newsAndCoverage": [],
+      "mediaGallery": [
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/urban-arena/gallery-01.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/urban-arena/gallery-02.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/urban-arena/gallery-03.jpg"
+        }
+      ],
+      "heroMediaController": {
+        "mediaType": "IMAGE_CAROUSEL",
+        "primaryMediaUrl": "https://eeeqa.com/assets/attractions/urban-arena/hero.jpg",
+        "fallbackImageUrl": "https://eeeqa.com/assets/attractions/urban-arena/fallback.jpg",
+        "thumbnailImageUrl": "https://eeeqa.com/assets/attractions/urban-arena/thumb.jpg"
+      },
+      "bookingAndMaps": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar",
+        "ticketingUrl": null
+      },
+      "temporalRules": {
+        "isPermanentAttraction": true,
+        "startDate": "2025-12-01T10:00:00.000+03:00",
+        "endDate": null,
+        "adminStatusOverride": "Live"
+      },
+      "operations": {
+        "venueName": {
+          "en": "Doha Mall, Qatar",
+          "ar": "دوحة مول، قطر"
+        },
+        "ageGroup": {
+          "en": "All Ages; selected activities may have age restrictions",
+          "ar": "جميع الأعمار؛ بعض الأنشطة قد تتطلب شروط عمرية محددة"
+        },
+        "hours": {
+          "en": "Mall operating hours; final timing to be updated by admin.",
+          "ar": "حسب ساعات عمل المول؛ يتم تحديث التوقيت النهائي من خلال لوحة الإدارة."
+        }
+      }
+    },
+    {
+      "slug": "inflata-park-city-center-doha",
+      "coreDetails": {
+        "name": {
+          "en": "InflataPark",
+          "ar": "إنفلاتا بارك"
+        },
+        "tagline": {
+          "en": "Qatar’s Indoor Inflatable Adventure Park for Active Family Fun",
+          "ar": "حديقة مغامرات داخلية قابلة للنفخ في قطر للمتعة العائلية النشطة"
+        },
+        "description": {
+          "en": "InflataPark is E3’s indoor inflatable entertainment destination at City Center Doha, offering a colourful world of bouncing, climbing, sliding, racing, and active play for children and families. Designed as a safe, energetic, and repeatable family attraction, InflataPark features inflatable zones, obstacle routes, themed play areas, challenge elements, and supervised activity spaces. The attraction has become a recognisable indoor play destination in Qatar, combining physical movement, family entertainment, birthdays, group visits, and mall-based leisure under one inflatable universe.",
+          "ar": "إنفلاتا بارك هي وجهة ترفيهية داخلية قابلة للنفخ من E3 في سيتي سنتر الدوحة، تقدم عالماً ملوناً من القفز والتسلق والانزلاق والسباقات واللعب النشط للأطفال والعائلات. تم تصميمها كوجهة عائلية آمنة وحيوية ومتجددة، وتضم مناطق قابلة للنفخ، مسارات عوائق، مناطق لعب بطابع خاص، عناصر تحدي، ومساحات أنشطة بإشراف الفريق. أصبحت إنفلاتا بارك إحدى الوجهات المعروفة للعب الداخلي في قطر، حيث تجمع بين الحركة والترفيه العائلي وأعياد الميلاد والزيارات الجماعية وتجربة المول ضمن عالم واحد قابل للنفخ."
+        }
+      },
+      "whatsInside": [
+        {
+          "title": {
+            "en": "Inflatable Obstacle Runs",
+            "ar": "مسارات العوائق القابلة للنفخ"
+          },
+          "description": {
+            "en": "Fun obstacle routes where children climb, crawl, jump, slide, and race through colourful inflatable challenges.",
+            "ar": "مسارات عوائق ممتعة يتسلق فيها الأطفال ويزحفون ويقفزون وينزلقون ويتسابقون ضمن تحديات ملونة قابلة للنفخ."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/inflata-park/obstacle-runs.jpg"
+        },
+        {
+          "title": {
+            "en": "Inflata Kidz Zone",
+            "ar": "منطقة إنفلاتا كيدز"
+          },
+          "description": {
+            "en": "A playful zone designed for younger guests with softer movement, smaller challenges, and family-friendly supervision.",
+            "ar": "منطقة مرحة مخصصة للضيوف الأصغر سناً، مع حركة أخف وتحديات أصغر وإشراف مناسب للعائلات."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/inflata-park/inflata-kidz.jpg"
+        },
+        {
+          "title": {
+            "en": "Battle Arena",
+            "ar": "ساحة التحدي"
+          },
+          "description": {
+            "en": "A competitive inflatable area where guests test balance, speed, and confidence through safe physical challenges.",
+            "ar": "منطقة تنافسية قابلة للنفخ يختبر فيها الزوار التوازن والسرعة والثقة من خلال تحديات بدنية آمنة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/inflata-park/battle-arena.jpg"
+        },
+        {
+          "title": {
+            "en": "Slides & Bounce Zones",
+            "ar": "مناطق الانزلاق والقفز"
+          },
+          "description": {
+            "en": "High-energy inflatable slides and bounce areas created for active movement, laughter, and family entertainment.",
+            "ar": "زحاليق ومناطق قفز قابلة للنفخ ومليئة بالحماس للحركة والضحك والترفيه العائلي."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/inflata-park/slides-bounce.jpg"
+        },
+        {
+          "title": {
+            "en": "Birthday & Group Play",
+            "ar": "أعياد الميلاد ولعب المجموعات"
+          },
+          "description": {
+            "en": "A flexible indoor attraction suitable for birthday celebrations, school trips, group play, and corporate family days.",
+            "ar": "وجهة داخلية مرنة مناسبة لأعياد الميلاد والرحلات المدرسية ولعب المجموعات وأيام العائلة للشركات."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/inflata-park/birthday-group-play.jpg"
+        }
+      ],
+      "pricingAndTickets": [
+        {
+          "tierTitle": {
+            "en": "25-Minute Session",
+            "ar": "جلسة 25 دقيقة"
+          },
+          "priceBase": 35.0,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Short active-play session inside InflataPark.",
+            "ar": "جلسة لعب نشطة قصيرة داخل إنفلاتا بارك."
+          }
+        },
+        {
+          "tierTitle": {
+            "en": "50-Minute Session",
+            "ar": "جلسة 50 دقيقة"
+          },
+          "priceBase": 65.0,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Extended play session with more time to enjoy the inflatable attractions.",
+            "ar": "جلسة لعب ممتدة تتيح وقتاً أطول للاستمتاع بالمناطق القابلة للنفخ."
+          }
+        },
+        {
+          "tierTitle": {
+            "en": "Birthday / Group Package",
+            "ar": "باقة أعياد الميلاد والمجموعات"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Custom package for birthdays, school visits, and family group bookings.",
+            "ar": "باقة مخصصة لأعياد الميلاد والزيارات المدرسية وحجوزات المجموعات العائلية."
+          }
+        }
+      ],
+      "partnerOffer": {
+        "partnerName": {
+          "en": "City Center Doha",
+          "ar": "سيتي سنتر الدوحة"
+        },
+        "discountDetail": {
+          "en": "Seasonal and family offers may be available during selected campaigns.",
+          "ar": "قد تتوفر عروض موسمية وعائلية خلال حملات محددة."
+        },
+        "shortDescription": {
+          "en": "A central indoor mall destination hosting E3’s inflatable family entertainment park.",
+          "ar": "وجهة مول داخلية مركزية تستضيف حديقة الترفيه العائلية القابلة للنفخ من E3."
+        },
+        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+      },
+      "generalPartners": [
+        {
+          "partnerName": {
+            "en": "Events & Entertainment Enterprises (E3)",
+            "ar": "إيفنتس آند إنترتينمنت إنتربرايزس E3"
+          },
+          "partnerDetailTagline": {
+            "en": "Owner & Operator",
+            "ar": "المالك والمشغل"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "City Center Doha",
+            "ar": "سيتي سنتر الدوحة"
+          },
+          "partnerDetailTagline": {
+            "en": "Host Venue",
+            "ar": "الوجهة المستضيفة"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+        }
+      ],
+      "officialSocialLinks": [
+        {
+          "platform": "Instagram",
+          "profileUrl": "https://instagram.com/e3qatar"
+        },
+        {
+          "platform": "Website",
+          "profileUrl": "https://eeeqa.com"
+        }
+      ],
+      "socialPreviews": [
+        {
+          "platform": "Instagram",
+          "postUrl": "https://instagram.com/p/inflata-park-city-center",
+          "previewImageVideoUrl": "https://eeeqa.com/assets/social/inflata-park-01.jpg"
+        }
+      ],
+      "newsAndCoverage": [],
+      "mediaGallery": [
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/inflata-park/gallery-01.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/inflata-park/gallery-02.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/inflata-park/gallery-03.jpg"
+        }
+      ],
+      "heroMediaController": {
+        "mediaType": "IMAGE_CAROUSEL",
+        "primaryMediaUrl": "https://eeeqa.com/assets/attractions/inflata-park/hero.jpg",
+        "fallbackImageUrl": "https://eeeqa.com/assets/attractions/inflata-park/fallback.jpg",
+        "thumbnailImageUrl": "https://eeeqa.com/assets/attractions/inflata-park/thumb.jpg"
+      },
+      "bookingAndMaps": {
+        "mapUrl": "https://maps.google.com/?q=City+Center+Doha+Qatar",
+        "ticketingUrl": null
+      },
+      "temporalRules": {
+        "isPermanentAttraction": true,
+        "startDate": "2024-01-01T10:00:00.000+03:00",
+        "endDate": null,
+        "adminStatusOverride": "Live"
+      },
+      "operations": {
+        "venueName": {
+          "en": "City Center Doha, Qatar",
+          "ar": "سيتي سنتر الدوحة، قطر"
+        },
+        "ageGroup": {
+          "en": "Children & Families",
+          "ar": "الأطفال والعائلات"
+        },
+        "hours": {
+          "en": "Mall operating hours; final timing to be updated by admin.",
+          "ar": "حسب ساعات عمل المول؛ يتم تحديث التوقيت النهائي من خلال لوحة الإدارة."
+        }
+      }
+    },
+    {
+      "slug": "spongebob-squarepants-paw-patrol-activation-meryal",
+      "coreDetails": {
+        "name": {
+          "en": "SpongeBob SquarePants & PAW Patrol Activation",
+          "ar": "فعالية سبونج بوب سكوير بانتس وباو باترول"
+        },
+        "tagline": {
+          "en": "A Splash-Filled Character Experience Bringing Bikini Bottom and Adventure Bay to Qatar",
+          "ar": "تجربة شخصيات مائية تجمع بين بيكيني بوتوم وأدفنتشر باي في قطر"
+        },
+        "description": {
+          "en": "The SpongeBob SquarePants & PAW Patrol Activation is a family character experience delivered by E3 in collaboration with Visit Qatar and Nickelodeon, bringing beloved children’s entertainment worlds to life at Meryal Waterpark. The activation blends themed meet-and-greet moments, character-inspired activities, branded photo opportunities, interactive family entertainment, and a bright summer-waterpark atmosphere. Designed for children, families, hotel guests, waterpark visitors, and the wider public, the experience creates memorable moments with two internationally loved franchises in a vibrant, queue-managed, guest-friendly environment.",
+          "ar": "فعالية سبونج بوب سكوير بانتس وباو باترول هي تجربة عائلية لشخصيات الأطفال تقدمها E3 بالتعاون مع زوروا قطر ونيكلوديون، لتجلب عوالم الترفيه المحبوبة إلى الحياة في مريال ووتر بارك. تجمع الفعالية بين لقاء الشخصيات، الأنشطة المستوحاة من العوالم الكرتونية، نقاط التصوير ذات الهوية البصرية، الترفيه العائلي التفاعلي، وأجواء صيفية مائية مشرقة. صُممت التجربة للأطفال والعائلات وضيوف الفنادق وزوار الحديقة المائية والجمهور، لتقديم لحظات لا تُنسى مع اثنتين من أشهر العلامات الترفيهية العالمية ضمن بيئة حيوية ومنظمة ومناسبة للضيوف."
+        }
+      },
+      "whatsInside": [
+        {
+          "title": {
+            "en": "SpongeBob SquarePants Themed Zone",
+            "ar": "منطقة سبونج بوب سكوير بانتس"
+          },
+          "description": {
+            "en": "A colourful Bikini Bottom-inspired zone with playful visuals, themed photo moments, and family-friendly interactive activities.",
+            "ar": "منطقة ملونة مستوحاة من بيكيني بوتوم تضم عناصر بصرية مرحة ونقاط تصوير وأنشطة تفاعلية مناسبة للعائلات."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/spongebob-zone.jpg"
+        },
+        {
+          "title": {
+            "en": "PAW Patrol Adventure Zone",
+            "ar": "منطقة مغامرات باو باترول"
+          },
+          "description": {
+            "en": "An Adventure Bay-inspired experience with heroic missions, themed graphics, and engaging children’s activities.",
+            "ar": "تجربة مستوحاة من أدفنتشر باي تتضمن مهام بطولية ورسومات بطابع خاص وأنشطة ممتعة للأطفال."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/paw-patrol-zone.jpg"
+        },
+        {
+          "title": {
+            "en": "Character Meet & Greet",
+            "ar": "لقاء الشخصيات"
+          },
+          "description": {
+            "en": "Scheduled moments where families can meet favourite characters and capture memorable photos.",
+            "ar": "مواعيد منظمة تتيح للعائلات لقاء الشخصيات المفضلة والتقاط صور تذكارية مميزة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/meet-greet.jpg"
+        },
+        {
+          "title": {
+            "en": "Branded Photo Opportunities",
+            "ar": "نقاط تصوير بهوية الفعالية"
+          },
+          "description": {
+            "en": "Bright themed backdrops and branded scenic elements designed for social content, family photos, and campaign visibility.",
+            "ar": "خلفيات وعناصر ديكور مشرقة بهوية الفعالية مصممة للمحتوى الاجتماعي والصور العائلية وإبراز الحملة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/photo-ops.jpg"
+        },
+        {
+          "title": {
+            "en": "Family Activity Sessions",
+            "ar": "جلسات أنشطة عائلية"
+          },
+          "description": {
+            "en": "Interactive games, guided activities, and family entertainment moments delivered across structured sessions.",
+            "ar": "ألعاب تفاعلية وأنشطة موجهة ولحظات ترفيهية عائلية تُقدم ضمن جلسات منظمة."
+          },
+          "imageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/family-sessions.jpg"
+        }
+      ],
+      "pricingAndTickets": [
+        {
+          "tierTitle": {
+            "en": "Waterpark Guest Access",
+            "ar": "دخول ضيوف الحديقة المائية"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Access for eligible Meryal Waterpark ticket holders and hotel guests during approved sessions.",
+            "ar": "دخول للزوار المؤهلين من حاملي تذاكر مريال ووتر بارك وضيوف الفنادق خلال الجلسات المعتمدة."
+          }
+        },
+        {
+          "tierTitle": {
+            "en": "Public Session Access",
+            "ar": "دخول الجلسات العامة"
+          },
+          "priceBase": null,
+          "discountPercent": 0,
+          "shortDescription": {
+            "en": "Access for the wider public during selected evening sessions, subject to capacity and venue rules.",
+            "ar": "دخول للجمهور خلال جلسات مسائية محددة، حسب الطاقة الاستيعابية وأنظمة الوجهة."
+          }
+        }
+      ],
+      "partnerOffer": {
+        "partnerName": {
+          "en": "Visit Qatar",
+          "ar": "زوروا قطر"
+        },
+        "discountDetail": {
+          "en": "Part of Qatar’s summer family entertainment calendar and destination campaign.",
+          "ar": "جزء من رزنامة الترفيه العائلي الصيفية وحملة الوجهة السياحية في قطر."
+        },
+        "shortDescription": {
+          "en": "Tourism campaign support bringing international character entertainment to Qatar’s family audience.",
+          "ar": "دعم لحملة سياحية تقدم ترفيه الشخصيات العالمية للجمهور العائلي في قطر."
+        },
+        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/visit-qatar-logo.svg"
+      },
+      "generalPartners": [
+        {
+          "partnerName": {
+            "en": "Visit Qatar",
+            "ar": "زوروا قطر"
+          },
+          "partnerDetailTagline": {
+            "en": "Official Destination Partner",
+            "ar": "الشريك الرسمي للوجهة"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/visit-qatar-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "Nickelodeon",
+            "ar": "نيكلوديون"
+          },
+          "partnerDetailTagline": {
+            "en": "Official Character & IP Partner",
+            "ar": "الشريك الرسمي للشخصيات والحقوق"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/nickelodeon-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "Meryal Waterpark",
+            "ar": "مريال ووتر بارك"
+          },
+          "partnerDetailTagline": {
+            "en": "Host Venue",
+            "ar": "الوجهة المستضيفة"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/meryal-logo.svg"
+        },
+        {
+          "partnerName": {
+            "en": "Events & Entertainment Enterprises (E3)",
+            "ar": "إيفنتس آند إنترتينمنت إنتربرايزس E3"
+          },
+          "partnerDetailTagline": {
+            "en": "Operations & Delivery Partner",
+            "ar": "شريك التشغيل والتنفيذ"
+          },
+          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+        }
+      ],
+      "officialSocialLinks": [
+        {
+          "platform": "Instagram",
+          "profileUrl": "https://instagram.com/e3qatar"
+        },
+        {
+          "platform": "Website",
+          "profileUrl": "https://eeeqa.com"
+        }
+      ],
+      "socialPreviews": [
+        {
+          "platform": "Instagram",
+          "postUrl": "https://instagram.com/p/spongebob-pawpatrol-meryal",
+          "previewImageVideoUrl": "https://eeeqa.com/assets/social/nickelodeon-meryal-01.jpg"
+        }
+      ],
+      "newsAndCoverage": [],
+      "mediaGallery": [
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/gallery-01.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/gallery-02.jpg"
+        },
+        {
+          "mediaUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/gallery-03.jpg"
+        }
+      ],
+      "heroMediaController": {
+        "mediaType": "IMAGE_CAROUSEL",
+        "primaryMediaUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/hero.jpg",
+        "fallbackImageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/fallback.jpg",
+        "thumbnailImageUrl": "https://eeeqa.com/assets/attractions/nickelodeon-meryal/thumb.jpg"
+      },
+      "bookingAndMaps": {
+        "mapUrl": "https://maps.google.com/?q=Meryal+Waterpark+Qetaifan+Island+North+Qatar",
+        "ticketingUrl": null
+      },
+      "temporalRules": {
+        "isPermanentAttraction": false,
+        "startDate": "2026-06-01T16:00:00.000+03:00",
+        "endDate": "2026-06-30T23:00:00.000+03:00",
+        "adminStatusOverride": "Live"
+      },
+      "operations": {
+        "venueName": {
+          "en": "Meryal Waterpark, Qetaifan Island North, Qatar",
+          "ar": "مريال ووتر بارك، جزيرة قطيفان الشمالية، قطر"
+        },
+        "ageGroup": {
+          "en": "Children & Families",
+          "ar": "الأطفال والعائلات"
+        },
+        "hours": {
+          "en": "Structured sessions; final daily timing and admission rules to be updated by admin.",
+          "ar": "جلسات منظمة؛ يتم تحديث التوقيت اليومي النهائي وقواعد الدخول من خلال لوحة الإدارة."
+        }
+      }
+    }
+  ]
+}

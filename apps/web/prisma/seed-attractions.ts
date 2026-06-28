@@ -1,10 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const prisma = new PrismaClient();
 
+// In ESM/Next.js context, __dirname is not always available, but since we run this via tsx:
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function main() {
-  const seedFile = 'c:\\Users\\Admin\\Downloads\\e3_live_activations_bilingual_seed.json';
+  const seedFile = path.join(__dirname, 'data', 'e3_live_activations_bilingual_seed.json');
   
   if (!fs.existsSync(seedFile)) {
     console.error(`Seed file not found: ${seedFile}`);
