@@ -3,9 +3,23 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { UploadCloud, ChevronRight, FileText, CheckCircle2, Building, Target, Heart } from "lucide-react";
+import { Canvas } from "@react-three/fiber";
+import { useGLTF, Stage, PresentationControls } from "@react-three/drei";
+import { Suspense } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+
+function ModelViewer({ url }: { url: string }) {
+  const { scene } = useGLTF(url);
+  return (
+    <PresentationControls speed={1.5} global zoom={0.5} polar={[-0.1, Math.PI / 4]}>
+      <Stage environment="city" intensity={0.6} castShadow={false}>
+        <primitive object={scene} />
+      </Stage>
+    </PresentationControls>
+  );
+}
 
 export function DiscoverClient({ locale, initialSettings }: { locale: string; initialSettings: any }) {
   const [dragActive, setDragActive] = useState(false);
@@ -93,6 +107,24 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
         {hero.mediaType === "VIDEO" && hero.mediaUrl && (
           <div className="absolute inset-0 opacity-40 mix-blend-screen">
             <video src={hero.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+          </div>
+        )}
+        {hero.mediaType === "IFRAME" && hero.mediaUrl && (
+          <div className="absolute inset-0 opacity-60 mix-blend-screen pointer-events-none">
+            {hero.mediaUrl.startsWith("<iframe") ? (
+              <div dangerouslySetInnerHTML={{ __html: hero.mediaUrl }} className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-none" />
+            ) : (
+              <iframe src={hero.mediaUrl} className="w-full h-full border-none" />
+            )}
+          </div>
+        )}
+        {hero.mediaType === "3D_MODEL" && hero.mediaUrl && (
+          <div className="absolute inset-0 z-0 opacity-80 mix-blend-screen">
+            <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+              <Suspense fallback={null}>
+                <ModelViewer url={hero.mediaUrl} />
+              </Suspense>
+            </Canvas>
           </div>
         )}
         

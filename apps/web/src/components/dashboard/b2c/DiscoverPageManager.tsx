@@ -224,23 +224,36 @@ export function DiscoverPageManager() {
                 <option value="IMAGE">Image</option>
                 <option value="VIDEO">Video</option>
                 <option value="ORBS">Cosmic Orbs (Default)</option>
+                <option value="IFRAME">External iFrame</option>
+                <option value="3D_MODEL">3D Model (.glb / .gltf)</option>
               </select>
             </div>
             {settings.hero.mediaType !== "ORBS" && (
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Media URL</label>
+                <label className="text-sm font-bold text-[var(--text-primary)]">
+                  {settings.hero.mediaType === "IFRAME" ? "iFrame Code / URL" : "Media URL"}
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={settings.hero.mediaUrl}
                     onChange={e => setSettings({ ...settings, hero: { ...settings.hero, mediaUrl: e.target.value } })}
                     className="flex-1 px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+                    placeholder={settings.hero.mediaType === "IFRAME" ? "<iframe src='...' /> or URL" : "URL"}
                   />
-                  <label className="shrink-0 flex items-center justify-center px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl cursor-pointer transition-colors relative">
-                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    <span className="ml-2 font-bold text-sm">Upload</span>
-                    <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} disabled={uploading} />
-                  </label>
+                  {settings.hero.mediaType !== "IFRAME" && (
+                    <label className="shrink-0 flex items-center justify-center px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl cursor-pointer transition-colors relative">
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      <span className="ml-2 font-bold text-sm">Upload</span>
+                      <input 
+                        type="file" 
+                        accept={settings.hero.mediaType === "3D_MODEL" ? ".glb,.gltf" : "image/*,video/*"} 
+                        className="hidden" 
+                        onChange={handleFileUpload} 
+                        disabled={uploading} 
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
             )}

@@ -641,3 +641,47 @@ model Subscriber {
 
   @@index([isVerified])
 }
+
+// ---------------------------------------------------------
+// Team & Employee Branding Layer
+// ---------------------------------------------------------
+
+model EmployeeProfile {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  firstName        String
+  lastName         String
+  designation      String
+  department       String
+  yearsOfExperience Int
+  tagline          String
+  profileImage     String?
+  
+  aboutSummary     String   @db.Text
+  careerJourney    String   @db.Text
+  keyStrengths     String   @db.Text
+
+  expertiseTags    Json     // Array of strings
+  coreCompetencies Json     // Array of strings
+  
+  experience       Json     // Array of objects
+  projects         Json     // Array of objects
+  certifications   Json     // Array of objects
+  education        Json     // Array of objects
+  awards           Json     // Array of objects
+  skillsMatrix     Json     // Array of objects
+  mediaGallery     Json     // Array of image URLs
+  testimonials     Json     // Array of objects
+  
+  contactEmail     String?
+  linkedinUrl      String?
+
+  isActive         Boolean  @default(true)
+  order            Int      @default(0)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([department])
+  @@index([isActive])
+}
