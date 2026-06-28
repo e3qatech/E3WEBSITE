@@ -65,12 +65,17 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                 <h3 className="text-2xl font-bold">{tier.titleEn}</h3>
               </div>
 
-              <div className="mb-8">
+              <div className="mb-8 relative">
                 {offers && offers.length > 0 ? (() => {
                   const maxDiscount = Math.max(...offers.map(o => o.discount));
                   const discountedPrice = tier.price * (1 - maxDiscount / 100);
                   return (
                     <div className="flex flex-col gap-1">
+                      <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4">
+                        <span className="bg-emerald-500 text-black text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider shadow-lg transform rotate-3">
+                          {maxDiscount}% OFF
+                        </span>
+                      </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-5xl font-black text-emerald-400">{discountedPrice.toFixed(0)}</span>
                         <span className="text-zinc-500 font-bold">{tier.currency}</span>

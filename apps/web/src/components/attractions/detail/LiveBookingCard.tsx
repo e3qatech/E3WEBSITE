@@ -17,6 +17,7 @@ interface LiveBookingCardProps {
   locationAddress?: string | null;
   schedule?: any; // You can type this properly based on TemporalRules
   operations?: any; // JSON field with operational data
+  mapImageFallback?: string | null;
 }
 
 export function LiveBookingCard({
@@ -29,6 +30,7 @@ export function LiveBookingCard({
   locationAddress,
   schedule,
   operations,
+  mapImageFallback,
 }: LiveBookingCardProps) {
   // Start the socket subscription
   useLiveOccupancy();
@@ -157,6 +159,12 @@ export function LiveBookingCard({
                     referrerPolicy="no-referrer-when-downgrade"
                     className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:filter-none"
                   />
+                );
+              }
+
+              if (mapImageFallback) {
+                return (
+                  <img src={mapImageFallback} alt="Location map" className="absolute inset-0 w-full h-full object-cover opacity-50" />
                 );
               }
 

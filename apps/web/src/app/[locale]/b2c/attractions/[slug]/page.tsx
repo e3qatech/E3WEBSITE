@@ -225,6 +225,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         longitude={null}
         locationAddress={(attraction.operations as any)?.venueName || "Doha, Qatar"}
         mapUrl={attraction.mapUrl}
+        mapImageFallback={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
         schedule={schedule}
         operations={attraction.operations}
         bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}

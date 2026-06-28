@@ -8,6 +8,7 @@ interface Feature {
   icon: string;
   title: string;
   description: string;
+  imageUrl?: string;
 }
 
 interface WhatsInsideProps {
@@ -87,21 +88,30 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className={`relative overflow-hidden group bg-zinc-900 border border-zinc-800 rounded-3xl p-8 flex flex-col justify-end min-h-[250px] transition-colors duration-500 hover:bg-zinc-800/80 ${isLarge ? 'md:col-span-2 lg:col-span-2' : ''}`}
+                  className={`relative overflow-hidden group bg-zinc-900 border border-zinc-800 rounded-3xl flex flex-col justify-end min-h-[250px] transition-colors duration-500 hover:bg-zinc-800/80 ${isLarge ? 'md:col-span-2 lg:col-span-2' : ''}`}
                 >
-                  <div className="absolute top-8 left-8 p-3 rounded-2xl bg-white/5 border border-white/10 text-white">
-                    <IconComponent className="w-6 h-6" />
-                  </div>
-                  
-                  <div className="mt-16">
-                    <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                    <p className="text-zinc-400 text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
+                  {feature.imageUrl ? (
+                    <div className="absolute inset-0">
+                      <img src={feature.imageUrl} alt={feature.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent" />
+                    </div>
+                  ) : null}
+
+                  <div className="relative p-8 z-10 flex-1 flex flex-col justify-end">
+                    <div className="absolute top-8 left-8 p-3 rounded-2xl bg-white/5 border border-white/10 text-white backdrop-blur-md">
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    
+                    <div className="mt-16">
+                      <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                      <p className="text-zinc-400 text-sm leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Hover effect gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20" />
                 </motion.div>
               );
             })}
