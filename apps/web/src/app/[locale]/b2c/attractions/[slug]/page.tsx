@@ -179,6 +179,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         tagline={displayDesc?.substring(0, 100) + '...'}
         mediaType={attraction.heroMediaType || 'IMAGE'}
         mediaUrl={attraction.heroMediaUrl}
+        fallbackUrl={attraction.heroFallbackUrl}
         status={attraction.isFeatured ? "Featured Experience" : undefined}
         logoUrl={attraction.logoUrl}
       />

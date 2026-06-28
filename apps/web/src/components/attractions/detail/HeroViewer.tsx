@@ -16,6 +16,7 @@ interface HeroViewerProps {
   tagline?: string;
   mediaType: string;
   mediaUrl?: string | null;
+  fallbackUrl?: string | null;
   status?: string;
   logoUrl?: string | null;
 }
@@ -29,7 +30,7 @@ const extractUrl = (raw: string | null | undefined) => {
   return raw;
 };
 
-export function HeroViewer({ title, tagline, mediaType, mediaUrl, status, logoUrl }: HeroViewerProps) {
+export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl }: HeroViewerProps) {
   return (
     <section className="relative w-full h-[100vh] overflow-hidden bg-black flex items-center justify-center">
       {/* Background Media */}
@@ -65,7 +66,7 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, status, logoUr
 
         {mediaType === 'MODEL_3D' && mediaUrl && (
           <div className="w-full h-full opacity-80 cursor-grab active:cursor-grabbing">
-            <ModelViewer url={extractUrl(mediaUrl)} />
+            <ModelViewer url={extractUrl(mediaUrl)} fallbackUrl={extractUrl(fallbackUrl)} />
           </div>
         )}
 

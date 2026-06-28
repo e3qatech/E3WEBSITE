@@ -9,8 +9,8 @@ function Model({ url }: { url: string }) {
   return <primitive object={scene} scale={1.5} position={[0, -1, 0]} />;
 }
 
-class ModelErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
-  constructor(props: {children: React.ReactNode}) {
+class ModelErrorBoundary extends React.Component<{children: React.ReactNode, fallbackUrl?: string}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode, fallbackUrl?: string}) {
     super(props);
     this.state = { hasError: false };
   }
@@ -22,6 +22,16 @@ class ModelErrorBoundary extends React.Component<{children: React.ReactNode}, {h
   }
   render() {
     if (this.state.hasError) {
+      if (this.props.fallbackUrl) {
+        return (
+          <div className="absolute inset-0 w-full h-full">
+            <img src={this.props.fallbackUrl} alt="Fallback Media" className="w-full h-full object-cover opacity-60" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-white/50 text-xs font-bold uppercase tracking-widest bg-black/50 px-4 py-2 rounded-full backdrop-blur-md">3D Experience Unavailable</span>
+            </div>
+          </div>
+        );
+      }
       return (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-xl m-4">
           <span className="text-white/50 text-sm font-bold uppercase tracking-widest">3D Experience Unavailable</span>
@@ -32,11 +42,11 @@ class ModelErrorBoundary extends React.Component<{children: React.ReactNode}, {h
   }
 }
 
-export default function ModelViewer({ url }: { url: string }) {
+export default function ModelViewer({ url, fallbackUrl }: { url: string, fallbackUrl?: string }) {
   if (!url) return null;
   
   return (
-    <ModelErrorBoundary>
+    <ModelErrorBoundary fallbackUrl={fallbackUrl}>
       <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
