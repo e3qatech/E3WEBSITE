@@ -1,0 +1,126 @@
+[
+  {
+    "firstName": "Raja Abbas",
+    "lastName": "Khan",
+    "slug": "raja-abbas-khan",
+    "department": "Events",
+    "designation": "Senior Events Manager",
+    "yearsOfExp": 10,
+    "profileImageUrl": "https://eeeqa.com/assets/team/raja-abbas-khan.jpg",
+    "tagline": "Leading large-scale events with strong operational control and guest-focused delivery.",
+    "aboutSummary": "Raja Abbas Khan is a senior events professional at E3 with experience across large-scale family entertainment events, venue coordination, operations planning, team management, and live event delivery. He has contributed to major E3 projects including LEGO Shows Qatar, InflataCity, InflataPark, and other high-footfall entertainment activations.",
+    "linkedInUrl": "",
+    "contactEmail": "info@eeeqa.com",
+    "expertiseTags": [
+      "Event Management",
+      "Operations Planning",
+      "Venue Coordination",
+      "Guest Experience",
+      "Team Leadership"
+    ],
+    "experienceTimeline": [
+      {
+        "year": "2024",
+        "title": "Events Director",
+        "company": "E3",
+        "description": "Led event operations and delivery coordination for LEGO Shows Qatar 2024 at QNCC, supporting planning, staffing, venue coordination, and guest experience."
+      },
+      {
+        "year": "2024",
+        "title": "Senior Events Manager",
+        "company": "E3",
+        "description": "Supported the delivery of InflataCity Qatar, one of E3’s largest indoor family entertainment events, managing live operations and coordination across multiple zones."
+      },
+      {
+        "year": "Present",
+        "title": "Senior Events Manager",
+        "company": "E3",
+        "description": "Oversees planning, coordination, and operational delivery for E3’s live activations, attractions, and family entertainment projects."
+      }
+    ],
+    "projectsPortfolio": [
+      {
+        "projectName": "LEGO Shows Qatar 2024",
+        "year": "2024",
+        "role": "Events Director",
+        "description": "Supported the planning and operational delivery of a large-scale family entertainment event at QNCC featuring multiple themed zones, live entertainment, guest services, and partner coordination."
+      },
+      {
+        "projectName": "InflataCity Qatar",
+        "year": "2024",
+        "role": "Senior Events Manager",
+        "description": "Worked on event operations, team coordination, guest flow, venue readiness, and daily live-event management for a major indoor inflatable entertainment experience."
+      },
+      {
+        "projectName": "InflataPark",
+        "year": "2024 - Present",
+        "role": "Operations Support",
+        "description": "Contributed to the ongoing operational development of E3’s indoor inflatable attraction, supporting guest experience, safety, staffing, and attraction delivery."
+      }
+    ],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Ahmad",
+    "lastName": "Faraz",
+    "slug": "ahmad-faraz",
+    "department": "Marketing",
+    "designation": "Marketing Manager",
+    "yearsOfExp": 8,
+    "profileImageUrl": "https://eeeqa.com/assets/team/ahmad-faraz.jpg",
+    "tagline": "Building event visibility through creative campaigns, digital content, and audience engagement.",
+    "aboutSummary": "Ahmad Faraz is a marketing professional at E3 responsible for supporting campaign planning, digital content, event communications, promotional materials, and brand visibility across E3’s entertainment projects. His work supports public awareness, audience engagement, partner communication, and the overall market presence of E3 activations.",
+    "linkedInUrl": "",
+    "contactEmail": "marketing@eeeqa.com",
+    "expertiseTags": [
+      "Event Marketing",
+      "Digital Campaigns",
+      "Content Planning",
+      "Brand Communication",
+      "Audience Engagement"
+    ],
+    "experienceTimeline": [
+      {
+        "year": "2024",
+        "title": "Marketing Manager",
+        "company": "E3",
+        "description": "Supported marketing and campaign coordination for major E3 events, including digital communications, artwork coordination, influencer planning, and public-facing content."
+      },
+      {
+        "year": "2024",
+        "title": "Campaign Support",
+        "company": "E3",
+        "description": "Worked on promotional communication for live activations, family entertainment projects, and event visibility campaigns across Qatar."
+      },
+      {
+        "year": "Present",
+        "title": "Marketing Manager",
+        "company": "E3",
+        "description": "Manages marketing support, content coordination, brand messaging, and campaign execution for E3’s events, attractions, and activations."
+      }
+    ],
+    "projectsPortfolio": [
+      {
+        "projectName": "InflataCity Qatar",
+        "year": "2024",
+        "role": "Marketing Manager",
+        "description": "Supported event marketing, digital campaign coordination, promotional communication, and audience engagement for one of E3’s largest family entertainment events."
+      },
+      {
+        "projectName": "SpongeBob SquarePants & PAW Patrol Activation",
+        "year": "2026",
+        "role": "Marketing Support",
+        "description": "Supported campaign coordination, artwork follow-up, public communication, and promotional planning for the character-led family activation."
+      },
+      {
+        "projectName": "Kidz Driving School",
+        "year": "2026",
+        "role": "Marketing & Branding Support",
+        "description": "Contributed to branding, communication, and promotional content support for an educational children’s driving activation."
+      }
+    ],
+    "active": true,
+    "visible": true
+  }
+]
