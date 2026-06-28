@@ -79,8 +79,5 @@
       "path": ".next/static/css/*.css",
       "limit": "50 kB"
     }
-  ],
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  }
+  ]
 }
