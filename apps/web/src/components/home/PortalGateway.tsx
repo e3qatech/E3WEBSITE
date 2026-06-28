@@ -10,7 +10,19 @@ const WireframeBackground = dynamic(
   { ssr: false }
 )
 
-export function PortalGateway() {
+interface PortalGatewayProps {
+  b2cTitle?: string;
+  b2cDesc?: string;
+  b2bTitle?: string;
+  b2bDesc?: string;
+}
+
+export function PortalGateway({
+  b2cTitle = "PRISTINE\\nSNOW",
+  b2cDesc = "Discover Qatar's premier live events, permanent attractions, and immersive experiences.",
+  b2bTitle = "COSMIC\\nVOID",
+  b2bDesc = "End-to-end event engineering, stage fabrication, and B2B spatial technologies."
+}: PortalGatewayProps = {}) {
   const router = useRouter()
   const [hoveredPortal, setHoveredPortal] = useState<'b2c' | 'b2b' | null>(null)
   const [selectedPortal, setSelectedPortal] = useState<'b2c' | 'b2b' | null>(null)
@@ -80,14 +92,13 @@ export function PortalGateway() {
             <motion.h2 
               className="text-5xl md:text-7xl font-black tracking-tighter mb-6 text-zinc-50 leading-[1.1]"
               animate={{ y: hoveredPortal === 'b2c' ? -5 : 0 }}
-            >
-              PRISTINE<br/>SNOW
-            </motion.h2>
+              dangerouslySetInnerHTML={{ __html: b2cTitle.replace(/\\n/g, '<br/>') }}
+            />
             <motion.p 
               className="text-zinc-400 text-lg mb-10 max-w-sm"
               animate={{ opacity: hoveredPortal === 'b2c' ? 1 : 0.7 }}
             >
-              Discover Qatar's premier live events, permanent attractions, and immersive experiences.
+              {b2cDesc}
             </motion.p>
             
             <motion.div 
@@ -127,14 +138,13 @@ export function PortalGateway() {
             <motion.h2 
               className="text-5xl md:text-7xl font-black tracking-tighter mb-6 text-zinc-50 leading-[1.1]"
               animate={{ y: hoveredPortal === 'b2b' ? -5 : 0 }}
-            >
-              COSMIC<br/>VOID
-            </motion.h2>
+              dangerouslySetInnerHTML={{ __html: b2bTitle.replace(/\\n/g, '<br/>') }}
+            />
             <motion.p 
               className="text-zinc-400 text-lg mb-10 max-w-sm"
               animate={{ opacity: hoveredPortal === 'b2b' ? 1 : 0.7 }}
             >
-              End-to-end event engineering, stage fabrication, and B2B spatial technologies.
+              {b2bDesc}
             </motion.p>
             
             <motion.div 

@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import { PortalGateway } from "@/components/home/PortalGateway"
 import { SEO } from "@/components/shared/SEO"
+import db from "@/lib/db"
 
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
@@ -31,8 +32,19 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function Home() {
+export default async function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+
+  const settings = await db.setting.findMany({
+    where: {
+      key: { in: ['gatewayB2CTitle', 'gatewayB2CDesc', 'gatewayB2BTitle', 'gatewayB2BDesc'] }
+    }
+  });
+
+  const b2cTitle = settings.find(s => s.key === 'gatewayB2CTitle')?.value as string | undefined;
+  const b2cDesc = settings.find(s => s.key === 'gatewayB2CDesc')?.value as string | undefined;
+  const b2bTitle = settings.find(s => s.key === 'gatewayB2BTitle')?.value as string | undefined;
+  const b2bDesc = settings.find(s => s.key === 'gatewayB2BDesc')?.value as string | undefined;
 
   return (
     <>
@@ -48,7 +60,12 @@ export default function Home() {
           }
         }}
       />
-      <PortalGateway />
+      <PortalGateway 
+        b2cTitle={b2cTitle}
+        b2cDesc={b2cDesc}
+        b2bTitle={b2bTitle}
+        b2bDesc={b2bDesc}
+      />
     </>
   )
 }

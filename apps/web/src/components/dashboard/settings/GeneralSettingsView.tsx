@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Save, CheckCircle2, Building, Mail, MapPin, Share2, Key } from "lucide-react"
+import { Save, CheckCircle2, Building, Mail, MapPin, Share2, Key, Image as ImageIcon, LayoutTemplate } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
+import { MediaUploader } from "@/components/shared/MediaUploader"
 
 export function GeneralSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
   const router = useRouter()
@@ -24,7 +25,13 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     socialLinkedin: initialSettings.socialLinkedin || "",
     bookingQubeApiKey: initialSettings.bookingQubeApiKey || "",
     mapsApiKey: initialSettings.mapsApiKey || "",
-    emailGatewayKey: initialSettings.emailGatewayKey || ""
+    emailGatewayKey: initialSettings.emailGatewayKey || "",
+    lightLogoUrl: initialSettings.lightLogoUrl || "",
+    darkLogoUrl: initialSettings.darkLogoUrl || "",
+    gatewayB2CTitle: initialSettings.gatewayB2CTitle || "PRISTINE\\nSNOW",
+    gatewayB2CDesc: initialSettings.gatewayB2CDesc || "Discover Qatar's premier live events, permanent attractions, and immersive experiences.",
+    gatewayB2BTitle: initialSettings.gatewayB2BTitle || "COSMIC\\nVOID",
+    gatewayB2BDesc: initialSettings.gatewayB2BDesc || "End-to-end event engineering, stage fabrication, and B2B spatial technologies."
   })
 
   const handleChange = (field: string, value: string) => {
@@ -174,6 +181,26 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
             </div>
             </div>
           </div>
+
+          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+            <div className="relative z-10">
+            <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center">
+              <ImageIcon className="w-5 h-5 me-2 text-[var(--color-primary)]" /> Logo Assets
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Light Mode Logo</label>
+                <MediaUploader value={data.lightLogoUrl} onChange={(val) => handleChange("lightLogoUrl", val)} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Dark Mode Logo</label>
+                <MediaUploader value={data.darkLogoUrl} onChange={(val) => handleChange("darkLogoUrl", val)} />
+              </div>
+            </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Right Column */}
@@ -247,6 +274,54 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
               </div>
             </div>
           </div>
+
+          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-[var(--text-primary)] mb-6 flex items-center border-b border-[var(--border-default)] pb-4">
+              <LayoutTemplate className="w-5 h-5 me-2 text-indigo-500" /> Gateway Customization
+            </h3>
+            <div className="space-y-6">
+              <div className="space-y-4 border-b border-[var(--border-default)] pb-4">
+                <h4 className="text-sm font-bold text-[var(--text-primary)]">Public Portal (B2C)</h4>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Title</label>
+                  <textarea 
+                    value={data.gatewayB2CTitle.replace(/\\n/g, '\n')} 
+                    onChange={e => handleChange("gatewayB2CTitle", e.target.value.replace(/\n/g, '\\n'))}
+                    className="w-full h-16 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Description</label>
+                  <textarea 
+                    value={data.gatewayB2CDesc} 
+                    onChange={e => handleChange("gatewayB2CDesc", e.target.value)}
+                    className="w-full h-20 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-[var(--text-primary)]">Enterprise Solutions (B2B)</h4>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Title</label>
+                  <textarea 
+                    value={data.gatewayB2BTitle.replace(/\\n/g, '\n')} 
+                    onChange={e => handleChange("gatewayB2BTitle", e.target.value.replace(/\n/g, '\\n'))}
+                    className="w-full h-16 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Description</label>
+                  <textarea 
+                    value={data.gatewayB2BDesc} 
+                    onChange={e => handleChange("gatewayB2BDesc", e.target.value)}
+                    className="w-full h-20 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

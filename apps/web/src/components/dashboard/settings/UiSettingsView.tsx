@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Save, CheckCircle2, Palette, Image as ImageIcon, Layout, Code } from "lucide-react"
+import { Save, CheckCircle2, Palette, Layout, Code } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
 
@@ -121,24 +121,6 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
             </div>
           </div>
 
-          <div className="glass rounded-3xl border-gradient p-6 relative overflow-hidden group shadow-xl">
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
-            <div className="relative z-10">
-            <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center">
-              <ImageIcon className="w-5 h-5 me-2 text-[var(--color-primary)]" /> Logo Assets
-            </h3>
-            <div className="space-y-4">
-              <div className="p-4 border border-dashed border-[var(--border-default)] rounded-xl text-center bg-[var(--surface-hover)]">
-                <Button variant="outline" className="mb-2">Upload Light Logo</Button>
-                <p className="text-xs text-[var(--text-tertiary)]">PNG or SVG, max 2MB</p>
-              </div>
-              <div className="p-4 border border-dashed border-[var(--border-default)] rounded-xl text-center bg-[var(--surface-hover)]">
-                <Button variant="outline" className="mb-2">Upload Dark Logo</Button>
-                <p className="text-xs text-[var(--text-tertiary)]">PNG or SVG, max 2MB</p>
-              </div>
-            </div>
-            </div>
-          </div>
         </div>
 
         {/* Right Column */}
