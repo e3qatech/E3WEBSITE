@@ -47,7 +47,7 @@ export function PortalGateway({
     // Staged slide-out transition
     setTimeout(() => {
       if (portal === 'b2c') {
-        router.push('/en/b2c/attractions') // Route to B2C portal
+        router.push('/en/b2c') // Route to B2C portal
       } else {
         router.push('/en/b2b') // Route to B2B portal
       }

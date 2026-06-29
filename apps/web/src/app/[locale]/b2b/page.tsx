@@ -224,7 +224,7 @@ export default function B2bPortal() {
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
             FEATURED<br /><span className="text-gradient">ATTRACTIONS</span>
           </h2>
-          <Link href="/b2c/attractions"
+          <Link href="/b2c"
             className="hidden md:inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold text-[var(--text-secondary)] hover:text-white transition-colors">
             View All <span>→</span>
           </Link>
