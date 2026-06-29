@@ -31,12 +31,14 @@ export function ContactClient({
   };
 
   const allFaqs = [
-    ...generalFaqs.map(f => ({ ...f, type: 'general', attractionId: null })),
-    ...attractionFaqs.map(f => ({ ...f, type: 'attraction' }))
+    ...(Array.isArray(generalFaqs) ? generalFaqs : []).map(f => ({ ...f, type: 'general', attractionId: null })),
+    ...(Array.isArray(attractionFaqs) ? attractionFaqs : []).map(f => ({ ...f, type: 'attraction' }))
   ];
 
   const filteredFaqs = allFaqs.filter(faq => {
-    const matchesSearch = faq.questionEn?.toLowerCase().includes(faqSearch.toLowerCase()) || faq.answerEn?.toLowerCase().includes(faqSearch.toLowerCase());
+    const qStr = faq.questionEn || "";
+    const aStr = faq.answerEn || "";
+    const matchesSearch = qStr.toLowerCase().includes(faqSearch.toLowerCase()) || aStr.toLowerCase().includes(faqSearch.toLowerCase());
     const matchesFilter = faqFilter === "all" || (faqFilter === "general" && faq.type === "general") || faq.attractionId === faqFilter;
     return matchesSearch && matchesFilter;
   });

@@ -52,34 +52,37 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
     }, 2000);
   };
 
-  const team = initialSettings?.team || [
+  const team = (initialSettings?.team && initialSettings.team.length > 0) ? initialSettings.team : [
     { name: "Abdullah Al Kubaisi", role: "Chairman", desc: "National alignment & strategic partnerships." },
     { name: "Adil Ahmed", role: "Managing Director & CEO", desc: "Global resources & operations." },
     { name: "Mohammad Ali Awada", role: "General Manager", desc: "Directing physical landmark properties." },
     { name: "Ebrahim Karolia", role: "Sr. Project Manager", desc: "AV rigging, fabrication, custom builds." }
   ];
 
-  const hero = initialSettings?.hero || {
+  const hero = {
     titleEn: "The \"Wow & How\" Philosophy",
     titleAr: "فلسفة الإبهار والتميز",
     subtitleEn: "Fusing the physical \"Wow\" of immersive entertainment with the transparent operational \"How\" of Qatari execution engineering.",
     subtitleAr: "نجمع بين الإبهار المادي للترفيه الغامر والتميز الهندسي لدولة قطر",
     mediaType: "ORBS",
-    mediaUrl: ""
+    mediaUrl: "",
+    ...(initialSettings?.hero || {})
   };
 
-  const heritage = initialSettings?.heritage || {
+  const heritage = {
     title: "Our Heritage",
     description: "Deeply rooted in Qatar, E3 has delivered the nation's most iconic tourist landmarks. From the Guinness-certified 1,055-meter InflataRun track to the Doha Balloon Parade hosting over 760,000 attendees, our legacy is built on monumental execution.",
     vision: "Delivering results-oriented marketing programs and interactive FECs globally.",
     mission: "Inspiring fun and everlasting memories through groundbreaking live events.",
-    values: "Honesty, direct relationships, and unyielding commitment to delivering on promises."
+    values: "Honesty, direct relationships, and unyielding commitment to delivering on promises.",
+    ...(initialSettings?.heritage || {})
   };
 
-  const careers = initialSettings?.careers || {
+  const careers = {
     title: "Join the Crew",
     description: "E3 is expanding. We are currently actively seeking freelance event crew staffing and scaling our Lusail corporate office.",
-    nlpText: "Our automated NLP system extracts structural skills (AV logistics, rigging, etc.) and pushes them directly to our Talent database."
+    nlpText: "Our automated NLP system extracts structural skills (AV logistics, rigging, etc.) and pushes them directly to our Talent database.",
+    ...(initialSettings?.careers || {})
   };
 
   return (
@@ -111,7 +114,7 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
         )}
         {hero.mediaType === "IFRAME" && hero.mediaUrl && (
           <div className="absolute inset-0 opacity-60 mix-blend-screen pointer-events-none">
-            {hero.mediaUrl.startsWith("<iframe") ? (
+            {String(hero.mediaUrl).startsWith("<iframe") ? (
               <div dangerouslySetInnerHTML={{ __html: hero.mediaUrl }} className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-none" />
             ) : (
               <iframe src={hero.mediaUrl} className="w-full h-full border-none" />
@@ -150,7 +153,7 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
             <div>
               <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">{heritage.title}</h2>
-              <p className="text-zinc-400 text-lg leading-relaxed mb-6 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: heritage.description.replace(/(InflataRun track|Doha Balloon Parade)/g, '<strong class="text-zinc-200 font-medium">$1</strong>') }}></p>
+              <p className="text-zinc-400 text-lg leading-relaxed mb-6 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: (heritage.description || "").replace(/(InflataRun track|Doha Balloon Parade)/g, '<strong class="text-zinc-200 font-medium">$1</strong>') }}></p>
             </div>
             <div className="relative h-64 md:h-96 rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-tr from-zinc-800 to-zinc-900 opacity-50 group-hover:opacity-30 transition-opacity"></div>
@@ -197,7 +200,7 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
               >
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="w-16 h-16 rounded-full bg-zinc-800 mb-6 border border-zinc-700 flex items-center justify-center text-zinc-600 font-bold">
-                  {member.name.charAt(0)}
+                  {(member.name || "?").charAt(0)}
                 </div>
                 <h4 className="text-lg font-bold text-zinc-100">{member.name}</h4>
                 <p className="text-sm font-medium text-emerald-400 mb-4">{member.role}</p>
@@ -265,7 +268,7 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">{careers.title}</h2>
-              <p className="text-zinc-400 text-lg mb-8 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: careers.description.replace(/(freelance event crew staffing|Lusail corporate office)/g, '<strong class="text-zinc-200 font-medium">$1</strong>') }}></p>
+              <p className="text-zinc-400 text-lg mb-8 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: (careers.description || "").replace(/(freelance event crew staffing|Lusail corporate office)/g, '<strong class="text-zinc-200 font-medium">$1</strong>') }}></p>
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
                 <h4 className="font-bold text-zinc-100 mb-2">How we process CVs</h4>
                 <p className="text-sm text-zinc-500 whitespace-pre-wrap">{careers.nlpText}</p>

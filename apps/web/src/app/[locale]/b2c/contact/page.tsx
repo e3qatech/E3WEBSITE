@@ -27,7 +27,11 @@ async function getContactData() {
   });
 
   const settings = settingsRecords.reduce((acc, curr) => {
-    acc[curr.key] = curr.value;
+    try {
+      acc[curr.key] = typeof curr.value === 'string' ? JSON.parse(curr.value) : curr.value;
+    } catch(e) {
+      acc[curr.key] = curr.value;
+    }
     return acc;
   }, {} as Record<string, any>);
 
