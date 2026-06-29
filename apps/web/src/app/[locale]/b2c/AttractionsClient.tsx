@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useAttractionsStore, AttractionStatus, Attraction } from '@/store/useAttractionsStore';
 import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
-import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock } from 'lucide-react';
+import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 const extractUrl = (raw: string | null | undefined) => {
@@ -39,6 +39,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   
   const dropdownResults = useMemo(() => {
     if (!localSearch.trim()) return [];
@@ -445,32 +446,77 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     layout
                     className="flex flex-col gap-6"
                   >
-                    {/* 1 Full Rectangle for the first attraction */}
-                    {filteredAttractions[0] && (
-                      <div className="w-full h-[400px] md:h-[500px]">
-                        <AttractionBrick 
-                          key={filteredAttractions[0].id} 
-                          attraction={filteredAttractions[0]} 
-                          index={0} 
-                          locale={locale} 
-                          isLarge={true}
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Slider for the rest */}
-                    {filteredAttractions.length > 1 && (
-                      <div className="flex overflow-x-auto gap-6 snap-x snap-mandatory pb-8 scrollbar-hide">
-                        {filteredAttractions.slice(1).map((attraction, index) => (
-                          <div key={attraction.id} className="min-w-[300px] md:min-w-[400px] h-[350px] md:h-[400px] snap-center shrink-0">
+                    {/* Bento Grid for up to 5 items */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {filteredAttractions.slice(0, 5).map((attraction, index) => {
+                        const total = Math.min(filteredAttractions.length, 5);
+                        let bentoClass = "w-full transition-all duration-300";
+                        if (total === 1) bentoClass += " md:col-span-4 h-[400px] md:h-[600px]";
+                        else if (total === 2) bentoClass += " md:col-span-2 h-[350px] md:h-[500px]";
+                        else if (total === 3) {
+                          if (index === 0) bentoClass += " md:col-span-2 md:row-span-2 h-[350px] md:h-[500px]";
+                          else bentoClass += " md:col-span-2 h-[250px] md:h-[242px]";
+                        }
+                        else if (total === 4) {
+                          if (index === 0) bentoClass += " md:col-span-2 md:row-span-2 h-[350px] md:h-[500px]";
+                          else if (index === 1) bentoClass += " md:col-span-2 h-[250px] md:h-[242px]";
+                          else bentoClass += " md:col-span-1 h-[250px] md:h-[242px]";
+                        }
+                        else {
+                          if (index === 0) bentoClass += " md:col-span-2 md:row-span-2 h-[350px] md:h-[500px]";
+                          else bentoClass += " md:col-span-1 h-[250px] md:h-[242px]";
+                        }
+
+                        return (
+                          <div key={attraction.id} className={bentoClass}>
                             <AttractionBrick 
                               attraction={attraction} 
-                              index={index + 1} 
+                              index={index} 
                               locale={locale} 
-                              isLarge={false}
+                              isLarge={index === 0}
                             />
                           </div>
-                        ))}
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Slider for the rest (> 5) */}
+                    {filteredAttractions.length > 5 && (
+                      <div className="mt-8">
+                        <div className="flex items-center justify-between mb-6">
+                          <h3 className="text-2xl font-bold">{isAr ? "المزيد من التجارب" : "More Experiences"}</h3>
+                          <div className="flex gap-2" dir="ltr">
+                             <button 
+                               onClick={() => scrollRef.current?.scrollBy({ left: -340, behavior: 'smooth' })}
+                               className="w-12 h-12 rounded-full bg-[#141414] border border-[#27272A] flex items-center justify-center hover:bg-[#27272A] hover:border-[#3F3F46] transition-all active:scale-95"
+                               aria-label="Scroll left"
+                             >
+                               <ChevronLeft className="w-5 h-5 text-[#FAFAFA]" />
+                             </button>
+                             <button 
+                               onClick={() => scrollRef.current?.scrollBy({ left: 340, behavior: 'smooth' })}
+                               className="w-12 h-12 rounded-full bg-[#141414] border border-[#27272A] flex items-center justify-center hover:bg-[#27272A] hover:border-[#3F3F46] transition-all active:scale-95"
+                               aria-label="Scroll right"
+                             >
+                               <ChevronRight className="w-5 h-5 text-[#FAFAFA]" />
+                             </button>
+                          </div>
+                        </div>
+                        <div 
+                          ref={scrollRef}
+                          className="flex overflow-x-auto gap-4 snap-x snap-mandatory pb-8 scrollbar-hide scroll-smooth"
+                        >
+                          {filteredAttractions.slice(5).map((attraction, index) => (
+                            <div key={attraction.id} className="min-w-[280px] md:min-w-[320px] h-[350px] md:h-[400px] snap-center shrink-0">
+                              <AttractionBrick 
+                                attraction={attraction} 
+                                index={index + 5} 
+                                locale={locale} 
+                                isLarge={false}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </motion.div>
