@@ -12,12 +12,22 @@ async function getContactData() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   
   // Fetch active attractions for the dropdowns
-  const attRes = await fetch(`${baseUrl}/api/tickets`, { cache: 'no-store' });
-  const attractions = attRes.ok ? await attRes.json() : [];
+  let attractions = [];
+  try {
+    const attRes = await fetch(`${baseUrl}/api/tickets`, { cache: 'no-store' });
+    if (attRes.ok) attractions = await attRes.json();
+  } catch (e) {
+    console.error("Failed to fetch attractions:", e);
+  }
   
   // Fetch Attraction FAQs
-  const faqRes = await fetch(`${baseUrl}/api/contact/b2c?type=faq`, { cache: 'no-store' });
-  const attractionFaqs = faqRes.ok ? await faqRes.json() : [];
+  let attractionFaqs = [];
+  try {
+    const faqRes = await fetch(`${baseUrl}/api/contact/b2c?type=faq`, { cache: 'no-store' });
+    if (faqRes.ok) attractionFaqs = await faqRes.json();
+  } catch (e) {
+    console.error("Failed to fetch attraction FAQs:", e);
+  }
 
   // Fetch Settings and Featured Feedback from DB directly since this is a Server Component
   const settingsRecords = await db.setting.findMany({

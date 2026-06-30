@@ -33,6 +33,7 @@ const sidebarConfig = [
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
     { label: "Events Calendar", href: "/dashboard/b2c/calendar" },
     { label: "Discover Page", href: "/dashboard/b2c/discover" },
+    { label: "Contact Page", href: "/dashboard/b2c/contact" },
     { label: "Feedback", href: "/dashboard/b2c/feedback" }
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
