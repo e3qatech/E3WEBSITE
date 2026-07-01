@@ -7,35 +7,43 @@
     "designation": "Senior Events Manager",
     "yearsOfExp": 10,
     "profileImageUrl": "https://eeeqa.com/assets/team/raja-abbas-khan.jpg",
-    "tagline": "Leading large-scale events with strong operational control and guest-focused delivery.",
-    "aboutSummary": "Raja Abbas Khan is a senior events professional at E3 with experience across large-scale family entertainment events, venue coordination, operations planning, team management, and live event delivery. He has contributed to major E3 projects including LEGO Shows Qatar, InflataCity, InflataPark, and other high-footfall entertainment activations.",
-    "linkedInUrl": "",
+    "tagline": "Architect of Experiences. Master of Operations.",
+    "aboutSummary": "Raja Abbas Khan leads the operational engine at E3, turning visionary ideas into high-footfall realities. Specializing in family entertainment and mega-events, he orchestrates complex venue logistics and guest experiences with precision.",
+    "careerJourney": "Started as a field coordinator and rose through the ranks to lead some of the largest indoor activations in the region. He’s the backbone behind InflataCity and LEGO Shows Qatar.",
+    "keyStrengths": "Flawless Execution under Pressure, Tactical Planning, Stakeholder Management",
+    "linkedInUrl": "https://linkedin.com/in/rajaabbaskhan",
     "contactEmail": "info@eeeqa.com",
     "expertiseTags": [
-      "Event Management",
-      "Operations Planning",
-      "Venue Coordination",
+      "Event Operations",
+      "Venue Management",
+      "Live Activations",
       "Guest Experience",
-      "Team Leadership"
+      "Logistics"
+    ],
+    "coreCompetencies": [
+      "Large-Scale Crowd Control",
+      "Technical Production Coordination",
+      "Health & Safety Compliance",
+      "Vendor Management"
     ],
     "experienceTimeline": [
       {
         "year": "2024",
         "title": "Events Director",
         "company": "E3",
-        "description": "Led event operations and delivery coordination for LEGO Shows Qatar 2024 at QNCC, supporting planning, staffing, venue coordination, and guest experience."
+        "description": "Led operations for LEGO Shows Qatar 2024 at QNCC."
       },
       {
         "year": "2024",
         "title": "Senior Events Manager",
         "company": "E3",
-        "description": "Supported the delivery of InflataCity Qatar, one of E3’s largest indoor family entertainment events, managing live operations and coordination across multiple zones."
+        "description": "Orchestrated InflataCity Qatar, managing multi-zone operations."
       },
       {
         "year": "Present",
         "title": "Senior Events Manager",
         "company": "E3",
-        "description": "Oversees planning, coordination, and operational delivery for E3’s live activations, attractions, and family entertainment projects."
+        "description": "Oversees the entire pipeline of E3's live activations and major attractions."
       }
     ],
     "projectsPortfolio": [
@@ -43,21 +51,36 @@
         "projectName": "LEGO Shows Qatar 2024",
         "year": "2024",
         "role": "Events Director",
-        "description": "Supported the planning and operational delivery of a large-scale family entertainment event at QNCC featuring multiple themed zones, live entertainment, guest services, and partner coordination."
+        "description": "Delivered a massive family entertainment event at QNCC with seamless guest flow and partner integration."
       },
       {
         "projectName": "InflataCity Qatar",
         "year": "2024",
-        "role": "Senior Events Manager",
-        "description": "Worked on event operations, team coordination, guest flow, venue readiness, and daily live-event management for a major indoor inflatable entertainment experience."
-      },
-      {
-        "projectName": "InflataPark",
-        "year": "2024 - Present",
-        "role": "Operations Support",
-        "description": "Contributed to the ongoing operational development of E3’s indoor inflatable attraction, supporting guest experience, safety, staffing, and attraction delivery."
+        "role": "Operations Lead",
+        "description": "Engineered the daily operational flow for an indoor inflatable entertainment experience, ensuring safety and fun."
       }
     ],
+    "certifications": [
+      "Certified Special Events Professional (CSEP)",
+      "Advanced Crowd Management Certification"
+    ],
+    "education": [
+      {
+        "degree": "BBA in Operations Management",
+        "institution": "University of Experience",
+        "year": "2014"
+      }
+    ],
+    "awards": [
+      "E3 Operations Excellence Award 2024"
+    ],
+    "skillsMatrix": [
+      { "skill": "Project Planning", "level": 95 },
+      { "skill": "Crisis Management", "level": 90 },
+      { "skill": "Team Leadership", "level": 85 }
+    ],
+    "mediaGallery": [],
+    "testimonials": [],
     "active": true,
     "visible": true
   },
@@ -66,60 +89,232 @@
     "lastName": "Faraz",
     "slug": "ahmad-faraz",
     "department": "Marketing",
-    "designation": "Marketing Manager",
+    "designation": "Creative Marketing Lead",
     "yearsOfExp": 8,
     "profileImageUrl": "https://eeeqa.com/assets/team/ahmad-faraz.jpg",
-    "tagline": "Building event visibility through creative campaigns, digital content, and audience engagement.",
-    "aboutSummary": "Ahmad Faraz is a marketing professional at E3 responsible for supporting campaign planning, digital content, event communications, promotional materials, and brand visibility across E3’s entertainment projects. His work supports public awareness, audience engagement, partner communication, and the overall market presence of E3 activations.",
-    "linkedInUrl": "",
+    "tagline": "Amplifying Brands. Designing Digital Energy.",
+    "aboutSummary": "Ahmad Faraz drives the digital pulse of E3. As a creative marketer, he builds high-impact campaigns that transform events into viral sensations, blending strategic vision with neon-infused digital storytelling.",
+    "careerJourney": "Transitioned from a digital strategist to the driving creative force behind E3's top campaigns. He knows exactly how to hook an audience and keep them engaged from teaser to ticket purchase.",
+    "keyStrengths": "Digital Strategy, Creative Direction, Audience Engagement",
+    "linkedInUrl": "https://linkedin.com/in/ahmadfaraz",
     "contactEmail": "marketing@eeeqa.com",
     "expertiseTags": [
-      "Event Marketing",
       "Digital Campaigns",
-      "Content Planning",
-      "Brand Communication",
-      "Audience Engagement"
+      "Brand Growth",
+      "Content Strategy",
+      "Social Media",
+      "Influencer Marketing"
+    ],
+    "coreCompetencies": [
+      "Omnichannel Campaign Execution",
+      "Performance Marketing",
+      "Creative Briefing",
+      "Data-Driven Growth"
     ],
     "experienceTimeline": [
       {
         "year": "2024",
         "title": "Marketing Manager",
         "company": "E3",
-        "description": "Supported marketing and campaign coordination for major E3 events, including digital communications, artwork coordination, influencer planning, and public-facing content."
-      },
-      {
-        "year": "2024",
-        "title": "Campaign Support",
-        "company": "E3",
-        "description": "Worked on promotional communication for live activations, family entertainment projects, and event visibility campaigns across Qatar."
+        "description": "Designed the digital rollout for InflataCity and LEGO Shows."
       },
       {
         "year": "Present",
-        "title": "Marketing Manager",
+        "title": "Creative Marketing Lead",
         "company": "E3",
-        "description": "Manages marketing support, content coordination, brand messaging, and campaign execution for E3’s events, attractions, and activations."
+        "description": "Spearheads all brand communications, promotional materials, and digital visibility for E3's immersive portfolio."
       }
     ],
     "projectsPortfolio": [
       {
-        "projectName": "InflataCity Qatar",
+        "projectName": "InflataCity Launch Campaign",
         "year": "2024",
-        "role": "Marketing Manager",
-        "description": "Supported event marketing, digital campaign coordination, promotional communication, and audience engagement for one of E3’s largest family entertainment events."
+        "role": "Marketing Lead",
+        "description": "Executed a viral digital campaign that achieved record-breaking early bird ticket sales."
       },
       {
-        "projectName": "SpongeBob SquarePants & PAW Patrol Activation",
+        "projectName": "SpongeBob SquarePants Activation",
         "year": "2026",
-        "role": "Marketing Support",
-        "description": "Supported campaign coordination, artwork follow-up, public communication, and promotional planning for the character-led family activation."
-      },
-      {
-        "projectName": "Kidz Driving School",
-        "year": "2026",
-        "role": "Marketing & Branding Support",
-        "description": "Contributed to branding, communication, and promotional content support for an educational children’s driving activation."
+        "role": "Campaign Strategist",
+        "description": "Orchestrated the public communication strategy and artwork coordination for a high-profile IP."
       }
     ],
+    "certifications": [
+      "Google Digital Marketing Expert",
+      "Meta Certified Creative Strategy Professional"
+    ],
+    "education": [
+      {
+        "degree": "BA in Digital Communications",
+        "institution": "Global Media Institute",
+        "year": "2016"
+      }
+    ],
+    "awards": [
+      "Campaign of the Year 2024"
+    ],
+    "skillsMatrix": [
+      { "skill": "Digital Strategy", "level": 92 },
+      { "skill": "Content Creation", "level": 88 },
+      { "skill": "Analytics & SEO", "level": 85 }
+    ],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Abdulla",
+    "lastName": "Al-Kuwari",
+    "slug": "abdulla-alkuwari",
+    "department": "Executive",
+    "designation": "Chief Executive Officer",
+    "yearsOfExp": 15,
+    "profileImageUrl": "https://eeeqa.com/assets/team/abdulla.jpg",
+    "tagline": "Visionary Leadership. Transforming Entertainment in the MENA Region.",
+    "aboutSummary": "As the visionary behind E3, Abdulla Al-Kuwari sets the strategic direction for immersive and family entertainment. His goal is to position Qatar as a global hub for interactive, gamified, and experiential activations.",
+    "careerJourney": "With over 15 years in enterprise leadership and strategic investments, Abdulla founded E3 to bridge the gap between global entertainment IPs and the local market, spearheading partnerships with international brands.",
+    "keyStrengths": "Strategic Vision, Corporate Partnerships, Regional Growth",
+    "linkedInUrl": "https://linkedin.com/in/abdulla",
+    "contactEmail": "ceo@eeeqa.com",
+    "expertiseTags": [
+      "Executive Leadership",
+      "Strategic Investments",
+      "Global Partnerships",
+      "Business Development"
+    ],
+    "coreCompetencies": [
+      "Enterprise Scaling",
+      "IP Licensing & Negotiation",
+      "Market Disruption",
+      "P&L Management"
+    ],
+    "experienceTimeline": [
+      {
+        "year": "2010",
+        "title": "Director of Investments",
+        "company": "Qatar Holding",
+        "description": "Managed high-value portfolios in lifestyle and entertainment sectors."
+      },
+      {
+        "year": "Present",
+        "title": "CEO & Founder",
+        "company": "E3",
+        "description": "Leading the company's vision to dominate the experiential entertainment space."
+      }
+    ],
+    "projectsPortfolio": [
+      {
+        "projectName": "E3 Corporate Launch",
+        "year": "2022",
+        "role": "Founder",
+        "description": "Successfully launched the brand, securing exclusive rights for top global IPs."
+      },
+      {
+        "projectName": "Urban Arena Development",
+        "year": "2025",
+        "role": "Executive Sponsor",
+        "description": "Spearheaded the investment and conceptualization of the next-gen gaming arena."
+      }
+    ],
+    "certifications": [
+      "Executive Leadership Program - Harvard Business School"
+    ],
+    "education": [
+      {
+        "degree": "MBA in Global Business",
+        "institution": "London Business School",
+        "year": "2009"
+      }
+    ],
+    "awards": [
+      "MENA Entertainment Leader of the Year 2024"
+    ],
+    "skillsMatrix": [
+      { "skill": "Strategic Planning", "level": 98 },
+      { "skill": "Negotiation", "level": 95 },
+      { "skill": "Visionary Leadership", "level": 100 }
+    ],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Haddad",
+    "slug": "sarah-haddad",
+    "department": "Design",
+    "designation": "Head of Experiential Design",
+    "yearsOfExp": 12,
+    "profileImageUrl": "https://eeeqa.com/assets/team/sarah.jpg",
+    "tagline": "Crafting Immersive Realities. Blending Art with Play.",
+    "aboutSummary": "Sarah Haddad bridges the gap between physical spaces and digital interaction. She is the creative mastermind behind E3's unique venue aesthetics, ensuring every attraction—from Crayons & Bricks to Urban Arena—feels intensely immersive.",
+    "careerJourney": "Originally an architectural designer, Sarah pivoted into experiential entertainment, realizing her passion for creating spaces that people don't just see, but actively interact with.",
+    "keyStrengths": "Spatial Design, Immersive Technology Integration, Artistic Direction",
+    "linkedInUrl": "https://linkedin.com/in/sarahhaddad",
+    "contactEmail": "design@eeeqa.com",
+    "expertiseTags": [
+      "Experiential Design",
+      "3D Modeling",
+      "Interactive Environments",
+      "Creative Direction"
+    ],
+    "coreCompetencies": [
+      "Venue Conceptualization",
+      "User Flow Optimization",
+      "Lighting & Sound Integration",
+      "Prototyping"
+    ],
+    "experienceTimeline": [
+      {
+        "year": "2018",
+        "title": "Lead Environment Designer",
+        "company": "Immersive Worlds Agency",
+        "description": "Designed award-winning escape rooms and VR arenas across the GCC."
+      },
+      {
+        "year": "Present",
+        "title": "Head of Experiential Design",
+        "company": "E3",
+        "description": "Directs the visual and interactive layout for all E3 live activations."
+      }
+    ],
+    "projectsPortfolio": [
+      {
+        "projectName": "Urban Arena Aesthetics",
+        "year": "2025",
+        "role": "Lead Designer",
+        "description": "Conceptualized the neon, high-energy environment for the action-driven entertainment venue."
+      },
+      {
+        "projectName": "Crayons & Bricks Studio",
+        "year": "2023",
+        "role": "Creative Director",
+        "description": "Designed a child-friendly, colorful, and tactile space maximizing creative engagement."
+      }
+    ],
+    "certifications": [
+      "Autodesk Certified Professional",
+      "Interactive Architecture Certificate"
+    ],
+    "education": [
+      {
+        "degree": "MA in Spatial Design",
+        "institution": "Parsons School of Design",
+        "year": "2014"
+      }
+    ],
+    "awards": [
+      "Best Indoor Entertainment Design 2024"
+    ],
+    "skillsMatrix": [
+      { "skill": "Spatial Design", "level": 95 },
+      { "skill": "3D Modeling", "level": 90 },
+      { "skill": "UX/UI for Physical Spaces", "level": 88 }
+    ],
+    "mediaGallery": [],
+    "testimonials": [],
     "active": true,
     "visible": true
   }
