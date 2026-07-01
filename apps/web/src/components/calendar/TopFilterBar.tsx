@@ -78,7 +78,7 @@ export function TopFilterBar({
   }, [currentDate]);
 
   return (
-    <div className="bg-[#0C0C0C]/90 backdrop-blur-xl border-b border-zinc-800 sticky top-20 z-40">
+    <div className="bg-[#0F0F23]/90 backdrop-blur-xl border-b border-zinc-800 sticky top-20 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
         
         {/* Top Row: Quick Picks & Month Controls */}
@@ -87,17 +87,17 @@ export function TopFilterBar({
           <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
             <button 
               onClick={goToToday}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-full text-sm font-bold text-white whitespace-nowrap transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 hover:border-zinc-600 rounded-full text-sm font-bold text-white whitespace-nowrap transition-colors"
             >
-              <Calendar className="w-4 h-4 text-amber-500" />
+              <Calendar className="w-4 h-4 text-purple-500" />
               Today
             </button>
             <button 
               onClick={onDiscountToggle}
               className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
                 isDiscountActive 
-                  ? 'bg-amber-500 border-amber-500 text-black' 
-                  : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600 text-white'
+                  ? 'bg-purple-500 border-purple-500 text-black' 
+                  : 'bg-[#1A1A2E]/80 backdrop-blur-md border-zinc-800 hover:border-zinc-600 text-white'
               }`}
             >
               <Tag className="w-4 h-4" />
@@ -143,10 +143,10 @@ export function TopFilterBar({
               {format(currentDate, "MMMM yyyy")}
             </span>
             <div className="flex gap-1">
-              <button onClick={prevMonth} className="p-2 bg-zinc-900 hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
+              <button onClick={prevMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
                 <ChevronLeft className="w-4 h-4 text-zinc-300" />
               </button>
-              <button onClick={nextMonth} className="p-2 bg-zinc-900 hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
+              <button onClick={nextMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
                 <ChevronRight className="w-4 h-4 text-zinc-300" />
               </button>
             </div>
@@ -175,10 +175,10 @@ export function TopFilterBar({
                   className={`
                     flex flex-col items-center justify-center min-w-[64px] h-[72px] rounded-2xl border transition-all shrink-0
                     ${isSelected 
-                      ? 'bg-amber-500 border-amber-500 text-black scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
+                      ? 'bg-purple-500 border-purple-500 text-black scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
                       : isTodayDay
-                        ? 'bg-zinc-900/50 border-amber-500/50 text-amber-500 hover:bg-zinc-800'
-                        : 'bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700'
+                        ? 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-purple-500/50 text-purple-500 hover:bg-zinc-800'
+                        : 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700'
                     }
                   `}
                 >

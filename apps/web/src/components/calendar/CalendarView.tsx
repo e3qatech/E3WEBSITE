@@ -88,8 +88,36 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
   };
 
   return (
-    <div className="min-h-screen bg-[#0C0C0C] font-sans text-zinc-50 relative selection:bg-amber-500 selection:text-black">
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;500;600;700&display=swap');
+        .font-righteous { font-family: 'Righteous', cursive; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+      `}} />
+      <div className="min-h-screen font-poppins bg-[#0F0F23] text-zinc-50 relative selection:bg-[#F43F5E]/30 selection:text-black">
       
+      {/* Interactive Background Orbs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.5, 1],
+              x: [0, -100, 0],
+              y: [0, 100, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+          />
+        </div>
+
       {/* Dynamic Hero Viewer or Fallback Background */}
       {heroMediaUrl ? (
         <div className="absolute inset-0 z-0 h-[100vh] w-full">
@@ -114,7 +142,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
 
           <div className="pt-24 pb-8 text-center max-w-4xl mx-auto px-4 relative z-10">
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white uppercase tracking-tight mb-6 font-satoshi drop-shadow-lg">
-              {title ? title : <>Events <span className="text-amber-500">Calendar</span></>}
+              {title ? title : <>Events <span className="text-[#F43F5E]">Calendar</span></>}
             </h1>
             <p className="text-lg md:text-xl text-zinc-400 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-lg">
               {tagline || "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions."}
@@ -143,7 +171,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
           
           {/* Partner Discounts Section (Scroll Ticker) */}
           {discounts && discounts.length > 0 && (
-            <div className="mb-12 w-full overflow-hidden bg-amber-500/10 border-y border-amber-500/20 py-4 relative">
+            <div className="mb-12 w-full overflow-hidden bg-purple-500/10 border-y border-purple-500/20 py-4 relative">
               <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-zinc-950 to-transparent z-10" />
               <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
               <motion.div 
@@ -153,7 +181,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
               >
                 {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
                   <div key={`${discount.id}-${idx}`} className="flex items-center gap-4 shrink-0">
-                    <span className="text-amber-500 font-bold uppercase tracking-widest">{discount.title}</span>
+                    <span className="text-purple-500 font-bold uppercase tracking-widest">{discount.title}</span>
                     <span className="text-zinc-600 font-black">/</span>
                     <span className="text-white font-black text-lg">{discount.discount}</span>
                     <span className="text-zinc-600 font-black">/</span>
@@ -192,5 +220,6 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
         />
       </div>
     </div>
+    </>
   );
 }

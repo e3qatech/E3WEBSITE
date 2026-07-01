@@ -95,20 +95,20 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-2xl bg-[#0F0F23] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
         >
           {/* Header */}
-          <div className="p-6 border-b border-zinc-800 flex justify-between items-start bg-zinc-900/50">
+          <div className="p-6 border-b border-zinc-800 flex justify-between items-start bg-[#1A1A2E]/80 backdrop-blur-md/50">
             <div>
               <h2 className="text-xl font-black text-white mb-1 font-satoshi uppercase tracking-wide flex items-center gap-2">
-                <Users className="w-5 h-5 text-amber-500" />
+                <Users className="w-5 h-5 text-purple-500" />
                 Group & Bulk Booking
               </h2>
               <p className="text-zinc-400 text-sm font-medium">Request a quote for groups of 10 or more guests.</p>
             </div>
             <button 
               onClick={onClose}
-              className="p-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-full transition-colors shrink-0"
+              className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-full transition-colors shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -140,8 +140,8 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
               <form id="bulk-booking-form" onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Event Details Section */}
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
-                  <h3 className="text-sm font-bold text-amber-500 uppercase tracking-widest">Event Details</h3>
+                <div className="bg-[#1A1A2E]/80 backdrop-blur-md/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-purple-500 uppercase tracking-widest">Event Details</h3>
                   
                   <div>
                     <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Attraction / Event</label>
@@ -149,7 +149,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                       required
                       value={formData.attractionName}
                       onChange={e => setFormData({...formData, attractionName: e.target.value})}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                     >
                       <option value="" disabled>Select an attraction</option>
                       {attractions.map(a => (
@@ -170,7 +170,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         required
                         value={formData.date}
                         onChange={e => setFormData({...formData, date: e.target.value})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -180,7 +180,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         required
                         value={formData.time}
                         onChange={e => setFormData({...formData, time: e.target.value})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -191,15 +191,15 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         required
                         value={formData.quantity}
                         onChange={e => setFormData({...formData, quantity: Number(e.target.value)})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Contact Information Section */}
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
-                  <h3 className="text-sm font-bold text-amber-500 uppercase tracking-widest">Contact Information</h3>
+                <div className="bg-[#1A1A2E]/80 backdrop-blur-md/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-purple-500 uppercase tracking-widest">Contact Information</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -210,7 +210,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="John Doe"
                         value={formData.name}
                         onChange={e => setFormData({...formData, name: e.target.value})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -220,7 +220,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="Company XYZ"
                         value={formData.company}
                         onChange={e => setFormData({...formData, company: e.target.value})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -234,7 +234,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="john@example.com"
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -245,7 +245,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="+974 1234 5678"
                         value={formData.phone}
                         onChange={e => setFormData({...formData, phone: e.target.value})}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                       placeholder="Any specific requirements (e.g. F&B, VIP access, private guide)..."
                       value={formData.notes}
                       onChange={e => setFormData({...formData, notes: e.target.value})}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all resize-none"
+                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -273,11 +273,11 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
 
           {/* Footer */}
           {!success && (
-            <div className="p-6 border-t border-zinc-800 bg-zinc-950 flex justify-end gap-3">
+            <div className="p-6 border-t border-zinc-800 bg-[#0F0F23] flex justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 bg-zinc-900 text-white font-bold rounded-xl hover:bg-zinc-800 transition-colors"
+                className="px-6 py-3 bg-[#1A1A2E]/80 backdrop-blur-md text-white font-bold rounded-xl hover:bg-zinc-800 transition-colors"
               >
                 Cancel
               </button>
@@ -285,7 +285,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                 form="bulk-booking-form"
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-amber-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[200px]"
+                className="px-8 py-3 bg-purple-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-purple-400 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[200px]"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Request Quote'}
               </button>

@@ -44,9 +44,38 @@ export function ContactClient({
   });
 
   return (
-    <div className="min-h-screen">
-      {/* HERO SECTION */}
-      <div className="relative pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden bg-zinc-900 border-b border-[var(--border-subtle)]">
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;500;600;700&display=swap');
+        .font-righteous { font-family: 'Righteous', cursive; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+      `}} />
+      <div className="min-h-screen font-poppins text-[#FAFAFA] bg-[#0F0F23] selection:bg-[#F43F5E]/30 relative">
+        
+        {/* Interactive Background Orbs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.5, 1],
+              x: [0, -100, 0],
+              y: [0, 100, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+          />
+        </div>
+
+        {/* HERO SECTION */}
+        <div className="relative pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden bg-[#0F0F23] border-b border-[#7C3AED]/20 z-10">
         {pageSettings.heroMediaType === "VIDEO" && pageSettings.heroMediaUrl && (
           <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-40">
             <source src={pageSettings.heroMediaUrl} type="video/mp4" />
@@ -58,18 +87,31 @@ export function ContactClient({
         {pageSettings.heroMediaType === "IFRAME" && pageSettings.heroMediaUrl && (
           <iframe src={pageSettings.heroMediaUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] to-transparent" />
+        {(!pageSettings.heroMediaType || !pageSettings.heroMediaUrl) && (
+           <motion.div 
+             animate={{ 
+               background: [
+                 'radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.15) 0%, rgba(15, 15, 35, 1) 50%)',
+                 'radial-gradient(circle at 80% 70%, rgba(244, 63, 94, 0.15) 0%, rgba(15, 15, 35, 1) 50%)',
+                 'radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.15) 0%, rgba(15, 15, 35, 1) 50%)'
+               ]
+             }}
+             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+             className="absolute inset-0 w-full h-full"
+           />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F23] to-transparent" />
         
         <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-8 text-center">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", bounce: 0.5 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-amber-500/10 text-amber-500 mb-8 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-[#7C3AED]/10 text-[#F43F5E] mb-8 border border-[#F43F5E]/30 shadow-[0_0_30px_rgba(244,63,94,0.3)]"
           >
             <HeadphonesIcon className="w-8 h-8" />
           </motion.div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight font-righteous">
             {pageSettings.title || "How Can We Help?"}
           </h1>
           <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
@@ -90,7 +132,7 @@ export function ContactClient({
               <TabsTrigger value="faq" className="gap-2"><HelpCircle className="w-4 h-4" /> FAQ</TabsTrigger>
             </TabsList>
           
-            <div className="mt-8 bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+            <div className="mt-8 bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 hover:border-[#F43F5E]/50 rounded-xl p-6 md:p-8 shadow-[0_0_20px_rgba(124,58,237,0.1)] transition-colors relative overflow-hidden">
               <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
               <TabsContent value="support"><SupportForm attractions={attractions} /></TabsContent>
               <TabsContent value="feedback"><FeedbackForm attractions={attractions} /></TabsContent>
@@ -113,78 +155,78 @@ export function ContactClient({
 
         {/* SIDEBAR AREA */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-xl p-8 shadow-sm relative overflow-hidden">
+          <div className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl p-8 shadow-[0_0_20px_rgba(124,58,237,0.1)] relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
-            <h3 className="text-xl font-black text-[var(--text-primary)] mb-6 tracking-tight relative z-10">Quick Contact</h3>
+            <h3 className="text-xl font-black text-white mb-6 tracking-tight relative z-10 font-righteous">Quick Contact</h3>
             <div className="space-y-6 relative z-10">
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] transition-colors hover:border-amber-500/50 group cursor-pointer">
-                <div className="w-12 h-12 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-[#0F0F23]/80 border border-[#7C3AED]/20 transition-colors hover:border-[#F43F5E]/50 group cursor-pointer">
+                <div className="w-12 h-12 rounded-lg bg-[#7C3AED]/20 text-[#7C3AED] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:text-[#F43F5E] transition-transform">
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)] font-mono text-sm uppercase tracking-wider">WhatsApp Support</h4>
-                  <p className="text-sm text-[var(--text-secondary)] mb-1 font-mono">+974 4400 0000</p>
-                  <span className="text-sm text-green-500 font-bold group-hover:underline">Message us &rarr;</span>
+                  <h4 className="font-bold text-white font-mono text-sm uppercase tracking-wider">WhatsApp Support</h4>
+                  <p className="text-sm text-zinc-400 mb-1 font-mono">+974 4400 0000</p>
+                  <span className="text-sm text-[#7C3AED] font-bold group-hover:underline group-hover:text-[#F43F5E]">Message us &rarr;</span>
                 </div>
               </div>
               
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] transition-colors hover:border-amber-500/50 group cursor-pointer">
-                <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-[#0F0F23]/80 border border-[#7C3AED]/20 transition-colors hover:border-[#F43F5E]/50 group cursor-pointer">
+                <div className="w-12 h-12 rounded-lg bg-[#F43F5E]/20 text-[#F43F5E] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:text-[#7C3AED] transition-transform">
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)] font-mono text-sm uppercase tracking-wider">Email Us</h4>
-                  <p className="text-sm text-[var(--text-secondary)] mb-1 font-mono">support@e3.qa</p>
-                  <span className="text-sm text-amber-500 font-bold group-hover:underline">Send email &rarr;</span>
+                  <h4 className="font-bold text-white font-mono text-sm uppercase tracking-wider">Email Us</h4>
+                  <p className="text-sm text-zinc-400 mb-1 font-mono">support@e3.qa</p>
+                  <span className="text-sm text-[#F43F5E] font-bold group-hover:underline group-hover:text-[#7C3AED]">Send email &rarr;</span>
                 </div>
               </div>
               
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)]">
-                <div className="w-12 h-12 rounded-lg bg-zinc-500/10 text-zinc-400 flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-[#0F0F23]/80 border border-[#7C3AED]/20">
+                <div className="w-12 h-12 rounded-lg bg-zinc-800/50 text-zinc-400 flex items-center justify-center shrink-0">
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)] font-mono text-sm uppercase tracking-wider">Operating Hours</h4>
-                  <p className="text-sm text-[var(--text-secondary)] font-medium mt-1 font-mono">Sun - Thu: <span className="text-[var(--text-primary)]">9:00 AM - 6:00 PM</span></p>
-                  <p className="text-sm text-[var(--text-secondary)] font-medium font-mono">Fri - Sat: <span className="text-[var(--text-primary)]">1:00 PM - 9:00 PM</span></p>
+                  <h4 className="font-bold text-white font-mono text-sm uppercase tracking-wider">Operating Hours</h4>
+                  <p className="text-sm text-zinc-400 font-medium mt-1 font-mono">Sun - Thu: <span className="text-white">9:00 AM - 6:00 PM</span></p>
+                  <p className="text-sm text-zinc-400 font-medium font-mono">Fri - Sat: <span className="text-white">1:00 PM - 9:00 PM</span></p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* SOCIAL LINKS */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 relative overflow-hidden group">
+          <div className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl p-8 relative overflow-hidden group shadow-[0_0_20px_rgba(124,58,237,0.1)]">
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-              <Instagram className="w-32 h-32 text-amber-500" />
+              <Instagram className="w-32 h-32 text-[#F43F5E]" />
             </div>
-            <h3 className="text-xl font-black text-white mb-6 relative z-10 tracking-tight">Connect with Us</h3>
+            <h3 className="text-xl font-black text-white mb-6 relative z-10 tracking-tight font-righteous">Connect with Us</h3>
             <p className="text-zinc-400 mb-6 relative z-10 font-mono text-sm">Follow us for the latest updates, event announcements, and exclusive offers.</p>
             <div className="flex gap-4 relative z-10">
-              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+              <a href="#" className="w-12 h-12 rounded-lg bg-[#0F0F23] border border-[#7C3AED]/30 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] hover:shadow-[0_0_15px_rgba(124,58,237,0.5)] transition-all hover:-translate-y-1">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+              <a href="#" className="w-12 h-12 rounded-lg bg-[#0F0F23] border border-[#7C3AED]/30 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#F43F5E] hover:border-[#F43F5E] hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] transition-all hover:-translate-y-1">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+              <a href="#" className="w-12 h-12 rounded-lg bg-[#0F0F23] border border-[#7C3AED]/30 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] hover:shadow-[0_0_15px_rgba(124,58,237,0.5)] transition-all hover:-translate-y-1">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all hover:-translate-y-1">
+              <a href="#" className="w-12 h-12 rounded-lg bg-[#0F0F23] border border-[#7C3AED]/30 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#F43F5E] hover:border-[#F43F5E] hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] transition-all hover:-translate-y-1">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
           </div>
         </div>
+        </div>
       </div>
       </div>
-
       {/* WHAT PEOPLE ARE SAYING */}
       {featuredFeedbacks && featuredFeedbacks.length > 0 && (
         <div className="max-w-6xl mx-auto p-4 md:p-8 mt-12 mb-24 relative">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">What People Are Saying</h2>
-            <p className="text-[var(--text-secondary)] mt-4 font-mono">Real feedback from our amazing customers and partners.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight font-righteous">What People Are Saying</h2>
+            <p className="text-zinc-400 mt-4 font-mono">Real feedback from our amazing customers and partners.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredFeedbacks.map((fb, idx) => (
@@ -194,25 +236,25 @@ export function ContactClient({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-xl p-8 relative overflow-hidden"
+                className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl p-8 relative overflow-hidden shadow-[0_0_20px_rgba(124,58,237,0.1)] hover:border-[#F43F5E]/50 transition-colors"
               >
                 <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
-                <Quote className="absolute top-6 right-6 w-12 h-12 text-[var(--border-subtle)] opacity-50" />
+                <Quote className="absolute top-6 right-6 w-12 h-12 text-[#7C3AED]/20" />
                 <div className="flex gap-1 mb-6">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`w-5 h-5 ${i < (fb.rating || 5) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300 dark:text-zinc-700'}`} />
+                    <Star key={i} className={`w-5 h-5 ${i < (fb.rating || 5) ? 'fill-[#F43F5E] text-[#F43F5E]' : 'text-zinc-700'}`} />
                   ))}
                 </div>
-                <p className="text-[var(--text-primary)] italic mb-6 relative z-10 leading-relaxed text-lg">&quot;{fb.message}&quot;</p>
+                <p className="text-zinc-200 italic mb-6 relative z-10 leading-relaxed text-lg">&quot;{fb.message}&quot;</p>
                 <div>
-                  <p className="font-bold text-[var(--text-primary)]">{fb.name || "Anonymous"}</p>
+                  <p className="font-bold text-white">{fb.name || "Anonymous"}</p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -255,9 +297,11 @@ function SupportForm({ attractions }: { attractions: any[] }) {
         <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
           <ShieldCheck className="w-8 h-8" />
         </div>
-        <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Request Submitted</h3>
-        <p className="text-[var(--text-secondary)] mb-6">Your ticket number is <strong>#E3-{Math.floor(Math.random() * 10000)}</strong>. We will get back to you shortly.</p>
-        <Button onClick={() => setSuccess(false)}>Submit Another Request</Button>
+        <h3 className="text-2xl font-bold text-white mb-2 font-righteous">Request Submitted</h3>
+        <p className="text-zinc-400 mb-6">Your ticket number is <strong>#E3-{Math.floor(Math.random() * 10000)}</strong>. We will get back to you shortly.</p>
+        <button onClick={() => setSuccess(false)} className="bg-[#1A1A2E] text-white border border-[#7C3AED]/50 hover:bg-[#7C3AED]/20 px-6 py-2 rounded-xl font-bold transition-colors">
+          Submit Another Request
+        </button>
       </div>
     );
   }
@@ -266,56 +310,56 @@ function SupportForm({ attractions }: { attractions: any[] }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Full Name *</label>
-          <Input name="name" required placeholder="John Doe" />
+          <label className="block text-sm font-medium text-zinc-400 mb-2">Full Name *</label>
+          <input name="name" required placeholder="John Doe" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Email Address *</label>
-          <Input name="email" type="email" required placeholder="john@example.com" />
+          <label className="block text-sm font-medium text-zinc-400 mb-2">Email Address *</label>
+          <input name="email" type="email" required placeholder="john@example.com" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all" />
         </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Phone Number</label>
-          <Input name="phone" type="tel" placeholder="+974 5555 5555" />
+          <label className="block text-sm font-medium text-zinc-400 mb-2">Phone Number</label>
+          <input name="phone" type="tel" placeholder="+974 5555 5555" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Category</label>
-          <Select name="category" options={[
-            { value: "ticket_issue", label: "Ticket Issue" },
-            { value: "venue_question", label: "Venue Question" },
-            { value: "complaint", label: "Complaint" },
-            { value: "other", label: "Other" }
-          ]} />
+          <label className="block text-sm font-medium text-zinc-400 mb-2">Category</label>
+          <select name="category" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all appearance-none">
+            <option value="ticket_issue">Ticket Issue</option>
+            <option value="venue_question">Venue Question</option>
+            <option value="complaint">Complaint</option>
+            <option value="other">Other</option>
+          </select>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Related Attraction (Optional)</label>
-        <Select name="attractionId" options={[
-          { value: "", label: "General / Not specified" },
-          ...attractions.map(a => ({ value: a.id, label: a.nameEn }))
-        ]} />
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Related Attraction (Optional)</label>
+        <select name="attractionId" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all appearance-none">
+          <option value="">General / Not specified</option>
+          {attractions.map(a => <option key={a.id} value={a.id}>{a.nameEn}</option>)}
+        </select>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Message *</label>
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Message *</label>
         <textarea 
           name="message" 
           required 
           rows={5} 
-          className="w-full bg-[var(--surface-sunken)] border border-[var(--border-subtle)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl p-4 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all"
           placeholder="How can we help you?"
         ></textarea>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Attachment (Optional)</label>
-        <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[var(--border-subtle)] rounded-xl cursor-pointer hover:bg-[var(--surface-hover)] transition-colors">
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Attachment (Optional)</label>
+        <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[#7C3AED]/30 rounded-xl cursor-pointer hover:bg-[#7C3AED]/10 hover:border-[#F43F5E]/50 transition-colors">
           <div className="flex flex-col items-center">
-            <FileUp className="w-8 h-8 text-[var(--text-secondary)] mb-2" />
-            <span className="text-sm text-[var(--text-secondary)]">{file ? file.name : "Click to upload (Max 5MB)"}</span>
+            <FileUp className="w-8 h-8 text-zinc-500 mb-2" />
+            <span className="text-sm text-zinc-400">{file ? file.name : "Click to upload (Max 5MB)"}</span>
           </div>
           <input 
             type="file" 
@@ -330,9 +374,9 @@ function SupportForm({ attractions }: { attractions: any[] }) {
         </label>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <button type="submit" className="w-full bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] text-white font-bold px-6 py-3 rounded-xl min-h-[48px] hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:scale-95 transition-all" disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Submit Support Request"}
-      </Button>
+      </button>
     </form>
   );
 }
@@ -374,12 +418,14 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
   if (success) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 bg-yellow-500/20 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Star className="w-8 h-8 fill-yellow-500" />
+        <div className="w-16 h-16 bg-[#F43F5E]/20 text-[#F43F5E] rounded-full flex items-center justify-center mx-auto mb-4">
+          <Star className="w-8 h-8 fill-[#F43F5E]" />
         </div>
-        <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Thank You!</h3>
-        <p className="text-[var(--text-secondary)] mb-6">Your feedback helps us improve our experiences.</p>
-        <Button onClick={() => { setSuccess(false); setRating(0); }}>Submit More Feedback</Button>
+        <h3 className="text-2xl font-bold text-white mb-2 font-righteous">Thank You!</h3>
+        <p className="text-zinc-400 mb-6">Your feedback helps us improve our experiences.</p>
+        <button onClick={() => { setSuccess(false); setRating(0); }} className="bg-[#1A1A2E] text-white border border-[#7C3AED]/50 hover:bg-[#7C3AED]/20 px-6 py-2 rounded-xl font-bold transition-colors">
+          Submit More Feedback
+        </button>
       </div>
     );
   }
@@ -387,7 +433,7 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="text-center mb-8">
-        <label className="block text-lg font-bold text-[var(--text-primary)] mb-4">How was your experience?</label>
+        <label className="block text-lg font-bold text-white mb-4">How was your experience?</label>
         <div className="flex items-center justify-center gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -399,7 +445,7 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
               className="focus:outline-none transition-transform hover:scale-110"
             >
               <Star 
-                className={`w-10 h-10 ${(hoverRating || rating) >= star ? "fill-yellow-500 text-yellow-500" : "text-[var(--border-subtle)]"}`} 
+                className={`w-10 h-10 ${(hoverRating || rating) >= star ? "fill-[#F43F5E] text-[#F43F5E]" : "text-zinc-700"}`} 
               />
             </button>
           ))}
@@ -407,38 +453,38 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Attraction</label>
-        <Select name="attractionId" options={[
-          { value: "", label: "General Feedback" },
-          ...attractions.map(a => ({ value: a.id, label: a.nameEn }))
-        ]} />
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Attraction</label>
+        <select name="attractionId" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all appearance-none">
+          <option value="">General Feedback</option>
+          {attractions.map(a => <option key={a.id} value={a.id}>{a.nameEn}</option>)}
+        </select>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Tell us more *</label>
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Tell us more *</label>
         <textarea 
           name="message" 
           required 
           rows={4} 
-          className="w-full bg-[var(--surface-sunken)] border border-[var(--border-subtle)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl p-4 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all"
           placeholder="What did you love? What could be better?"
         ></textarea>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Name (Optional)</label>
-          <Input name="name" placeholder="John Doe" />
+          <label className="block text-sm font-medium text-zinc-400 mb-2">Name (Optional)</label>
+          <input name="name" placeholder="John Doe" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Email (Optional)</label>
-          <Input name="email" type="email" placeholder="john@example.com" />
+          <label className="block text-sm font-medium text-zinc-400 mb-2">Email (Optional)</label>
+          <input name="email" type="email" placeholder="john@example.com" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all" />
         </div>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting || rating === 0}>
+      <button type="submit" className="w-full bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] text-white font-bold px-6 py-3 rounded-xl min-h-[48px] hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:scale-95 transition-all" disabled={isSubmitting || rating === 0}>
         {isSubmitting ? "Submitting..." : "Submit Feedback"}
-      </Button>
+      </button>
     </form>
   );
 }
@@ -457,45 +503,45 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
           <input 
             type="text" 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search FAQs..."
-            className="w-full bg-[var(--surface-sunken)] border border-[var(--border-subtle)] rounded-xl py-3 pl-10 pr-4 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all"
           />
         </div>
         <div className="w-full md:w-64">
-          <Select 
+          <select 
             value={filter} 
             onChange={(e: any) => setFilter(e.target.value)}
-            options={[
-              { value: "all", label: "All Topics" },
-              { value: "general", label: "General" },
-              ...attractions.map((a: any) => ({ value: a.id, label: a.nameEn }))
-            ]}
-          />
+            className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all appearance-none"
+          >
+            <option value="all">All Topics</option>
+            <option value="general">General</option>
+            {attractions.map((a: any) => <option key={a.id} value={a.id}>{a.nameEn}</option>)}
+          </select>
         </div>
       </div>
 
       <div className="space-y-4">
         {faqs.length === 0 ? (
-          <p className="text-center py-8 text-[var(--text-secondary)]">No FAQs found matching your search.</p>
+          <p className="text-center py-8 text-zinc-400">No FAQs found matching your search.</p>
         ) : (
           faqs.map((faq: any) => {
             const isActive = activeFaq === faq.id;
             return (
-              <div key={faq.id} className="border border-[var(--border-subtle)] rounded-2xl overflow-hidden bg-[var(--surface-default)]">
+              <div key={faq.id} className="border border-[#7C3AED]/30 rounded-2xl overflow-hidden bg-[#1A1A2E]/50 backdrop-blur-md transition-colors hover:border-[#F43F5E]/50">
                 <button 
                   onClick={() => toggleFaq(faq.id)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-[var(--surface-hover)] transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-[#7C3AED]/10 transition-colors"
                 >
-                  <span className="font-bold text-[var(--text-primary)] pr-8">{faq.questionEn}</span>
-                  {isActive ? <ChevronUp className="w-5 h-5 text-[var(--text-secondary)] shrink-0" /> : <ChevronDown className="w-5 h-5 text-[var(--text-secondary)] shrink-0" />}
+                  <span className="font-bold text-white pr-8">{faq.questionEn}</span>
+                  {isActive ? <ChevronUp className="w-5 h-5 text-[#F43F5E] shrink-0" /> : <ChevronDown className="w-5 h-5 text-zinc-400 shrink-0" />}
                 </button>
                 {isActive && (
-                  <div className="p-5 pt-0 text-[var(--text-secondary)] border-t border-[var(--border-subtle)]">
+                  <div className="p-5 pt-0 text-zinc-300 border-t border-[#7C3AED]/20">
                     <div className="pt-4">{faq.answerEn}</div>
                   </div>
                 )}
@@ -505,9 +551,11 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
         )}
       </div>
 
-      <div className="text-center pt-8 border-t border-[var(--border-subtle)]">
-        <p className="text-[var(--text-secondary)] mb-4">Still need help?</p>
-        <Button variant="outline" onClick={switchToSupport}>Contact Support</Button>
+      <div className="text-center pt-8 border-t border-[#7C3AED]/20">
+        <p className="text-zinc-400 mb-4">Still need help?</p>
+        <button onClick={switchToSupport} className="bg-[#1A1A2E] text-white border border-[#7C3AED]/50 hover:bg-[#7C3AED]/20 px-6 py-2 rounded-xl font-bold transition-colors">
+          Contact Support
+        </button>
       </div>
     </div>
   );

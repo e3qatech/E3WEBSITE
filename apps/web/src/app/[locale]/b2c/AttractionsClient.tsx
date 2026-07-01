@@ -130,24 +130,52 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
   const footer = cmsData?.footer || {};
 
   return (
-    <main className="min-h-screen bg-[#0C0C0C] text-[#FAFAFA] font-sans selection:bg-[#F59E0B] selection:text-[#0C0C0C] relative overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
-      
-      {/* Industrial Grain Texture */}
-      <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <filter id="noise">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#noise)" />
-        </svg>
-      </div>
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;500;600;700&display=swap');
+        .font-righteous { font-family: 'Righteous', cursive; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+      `}} />
+      <main className="min-h-screen bg-[#0F0F23] text-[#FAFAFA] font-poppins selection:bg-[#F43F5E]/30 selection:text-[#FAFAFA] relative overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
+        
+        {/* Interactive Background Orbs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.5, 1],
+              x: [0, -100, 0],
+              y: [0, 100, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+          />
+        </div>
+
+        {/* Industrial Grain Texture */}
+        <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <filter id="noise">
+              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#noise)" />
+          </svg>
+        </div>
 
       {/* Hero Section */}
       <section className="relative w-full h-[80vh] flex flex-col items-center justify-center px-4 overflow-hidden border-b border-[#27272A]">
         {/* Dynamic Background */}
-        <div className="absolute inset-0 z-0 bg-[#141414]">
+        <div className="absolute inset-0 z-0 bg-[#0F0F23]">
           {hero.mediaType === 'IMAGE' && hero.mediaUrl && (
-            <img src={hero.mediaUrl} alt="Hero" className="w-full h-full object-cover opacity-60" />
+            <img src={hero.mediaUrl} alt="Hero" className="w-full h-full object-cover opacity-50" />
           )}
           {hero.mediaType === 'VIDEO' && hero.mediaUrl && (
             <video src={hero.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60" />
@@ -173,16 +201,16 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
              <motion.div 
                animate={{ 
                  background: [
-                   'radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.15) 0%, rgba(12, 12, 12, 1) 50%)',
-                   'radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.15) 0%, rgba(12, 12, 12, 1) 50%)',
-                   'radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.15) 0%, rgba(12, 12, 12, 1) 50%)'
+                   'radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.15) 0%, rgba(15, 15, 35, 1) 50%)',
+                   'radial-gradient(circle at 80% 70%, rgba(244, 63, 94, 0.15) 0%, rgba(15, 15, 35, 1) 50%)',
+                   'radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.15) 0%, rgba(15, 15, 35, 1) 50%)'
                  ]
                }}
                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                className="w-full h-full"
              />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-[#0C0C0C]/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F23] via-[#0F0F23]/50 to-transparent" />
         </div>
 
         <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center space-y-8 mt-16">
@@ -190,8 +218,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-balance text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase drop-shadow-2xl leading-[1.1]"
-            style={{ fontFamily: 'var(--font-satoshi, inherit)' }}
+            className="text-balance text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase leading-[1.1] text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-[#F43F5E] font-righteous"
           >
             {isAr ? hero.headerAr || "اكتشف التجارب" : hero.headerEn || "Discover Experiences"}
           </motion.h1>
@@ -213,7 +240,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               className="w-full max-w-xl relative"
             >
               <div className="relative flex items-center w-full">
-                <Search className={`absolute ${isAr ? 'right-4' : 'left-4'} w-5 h-5 text-[#A1A1AA] peer-focus:text-[#F59E0B] transition-colors z-20`} />
+                <Search className={`absolute ${isAr ? 'right-4' : 'left-4'} w-5 h-5 text-[#A1A1AA] peer-focus:text-[#F43F5E] transition-colors z-20`} />
                 <input
                   type="search"
                   value={localSearch}
@@ -221,7 +248,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                   placeholder={isAr ? "ابحث عن التجارب..." : "Search attractions..."}
-                  className={`w-full bg-[#141414]/80 backdrop-blur-md border border-[#27272A] rounded-xl py-4 ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B] transition-all relative z-10 peer`}
+                  className={`w-full bg-[#1A1A2E]/80 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl py-4 ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all shadow-[0_0_20px_rgba(124,58,237,0.1)] relative z-10 peer`}
                   dir="auto"
                 />
 
@@ -232,15 +259,15 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-[#141414] border border-[#27272A] rounded-xl shadow-2xl z-50 overflow-hidden text-left"
+                      className="absolute top-full left-0 right-0 mt-2 bg-[#1A1A2E] border border-[#7C3AED]/30 rounded-xl shadow-[0_0_30px_rgba(124,58,237,0.2)] z-50 overflow-hidden text-left"
                     >
                       {dropdownResults.length > 0 ? (
                         <ul className="flex flex-col">
                           {dropdownResults.map(attr => (
-                            <li key={attr.id} className="border-b border-[#27272A] last:border-b-0">
+                            <li key={attr.id} className="border-b border-[#7C3AED]/20 last:border-b-0">
                               <Link 
                                 href={`/${locale}/b2c/attractions/${attr.slug}`}
-                                className={`flex items-center gap-4 px-4 py-3 hover:bg-[#27272A]/50 transition-colors ${isAr ? 'text-right' : ''}`}
+                                className={`flex items-center gap-4 px-4 py-3 hover:bg-[#7C3AED]/10 transition-colors ${isAr ? 'text-right' : ''}`}
                               >
                                 {attr.heroThumbnailUrl || attr.gallery?.[0]?.url ? (
                                   <img src={attr.heroThumbnailUrl || attr.gallery?.[0]?.url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
@@ -278,8 +305,8 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     onClick={() => setStatusFilter(chip)}
                     className={`px-4 py-2 rounded-full text-sm font-medium border transition-all active:scale-95 ${
                       statusFilter === chip 
-                        ? 'bg-[#F59E0B] border-[#F59E0B] text-[#0C0C0C]' 
-                        : 'bg-[#141414]/80 backdrop-blur-md border-[#27272A] text-[#A1A1AA] hover:border-[#52525B]'
+                        ? 'bg-[#7C3AED] border-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]' 
+                        : 'bg-[#1A1A2E]/80 backdrop-blur-md border-[#7C3AED]/30 text-[#A1A1AA] hover:border-[#F43F5E]/50'
                     }`}
                     style={{ minHeight: '44px' }}
                   >
@@ -292,7 +319,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
                 <button
                   onClick={requestLocation}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${userLocation ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-[#141414]/80 border-[#27272A] text-[#A1A1AA] hover:border-[#52525B]'}`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${userLocation ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-[#1A1A2E]/80 border-[#7C3AED]/30 text-[#A1A1AA] hover:border-[#F43F5E]/50'}`}
                 >
                   <MapPin className="w-4 h-4" />
                   {isAr ? (userLocation ? 'الموقع مفعل' : 'استخدم موقعي') : (userLocation ? 'Location Active' : 'Use My Location')}
@@ -301,7 +328,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   <select
                     value={sortMode}
                     onChange={(e) => setSortMode(e.target.value as any)}
-                    className="appearance-none bg-[#141414]/80 border border-[#27272A] rounded-xl pl-4 pr-10 py-2 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#F59E0B] transition-colors"
+                    className="appearance-none bg-[#1A1A2E]/80 border border-[#7C3AED]/30 rounded-xl pl-4 pr-10 py-2 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#F43F5E] transition-colors"
                   >
                     <option value="Recommended">{isAr ? 'موصى به' : 'Recommended'}</option>
                     <option value="Distance">{isAr ? 'المسافة' : 'Distance'}</option>
@@ -322,7 +349,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
         {isLoading && (
           <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="w-full h-80 bg-[#141414] rounded-2xl animate-pulse border border-[#27272A]" />
+              <div key={i} className="w-full h-80 bg-[#1A1A2E] rounded-2xl animate-pulse border border-[#7C3AED]/20" />
             ))}
           </div>
         )}
@@ -333,8 +360,8 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             {featuredAttraction && (
               <section className="w-full">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="w-2 h-8 bg-[#F59E0B] rounded-full" />
-                  <h2 className="text-3xl font-black">{isAr ? cmsData?.featuredTitleAr || "التجارب المميزة" : cmsData?.featuredTitleEn || "Featured Experiences"}</h2>
+                  <div className="w-2 h-8 bg-[#F43F5E] rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
+                  <h2 className="text-3xl font-black font-righteous">{isAr ? cmsData?.featuredTitleAr || "التجارب المميزة" : cmsData?.featuredTitleEn || "Featured Experiences"}</h2>
                 </div>
                 
                 <motion.div 
@@ -342,11 +369,11 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="w-full bg-[#141414] border border-[#27272A] rounded-2xl overflow-hidden flex flex-col md:flex-row group"
+                  className="w-full bg-[#1A1A2E]/50 backdrop-blur-md border border-[#7C3AED]/30 hover:border-[#F43F5E]/50 rounded-2xl overflow-hidden flex flex-col md:flex-row group transition-colors shadow-[0_0_20px_rgba(124,58,237,0.1)] hover:shadow-[0_0_30px_rgba(244,63,94,0.2)]"
                 >
-                  <Link href={`/${locale}/b2c/attractions/${featuredAttraction.slug}`} className="w-full flex flex-col md:flex-row h-full focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
-                  <div className="w-full md:w-3/5 h-72 md:h-auto relative overflow-hidden bg-[#0C0C0C]">
-                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#141414] to-transparent z-10" />
+                  <Link href={`/${locale}/b2c/attractions/${featuredAttraction.slug}`} className="w-full flex flex-col md:flex-row h-full focus:outline-none focus:ring-2 focus:ring-[#F43F5E]">
+                  <div className="w-full md:w-3/5 h-72 md:h-auto relative overflow-hidden bg-[#0F0F23]">
+                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#1A1A2E]/90 to-transparent z-10" />
                     {featuredAttraction.heroMediaType === 'VIDEO' && featuredAttraction.heroMediaUrl ? (
                       <video src={featuredAttraction.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                     ) : featuredAttraction.heroThumbnailUrl ? (
@@ -401,18 +428,18 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                           ★ SPECIAL EVENT
                         </div>
                       )}
-                      <span className="text-[#F59E0B] text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                      <span className="text-[#F43F5E] text-xs font-bold uppercase tracking-widest flex items-center gap-1">
                         <Activity className="w-3 h-3" /> Featured
                       </span>
                     </div>
 
-                    <h3 className="text-3xl md:text-4xl font-bold mb-3">{isAr ? featuredAttraction.nameAr : featuredAttraction.nameEn}</h3>
+                    <h3 className="text-3xl md:text-4xl font-bold mb-3 font-righteous">{isAr ? featuredAttraction.nameAr : featuredAttraction.nameEn}</h3>
                     <p className="text-[#A1A1AA] mb-8 line-clamp-3">
                       {isAr ? featuredAttraction.descriptionAr : featuredAttraction.descriptionEn || "Experience the pinnacle of entertainment."}
                     </p>
 
                     <div className="flex items-center gap-4 mt-auto">
-                      <div className="flex-1 bg-amber-500/10 text-amber-500 px-6 py-3 rounded-xl font-black uppercase tracking-widest border border-amber-500/30 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all duration-300 active:scale-95 flex items-center justify-center min-h-[48px] gap-2 relative group overflow-hidden">
+                      <div className="flex-1 bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest hover:shadow-[0_0_20px_rgba(244,63,94,0.6)] transition-all duration-300 active:scale-95 flex items-center justify-center min-h-[48px] gap-2 relative group overflow-hidden">
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                         <Ticket className="w-5 h-5 relative z-10" /> <span className="relative z-10">Get Ticket</span>
                       </div>
@@ -426,8 +453,8 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             {/* Attractions Brick Grid */}
             <section>
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-2 h-8 bg-[#F59E0B] rounded-full" />
-                <h2 className="text-3xl font-black">{isAr ? cmsData?.gridTitleAr || "جميع التجارب" : cmsData?.gridTitleEn || "All Experiences"}</h2>
+                <div className="w-2 h-8 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.5)]" />
+                <h2 className="text-3xl font-black font-righteous">{isAr ? cmsData?.gridTitleAr || "جميع التجارب" : cmsData?.gridTitleEn || "All Experiences"}</h2>
               </div>
               <AnimatePresence mode="popLayout">
                 {filteredAttractions.length === 0 ? (
@@ -435,7 +462,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="w-full py-24 flex flex-col items-center justify-center text-center border border-dashed border-[#27272A] rounded-2xl"
+                    className="w-full py-24 flex flex-col items-center justify-center text-center border border-dashed border-[#7C3AED]/30 rounded-2xl bg-[#1A1A2E]/50"
                   >
                     <Search className="w-12 h-12 text-[#52525B] mb-4" />
                     <h3 className="text-xl font-bold mb-2">No attractions found</h3>
@@ -484,18 +511,18 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     {filteredAttractions.length > 5 && (
                       <div className="mt-8">
                         <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-2xl font-bold">{isAr ? "المزيد من التجارب" : "More Experiences"}</h3>
+                          <h3 className="text-2xl font-bold font-righteous">{isAr ? "المزيد من التجارب" : "More Experiences"}</h3>
                           <div className="flex gap-2" dir="ltr">
                              <button 
                                onClick={() => scrollRef.current?.scrollBy({ left: -340, behavior: 'smooth' })}
-                               className="w-12 h-12 rounded-full bg-[#141414] border border-[#27272A] flex items-center justify-center hover:bg-[#27272A] hover:border-[#3F3F46] transition-all active:scale-95"
+                               className="w-12 h-12 rounded-full bg-[#1A1A2E] border border-[#7C3AED]/30 flex items-center justify-center hover:bg-[#7C3AED]/20 hover:border-[#F43F5E]/50 transition-all active:scale-95 text-[#FAFAFA]"
                                aria-label="Scroll left"
                              >
                                <ChevronLeft className="w-5 h-5 text-[#FAFAFA]" />
                              </button>
                              <button 
                                onClick={() => scrollRef.current?.scrollBy({ left: 340, behavior: 'smooth' })}
-                               className="w-12 h-12 rounded-full bg-[#141414] border border-[#27272A] flex items-center justify-center hover:bg-[#27272A] hover:border-[#3F3F46] transition-all active:scale-95"
+                               className="w-12 h-12 rounded-full bg-[#1A1A2E] border border-[#7C3AED]/30 flex items-center justify-center hover:bg-[#7C3AED]/20 hover:border-[#F43F5E]/50 transition-all active:scale-95 text-[#FAFAFA]"
                                aria-label="Scroll right"
                              >
                                <ChevronRight className="w-5 h-5 text-[#FAFAFA]" />
@@ -525,12 +552,12 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             </section>
 
             {/* Subscribe Section */}
-            <section className="w-full bg-gradient-to-br from-[#141414] to-[#0a0a0a] border border-[#27272A] rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#F59E0B]/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F59E0B]/5 rounded-full blur-3xl" />
+            <section className="w-full bg-[#1A1A2E]/50 border border-[#7C3AED]/30 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden shadow-[0_0_40px_rgba(124,58,237,0.1)]">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#7C3AED]/20 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F43F5E]/20 rounded-full blur-3xl" />
               
               <div className="relative z-10 w-full md:w-1/2">
-                <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
+                <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight font-righteous">
                   {isAr ? subscribe.titleAr || "لا تفوت المرح!" : subscribe.titleEn || "Never Miss the Fun!"}
                 </h2>
                 <p className="text-[#A1A1AA] text-lg">
@@ -545,9 +572,9 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    className="flex-1 bg-[#0C0C0C] border border-[#27272A] rounded-xl px-4 py-3 min-h-[48px] text-[#FAFAFA] focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B] transition-all"
+                    className="flex-1 bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 min-h-[48px] text-[#FAFAFA] focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all"
                   />
-                  <button type="submit" className="bg-[#F59E0B] text-[#0C0C0C] font-bold px-6 py-3 rounded-xl min-h-[48px] hover:bg-[#D97706] active:scale-95 transition-all whitespace-nowrap">
+                  <button type="submit" className="bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] text-white font-bold px-6 py-3 rounded-xl min-h-[48px] hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] active:scale-95 transition-all whitespace-nowrap">
                     {isAr ? "اشترك" : "Subscribe"}
                   </button>
                 </form>
@@ -558,18 +585,18 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             {faqs && faqs.length > 0 && (
               <section className="max-w-3xl mx-auto w-full">
                 <div className="text-center mb-12">
-                  <h2 className="text-3xl font-black mb-4">{isAr ? "الأسئلة الشائعة" : "Frequently Asked Questions"}</h2>
+                  <h2 className="text-3xl font-black mb-4 font-righteous">{isAr ? "الأسئلة الشائعة" : "Frequently Asked Questions"}</h2>
                   <p className="text-[#A1A1AA]">{isAr ? "كل ما تحتاج لمعرفته حول تجاربنا" : "Everything you need to know about our experiences."}</p>
                 </div>
                 <div className="space-y-4">
                   {faqs.map((faq: any, i: number) => (
-                    <div key={i} className="bg-[#141414] border border-[#27272A] rounded-2xl overflow-hidden transition-colors hover:border-[#52525B]">
+                    <div key={i} className="bg-[#1A1A2E]/50 border border-[#7C3AED]/30 rounded-2xl overflow-hidden transition-colors hover:border-[#F43F5E]/50">
                       <button 
                         onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                        className="w-full flex items-center justify-between p-6 text-left focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
+                        className="w-full flex items-center justify-between p-6 text-left focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
                       >
                         <span className="font-bold text-lg">{isAr ? faq.questionAr : faq.questionEn}</span>
-                        {openFaq === i ? <ChevronUp className="w-5 h-5 text-[#F59E0B]" /> : <ChevronDown className="w-5 h-5 text-[#A1A1AA]" />}
+                        {openFaq === i ? <ChevronUp className="w-5 h-5 text-[#F43F5E]" /> : <ChevronDown className="w-5 h-5 text-[#A1A1AA]" />}
                       </button>
                       <AnimatePresence>
                         {openFaq === i && (
@@ -593,24 +620,24 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
 
             {/* CTA Section */}
             <section className="w-full py-16 text-center flex flex-col items-center">
-              <h2 className="text-3xl font-black mb-6">{isAr ? cta.titleAr || "هل لديك سؤال؟" : cta.titleEn || "Have a question?"}</h2>
+              <h2 className="text-3xl font-black mb-6 font-righteous">{isAr ? cta.titleAr || "هل لديك سؤال؟" : cta.titleEn || "Have a question?"}</h2>
               <Link 
                 href={cta.buttonUrl || "/contact"}
-                className="bg-[#27272A] text-[#FAFAFA] border border-[#3F3F46] hover:bg-[#3F3F46] px-8 py-4 rounded-xl font-bold transition-colors min-h-[48px] inline-flex items-center"
+                className="bg-[#1A1A2E] text-[#FAFAFA] border border-[#7C3AED]/50 hover:bg-[#7C3AED]/20 px-8 py-4 rounded-xl font-bold transition-colors min-h-[48px] inline-flex items-center"
               >
                 {isAr ? cta.buttonTextAr || "اتصل بنا" : cta.buttonTextEn || "Contact Us"}
               </Link>
             </section>
 
             {/* Careers CTA Section */}
-            <section className="w-full bg-[#141414] border border-[#27272A] rounded-3xl p-8 md:p-16 flex flex-col items-center justify-center text-center">
-              <h2 className="text-3xl md:text-4xl font-black mb-4">{isAr ? careersCta.titleAr || "انضم لفريقنا" : careersCta.titleEn || "Join Our Team"}</h2>
+            <section className="w-full bg-[#1A1A2E]/50 border border-[#7C3AED]/30 rounded-3xl p-8 md:p-16 flex flex-col items-center justify-center text-center">
+              <h2 className="text-3xl md:text-4xl font-black mb-4 font-righteous">{isAr ? careersCta.titleAr || "انضم لفريقنا" : careersCta.titleEn || "Join Our Team"}</h2>
               <p className="text-[#A1A1AA] text-lg mb-8 max-w-xl">
                 {isAr ? careersCta.subtitleAr || "نحن نبحث دائماً عن الموهوبين." : careersCta.subtitleEn || "We're always looking for talented individuals to join our crew."}
               </p>
               <Link 
                 href={careersCta.buttonUrl || "/careers"}
-                className="bg-[#FAFAFA] text-[#0C0C0C] px-8 py-4 rounded-xl font-bold hover:bg-[#F59E0B] hover:text-[#0C0C0C] transition-colors active:scale-95 min-h-[48px] inline-flex items-center"
+                className="bg-white text-[#0F0F23] px-8 py-4 rounded-xl font-bold hover:bg-[#F43F5E] hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] transition-all active:scale-95 min-h-[48px] inline-flex items-center"
               >
                 {isAr ? careersCta.buttonTextAr || "عرض الوظائف" : careersCta.buttonTextEn || "View Careers"}
               </Link>
@@ -621,9 +648,9 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
       </div>
 
       {/* Landing Page Footer Background */}
-      <section className="relative w-full min-h-[50vh] flex flex-col items-center justify-center overflow-hidden border-t border-[#27272A]">
+      <section className="relative w-full min-h-[50vh] flex flex-col items-center justify-center overflow-hidden border-t border-[#7C3AED]/20">
         {/* Dynamic Background */}
-        <div className="absolute inset-0 z-0 bg-[#0C0C0C]">
+        <div className="absolute inset-0 z-0 bg-[#0F0F23]">
           {footer.mediaType === 'IMAGE' && footer.mediaUrl && (
             <img src={footer.mediaUrl} alt="Footer" className="w-full h-full object-cover opacity-60" />
           )}
@@ -647,13 +674,13 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             />
           )}
           {(!footer.mediaUrl || !footer.mediaType) && (
-            <div className="w-full h-full bg-[#0C0C0C]" />
+            <div className="w-full h-full bg-[#0F0F23]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-transparent to-[#0C0C0C]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F23] via-transparent to-[#0F0F23]" />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-24 text-center">
-          <h2 className="text-4xl md:text-6xl font-black mb-6 text-white drop-shadow-lg">
+          <h2 className="text-4xl md:text-6xl font-black mb-6 text-white drop-shadow-lg font-righteous">
             {isAr ? 'عش اللحظة.' : 'Live the Moment.'}
           </h2>
           <p className="text-[#A1A1AA] text-lg font-medium drop-shadow">
@@ -662,6 +689,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
         </div>
       </section>
     </main>
+    </>
   );
 }
 
@@ -676,10 +704,10 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
       whileHover={{ y: -4, scale: 1.01 }}
-      className={`bg-[#141414] border border-[#27272A] rounded-3xl overflow-hidden group hover:border-[#52525B] hover:shadow-2xl hover:shadow-[#F59E0B]/5 transition-all flex flex-col relative w-full h-full`}
+      className={`bg-[#1A1A2E]/50 backdrop-blur-md border border-[#7C3AED]/30 rounded-3xl overflow-hidden group hover:border-[#F43F5E]/50 hover:shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-all flex flex-col relative w-full h-full`}
     >
-      <Link href={`/${locale}/b2c/attractions/${attraction.slug}`} className="flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
-        <div className="absolute inset-0 z-0 bg-[#27272A]">
+      <Link href={`/${locale}/b2c/attractions/${attraction.slug}`} className="flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-[#F43F5E]">
+        <div className="absolute inset-0 z-0 bg-[#0F0F23]">
           {attraction.heroThumbnailUrl ? (
             <img 
               src={attraction.heroThumbnailUrl} 
@@ -707,7 +735,7 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-[#0C0C0C]/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F23] via-[#0F0F23]/50 to-transparent" />
         </div>
 
         <div className="relative z-10 p-6 flex flex-col h-full justify-end">
@@ -737,8 +765,8 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
             
             <div className="absolute top-6 right-6 flex flex-col gap-2 items-end text-right">
                {attraction.distanceKm !== undefined && (
-                 <div className="flex items-center gap-1.5 bg-[#141414]/80 backdrop-blur-md text-[#FAFAFA] px-3 py-1.5 rounded-xl text-xs font-bold border border-[#27272A]">
-                   <MapPin className="w-3.5 h-3.5 text-[#F59E0B]" />
+                 <div className="flex items-center gap-1.5 bg-[#1A1A2E]/80 backdrop-blur-md text-[#FAFAFA] px-3 py-1.5 rounded-xl text-xs font-bold border border-[#7C3AED]/30">
+                   <MapPin className="w-3.5 h-3.5 text-[#F43F5E]" />
                    {attraction.distanceKm < 1 ? 'Nearby' : `${attraction.distanceKm.toFixed(1)} km`}
                  </div>
                )}
@@ -755,7 +783,7 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
             </div>
             
           <div className="mt-auto">
-            <h3 className={`font-bold mb-2 text-[#FAFAFA] group-hover:text-[#F59E0B] transition-colors line-clamp-1 ${isLarge ? 'text-3xl' : 'text-xl'}`}>
+            <h3 className={`font-bold mb-2 text-[#FAFAFA] group-hover:text-[#F43F5E] transition-colors line-clamp-1 font-righteous ${isLarge ? 'text-3xl' : 'text-xl'}`}>
               {isNameAr ? attraction.nameAr : attraction.nameEn}
             </h3>
             
@@ -764,10 +792,10 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
             </p>
 
             <div className="flex items-center justify-between pt-4 border-t border-white/10">
-              <span className="font-mono text-sm text-[#FAFAFA] bg-white/10 px-3 py-1 rounded-lg backdrop-blur-md">
+              <span className="font-mono text-sm text-[#FAFAFA] bg-[#7C3AED]/20 px-3 py-1 rounded-lg backdrop-blur-md border border-[#7C3AED]/30 group-hover:border-[#F43F5E]/50 transition-colors">
                 {attraction.pricing?.[0] ? `From QAR ${attraction.pricing[0].price}` : 'Free'}
               </span>
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-[#F59E0B] group-hover:text-[#0C0C0C] transition-colors backdrop-blur-md">
+              <span className="w-8 h-8 rounded-full bg-[#1A1A2E] flex items-center justify-center text-white border border-[#7C3AED]/30 group-hover:bg-[#F43F5E] group-hover:border-[#F43F5E] transition-colors backdrop-blur-md">
                 →
               </span>
             </div>
