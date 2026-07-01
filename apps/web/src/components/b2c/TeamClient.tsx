@@ -1,31 +1,60 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
+import { motion, useSpring, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+const TiltCard = ({ children, className }: any) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 20 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className={`relative ${className}`}
+    >
+      {/* Glare effect */}
+      <div className="absolute inset-0 z-50 pointer-events-none rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+        style={{ background: 'radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.15) 0%, transparent 70%)' }} 
+      />
+      <div style={{ transform: "translateZ(30px)" }} className="h-full">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
 export function TeamClient({ locale, initialMembers }: { locale: string; initialMembers: any[] }) {
-  const [activeMember, setActiveMember] = useState<any | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Smooth mouse following
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
-  const smoothX = useSpring(mouseX, springConfig);
-  const smoothY = useSpring(mouseY, springConfig);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
 
   return (
     <>
@@ -61,52 +90,10 @@ export function TeamClient({ locale, initialMembers }: { locale: string; initial
         {/* Noise Texture */}
         <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
 
-        {/* Floating Image Card */}
-        <motion.div
-          className="fixed top-0 left-0 w-[280px] md:w-[320px] aspect-[3/4] pointer-events-none z-50 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(244,63,94,0.3)] border border-[#F43F5E]/30 bg-zinc-900"
-          style={{
-            x: smoothX,
-            y: smoothY,
-            translateX: "-50%",
-            translateY: "-50%",
-            opacity: activeMember ? 1 : 0,
-            scale: activeMember ? 1 : 0.8,
-          }}
-          transition={{ opacity: { duration: 0.2 }, scale: { duration: 0.2 } }}
-        >
-          <AnimatePresence mode="wait">
-            {activeMember && (
-              <motion.div
-                key={activeMember.slug}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-0"
-              >
-                {activeMember.profileImage ? (
-                  <img src={activeMember.profileImage} alt={activeMember.firstName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-[#1A1A2E] flex items-center justify-center text-5xl font-black text-zinc-600">
-                    {activeMember.firstName[0]}{activeMember.lastName[0]}
-                  </div>
-                )}
-                {/* Bottom Gradient & Info overlay like the design */}
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0F0F23]/90 via-[#0F0F23]/50 to-transparent flex flex-col justify-end p-6">
-                  <div className="bg-[#0F0F23]/60 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl p-4 shadow-[0_4px_20px_rgba(124,58,237,0.2)]">
-                    <h3 className="text-white font-bold text-lg leading-tight mb-1 font-righteous tracking-wide">{activeMember.firstName} {activeMember.lastName}</h3>
-                    <p className="text-[#F43F5E] text-xs font-black uppercase tracking-widest">{activeMember.department}</p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
         <main className="pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-8 relative z-10">
           
           {/* HERO */}
-          <header className="mb-24">
+          <header className="mb-24 text-center">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -118,40 +105,55 @@ export function TeamClient({ locale, initialMembers }: { locale: string; initial
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-lg md:text-xl text-zinc-300 max-w-2xl font-medium leading-relaxed"
+              className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto font-medium leading-relaxed"
             >
               A collective of industrial designers, master fabricators, and event strategists redefining what's possible in the MENA region.
             </motion.p>
           </header>
 
-          {/* LIST */}
-          <div className="border-t border-[#7C3AED]/20">
+          {/* GAMIFIED GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {initialMembers.map((member, i) => (
-              <Link 
-                key={member.slug}
-                href={`/${locale}/b2c/team/${member.slug}`}
-                className="group flex flex-col md:flex-row items-start md:items-center justify-between py-10 md:py-12 border-b border-[#7C3AED]/20 hover:border-[#F43F5E]/50 transition-colors relative z-20"
-                onMouseEnter={() => setActiveMember(member)}
-                onMouseLeave={() => setActiveMember(null)}
-              >
-                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-12 w-full md:w-auto">
-                  <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#F43F5E] transition-all font-righteous">
-                    {member.firstName} {member.lastName}
-                  </h2>
-                  <span className="text-[#7C3AED] group-hover:text-[#F43F5E] transition-colors font-bold text-sm md:text-base uppercase tracking-widest mt-2 md:mt-0">
-                    {member.designation}
-                  </span>
-                </div>
-
-                <div className="hidden md:flex items-center gap-4 text-zinc-500 group-hover:text-[#F43F5E] transition-colors">
-                  <span className="text-sm font-bold tracking-widest uppercase">{member.department}</span>
-                  <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </div>
-              </Link>
+              <TiltCard key={member.slug} className="group perspective-1000">
+                <Link href={`/${locale}/b2c/team/${member.slug}`} className="block h-full">
+                  <div className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 hover:border-[#F43F5E]/60 shadow-[0_0_20px_rgba(124,58,237,0.1)] hover:shadow-[0_0_40px_rgba(244,63,94,0.3)] transition-all duration-300 rounded-2xl p-4 flex flex-col relative overflow-hidden h-full">
+                    
+                    {/* Glassmorphism Frame Detail */}
+                    <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                      <ArrowUpRight className="w-6 h-6 text-[#F43F5E]" />
+                    </div>
+                    
+                    {/* Image Area */}
+                    <div className="w-full aspect-square rounded-xl overflow-hidden relative mb-6 border border-[#7C3AED]/20">
+                      {member.profileImage ? (
+                        <img src={member.profileImage} alt={member.firstName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-105" />
+                      ) : (
+                        <div className="w-full h-full bg-[#0F0F23] flex items-center justify-center text-6xl font-black text-zinc-800">
+                          {member.firstName[0]}{member.lastName[0]}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-[#7C3AED]/10 mix-blend-overlay pointer-events-none" />
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 flex flex-col">
+                      <div className="text-[#F43F5E] font-black text-xs uppercase tracking-widest mb-2 font-righteous">
+                        {member.department}
+                      </div>
+                      <h2 className="text-2xl font-black tracking-tight text-white mb-1 font-righteous group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#F43F5E]">
+                        {member.firstName} {member.lastName}
+                      </h2>
+                      <p className="text-[#7C3AED] font-semibold text-sm">
+                        {member.designation}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </TiltCard>
             ))}
             
             {initialMembers.length === 0 && (
-              <div className="text-center py-32">
+              <div className="col-span-full text-center py-32">
                 <p className="text-zinc-500 text-xl font-medium">No visionaries found.</p>
               </div>
             )}
