@@ -1,7 +1,7 @@
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { redirect, notFound } from "next/navigation"
-import { ServiceEditor } from "@/components/dashboard/b2b/ServiceEditor"
+import { ServicesEditor } from "@/components/dashboard/b2b/ServicesEditor"
 
 export const metadata = {
   title: "Service Editor | E3 Admin",
@@ -19,10 +19,6 @@ export default async function EditServicePage({
 
   const { slug } = await params
   
-  if (slug === "new") {
-    return <ServiceEditor />
-  }
-
   const service = await db.service.findUnique({
     where: { slug },
     include: {
@@ -35,5 +31,5 @@ export default async function EditServicePage({
     notFound()
   }
 
-  return <ServiceEditor initialData={service} />
+  return <ServicesEditor initialData={service} />
 }
