@@ -59,14 +59,15 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, [theme]);
 
-  // Prevent hydration mismatch flash
-  if (!mounted) {
-    return <div style={{ visibility: "hidden" }}>{children}</div>;
-  }
-
+  // Prevent hydration mismatch flash by hiding content until theme is resolved
+  // but we MUST provide the context to avoid SSR errors from children using the hook.
   return (
     <AdminThemeContext.Provider value={{ theme, resolvedTheme, setTheme: setThemeState }}>
-      {children}
+      {!mounted ? (
+        <div style={{ visibility: "hidden" }}>{children}</div>
+      ) : (
+        children
+      )}
     </AdminThemeContext.Provider>
   );
 }
