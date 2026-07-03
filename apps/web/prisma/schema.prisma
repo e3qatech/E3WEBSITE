@@ -183,6 +183,7 @@ model Attraction {
   feedbacks      Feedback[]
   calendarEvents CalendarEvent[]
   services       Service[]
+  serviceProjects ServiceProject[]
 
   @@index([isPublished, isHidden])
 }
@@ -375,8 +376,12 @@ model ServiceProject {
   updatedAt      DateTime @updatedAt
 
   service        Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  attractionId   String?
+  attraction     Attraction? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
 
   @@index([serviceId])
+  @@index([attractionId])
 }
 
 model CaseStudy {

@@ -43,7 +43,8 @@ export async function PUT(
               titleAr: p.titleAr,
               descriptionEn: p.descriptionEn,
               descriptionAr: p.descriptionAr,
-              imageUrl: p.imageUrl
+              imageUrl: p.imageUrl,
+              attractionId: p.attractionId || null
             }))
           }
         }

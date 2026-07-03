@@ -421,13 +421,26 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                     items={projects}
                     setItems={(items) => { setProjects(items); setHasUnsavedChanges(true) }}
                     onAdd={() => {
-                      setProjects([...projects, { id: Math.random().toString(), titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", imageUrl: "" }])
+                      setProjects([...projects, { id: Math.random().toString(), titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", imageUrl: "", attractionId: "" }])
                       setHasUnsavedChanges(true)
                     }}
                     addLabel="Add Related Project"
                     renderItem={(item, index, update) => (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                        <div className="col-span-1 md:col-span-2">
+                        <div className="col-span-1 md:col-span-2 space-y-2">
+                          <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 block">Linked Attraction (Optional)</label>
+                          <select 
+                            value={item.attractionId || ""}
+                            onChange={e => update({ attractionId: e.target.value })}
+                            className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none"
+                          >
+                            <option value="">Custom Project (No Attraction Link)</option>
+                            {attractions?.map(a => (
+                              <option key={a.id} value={a.id}>{a.nameEn}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="col-span-1 md:col-span-2 mt-4">
                           <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 block">Project Cover</label>
                           <MediaUploader value={item.imageUrl} onChange={url => update({ imageUrl: url })} />
                         </div>
