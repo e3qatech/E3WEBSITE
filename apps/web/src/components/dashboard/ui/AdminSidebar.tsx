@@ -31,6 +31,9 @@ import { AdminStatusBadge } from "./AdminStatusBadge";
 const sidebarConfig = [
   { label: "Command Center", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
   { label: "B2B Portal", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+    { label: "Homepage Editor", href: "/dashboard/b2b/home" },
+    { label: "About Us Editor", href: "/dashboard/b2b/about" },
+    { label: "Contact Editor", href: "/dashboard/b2b/contact" },
     { label: "Service Editor", href: "/dashboard/b2b/services" },
     { label: "Project Microsites", href: "/dashboard/b2b/cases" },
     { label: "Team & Roster", href: "/dashboard/b2b/team" },
@@ -38,10 +41,13 @@ const sidebarConfig = [
   ] },
   { label: "B2C Hub", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Editor", href: "/dashboard/b2c/landing" },
+    { label: "Discover Editor", href: "/dashboard/b2c/discover" },
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
     { label: "Calendar", href: "/dashboard/b2c/calendar" },
-    { label: "Discover", href: "/dashboard/b2c/discover" },
     { label: "Contact", href: "/dashboard/b2c/contact" }
+  ] },
+  { label: "Content & Media", icon: FileText, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
+    { label: "Media Library", href: "/dashboard/cms/media" }
   ] },
   { label: "CRM & Pipelines", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },

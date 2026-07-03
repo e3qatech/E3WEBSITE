@@ -10,7 +10,10 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function AboutPage() {
+export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
+
   const employeeProfiles = await prisma.employeeProfile.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
@@ -23,23 +26,48 @@ export default async function AboutPage() {
     image: emp.profileImage || '/mock/team-1.jpg'
   }))
 
-  const values = [
+  const page = await prisma.pages.findUnique({
+    where: { slug: "b2b-about" }
+  });
+
+  const cmsData = (page?.content as any) || {};
+
+  const headerTitle = isAr ? (cmsData?.header?.titleAr || 'نحن اي ثري.') : (cmsData?.header?.titleEn || 'We are E3.');
+  const headerSubtitle = isAr ? (cmsData?.header?.subtitleAr || 'خبراء هندسة الفعاليات. نحول الرؤى الإبداعية الطموحة إلى واقع تشغيلي لا تشوبه شائبة.') : (cmsData?.header?.subtitleEn || 'Event Engineering Experts. We turn ambitious creative visions into flawless operational reality.');
+  
+  const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
+  const storyContent = isAr ? (cmsData?.story?.contentAr || '') : (cmsData?.story?.contentEn || '');
+  const storyImageMediaId = cmsData?.story?.imageMediaId || null;
+
+  const values = cmsData?.values && cmsData.values.length > 0 ? cmsData.values.map((v: any) => ({
+    title: isAr ? v.titleAr : v.titleEn,
+    desc: isAr ? v.descAr : v.descEn
+  })) : [
     { title: 'Engineering Precision', desc: 'We treat creativity with the rigor of structural engineering. No detail is too small, no safety margin too tight.' },
     { title: 'Operational Excellence', desc: 'Beautiful designs mean nothing if the execution fails. We take extreme ownership of the live operation.' },
     { title: 'Cultural Resonance', desc: 'Rooted in Qatar, built for the world. Our experiences respect local context while setting global benchmarks.' },
-  ]
+  ];
+
+  // Fetch story image if it's a media ID
+  let storyImageUrl = '/mock/about-office.jpg';
+  if (storyImageMediaId) {
+    const media = await prisma.media.findUnique({ where: { id: storyImageMediaId } });
+    if (media) {
+      storyImageUrl = media.url;
+    }
+  }
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
       <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
         <div className="container mx-auto px-4 md:px-8">
           <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
-            We are <span className="text-emerald-400">E3.</span>
+            {headerTitle}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            Event Engineering Experts. We turn ambitious creative visions into flawless operational reality.
+            {headerSubtitle}
           </p>
         </div>
       </section>
@@ -49,27 +77,23 @@ export default async function AboutPage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-black text-zinc-100 mb-6 tracking-tight">Our Story</h2>
-              <div className="space-y-6 text-lg text-zinc-400 leading-relaxed">
-                <p>
-                  E3 was founded in Doha with a simple premise: the region's rapidly growing events sector needed a partner that understood both the creative ambition of mega-events and the hard engineering required to deliver them.
-                </p>
-                <p>
-                  Over the past decade, we have grown from a boutique staging company into a comprehensive ecosystem of event engineering, immersive technology, and venue operations. 
-                </p>
-                <p>
-                  Today, we employ over 120 full-time specialists and maintain one of the largest inventories of staging, rigging, and XR hardware in the Middle East.
-                </p>
+              <h2 className="text-3xl font-black text-zinc-100 mb-6 tracking-tight">{storyTitle}</h2>
+              <div className="space-y-6 text-lg text-zinc-400 leading-relaxed whitespace-pre-wrap">
+                {storyContent || `E3 was founded in Doha with a simple premise: the region's rapidly growing events sector needed a partner that understood both the creative ambition of mega-events and the hard engineering required to deliver them.
+
+Over the past decade, we have grown from a boutique staging company into a comprehensive ecosystem of event engineering, immersive technology, and venue operations. 
+
+Today, we employ over 120 full-time specialists and maintain one of the largest inventories of staging, rigging, and XR hardware in the Middle East.`}
               </div>
             </div>
             <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
                <UniversalMediaRenderer 
                 type="IMAGE"
-                src="/mock/about-office.jpg"
+                src={storyImageUrl}
                 alt="E3 Headquarters"
                />
-               <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-bold mix-blend-difference">
-                 [Office Image]
+               <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-bold mix-blend-difference pointer-events-none">
+                 [E3]
                </div>
             </div>
           </div>
@@ -79,10 +103,10 @@ export default async function AboutPage() {
       {/* Values */}
       <section className="py-24 bg-zinc-900 border-y border-zinc-800">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-black text-zinc-100 mb-12 tracking-tight text-center">Our Core Values</h2>
+          <h2 className="text-3xl font-black text-zinc-100 mb-12 tracking-tight text-center">{isAr ? 'قيمنا الأساسية' : 'Our Core Values'}</h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {values.map((val, i) => (
+            {values.map((val: any, i: number) => (
               <div key={i} className="p-8 rounded-lg bg-zinc-950 border border-zinc-800">
                 <div className="w-12 h-12 rounded-sm bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-black text-xl mb-6">
                   0{i + 1}
@@ -98,7 +122,7 @@ export default async function AboutPage() {
       {/* Leadership */}
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-black text-zinc-100 mb-12 tracking-tight">Leadership</h2>
+          <h2 className="text-3xl font-black text-zinc-100 mb-12 tracking-tight">{isAr ? 'القيادة' : 'Leadership'}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {leadership.map((leader, i) => (

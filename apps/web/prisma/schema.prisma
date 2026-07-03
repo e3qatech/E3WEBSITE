@@ -19,6 +19,26 @@ enum RoleType {
   CLIENT
 }
 
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PortalType {
+  B2B
+  B2C
+  SHARED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  MODEL_3D
+  DOCUMENT
+  IFRAME
+}
+
 enum LeadStatus {
   NEW
   CONTACTED
@@ -31,6 +51,36 @@ enum LeadStatus {
 // ---------------------------------------------------------
 // NextAuth Core Models
 // ---------------------------------------------------------
+
+model Pages {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  title     Json?
+  content   Json?
+  seo       Json?
+  status    PageStatus @default(DRAFT)
+  portal    PortalType @default(SHARED)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([portal])
+}
+
+model Media {
+  id           String    @id @default(cuid())
+  url          String
+  thumbnailUrl String?
+  type         MediaType
+  mimeType     String
+  size         Int
+  alt          Json?
+  metadata     Json?
+  uploadedBy   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
 
 model User {
   id            String    @id @default(cuid())

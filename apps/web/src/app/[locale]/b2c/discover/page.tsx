@@ -15,11 +15,11 @@ export default async function DiscoverPage({
 }) {
   const { locale } = await params;
 
-  const setting = await prisma.setting.findUnique({
-    where: { key: "B2C_DISCOVER_PAGE_SETTINGS" }
+  const page = await prisma.pages.findUnique({
+    where: { slug: "b2c-discover" }
   });
 
-  const settings = setting ? (typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value) : null;
+  const settings = page?.content || null;
 
   return <DiscoverClient locale={locale} initialSettings={settings} />;
 }

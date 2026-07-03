@@ -5,11 +5,11 @@
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
 
-✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 147ms
+✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 144ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Easily identify and fix slow SQL queries in your app. Optimize helps you enhance your visibility: https://pris.ly/--optimize
+Tip: Want to react to database changes in your app as they happen? Discover how with Pulse: https://pris.ly/tip-1-pulse
 
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
@@ -20,7 +20,7 @@ The database is already in sync with the Prisma schema.
 Running generate... (Use --skip-generate to skip the generators)
 [2K[1A[2K[GRunning generate... - Prisma Client
 [2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client
-@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 143ms
+@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 148ms
 
 ▲ Next.js 16.2.9 (Turbopack)
 - Environments: .env
@@ -29,9 +29,9 @@ Running generate... (Use --skip-generate to skip the generators)
 
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-✓ Compiled successfully in 11.3s
+✓ Compiled successfully in 8.6s
   Running TypeScript ...
-  Finished TypeScript in 13.0s ...
+  Finished TypeScript in 13.3s ...
   Collecting page data using 23 workers ...
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
@@ -43,19 +43,6 @@ Running generate... (Use --skip-generate to skip the generators)
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-  Generating static pages using 23 workers (0/71) ...
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
@@ -67,80 +54,97 @@ Running generate... (Use --skip-generate to skip the generators)
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
-  Generating static pages using 23 workers (17/71) 
 [REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+  Generating static pages using 23 workers (0/73) ...
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+  Generating static pages using 23 workers (18/73) 
 prisma:info Starting a postgresql pool with 25 connections.
 [REDIS_ERROR] Redis connection error: 
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-prisma:info Starting a postgresql pool with 25 connections.
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 106ms
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 169ms
-[REDIS_ERROR] Redis connection error: 
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 189ms
-  Generating static pages using 23 workers (35/71) 
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 209ms
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 prisma:info Starting a postgresql pool with 25 connections.
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 248ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 263ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 262ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 276ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 271ms
 [REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 297ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 313ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 305ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 321ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 331ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 346ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 345ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 135ms
 [REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 119ms
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [REDIS_ERROR] Redis connection error: 
-  Generating static pages using 23 workers (53/71) 
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 240ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 274ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 276ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 287ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 279ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 306ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 168ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 192ms
 prisma:info Starting a postgresql pool with 25 connections.
 [REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] Service.findMany took 115ms
-[PRISMA PERFORMANCE BREACH] CaseStudy.findMany took 122ms
-[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 128ms
+  Generating static pages using 23 workers (36/73) 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 203ms
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 217ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 212ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 210ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 215ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 245ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 241ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 241ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 251ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 249ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 249ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 257ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 245ms
+[REDIS_ERROR] Redis connection error: 
+  Generating static pages using 23 workers (54/73) 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 154ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 160ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 169ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 168ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 174ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 177ms
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] TeamMember.findMany took 241ms
-✓ Generating static pages using 23 workers (71/71) in 837ms
+[REDIS_ERROR] Redis connection error: 
+prisma:info Starting a postgresql pool with 25 connections.
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] CaseStudy.findMany took 141ms
+[PRISMA PERFORMANCE BREACH] TeamMember.findMany took 197ms
+[PRISMA PERFORMANCE BREACH] Service.findMany took 198ms
+[PRISMA PERFORMANCE BREACH] Attraction.findMany took 199ms
+[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 201ms
+✓ Generating static pages using 23 workers (73/73) in 677ms
   Finalizing page optimization ...
 
 Route (app)
@@ -204,6 +208,8 @@ Route (app)
 ├ ƒ /api/case-studies/[id]
 ├ ƒ /api/cases
 ├ ƒ /api/cases/[id]
+├ ƒ /api/cms/media
+├ ƒ /api/cms/pages/[slug]
 ├ ƒ /api/contact/b2b
 ├ ƒ /api/contact/b2c
 ├ ƒ /api/crm/clients
@@ -252,10 +258,13 @@ Route (app)
 ├ ƒ /auth/login
 ├ ƒ /auth/reset-password
 ├ ƒ /dashboard
+├ ƒ /dashboard/b2b/about
 ├ ƒ /dashboard/b2b/cases
 ├ ƒ /dashboard/b2b/cases/[id]/edit
 ├ ƒ /dashboard/b2b/cases/[slug]
 ├ ƒ /dashboard/b2b/cases/new
+├ ƒ /dashboard/b2b/contact
+├ ƒ /dashboard/b2b/home
 ├ ƒ /dashboard/b2b/partners
 ├ ƒ /dashboard/b2b/services
 ├ ƒ /dashboard/b2b/services/[id]/edit
@@ -272,6 +281,7 @@ Route (app)
 ├ ƒ /dashboard/careers
 ├ ƒ /dashboard/careers/[id]
 ├ ƒ /dashboard/careers/new
+├ ƒ /dashboard/cms/media
 ├ ƒ /dashboard/crm/clients
 ├ ƒ /dashboard/crm/inquiries
 ├ ƒ /dashboard/crm/leads

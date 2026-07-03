@@ -13,11 +13,11 @@ export default async function AttractionsPage({ params }: { params: Promise<{ lo
   const { locale } = await params;
   
   // Fetch CMS settings
-  const cmsSetting = await db.setting.findUnique({
-    where: { key: "B2C_LANDING_PAGE" }
+  const cmsPage = await db.pages.findUnique({
+    where: { slug: "b2c-landing" }
   });
   
-  const cmsData = cmsSetting?.value || {};
+  const cmsData = cmsPage?.content || {};
 
   // Fetch published attractions to seed the client store (better SEO and initial load)
   // Include gallery and pricing for the cards

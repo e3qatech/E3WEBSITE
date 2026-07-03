@@ -1,399 +1,252 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Plus, Trash2, Save, CheckCircle2, Loader2, Upload } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { useState } from "react"
+import { AdminFormLayout } from "../ui/AdminFormLayout"
+import { AdminPageHeader } from "../ui/AdminPageHeader"
+import { AdminMediaPicker } from "../ui/AdminMediaPicker"
+import { AdminButton } from "../ui/AdminButton"
+import { useToast } from "@/components/dashboard/ui/ToastProvider"
 
-type DiscoverSettings = {
-  hero: {
-    titleEn: string;
-    titleAr: string;
-    subtitleEn: string;
-    subtitleAr: string;
-    mediaType: string;
-    mediaUrl: string;
-  };
-  heritage: {
-    title: string;
-    description: string;
-    vision: string;
-    mission: string;
-    values: string;
-  };
-  team: Array<{
-    name: string;
-    role: string;
-    desc: string;
-  }>;
-  careers: {
-    title: string;
-    description: string;
-    nlpText: string;
-  };
-};
-
-export function DiscoverPageManager() {
-  const [activeTab, setActiveTab] = useState<"HERO" | "HERITAGE" | "TEAM" | "CAREERS">("HERO");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [uploading, setUploading] = useState(false);
-
-  const [settings, setSettings] = useState<DiscoverSettings | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/b2c/discover-settings");
-        if (res.ok) {
-          const data = await res.json();
-          setSettings(data);
-        }
-      } catch (error) {
-        console.error("Failed to load discover settings", error);
-      } finally {
-        setLoading(false);
-      }
+export function DiscoverPageManager({ initialData }: { initialData: any }) {
+  const [data, setData] = useState({
+    hero: {
+      titleEn: initialData?.hero?.titleEn || "",
+      titleAr: initialData?.hero?.titleAr || "",
+      subtitleEn: initialData?.hero?.subtitleEn || "",
+      subtitleAr: initialData?.hero?.subtitleAr || "",
+      mediaType: initialData?.hero?.mediaType || "IMAGE",
+      mediaUrl: initialData?.hero?.mediaUrl || "",
+    },
+    heritage: {
+      titleEn: initialData?.heritage?.titleEn || "",
+      titleAr: initialData?.heritage?.titleAr || "",
+      descriptionEn: initialData?.heritage?.descriptionEn || "",
+      descriptionAr: initialData?.heritage?.descriptionAr || "",
+      visionEn: initialData?.heritage?.visionEn || "",
+      visionAr: initialData?.heritage?.visionAr || "",
+      missionEn: initialData?.heritage?.missionEn || "",
+      missionAr: initialData?.heritage?.missionAr || "",
+      valuesEn: initialData?.heritage?.valuesEn || "",
+      valuesAr: initialData?.heritage?.valuesAr || "",
     }
-    fetchData();
-  }, []);
+  })
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !settings) return;
+  const { toast } = useToast()
+  const [saving, setSaving] = useState(false)
 
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
+  const handleSave = async () => {
+    setSaving(true)
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSettings({
-          ...settings,
-          hero: { ...settings.hero, mediaUrl: data.url }
-        });
-      } else {
-        alert("Upload failed: " + data.error);
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("Failed to upload file.");
+      const res = await fetch('/api/cms/pages/b2c-discover', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: data })
+      })
+      if (!res.ok) throw new Error("Failed to save")
+      toast("B2C Discover Page updated successfully.", "success")
+    } catch (e) {
+      console.error(e)
+      toast("Failed to save B2C Discover Page.", "error")
     } finally {
-      setUploading(false);
-      e.target.value = "";
+      setSaving(false)
     }
-  };
-
-  const handleSaveSettings = async () => {
-    if (!settings) return;
-    setSaving(true);
-    setSuccess(false);
-    try {
-      const res = await fetch("/api/b2c/discover-settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings)
-      });
-      if (res.ok) {
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-      }
-    } catch (error) {
-      console.error("Error saving settings", error);
-      alert("Error saving settings");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleAddTeamMember = () => {
-    if (!settings) return;
-    setSettings({
-      ...settings,
-      team: [...settings.team, { name: "", role: "", desc: "" }]
-    });
-  };
-
-  const handleRemoveTeamMember = (index: number) => {
-    if (!settings) return;
-    const newTeam = [...settings.team];
-    newTeam.splice(index, 1);
-    setSettings({ ...settings, team: newTeam });
-  };
-
-  const updateTeamMember = (index: number, field: string, value: string) => {
-    if (!settings) return;
-    const newTeam = [...settings.team];
-    newTeam[index] = { ...newTeam[index], [field]: value };
-    setSettings({ ...settings, team: newTeam });
-  };
-
-  if (loading) {
-    return <div className="p-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-zinc-500" /></div>;
   }
 
-  if (!settings) return <div className="p-8 text-zinc-500">Failed to load settings.</div>;
+  const handleChange = (section: keyof typeof data, field: string, value: any) => {
+    setData(prev => ({
+      ...prev,
+      [section]: {
+        ...(prev[section] as any),
+        [field]: value
+      }
+    }))
+  }
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Discover Page Settings</h1>
-          <p className="text-[var(--text-secondary)]">Manage the content, background, and features of the B2C Discover Page.</p>
-        </div>
-        <Button onClick={handleSaveSettings} disabled={saving} className="shrink-0 flex items-center gap-2">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
+    <div className="flex flex-col gap-6 h-full p-6 max-w-6xl mx-auto">
+      <AdminPageHeader 
+        title="B2C Discover Page"
+        description="Manage the content for the Discover page."
+        action={
+          <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
+          </AdminButton>
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-4 border-b border-[var(--border-default)]">
-        {(["HERO", "HERITAGE", "TEAM", "CAREERS"] as const).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === tab ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
-          >
-            {tab.charAt(0) + tab.slice(1).toLowerCase()} Settings
-          </button>
-        ))}
-      </div>
-
-      {success && (
-        <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5" />
-          Settings saved successfully!
-        </div>
-      )}
-
-      {/* HERO TAB */}
-      {activeTab === "HERO" && (
-        <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <AdminFormLayout>
+        {/* Hero Section */}
+        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-bold text-text-primary">Hero Section</h2>
+          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Title (English)</label>
-              <input
-                type="text"
-                value={settings.hero.titleEn}
-                onChange={e => setSettings({ ...settings, hero: { ...settings.hero, titleEn: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
+              <input 
+                type="text" 
+                value={data.hero.titleEn}
+                onChange={e => handleChange('hero', 'titleEn', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Title (Arabic)</label>
-              <input
-                type="text"
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
+              <input 
+                type="text" 
                 dir="rtl"
-                value={settings.hero.titleAr}
-                onChange={e => setSettings({ ...settings, hero: { ...settings.hero, titleAr: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+                value={data.hero.titleAr}
+                onChange={e => handleChange('hero', 'titleAr', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Subtitle (English)</label>
-              <textarea
-                value={settings.hero.subtitleEn}
-                onChange={e => setSettings({ ...settings, hero: { ...settings.hero, subtitleEn: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
+              <textarea 
+                value={data.hero.subtitleEn}
+                onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Subtitle (Arabic)</label>
-              <textarea
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
+              <textarea 
                 dir="rtl"
-                value={settings.hero.subtitleAr}
-                onChange={e => setSettings({ ...settings, hero: { ...settings.hero, subtitleAr: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
+                value={data.hero.subtitleAr}
+                onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Background Media Type</label>
-              <select
-                value={settings.hero.mediaType}
-                onChange={e => setSettings({ ...settings, hero: { ...settings.hero, mediaType: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-              >
-                <option value="IMAGE">Image</option>
-                <option value="VIDEO">Video</option>
-                <option value="ORBS">Cosmic Orbs (Default)</option>
-                <option value="IFRAME">External iFrame</option>
-                <option value="3D_MODEL">3D Model (.glb / .gltf)</option>
-              </select>
-            </div>
-            {settings.hero.mediaType !== "ORBS" && (
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">
-                  {settings.hero.mediaType === "IFRAME" ? "iFrame Code / URL" : "Media URL"}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={settings.hero.mediaUrl}
-                    onChange={e => setSettings({ ...settings, hero: { ...settings.hero, mediaUrl: e.target.value } })}
-                    className="flex-1 px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                    placeholder={settings.hero.mediaType === "IFRAME" ? "<iframe src='...' /> or URL" : "URL"}
-                  />
-                  {settings.hero.mediaType !== "IFRAME" && (
-                    <label className="shrink-0 flex items-center justify-center px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl cursor-pointer transition-colors relative">
-                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                      <span className="ml-2 font-bold text-sm">Upload</span>
-                      <input 
-                        type="file" 
-                        accept={settings.hero.mediaType === "3D_MODEL" ? ".glb,.gltf" : "image/*,video/*"} 
-                        className="hidden" 
-                        onChange={handleFileUpload} 
-                        disabled={uploading} 
-                      />
-                    </label>
-                  )}
+            <div className="col-span-2 space-y-4 pt-4 border-t border-border-default">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider">Background Media Type</label>
+                <div className="flex gap-4">
+                  <select
+                    value={data.hero.mediaType}
+                    onChange={e => handleChange('hero', 'mediaType', e.target.value)}
+                    className="w-1/3 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  >
+                    <option value="IMAGE">Image / Media ID</option>
+                    <option value="IFRAME">External iFrame</option>
+                    <option value="MODEL_3D">3D Model (.glb / .gltf)</option>
+                  </select>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* HERITAGE TAB */}
-      {activeTab === "HERITAGE" && (
-        <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-[var(--text-primary)]">Heritage Title</label>
-            <input
-              type="text"
-              value={settings.heritage.title}
-              onChange={e => setSettings({ ...settings, heritage: { ...settings.heritage, title: e.target.value } })}
-              className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-[var(--text-primary)]">Heritage Description</label>
-            <textarea
-              value={settings.heritage.description}
-              onChange={e => setSettings({ ...settings, heritage: { ...settings.heritage, description: e.target.value } })}
-              className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Vision</label>
-              <textarea
-                value={settings.heritage.vision}
-                onChange={e => setSettings({ ...settings, heritage: { ...settings.heritage, vision: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Mission</label>
-              <textarea
-                value={settings.heritage.mission}
-                onChange={e => setSettings({ ...settings, heritage: { ...settings.heritage, mission: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-primary)]">Values</label>
-              <textarea
-                value={settings.heritage.values}
-                onChange={e => setSettings({ ...settings, heritage: { ...settings.heritage, values: e.target.value } })}
-                className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TEAM TAB */}
-      {activeTab === "TEAM" && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex justify-end">
-            <Button onClick={handleAddTeamMember}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Team Member
-            </Button>
-          </div>
-          {settings.team.map((member, idx) => (
-            <div key={idx} className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 relative">
-              <button 
-                onClick={() => handleRemoveTeamMember(idx)}
-                className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pr-12">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Name</label>
-                  <input
-                    type="text"
-                    value={member.name}
-                    onChange={e => updateTeamMember(idx, "name", e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1 uppercase tracking-wider">Media</label>
+                {(data.hero.mediaType === 'IFRAME' || data.hero.mediaType === 'MODEL_3D') ? (
+                  <input 
+                    type="text" 
+                    value={data.hero.mediaUrl || ''} 
+                    onChange={e => handleChange("hero", "mediaUrl", e.target.value)} 
+                    placeholder="https://my.spline.design/..." 
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
                   />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Role</label>
-                  <input
-                    type="text"
-                    value={member.role}
-                    onChange={e => updateTeamMember(idx, "role", e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+                ) : (
+                  <AdminMediaPicker 
+                    value={data.hero.mediaUrl}
+                    onChange={url => handleChange('hero', 'mediaUrl', url)}
                   />
-                </div>
-                <div className="space-y-2 sm:col-span-2 md:col-span-1">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Description</label>
-                  <input
-                    type="text"
-                    value={member.desc}
-                    onChange={e => updateTeamMember(idx, "desc", e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                  />
-                </div>
+                )}
               </div>
             </div>
-          ))}
-          {settings.team.length === 0 && (
-            <p className="text-center text-zinc-500 py-8">No team members added.</p>
-          )}
+          </div>
         </div>
-      )}
 
-      {/* CAREERS TAB */}
-      {activeTab === "CAREERS" && (
-        <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-[var(--text-primary)]">Careers Section Title</label>
-            <input
-              type="text"
-              value={settings.careers.title}
-              onChange={e => setSettings({ ...settings, careers: { ...settings.careers, title: e.target.value } })}
-              className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-[var(--text-primary)]">Careers Description / Vacancies</label>
-            <textarea
-              value={settings.careers.description}
-              onChange={e => setSettings({ ...settings, careers: { ...settings.careers, description: e.target.value } })}
-              className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-[var(--text-primary)]">NLP Extraction Text (Info Box)</label>
-            <textarea
-              value={settings.careers.nlpText}
-              onChange={e => setSettings({ ...settings, careers: { ...settings.careers, nlpText: e.target.value } })}
-              className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-            />
+        {/* Heritage Section */}
+        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-bold text-text-primary">Heritage Section</h2>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
+              <input 
+                type="text" 
+                value={data.heritage.titleEn}
+                onChange={e => handleChange('heritage', 'titleEn', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
+              <input 
+                type="text" 
+                dir="rtl"
+                value={data.heritage.titleAr}
+                onChange={e => handleChange('heritage', 'titleAr', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
+              <textarea 
+                value={data.heritage.descriptionEn}
+                onChange={e => handleChange('heritage', 'descriptionEn', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
+              <textarea 
+                dir="rtl"
+                value={data.heritage.descriptionAr}
+                onChange={e => handleChange('heritage', 'descriptionAr', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Vision (En)</label>
+              <textarea 
+                value={data.heritage.visionEn}
+                onChange={e => handleChange('heritage', 'visionEn', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Vision (Ar)</label>
+              <textarea 
+                dir="rtl"
+                value={data.heritage.visionAr}
+                onChange={e => handleChange('heritage', 'visionAr', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Mission (En)</label>
+              <textarea 
+                value={data.heritage.missionEn}
+                onChange={e => handleChange('heritage', 'missionEn', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Mission (Ar)</label>
+              <textarea 
+                dir="rtl"
+                value={data.heritage.missionAr}
+                onChange={e => handleChange('heritage', 'missionAr', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Values (En)</label>
+              <textarea 
+                value={data.heritage.valuesEn}
+                onChange={e => handleChange('heritage', 'valuesEn', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Values (Ar)</label>
+              <textarea 
+                dir="rtl"
+                value={data.heritage.valuesAr}
+                onChange={e => handleChange('heritage', 'valuesAr', e.target.value)}
+                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
           </div>
         </div>
-      )}
+
+      </AdminFormLayout>
     </div>
-  );
+  )
 }

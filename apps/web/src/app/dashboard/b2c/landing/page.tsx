@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function B2CLandingPage() {
-  const landingSetting = await db.setting.findUnique({
-    where: { key: "B2C_LANDING_PAGE" }
+  const page = await db.pages.findUnique({
+    where: { slug: "b2c-landing" }
   })
   
-  const initialData = landingSetting?.value || {}
+  const initialData = page?.content || {}
 
   return <B2CLandingCMSView initialData={initialData as any} />
 }

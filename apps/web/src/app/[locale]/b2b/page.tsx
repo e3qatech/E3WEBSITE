@@ -4,29 +4,50 @@ import { E3Image as Image } from '@/lib/images'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { ArrowRight, CheckCircle2, ChevronRight, Play } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import db from '@/lib/db'
 
-export default function B2BHomePage() {
-  // Mock data for initial rendering until CMS is connected
+export default async function B2BHomePage() {
+  // Fetch real data from the CMS
+  const page = await db.pages.findUnique({
+    where: { slug: 'b2b-home' }
+  })
   
-  const stats = [
+  const content = (page?.content as any) || {}
+  const hero = content?.hero || {
+    title: "Ideas to Life",
+    subtitle: "We design, build, operate, and scale immersive entertainment experiences across Qatar.",
+    description: "From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.",
+    primaryCta: "Explore Services",
+    primaryLink: "/b2b/services",
+    secondaryCta: "Start a Project",
+    secondaryLink: "/b2b/contact"
+  }
+  const stats = content?.stats || [
     { value: '50+', label: 'Years Combined Experience' },
     { value: '9+', label: 'Core Specializations' },
     { value: '100%', label: 'Qatari Owned' },
     { value: '3+', label: 'Regional Markets' },
   ]
+  const wowAndHow = content?.wowAndHow || {
+    title: "The WOW & The HOW",
+    description: "Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them.",
+    wowBullets: ['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling'],
+    howBullets: ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing']
+  }
 
-  const services = [
-    { title: 'Mega Events', desc: 'Large scale public and private events.', slug: 'mega-events' },
-    { title: 'Family Entertainment Centers', desc: 'Permanent amusement destinations.', slug: 'family-entertainment-centers' },
-    { title: 'Experiential Activations', desc: 'Immersive brand experiences.', slug: 'experiential-activations' },
-    { title: 'Shows & Performances', desc: 'Theatrical and roaming entertainment.', slug: 'shows-performances' },
-  ]
+  // Fetch Featured Services
+  const dbServices = await db.service.findMany({
+    where: { isVisible: true, isFeatured: true },
+    orderBy: { createdAt: 'desc' },
+    take: 4
+  })
 
-  const projects = [
-    { name: 'Doha Balloon Parade', venue: 'Corniche', metric: '760,000+ attendees', slug: 'doha-balloon-parade', image: '/mock/balloon.jpg' },
-    { name: 'InflataCity', venue: 'QNCC', metric: '30,000 sqm', slug: 'inflatacity', image: '/mock/inflata.jpg' },
-    { name: 'LEGO Shows Qatar', venue: 'QNCC', metric: '95+ performances', slug: 'lego-shows-qatar', image: '/mock/lego.jpg' },
-  ]
+  // Fetch Featured Projects (Case Studies)
+  const dbProjects = await db.caseStudy.findMany({
+    where: { isPublished: true, isFeatured: true },
+    orderBy: { year: 'desc' },
+    take: 3
+  })
 
   const partners = ['Visit Qatar', 'Qatar Tourism', 'Qatar Calendar', 'UDC', 'QNCC', 'Doha Festival City']
 
@@ -38,7 +59,7 @@ export default function B2BHomePage() {
         <div className="absolute inset-0 z-0">
           <UniversalMediaRenderer 
             type="IMAGE" 
-            src="/hero-b2b.jpg" // Placeholder
+            src="/hero-b2b.jpg" // Placeholder for hero image
             alt="Hero Background"
           />
           {/* Gradients to ensure text readability without purple/blue */}
@@ -50,28 +71,32 @@ export default function B2BHomePage() {
         <div className="container relative z-10 mx-auto px-4 md:px-8 pt-20">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-100 tracking-tighter leading-[1.1] mb-6">
-              Ideas to Life
+              {hero.title}
             </h1>
             <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-2xl mb-4">
-              We design, build, operate, and scale immersive entertainment experiences across Qatar.
+              {hero.subtitle}
             </p>
             <p className="text-lg text-zinc-400 max-w-2xl mb-10">
-              From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.
+              {hero.description}
             </p>
             
             <div className="flex flex-wrap items-center gap-4">
-              <Link 
-                href="/b2b/services" 
-                className="px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
-              >
-                Explore Services
-              </Link>
-              <Link 
-                href="/b2b/contact" 
-                className="px-8 py-4 bg-transparent border-2 border-zinc-700 text-zinc-100 font-bold text-lg rounded-sm hover:border-zinc-500 hover:bg-zinc-800 transition-all"
-              >
-                Start a Project
-              </Link>
+              {hero.primaryCta && (
+                <Link 
+                  href={hero.primaryLink || "#"} 
+                  className="px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
+                >
+                  {hero.primaryCta}
+                </Link>
+              )}
+              {hero.secondaryCta && (
+                <Link 
+                  href={hero.secondaryLink || "#"} 
+                  className="px-8 py-4 bg-transparent border-2 border-zinc-700 text-zinc-100 font-bold text-lg rounded-sm hover:border-zinc-500 hover:bg-zinc-800 transition-all"
+                >
+                  {hero.secondaryCta}
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -81,7 +106,7 @@ export default function B2BHomePage() {
       <section className="py-20 bg-zinc-950 border-b border-zinc-900">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            {stats.map((stat, i) => (
+            {stats.map((stat: any, i: number) => (
               <div key={i} className="flex flex-col border-l border-emerald-500/30 pl-6">
                 <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 mb-2">
                   {stat.value}
@@ -100,10 +125,10 @@ export default function B2BHomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-6">
-              The WOW & The HOW
+              {wowAndHow.title}
             </h2>
             <p className="text-lg text-zinc-400">
-              Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them.
+              {wowAndHow.description}
             </p>
           </div>
 
@@ -112,7 +137,7 @@ export default function B2BHomePage() {
             <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
               <h3 className="text-3xl font-black text-emerald-400 tracking-tight mb-8">The WOW</h3>
               <ul className="space-y-6">
-                {['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling'].map(item => (
+                {(wowAndHow.wowBullets || []).map((item: string) => (
                   <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
                     <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
                     {item}
@@ -125,7 +150,7 @@ export default function B2BHomePage() {
             <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
               <h3 className="text-3xl font-black text-amber-500 tracking-tight mb-8">The HOW</h3>
               <ul className="space-y-6">
-                {['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing'].map(item => (
+                {(wowAndHow.howBullets || []).map((item: string) => (
                   <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
                     <CheckCircle2 className="w-6 h-6 text-amber-500 shrink-0" />
                     {item}
@@ -137,7 +162,7 @@ export default function B2BHomePage() {
         </div>
       </section>
 
-      {/* 4. Core Capabilities Preview (Bento) */}
+      {/* 4. Core Capabilities Preview */}
       <section className="py-24 bg-zinc-900 border-y border-zinc-800">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
@@ -151,31 +176,41 @@ export default function B2BHomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {services.map((service, i) => (
-              <Link 
-                key={i} 
-                href={`/b2b/services/${service.slug}`}
-                className={cn(
-                  "group relative p-8 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all overflow-hidden flex flex-col justify-between",
-                  i === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "min-h-[200px]"
-                )}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10 mb-8">
-                  <h3 className={cn("font-black text-zinc-100 tracking-tight mb-3", i === 0 ? "text-3xl" : "text-xl")}>
-                    {service.title}
-                  </h3>
-                  <p className="text-zinc-400 font-medium">
-                    {service.desc}
-                  </p>
-                </div>
-                <div className="relative z-10 flex justify-end">
-                  <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-zinc-950 transition-all">
-                    <ArrowRight className="w-5 h-5" />
-                  </div>
-                </div>
-              </Link>
-            ))}
+            {dbServices.length > 0 ? (
+              dbServices.map((service, i) => {
+                const name = service.titleEn || service.slug
+                const desc = service.contentEn || "Premium entertainment service"
+                return (
+                  <Link 
+                    key={i} 
+                    href={`/b2b/services/${service.slug}`}
+                    className={cn(
+                      "group relative p-8 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all overflow-hidden flex flex-col justify-between",
+                      i === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "min-h-[200px]"
+                    )}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative z-10 mb-8">
+                      <h3 className={cn("font-black text-zinc-100 tracking-tight mb-3", i === 0 ? "text-3xl" : "text-xl")}>
+                        {name}
+                      </h3>
+                      <p className="text-zinc-400 font-medium line-clamp-3">
+                        {desc}
+                      </p>
+                    </div>
+                    <div className="relative z-10 flex justify-end">
+                      <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-zinc-950 transition-all">
+                        <ArrowRight className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })
+            ) : (
+              <div className="col-span-4 text-center py-12 border border-zinc-800 rounded-lg text-zinc-500">
+                No featured services yet. Add them in the Dashboard!
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -194,23 +229,32 @@ export default function B2BHomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {projects.map((project, i) => (
-              <Link key={i} href={`/b2b/case-studies/${project.slug}`} className="group block">
-                <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-zinc-900 mb-6">
-                  {/* Placeholder for project hero image */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600 font-medium">
-                    [Image: {project.name}]
-                  </div>
-                  <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-100 mb-2">{project.name}</h3>
-                <div className="flex items-center gap-4 text-sm font-medium text-zinc-400">
-                  <span>{project.venue}</span>
-                  <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                  <span className="text-emerald-400">{project.metric}</span>
-                </div>
-              </Link>
-            ))}
+            {dbProjects.length > 0 ? (
+              dbProjects.map((project, i) => {
+                const title = project.titleEn || project.slug
+                return (
+                  <Link key={i} href={`/b2b/case-studies/${project.slug}`} className="group block">
+                    <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-zinc-900 mb-6">
+                      {/* Placeholder for project hero image */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600 font-medium">
+                        [Cover: {title}]
+                      </div>
+                      <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-zinc-100 mb-2">{title}</h3>
+                    <div className="flex items-center gap-4 text-sm font-medium text-zinc-400">
+                      <span>{project.clientName}</span>
+                      <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                      <span className="text-emerald-400">{project.year}</span>
+                    </div>
+                  </Link>
+                )
+              })
+            ) : (
+              <div className="col-span-3 text-center py-12 border border-zinc-800 rounded-lg text-zinc-500">
+                No featured case studies yet. Publish some from the Dashboard!
+              </div>
+            )}
           </div>
         </div>
       </section>
