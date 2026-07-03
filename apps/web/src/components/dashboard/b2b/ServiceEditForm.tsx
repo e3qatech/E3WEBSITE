@@ -89,7 +89,7 @@ export function ServiceEditForm({ initialData }: { initialData: any }) {
       }
       
       const res = await fetch(`/api/b2b/services/${initialData.id}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       })
@@ -261,13 +261,14 @@ export function ServiceEditForm({ initialData }: { initialData: any }) {
                     <option value="IMAGE">Image</option>
                     <option value="VIDEO">Video</option>
                     <option value="MODEL_3D">3D Model (Three.js)</option>
+                    <option value="SPLINE">Spline / 3D Scene</option>
                     <option value="IFRAME">iFrame Embed</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold">Media Source (Upload or URL)</label>
-                  {formData.heroMediaType === 'IFRAME' ? (
+                  {(formData.heroMediaType === 'IFRAME' || formData.heroMediaType === 'SPLINE') ? (
                     <input 
                       type="text" 
                       value={formData.heroMediaUrl} 

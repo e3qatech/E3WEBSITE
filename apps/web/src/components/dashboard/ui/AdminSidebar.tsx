@@ -34,7 +34,8 @@ const sidebarConfig = [
     { label: "Homepage Editor", href: "/dashboard/b2b/home" },
     { label: "About Us Editor", href: "/dashboard/b2b/about" },
     { label: "Contact Editor", href: "/dashboard/b2b/contact" },
-    { label: "Service Editor", href: "/dashboard/b2b/services" },
+    { label: "Services Page Editor", href: "/dashboard/b2b/services-page" },
+    { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Project Microsites", href: "/dashboard/b2b/cases" },
     { label: "Team & Roster", href: "/dashboard/b2b/team" },
     { label: "Partners CMS", href: "/dashboard/b2b/partners" }

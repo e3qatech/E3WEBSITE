@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Settings2 } from 'lucide-react'
 import { db } from "@/lib/db"
+import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 
 export const metadata = {
   title: 'Services & Capabilities - E3 Corporate',
@@ -12,6 +13,26 @@ export const dynamic = 'force-dynamic'
 
 export default async function ServicesIndexPage() {
   
+  const page = await db.pages.findUnique({
+    where: { slug: 'b2b-services' }
+  })
+  
+  const content = (page?.content as any) || {}
+  
+  const hero = content.hero || {
+    title: "Everything Required to Build the Extraordinary.",
+    subtitle: "We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery.",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  }
+  
+  const cta = content.cta || {
+    title: "Ready to start a project?",
+    description: "Let's build something extraordinary together.",
+    primaryCta: "Contact Us",
+    primaryLink: "/b2b/contact"
+  }
+
   const services = await db.service.findMany({
     where: { isVisible: true },
     orderBy: { createdAt: 'desc' }
@@ -21,15 +42,27 @@ export default async function ServicesIndexPage() {
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
       
       {/* Hero */}
-      <section className="py-20 md:py-32 border-b border-zinc-900 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+      <section className="relative min-h-[60vh] flex items-center py-20 md:py-32 border-b border-zinc-900 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          {hero.mediaUrl ? (
+            <UniversalMediaRenderer 
+              type={hero.mediaType || "IMAGE"} 
+              src={hero.mediaUrl}
+              alt="Services Hero Background"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+          )}
+          {hero.mediaUrl && <div className="absolute inset-0 bg-zinc-950/80" />}
+          {hero.mediaUrl && <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />}
+        </div>
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6 max-w-4xl">
-            Everything Required to Build the <span className="text-emerald-400">Extraordinary.</span>
+            {hero.title}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery.
+            {hero.subtitle}
           </p>
         </div>
       </section>
@@ -62,7 +95,7 @@ export default async function ServicesIndexPage() {
                           {processList.slice(0, 4).map((feature: any, j) => (
                             <li key={j} className="flex items-center gap-3 text-zinc-300 font-medium">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              {feature.title}
+                              {feature.titleEn || feature.title}
                             </li>
                           ))}
                         </ul>
@@ -86,6 +119,24 @@ export default async function ServicesIndexPage() {
               <p className="text-zinc-500 font-medium text-lg">Services list is being updated.</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="py-24 border-t border-zinc-900 bg-zinc-950 relative overflow-hidden">
+        <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl relative z-10">
+          <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-6">
+            {cta.title}
+          </h2>
+          <p className="text-lg text-zinc-400 mb-10">
+            {cta.description}
+          </p>
+          <Link 
+            href={cta.primaryLink || "/b2b/contact"}
+            className="inline-flex items-center justify-center px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
+          >
+            {cta.primaryCta}
+          </Link>
         </div>
       </section>
       

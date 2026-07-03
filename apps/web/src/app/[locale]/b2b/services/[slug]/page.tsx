@@ -77,8 +77,8 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
                     <li key={i} className="flex items-start gap-4">
                       <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-1" />
                       <div>
-                        <div className="text-zinc-100 font-bold mb-1">{step.title}</div>
-                        <div className="text-zinc-400 text-sm">{step.desc}</div>
+                        <div className="text-zinc-100 font-bold mb-1">{step.titleEn}</div>
+                        <div className="text-zinc-400 text-sm">{step.descEn}</div>
                       </div>
                     </li>
                   ))}
