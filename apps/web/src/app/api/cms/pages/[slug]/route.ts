@@ -46,13 +46,19 @@ export async function PUT(
     const body = await req.json();
     const validatedData = pageUpdateSchema.parse(body);
 
-    const updatedPage = await db.pages.update({
+    const updatedPage = await db.pages.upsert({
       where: { slug },
-      data: {
+      update: {
         ...(validatedData.title !== undefined && { title: validatedData.title }),
         ...(validatedData.content !== undefined && { content: validatedData.content }),
         ...(validatedData.seo !== undefined && { seo: validatedData.seo }),
       },
+      create: {
+        slug,
+        title: validatedData.title || { en: slug, ar: slug },
+        content: validatedData.content || {},
+        seo: validatedData.seo || {},
+      }
     });
 
     return NextResponse.json({ data: updatedPage });

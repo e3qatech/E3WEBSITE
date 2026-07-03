@@ -11,11 +11,6 @@ export default async function DashboardB2BHomePage() {
     where: { slug: 'b2b-home' }
   })
 
-  if (!pageData) {
-    // If it doesn't exist, we fallback or throw notFound
-    // but in a proper setup, it should be seeded.
-    notFound()
-  }
-
-  return <B2BHomeEditor initialData={pageData} />
+  // Do not throw notFound() so the editor can load even if the DB hasn't been seeded yet.
+  return <B2BHomeEditor initialData={pageData || { slug: 'b2b-home', content: {} }} />
 }
