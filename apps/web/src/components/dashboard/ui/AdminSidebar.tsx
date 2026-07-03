@@ -44,6 +44,7 @@ const sidebarConfig = [
     { label: "Landing Editor", href: "/dashboard/b2c/landing" },
     { label: "Discover Editor", href: "/dashboard/b2c/discover" },
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
+    { label: "Project Microsites", href: "/dashboard/b2c/microsites" },
     { label: "Calendar", href: "/dashboard/b2c/calendar" },
     { label: "Contact", href: "/dashboard/b2c/contact" }
   ] },

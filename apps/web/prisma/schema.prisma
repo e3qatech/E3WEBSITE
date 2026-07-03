@@ -182,6 +182,7 @@ model Attraction {
   temporalRules  AttractionTemporalRule[]
   feedbacks      Feedback[]
   calendarEvents CalendarEvent[]
+  projectMicrosite ProjectMicrosite?
 
   @@index([isPublished, isHidden])
 }
@@ -306,6 +307,30 @@ model TelemetryLog {
 
   @@index([timestamp])
   @@index([healthStatus])
+}
+
+model ProjectMicrosite {
+  id             String      @id @default(cuid())
+  slug           String      @unique
+  attractionId   String?     @unique
+  titleEn        String
+  titleAr        String
+  status         String      @default("ACTIVE") // ACTIVE, COMPLETED, ARCHIVED
+  
+  // Post-project fields
+  narrativeEn    String?     @db.Text
+  narrativeAr    String?     @db.Text
+  challengesEn   String?     @db.Text
+  challengesAr   String?     @db.Text
+  
+  gallery        Json?       // Array of {url, caption}
+  postEventReport String?    // URL to PDF
+  testimonials   Json?       // Array of {quote, author, rating}
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  attraction     Attraction? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
 }
 
 // ---------------------------------------------------------

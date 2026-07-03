@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
+import { randomUUID } from 'crypto';
+import { auth } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
@@ -41,8 +42,22 @@ export async function GET(request: Request) {
   }
 }
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const ALLOWED_TYPES = [
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'video/mp4', 'video/webm', 'video/quicktime',
+  'application/pdf',
+  'model/gltf-binary', 'model/gltf+json',
+  'application/octet-stream'
+];
+
 export async function POST(request: Request) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     
@@ -50,21 +65,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    // Ensure upload directory exists
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (e) {
-      // Ignore if directory already exists
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'File size exceeds 50MB limit' }, { status: 400 });
     }
-    
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
 
-    const fileUrl = `/uploads/${filename}`;
+    if (!ALLOWED_TYPES.includes(file.type) && !file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+    }
+
+    const ext = file.name.split('.').pop()
+    const filename = `${randomUUID()}.${ext}`
+    
+    // Upload to Vercel Blob
+    const blob = await put(`uploads/${filename}`, file, {
+      access: 'public',
+    })
+    
+    const fileUrl = blob.url;
     
     // Determine MediaType based on mimeType
     let mediaType = 'IMAGE';
