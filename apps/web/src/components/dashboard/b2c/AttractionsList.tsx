@@ -15,8 +15,9 @@ import {
   CalendarDays,
   Trash2
 } from "lucide-react"
-import { Button } from "@/components/ui/Button"
+import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { Badge } from "@/components/ui/Badge"
+import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 
 type Attraction = {
   id: string
@@ -83,30 +84,35 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">B2C Attractions</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Manage consumer experiences, pricing, and FAQs.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
-            <input 
-              type="text" 
-              placeholder="Search attractions..." 
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
-            />
+    <div className="space-y-6 p-4 md:p-8 max-w-[1600px] mx-auto animate-fade-in-up">
+      <AdminPageHeader 
+        title="B2C Attractions"
+        description="Manage consumer experiences, pricing, and FAQs."
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "B2C Portal" },
+          { label: "Attractions" }
+        ]}
+        action={
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-primary transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search attractions..." 
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64 shadow-sm"
+              />
+            </div>
+            <Link href="/dashboard/b2c/attractions/new">
+              <AdminButton variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
+                New Attraction
+              </AdminButton>
+            </Link>
           </div>
-          <Link href="/dashboard/b2c/attractions/new">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" /> New Attraction
-            </Button>
-          </Link>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filtered.map(attraction => (
@@ -188,9 +194,9 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
               {/* Actions */}
               <div className="flex items-center gap-2 mt-4">
                 <Link href={`/dashboard/b2c/attractions/${attraction.id}/edit`} className="flex-1">
-                  <Button variant="outline" className="w-full gap-2">
-                    <Edit3 className="w-4 h-4" /> Edit
-                  </Button>
+                  <AdminButton variant="outline" className="w-full" leftIcon={<Edit3 className="w-4 h-4" />}>
+                    Edit
+                  </AdminButton>
                 </Link>
                 <div className="flex bg-[var(--surface-subtle)] rounded-lg p-1">
                   <button 
