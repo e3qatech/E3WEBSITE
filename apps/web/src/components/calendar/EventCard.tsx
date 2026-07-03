@@ -70,18 +70,30 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
         {/* Left: Thumbnail & Date Block */}
         <div className="relative w-full md:w-64 h-48 md:h-auto shrink-0 bg-[#0F0F23]">
           {event.thumbnail ? (
-            <img 
-              src={event.thumbnail} 
-              alt={event.attractionNameEn}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-            />
+            <>
+              <img 
+                src={event.thumbnail} 
+                alt={event.attractionNameEn}
+                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.nextElementSibling;
+                  if (fallback) {
+                    fallback.classList.remove('hidden');
+                  }
+                }}
+              />
+              <div className="hidden w-full h-full flex items-center justify-center bg-[#1A1A2E]/80 backdrop-blur-md absolute inset-0">
+                <span className="text-zinc-700 font-bold uppercase tracking-widest text-center px-4">No Image</span>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[#1A1A2E]/80 backdrop-blur-md">
-              <span className="text-zinc-700 font-bold uppercase tracking-widest">No Image</span>
+              <span className="text-zinc-700 font-bold uppercase tracking-widest text-center px-4">No Image</span>
             </div>
           )}
           
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent md:bg-gradient-to-r" />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent md:bg-gradient-to-r pointer-events-none" />
 
           {/* Date Block Overlay */}
           <div className="absolute bottom-4 left-4 text-white">
