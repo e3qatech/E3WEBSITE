@@ -50,7 +50,7 @@ export function CalendarPageManager() {
         if (settingsRes.ok) {
           const data = await settingsRes.json()
           if (data.pageSettings && Object.keys(data.pageSettings).length > 0) {
-            setPageSettings(data.pageSettings)
+            setPageSettings(prev => ({ ...prev, ...data.pageSettings }))
           }
         }
 
@@ -76,7 +76,8 @@ export function CalendarPageManager() {
   }, [])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const target = e.target;
+    const file = target.files?.[0]
     if (!file) return
 
     setUploading(true)
@@ -90,7 +91,7 @@ export function CalendarPageManager() {
       })
       const data = await res.json()
       if (data.success) {
-        setPageSettings({ ...pageSettings, heroMediaUrl: data.url })
+        setPageSettings(prev => ({ ...prev, heroMediaUrl: data.url }))
       } else {
         alert("Upload failed: " + data.error)
       }
@@ -99,7 +100,9 @@ export function CalendarPageManager() {
       alert("Failed to upload file.")
     } finally {
       setUploading(false)
-      e.target.value = ""
+      if (target) {
+        target.value = ""
+      }
     }
   }
 

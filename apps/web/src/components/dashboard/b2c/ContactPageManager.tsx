@@ -41,7 +41,7 @@ export function ContactPageManager() {
         if (res.ok) {
           const data = await res.json()
           if (data.pageSettings && Object.keys(data.pageSettings).length > 0) {
-            setPageSettings(data.pageSettings)
+            setPageSettings(prev => ({ ...prev, ...data.pageSettings }))
           }
           if (data.faqs) {
             setFaqs(data.faqs)
@@ -57,7 +57,8 @@ export function ContactPageManager() {
   }, [])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const target = e.target;
+    const file = target.files?.[0]
     if (!file) return
 
     setUploading(true)
@@ -71,7 +72,7 @@ export function ContactPageManager() {
       })
       const data = await res.json()
       if (data.success) {
-        setPageSettings({ ...pageSettings, heroMediaUrl: data.url })
+        setPageSettings(prev => ({ ...prev, heroMediaUrl: data.url }))
       } else {
         alert("Upload failed: " + data.error)
       }
@@ -80,7 +81,9 @@ export function ContactPageManager() {
       alert("Failed to upload file.")
     } finally {
       setUploading(false)
-      e.target.value = ""
+      if (target) {
+        target.value = ""
+      }
     }
   }
 
