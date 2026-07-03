@@ -332,7 +332,18 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                     <div className="space-y-4">
                       <MediaUploader 
                         value={heroMediaUrl} 
-                        onChange={setHeroMediaUrl} 
+                        onChange={(url) => {
+                          setHeroMediaUrl(url);
+                          // Distribute accordingly
+                          if (heroMediaType === 'IMAGE') {
+                            if (!heroFallbackUrl) setHeroFallbackUrl(url);
+                            if (!heroThumbnailUrl) setHeroThumbnailUrl(url);
+                            if (!logoUrl) setLogoUrl(url);
+                          } else if (heroMediaType === 'VIDEO' || heroMediaType === 'MODEL_3D') {
+                            // Even if it's video/3D, they might want the URL for thumbnail or we don't overwrite if it's not an image.
+                            // But usually, video is just the primary media.
+                          }
+                        }}
                         accept={heroMediaType === 'VIDEO' ? "video/*" : heroMediaType === 'MODEL_3D' ? ".glb,.gltf" : "image/*"}
                       />
                       <div className="flex items-center gap-2">
@@ -341,6 +352,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                           type="text" 
                           value={heroMediaUrl || ''} 
                           onChange={e => setHeroMediaUrl(e.target.value)} 
+                          onBlur={e => {
+                            const url = e.target.value;
+                            if (url && heroMediaType === 'IMAGE') {
+                              if (!heroFallbackUrl) setHeroFallbackUrl(url);
+                              if (!heroThumbnailUrl) setHeroThumbnailUrl(url);
+                              if (!logoUrl) setLogoUrl(url);
+                            }
+                          }}
                           placeholder="https://..." 
                           className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
                         />
