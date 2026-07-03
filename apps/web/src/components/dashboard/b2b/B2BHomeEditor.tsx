@@ -63,13 +63,35 @@ export function B2BHomeEditor({ initialData }: { initialData: any }) {
         {/* HERO SECTION */}
         <AdminFormSection id="hero" title="Hero Section" description="The main introduction at the top of the page.">
           <AdminFormGrid>
-            <div className="sm:col-span-2">
-              <AdminMediaPicker
-                label="Hero Background Media"
-                value={hero.backgroundImage || ""}
-                onChange={url => setHero({ ...hero, backgroundImage: url })}
-                accept="image/*,video/*"
-              />
+            <div className="sm:col-span-2 space-y-2">
+              <label className="block text-sm font-semibold text-text-primary">Hero Background Media Type</label>
+              <select
+                value={hero.mediaType || "IMAGE"}
+                onChange={e => setHero({ ...hero, mediaType: e.target.value })}
+                className="w-full bg-surface-hover border border-border-default rounded-md px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none mb-2"
+              >
+                <option value="IMAGE">Image</option>
+                <option value="VIDEO">Video</option>
+                <option value="IFRAME">External iFrame</option>
+                <option value="SPLINE">Spline / 3D Scene</option>
+              </select>
+
+              {(hero.mediaType === 'IFRAME' || hero.mediaType === 'SPLINE') ? (
+                <input 
+                  type="text" 
+                  value={hero.mediaUrl || ''} 
+                  onChange={e => setHero({ ...hero, mediaUrl: e.target.value })} 
+                  placeholder="https://..." 
+                  className="w-full bg-surface-hover border border-border-default rounded-md px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              ) : (
+                <AdminMediaPicker
+                  label="Upload Media"
+                  value={hero.mediaUrl || hero.backgroundImage || ""}
+                  onChange={url => setHero({ ...hero, mediaUrl: url, backgroundImage: url })}
+                  accept={hero.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
+                />
+              )}
             </div>
             <div className="sm:col-span-2">
               <AdminInput 

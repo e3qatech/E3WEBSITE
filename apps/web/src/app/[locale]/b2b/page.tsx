@@ -58,8 +58,8 @@ export default async function B2BHomePage() {
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <UniversalMediaRenderer 
-            type="IMAGE" 
-            src="/hero-b2b.jpg" // Placeholder for hero image
+            type={hero.mediaType || "IMAGE"} 
+            src={hero.mediaUrl || hero.backgroundImage || "/hero-b2b.jpg"}
             alt="Hero Background"
           />
           {/* Gradients to ensure text readability without purple/blue */}

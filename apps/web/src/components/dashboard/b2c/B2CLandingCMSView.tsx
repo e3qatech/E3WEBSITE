@@ -133,6 +133,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                   className="w-1/3 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
                 >
                   <option value="IMAGE">Image / Media ID</option>
+                  <option value="VIDEO">Video</option>
                   <option value="IFRAME">External iFrame</option>
                   <option value="MODEL_3D">3D Model (.glb / .gltf)</option>
                 </select>
@@ -153,6 +154,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                 <AdminMediaPicker 
                   value={data.hero.mediaUrl}
                   onChange={url => handleChange('hero', 'mediaUrl', url)}
+                  accept={data.hero.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
                 />
               )}
             </div>
