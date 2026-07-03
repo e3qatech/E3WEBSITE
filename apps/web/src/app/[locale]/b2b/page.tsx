@@ -36,7 +36,7 @@ export default async function B2BHomePage() {
   }
 
   // Determine which Services to show
-  const featuredServiceIds = cmsData?.featuredServiceIds || []
+  const featuredServiceIds = content?.featuredServiceIds || []
   let dbServices: any[] = []
   if (featuredServiceIds.length > 0) {
     dbServices = await db.service.findMany({
@@ -54,7 +54,7 @@ export default async function B2BHomePage() {
   }
 
   // Determine which Case Studies to show
-  const featuredCaseStudyIds = cmsData?.featuredCaseStudyIds || []
+  const featuredCaseStudyIds = content?.featuredCaseStudyIds || []
   let dbProjects: any[] = []
   if (featuredCaseStudyIds.length > 0) {
     dbProjects = await db.caseStudy.findMany({
