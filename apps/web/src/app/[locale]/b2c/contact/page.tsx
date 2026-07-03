@@ -20,7 +20,7 @@ async function getContactData() {
         isHidden: false,
       }
     });
-    attractions = dbAttractions.map(attraction => ({
+    attractions = dbAttractions.map((attraction: any) => ({
       attractionId: attraction.id,
       attractionNameEn: attraction.nameEn,
       attractionNameAr: attraction.nameAr

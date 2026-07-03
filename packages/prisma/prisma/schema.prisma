@@ -335,29 +335,29 @@ model Media {
 
 /// B2B Services offered by E3 Qatar
 model Services {
-  id             String      @id @default(cuid())
-  slug           String      @unique
-  name           Json
-  tagline        Json?
-  description    Json
-  process        Json?
-  heroMediaType  MediaType   @default(IMAGE)
-  heroMediaId    String?
-  heroMedia      Media?      @relation("ServiceHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
-  heroIframeUrl  String?
-  ctaPrimary     Json?
-  ctaSecondary   Json?
-  sortOrder      Int         @default(0)
-  isFeatured     Boolean     @default(false)
-  isVisible      Boolean     @default(true)
-  seo            Json?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  name          Json
+  tagline       Json?
+  description   Json
+  process       Json?
+  heroMediaType MediaType @default(IMAGE)
+  heroMediaId   String?
+  heroMedia     Media?    @relation("ServiceHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
+  heroIframeUrl String?
+  ctaPrimary    Json?
+  ctaSecondary  Json?
+  sortOrder     Int       @default(0)
+  isFeatured    Boolean   @default(false)
+  isVisible     Boolean   @default(true)
+  seo           Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  gallery        ServiceGallery[]
-  projects       ServiceProjects[]
-  caseStudies    CaseStudies[]     @relation("CaseStudyServices")
-  leads          Leads[]           @relation("LeadServices")
+  gallery     ServiceGallery[]
+  projects    ServiceProjects[]
+  caseStudies CaseStudies[]     @relation("CaseStudyServices")
+  leads       Leads[]           @relation("LeadServices")
 
   @@index([slug])
   @@index([isVisible])
@@ -399,32 +399,32 @@ model ServiceProjects {
 
 /// Detailed case studies for B2B portal
 model CaseStudies {
-  id            String             @id @default(cuid())
-  slug          String             @unique
-  title         Json
-  clientName    String
-  clientLogoId  String?
-  clientLogo    Media?             @relation("CaseStudyClientLogo", fields: [clientLogoId], references: [id], onDelete: SetNull)
-  category      Json
-  year          Int
-  duration      String?
-  location      Json?
-  challenge     Json
-  solution      Json
-  results       Json?
-  testimonial   Json?
-  heroMediaId   String?
-  heroMedia     Media?             @relation("CaseStudyHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
-  servicesUsed  Services[]         @relation("CaseStudyServices")
-  isPublished   Boolean            @default(false)
-  isFeatured    Boolean            @default(false)
-  seo           Json?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  title        Json
+  clientName   String
+  clientLogoId String?
+  clientLogo   Media?     @relation("CaseStudyClientLogo", fields: [clientLogoId], references: [id], onDelete: SetNull)
+  category     Json
+  year         Int
+  duration     String?
+  location     Json?
+  challenge    Json
+  solution     Json
+  results      Json?
+  testimonial  Json?
+  heroMediaId  String?
+  heroMedia    Media?     @relation("CaseStudyHeroMedia", fields: [heroMediaId], references: [id], onDelete: SetNull)
+  servicesUsed Services[] @relation("CaseStudyServices")
+  isPublished  Boolean    @default(false)
+  isFeatured   Boolean    @default(false)
+  seo          Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  gallery       CaseStudyGallery[]
-  projects      ServiceProjects[]
-  teamMembers   TeamMembers[]      @relation("TeamProjects")
+  gallery     CaseStudyGallery[]
+  projects    ServiceProjects[]
+  teamMembers TeamMembers[]      @relation("TeamProjects")
 
   @@index([slug])
   @@index([isPublished])
@@ -478,16 +478,16 @@ model Attractions {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  pricing         AttractionPricing[]
-  partnerOffers   AttractionPartnerOffers[]
-  socialLinks     AttractionSocialLinks[]
-  gallery         AttractionGallery[]
-  faq             AttractionFAQ[]
-  temporalRules   AttractionTemporalRules[]
-  operations      AttractionOperations?
-  events          CalendarEvents[]
-  feedback        Feedback[]
-  inquiries       Inquiries[]
+  pricing       AttractionPricing[]
+  partnerOffers AttractionPartnerOffers[]
+  socialLinks   AttractionSocialLinks[]
+  gallery       AttractionGallery[]
+  faq           AttractionFAQ[]
+  temporalRules AttractionTemporalRules[]
+  operations    AttractionOperations?
+  events        CalendarEvents[]
+  feedback      Feedback[]
+  inquiries     Inquiries[]
 
   @@index([slug])
   @@index([status])
@@ -497,17 +497,17 @@ model Attractions {
 
 /// Ticket pricing tiers for attractions
 model AttractionPricing {
-  id                  String      @id @default(cuid())
-  attractionId        String
-  attraction          Attractions @relation(fields: [attractionId], references: [id], onDelete: Cascade)
-  ticketType          Json
-  price               Decimal     @db.Decimal(10, 2)
-  currency            String      @default("QAR")
-  ageGroup            AgeGroup    @default(ADULT)
-  description         Json?
+  id                   String      @id @default(cuid())
+  attractionId         String
+  attraction           Attractions @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  ticketType           Json
+  price                Decimal     @db.Decimal(10, 2)
+  currency             String      @default("QAR")
+  ageGroup             AgeGroup    @default(ADULT)
+  description          Json?
   bookingQubeProductId String?
-  sortOrder           Int         @default(0)
-  isActive            Boolean     @default(true)
+  sortOrder            Int         @default(0)
+  isActive             Boolean     @default(true)
 
   @@index([attractionId])
   @@index([sortOrder])
@@ -580,9 +580,9 @@ model AttractionTemporalRules {
   attraction     Attractions      @relation(fields: [attractionId], references: [id], onDelete: Cascade)
   ruleType       TemporalRuleType @default(OPERATING_HOURS)
   applicableDate DateTime?        @db.Date
-  dayOfWeek      Int?             // 0=Sun, 6=Sat
-  openTime       String?          // e.g. "09:00"
-  closeTime      String?          // e.g. "18:00"
+  dayOfWeek      Int? // 0=Sun, 6=Sat
+  openTime       String? // e.g. "09:00"
+  closeTime      String? // e.g. "18:00"
   maxCapacity    Int?
   note           Json?
   isRecurring    Boolean          @default(false)
@@ -599,7 +599,7 @@ model AttractionOperations {
   defaultCloseTime     String?
   maxCapacity          Int
   currentOccupancy     Int         @default(0)
-  averageVisitDuration Int?        // in minutes
+  averageVisitDuration Int? // in minutes
   iotSensorId          String?
   lastUpdated          DateTime    @default(now())
 
@@ -608,28 +608,28 @@ model AttractionOperations {
 
 /// Temporary events or scheduled happenings (can be linked to attractions)
 model CalendarEvents {
-  id                 String      @id @default(cuid())
+  id                 String       @id @default(cuid())
   attractionId       String?
   attraction         Attractions? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
   title              Json
   description        Json?
-  eventType          EventType   @default(SPECIAL_EVENT)
+  eventType          EventType    @default(SPECIAL_EVENT)
   startDate          DateTime
   endDate            DateTime
   venue              Json?
   thumbnailId        String?
-  thumbnail          Media?      @relation("EventThumbnail", fields: [thumbnailId], references: [id], onDelete: SetNull)
+  thumbnail          Media?       @relation("EventThumbnail", fields: [thumbnailId], references: [id], onDelete: SetNull)
   ticketUrl          String?
   bookingQubeEventId String?
   maxCapacity        Int?
-  currentBookings    Int         @default(0)
-  isFeatured         Boolean     @default(false)
-  isPublished        Boolean     @default(true)
+  currentBookings    Int          @default(0)
+  isFeatured         Boolean      @default(false)
+  isPublished        Boolean      @default(true)
   seo                Json?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
-  timeSlots          EventTimeSlots[]
+  timeSlots EventTimeSlots[]
 
   @@index([attractionId])
   @@index([startDate])
@@ -657,27 +657,27 @@ model EventTimeSlots {
 
 /// E3 Qatar Team Members for the B2B portal
 model TeamMembers {
-  id            String       @id @default(cuid())
-  userId        String?      @unique
-  user          Users?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  slug          String       @unique
-  name          Json
-  designation   Json
-  department    Department
-  bio           Json?
-  experience    Json?
+  id             String        @id @default(cuid())
+  userId         String?       @unique
+  user           Users?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  slug           String        @unique
+  name           Json
+  designation    Json
+  department     Department
+  bio            Json?
+  experience     Json?
   certifications Json?
-  projects      CaseStudies[] @relation("TeamProjects")
-  photoId       String?
-  photo         Media?       @relation("TeamPhoto", fields: [photoId], references: [id], onDelete: SetNull)
-  coverPhotoId  String?
-  coverPhoto    Media?       @relation("TeamCoverPhoto", fields: [coverPhotoId], references: [id], onDelete: SetNull)
-  socialLinks   Json?
-  isPublished   Boolean      @default(true)
-  sortOrder     Int          @default(0)
-  seo           Json?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  projects       CaseStudies[] @relation("TeamProjects")
+  photoId        String?
+  photo          Media?        @relation("TeamPhoto", fields: [photoId], references: [id], onDelete: SetNull)
+  coverPhotoId   String?
+  coverPhoto     Media?        @relation("TeamCoverPhoto", fields: [coverPhotoId], references: [id], onDelete: SetNull)
+  socialLinks    Json?
+  isPublished    Boolean       @default(true)
+  sortOrder      Int           @default(0)
+  seo            Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([slug])
   @@index([department])
@@ -690,33 +690,33 @@ model TeamMembers {
 
 /// System users (Staff, Admins, Clients)
 model Users {
-  id               String       @id @default(cuid())
-  email            String       @unique
+  id               String    @id @default(cuid())
+  email            String    @unique
   password         String
   phone            String?
-  role             UserRole     @default(CLIENT)
-  isActive         Boolean      @default(true)
+  role             UserRole  @default(CLIENT)
+  isActive         Boolean   @default(true)
   lastLogin        DateTime?
   emailVerified    DateTime?
-  twoFactorEnabled Boolean      @default(false)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  twoFactorEnabled Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  profile          UserProfiles?
-  clientProfile    ClientProfiles?
-  teamMember       TeamMembers?
-  
-  assignedLeads    Leads[]          @relation("LeadAssignee")
-  leadActivities   LeadActivities[] @relation("ActivityCreator")
-  assignedInquiries Inquiries[]     @relation("InquiryAssignee")
-  respondedFeedback Feedback[]      @relation("FeedbackResponder")
-  hostedMeetings   Meetings[]       @relation("MeetingHost")
-  attendedMeetings Meetings[]       @relation("MeetingAttendees")
-  createdMeetings  Meetings[]       @relation("MeetingCreator")
-  availability     AvailabilitySlots[]
-  createdBroadcasts Broadcasts[]    @relation("BroadcastCreator")
-  createdReports   RecapReports[]   @relation("ReportCreator")
-  systemLogs       SystemLogs[]     @relation("LogUser")
+  profile       UserProfiles?
+  clientProfile ClientProfiles?
+  teamMember    TeamMembers?
+
+  assignedLeads     Leads[]             @relation("LeadAssignee")
+  leadActivities    LeadActivities[]    @relation("ActivityCreator")
+  assignedInquiries Inquiries[]         @relation("InquiryAssignee")
+  respondedFeedback Feedback[]          @relation("FeedbackResponder")
+  hostedMeetings    Meetings[]          @relation("MeetingHost")
+  attendedMeetings  Meetings[]          @relation("MeetingAttendees")
+  createdMeetings   Meetings[]          @relation("MeetingCreator")
+  availability      AvailabilitySlots[]
+  createdBroadcasts Broadcasts[]        @relation("BroadcastCreator")
+  createdReports    RecapReports[]      @relation("ReportCreator")
+  systemLogs        SystemLogs[]        @relation("LogUser")
 
   @@index([email])
   @@index([role])
@@ -771,29 +771,29 @@ model Permissions {
 
 /// Sales pipeline leads
 model Leads {
-  id             String       @id @default(cuid())
-  source         LeadSource   @default(WEBSITE)
-  status         LeadStatus   @default(NEW)
-  firstName      String
-  lastName       String
-  email          String
-  phone          String?
-  company        String?
-  industry       String?
-  estimatedValue Decimal?     @db.Decimal(12, 2)
-  probability    Int?         // 0-100
-  assignedTo     String?
-  assignee       Users?       @relation("LeadAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
-  description    String?      @db.Text
+  id               String     @id @default(cuid())
+  source           LeadSource @default(WEBSITE)
+  status           LeadStatus @default(NEW)
+  firstName        String
+  lastName         String
+  email            String
+  phone            String?
+  company          String?
+  industry         String?
+  estimatedValue   Decimal?   @db.Decimal(12, 2)
+  probability      Int? // 0-100
+  assignedTo       String?
+  assignee         Users?     @relation("LeadAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  description      String?    @db.Text
   interestServices Services[] @relation("LeadServices")
-  nextFollowUp   DateTime?
-  lostReason     String?
-  metadata       Json?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  nextFollowUp     DateTime?
+  lostReason       String?
+  metadata         Json?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
-  activities     LeadActivities[]
-  meetings       Meetings[]       @relation("MeetingLead")
+  activities LeadActivities[]
+  meetings   Meetings[]       @relation("MeetingLead")
 
   @@index([status])
   @@index([assignedTo])
@@ -817,21 +817,21 @@ model LeadActivities {
 
 /// General contact form submissions and requests
 model Inquiries {
-  id                 String        @id @default(cuid())
-  type               InquiryType   @default(GENERAL)
-  name               String
-  email              String
-  phone              String?
-  subject            String?
-  message            String        @db.Text
-  status             InquiryStatus @default(OPEN)
-  assignedTo         String?
-  assignee           Users?        @relation("InquiryAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
-  portal             PortalType    @default(SHARED)
+  id                  String        @id @default(cuid())
+  type                InquiryType   @default(GENERAL)
+  name                String
+  email               String
+  phone               String?
+  subject             String?
+  message             String        @db.Text
+  status              InquiryStatus @default(OPEN)
+  assignedTo          String?
+  assignee            Users?        @relation("InquiryAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  portal              PortalType    @default(SHARED)
   relatedAttractionId String?
-  relatedAttraction  Attractions?  @relation(fields: [relatedAttractionId], references: [id], onDelete: SetNull)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  relatedAttraction   Attractions?  @relation(fields: [relatedAttractionId], references: [id], onDelete: SetNull)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   @@index([status])
   @@index([portal])
@@ -839,22 +839,22 @@ model Inquiries {
 
 /// Visitor feedback for attractions
 model Feedback {
-  id           String         @id @default(cuid())
-  attractionId String?
-  attraction   Attractions?   @relation(fields: [attractionId], references: [id], onDelete: SetNull)
-  rating       Int            // 1-5
-  title        String?
-  comment      String?        @db.Text
-  visitorName  String?
-  visitorEmail String?
-  visitorPhone String?
-  response     String?        @db.Text
+  id            String         @id @default(cuid())
+  attractionId  String?
+  attraction    Attractions?   @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+  rating        Int // 1-5
+  title         String?
+  comment       String?        @db.Text
+  visitorName   String?
+  visitorEmail  String?
+  visitorPhone  String?
+  response      String?        @db.Text
   respondedById String?
-  respondedBy  Users?         @relation("FeedbackResponder", fields: [respondedById], references: [id], onDelete: SetNull)
-  status       FeedbackStatus @default(PENDING)
-  isPublic     Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  respondedBy   Users?         @relation("FeedbackResponder", fields: [respondedById], references: [id], onDelete: SetNull)
+  status        FeedbackStatus @default(PENDING)
+  isPublic      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([attractionId])
   @@index([status])
@@ -882,24 +882,24 @@ model Subscribers {
 
 /// Applicants and potential hires
 model TalentPool {
-  id              String          @id @default(cuid())
+  id              String             @id @default(cuid())
   firstName       String
   lastName        String
   email           String
   phone           String?
-  resumeId        String?         // Consider linking to Media if resumes are stored there
+  resumeId        String? // Consider linking to Media if resumes are stored there
   parsedData      Json?
   department      String?
   position        String?
   availability    AvailabilityStatus @default(FLEXIBLE)
   experienceYears Int?
-  status          CandidateStatus @default(NEW)
-  rating          Int?            // 1-5
-  notes           String?         @db.Text
+  status          CandidateStatus    @default(NEW)
+  rating          Int? // 1-5
+  notes           String?            @db.Text
   assignedTo      String?
   tags            String[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([status])
   @@index([department])
@@ -907,21 +907,21 @@ model TalentPool {
 
 /// Open job positions
 model Careers {
-  id                  String   @id @default(cuid())
-  slug                String   @unique
+  id                  String    @id @default(cuid())
+  slug                String    @unique
   title               Json
   department          String
   location            String
-  type                JobType  @default(FULL_TIME)
+  type                JobType   @default(FULL_TIME)
   description         Json
   requirements        Json?
   salaryRange         Json?
-  isPublished         Boolean  @default(false)
+  isPublished         Boolean   @default(false)
   applicationDeadline DateTime?
   maxApplications     Int?
-  applicationsCount   Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  applicationsCount   Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([slug])
   @@index([isPublished])
@@ -933,27 +933,27 @@ model Careers {
 
 /// Scheduled meetings (internal, client, interview)
 model Meetings {
-  id               String        @id @default(cuid())
-  title            String
-  description      String?       @db.Text
-  meetingType      MeetingType   @default(INTERNAL)
-  scheduledAt      DateTime
-  duration         Int           // minutes
-  location         Json
-  hostId           String
-  host             Users         @relation("MeetingHost", fields: [hostId], references: [id], onDelete: Cascade)
-  attendees        Users[]       @relation("MeetingAttendees")
+  id                String        @id @default(cuid())
+  title             String
+  description       String?       @db.Text
+  meetingType       MeetingType   @default(INTERNAL)
+  scheduledAt       DateTime
+  duration          Int // minutes
+  location          Json
+  hostId            String
+  host              Users         @relation("MeetingHost", fields: [hostId], references: [id], onDelete: Cascade)
+  attendees         Users[]       @relation("MeetingAttendees")
   externalAttendees Json?
-  relatedLeadId    String?
-  relatedLead      Leads?        @relation("MeetingLead", fields: [relatedLeadId], references: [id], onDelete: SetNull)
-  relatedProjectId String?
-  status           MeetingStatus @default(SCHEDULED)
-  meetingNotes     String?       @db.Text
-  followUpTasks    Json?
-  createdById      String
-  createdBy        Users         @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  relatedLeadId     String?
+  relatedLead       Leads?        @relation("MeetingLead", fields: [relatedLeadId], references: [id], onDelete: SetNull)
+  relatedProjectId  String?
+  status            MeetingStatus @default(SCHEDULED)
+  meetingNotes      String?       @db.Text
+  followUpTasks     Json?
+  createdById       String
+  createdBy         Users         @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@index([hostId])
   @@index([scheduledAt])
@@ -961,15 +961,15 @@ model Meetings {
 
 /// Staff availability for booking meetings
 model AvailabilitySlots {
-  id             String   @id @default(cuid())
-  userId         String
-  user           Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dayOfWeek      Int      // 0=Sun, 6=Sat
-  startTime      String   // e.g. "09:00"
-  endTime        String   // e.g. "17:00"
-  slotDuration   Int      @default(30)
-  bufferBetween  Int      @default(15)
-  isAvailable    Boolean  @default(true)
+  id            String  @id @default(cuid())
+  userId        String
+  user          Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayOfWeek     Int // 0=Sun, 6=Sat
+  startTime     String // e.g. "09:00"
+  endTime       String // e.g. "17:00"
+  slotDuration  Int     @default(30)
+  bufferBetween Int     @default(15)
+  isAvailable   Boolean @default(true)
 
   @@index([userId])
 }
@@ -980,18 +980,18 @@ model AvailabilitySlots {
 
 /// External partners (Sponsors, Vendors, etc.)
 model Partners {
-  id           String          @id @default(cuid())
-  name         String
-  logoId       String?
-  logo         Media?          @relation("PartnerLogo", fields: [logoId], references: [id], onDelete: SetNull)
-  website      String?
-  category     PartnerCategory @default(SPONSOR)
-  description  Json?
-  sortOrder    Int             @default(0)
-  isPublished  Boolean         @default(true)
-  showOnWebsite Boolean        @default(true)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id            String          @id @default(cuid())
+  name          String
+  logoId        String?
+  logo          Media?          @relation("PartnerLogo", fields: [logoId], references: [id], onDelete: SetNull)
+  website       String?
+  category      PartnerCategory @default(SPONSOR)
+  description   Json?
+  sortOrder     Int             @default(0)
+  isPublished   Boolean         @default(true)
+  showOnWebsite Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@index([category])
   @@index([sortOrder])
@@ -1016,7 +1016,7 @@ model Broadcasts {
 
 /// Generated performance reports
 model RecapReports {
-  id           String       @id @default(cuid())
+  id           String   @id @default(cuid())
   title        Json
   attractionId String?
   eventId      String?
@@ -1024,12 +1024,12 @@ model RecapReports {
   periodEnd    DateTime
   metrics      Json?
   highlights   Json?
-  media        Media[]      @relation("RecapReportMedia")
-  isPublished  Boolean      @default(false)
+  media        Media[]  @relation("RecapReportMedia")
+  isPublished  Boolean  @default(false)
   createdById  String
-  createdBy    Users        @relation("ReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdBy    Users    @relation("ReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([attractionId])
   @@index([eventId])
@@ -1052,4 +1052,260 @@ model SystemLogs {
   @@index([action])
   @@index([resource])
   @@index([createdAt])
+}
+
+// -----------------------------------------------------------------------------
+// B2B SPECIFIC MODELS (NEW SYSTEM)
+// -----------------------------------------------------------------------------
+
+enum B2BPublishStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum B2BThemeMode {
+  DARK
+  LIGHT
+}
+
+enum B2BMediaType {
+  IMAGE
+  VIDEO
+  SLIDES
+  IFRAME
+  THREE_D
+  SPLINE
+  GLTF
+  GALLERY
+}
+
+enum B2BSectionType {
+  HERO
+  STATS
+  WOW_HOW
+  BENTO
+  FEATURED_PROJECTS
+  GALLERY
+  PROCESS
+  PARTNER_RIBBON
+  CTA
+  TESTIMONIALS
+  CEO_DESK
+  TEAM
+  VALUES
+  CONTACT_FORM
+  CUSTOM
+}
+
+model B2BPage {
+  id               String           @id @default(cuid())
+  slug             String           @unique
+  titleEn          String
+  titleAr          String?
+  descriptionEn    String?
+  descriptionAr    String?
+  themeMode        B2BThemeMode     @default(DARK)
+  seoTitleEn       String?
+  seoTitleAr       String?
+  seoDescriptionEn String?
+  seoDescriptionAr String?
+  ogImage          String?
+  status           B2BPublishStatus @default(DRAFT)
+  sortOrder        Int              @default(0)
+  sections         B2BPageSection[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model B2BPageSection {
+  id                String         @id @default(cuid())
+  pageId            String
+  page              B2BPage        @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  type              B2BSectionType
+  titleEn           String?
+  titleAr           String?
+  subtitleEn        String?
+  subtitleAr        String?
+  bodyEn            String?
+  bodyAr            String?
+  mediaId           String?
+  backgroundMediaId String?
+  configJson        Json?
+  themeOverride     B2BThemeMode?
+  isVisible         Boolean        @default(true)
+  sortOrder         Int            @default(0)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model B2BService {
+  id                 String            @id @default(cuid())
+  slug               String            @unique
+  titleEn            String
+  titleAr            String?
+  shortDescriptionEn String?
+  shortDescriptionAr String?
+  fullDescriptionEn  String?
+  fullDescriptionAr  String?
+  iconMediaId        String?
+  heroMediaId        String?
+  backgroundMediaId  String?
+  themeMode          B2BThemeMode      @default(DARK)
+  cardSize           String            @default("normal")
+  featured           Boolean           @default(false)
+  status             B2BPublishStatus  @default(DRAFT)
+  sortOrder          Int               @default(0)
+  seo                Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  blocks             B2BServiceBlock[]
+}
+
+model B2BServiceBlock {
+  id         String     @id @default(cuid())
+  serviceId  String
+  service    B2BService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  type       String
+  titleEn    String?
+  titleAr    String?
+  bodyEn     String?
+  bodyAr     String?
+  mediaId    String?
+  configJson Json?
+  isVisible  Boolean    @default(true)
+  sortOrder  Int        @default(0)
+}
+
+model B2BProject {
+  id                String             @id @default(cuid())
+  slug              String             @unique
+  titleEn           String
+  titleAr           String?
+  summaryEn         String?
+  summaryAr         String?
+  fullOverviewEn    String?
+  fullOverviewAr    String?
+  challengeEn       String?
+  challengeAr       String?
+  solutionEn        String?
+  solutionAr        String?
+  resultEn          String?
+  resultAr          String?
+  heroMediaId       String?
+  backgroundMediaId String?
+  clientId          String?
+  venue             String?
+  location          String?
+  year              Int?
+  dateRange         String?
+  duration          String?
+  category          String?
+  audienceType      String?
+  areaSize          String?
+  attendance        String?
+  featured          Boolean            @default(false)
+  status            B2BPublishStatus   @default(DRAFT)
+  themeMode         B2BThemeMode       @default(DARK)
+  sortOrder         Int                @default(0)
+  seo               Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  metrics           B2BProjectMetric[]
+  media             B2BProjectMedia[]
+}
+
+model B2BProjectMetric {
+  id            String     @id @default(cuid())
+  projectId     String
+  project       B2BProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  value         String
+  suffix        String?
+  labelEn       String
+  labelAr       String?
+  descriptionEn String?
+  descriptionAr String?
+  sortOrder     Int        @default(0)
+}
+
+model B2BProjectMedia {
+  id        String     @id @default(cuid())
+  projectId String
+  project   B2BProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  mediaId   String
+  titleEn   String?
+  titleAr   String?
+  captionEn String?
+  captionAr String?
+  sortOrder Int        @default(0)
+}
+
+model B2BClientPartner {
+  id                   String           @id @default(cuid())
+  slug                 String           @unique
+  name                 String
+  nameAr               String?
+  logoMediaId          String?
+  descriptionEn        String?
+  descriptionAr        String?
+  partnerType          String?
+  relationshipCategory String?
+  websiteUrl           String?
+  featured             Boolean          @default(false)
+  status               B2BPublishStatus @default(DRAFT)
+  sortOrder            Int              @default(0)
+}
+
+model B2BTestimonial {
+  id               String  @id @default(cuid())
+  type             String
+  quoteEn          String
+  quoteAr          String?
+  personName       String
+  designation      String?
+  company          String?
+  logoMediaId      String?
+  avatarMediaId    String?
+  relatedProjectId String?
+  rating           Int?
+  featured         Boolean @default(false)
+  isVisible        Boolean @default(true)
+  sortOrder        Int     @default(0)
+}
+
+model B2BThemeConfig {
+  id              String       @id @default(cuid())
+  scope           String       @unique // "global" or specific page slug
+  themeMode       B2BThemeMode @default(DARK)
+  accentStyle     String       @default("emerald")
+  backgroundStyle String       @default("solid")
+  motionLevel     String       @default("medium")
+  cardStyle       String       @default("solid")
+  borderRadius    String       @default("rounded")
+  density         String       @default("comfortable")
+  configJson      Json?
+}
+
+model B2BSocialLink {
+  id        String  @id @default(cuid())
+  platform  String
+  label     String
+  url       String
+  icon      String?
+  isVisible Boolean @default(true)
+  sortOrder Int     @default(0)
+}
+
+model B2BInquirySetting {
+  id             String  @id @default(cuid())
+  inquiryType    String  @unique
+  fieldsJson     Json?
+  recipientsJson Json?
+  autoReplyJson  Json?
+  fileRulesJson  Json?
+  consentTextEn  String?
+  consentTextAr  String?
+  isVisible      Boolean @default(true)
+  sortOrder      Int     @default(0)
 }

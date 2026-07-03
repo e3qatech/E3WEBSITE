@@ -1,356 +1,262 @@
-import Link from 'next/link';
-import { E3Image as Image } from '@/lib/images';
-import { Metadata } from 'next';
-import { SEO } from '@/components/shared/SEO';
+import React from 'react'
+import Link from 'next/link'
+import { E3Image as Image } from '@/lib/images'
+import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+import { ArrowRight, CheckCircle2, ChevronRight, Play } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+export default function B2BHomePage() {
+  // Mock data for initial rendering until CMS is connected
   
-  return {
-    title: "B2B Event Services & Engineering | E3 Qatar",
-    description: "Enterprise-grade event engineering, immersive XR installations, and structural staging for corporate clients and agencies across the MENA region.",
-    alternates: {
-      canonical: `${baseUrl}/b2b`,
-      languages: {
-        'en': `${baseUrl}/en/b2b`,
-        'ar': `${baseUrl}/ar/b2b`,
-      },
-    },
-    openGraph: {
-      title: "B2B Event Services & Engineering | E3 Qatar",
-      description: "Enterprise-grade event engineering and immersive XR installations.",
-      url: `${baseUrl}/b2b`,
-    }
-  }
-}
+  const stats = [
+    { value: '50+', label: 'Years Combined Experience' },
+    { value: '9+', label: 'Core Specializations' },
+    { value: '100%', label: 'Qatari Owned' },
+    { value: '3+', label: 'Regional Markets' },
+  ]
 
-const services = [
-  {
-    tag: 'LIVE PRODUCTION',
-    title: 'Stage & Structural Engineering',
-    desc: 'Massive-scale stage builds, rigging systems, and structural solutions engineered for reliability at any venue.',
-    stat: '200+',
-    statLabel: 'Stages Built',
-  },
-  {
-    tag: 'IMMERSIVE TECH',
-    title: 'XR & Spatial Experiences',
-    desc: 'AR, VR, and mixed-reality installations that dissolve the line between the physical and the virtual.',
-    stat: '50M+',
-    statLabel: 'Visitors Reached',
-  },
-  {
-    tag: 'ENTERTAINMENT',
-    title: 'B2C Attractions & Venues',
-    desc: 'From escape rooms to VR arcades — permanent and pop-up entertainment destinations that keep audiences returning.',
-    stat: '30+',
-    statLabel: 'Active Venues',
-  },
-  {
-    tag: 'ENTERPRISE',
-    title: 'Corporate Events & Activations',
-    desc: 'End-to-end event design and execution for brands that demand precision and impact on the world stage.',
-    stat: '500+',
-    statLabel: 'Events Delivered',
-  },
-];
+  const services = [
+    { title: 'Mega Events', desc: 'Large scale public and private events.', slug: 'mega-events' },
+    { title: 'Family Entertainment Centers', desc: 'Permanent amusement destinations.', slug: 'family-entertainment-centers' },
+    { title: 'Experiential Activations', desc: 'Immersive brand experiences.', slug: 'experiential-activations' },
+    { title: 'Shows & Performances', desc: 'Theatrical and roaming entertainment.', slug: 'shows-performances' },
+  ]
 
-const clients = [
-  'FIFA', 'Qatar Tourism', 'QNTC', 'Ooredoo', 'QNB', 'Hamad Medical',
-];
+  const projects = [
+    { name: 'Doha Balloon Parade', venue: 'Corniche', metric: '760,000+ attendees', slug: 'doha-balloon-parade', image: '/mock/balloon.jpg' },
+    { name: 'InflataCity', venue: 'QNCC', metric: '30,000 sqm', slug: 'inflatacity', image: '/mock/inflata.jpg' },
+    { name: 'LEGO Shows Qatar', venue: 'QNCC', metric: '95+ performances', slug: 'lego-shows-qatar', image: '/mock/lego.jpg' },
+  ]
 
-const numbers = [
-  { value: '14+', label: 'Years in Qatar' },
-  { value: '500+', label: 'Events Delivered' },
-  { value: '50M+', label: 'Experiences Engineered' },
-  { value: '200+', label: 'Stages Built' },
-];
-
-export default function B2bPortal() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+  const partners = ['Visit Qatar', 'Qatar Tourism', 'Qatar Calendar', 'UDC', 'QNCC', 'Doha Festival City']
 
   return (
-    <div className="min-h-screen bg-[var(--surface-default)] text-[var(--text-primary)]">
-      <SEO 
-        type="Service"
-        data={{
-          name: "E3 B2B Event Engineering Services",
-          provider: {
-            "@type": "Organization",
-            name: "Event Engineering Experts (E3)"
-          },
-          areaServed: ["Qatar", "Middle East"],
-          description: "Enterprise-grade event engineering, immersive XR installations, and structural staging.",
-          url: `${baseUrl}/b2b`
-        }}
-      />
+    <div className="flex flex-col w-full">
       
-      {/* ─── NAVIGATION ─────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5"
-        style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.9), transparent)', backdropFilter: 'blur(12px)' }}>
-        <div className="font-black text-xl tracking-tighter">
-          E3 <span className="text-gradient">QATAR</span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-xs uppercase tracking-[0.2em] font-semibold text-[var(--text-secondary)]">
-          <Link href="#services" className="hover:text-white transition-colors">Services</Link>
-          <Link href="#work" className="hover:text-white transition-colors">Work</Link>
-          <Link href="#about" className="hover:text-white transition-colors">About</Link>
-          <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
-        </div>
-        <Link
-          href="#contact"
-          className="text-xs uppercase tracking-[0.15em] font-bold px-5 py-2.5 rounded-full border border-[var(--border-level-3)] hover:bg-white hover:text-black transition-all duration-300"
-        >
-          Start a Project
-        </Link>
-      </nav>
-
-      {/* ─── HERO ────────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[100dvh] flex flex-col justify-end pb-24 px-8 md:px-16 overflow-hidden">
-        {/* Background image */}
+      {/* 1. Hero: Ideas to Life */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/hero-bg.png"
-            alt="E3 Qatar event production aerial view"
-            fill
-            priority
-            className="object-cover"
+          <UniversalMediaRenderer 
+            type="IMAGE" 
+            src="/hero-b2b.jpg" // Placeholder
+            alt="Hero Background"
           />
-          {/* Dark overlay gradient */}
-          <div className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, #050505 20%, rgba(5,5,5,0.5) 60%, rgba(5,5,5,0.2) 100%)' }} />
-          <div className="absolute inset-0"
-            style={{ background: 'linear-gradient(to right, rgba(5,5,5,0.7) 0%, transparent 60%)' }} />
+          {/* Gradients to ensure text readability without purple/blue */}
+          <div className="absolute inset-0 bg-zinc-950/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/20 via-transparent to-zinc-950" />
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay" />
         </div>
 
-        {/* Grid overlay */}
-        <div className="absolute inset-0 z-0 grid-pattern opacity-10" />
-
-        {/* Live badge */}
-        <div className="absolute top-28 left-8 md:left-16 z-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--border-level-3)] text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--text-secondary)]"
-            style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)] animate-pulse-glow inline-block" />
-            Live Ecosystem · Doha, Qatar
-          </div>
-        </div>
-
-        {/* Hero content */}
-        <div className="relative z-20 max-w-[900px]">
-          <h1 className="text-6xl md:text-8xl lg:text-[100px] font-black tracking-tighter leading-none mb-6 animate-fade-in-up"
-            style={{ animationDelay: '0.1s' }}>
-            WE BUILD<br />
-            <span className="text-gradient">EXPERIENCES</span>
-          </h1>
-          <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl font-light mb-10 animate-fade-in-up"
-            style={{ animationDelay: '0.2s' }}>
-            Qatar's premier event engineering and entertainment agency — from massive live productions to permanent immersive attractions.
-          </p>
-          <div className="flex flex-wrap gap-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <Link
-              href="#services"
-              className="px-7 py-3.5 rounded-full bg-[var(--color-primary)] text-white font-bold text-sm tracking-wide hover:scale-105 active:scale-95 transition-transform glow"
-            >
-              Explore Our Work
-            </Link>
-            <Link
-              href="#contact"
-              className="px-7 py-3.5 rounded-full border border-[var(--border-level-3)] text-white font-bold text-sm tracking-wide hover:bg-white hover:text-black transition-all duration-300"
-            >
-              Start a Project
-            </Link>
-          </div>
-        </div>
-
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 right-8 z-20 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
-          <span>Scroll</span>
-          <div className="w-8 h-px bg-[var(--border-level-3)]" />
-        </div>
-      </section>
-
-      {/* ─── NUMBERS STRIP ────────────────────────────────────────────────────── */}
-      <section className="border-y border-[var(--border-level-2)] py-12 px-8 md:px-16"
-        style={{ background: 'var(--bg-level-2)' }}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {numbers.map((n) => (
-            <div key={n.label} className="text-center md:text-left">
-              <div className="text-4xl md:text-5xl font-black tracking-tighter text-gradient">{n.value}</div>
-              <div className="text-xs uppercase tracking-[0.15em] text-[var(--text-tertiary)] mt-1">{n.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── SERVICES ─────────────────────────────────────────────────────────── */}
-      <section id="services" className="py-28 px-8 md:px-16">
-        <div className="mb-16">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4">
-            WHAT WE<br /><span className="text-gradient">ENGINEER</span>
-          </h2>
-          <p className="text-[var(--text-secondary)] max-w-md">
-            End-to-end delivery across every discipline of live experience and permanent attraction design.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[var(--border-level-2)]">
-          {services.map((s) => (
-            <div
-              key={s.title}
-              className="group bg-[var(--bg-level-1)] p-10 flex flex-col justify-between min-h-[280px] hover:bg-[var(--bg-level-2)] transition-colors cursor-pointer"
-            >
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-[var(--color-accent)] mb-4">{s.tag}</div>
-                <h3 className="text-2xl font-black tracking-tight mb-3 group-hover:text-gradient transition-all">{s.title}</h3>
-                <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-[40ch]">{s.desc}</p>
-              </div>
-              <div className="flex items-end justify-between mt-8">
-                <div>
-                  <div className="text-3xl font-black tracking-tighter">{s.stat}</div>
-                  <div className="text-xs text-[var(--text-tertiary)] uppercase tracking-[0.1em]">{s.statLabel}</div>
-                </div>
-                <div className="w-10 h-10 rounded-full border border-[var(--border-level-3)] flex items-center justify-center text-[var(--text-tertiary)] group-hover:border-[var(--color-primary)] group-hover:text-[var(--color-primary)] transition-all">
-                  →
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── FEATURED WORK ────────────────────────────────────────────────────── */}
-      <section id="work" className="py-28 px-8 md:px-16 bg-[var(--bg-level-2)] border-t border-[var(--border-level-2)]">
-        <div className="flex items-end justify-between mb-16">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
-            FEATURED<br /><span className="text-gradient">ATTRACTIONS</span>
-          </h2>
-          <Link href="/b2c"
-            className="hidden md:inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold text-[var(--text-secondary)] hover:text-white transition-colors">
-            View All <span>→</span>
-          </Link>
-        </div>
-
-        <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory -mx-4 px-4"
-          style={{ scrollbarWidth: 'none' }}>
-          {[
-            { name: 'Riyadh World Cup Arena', tag: 'MEGA EVENT', year: '2024' },
-            { name: 'XR Dome Experience', tag: 'IMMERSIVE', year: '2024' },
-            { name: 'Doha Gaming Festival', tag: 'LIVE EVENT', year: '2023' },
-            { name: 'Lusail Waterfront Activation', tag: 'ACTIVATION', year: '2023' },
-          ].map((item, i) => (
-            <div
-              key={item.name}
-              className="snap-start shrink-0 w-[320px] md:w-[400px] h-[480px] rounded-2xl relative overflow-hidden group cursor-pointer border border-[var(--border-level-2)] hover:border-[var(--color-primary)] transition-all duration-500"
-              style={{
-                background: `linear-gradient(135deg, hsl(${220 + i * 40}, 60%, ${8 + i * 3}%), hsl(${200 + i * 30}, 40%, ${5 + i * 2}%))`,
-              }}
-            >
-              {/* Glow blob */}
-              <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-700"
-                style={{
-                  background: `radial-gradient(ellipse at 50% 30%, hsl(${200 + i * 30}, 100%, 50%) 0%, transparent 70%)`,
-                }} />
-              {/* Grid */}
-              <div className="absolute inset-0 grid-pattern opacity-10" />
-
-              <div className="absolute bottom-0 left-0 right-0 p-8 z-10"
-                style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.95) 0%, transparent 100%)' }}>
-                <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-[var(--color-accent)] mb-2">{item.tag}</div>
-                <h3 className="text-2xl font-black tracking-tight mb-1">{item.name}</h3>
-                <div className="text-xs text-[var(--text-tertiary)]">{item.year}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── CLIENTS ──────────────────────────────────────────────────────────── */}
-      <section className="py-20 px-8 md:px-16 border-t border-[var(--border-level-2)]">
-        <div className="text-xs uppercase tracking-[0.25em] font-bold text-[var(--text-tertiary)] mb-10">
-          Trusted by Qatar's leading organisations
-        </div>
-        <div className="flex flex-wrap gap-x-12 gap-y-6">
-          {clients.map((c) => (
-            <div key={c}
-              className="text-xl md:text-2xl font-black tracking-tighter text-[var(--text-tertiary)] hover:text-white transition-colors cursor-default">
-              {c}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── ABOUT STRIP ───────────────────────────────────────────────────────── */}
-      <section id="about"
-        className="py-28 px-8 md:px-16 border-t border-[var(--border-level-2)]"
-        style={{ background: 'linear-gradient(135deg, rgba(0,102,255,0.05) 0%, transparent 60%)' }}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-6">
-              BUILT FOR<br /><span className="text-gradient">THE REGION</span>
-            </h2>
-            <p className="text-[var(--text-secondary)] leading-relaxed mb-6">
-              E3 — Event Engineering Experts — has been shaping Qatar's live entertainment landscape for over a decade. We combine deep local expertise with world-class production capabilities to deliver experiences that define cultural moments.
+        <div className="container relative z-10 mx-auto px-4 md:px-8 pt-20">
+          <div className="max-w-4xl">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-100 tracking-tighter leading-[1.1] mb-6">
+              Ideas to Life
+            </h1>
+            <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-2xl mb-4">
+              We design, build, operate, and scale immersive entertainment experiences across Qatar.
             </p>
-            <p className="text-[var(--text-secondary)] leading-relaxed">
-              From the 2022 FIFA World Cup fanzone operations to Doha's permanent entertainment destinations, our work spans every scale and format.
+            <p className="text-lg text-zinc-400 max-w-2xl mb-10">
+              From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.
             </p>
+            
+            <div className="flex flex-wrap items-center gap-4">
+              <Link 
+                href="/b2b/services" 
+                className="px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
+              >
+                Explore Services
+              </Link>
+              <Link 
+                href="/b2b/contact" 
+                className="px-8 py-4 bg-transparent border-2 border-zinc-700 text-zinc-100 font-bold text-lg rounded-sm hover:border-zinc-500 hover:bg-zinc-800 transition-all"
+              >
+                Start a Project
+              </Link>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { label: 'Headquartered in', value: 'Doha, Qatar' },
-              { label: 'Regional reach', value: 'GCC + MENA' },
-              { label: 'Team size', value: '120+ crew' },
-              { label: 'Languages', value: 'Arabic · English' },
-            ].map((f) => (
-              <div key={f.label}
-                className="p-6 rounded-xl border border-[var(--border-level-2)] bg-[var(--bg-level-2)]">
-                <div className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)] mb-2">{f.label}</div>
-                <div className="font-black text-lg tracking-tight">{f.value}</div>
+        </div>
+      </section>
+
+      {/* 2. Credibility Board */}
+      <section className="py-20 bg-zinc-950 border-b border-zinc-900">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+            {stats.map((stat, i) => (
+              <div key={i} className="flex flex-col border-l border-emerald-500/30 pl-6">
+                <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 mb-2">
+                  {stat.value}
+                </span>
+                <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">
+                  {stat.label}
+                </span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── CTA ────────────────────────────────────────────────────────────── */}
-      <section id="contact"
-        className="py-32 px-8 md:px-16 text-center border-t border-[var(--border-level-2)] relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, rgba(0,102,255,0.08) 0%, transparent 70%)' }} />
-        <div className="relative z-10">
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6">
-            LET'S BUILD<br /><span className="text-gradient">SOMETHING</span>
-          </h2>
-          <p className="text-[var(--text-secondary)] max-w-md mx-auto mb-10">
-            Ready to engineer your next experience? Tell us about your project and we'll respond within 24 hours.
-          </p>
-          <a
-            href="mailto:hello@e3.qa"
-            className="inline-block px-10 py-4 rounded-full bg-[var(--color-primary)] text-white font-bold tracking-wide text-sm hover:scale-105 active:scale-95 transition-transform glow"
-          >
-            Start a Project
-          </a>
+      {/* 3. Wow & How Split */}
+      <section className="py-24 md:py-32 bg-zinc-950 relative">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-6">
+              The WOW & The HOW
+            </h2>
+            <p className="text-lg text-zinc-400">
+              Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+            {/* WOW */}
+            <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
+              <h3 className="text-3xl font-black text-emerald-400 tracking-tight mb-8">The WOW</h3>
+              <ul className="space-y-6">
+                {['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling'].map(item => (
+                  <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* HOW */}
+            <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
+              <h3 className="text-3xl font-black text-amber-500 tracking-tight mb-8">The HOW</h3>
+              <ul className="space-y-6">
+                {['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing'].map(item => (
+                  <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
+                    <CheckCircle2 className="w-6 h-6 text-amber-500 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ─────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-[var(--border-level-2)] px-8 md:px-16 py-12">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="font-black text-xl tracking-tighter">
-            E3 <span className="text-gradient">QATAR</span>
+      {/* 4. Core Capabilities Preview (Bento) */}
+      <section className="py-24 bg-zinc-900 border-y border-zinc-800">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">Core Capabilities</h2>
+              <p className="text-lg text-zinc-400">Everything required to deliver landmark experiences.</p>
+            </div>
+            <Link href="/b2b/services" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
+              View All Services <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
-          <div className="flex flex-wrap gap-8 text-xs uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-            <Link href="#services" className="hover:text-white transition-colors">Services</Link>
-            <Link href="#work" className="hover:text-white transition-colors">Work</Link>
-            <Link href="#about" className="hover:text-white transition-colors">About</Link>
-            <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
-          </div>
-          <div className="text-xs text-[var(--text-tertiary)]">
-            &copy; 2026 E3 Qatar · Event Engineering Experts
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {services.map((service, i) => (
+              <Link 
+                key={i} 
+                href={`/b2b/services/${service.slug}`}
+                className={cn(
+                  "group relative p-8 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all overflow-hidden flex flex-col justify-between",
+                  i === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "min-h-[200px]"
+                )}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10 mb-8">
+                  <h3 className={cn("font-black text-zinc-100 tracking-tight mb-3", i === 0 ? "text-3xl" : "text-xl")}>
+                    {service.title}
+                  </h3>
+                  <p className="text-zinc-400 font-medium">
+                    {service.desc}
+                  </p>
+                </div>
+                <div className="relative z-10 flex justify-end">
+                  <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-zinc-950 transition-all">
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* 5. Featured Case Studies */}
+      <section className="py-24 bg-zinc-950">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">Featured Work</h2>
+              <p className="text-lg text-zinc-400">Landmark projects delivered across the region.</p>
+            </div>
+            <Link href="/b2b/case-studies" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
+              View All Case Studies <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {projects.map((project, i) => (
+              <Link key={i} href={`/b2b/case-studies/${project.slug}`} className="group block">
+                <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-zinc-900 mb-6">
+                  {/* Placeholder for project hero image */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600 font-medium">
+                    [Image: {project.name}]
+                  </div>
+                  <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
+                </div>
+                <h3 className="text-2xl font-bold text-zinc-100 mb-2">{project.name}</h3>
+                <div className="flex items-center gap-4 text-sm font-medium text-zinc-400">
+                  <span>{project.venue}</span>
+                  <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                  <span className="text-emerald-400">{project.metric}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Delivery Process */}
+      <section className="py-24 bg-zinc-900 border-y border-zinc-800">
+        <div className="container mx-auto px-4 md:px-8">
+          <h2 className="text-4xl font-black text-zinc-100 tracking-tight mb-16 text-center">Delivery Process</h2>
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-4 relative">
+            {/* Connecting Line */}
+            <div className="hidden md:block absolute top-12 left-0 right-0 h-0.5 bg-zinc-800 -z-10" />
+            
+            {['Discover', 'Design', 'Build', 'Operate', 'Report'].map((step, i) => (
+              <div key={i} className="flex flex-col items-center text-center w-full md:w-auto">
+                <div className="w-24 h-24 rounded-full bg-zinc-950 border-4 border-zinc-900 flex items-center justify-center font-black text-2xl text-emerald-500 mb-6">
+                  {i + 1}
+                </div>
+                <h3 className="text-xl font-bold text-zinc-100">{step}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Partner Ribbon */}
+      <section className="py-16 bg-zinc-950 overflow-hidden border-b border-zinc-900">
+        <div className="container mx-auto px-4 md:px-8 mb-8 text-center">
+          <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">Trusted by</span>
+        </div>
+        
+        {/* Simple marquee placeholder */}
+        <div className="flex w-[200%] animate-marquee">
+          <div className="flex flex-1 justify-around items-center">
+            {partners.map(p => (
+              <div key={p} className="text-2xl font-bold text-zinc-700 mx-8 whitespace-nowrap">{p}</div>
+            ))}
+          </div>
+          <div className="flex flex-1 justify-around items-center">
+            {partners.map(p => (
+              <div key={`${p}-clone`} className="text-2xl font-bold text-zinc-700 mx-8 whitespace-nowrap">{p}</div>
+            ))}
+          </div>
+        </div>
+      </section>
 
     </div>
-  );
+  )
 }

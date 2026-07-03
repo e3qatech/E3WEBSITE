@@ -1,201 +1,196 @@
-import { Metadata } from "next"
-import { Download, MapPin, Phone, Mail, MessageCircle } from "lucide-react"
+"use client"
 
-import { MultiStepLeadForm } from "@/components/b2b/contact/MultiStepLeadForm"
-import { PartnerMarquee } from "@/components/b2b/contact/PartnerMarquee"
-import { FAQAccordion } from "@/components/b2b/contact/FAQAccordion"
-import { MeetingBookingForm } from "@/components/shared/MeetingBookingForm"
-import { Button } from "@/components/ui/Button"
+import React, { useState } from 'react'
+import { CheckCircle2, ArrowRight } from 'lucide-react'
+import { useB2BRFP } from '@/store/b2b-store'
 
-export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const params = await props.params;
-  return {
-    title: params.locale === 'ar' ? 'تواصل معنا | E3 Qatar' : 'Contact Us | E3 Qatar',
+export default function ContactRFPPage() {
+  
+  const { inquiryType, setInquiryType } = useB2BRFP()
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Mock submission
+    setSubmitted(true)
   }
-}
-
-export default async function B2BContactPage(props: { params: Promise<{ locale: string }> }) {
-  const params = await props.params;
-  const { locale } = params;
-  const isRTL = locale === 'ar'
-
-  // MOCK DATA
-  const companyProfile = {
-    pdfUrl: "/e3-company-profile.pdf",
-    stats: [
-      { label: { en: "Years Excellence", ar: "سنوات من التميز" }, value: "15+" },
-      { label: { en: "Global Projects", ar: "مشاريع عالمية" }, value: "200+" },
-      { label: { en: "Engineering Experts", ar: "خبراء هندسة" }, value: "50+" },
-    ]
-  }
-
-  const partnerLogos = [
-    "https://upload.wikimedia.org/wikipedia/commons/2/25/Qatar_Tourism_Logo.svg",
-    "https://upload.wikimedia.org/wikipedia/en/thumb/e/ee/Qatar_Airways_Logo.svg/1200px-Qatar_Airways_Logo.svg.png",
-    "https://upload.wikimedia.org/wikipedia/commons/2/25/Qatar_Tourism_Logo.svg",
-    "https://upload.wikimedia.org/wikipedia/en/thumb/e/ee/Qatar_Airways_Logo.svg/1200px-Qatar_Airways_Logo.svg.png",
-  ]
-
-  const activeServices = [
-    { id: "event-engineering", name: { en: "Event Engineering", ar: "هندسة الفعاليات" } },
-    { id: "av-production", name: { en: "A/V Production", ar: "الإنتاج السمعي والبصري" } },
-    { id: "crowd-management", name: { en: "Crowd Management", ar: "إدارة الحشود" } },
-    { id: "stage-design", name: { en: "Stage Design", ar: "تصميم المسارح" } },
-  ]
-
-  const faqs = [
-    {
-      id: "1",
-      question: { en: "What is the typical timeline for an event build?", ar: "ما هو الإطار الزمني المعتاد لتجهيز الفعالية؟" },
-      answer: { en: "Timelines vary drastically by scale. Small activations can be engineered and deployed in 2-3 weeks, while major festival infrastructure typically requires 3-6 months of lead time for engineering approvals and logistics.", ar: "تختلف الجداول الزمنية باختلاف حجم المشروع." }
-    },
-    {
-      id: "2",
-      question: { en: "Do you provide safety certifications?", ar: "هل تقدمون شهادات السلامة؟" },
-      answer: { en: "Yes. Every structural deployment comes with full engineering sign-offs and local municipality compliance certificates.", ar: "نعم، جميع الهياكل تأتي مع اعتمادات هندسية." }
-    },
-    {
-      id: "3",
-      question: { en: "Can we hire specific equipment without full service?", ar: "هل يمكننا استئجار معدات معينة بدون خدمة كاملة؟" },
-      answer: { en: "E3 primarily operates as an end-to-end partner to guarantee the 'Wow' factor. However, we do offer dry hire of specialized AV equipment to vetted partners.", ar: "نحن نفضل العمل كشريك متكامل، لكن نقدم خدمات تأجير لبعض الشركاء المعتمدين." }
-    }
-  ]
 
   return (
-    <main className="bg-[var(--surface-default)] min-h-screen pt-32">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
       
-      {/* 1. HERO */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
-        <h1 className="text-5xl md:text-7xl font-black text-[var(--text-primary)] mb-6 max-w-4xl leading-tight">
-          {locale === 'ar' ? 'لنبنِ شيئاً استثنائياً.' : 'Let\'s Build Something Extraordinary.'}
-        </h1>
-        <p className="text-xl text-[var(--text-secondary)] max-w-2xl">
-          {locale === 'ar' 
-            ? 'سواء كنت تخطط لحدث عالمي أو تركيبات تفاعلية، فريقنا الهندسي جاهز للتحدي.' 
-            : 'Whether you\'re planning a global summit or a complex immersive installation, our engineering and creative teams are ready.'}
-        </p>
-      </section>
-
-      {/* 2. COMPANY PROFILE STATS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
-        <div className="bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-[3rem] p-8 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-12">
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 w-full lg:w-2/3">
-            {companyProfile.stats.map((stat, i) => (
-              <div key={i} className="flex flex-col">
-                <span className="text-4xl md:text-5xl font-black text-[var(--text-primary)] mb-2">
-                  {stat.value}
-                </span>
-                <span className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                  {(stat.label as any)[locale] || stat.label.en}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="w-full lg:w-1/3 shrink-0">
-            <Button size="xl" asChild className="w-full gap-3">
-              <a href={companyProfile.pdfUrl} download>
-                <Download className="w-5 h-5" />
-                {locale === 'ar' ? 'تحميل ملف الشركة' : 'Download Company Profile'}
-              </a>
-            </Button>
-          </div>
-
+      {/* Header */}
+      <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
+        <div className="container mx-auto px-4 md:px-8">
+          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
+            Start a <span className="text-emerald-400">Project.</span>
+          </h1>
+          <p className="text-xl text-zinc-400 max-w-2xl font-medium">
+            Whether you have a fully drafted RFP or just a preliminary concept, our team is ready to engineer a solution.
+          </p>
         </div>
       </section>
 
-      {/* 3. PARTNERS */}
-      <PartnerMarquee logos={partnerLogos} />
-
-      {/* 4. MAIN CONTENT GRID (Form & Details) */}
-      <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--surface-hover)] -z-10" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+      {/* Form Section */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid md:grid-cols-12 gap-16">
             
-            {/* Left: Lead Form */}
-            <div className="lg:col-span-7">
-              <h2 className="text-3xl font-black text-[var(--text-primary)] mb-8">
-                {locale === 'ar' ? 'ابدأ مشروعك' : 'Start a Project'}
-              </h2>
-              <MultiStepLeadForm locale={locale} services={activeServices} />
-            </div>
-
-            {/* Right: Contact Details & Scheduler */}
-            <div className="lg:col-span-5 space-y-12">
-              
-              {/* Direct Contact Details */}
+            {/* Left Column - Contact Info */}
+            <div className="md:col-span-5 space-y-12">
               <div>
-                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-6">
-                  {locale === 'ar' ? 'تواصل مباشرة' : 'Direct Contact'}
-                </h3>
-                <div className="space-y-6">
-                  <a href="tel:+97444000000" className="flex items-center gap-4 p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-default)] hover:border-[var(--color-primary)] transition-colors group">
-                    <div className="w-12 h-12 shrink-0 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
-                      <Phone className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider font-bold mb-1">
-                        {locale === 'ar' ? 'الهاتف' : 'Phone'}
-                      </p>
-                      <p className="font-bold text-[var(--text-primary)]" dir="ltr">+974 4400 0000</p>
-                    </div>
-                  </a>
+                <h3 className="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">Direct Inquiries</h3>
+                <ul className="space-y-6">
+                  <li>
+                    <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">Business Development</div>
+                    <a href="mailto:business@e3.qa" className="text-xl font-medium text-emerald-400 hover:text-emerald-300 transition-colors">business@e3.qa</a>
+                  </li>
+                  <li>
+                    <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">Careers & Talent</div>
+                    <a href="mailto:careers@e3.qa" className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">careers@e3.qa</a>
+                  </li>
+                  <li>
+                    <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">Phone</div>
+                    <a href="tel:+97444444444" className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">+974 4444 4444</a>
+                  </li>
+                </ul>
+              </div>
 
-                  <a href="mailto:hello@e3qatar.com" className="flex items-center gap-4 p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-default)] hover:border-[var(--color-primary)] transition-colors group">
-                    <div className="w-12 h-12 shrink-0 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
-                      <Mail className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider font-bold mb-1">
-                        {locale === 'ar' ? 'البريد' : 'Email'}
-                      </p>
-                      <p className="font-bold text-[var(--text-primary)]">hello@e3qatar.com</p>
-                    </div>
-                  </a>
-
-                  <div className="flex items-start gap-4 p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-default)]">
-                    <div className="w-12 h-12 shrink-0 rounded-xl bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)]">
-                      <MapPin className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider font-bold mb-1">
-                        {locale === 'ar' ? 'المكتب الرئيسي' : 'Headquarters'}
-                      </p>
-                      <p className="text-[var(--text-secondary)] font-medium leading-relaxed">
-                        Lusail Boulevard, Building 45<br/>
-                        Doha, Qatar<br/>
-                        PO Box 12345
-                      </p>
-                    </div>
-                  </div>
+              <div>
+                <h3 className="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">Headquarters</h3>
+                <div className="text-lg text-zinc-400 leading-relaxed">
+                  Palm Tower B, Floor 22<br />
+                  West Bay, Doha<br />
+                  State of Qatar
                 </div>
               </div>
-
-              {/* Inline Scheduler */}
-              <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-3xl p-8">
-                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-6">
-                  {locale === 'ar' ? 'حجز اجتماع سريع' : 'Book a Quick Meeting'}
-                </h3>
-                <MeetingBookingForm locale={locale} />
-              </div>
-
             </div>
+
+            {/* Right Column - Form */}
+            <div className="md:col-span-7">
+              {submitted ? (
+                <div className="p-12 rounded-xl bg-zinc-900 border border-emerald-500/50 text-center">
+                  <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                  </div>
+                  <h3 className="text-3xl font-black text-zinc-100 tracking-tight mb-4">Request Received</h3>
+                  <p className="text-zinc-400 text-lg mb-8">
+                    Our team will review your inquiry and connect with you within 24 hours.
+                  </p>
+                  <button 
+                    onClick={() => setSubmitted(false)}
+                    className="px-6 py-3 rounded-sm border border-zinc-700 text-zinc-300 font-bold hover:bg-zinc-800 transition-colors"
+                  >
+                    Submit Another Inquiry
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-8 p-10 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                  
+                  {/* Inquiry Type */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Inquiry Type</label>
+                    <div className="flex flex-wrap gap-4">
+                      {['RFP Submission', 'General Business', 'Partnership', 'Other'].map(type => (
+                        <label 
+                          key={type} 
+                          className={`px-5 py-3 rounded-sm border cursor-pointer font-bold text-sm transition-colors ${
+                            inquiryType === type 
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                              : 'border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-zinc-500'
+                          }`}
+                        >
+                          <input 
+                            type="radio" 
+                            name="type" 
+                            value={type}
+                            className="hidden"
+                            checked={inquiryType === type}
+                            onChange={(e) => setInquiryType(e.target.value)}
+                          />
+                          {type}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-400">Full Name</label>
+                      <input 
+                        required
+                        type="text" 
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                        placeholder="Jane Doe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-400">Company</label>
+                      <input 
+                        required
+                        type="text" 
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                        placeholder="Organization Name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-400">Email Address</label>
+                      <input 
+                        required
+                        type="email" 
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                        placeholder="jane@company.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-zinc-400">Phone Number</label>
+                      <input 
+                        type="tel" 
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                        placeholder="+974 XXXX XXXX"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Message */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-400">Project Details or Message</label>
+                    <textarea 
+                      required
+                      rows={5}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                      placeholder="Tell us about your requirements, timeline, and scale..."
+                    />
+                  </div>
+
+                  {/* File Upload (Mock) */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-400">Attachments (Optional)</label>
+                    <div className="w-full border-2 border-dashed border-zinc-800 rounded-sm p-8 text-center hover:border-zinc-600 transition-colors cursor-pointer bg-zinc-950">
+                      <p className="text-sm text-zinc-500 font-medium">Drag & drop RFP documents here, or click to browse</p>
+                      <p className="text-xs text-zinc-600 mt-2">PDF, DOCX, ZIP up to 50MB</p>
+                    </div>
+                  </div>
+
+                  {/* Submit */}
+                  <button 
+                    type="submit"
+                    className="w-full py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                  >
+                    Submit Inquiry <ArrowRight className="w-5 h-5" />
+                  </button>
+
+                  <p className="text-xs text-zinc-600 text-center max-w-sm mx-auto">
+                    By submitting this form, you agree to our Privacy Policy and consent to us storing your data to process this inquiry.
+                  </p>
+                </form>
+              )}
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 5. FAQ */}
-      <section className="py-24 border-t border-[var(--border-default)]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] mb-12 text-center">
-            {locale === 'ar' ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
-          </h2>
-          <FAQAccordion items={faqs} locale={locale} />
-        </div>
-      </section>
-
-    </main>
+    </div>
   )
 }
