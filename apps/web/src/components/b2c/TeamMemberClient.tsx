@@ -95,7 +95,7 @@ const TiltCard = ({ children, className }: any) => {
   );
 };
 
-export function TeamMemberClient({ locale, member }: { locale: string; member: any }) {
+export function TeamMemberClient({ locale, member, initialSettings }: { locale: string; member: any; initialSettings?: any }) {
   const isRtl = locale === 'ar';
   
   const expertise = member.expertiseTags as string[] || [];
@@ -180,10 +180,10 @@ export function TeamMemberClient({ locale, member }: { locale: string; member: a
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-12 flex justify-between items-center">
             <Link href={`/${locale}/b2c/team`} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 text-sm font-bold text-zinc-300 hover:text-white hover:border-[#F43F5E] transition-colors group">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-              Back to Team
+              {initialSettings?.backButtonText || ""}
             </Link>
             <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-[#7C3AED]">
-              <Activity className="w-4 h-4 text-[#F43F5E]" /> SYSTEM ONLINE
+              <Activity className="w-4 h-4 text-[#F43F5E]" /> {initialSettings?.systemStatus || ""}
             </div>
           </motion.div>
 
@@ -217,14 +217,14 @@ export function TeamMemberClient({ locale, member }: { locale: string; member: a
                   href={`mailto:${member.contactEmail}?subject=Contact Request`}
                   className="px-8 py-4 bg-[#F43F5E] text-white shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:bg-[#E11D48] rounded-lg font-bold tracking-wide transition-colors flex items-center justify-center gap-3"
                 >
-                  <Calendar className="w-5 h-5" /> INITIATE MEETING
+                  <Calendar className="w-5 h-5" /> {initialSettings?.initiateMeetingText || ""}
                 </MagneticButton>
                 
                 <MagneticButton 
-                  onClick={() => alert("Press kit download will be available soon.")}
+                  onClick={() => alert(initialSettings?.pressKitAlertText || "")}
                   className="px-8 py-4 bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 hover:border-[#F43F5E]/50 hover:shadow-[0_0_15px_rgba(124,58,237,0.3)] text-white rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-3"
                 >
-                  <Download className="w-4 h-4" /> PRESS KIT
+                  <Download className="w-4 h-4" /> {initialSettings?.pressKitText || ""}
                 </MagneticButton>
               </motion.div>
             </div>

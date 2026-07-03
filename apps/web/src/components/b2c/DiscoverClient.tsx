@@ -52,36 +52,31 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
     }, 2000);
   };
 
-  const team = (initialSettings?.team && initialSettings.team.length > 0) ? initialSettings.team : [
-    { name: "Abdullah Al Kubaisi", role: "Chairman", desc: "National alignment & strategic partnerships." },
-    { name: "Adil Ahmed", role: "Managing Director & CEO", desc: "Global resources & operations." },
-    { name: "Mohammad Ali Awada", role: "General Manager", desc: "Directing physical landmark properties." },
-    { name: "Ebrahim Karolia", role: "Sr. Project Manager", desc: "AV rigging, fabrication, custom builds." }
-  ];
+  const team = initialSettings?.team || [];
 
   const hero = {
-    titleEn: "The \"Wow & How\" Philosophy",
-    titleAr: "فلسفة الإبهار والتميز",
-    subtitleEn: "Fusing the physical \"Wow\" of immersive entertainment with the transparent operational \"How\" of Qatari execution engineering.",
-    subtitleAr: "نجمع بين الإبهار المادي للترفيه الغامر والتميز الهندسي لدولة قطر",
+    titleEn: "",
+    titleAr: "",
+    subtitleEn: "",
+    subtitleAr: "",
     mediaType: "ORBS",
     mediaUrl: "",
     ...(initialSettings?.hero || {})
   };
 
   const heritage = {
-    title: "Our Heritage",
-    description: "Deeply rooted in Qatar, E3 has delivered the nation's most iconic tourist landmarks. From the Guinness-certified 1,055-meter InflataRun track to the Doha Balloon Parade hosting over 760,000 attendees, our legacy is built on monumental execution.",
-    vision: "Delivering results-oriented marketing programs and interactive FECs globally.",
-    mission: "Inspiring fun and everlasting memories through groundbreaking live events.",
-    values: "Honesty, direct relationships, and unyielding commitment to delivering on promises.",
+    title: "",
+    description: "",
+    vision: "",
+    mission: "",
+    values: "",
     ...(initialSettings?.heritage || {})
   };
 
   const careers = {
-    title: "Join the Crew",
-    description: "E3 is expanding. We are currently actively seeking freelance event crew staffing and scaling our Lusail corporate office.",
-    nlpText: "Our automated NLP system extracts structural skills (AV logistics, rigging, etc.) and pushes them directly to our Talent database.",
+    title: "",
+    description: "",
+    nlpText: "",
     ...(initialSettings?.careers || {})
   };
 
@@ -168,17 +163,17 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-[#151530]/60 backdrop-blur-md border border-purple-900/40 rounded-2xl p-8 hover:bg-[#1A1A3A]/80 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(124,58,237,0.15)] transition-all duration-300 group">
               <Target className="w-10 h-10 text-purple-400 mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:text-purple-300" />
-              <h3 className="text-xl font-bold text-white mb-4">Vision</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{heritage.visionTitle || "Vision"}</h3>
               <p className="text-slate-400 whitespace-pre-wrap group-hover:text-slate-300 transition-colors">{heritage.vision}</p>
             </div>
             <div className="bg-[#151530]/60 backdrop-blur-md border border-purple-900/40 rounded-2xl p-8 hover:bg-[#1A1A3A]/80 hover:border-rose-500/50 hover:shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-300 group">
               <Building className="w-10 h-10 text-rose-500 mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:text-rose-400" />
-              <h3 className="text-xl font-bold text-white mb-4">Mission</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{heritage.missionTitle || "Mission"}</h3>
               <p className="text-slate-400 whitespace-pre-wrap group-hover:text-slate-300 transition-colors">{heritage.mission}</p>
             </div>
             <div className="bg-[#151530]/60 backdrop-blur-md border border-purple-900/40 rounded-2xl p-8 hover:bg-[#1A1A3A]/80 hover:border-violet-400/50 hover:shadow-[0_0_30px_rgba(167,139,250,0.15)] transition-all duration-300 group">
               <Heart className="w-10 h-10 text-violet-400 mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:text-violet-300" />
-              <h3 className="text-xl font-bold text-white mb-4">Core Values</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{heritage.valuesTitle || "Core Values"}</h3>
               <p className="text-slate-400 whitespace-pre-wrap group-hover:text-slate-300 transition-colors">{heritage.values}</p>
             </div>
           </div>
@@ -189,8 +184,8 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
       <section className="relative py-32 bg-[#0F0F23]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-['Righteous',sans-serif] text-white tracking-wide mb-4">Corporate Roster</h2>
-            <p className="text-purple-400 font-mono text-sm uppercase tracking-[0.2em]">Leadership & Engineering Core</p>
+            <h2 className="text-3xl md:text-5xl font-['Righteous',sans-serif] text-white tracking-wide mb-4">{initialSettings?.corporateRosterTitle || "Corporate Roster"}</h2>
+            <p className="text-purple-400 font-mono text-sm uppercase tracking-[0.2em]">{initialSettings?.corporateRosterSubtitle || "Leadership & Engineering Core"}</p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -218,8 +213,8 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
       <section className="relative py-32 border-t border-purple-900/30 bg-[#0B0B1A]">
         <div className="max-w-5xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-['Righteous',sans-serif] text-white tracking-wide mb-4">Group Bookings Console</h2>
-            <p className="text-violet-300">Generate high-value inquiries for specialized corporate and VIP celebrations.</p>
+            <h2 className="text-3xl md:text-5xl font-['Righteous',sans-serif] text-white tracking-wide mb-4">{initialSettings?.bookingsTitle || "Group Bookings Console"}</h2>
+            <p className="text-violet-300">{initialSettings?.bookingsSubtitle || "Generate high-value inquiries for specialized corporate and VIP celebrations."}</p>
           </div>
 
           <div className="bg-[#13132B] border border-purple-900/40 rounded-3xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">

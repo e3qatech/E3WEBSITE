@@ -28,5 +28,10 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ loc
     notFound();
   }
 
-  return <TeamMemberClient locale={locale} member={member as any} />;
+  const setting = await db.setting.findUnique({
+    where: { key: "B2C_TEAM_PAGE_SETTINGS" }
+  });
+  const settings = setting ? (typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value) : null;
+
+  return <TeamMemberClient locale={locale} member={member as any} initialSettings={settings} />;
 }

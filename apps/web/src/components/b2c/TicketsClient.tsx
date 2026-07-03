@@ -27,7 +27,7 @@ interface AttractionTicketData {
   pricingTiers: PricingTier[];
 }
 
-export function TicketsClient({ ticketsData }: { ticketsData: AttractionTicketData[] }) {
+export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: AttractionTicketData[]; initialSettings?: any }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
@@ -47,17 +47,17 @@ export function TicketsClient({ ticketsData }: { ticketsData: AttractionTicketDa
           <Ticket className="w-10 h-10" />
         </motion.div>
         <h1 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] mb-4">
-          Get Your Tickets
+          {initialSettings?.heroTitle || ""}
         </h1>
         <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-          Secure your spot at Qatar's most exciting attractions. Fast, easy, and secure booking.
+          {initialSettings?.heroDescription || ""}
         </p>
       </div>
 
       {/* 2. ATTRACTIONS GRID */}
       {ticketsData.length === 0 ? (
         <div className="text-center py-20 bg-[var(--surface-sunken)] rounded-3xl border border-[var(--border-subtle)]">
-          <p className="text-[var(--text-secondary)]">No ticketed attractions are available at the moment.</p>
+          <p className="text-[var(--text-secondary)]">{initialSettings?.emptyStateText || ""}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -177,18 +177,18 @@ export function TicketsClient({ ticketsData }: { ticketsData: AttractionTicketDa
       >
         <div className="flex flex-col items-center">
           <ShieldCheck className="w-8 h-8 text-[var(--color-primary)] mb-3" />
-          <h4 className="font-bold text-[var(--text-primary)] mb-1">Secure Payment</h4>
-          <p className="text-sm text-[var(--text-secondary)]">256-bit SSL encryption</p>
+          <h4 className="font-bold text-[var(--text-primary)] mb-1">{initialSettings?.badge1Title || ""}</h4>
+          <p className="text-sm text-[var(--text-secondary)]">{initialSettings?.badge1Desc || ""}</p>
         </div>
         <div className="flex flex-col items-center">
           <Zap className="w-8 h-8 text-[var(--color-primary)] mb-3" />
-          <h4 className="font-bold text-[var(--text-primary)] mb-1">Instant Confirmation</h4>
-          <p className="text-sm text-[var(--text-secondary)]">Get your tickets immediately</p>
+          <h4 className="font-bold text-[var(--text-primary)] mb-1">{initialSettings?.badge2Title || ""}</h4>
+          <p className="text-sm text-[var(--text-secondary)]">{initialSettings?.badge2Desc || ""}</p>
         </div>
         <div className="flex flex-col items-center">
           <Smartphone className="w-8 h-8 text-[var(--color-primary)] mb-3" />
-          <h4 className="font-bold text-[var(--text-primary)] mb-1">E-Ticket Delivery</h4>
-          <p className="text-sm text-[var(--text-secondary)]">Scan directly from your phone</p>
+          <h4 className="font-bold text-[var(--text-primary)] mb-1">{initialSettings?.badge3Title || ""}</h4>
+          <p className="text-sm text-[var(--text-secondary)]">{initialSettings?.badge3Desc || ""}</p>
         </div>
       </motion.div>
     </div>

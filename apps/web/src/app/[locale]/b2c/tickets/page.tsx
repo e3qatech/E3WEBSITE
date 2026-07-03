@@ -16,12 +16,19 @@ async function getTicketsData() {
   return res.json();
 }
 
+import { db } from "@/lib/db";
+
 export default async function TicketsPage() {
   const ticketsData = await getTicketsData();
 
+  const setting = await db.setting.findUnique({
+    where: { key: "B2C_TICKETS_PAGE_SETTINGS" }
+  });
+  const settings = setting ? (typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value) : null;
+
   return (
     <div className="min-h-screen bg-[var(--surface-default)] pt-20">
-      <TicketsClient ticketsData={ticketsData} />
+      <TicketsClient ticketsData={ticketsData} initialSettings={settings} />
     </div>
   );
 }

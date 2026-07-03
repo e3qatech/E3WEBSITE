@@ -53,7 +53,7 @@ const TiltCard = ({ children, className }: any) => {
   );
 };
 
-export function TeamClient({ locale, initialMembers }: { locale: string; initialMembers: any[] }) {
+export function TeamClient({ locale, initialMembers, initialSettings }: { locale: string; initialMembers: any[]; initialSettings?: any }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -99,7 +99,7 @@ export function TeamClient({ locale, initialMembers }: { locale: string; initial
               animate={{ opacity: 1, y: 0 }}
               className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-[#7C3AED] font-righteous"
             >
-              The Visionaries.
+              {initialSettings?.heroTitle || ""}
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -107,7 +107,7 @@ export function TeamClient({ locale, initialMembers }: { locale: string; initial
               transition={{ delay: 0.1 }}
               className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto font-medium leading-relaxed"
             >
-              A collective of industrial designers, master fabricators, and event strategists redefining what's possible in the MENA region.
+              {initialSettings?.heroDescription || ""}
             </motion.p>
           </header>
 
@@ -154,7 +154,7 @@ export function TeamClient({ locale, initialMembers }: { locale: string; initial
             
             {initialMembers.length === 0 && (
               <div className="col-span-full text-center py-32">
-                <p className="text-zinc-500 text-xl font-medium">No visionaries found.</p>
+                <p className="text-zinc-500 text-xl font-medium">{initialSettings?.emptyStateText || ""}</p>
               </div>
             )}
           </div>

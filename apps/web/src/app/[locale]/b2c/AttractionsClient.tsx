@@ -220,7 +220,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="text-balance text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase leading-[1.1] text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-[#F43F5E] font-righteous"
           >
-            {isAr ? hero.headerAr || "اكتشف التجارب" : hero.headerEn || "Discover Experiences"}
+            {isAr ? hero.headerAr || "" : hero.headerEn || ""}
           </motion.h1>
           
           <motion.p 
@@ -361,7 +361,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               <section className="w-full">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-2 h-8 bg-[#F43F5E] rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
-                  <h2 className="text-3xl font-black font-righteous">{isAr ? cmsData?.featuredTitleAr || "التجارب المميزة" : cmsData?.featuredTitleEn || "Featured Experiences"}</h2>
+                  <h2 className="text-3xl font-black font-righteous">{isAr ? cmsData?.featuredTitleAr || "" : cmsData?.featuredTitleEn || ""}</h2>
                 </div>
                 
                 <motion.div 
@@ -435,7 +435,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
 
                     <h3 className="text-3xl md:text-4xl font-bold mb-3 font-righteous">{isAr ? featuredAttraction.nameAr : featuredAttraction.nameEn}</h3>
                     <p className="text-[#A1A1AA] mb-8 line-clamp-3">
-                      {isAr ? featuredAttraction.descriptionAr : featuredAttraction.descriptionEn || "Experience the pinnacle of entertainment."}
+                      {isAr ? featuredAttraction.descriptionAr : featuredAttraction.descriptionEn}
                     </p>
 
                     <div className="flex items-center gap-4 mt-auto">
@@ -454,7 +454,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
             <section>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-2 h-8 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.5)]" />
-                <h2 className="text-3xl font-black font-righteous">{isAr ? cmsData?.gridTitleAr || "جميع التجارب" : cmsData?.gridTitleEn || "All Experiences"}</h2>
+                <h2 className="text-3xl font-black font-righteous">{isAr ? cmsData?.gridTitleAr || "" : cmsData?.gridTitleEn || ""}</h2>
               </div>
               <AnimatePresence mode="popLayout">
                 {filteredAttractions.length === 0 ? (
@@ -558,10 +558,10 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               
               <div className="relative z-10 w-full md:w-1/2">
                 <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight font-righteous">
-                  {isAr ? subscribe.titleAr || "لا تفوت المرح!" : subscribe.titleEn || "Never Miss the Fun!"}
+                  {isAr ? subscribe.titleAr || "" : subscribe.titleEn || ""}
                 </h2>
-                <p className="text-[#A1A1AA] text-lg">
-                  {isAr ? subscribe.subtitleAr : subscribe.subtitleEn || "Subscribe to get exclusive access to early-bird tickets and announcements."}
+                <p className="text-purple-200">
+                  {isAr ? subscribe.subtitleAr : subscribe.subtitleEn}
                 </p>
               </div>
               <div className="relative z-10 w-full md:w-1/2">
@@ -620,26 +620,26 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
 
             {/* CTA Section */}
             <section className="w-full py-16 text-center flex flex-col items-center">
-              <h2 className="text-3xl font-black mb-6 font-righteous">{isAr ? cta.titleAr || "هل لديك سؤال؟" : cta.titleEn || "Have a question?"}</h2>
+              <h2 className="text-3xl font-black mb-6 font-righteous">{isAr ? cta.titleAr || "" : cta.titleEn || ""}</h2>
               <Link 
-                href={cta.buttonUrl || "/contact"}
+                href={cta.buttonUrl || ""}
                 className="bg-[#1A1A2E] text-[#FAFAFA] border border-[#7C3AED]/50 hover:bg-[#7C3AED]/20 px-8 py-4 rounded-xl font-bold transition-colors min-h-[48px] inline-flex items-center"
               >
-                {isAr ? cta.buttonTextAr || "اتصل بنا" : cta.buttonTextEn || "Contact Us"}
+                {isAr ? cta.buttonTextAr || "" : cta.buttonTextEn || ""}
               </Link>
             </section>
 
             {/* Careers CTA Section */}
             <section className="w-full bg-[#1A1A2E]/50 border border-[#7C3AED]/30 rounded-3xl p-8 md:p-16 flex flex-col items-center justify-center text-center">
-              <h2 className="text-3xl md:text-4xl font-black mb-4 font-righteous">{isAr ? careersCta.titleAr || "انضم لفريقنا" : careersCta.titleEn || "Join Our Team"}</h2>
+              <h2 className="text-3xl md:text-4xl font-black mb-4 font-righteous">{isAr ? careersCta.titleAr || "" : careersCta.titleEn || ""}</h2>
               <p className="text-[#A1A1AA] text-lg mb-8 max-w-xl">
-                {isAr ? careersCta.subtitleAr || "نحن نبحث دائماً عن الموهوبين." : careersCta.subtitleEn || "We're always looking for talented individuals to join our crew."}
+                {isAr ? careersCta.subtitleAr || "" : careersCta.subtitleEn || ""}
               </p>
               <Link 
                 href={careersCta.buttonUrl || "/careers"}
-                className="bg-white text-[#0F0F23] px-8 py-4 rounded-xl font-bold hover:bg-[#F43F5E] hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.5)] transition-all active:scale-95 min-h-[48px] inline-flex items-center"
+                className="bg-[#F43F5E] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#E11D48] transition-colors shadow-[0_0_20px_rgba(244,63,94,0.3)] min-h-[48px] inline-flex items-center"
               >
-                {isAr ? careersCta.buttonTextAr || "عرض الوظائف" : careersCta.buttonTextEn || "View Careers"}
+                {isAr ? careersCta.buttonTextAr || "" : careersCta.buttonTextEn || ""}
               </Link>
             </section>
 

@@ -23,11 +23,21 @@ export function EventList({
 
   // Group events by day, ONLY for the currentDate
   const targetDayStr = format(currentDate, 'yyyy-MM-dd');
+  
+  const targetDateStart = new Date(currentDate);
+  targetDateStart.setHours(0, 0, 0, 0);
+  const targetDateEnd = new Date(currentDate);
+  targetDateEnd.setHours(23, 59, 59, 999);
+
   const groupedEvents = events.reduce((acc, event) => {
-    const day = format(new Date(event.startTime), 'yyyy-MM-dd');
-    if (day === targetDayStr) {
-      if (!acc[day]) acc[day] = [];
-      acc[day].push(event);
+    const evStart = new Date(event.startTime);
+    evStart.setHours(0, 0, 0, 0);
+    const evEnd = new Date(event.endTime);
+    evEnd.setHours(23, 59, 59, 999);
+
+    if (targetDateStart.getTime() <= evEnd.getTime() && targetDateEnd.getTime() >= evStart.getTime()) {
+      if (!acc[targetDayStr]) acc[targetDayStr] = [];
+      acc[targetDayStr].push(event);
     }
     return acc;
   }, {} as Record<string, CalendarEvent[]>);
@@ -57,7 +67,8 @@ export function EventList({
     <div className="space-y-12 pb-24">
       {sortedDays.map(dayStr => {
         const dayEvents = groupedEvents[dayStr];
-        const dateObj = new Date(dayStr);
+        const [year, month, day] = dayStr.split('-');
+        const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
         
         return (
           <div key={dayStr} className="space-y-6">

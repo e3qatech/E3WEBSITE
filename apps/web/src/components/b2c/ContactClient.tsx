@@ -112,10 +112,10 @@ export function ContactClient({
             <HeadphonesIcon className="w-8 h-8" />
           </motion.div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight font-righteous">
-            {pageSettings.title || "How Can We Help?"}
+            {pageSettings?.title || ""}
           </h1>
           <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
-            {pageSettings.tagline || "Need support with a ticket, want to leave feedback, or just have a general question? We're here for you."}
+            {pageSettings?.tagline || ""}
           </p>
         </div>
       </div>
@@ -339,7 +339,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
         <label className="block text-sm font-medium text-zinc-400 mb-2">Related Attraction (Optional)</label>
         <select name="attractionId" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all appearance-none">
           <option value="">General / Not specified</option>
-          {attractions.map(a => <option key={a.id} value={a.id}>{a.nameEn}</option>)}
+          {attractions.map((a: any) => <option key={a.id || a.attractionId} value={a.id || a.attractionId}>{a.nameEn || a.attractionNameEn}</option>)}
         </select>
       </div>
 
@@ -456,7 +456,7 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
         <label className="block text-sm font-medium text-zinc-400 mb-2">Attraction</label>
         <select name="attractionId" className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all appearance-none">
           <option value="">General Feedback</option>
-          {attractions.map(a => <option key={a.id} value={a.id}>{a.nameEn}</option>)}
+          {attractions.map((a: any) => <option key={a.id || a.attractionId} value={a.id || a.attractionId}>{a.nameEn || a.attractionNameEn}</option>)}
         </select>
       </div>
 
@@ -520,7 +520,7 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
           >
             <option value="all">All Topics</option>
             <option value="general">General</option>
-            {attractions.map((a: any) => <option key={a.id} value={a.id}>{a.nameEn}</option>)}
+            {attractions.map((a: any) => <option key={a.id || a.attractionId} value={a.id || a.attractionId}>{a.nameEn || a.attractionNameEn}</option>)}
           </select>
         </div>
       </div>

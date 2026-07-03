@@ -15,5 +15,10 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
     orderBy: { order: 'asc' }
   });
 
-  return <TeamClient locale={locale} initialMembers={teamMembers as any} />;
+  const setting = await db.setting.findUnique({
+    where: { key: "B2C_TEAM_PAGE_SETTINGS" }
+  });
+  const settings = setting ? (typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value) : null;
+
+  return <TeamClient locale={locale} initialMembers={teamMembers as any} initialSettings={settings} />;
 }
