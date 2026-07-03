@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 export async function GET() {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "OPERATIONS", "HR"].includes((session.user as any)?.role)) {
+    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -31,7 +31,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "OPERATIONS"].includes((session.user as any)?.role)) {
+    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

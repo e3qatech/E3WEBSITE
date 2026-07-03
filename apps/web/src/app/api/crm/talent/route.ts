@@ -22,13 +22,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Allow public submissions for the careers portal
     const session = await auth();
-    const userRole = (session?.user as any)?.role;
-
-    if (!session || !['SUPER_ADMIN', 'HR', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const data = await request.json();
 
     if (!data.name || !data.email) {
@@ -53,7 +48,7 @@ export async function POST(request: Request) {
         action: `TALENT_CREATED`,
         entity: `Talent ${talent.id}`,
         entityId: talent.id,
-        userId: (session.user as any)?.id,
+        userId: (session?.user as any)?.id,
       }
     });
 

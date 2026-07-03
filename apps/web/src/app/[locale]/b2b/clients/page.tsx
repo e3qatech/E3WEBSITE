@@ -1,42 +1,40 @@
 import React from 'react'
+import { db } from "@/lib/db"
 
 export const metadata = {
   title: 'Clients & Partners - E3 Corporate',
   description: 'Organisations, brands, and government entities that trust E3 to deliver their most important experiences.',
 }
 
-export default function ClientsPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function ClientsPage() {
   
-  // Mock Data
-  const categories = [
-    {
-      name: 'Government & Tourism',
-      clients: [
-        { name: 'Ministry of Sport KSA', logo: '/mock/logo-ksa.png' },
-        { name: 'Qatar Tourism', logo: '/mock/logo-qt.png' },
-        { name: 'Qatar Calendar', logo: '/mock/logo-qc.png' },
-        { name: 'Qatar Museums', logo: '/mock/logo-qm.png' },
-      ]
-    },
-    {
-      name: 'Corporate & Brands',
-      clients: [
-        { name: 'Ooredoo', logo: '/mock/logo-ooredoo.png' },
-        { name: 'QNB', logo: '/mock/logo-qnb.png' },
-        { name: 'Qatar Airways', logo: '/mock/logo-qa.png' },
-        { name: 'LEGO', logo: '/mock/logo-lego.png' },
-      ]
-    },
-    {
-      name: 'Venues & Destinations',
-      clients: [
-        { name: 'QNCC', logo: '/mock/logo-qncc.png' },
-        { name: 'UDC', logo: '/mock/logo-udc.png' },
-        { name: 'Al Maha Island', logo: '/mock/logo-al-maha.png' },
-        { name: 'Doha Festival City', logo: '/mock/logo-dfc.png' },
-      ]
+  const dbPartners = await db.partner.findMany({
+    where: { isVisible: true },
+    orderBy: [
+      { orderIndex: 'asc' },
+      { name: 'asc' }
+    ]
+  })
+
+  // Group by category
+  const categoriesMap = {
+    'GOVERNMENT': { name: 'Government & Tourism', clients: [] as any[] },
+    'CORPORATE': { name: 'Corporate & Brands', clients: [] as any[] },
+    'VENUE': { name: 'Venues & Destinations', clients: [] as any[] },
+    'AGENCY': { name: 'Agencies', clients: [] as any[] },
+    'TECHNOLOGY': { name: 'Technology', clients: [] as any[] },
+    'OTHER': { name: 'Other', clients: [] as any[] },
+  }
+
+  dbPartners.forEach(p => {
+    if (categoriesMap[p.category as keyof typeof categoriesMap]) {
+      categoriesMap[p.category as keyof typeof categoriesMap].clients.push(p)
     }
-  ]
+  })
+
+  const categories = Object.values(categoriesMap).filter(c => c.clients.length > 0)
 
   const testimonials = [
     {
@@ -72,7 +70,11 @@ export default function ClientsPage() {
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8 space-y-24">
           
-          {categories.map((category, i) => (
+          {categories.length === 0 ? (
+            <div className="text-center py-12 border border-zinc-800 rounded-xl bg-zinc-900/20">
+              <p className="text-zinc-500 font-medium">Partners list is being updated.</p>
+            </div>
+          ) : categories.map((category, i) => (
             <div key={i}>
               <h2 className="text-2xl font-black text-zinc-100 tracking-tight mb-8 flex items-center gap-4">
                 {category.name}
@@ -82,12 +84,21 @@ export default function ClientsPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {category.clients.map((client, j) => (
                   <div 
-                    key={j}
-                    className="aspect-[3/2] rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center p-8 hover:bg-zinc-800 hover:border-emerald-500/50 transition-colors group cursor-default"
+                    key={client.id || j}
+                    className="aspect-[3/2] rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center p-8 hover:bg-zinc-800 hover:border-emerald-500/50 transition-colors group cursor-default relative overflow-hidden"
                   >
-                    <div className="text-zinc-500 font-bold text-center group-hover:text-zinc-300 transition-colors">
-                      {client.name}
-                    </div>
+                    {client.logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={client.logoUrl} 
+                        alt={client.name} 
+                        className="max-w-[80%] max-h-[80%] object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300 relative z-10" 
+                      />
+                    ) : (
+                      <div className="text-zinc-500 font-bold text-center group-hover:text-zinc-300 transition-colors relative z-10">
+                        {client.name}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

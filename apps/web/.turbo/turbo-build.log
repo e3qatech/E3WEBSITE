@@ -1,15 +1,15 @@
 
 > web@0.1.0 build A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web
-> prisma generate && prisma db push --accept-data-loss && npm run seed:events && next build
+> prisma generate && prisma db push --accept-data-loss && next build
 
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
 
-✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 149ms
+✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 128ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Want to react to database changes in your app as they happen? Discover how with Pulse: https://pris.ly/tip-1-pulse
+Tip: Curious about the SQL queries Prisma ORM generates? Optimize helps you enhance your visibility: https://pris.ly/tip-2-optimize
 
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
@@ -20,34 +20,8 @@ The database is already in sync with the Prisma schema.
 Running generate... (Use --skip-generate to skip the generators)
 [2K[1A[2K[GRunning generate... - Prisma Client
 [2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client
-@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 175ms
+@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 131ms
 
-┌─────────────────────────────────────────────────────────┐
-│  Update available 5.22.0 -> 7.8.0                       │
-│                                                         │
-│  This is a major update - please follow the guide at    │
-│  https://pris.ly/d/major-version-upgrade                │
-│                                                         │
-│  Run the following to update                            │
-│    npm i --save-dev prisma@latest                       │
-│    npm i @prisma/client@latest                          │
-└─────────────────────────────────────────────────────────┘
-
-> web@0.1.0 seed:events
-> tsx prisma/seed-events.ts
-
-Seeding 10 attractions and events...
-Upserted Attraction and Event: LEGO® Shows Qatar 2024
-Upserted Attraction and Event: Lusail Winter Wonderland
-Upserted Attraction and Event: Qatar Toy Festival 2024
-Upserted Attraction and Event: Doha Quest
-Upserted Attraction and Event: Meryal Waterpark
-Upserted Attraction and Event: Katara Cultural Festival
-Upserted Attraction and Event: Souq Waqif Spring Festival
-Upserted Attraction and Event: Snow Dunes
-Upserted Attraction and Event: Angry Birds World
-Upserted Attraction and Event: Expo 2023 Doha
-Database seeding completed successfully!
 ▲ Next.js 16.2.9 (Turbopack)
 - Environments: .env
 - Experiments (use with caution):
@@ -55,22 +29,274 @@ Database seeding completed successfully!
 
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
+✓ Compiled successfully in 12.7s
+  Running TypeScript ...
+  Finished TypeScript in 12.2s ...
+  Collecting page data using 23 workers ...
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+  Generating static pages using 23 workers (0/71) ...
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+prisma:info Starting a postgresql pool with 25 connections.
+  Generating static pages using 23 workers (17/71) 
+[REDIS_ERROR] Redis connection error: 
+prisma:info Starting a postgresql pool with 25 connections.
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 115ms
+  Generating static pages using 23 workers (35/71) 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 156ms
+prisma:info Starting a postgresql pool with 25 connections.
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 175ms
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 202ms
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 214ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 234ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 245ms
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 254ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 259ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 275ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 277ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 293ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 300ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 311ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 139ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 306ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 210ms
+  Generating static pages using 23 workers (53/71) 
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 261ms
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 255ms
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 259ms
+[PRISMA PERFORMANCE BREACH] Setting.findMany took 268ms
+prisma:info Starting a postgresql pool with 25 connections.
+[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 278ms
+[REDIS_ERROR] Redis connection error: 
+[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 144ms
+[PRISMA PERFORMANCE BREACH] Attraction.findMany took 152ms
+[PRISMA PERFORMANCE BREACH] TeamMember.findMany took 166ms
+[PRISMA PERFORMANCE BREACH] Service.findMany took 173ms
+✓ Generating static pages using 23 workers (71/71) in 700ms
+  Finalizing page optimization ...
 
------
-[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to C:\Users\Admin\AppData\Local\Temp\next-panic-c265ea4250553b6230e03883238dcdfd.log.
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /[locale]/b2b
+├ ƒ /[locale]/b2b/about
+├ ƒ /[locale]/b2b/case-studies
+├ ƒ /[locale]/b2b/case-studies/[slug]
+├ ƒ /[locale]/b2b/clients
+├ ƒ /[locale]/b2b/contact
+├ ƒ /[locale]/b2b/services
+├ ƒ /[locale]/b2b/services/[slug]
+├ ƒ /[locale]/b2b/services/[slug]/projects
+├ ƒ /[locale]/b2b/team
+├ ƒ /[locale]/b2b/team/[slug]
+├ ƒ /[locale]/b2c
+├ ƒ /[locale]/b2c/attractions
+├ ƒ /[locale]/b2c/attractions/[slug]
+├ ƒ /[locale]/b2c/calendar
+├ ƒ /[locale]/b2c/contact
+├ ƒ /[locale]/b2c/discover
+├ ƒ /[locale]/b2c/team
+├ ƒ /[locale]/b2c/team/[slug]
+├ ƒ /[locale]/b2c/tickets
+├ ƒ /[locale]/careers
+├ ƒ /[locale]/careers/[id]
+├ ƒ /api/attractions
+├ ƒ /api/attractions/[id]
+├ ƒ /api/attractions/[id]/faq
+├ ƒ /api/attractions/[id]/gallery
+├ ƒ /api/attractions/[id]/offers
+├ ƒ /api/attractions/[id]/operations
+├ ƒ /api/attractions/[id]/pricing
+├ ƒ /api/attractions/[id]/schedule
+├ ƒ /api/attractions/[id]/social
+├ ƒ /api/attractions/[id]/telemetry
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/b2b/cases
+├ ƒ /api/b2b/cases/[id]
+├ ƒ /api/b2b/partners
+├ ƒ /api/b2b/partners/[id]
+├ ƒ /api/b2b/services
+├ ƒ /api/b2b/services/[id]
+├ ƒ /api/b2b/services/bulk
+├ ƒ /api/b2c/attractions
+├ ƒ /api/b2c/attractions/[id]
+├ ƒ /api/b2c/attractions/[id]/full
+├ ƒ /api/b2c/attractions/bulk
+├ ƒ /api/b2c/attractions/simple
+├ ƒ /api/b2c/calendar-settings
+├ ƒ /api/b2c/contact-settings
+├ ƒ /api/b2c/discover-settings
+├ ƒ /api/b2c/events
+├ ƒ /api/b2c/events/[id]
+├ ƒ /api/b2c/feedback/[id]
+├ ƒ /api/b2c/offers
+├ ƒ /api/b2c/offers/[id]
+├ ƒ /api/calendar
+├ ƒ /api/case-studies
+├ ƒ /api/case-studies/[id]
+├ ƒ /api/cases
+├ ƒ /api/cases/[id]
+├ ƒ /api/contact/b2b
+├ ƒ /api/contact/b2c
+├ ƒ /api/crm/clients
+├ ƒ /api/crm/clients/[id]
+├ ƒ /api/crm/inquiries
+├ ƒ /api/crm/inquiries/[id]
+├ ƒ /api/crm/leads
+├ ƒ /api/crm/leads/[id]
+├ ƒ /api/crm/leads/[id]/notes
+├ ƒ /api/crm/subscribers
+├ ƒ /api/crm/subscribers/[id]
+├ ƒ /api/crm/talent
+├ ƒ /api/crm/talent/[id]
+├ ƒ /api/crm/talent/parse-resume
+├ ƒ /api/employees
+├ ƒ /api/employees/[id]
+├ ƒ /api/health
+├ ƒ /api/inquiries/bulk-booking
+├ ƒ /api/leads/[id]
+├ ƒ /api/leads/[id]/notes
+├ ƒ /api/leads/[id]/status
+├ ƒ /api/operations/broadcasts
+├ ƒ /api/operations/broadcasts/[id]
+├ ƒ /api/operations/schedules
+├ ƒ /api/operations/schedules/[id]
+├ ƒ /api/partners
+├ ƒ /api/partners/[id]
+├ ƒ /api/partners/reorder
+├ ƒ /api/services
+├ ƒ /api/services/[id]
+├ ƒ /api/services/[id]/gallery
+├ ƒ /api/services/[id]/projects
+├ ƒ /api/settings
+├ ƒ /api/settings/users
+├ ƒ /api/subscribe
+├ ƒ /api/talent/parse
+├ ƒ /api/team
+├ ƒ /api/team/[id]
+├ ƒ /api/team/[id]/availability
+├ ƒ /api/temporal-rules
+├ ƒ /api/temporal-rules/[id]
+├ ƒ /api/tickets
+├ ƒ /api/upload
+├ ƒ /api/webhooks/bookingqube
+├ ƒ /auth/forgot-password
+├ ƒ /auth/login
+├ ƒ /auth/reset-password
+├ ƒ /dashboard
+├ ƒ /dashboard/b2b/cases
+├ ƒ /dashboard/b2b/cases/[id]/edit
+├ ƒ /dashboard/b2b/cases/[slug]
+├ ƒ /dashboard/b2b/cases/new
+├ ƒ /dashboard/b2b/partners
+├ ƒ /dashboard/b2b/services
+├ ƒ /dashboard/b2b/services/[id]/edit
+├ ƒ /dashboard/b2b/services/[slug]
+├ ƒ /dashboard/b2b/services/new
+├ ƒ /dashboard/b2b/team
+├ ƒ /dashboard/b2c/attractions
+├ ƒ /dashboard/b2c/attractions/[id]/edit
+├ ƒ /dashboard/b2c/attractions/new
+├ ƒ /dashboard/b2c/calendar
+├ ƒ /dashboard/b2c/contact
+├ ƒ /dashboard/b2c/discover
+├ ƒ /dashboard/b2c/landing
+├ ƒ /dashboard/careers
+├ ƒ /dashboard/careers/[id]
+├ ƒ /dashboard/careers/new
+├ ƒ /dashboard/crm/clients
+├ ƒ /dashboard/crm/inquiries
+├ ƒ /dashboard/crm/leads
+├ ƒ /dashboard/crm/leads/[id]
+├ ƒ /dashboard/crm/subscribers
+├ ƒ /dashboard/crm/talent
+├ ƒ /dashboard/crm/talent/[id]
+├ ƒ /dashboard/operations/broadcast
+├ ƒ /dashboard/operations/catalog
+├ ƒ /dashboard/operations/events
+├ ƒ /dashboard/operations/recap
+├ ƒ /dashboard/operations/temporal-rules
+├ ƒ /dashboard/operations/ticketing
+├ ƒ /dashboard/partners
+├ ƒ /dashboard/partners/new
+├ ƒ /dashboard/settings/general
+├ ƒ /dashboard/settings/seo
+├ ƒ /dashboard/settings/ui
+├ ƒ /dashboard/settings/users
+├ ƒ /dashboard/team
+├ ○ /robots.txt
+└ ○ /sitemap.xml
 
-To help make Turbopack better, report this error by clicking here: https://bugs.nextjs.org/search?category=turbopack-error-report&title=Turbopack%20Error%3A%20failed%20to%20create%20junction%20point%20at%20%22A%3A%5C%5C.gemini%5C%5Cantigravity%5C%5Cscratch%5C%5CE3%20WEBSITE%5C%5Ce3-qatar%5C%5Capps%5C%5Cweb%5C%5C.next%5C%5Cnode_modules%5C%5C%40prisma%5C%5Cclient-dcc063df019991b5%22%20pointing%20to%20%22A%3A%5C%5C.gemini%5C%5Cantigravity%5C%5Cscratch%5C%5CE3%20WEBSITE%5C%5Ce3-qatar%5C%5Capps%5C%5Cweb%5C%5C.next%5C%5Cnode_modules%5C%5C%40prisma%5C%5C..%5C%5C..%5C%5C..%5C%5C..%5C%5C..%5C%5Cnode_modules%5C%5C.pnpm%5C%5C%40prisma%2Bclient%405.22.0_prisma%405.22.0%5C%5Cnode_modules%5C%5C%40prisma%5C%5Cclient%22&body=Turbopack%20version%3A%20%60f37fad94%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0Afailed%20to%20create%20junction%20point%20at%20%22A%3A%5C%5C.gemini%5C%5Cantigravity%5C%5Cscratch%5C%5CE3%20WEBSITE%5C%5Ce3-qatar%5C%5Capps%5C%5Cweb%5C%5C.next%5C%5Cnode_modules%5C%5C%40prisma%5C%5Cclient-dcc063df019991b5%22%20pointing%20to%20%22A%3A%5C%5C.gemini%5C%5Cantigravity%5C%5Cscratch%5C%5CE3%20WEBSITE%5C%5Ce3-qatar%5C%5Capps%5C%5Cweb%5C%5C.next%5C%5Cnode_modules%5C%5C%40prisma%5C%5C..%5C%5C..%5C%5C..%5C%5C..%5C%5C..%5C%5Cnode_modules%5C%5C.pnpm%5C%5C%40prisma%2Bclient%405.22.0_prisma%405.22.0%5C%5Cnode_modules%5C%5C%40prisma%5C%5Cclient%22%0A%0ACaused%20by%3A%0A-%20creation%20of%20a%20new%20symbolic%20link%20or%20junction%20point%20failed%3A%20The%20file%20exists.%20%28os%20error%2080%29%0A-%20The%20file%20exists.%20%28os%20error%2080%29%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
------
 
+ƒ Proxy (Middleware)
 
-> Build error occurred
-Error [TurbopackInternalError]: failed to create junction point at "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\.next\\node_modules\\@prisma\\client-dcc063df019991b5" pointing to "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\.next\\node_modules\\@prisma\\..\\..\\..\\..\\..\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client"
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
 
-Caused by:
-- creation of a new symbolic link or junction point failed: The file exists. (os error 80)
-- The file exists. (os error 80)
-    at ignore-listed frames {
-  type: 'TurbopackInternalError',
-  location: undefined
-}
- ELIFECYCLE  Command failed with exit code 1.

@@ -1,80 +1,81 @@
-import { NextResponse, NextRequest } from "next/server";
-import db from "@/lib/db";
+import { NextResponse } from "next/server"
+import { db } from "@/lib/db"
+import { auth } from "@/lib/auth"
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const service = await db.service.findUnique({
-      where: { id },
-      include: {
-        gallery: { orderBy: { orderIndex: "asc" } },
-        projects: true,
-      },
-    });
-    if (!service) {
-      return NextResponse.json({ error: "Service not found" }, { status: 404 });
+    const session = await auth()
+    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    return NextResponse.json(service);
-  } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+
+    const { id } = await params
+    const body = await request.json()
+    const { 
+      slug, titleEn, titleAr, taglineEn, taglineAr, thumbnail, contentEn, contentAr,
+      isFeatured, isVisible, isPublished, heroMediaType, heroMediaUrl, process,
+      ctaPrimary, ctaSecondary, seo, gallery, projects
+    } = body
+
+    await db.$transaction([
+      db.serviceGalleryItem.deleteMany({ where: { serviceId: id } }),
+      db.serviceProject.deleteMany({ where: { serviceId: id } }),
+      db.service.update({
+        where: { id },
+        data: {
+          slug, titleEn, titleAr, taglineEn, taglineAr, thumbnail, contentEn, contentAr,
+          isFeatured, isVisible, isPublished, heroMediaType, heroMediaUrl, process,
+          ctaPrimary, ctaSecondary, seo,
+          gallery: {
+            create: (gallery || []).map((g: any, i: number) => ({
+              url: g.url,
+              captionEn: g.captionEn,
+              captionAr: g.captionAr,
+              orderIndex: i
+            }))
+          },
+          projects: {
+            create: (projects || []).map((p: any) => ({
+              titleEn: p.titleEn,
+              titleAr: p.titleAr,
+              descriptionEn: p.descriptionEn,
+              descriptionAr: p.descriptionAr,
+              imageUrl: p.imageUrl
+            }))
+          }
+        }
+      })
+    ])
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error("[SERVICE_PUT_ERROR]", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const body = await request.json();
-    const { gallery, projects, ...data } = body;
-
-    const updated = await db.service.update({
-      where: { id },
-      data: { ...data },
-    });
-
-    if (gallery && Array.isArray(gallery)) {
-      await db.serviceGalleryItem.deleteMany({ where: { serviceId: id } });
-      if (gallery.length > 0) {
-        await db.serviceGalleryItem.createMany({
-          data: gallery.map((g: any, index: number) => ({
-            serviceId: id,
-            url: g.url,
-            captionEn: g.captionEn,
-            captionAr: g.captionAr,
-            orderIndex: index,
-          })),
-        });
-      }
+    const session = await auth()
+    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (projects && Array.isArray(projects)) {
-      await db.serviceProject.deleteMany({ where: { serviceId: id } });
-      if (projects.length > 0) {
-        await db.serviceProject.createMany({
-          data: projects.map((p: any) => ({
-            serviceId: id,
-            titleEn: p.titleEn,
-            titleAr: p.titleAr,
-            descriptionEn: p.descriptionEn,
-            descriptionAr: p.descriptionAr,
-            imageUrl: p.imageUrl,
-          })),
-        });
-      }
-    }
+    const { id } = await params
 
-    return NextResponse.json({ success: true, service: updated });
-  } catch (error) {
-    console.error("Error updating service:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
+    await db.service.delete({
+      where: { id }
+    })
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  try {
-    await db.service.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error("[SERVICE_DELETE_ERROR]", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

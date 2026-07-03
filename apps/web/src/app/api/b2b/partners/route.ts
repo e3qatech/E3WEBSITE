@@ -9,18 +9,18 @@ export async function GET(request: Request) {
 
     const where = all ? {} : { isVisible: true }
     
-    const services = await db.service.findMany({
+    const partners = await db.partner.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        projects: true,
-        gallery: { orderBy: { orderIndex: 'asc' } }
-      }
+      orderBy: [
+        { category: 'asc' },
+        { orderIndex: 'asc' },
+        { name: 'asc' }
+      ]
     })
 
-    return NextResponse.json({ success: true, services })
+    return NextResponse.json({ success: true, partners })
   } catch (error: any) {
-    console.error("[SERVICES_GET_ERROR]", error)
+    console.error("[PARTNERS_GET_ERROR]", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
@@ -33,29 +33,23 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { slug, titleEn, titleAr } = body
+    const { name, website, category, description, logoUrl, isVisible, orderIndex } = body
 
-    if (!slug || !titleEn || !titleAr) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
-    }
-
-    const existing = await db.service.findUnique({ where: { slug } })
-    if (existing) {
-      return NextResponse.json({ error: "Service with this slug already exists" }, { status: 400 })
-    }
-
-    const service = await db.service.create({
+    const partner = await db.partner.create({
       data: {
-        slug,
-        titleEn,
-        titleAr,
-        isVisible: false
+        name,
+        website,
+        category: category || "TECHNOLOGY",
+        description,
+        logoUrl,
+        isVisible: isVisible ?? true,
+        orderIndex: orderIndex ?? 0
       }
     })
 
-    return NextResponse.json({ success: true, service })
+    return NextResponse.json({ success: true, partner })
   } catch (error: any) {
-    console.error("[SERVICES_POST_ERROR]", error)
+    console.error("[PARTNERS_POST_ERROR]", error)
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
   }
 }

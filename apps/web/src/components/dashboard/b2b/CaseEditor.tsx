@@ -2,510 +2,375 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Save, ArrowLeft, Plus, X, Sparkles, AlertCircle } from "lucide-react"
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { BeforeAfterSlider } from "./BeforeAfterSlider"
+import { MediaUploader } from "@/components/ui/MediaUploader"
 
-interface CaseStudy {
-  id?: string
-  slug: string
-  title: { en: string; ar: string }
-  clientName: string
-  category: string[]
-  year: number
-  duration?: string
-  location?: { en: string; ar: string }
-  challenge: { en: string; ar: string }
-  solution: { en: string; ar: string }
-  results?: { en: string; ar: string }
-  testimonial?: { quoteEn: string; quoteAr: string; author: string }
-  isPublished: boolean
-  isFeatured: boolean
-  telemetry?: { labelEn: string; valueEn: string; labelAr: string; valueAr: string }[]
-  beforeImage?: string
-  afterImage?: string
-}
-
-interface CaseEditorProps {
-  initialData?: CaseStudy
-}
-
-export function CaseEditor({ initialData }: CaseEditorProps) {
+export function CaseEditor({ initialData }: { initialData?: any }) {
   const router = useRouter()
+  const isEditing = !!initialData
+
   const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("general")
 
-  const [formData, setFormData] = useState<CaseStudy>({
-    slug: initialData?.slug || "",
-    title: {
-      en: initialData?.title?.en || "",
-      ar: initialData?.title?.ar || ""
-    },
-    clientName: initialData?.clientName || "",
-    category: initialData?.category || [],
-    year: initialData?.year || new Date().getFullYear(),
-    duration: initialData?.duration || "",
-    location: {
-      en: initialData?.location?.en || "",
-      ar: initialData?.location?.ar || ""
-    },
-    challenge: {
-      en: initialData?.challenge?.en || "",
-      ar: initialData?.challenge?.ar || ""
-    },
-    solution: {
-      en: initialData?.solution?.en || "",
-      ar: initialData?.solution?.ar || ""
-    },
-    results: {
-      en: initialData?.results?.en || "",
-      ar: initialData?.results?.ar || ""
-    },
-    testimonial: {
-      quoteEn: initialData?.testimonial?.quoteEn || "",
-      quoteAr: initialData?.testimonial?.quoteAr || "",
-      author: initialData?.testimonial?.author || ""
-    },
-    isPublished: initialData?.isPublished ?? false,
-    isFeatured: initialData?.isFeatured ?? false,
-    telemetry: initialData?.telemetry || [],
-    beforeImage: initialData?.beforeImage || "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=600",
-    afterImage: initialData?.afterImage || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=600"
-  })
+  // Fields
+  const [slug, setSlug] = useState(initialData?.slug || "")
+  const [titleEn, setTitleEn] = useState(initialData?.titleEn || "")
+  const [titleAr, setTitleAr] = useState(initialData?.titleAr || "")
+  const [clientName, setClientName] = useState(initialData?.clientName || "")
+  const [location, setLocation] = useState(initialData?.location || "")
+  const [eventDate, setEventDate] = useState(initialData?.eventDate ? new Date(initialData.eventDate).toISOString().split('T')[0] : "")
+  
+  const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || "")
+  const [heroMediaType, setHeroMediaType] = useState(initialData?.heroMediaType || "IMAGE")
+  const [heroMediaUrl, setHeroMediaUrl] = useState(initialData?.heroMediaUrl || "")
+  
+  const [challengeEn, setChallengeEn] = useState(initialData?.challengeEn || "")
+  const [challengeAr, setChallengeAr] = useState(initialData?.challengeAr || "")
+  const [solutionEn, setSolutionEn] = useState(initialData?.solutionEn || "")
+  const [solutionAr, setSolutionAr] = useState(initialData?.solutionAr || "")
+  const [resultEn, setResultEn] = useState(initialData?.resultEn || "")
+  const [resultAr, setResultAr] = useState(initialData?.resultAr || "")
 
-  const [newTag, setNewTag] = useState("")
-  const [newMetric, setNewMetric] = useState({ labelEn: "", valueEn: "", labelAr: "", valueAr: "" })
-
-  const handleAddTag = () => {
-    if (!newTag.trim()) return
-    if (!formData.category.includes(newTag.trim())) {
-      setFormData(prev => ({ ...prev, category: [...prev.category, newTag.trim()] }))
-    }
-    setNewTag("")
-  }
-
-  const handleRemoveTag = (tag: string) => {
-    setFormData(prev => ({ ...prev, category: prev.category.filter(t => t !== tag) }))
-  }
-
-  const handleAddMetric = () => {
-    if (!newMetric.labelEn.trim() || !newMetric.valueEn.trim()) return
-    setFormData(prev => ({
-      ...prev,
-      telemetry: [...(prev.telemetry || []), { ...newMetric }]
-    }))
-    setNewMetric({ labelEn: "", valueEn: "", labelAr: "", valueAr: "" })
-  }
-
-  const handleRemoveMetric = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      telemetry: prev.telemetry?.filter((_, idx) => idx !== index) || []
-    }))
-  }
+  const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
+  const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? false)
+  
+  const [metrics, setMetrics] = useState<any[]>(Array.isArray(initialData?.metrics) ? initialData.metrics : [])
+  const [challenges, setChallenges] = useState<any[]>(Array.isArray(initialData?.challenges) ? initialData.challenges : [])
+  const [gallery, setGallery] = useState<any[]>(Array.isArray(initialData?.gallery) ? initialData.gallery : [])
 
   const handleSave = async () => {
+    if (!slug || !titleEn || !titleAr) {
+      alert("Slug and Titles are required")
+      return
+    }
+
     setIsSaving(true)
-    setError(null)
-    
     try {
-      const url = initialData?.id ? `/api/cases/${initialData.id}` : "/api/cases"
-      const method = initialData?.id ? "PUT" : "POST"
+      const payload = {
+        slug, titleEn, titleAr, clientName, location, eventDate,
+        thumbnail, heroMediaType, heroMediaUrl,
+        challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
+        isFeatured, isVisible, isPublished: isVisible,
+        metrics, challenges, gallery
+      }
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      })
-
-      if (!res.ok) {
-        const errData = await res.json()
-        throw new Error(errData.error || "Something went wrong")
+      if (isEditing) {
+        const res = await fetch(`/api/b2b/cases/${initialData.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+        if (!res.ok) throw new Error("Failed to update")
+      } else {
+        const res = await fetch(`/api/b2b/cases`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug, titleEn, titleAr })
+        })
+        if (!res.ok) throw new Error("Failed to create. Slug might already exist.")
+        const data = await res.json()
+        
+        await fetch(`/api/b2b/cases/${data.caseStudy.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
       }
 
       router.push("/dashboard/b2b/cases")
       router.refresh()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: any) {
+      alert(error.message || "Failed to save")
     } finally {
       setIsSaving(false)
     }
   }
 
+  const updateArrayItem = (setter: any, array: any[], index: number, field: string, value: any) => {
+    const newArr = [...array]
+    newArr[index][field] = value
+    setter(newArr)
+  }
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8 p-6">
-      
+    <div className="space-y-6 max-w-6xl mx-auto pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-default)] shadow-sm sticky top-6 z-30 gap-4">
+        <div className="flex items-center gap-4">
           <button 
-            onClick={() => router.push("/dashboard/b2b/cases")}
-            className="p-2 hover:bg-[var(--surface-hover)] rounded-lg text-[var(--text-secondary)] transition-colors"
+            onClick={() => router.back()}
+            className="p-2 hover:bg-[var(--surface-hover)] rounded-xl transition-colors text-[var(--text-secondary)]"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-[var(--text-primary)]">
-              {initialData ? "Edit Case Study" : "Create Case Study"}
+            <h1 className="text-xl font-bold text-[var(--text-primary)]">
+              {isEditing ? "Edit Case Study" : "New Case Study"}
             </h1>
-            <p className="text-xs text-[var(--text-secondary)]">Establish premium corporate record proofs</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">{titleEn || "Untitled"}</p>
           </div>
         </div>
-
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={() => router.push("/dashboard/b2b/cases")} disabled={isSaving}>
-            Cancel
-          </Button>
-          <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : <><Save className="w-4 h-4" /> Save Showcase</>}
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-4 py-2 rounded-xl border border-[var(--border-default)]">
+            <input 
+              type="checkbox" 
+              checked={isVisible}
+              onChange={e => setIsVisible(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+            />
+            <span className="text-sm font-bold text-[var(--text-primary)]">Visible</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-4 py-2 rounded-xl border border-[var(--border-default)]">
+            <input 
+              type="checkbox" 
+              checked={isFeatured}
+              onChange={e => setIsFeatured(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+            />
+            <span className="text-sm font-bold text-[var(--text-primary)]">Featured</span>
+          </label>
+          <Button onClick={handleSave} disabled={isSaving} className="gap-2 rounded-xl h-10 px-6">
+            <Save className="w-4 h-4" />
+            {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
-      {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          {error}
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Sidebar Nav */}
+        <div className="w-full md:w-64 shrink-0 flex flex-col gap-2">
+          {["general", "hero", "narrative", "metrics", "challenges", "gallery"].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`text-left px-4 py-3 rounded-xl font-bold text-sm transition-colors ${
+                activeTab === tab 
+                  ? "bg-[var(--color-primary)] text-white shadow-lg" 
+                  : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Main Inputs (Left/2 Cols) */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Content Area */}
+        <div className="flex-1 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 md:p-8 min-h-[500px]">
           
-          {/* Identity Card */}
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
-            <h3 className="font-black text-[var(--text-primary)] uppercase tracking-wider text-xs border-b border-[var(--border-default)] pb-2 mb-4">
-              1. Showcase Identity
-            </h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Client Name</label>
-                <input 
-                  type="text" 
-                  value={formData.clientName}
-                  onChange={e => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]" 
-                  placeholder="e.g. Qatar Tourism" 
-                />
+          {/* GENERAL TAB */}
+          {activeTab === "general" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <h2 className="text-lg font-black mb-6 border-b border-[var(--border-default)] pb-4">Core Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Title (EN) *</label>
+                  <input type="text" value={titleEn} onChange={e => setTitleEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Title (AR) *</label>
+                  <input type="text" dir="rtl" value={titleAr} onChange={e => setTitleAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none font-arabic" />
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Custom URL Slug</label>
-                <input 
-                  type="text" 
-                  value={formData.slug}
-                  onChange={e => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] font-mono" 
-                  placeholder="doha-balloon-parade" 
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Title (English)</label>
-                <input 
-                  type="text" 
-                  value={formData.title.en}
-                  onChange={e => setFormData(prev => ({ ...prev, title: { ...prev.title, en: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]" 
-                  placeholder="Showcase Title" 
-                />
-              </div>
-              <div className="space-y-1" dir="rtl">
-                <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">Title (Arabic)</label>
-                <input 
-                  type="text" 
-                  value={formData.title.ar}
-                  onChange={e => setFormData(prev => ({ ...prev, title: { ...prev.title, ar: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]" 
-                  placeholder="العنوان بالعربية" 
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Execution Year</label>
-                <input 
-                  type="number" 
-                  value={formData.year}
-                  onChange={e => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) || new Date().getFullYear() }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] font-mono" 
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Project Duration</label>
-                <input 
-                  type="text" 
-                  value={formData.duration}
-                  onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]" 
-                  placeholder="e.g. 3 Months" 
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Bilingual Project Narrative */}
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-6">
-            <h3 className="font-black text-[var(--text-primary)] uppercase tracking-wider text-xs border-b border-[var(--border-default)] pb-2">
-              2. Case Narrative (Bilingual)
-            </h3>
-
-            {/* Challenge */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></span> Challenge
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <textarea 
-                  rows={4}
-                  value={formData.challenge.en}
-                  onChange={e => setFormData(prev => ({ ...prev, challenge: { ...prev.challenge, en: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] resize-none"
-                  placeholder="Describe the client's problem / challenge in English"
-                />
-                <textarea 
-                  rows={4}
-                  dir="rtl"
-                  value={formData.challenge.ar}
-                  onChange={e => setFormData(prev => ({ ...prev, challenge: { ...prev.challenge, ar: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] resize-none text-right"
-                  placeholder="صِف تحدي المشروع بالعربية"
-                />
-              </div>
-            </div>
-
-            {/* Solution */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></span> Solution
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <textarea 
-                  rows={4}
-                  value={formData.solution.en}
-                  onChange={e => setFormData(prev => ({ ...prev, solution: { ...prev.solution, en: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] resize-none"
-                  placeholder="Describe E3's unique solution in English"
-                />
-                <textarea 
-                  rows={4}
-                  dir="rtl"
-                  value={formData.solution.ar}
-                  onChange={e => setFormData(prev => ({ ...prev, solution: { ...prev.solution, ar: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] resize-none text-right"
-                  placeholder="صِف حل المشروع بالعربية"
-                />
-              </div>
-            </div>
-
-            {/* Results */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></span> Results
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <textarea 
-                  rows={4}
-                  value={formData.results?.en}
-                  onChange={e => setFormData(prev => ({ ...prev, results: { en: e.target.value, ar: prev.results?.ar || "" } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] resize-none"
-                  placeholder="Describe final execution achievements in English"
-                />
-                <textarea 
-                  rows={4}
-                  dir="rtl"
-                  value={formData.results?.ar}
-                  onChange={e => setFormData(prev => ({ ...prev, results: { en: prev.results?.en || "", ar: e.target.value } }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] resize-none text-right"
-                  placeholder="صِف نتائج وإنجازات المشروع بالعربية"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Before/After Media Section */}
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-6">
-            <h3 className="font-black text-[var(--text-primary)] uppercase tracking-wider text-xs border-b border-[var(--border-default)] pb-2">
-              3. Before / After Visual comparison
-            </h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Before Image URL</label>
-                <input 
-                  type="text" 
-                  value={formData.beforeImage}
-                  onChange={e => setFormData(prev => ({ ...prev, beforeImage: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] font-mono" 
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">After Image URL</label>
-                <input 
-                  type="text" 
-                  value={formData.afterImage}
-                  onChange={e => setFormData(prev => ({ ...prev, afterImage: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-3 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)] font-mono" 
-                />
-              </div>
-            </div>
-
-            {formData.beforeImage && formData.afterImage && (
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Live Interactive Preview</label>
-                <BeforeAfterSlider 
-                  beforeImage={formData.beforeImage}
-                  afterImage={formData.afterImage}
-                />
+                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Slug URL *</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--text-tertiary)] bg-[var(--surface-subtle)] px-4 py-3 rounded-xl border border-[var(--border-default)]">/b2b/case-studies/</span>
+                  <input type="text" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} className="flex-1 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar Controls (Right/1 Col) */}
-        <div className="space-y-6">
-          
-          {/* Status & Publication */}
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
-            <h3 className="font-black text-[var(--text-primary)] uppercase tracking-wider text-xs border-b border-[var(--border-default)] pb-2 mb-4">
-              Publishing Options
-            </h3>
-
-            <div className="flex items-center justify-between p-3 bg-[var(--surface-subtle)] rounded-lg border border-[var(--border-default)]">
-              <div>
-                <div className="text-sm font-bold text-[var(--text-primary)]">Public Visibility</div>
-                <div className="text-xs text-[var(--text-secondary)]">Make showcase live on site</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Client Name</label>
+                  <input type="text" value={clientName} onChange={e => setClientName(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Location</label>
+                  <input type="text" value={location} onChange={e => setLocation(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Event Date</label>
+                  <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
               </div>
-              <input 
-                type="checkbox" 
-                checked={formData.isPublished}
-                onChange={e => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
-                className="w-4 h-4 accent-[var(--color-primary)] cursor-pointer"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-3 bg-[var(--surface-subtle)] rounded-lg border border-[var(--border-default)]">
-              <div>
-                <div className="text-sm font-bold text-[var(--text-primary)]">Featured Showcase</div>
-                <div className="text-xs text-[var(--text-secondary)]">Prioritize on home sliders</div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>
+                <MediaUploader value={thumbnail} onChange={setThumbnail} />
               </div>
-              <input 
-                type="checkbox" 
-                checked={formData.isFeatured}
-                onChange={e => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
-                className="w-4 h-4 accent-[var(--color-primary)] cursor-pointer"
-              />
             </div>
-          </div>
+          )}
 
-          {/* Tags CMS */}
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
-            <h3 className="font-black text-[var(--text-primary)] uppercase tracking-wider text-xs border-b border-[var(--border-default)] pb-2">
-              Capability Tags
-            </h3>
-            
-            <div className="flex flex-wrap gap-1.5">
-              {formData.category.map(tag => (
-                <span 
-                  key={tag}
-                  className="inline-flex items-center gap-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-2.5 py-1 rounded-lg text-xs font-bold border border-[var(--color-primary)]/20"
-                >
-                  {tag}
-                  <X 
-                    className="w-3 h-3 cursor-pointer hover:text-red-500" 
-                    onClick={() => handleRemoveTag(tag)}
-                  />
-                </span>
-              ))}
+          {/* HERO TAB */}
+          {activeTab === "hero" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <h2 className="text-lg font-black mb-6 border-b border-[var(--border-default)] pb-4">Hero Media</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Media Type</label>
+                  <select value={heroMediaType} onChange={e => setHeroMediaType(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none">
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video File</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hero Media URL</label>
+                <MediaUploader value={heroMediaUrl} onChange={setHeroMediaUrl} />
+              </div>
             </div>
+          )}
 
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                value={newTag}
-                onChange={e => setNewTag(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleAddTag())}
-                placeholder="e.g. Fabrication"
-                className="flex-1 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-xs outline-none text-[var(--text-primary)]"
-              />
-              <Button size="sm" onClick={handleAddTag}>Add</Button>
+          {/* NARRATIVE TAB */}
+          {activeTab === "narrative" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <h2 className="text-lg font-black mb-6 border-b border-[var(--border-default)] pb-4">Narrative (Challenge, Solution, Result)</h2>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-[var(--border-default)] pb-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider">The Challenge (EN)</label>
+                    <textarea value={challengeEn} rows={4} onChange={e => setChallengeEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider">The Challenge (AR)</label>
+                    <textarea value={challengeAr} dir="rtl" rows={4} onChange={e => setChallengeAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none font-arabic" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-[var(--border-default)] pb-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-emerald-500 uppercase tracking-wider">Our Solution (EN)</label>
+                    <textarea value={solutionEn} rows={4} onChange={e => setSolutionEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-emerald-500 uppercase tracking-wider">Our Solution (AR)</label>
+                    <textarea value={solutionAr} dir="rtl" rows={4} onChange={e => setSolutionAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none font-arabic" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-amber-500 uppercase tracking-wider">The Results (EN)</label>
+                    <textarea value={resultEn} rows={4} onChange={e => setResultEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-amber-500 uppercase tracking-wider">The Results (AR)</label>
+                    <textarea value={resultAr} dir="rtl" rows={4} onChange={e => setResultAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none font-arabic" />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Telemetry Metrics Grid */}
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
-            <h3 className="font-black text-[var(--text-primary)] uppercase tracking-wider text-xs border-b border-[var(--border-default)] pb-2">
-              Telemetry metrics
-            </h3>
-
-            {/* Metrics List */}
-            {formData.telemetry && formData.telemetry.length > 0 && (
-              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                {formData.telemetry.map((m, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-[var(--surface-subtle)] rounded-lg border border-[var(--border-default)] text-xs">
-                    <div>
-                      <div className="font-bold text-[var(--text-primary)]">{m.valueEn} {m.labelEn}</div>
-                      {(m.labelAr || m.valueAr) && (
-                        <div className="text-[var(--text-tertiary)] font-medium" dir="rtl">{m.valueAr} {m.labelAr}</div>
-                      )}
-                    </div>
-                    <button 
-                      onClick={() => handleRemoveMetric(idx)}
-                      className="text-red-500 hover:bg-red-500/10 p-1 rounded"
-                    >
-                      <X className="w-3.5 h-3.5" />
+          {/* METRICS TAB */}
+          {activeTab === "metrics" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
+                <h2 className="text-lg font-black">Impact Metrics</h2>
+                <Button onClick={() => setMetrics([...metrics, { labelEn: "", valueEn: "", labelAr: "", valueAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Add Metric
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {metrics.map((metric, index) => (
+                  <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group flex flex-col gap-3">
+                    <button onClick={() => setMetrics(metrics.filter((_, i) => i !== index))} className="absolute top-2 right-2 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Trash2 className="w-4 h-4" />
                     </button>
+                    <div>
+                      <label className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase">Value</label>
+                      <input type="text" placeholder="e.g. 50k+" value={metric.valueEn} onChange={e => updateArrayItem(setMetrics, metrics, index, "valueEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-sm font-bold text-[var(--color-primary)]" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase">Label (EN)</label>
+                      <input type="text" placeholder="Attendees" value={metric.labelEn} onChange={e => updateArrayItem(setMetrics, metrics, index, "labelEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase">Value (AR)</label>
+                      <input type="text" dir="rtl" placeholder="٥٠ ألف+" value={metric.valueAr || ""} onChange={e => updateArrayItem(setMetrics, metrics, index, "valueAr", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-sm font-bold font-arabic" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase">Label (AR)</label>
+                      <input type="text" dir="rtl" placeholder="زائر" value={metric.labelAr || ""} onChange={e => updateArrayItem(setMetrics, metrics, index, "labelAr", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-sm font-arabic" />
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
-
-            {/* Add Metric Form */}
-            <div className="space-y-3 p-3 bg-[var(--surface-subtle)] rounded-lg border border-[var(--border-default)]">
-              <div className="grid grid-cols-2 gap-2">
-                <input 
-                  type="text" 
-                  value={newMetric.valueEn}
-                  onChange={e => setNewMetric(prev => ({ ...prev, valueEn: e.target.value }))}
-                  placeholder="Val (En) e.g. 760,000+"
-                  className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded px-2 py-1 text-xs outline-none text-[var(--text-primary)]"
-                />
-                <input 
-                  type="text" 
-                  value={newMetric.labelEn}
-                  onChange={e => setNewMetric(prev => ({ ...prev, labelEn: e.target.value }))}
-                  placeholder="Label (En) e.g. Attendees"
-                  className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded px-2 py-1 text-xs outline-none text-[var(--text-primary)]"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2" dir="rtl">
-                <input 
-                  type="text" 
-                  value={newMetric.valueAr}
-                  onChange={e => setNewMetric(prev => ({ ...prev, valueAr: e.target.value }))}
-                  placeholder="القيمة (عربي)"
-                  className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded px-2 py-1 text-xs outline-none text-[var(--text-primary)] text-right"
-                />
-                <input 
-                  type="text" 
-                  value={newMetric.labelAr}
-                  onChange={e => setNewMetric(prev => ({ ...prev, labelAr: e.target.value }))}
-                  placeholder="العنوان (عربي)"
-                  className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded px-2 py-1 text-xs outline-none text-[var(--text-primary)] text-right"
-                />
-              </div>
-              <Button size="sm" className="w-full gap-1" onClick={handleAddMetric}>
-                <Plus className="w-3.5 h-3.5" /> Add Metric
-              </Button>
             </div>
-          </div>
+          )}
+
+          {/* CHALLENGES OVERCOME */}
+          {activeTab === "challenges" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
+                <h2 className="text-lg font-black">Specific Challenges Overcome</h2>
+                <Button onClick={() => setChallenges([...challenges, { titleEn: "", descriptionEn: "", titleAr: "", descriptionAr: "", icon: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Add Challenge
+                </Button>
+              </div>
+              <div className="space-y-4">
+                {challenges.map((item, index) => (
+                  <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
+                    <button onClick={() => setChallenges(challenges.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-12">
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Icon Component Name (e.g. Clock, Shield)</label>
+                        <input type="text" value={item.icon || ""} onChange={e => updateArrayItem(setChallenges, challenges, index, "icon", e.target.value)} className="w-full max-w-xs bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Title (EN)</label>
+                        <input type="text" value={item.titleEn} onChange={e => updateArrayItem(setChallenges, challenges, index, "titleEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Title (AR)</label>
+                        <input type="text" dir="rtl" value={item.titleAr || ""} onChange={e => updateArrayItem(setChallenges, challenges, index, "titleAr", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm font-arabic" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Description (EN)</label>
+                        <textarea value={item.descriptionEn} onChange={e => updateArrayItem(setChallenges, challenges, index, "descriptionEn", e.target.value)} rows={2} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Description (AR)</label>
+                        <textarea value={item.descriptionAr || ""} dir="rtl" onChange={e => updateArrayItem(setChallenges, challenges, index, "descriptionAr", e.target.value)} rows={2} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none font-arabic" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* GALLERY TAB */}
+          {activeTab === "gallery" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
+                <h2 className="text-lg font-black">Gallery</h2>
+                <Button onClick={() => setGallery([...gallery, { url: "", captionEn: "", captionAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Add Media
+                </Button>
+              </div>
+              <div className="space-y-4">
+                {gallery.map((item, index) => (
+                  <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
+                    <button onClick={() => setGallery(gallery.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                      <div className="md:col-span-4">
+                        <MediaUploader value={item.url} onChange={(url) => updateArrayItem(setGallery, gallery, index, "url", url)} />
+                      </div>
+                      <div className="md:col-span-8 space-y-4">
+                        <input type="text" value={item.captionEn || ""} onChange={(e) => updateArrayItem(setGallery, gallery, index, "captionEn", e.target.value)} className="w-full px-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl text-sm outline-none" placeholder="Caption (EN)" />
+                        <input type="text" dir="rtl" value={item.captionAr || ""} onChange={(e) => updateArrayItem(setGallery, gallery, index, "captionAr", e.target.value)} className="w-full px-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl text-sm outline-none font-arabic" placeholder="Caption (AR)" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

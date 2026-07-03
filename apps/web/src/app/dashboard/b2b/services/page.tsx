@@ -1,36 +1,21 @@
-import { Metadata } from "next"
-import db from "@/lib/db"
-import { ServicesTable } from "@/components/dashboard/b2b/ServicesTable"
+import { auth } from "@/lib/auth"
+import { db } from "@/lib/db"
+import { redirect } from "next/navigation"
+import { ServicesListClient } from "@/components/dashboard/b2b/ServicesListClient"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "B2B Services | E3 Admin",
 }
 
-export const dynamic = 'force-dynamic'
-
 export default async function ServicesPage() {
+  const session = await auth()
+  if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
+    redirect("/login")
+  }
+
   const services = await db.service.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      slug: true,
-      titleEn: true,
-      titleAr: true,
-      thumbnail: true,
-      isVisible: true,
-      isFeatured: true,
-      createdAt: true
-    }
+    orderBy: { createdAt: 'desc' }
   })
 
-  return (
-    <div className="p-6 md:p-8 max-w-[1400px] mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-[var(--text-primary)]">B2B Services</h1>
-        <p className="text-[var(--text-secondary)] mt-2">Manage the services offered to corporate clients.</p>
-      </div>
-
-      <ServicesTable services={services} />
-    </div>
-  )
+  return <ServicesListClient initialData={services} />
 }

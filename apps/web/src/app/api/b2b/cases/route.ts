@@ -7,20 +7,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const all = searchParams.get("all") === "true"
 
-    const where = all ? {} : { isVisible: true }
+    const where = all ? {} : { isPublished: true }
     
-    const services = await db.service.findMany({
+    const caseStudies = await db.caseStudy.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        projects: true,
-        gallery: { orderBy: { orderIndex: 'asc' } }
-      }
+      orderBy: { year: 'desc' }
     })
 
-    return NextResponse.json({ success: true, services })
+    return NextResponse.json({ success: true, caseStudies })
   } catch (error: any) {
-    console.error("[SERVICES_GET_ERROR]", error)
+    console.error("[CASES_GET_ERROR]", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
@@ -39,23 +35,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const existing = await db.service.findUnique({ where: { slug } })
+    const existing = await db.caseStudy.findUnique({ where: { slug } })
     if (existing) {
-      return NextResponse.json({ error: "Service with this slug already exists" }, { status: 400 })
+      return NextResponse.json({ error: "Case study with this slug already exists" }, { status: 400 })
     }
 
-    const service = await db.service.create({
+    const caseStudy = await db.caseStudy.create({
       data: {
         slug,
         titleEn,
         titleAr,
-        isVisible: false
+        isPublished: false
       }
     })
 
-    return NextResponse.json({ success: true, service })
+    return NextResponse.json({ success: true, caseStudy })
   } catch (error: any) {
-    console.error("[SERVICES_POST_ERROR]", error)
+    console.error("[CASES_POST_ERROR]", error)
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
   }
 }

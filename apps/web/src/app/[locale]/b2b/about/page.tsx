@@ -1,17 +1,27 @@
 import React from 'react'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 
+import prisma from '@/lib/db'
+
 export const metadata = {
   title: 'About Us - E3 Corporate',
   description: 'Learn about E3, our leadership, values, and our mission to engineer landmark experiences across the MENA region.',
 }
 
-export default function AboutPage() {
-  const leadership = [
-    { name: 'Abdullah Al Misnad', title: 'Chairman', image: '/mock/team-1.jpg' },
-    { name: 'Khalid Al Hammadi', title: 'CEO', image: '/mock/team-2.jpg' },
-    { name: 'Sarah Al Kuwari', title: 'Director of Operations', image: '/mock/team-3.jpg' },
-  ]
+export const dynamic = 'force-dynamic'
+
+export default async function AboutPage() {
+  const employeeProfiles = await prisma.employeeProfile.findMany({
+    where: { isActive: true },
+    orderBy: { order: "asc" },
+    take: 3
+  })
+
+  const leadership = employeeProfiles.map((emp) => ({
+    name: `${emp.firstName} ${emp.lastName}`,
+    title: emp.designation,
+    image: emp.profileImage || '/mock/team-1.jpg'
+  }))
 
   const values = [
     { title: 'Engineering Precision', desc: 'We treat creativity with the rigor of structural engineering. No detail is too small, no safety margin too tight.' },
@@ -94,9 +104,11 @@ export default function AboutPage() {
             {leadership.map((leader, i) => (
               <div key={i} className="group">
                 <div className="aspect-[3/4] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 mb-6 relative">
-                  <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-bold">
-                    [Photo]
-                  </div>
+                  <UniversalMediaRenderer 
+                    type="IMAGE"
+                    src={leader.image}
+                    alt={leader.name}
+                  />
                   <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
                 </div>
                 <h3 className="text-2xl font-bold text-zinc-100 mb-1 group-hover:text-emerald-400 transition-colors">
