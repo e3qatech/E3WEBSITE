@@ -752,7 +752,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 <div className="mt-8 border-t border-[var(--border-default)] pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-md font-bold">Specific Date & Timing Rules</h3>
-                    <Button type="button" onClick={() => setOperations({...operations, schedules: [...(operations.schedules || []), { id: Date.now(), title: "", daysOfWeek: "", startDate: "", endDate: "", timeSlots: "" }]})} variant="outline" size="sm" className="gap-2 rounded-xl">
+                    <Button type="button" onClick={() => setOperations({...operations, schedules: [...(operations.schedules || []), { id: Date.now(), title: "", daysOfWeek: [], dateRanges: [{ startDate: "", endDate: "" }], timeSlots: [{ from: "", to: "" }] }]})} variant="outline" size="sm" className="gap-2 rounded-xl">
                       <Plus className="w-4 h-4" /> Add Rule
                     </Button>
                   </div>
@@ -767,47 +767,164 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                           <Trash2 className="w-4 h-4" />
                         </button>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
+                        <div className="grid grid-cols-1 gap-6 pr-10">
                           <div className="space-y-2">
                             <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Rule Title</label>
-                            <input type="text" placeholder="e.g. Weekends, National Day" value={schedule.title} onChange={e => {
+                            <input type="text" placeholder="e.g. Weekends, National Day" value={schedule.title || ""} onChange={e => {
                               const newSchedules = [...(operations.schedules || [])];
                               newSchedules[index].title = e.target.value;
                               setOperations({...operations, schedules: newSchedules});
-                            }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                            }} className="w-full md:w-1/2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
                           </div>
+
                           <div className="space-y-2">
-                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Days of Week (e.g. Thu-Sat, Mon-Wed)</label>
-                            <input type="text" placeholder="Leave empty for specific dates" value={schedule.daysOfWeek} onChange={e => {
-                              const newSchedules = [...(operations.schedules || [])];
-                              newSchedules[index].daysOfWeek = e.target.value;
-                              setOperations({...operations, schedules: newSchedules});
-                            }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Date Range (Optional)</label>
-                            <div className="flex items-center gap-2">
-                              <input type="date" value={schedule.startDate} onChange={e => {
-                                const newSchedules = [...(operations.schedules || [])];
-                                newSchedules[index].startDate = e.target.value;
-                                setOperations({...operations, schedules: newSchedules});
-                              }} className="w-1/2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                              <span className="text-[var(--text-secondary)]">to</span>
-                              <input type="date" value={schedule.endDate} onChange={e => {
-                                const newSchedules = [...(operations.schedules || [])];
-                                newSchedules[index].endDate = e.target.value;
-                                setOperations({...operations, schedules: newSchedules});
-                              }} className="w-1/2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Days of Week</label>
+                            <div className="flex flex-wrap gap-2">
+                              {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map(day => {
+                                // For backwards compatibility, if it's a string, we might not match properly, so we encourage array usage
+                                const isSelected = Array.isArray(schedule.daysOfWeek) 
+                                  ? schedule.daysOfWeek.includes(day) 
+                                  : typeof schedule.daysOfWeek === 'string' && schedule.daysOfWeek.includes(day.slice(0, 3));
+                                return (
+                                  <button
+                                    key={day}
+                                    type="button"
+                                    onClick={() => {
+                                      const newSchedules = [...(operations.schedules || [])];
+                                      let currentDays = Array.isArray(schedule.daysOfWeek) ? [...schedule.daysOfWeek] : [];
+                                      if (isSelected) {
+                                        currentDays = currentDays.filter(d => d !== day);
+                                      } else {
+                                        currentDays.push(day);
+                                      }
+                                      newSchedules[index].daysOfWeek = currentDays;
+                                      setOperations({...operations, schedules: newSchedules});
+                                    }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${
+                                      isSelected 
+                                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' 
+                                        : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border-[var(--border-default)] hover:border-[var(--color-primary)]/50'
+                                    }`}
+                                  >
+                                    {day.slice(0, 3)}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Time Slots</label>
-                            <input type="text" placeholder="e.g. 4 PM - 12 AM" value={schedule.timeSlots || schedule.details} onChange={e => {
-                              const newSchedules = [...(operations.schedules || [])];
-                              newSchedules[index].timeSlots = e.target.value;
-                              newSchedules[index].details = e.target.value;
-                              setOperations({...operations, schedules: newSchedules});
-                            }} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Date Ranges */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Date Ranges</label>
+                                <button type="button" onClick={() => {
+                                  const newSchedules = [...(operations.schedules || [])];
+                                  if (!Array.isArray(newSchedules[index].dateRanges)) {
+                                    newSchedules[index].dateRanges = newSchedules[index].startDate || newSchedules[index].endDate 
+                                      ? [{ startDate: newSchedules[index].startDate || "", endDate: newSchedules[index].endDate || "" }] 
+                                      : [];
+                                  }
+                                  newSchedules[index].dateRanges.push({ startDate: "", endDate: "" });
+                                  setOperations({...operations, schedules: newSchedules});
+                                }} className="text-[10px] uppercase font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1">
+                                  <Plus className="w-3 h-3" /> Add Range
+                                </button>
+                              </div>
+                              <div className="space-y-2">
+                                {(() => {
+                                  let ranges = Array.isArray(schedule.dateRanges) ? schedule.dateRanges : null;
+                                  if (!ranges) {
+                                    ranges = schedule.startDate || schedule.endDate ? [{ startDate: schedule.startDate || "", endDate: schedule.endDate || "" }] : [];
+                                  }
+                                  return ranges.length === 0 ? (
+                                    <p className="text-xs text-[var(--text-tertiary)] italic">No date ranges. Applies to all dates.</p>
+                                  ) : ranges.map((range: any, rIndex: number) => (
+                                    <div key={rIndex} className="flex items-center gap-2">
+                                      <input type="date" value={range.startDate || ""} onChange={e => {
+                                        const newSchedules = [...(operations.schedules || [])];
+                                        if (!Array.isArray(newSchedules[index].dateRanges)) {
+                                          newSchedules[index].dateRanges = ranges;
+                                        }
+                                        newSchedules[index].dateRanges[rIndex].startDate = e.target.value;
+                                        setOperations({...operations, schedules: newSchedules});
+                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
+                                      <span className="text-[var(--text-secondary)] text-xs font-medium">to</span>
+                                      <input type="date" value={range.endDate || ""} onChange={e => {
+                                        const newSchedules = [...(operations.schedules || [])];
+                                        if (!Array.isArray(newSchedules[index].dateRanges)) {
+                                          newSchedules[index].dateRanges = ranges;
+                                        }
+                                        newSchedules[index].dateRanges[rIndex].endDate = e.target.value;
+                                        setOperations({...operations, schedules: newSchedules});
+                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
+                                      <button type="button" onClick={() => {
+                                        const newSchedules = [...(operations.schedules || [])];
+                                        if (!Array.isArray(newSchedules[index].dateRanges)) newSchedules[index].dateRanges = ranges;
+                                        newSchedules[index].dateRanges.splice(rIndex, 1);
+                                        setOperations({...operations, schedules: newSchedules});
+                                      }} className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ));
+                                })()}
+                              </div>
+                            </div>
+
+                            {/* Time Slots */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Time Slots</label>
+                                <button type="button" onClick={() => {
+                                  const newSchedules = [...(operations.schedules || [])];
+                                  if (!Array.isArray(newSchedules[index].timeSlots)) {
+                                    newSchedules[index].timeSlots = typeof newSchedules[index].timeSlots === 'string' && newSchedules[index].timeSlots 
+                                      ? [{ from: newSchedules[index].timeSlots, to: "" }] 
+                                      : [];
+                                  }
+                                  newSchedules[index].timeSlots.push({ from: "", to: "" });
+                                  setOperations({...operations, schedules: newSchedules});
+                                }} className="text-[10px] uppercase font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1">
+                                  <Plus className="w-3 h-3" /> Add Time
+                                </button>
+                              </div>
+                              <div className="space-y-2">
+                                {(() => {
+                                  let slots = Array.isArray(schedule.timeSlots) ? schedule.timeSlots : null;
+                                  if (!slots) {
+                                    slots = typeof schedule.timeSlots === 'string' && schedule.timeSlots ? [{ from: schedule.timeSlots, to: "" }] : [];
+                                  }
+                                  return slots.length === 0 ? (
+                                    <p className="text-xs text-[var(--text-tertiary)] italic">No time slots specified.</p>
+                                  ) : slots.map((slot: any, tIndex: number) => (
+                                    <div key={tIndex} className="flex items-center gap-2">
+                                      <input type="time" value={slot.from || ""} onChange={e => {
+                                        const newSchedules = [...(operations.schedules || [])];
+                                        if (!Array.isArray(newSchedules[index].timeSlots)) newSchedules[index].timeSlots = slots;
+                                        newSchedules[index].timeSlots[tIndex].from = e.target.value;
+                                        setOperations({...operations, schedules: newSchedules});
+                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
+                                      <span className="text-[var(--text-secondary)] text-xs font-medium">to</span>
+                                      <input type="time" value={slot.to || ""} onChange={e => {
+                                        const newSchedules = [...(operations.schedules || [])];
+                                        if (!Array.isArray(newSchedules[index].timeSlots)) newSchedules[index].timeSlots = slots;
+                                        newSchedules[index].timeSlots[tIndex].to = e.target.value;
+                                        setOperations({...operations, schedules: newSchedules});
+                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
+                                      <button type="button" onClick={() => {
+                                        const newSchedules = [...(operations.schedules || [])];
+                                        if (!Array.isArray(newSchedules[index].timeSlots)) newSchedules[index].timeSlots = slots;
+                                        newSchedules[index].timeSlots.splice(tIndex, 1);
+                                        setOperations({...operations, schedules: newSchedules});
+                                      }} className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ));
+                                })()}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
