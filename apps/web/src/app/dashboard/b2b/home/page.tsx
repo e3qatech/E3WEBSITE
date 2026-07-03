@@ -11,6 +11,22 @@ export default async function DashboardB2BHomePage() {
     where: { slug: 'b2b-home' }
   })
 
+  const services = await db.service.findMany({
+    where: { isVisible: true },
+    select: { id: true, slug: true, titleEn: true }
+  })
+
+  const caseStudies = await db.caseStudy.findMany({
+    where: { isPublished: true },
+    select: { id: true, slug: true, titleEn: true }
+  })
+
   // Do not throw notFound() so the editor can load even if the DB hasn't been seeded yet.
-  return <B2BHomeEditor initialData={pageData || { slug: 'b2b-home', content: {} }} />
+  return (
+    <B2BHomeEditor 
+      initialData={pageData || { slug: 'b2b-home', content: {} }} 
+      services={services}
+      caseStudies={caseStudies}
+    />
+  )
 }

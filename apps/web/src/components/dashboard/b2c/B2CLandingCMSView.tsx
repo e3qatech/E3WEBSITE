@@ -45,7 +45,11 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
       buttonTextAr: initialData?.careersCta?.buttonTextAr || "",
       buttonUrl: initialData?.careersCta?.buttonUrl || ""
     },
-    faqs: initialData?.faqs || []
+    faqs: initialData?.faqs || [],
+    footer: {
+      mediaType: initialData?.footer?.mediaType || "IMAGE",
+      mediaUrl: initialData?.footer?.mediaUrl || ""
+    }
   })
 
   const { toast } = useToast()
@@ -348,6 +352,47 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                 onChange={e => handleChange('cta', 'buttonUrl', e.target.value)}
                 className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Media Section */}
+        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-bold text-text-primary">Footer Background Media</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider">Background Media Type</label>
+              <div className="flex gap-4">
+                <select
+                  value={data.footer.mediaType}
+                  onChange={e => handleChange('footer', 'mediaType', e.target.value)}
+                  className="w-1/3 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                >
+                  <option value="IMAGE">Image / Media ID</option>
+                  <option value="VIDEO">Video</option>
+                  <option value="IFRAME">External iFrame</option>
+                  <option value="MODEL_3D">3D Model (.glb / .gltf)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 uppercase tracking-wider">Media</label>
+              {(data.footer.mediaType === 'IFRAME' || data.footer.mediaType === 'MODEL_3D') ? (
+                <input 
+                  type="text" 
+                  value={data.footer.mediaUrl || ''} 
+                  onChange={e => handleChange("footer", "mediaUrl", e.target.value)} 
+                  placeholder="https://..." 
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              ) : (
+                <AdminMediaPicker 
+                  value={data.footer.mediaUrl}
+                  onChange={url => handleChange('footer', 'mediaUrl', url)}
+                  accept={data.footer.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
+                />
+              )}
             </div>
           </div>
         </div>

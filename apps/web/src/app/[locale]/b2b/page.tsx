@@ -35,19 +35,41 @@ export default async function B2BHomePage() {
     howBullets: ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing']
   }
 
-  // Fetch Featured Services
-  const dbServices = await db.service.findMany({
-    where: { isVisible: true, isFeatured: true },
-    orderBy: { createdAt: 'desc' },
-    take: 4
-  })
+  // Determine which Services to show
+  const featuredServiceIds = cmsData?.featuredServiceIds || []
+  let dbServices: any[] = []
+  if (featuredServiceIds.length > 0) {
+    dbServices = await db.service.findMany({
+      where: { id: { in: featuredServiceIds }, isVisible: true }
+    })
+    // Sort them according to the selected order
+    dbServices.sort((a, b) => featuredServiceIds.indexOf(a.id) - featuredServiceIds.indexOf(b.id))
+  } else {
+    // Fallback: recent featured
+    dbServices = await db.service.findMany({
+      where: { isVisible: true, isFeatured: true },
+      orderBy: { createdAt: 'desc' },
+      take: 4
+    })
+  }
 
-  // Fetch Featured Projects (Case Studies)
-  const dbProjects = await db.caseStudy.findMany({
-    where: { isPublished: true, isFeatured: true },
-    orderBy: { year: 'desc' },
-    take: 3
-  })
+  // Determine which Case Studies to show
+  const featuredCaseStudyIds = cmsData?.featuredCaseStudyIds || []
+  let dbProjects: any[] = []
+  if (featuredCaseStudyIds.length > 0) {
+    dbProjects = await db.caseStudy.findMany({
+      where: { id: { in: featuredCaseStudyIds }, isPublished: true }
+    })
+    // Sort them according to the selected order
+    dbProjects.sort((a, b) => featuredCaseStudyIds.indexOf(a.id) - featuredCaseStudyIds.indexOf(b.id))
+  } else {
+    // Fallback: recent featured
+    dbProjects = await db.caseStudy.findMany({
+      where: { isPublished: true, isFeatured: true },
+      orderBy: { year: 'desc' },
+      take: 3
+    })
+  }
 
   const partners = ['Visit Qatar', 'Qatar Tourism', 'Qatar Calendar', 'UDC', 'QNCC', 'Doha Festival City']
 
