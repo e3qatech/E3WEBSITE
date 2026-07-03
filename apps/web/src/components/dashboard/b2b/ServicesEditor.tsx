@@ -23,7 +23,7 @@ const TABS = [
   { id: "seo", label: "SEO Customizer", icon: Search },
 ]
 
-export function ServicesEditor({ initialData }: { initialData?: any }) {
+export function ServicesEditor({ initialData, attractions }: { initialData?: any, attractions?: { id: string, nameEn: string }[] }) {
   const router = useRouter()
   const isEditing = !!initialData
   
@@ -47,6 +47,7 @@ export function ServicesEditor({ initialData }: { initialData?: any }) {
     thumbnail: initialData?.thumbnail || "",
     ctaPrimary: initialData?.ctaPrimary || "CONTACT",
     ctaSecondary: initialData?.ctaSecondary || "",
+    attractionId: initialData?.attractionId || "",
     seo: initialData?.seo || { metaTitle: "", metaDescription: "", keywords: "" },
   })
 
@@ -236,6 +237,20 @@ export function ServicesEditor({ initialData }: { initialData?: any }) {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>
                   <MediaUploader value={formData.thumbnail} onChange={val => handleChange('thumbnail', val)} />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Linked Attraction (Optional)</label>
+                  <select
+                    value={formData.attractionId}
+                    onChange={(e) => handleChange("attractionId", e.target.value)}
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors"
+                  >
+                    <option value="">None</option>
+                    {attractions?.map(a => (
+                      <option key={a.id} value={a.id}>{a.nameEn}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex gap-8 pt-6 border-t border-[var(--border-default)]">

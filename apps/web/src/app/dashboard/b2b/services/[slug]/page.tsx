@@ -31,5 +31,9 @@ export default async function EditServicePage({
     notFound()
   }
 
-  return <ServicesEditor initialData={service} />
+  const attractions = await db.attraction.findMany({
+    select: { id: true, nameEn: true }
+  })
+
+  return <ServicesEditor initialData={service} attractions={attractions} />
 }

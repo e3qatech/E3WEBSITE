@@ -36,15 +36,15 @@ const sidebarConfig = [
     { label: "Contact Editor", href: "/dashboard/b2b/contact" },
     { label: "Services Page Editor", href: "/dashboard/b2b/services-page" },
     { label: "Service Manager", href: "/dashboard/b2b/services" },
-    { label: "Project Microsites", href: "/dashboard/b2b/cases" },
+    { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team & Roster", href: "/dashboard/b2b/team" },
-    { label: "Partners CMS", href: "/dashboard/b2b/partners" }
+    { label: "Partners CMS", href: "/dashboard/b2b/partners" },
+    { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
   { label: "B2C Hub", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Editor", href: "/dashboard/b2c/landing" },
     { label: "Discover Editor", href: "/dashboard/b2c/discover" },
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
-    { label: "Project Microsites", href: "/dashboard/b2c/microsites" },
     { label: "Calendar", href: "/dashboard/b2c/calendar" },
     { label: "Contact", href: "/dashboard/b2c/contact" }
   ] },

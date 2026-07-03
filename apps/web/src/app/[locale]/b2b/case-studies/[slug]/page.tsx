@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { db } from "@/lib/db"
 
-export default async function ProjectMicrositePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
   
   const { slug } = await params
 

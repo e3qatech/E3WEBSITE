@@ -17,7 +17,7 @@ export async function PUT(
     const { 
       slug, titleEn, titleAr, taglineEn, taglineAr, thumbnail, contentEn, contentAr,
       isFeatured, isVisible, isPublished, heroMediaType, heroMediaUrl, process,
-      ctaPrimary, ctaSecondary, seo, gallery, projects
+      ctaPrimary, ctaSecondary, seo, gallery, projects, attractionId
     } = body
 
     await db.$transaction([
@@ -28,7 +28,7 @@ export async function PUT(
         data: {
           slug, titleEn, titleAr, taglineEn, taglineAr, thumbnail, contentEn, contentAr,
           isFeatured, isVisible, isPublished, heroMediaType, heroMediaUrl, process,
-          ctaPrimary, ctaSecondary, seo,
+          ctaPrimary, ctaSecondary, seo, attractionId: attractionId || null,
           gallery: {
             create: (gallery || []).map((g: any, i: number) => ({
               url: g.url,
