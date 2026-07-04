@@ -53,24 +53,44 @@ export default async function DashboardOverviewPage() {
     console.error("Dashboard data fetch error:", e);
   }
 
-  // Aggregate Stats
-  const thisMonthLeads = leads.filter(l => l.createdAt?.getMonth() === new Date().getMonth()).length;
+  // Compute Real Metrics & Trends
+  const now = new Date();
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // Leads
+  const thisMonthLeads = leads.filter(l => new Date(l.createdAt) >= startOfThisMonth);
+  const lastMonthLeads = leads.filter(l => new Date(l.createdAt) >= lastMonth && new Date(l.createdAt) < startOfThisMonth);
   
+  const leadsTrend = lastMonthLeads.length > 0 
+    ? Math.round(((thisMonthLeads.length - lastMonthLeads.length) / lastMonthLeads.length) * 100) 
+    : (thisMonthLeads.length > 0 ? 100 : 0);
+
+  // Feedbacks
+  const thisMonthFeedbacks = feedbacks.filter(f => new Date(f.createdAt) >= startOfThisMonth);
   let avgFeedback = 5.0;
   if (feedbacks.length > 0) {
-    const total = feedbacks.reduce((acc, curr) => acc + (curr.rating || 0), 0);
-    avgFeedback = total / feedbacks.length;
+    avgFeedback = feedbacks.reduce((acc, curr) => acc + (curr.rating || 0), 0) / feedbacks.length;
+  }
+  let lastMonthAvgFeedback = 5.0;
+  if (thisMonthFeedbacks.length > 0) {
+    lastMonthAvgFeedback = thisMonthFeedbacks.reduce((acc, curr) => acc + (curr.rating || 0), 0) / thisMonthFeedbacks.length;
   }
 
-  const mockStats: StatItem[] = [
-    { id: "active-projects", label: "Active Projects", value: projectsCount.toString(), trend: 0, trendLabel: "steady", history: [10, 15, 12, 18, 20, projectsCount] },
-    { id: "new-leads", label: "New Leads", value: thisMonthLeads.toString(), trend: 5, trendLabel: "this month", history: [10, 11, 10, 13, 13, thisMonthLeads] },
-    { id: "upcoming-events", label: "Upcoming Events", value: events.length.toString(), trend: 0, trendLabel: "vs last month", history: [12, 10, 11, 9, 10, events.length] },
-    { id: "feedback-score", label: "Feedback Score", value: avgFeedback.toFixed(1), trend: 0, trendLabel: "steady", history: [4.7, 4.8, 4.8, 4.9, 4.9, avgFeedback] },
+  const feedbackTrend = lastMonthAvgFeedback > 0 
+    ? ((avgFeedback - lastMonthAvgFeedback) / lastMonthAvgFeedback) * 100
+    : 0;
+
+  // We only show a simple trend value now, no fake history
+  const realStats: StatItem[] = [
+    { id: "active-projects", label: "Published Case Studies", value: projectsCount.toString(), trend: 0, trendLabel: "total published", history: [projectsCount] },
+    { id: "new-leads", label: "New Leads (This Month)", value: thisMonthLeads.length.toString(), trend: leadsTrend, trendLabel: "vs last month", history: [lastMonthLeads.length, thisMonthLeads.length] },
+    { id: "upcoming-events", label: "Upcoming Events", value: events.length.toString(), trend: 0, trendLabel: "scheduled", history: [events.length] },
+    { id: "feedback-score", label: "Avg Feedback Score", value: avgFeedback.toFixed(1), trend: feedbackTrend, trendLabel: "vs last month", history: [lastMonthAvgFeedback, avgFeedback] },
   ]
 
   // Map Leads
-  const mappedLeads: Lead[] = leads.map(l => ({
+  const mappedLeads: Lead[] = leads.slice(0, 10).map(l => ({
     id: l.id,
     name: l.firstName ? `${l.firstName} ${l.lastName}` : l.name || "Unknown",
     company: l.company || "Individual",
@@ -141,7 +161,7 @@ export default async function DashboardOverviewPage() {
       </div>
 
       {/* STATS GRID */}
-      <StatsGrid stats={mockStats} />
+      <StatsGrid stats={realStats} />
 
       {/* MAIN CONTENT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

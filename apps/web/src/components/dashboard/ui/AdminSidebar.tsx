@@ -27,41 +27,45 @@ import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
 import { AdminStatusBadge } from "./AdminStatusBadge";
 
-// Updated configuration mapping 17 domain modules
+// Updated configuration mapping 17 domain modules into refined logical buckets
 const sidebarConfig = [
   { label: "Command Center", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
-  { label: "B2B Portal", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
-    { label: "Homepage Editor", href: "/dashboard/b2b/home" },
-    { label: "About Us Editor", href: "/dashboard/b2b/about" },
-    { label: "Contact Editor", href: "/dashboard/b2b/contact" },
-    { label: "Services Page Editor", href: "/dashboard/b2b/services-page" },
-    { label: "Cases Page Editor", href: "/dashboard/b2b/cases-page" },
-    { label: "Partners Page Editor", href: "/dashboard/b2b/partners-page" },
+  { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team & Roster", href: "/dashboard/b2b/team" },
     { label: "Partners CMS", href: "/dashboard/b2b/partners" },
     { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
-  { label: "B2C Hub", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Landing Editor", href: "/dashboard/b2c/landing" },
-    { label: "Discover Editor", href: "/dashboard/b2c/discover" },
+  { label: "B2B Pages", icon: FileText, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+    { label: "Homepage Editor", href: "/dashboard/b2b/home" },
+    { label: "About Us Editor", href: "/dashboard/b2b/about" },
+    { label: "Contact Editor", href: "/dashboard/b2b/contact" },
+    { label: "Services Page", href: "/dashboard/b2b/services-page" },
+    { label: "Cases Page", href: "/dashboard/b2b/cases-page" },
+    { label: "Partners Page", href: "/dashboard/b2b/partners-page" }
+  ] },
+  { label: "B2C Content", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
     { label: "Calendar", href: "/dashboard/b2c/calendar" },
     { label: "Contact", href: "/dashboard/b2c/contact" }
   ] },
-  { label: "Content & Media", icon: FileText, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
-    { label: "Media Library", href: "/dashboard/cms/media" },
-    { label: "CMS Pages Editor", href: "/dashboard/cms/pages" }
+  { label: "B2C Pages", icon: Star, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Landing Editor", href: "/dashboard/b2c/landing" },
+    { label: "Discover Editor", href: "/dashboard/b2c/discover" }
   ] },
-  { label: "CRM & Pipelines", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+  { label: "Global Media", icon: Database, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
+    { label: "Media Library", href: "/dashboard/cms/media" },
+    { label: "CMS Pages", href: "/dashboard/cms/pages" }
+  ] },
+  { label: "CRM & Sales", icon: Users, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },
     { label: "Client Directory", href: "/dashboard/crm/clients" },
     { label: "Inquiries", href: "/dashboard/crm/inquiries" },
     { label: "Talent AI Parser", href: "/dashboard/crm/talent" },
     { label: "Subscribers", href: "/dashboard/crm/subscribers" }
   ] },
-  { label: "Live Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
+  { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Hardware Status", href: "/dashboard/operations/events" },
     { label: "Recap Engine", href: "/dashboard/operations/recap" },
     { label: "Catalog Generator", href: "/dashboard/operations/catalog" },
@@ -70,7 +74,7 @@ const sidebarConfig = [
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Global", href: "/dashboard/settings/general" },
-    { label: "Workflow Approvals", href: "/dashboard/settings/approvals" }, // Added for Draft/Review workflow
+    { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },
     { label: "SEO & Meta", href: "/dashboard/settings/seo" }
   ] },
