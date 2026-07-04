@@ -399,9 +399,11 @@ model CaseStudy {
   category       String   @default("Corporate") // FEC, Corporate, Government, Festival
   isFeatured     Boolean  @default(false)
   
-  heroImageUrl   String?
-  thumbnailUrl   String?
-  clientLogoUrl  String?
+  heroMediaType      String?  @default("IMAGE") // IMAGE, VIDEO, MODEL_3D, IFRAME
+  heroImageUrl       String?
+  thumbnailMediaType String?  @default("IMAGE")
+  thumbnailUrl       String?
+  clientLogoUrl      String?
   
   challengeEn    String?  @db.Text
   challengeAr    String?  @db.Text

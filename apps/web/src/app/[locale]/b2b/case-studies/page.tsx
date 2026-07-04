@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Filter } from 'lucide-react'
 import { db } from "@/lib/db"
+import { MediaRenderer } from "@/components/ui/MediaRenderer"
 
 export const metadata = {
   title: 'Case Studies & Featured Work - E3 Corporate',
@@ -68,9 +69,13 @@ export default async function CaseStudiesIndexPage() {
                 className="group block"
               >
                 <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-zinc-900 mb-6 border border-zinc-800 group-hover:border-emerald-500/50 transition-colors">
-                  {project.heroImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={project.heroImageUrl} alt={project.titleEn} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {project.heroImageUrl || project.thumbnailUrl ? (
+                    <MediaRenderer 
+                      url={project.heroImageUrl || project.thumbnailUrl} 
+                      type={project.heroMediaType || project.thumbnailMediaType} 
+                      alt={project.titleEn} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-medium">
                       [Image: {project.titleEn}]

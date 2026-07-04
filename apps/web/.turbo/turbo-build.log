@@ -5,11 +5,11 @@
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
 
-✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 151ms
+✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 137ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+Tip: Curious about the SQL queries Prisma ORM generates? Optimize helps you enhance your visibility: https://pris.ly/tip-2-optimize
 
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
@@ -20,18 +20,18 @@ The database is already in sync with the Prisma schema.
 Running generate... (Use --skip-generate to skip the generators)
 [2K[1A[2K[GRunning generate... - Prisma Client
 [2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to .\..\..\node_modules\.pnpm\@prisma+client
-@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 168ms
+@5.22.0_prisma@5.22.0\node_modules\@prisma\client in 169ms
 
 ▲ Next.js 16.2.9 (Turbopack)
-- Environments: .env
+- Environments: .env.local, .env.production, .env
 - Experiments (use with caution):
   · optimizePackageImports
 
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-✓ Compiled successfully in 8.9s
+✓ Compiled successfully in 9.0s
   Running TypeScript ...
-  Finished TypeScript in 13.3s ...
+  Finished TypeScript in 13.4s ...
   Collecting page data using 23 workers ...
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
@@ -44,26 +44,26 @@ Running generate... (Use --skip-generate to skip the generators)
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
   Generating static pages using 23 workers (0/76) ...
 [REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[ioredis] Unhandled error event: AggregateError: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
@@ -72,68 +72,1247 @@ Running generate... (Use --skip-generate to skip the generators)
 [REDIS_ERROR] Redis connection error: 
   Generating static pages using 23 workers (19/76) 
 [REDIS_ERROR] Redis connection error: 
-prisma:info Starting a postgresql pool with 25 connections.
 [REDIS_ERROR] Redis connection error: 
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+[REDIS_ERROR] Redis connection error: 
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
 [ioredis] Unhandled error event: AggregateError: 
     at internalConnectMultiple (node:net:1139:18)
     at afterConnectMultiple (node:net:1712:7)
     at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-prisma:info Starting a postgresql pool with 25 connections.
-[REDIS_ERROR] Redis connection error: 
-prisma:info Starting a postgresql pool with 25 connections.
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 169ms
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 188ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 189ms
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[REDIS_ERROR] Redis connection error: 
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 227ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 242ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 227ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 238ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 226ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 236ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 236ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 246ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 204ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 233ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 234ms
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 238ms
   Generating static pages using 23 workers (38/76) 
-[PRISMA PERFORMANCE BREACH] SystemBroadcast.findFirst took 242ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 221ms
-[PRISMA PERFORMANCE BREACH] Setting.findMany took 240ms
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+[REDIS_ERROR] Redis connection error: 
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+
+   | 
+
+Validation Error Count: 1
+prisma:error 
+
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+
+
+  -->  schema.prisma:3
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+   | 
+ 3 |   url      = env("DATABASE_URL")
+   | 
+ 2 |   provider = "postgresql"
+
+ 3 |   url      = env("DATABASE_URL")
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+
+Invalid `prisma.setting.findMany()` invocation:
+
+Validation Error Count: 1
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+    at <unknown> (-->  schema.prisma:3)
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+  clientVersion: '5.22.0',
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.employeeProfile.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+  errorCode: undefined
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+}
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
   Generating static pages using 23 workers (57/76) 
-prisma:info Starting a postgresql pool with 25 connections.
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.pages.findUnique()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+[REDIS_ERROR] Redis connection error: 
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.attraction.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.service.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.caseStudy.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.teamMember.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.calendarEvent.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[REDIS_ERROR] Redis connection error: 
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.attraction.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+prisma:error 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+prisma:error 
+Invalid `prisma.setting.findMany()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+Failed to fetch system broadcast: Error [PrismaClientInitializationError]: 
+Invalid `prisma.systemBroadcast.findFirst()` invocation:
+
+
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  schema.prisma:3
+   | 
+ 2 |   provider = "postgresql"
+ 3 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:3)
+    at async Array.$allOperations (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\[root-of-the-server]__1g138ny._.js:1:526)
+    at async i (A:\.gemini\antigravity\scratch\E3 WEBSITE\e3-qatar\apps\web\.next\server\chunks\ssr\apps_web_src_0li_475._.js:1:6720) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
 [REDIS_ERROR] Redis connection error: 
 [REDIS_ERROR] Redis connection error: 
-[ioredis] Unhandled error event: AggregateError: 
-    at internalConnectMultiple (node:net:1139:18)
-    at afterConnectMultiple (node:net:1712:7)
-    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
-[PRISMA PERFORMANCE BREACH] Attraction.findMany took 101ms
-[PRISMA PERFORMANCE BREACH] CalendarEvent.findMany took 101ms
-✓ Generating static pages using 23 workers (76/76) in 537ms
+✓ Generating static pages using 23 workers (76/76) in 250ms
+[REDIS_ERROR] Redis connection error: 
   Finalizing page optimization ...
 
 Route (app)
@@ -213,6 +1392,7 @@ Route (app)
 ├ ƒ /api/crm/talent
 ├ ƒ /api/crm/talent/[id]
 ├ ƒ /api/crm/talent/parse-resume
+├ ƒ /api/debug-db
 ├ ƒ /api/employees
 ├ ƒ /api/employees/[id]
 ├ ƒ /api/health

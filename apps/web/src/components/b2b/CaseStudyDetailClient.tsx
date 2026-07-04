@@ -3,9 +3,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Quote, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { UniversalMediaRenderer as MediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 
 // Custom Animated Counter Hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -102,7 +102,7 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }: { beforeUrl: string, afterUr
     >
       {/* After Image (Background) */}
       <div className="absolute inset-0">
-         <Image src={afterUrl} alt="After" fill className="object-cover" />
+         <img src={afterUrl} alt="After" className="object-cover w-full h-full" />
          <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase">After</div>
       </div>
       
@@ -111,7 +111,7 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }: { beforeUrl: string, afterUr
         className="absolute inset-0 border-r-2 border-white"
         style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
       >
-        <Image src={beforeUrl} alt="Before" fill className="object-cover" />
+        <img src={beforeUrl} alt="Before" className="object-cover w-full h-full" />
         <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase">Before</div>
       </div>
       
@@ -158,11 +158,11 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
       {/* 1. HERO SECTION */}
       <section className="relative h-[70vh] min-h-[500px] w-full overflow-hidden bg-black text-white">
         <motion.div style={{ y: heroY }} className="absolute inset-0 z-0">
-          <Image 
-            src={caseStudy.heroImageUrl || caseStudy.thumbnailUrl || '/placeholder.jpg'} 
+          <MediaRenderer
+            src={caseStudy.heroImageUrl || caseStudy.thumbnailUrl || ""}
+            type={(caseStudy.heroMediaType || "IMAGE") as any}
             alt={caseStudy.titleEn}
             fill
-            priority
             className="object-cover opacity-60" 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-black/40 to-black/20" />
@@ -170,7 +170,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
         
         {caseStudy.clientLogoUrl && (
           <div className="absolute top-8 right-8 md:top-12 md:right-12 z-20 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
-            <Image src={caseStudy.clientLogoUrl} alt={caseStudy.clientName} width={120} height={60} className="object-contain" />
+            <MediaRenderer src={caseStudy.clientLogoUrl} type="IMAGE" alt={caseStudy.clientName} className="object-contain w-[120px] h-[60px]" />
           </div>
         )}
 
@@ -281,7 +281,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
                </p>
                <div className="flex items-center gap-4">
                  {testimonial.authorImage ? (
-                   <Image src={testimonial.authorImage} alt={testimonial.authorName} width={64} height={64} className="rounded-full object-cover border-2 border-[var(--border-subtle)]" />
+                   <MediaRenderer src={testimonial.authorImage} type="IMAGE" alt={testimonial.authorName} className="w-16 h-16 rounded-full object-cover border-2 border-[var(--border-subtle)]" />
                  ) : (
                    <div className="w-16 h-16 rounded-full bg-[var(--surface-sunken)] border-2 border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)]">
                      <span className="text-xl font-bold">{testimonial.authorName?.[0]}</span>
@@ -307,7 +307,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
               {relatedCaseStudies.map((cs) => (
                 <Link key={cs.id} href={`/b2b/case-studies/${cs.slug}`} className="group block bg-[var(--surface-default)] rounded-3xl overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--color-primary)] transition-colors">
                   <div className="relative h-48 overflow-hidden">
-                    <Image src={cs.thumbnailUrl || '/placeholder.jpg'} alt={cs.titleEn} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <MediaRenderer src={cs.thumbnailUrl || ""} type={(cs.thumbnailMediaType || "IMAGE") as any} alt={cs.titleEn} className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                   <div className="p-6">
                     <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] mb-2 block">{cs.category}</span>

@@ -16,7 +16,9 @@ export async function PUT(
     const body = await request.json()
     const { 
       slug, titleEn, titleAr, clientName, year, category,
-      heroImageUrl, thumbnailUrl, clientLogoUrl,
+      heroMediaType, heroImageUrl, 
+      thumbnailMediaType, thumbnailUrl, 
+      clientLogoUrl,
       challengeEn, challengeAr, solutionEn, solutionAr,
       isFeatured, isPublished,
       gallery, metrics, technicalSpecs, servicesUsed,
@@ -35,7 +37,9 @@ export async function PUT(
         data: {
           slug, titleEn, titleAr, clientName, category,
           year: year ? parseInt(year) : 2024,
-          heroImageUrl, thumbnailUrl, clientLogoUrl,
+          heroMediaType, heroImageUrl, 
+          thumbnailMediaType, thumbnailUrl, 
+          clientLogoUrl,
           challengeEn, challengeAr, solutionEn, solutionAr,
           isFeatured, isPublished,
           attractionId: attractionId || null,

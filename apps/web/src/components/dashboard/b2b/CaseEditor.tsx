@@ -22,8 +22,12 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
   const [year, setYear] = useState(initialData?.year || new Date().getFullYear())
   const [attractionId, setAttractionId] = useState(initialData?.attractionId || "")
   
+  const [thumbnailMediaType, setThumbnailMediaType] = useState(initialData?.thumbnailMediaType || "IMAGE")
   const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnailUrl || "")
+  
+  const [heroMediaType, setHeroMediaType] = useState(initialData?.heroMediaType || "IMAGE")
   const [heroImageUrl, setHeroImageUrl] = useState(initialData?.heroImageUrl || "")
+  
   const [clientLogoUrl, setClientLogoUrl] = useState(initialData?.clientLogoUrl || "")
   
   const [challengeEn, setChallengeEn] = useState(initialData?.challengeEn || "")
@@ -51,7 +55,9 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
     try {
       const payload = {
         slug, titleEn, titleAr, clientName, year, category,
-        heroImageUrl, thumbnailUrl, clientLogoUrl,
+        heroMediaType, heroImageUrl, 
+        thumbnailMediaType, thumbnailUrl, 
+        clientLogoUrl,
         challengeEn, challengeAr, solutionEn, solutionAr,
         isFeatured, isPublished: isVisible,
         attractionId, metrics, gallery,
@@ -207,7 +213,16 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>
+                  <select value={thumbnailMediaType} onChange={e => setThumbnailMediaType(e.target.value)} className="bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-2 py-1 text-xs focus:outline-none">
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">IFrame</option>
+                    <option value="SPLINE">Spline 3D</option>
+                    <option value="THREE_D">3D Model (GLTF)</option>
+                  </select>
+                </div>
                 <MediaUploader value={thumbnailUrl} onChange={setThumbnailUrl} />
               </div>
             </div>
@@ -218,7 +233,16 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <h2 className="text-lg font-black mb-6 border-b border-[var(--border-default)] pb-4">Hero Media</h2>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hero Image URL</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hero Media URL</label>
+                  <select value={heroMediaType} onChange={e => setHeroMediaType(e.target.value)} className="bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-2 py-1 text-xs focus:outline-none">
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">IFrame</option>
+                    <option value="SPLINE">Spline 3D</option>
+                    <option value="THREE_D">3D Model (GLTF)</option>
+                  </select>
+                </div>
                 <MediaUploader value={heroImageUrl} onChange={setHeroImageUrl} />
               </div>
               <div className="space-y-2">

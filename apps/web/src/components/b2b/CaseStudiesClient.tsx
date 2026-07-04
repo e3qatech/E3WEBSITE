@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { UniversalMediaRenderer as MediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 
 type CaseStudyStub = {
   id: string;
@@ -14,7 +15,9 @@ type CaseStudyStub = {
   year: number;
   category: string;
   thumbnailUrl: string | null;
+  thumbnailMediaType?: string;
   heroImageUrl: string | null;
+  heroMediaType?: string;
   isFeatured: boolean;
   metrics: any;
 };
@@ -116,12 +119,13 @@ export function CaseStudiesClient({ initialCaseStudies }: { initialCaseStudies: 
           <Link href={`/b2b/case-studies/${featuredStudy.slug}`} className="absolute inset-0 z-20">
             <span className="sr-only">View Case Study</span>
           </Link>
-          <img 
-            src={featuredStudy.heroImageUrl || featuredStudy.thumbnailUrl || '/placeholder.jpg'} 
+          <MediaRenderer 
+            src={featuredStudy.heroImageUrl || featuredStudy.thumbnailUrl || ""} 
+            type={(featuredStudy.heroMediaType || featuredStudy.thumbnailMediaType || "IMAGE") as any}
             alt={featuredStudy.titleEn}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
           
           <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end text-white z-10 pointer-events-none">
              <div className="flex items-center gap-3 mb-4">
@@ -157,11 +161,12 @@ export function CaseStudiesClient({ initialCaseStudies }: { initialCaseStudies: 
                 className="group cursor-pointer flex flex-col h-full bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-3xl overflow-hidden hover:border-[var(--color-primary)] transition-colors"
               >
                 <Link href={`/b2b/case-studies/${cs.slug}`} className="relative h-64 md:h-80 overflow-hidden block">
-                  <img 
-                    src={cs.thumbnailUrl || cs.heroImageUrl || '/placeholder.jpg'} 
-                    alt={cs.titleEn}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  <MediaRenderer
+            src={cs.thumbnailUrl || cs.heroImageUrl || ""} 
+            type={(cs.thumbnailMediaType || cs.heroMediaType || "IMAGE") as any}
+            alt={cs.titleEn}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                     <Button variant="primary" className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 rounded-full h-12 px-6 shadow-xl">
                       View Case Study

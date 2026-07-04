@@ -7,6 +7,8 @@ export const metadata = {
   title: "B2B Services | E3 Admin",
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function ServicesPage() {
   const session = await auth()
   if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
