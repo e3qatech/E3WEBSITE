@@ -10,13 +10,22 @@ export const dynamic = 'force-dynamic'
 
 export default async function ClientsPage() {
   
-  const dbPartners = await db.partner.findMany({
-    where: { isVisible: true },
-    orderBy: [
-      { orderIndex: 'asc' },
-      { name: 'asc' }
-    ]
-  })
+  const [dbPartners, pageData] = await Promise.all([
+    db.partner.findMany({
+      where: { isVisible: true },
+      orderBy: [
+        { orderIndex: 'asc' },
+        { name: 'asc' }
+      ]
+    }),
+    db.pages.findUnique({
+      where: { slug: 'b2b-partners' }
+    })
+  ])
+
+  const content = pageData?.content as any || {}
+  const heroTitle = content?.hero?.title || "Trusted by the Best."
+  const heroSubtitle = content?.hero?.subtitle || "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter."
 
   // Group by category
   const categoriesMap = {
@@ -58,10 +67,12 @@ export default async function ClientsPage() {
       <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
         <div className="container mx-auto px-4 md:px-8">
           <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
-            Trusted by the <span className="text-emerald-400">Best.</span>
+            {heroTitle.split(' ').map((word: string, i: number, arr: string[]) => 
+              i === arr.length - 1 ? <span key={i} className="text-emerald-400">{word}</span> : <span key={i}>{word} </span>
+            )}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.
+            {heroSubtitle}
           </p>
         </div>
       </section>

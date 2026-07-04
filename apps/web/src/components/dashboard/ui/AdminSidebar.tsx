@@ -35,6 +35,8 @@ const sidebarConfig = [
     { label: "About Us Editor", href: "/dashboard/b2b/about" },
     { label: "Contact Editor", href: "/dashboard/b2b/contact" },
     { label: "Services Page Editor", href: "/dashboard/b2b/services-page" },
+    { label: "Cases Page Editor", href: "/dashboard/b2b/cases-page" },
+    { label: "Partners Page Editor", href: "/dashboard/b2b/partners-page" },
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team & Roster", href: "/dashboard/b2b/team" },
@@ -49,7 +51,8 @@ const sidebarConfig = [
     { label: "Contact", href: "/dashboard/b2c/contact" }
   ] },
   { label: "Content & Media", icon: FileText, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
-    { label: "Media Library", href: "/dashboard/cms/media" }
+    { label: "Media Library", href: "/dashboard/cms/media" },
+    { label: "CMS Pages Editor", href: "/dashboard/cms/pages" }
   ] },
   { label: "CRM & Pipelines", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },
