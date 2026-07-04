@@ -21,6 +21,8 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       titleAr: initialData?.story?.titleAr || "",
       contentEn: initialData?.story?.contentEn || "",
       contentAr: initialData?.story?.contentAr || "",
+      mediaType: initialData?.story?.mediaType || "IMAGE",
+      mediaUrl: initialData?.story?.mediaUrl || "",
       imageMediaId: initialData?.story?.imageMediaId || null,
     },
     values: initialData?.values || []
@@ -179,12 +181,39 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Story Image</label>
-              <AdminMediaPicker 
-                value={data.story.imageMediaId}
-                onChange={id => handleChange('story', 'imageMediaId', id)}
-              />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
+                <select 
+                  value={data.story.mediaType}
+                  onChange={e => handleChange('story', 'mediaType', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                >
+                  <option value="IMAGE">Image</option>
+                  <option value="VIDEO">Video</option>
+                  <option value="SPLINE">3D Model (Spline)</option>
+                  <option value="IFRAME">Iframe (YouTube/Embed)</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  {['IMAGE', 'VIDEO'].includes(data.story.mediaType) ? 'Media Asset' : 'Media URL'}
+                </label>
+                {['IMAGE', 'VIDEO'].includes(data.story.mediaType) ? (
+                  <AdminMediaPicker 
+                    value={data.story.imageMediaId}
+                    onChange={id => handleChange('story', 'imageMediaId', id)}
+                  />
+                ) : (
+                  <input 
+                    type="url" 
+                    value={data.story.mediaUrl}
+                    onChange={e => handleChange('story', 'mediaUrl', e.target.value)}
+                    placeholder={data.story.mediaType === 'IFRAME' ? "https://..." : "https://prod.spline.design/..."}
+                    className="w-full h-[42px] bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

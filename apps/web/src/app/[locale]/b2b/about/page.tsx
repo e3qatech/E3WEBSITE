@@ -37,6 +37,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   
   const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
   const storyContent = isAr ? (cmsData?.story?.contentAr || '') : (cmsData?.story?.contentEn || '');
+  const storyMediaType = cmsData?.story?.mediaType || 'IMAGE';
+  const storyMediaUrl = cmsData?.story?.mediaUrl || null;
   const storyImageMediaId = cmsData?.story?.imageMediaId || null;
 
   const values = cmsData?.values && cmsData.values.length > 0 ? cmsData.values.map((v: any) => ({
@@ -49,11 +51,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   ];
 
   // Fetch story image if it's a media ID
-  let storyImageUrl = 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
-  if (storyImageMediaId) {
+  let finalMediaUrl = storyMediaUrl || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+  if (['IMAGE', 'VIDEO'].includes(storyMediaType) && storyImageMediaId) {
     const media = await prisma.media.findUnique({ where: { id: storyImageMediaId } });
     if (media) {
-      storyImageUrl = media.url;
+      finalMediaUrl = media.url;
     }
   }
 
@@ -88,8 +90,8 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
             </div>
             <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
                <UniversalMediaRenderer 
-                type="IMAGE"
-                src={storyImageUrl}
+                type={storyMediaType as any}
+                src={finalMediaUrl}
                 alt="E3 Headquarters"
                />
                <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-bold mix-blend-difference pointer-events-none">
