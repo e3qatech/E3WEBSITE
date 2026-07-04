@@ -19,9 +19,11 @@ export default function ContactRFPPage() {
   useEffect(() => {
     fetch('/api/cms/pages/b2b-contact')
       .then(res => res.json())
-      .then(data => {
-        if (data && data.content) {
-          setCmsData(data.content)
+      .then(json => {
+        if (json && json.data && json.data.content) {
+          setCmsData(json.data.content)
+        } else if (json && json.content) {
+          setCmsData(json.content)
         }
       })
       .catch(console.error)
@@ -42,17 +44,17 @@ export default function ContactRFPPage() {
 
   const hqAddress = isAr ? cmsData?.headquarters?.addressAr : cmsData?.headquarters?.addressEn;
 
-  const careersCtaTitle = isAr ? cmsData?.careersCta?.titleAr : cmsData?.careersCta?.titleEn;
-  const careersCtaDesc = isAr ? cmsData?.careersCta?.descriptionAr : cmsData?.careersCta?.descriptionEn;
-  const careersCtaText = isAr ? cmsData?.careersCta?.ctaTextAr : cmsData?.careersCta?.ctaTextEn;
+  const careersCtaTitle = isAr ? (cmsData?.careersCta?.titleAr || "انضم لفريقنا") : (cmsData?.careersCta?.titleEn || "Join Our Team");
+  const careersCtaDesc = isAr ? (cmsData?.careersCta?.descriptionAr || "اكتشف فرصاً جديدة لبناء تجارب استثنائية.") : (cmsData?.careersCta?.descriptionEn || "Discover new opportunities to build extraordinary experiences.");
+  const careersCtaText = isAr ? (cmsData?.careersCta?.ctaTextAr || "استكشف الوظائف") : (cmsData?.careersCta?.ctaTextEn || "Explore Careers");
 
-  const feedbackCtaTitle = isAr ? cmsData?.feedbackCta?.titleAr : cmsData?.feedbackCta?.titleEn;
-  const feedbackCtaDesc = isAr ? cmsData?.feedbackCta?.descriptionAr : cmsData?.feedbackCta?.descriptionEn;
-  const feedbackCtaText = isAr ? cmsData?.feedbackCta?.ctaTextAr : cmsData?.feedbackCta?.ctaTextEn;
+  const feedbackCtaTitle = isAr ? (cmsData?.feedbackCta?.titleAr || "اقتراحات وملاحظات") : (cmsData?.feedbackCta?.titleEn || "Suggestions & Feedback");
+  const feedbackCtaDesc = isAr ? (cmsData?.feedbackCta?.descriptionAr || "ساعدنا في التحسين من خلال مشاركة أفكارك.") : (cmsData?.feedbackCta?.descriptionEn || "Help us improve by sharing your thoughts.");
+  const feedbackCtaText = isAr ? (cmsData?.feedbackCta?.ctaTextAr || "شارك الملاحظات") : (cmsData?.feedbackCta?.ctaTextEn || "Share Feedback");
 
-  const faqCtaTitle = isAr ? cmsData?.faqCta?.titleAr : cmsData?.faqCta?.titleEn;
-  const faqCtaDesc = isAr ? cmsData?.faqCta?.descriptionAr : cmsData?.faqCta?.descriptionEn;
-  const faqCtaText = isAr ? cmsData?.faqCta?.ctaTextAr : cmsData?.faqCta?.ctaTextEn;
+  const faqCtaTitle = isAr ? (cmsData?.faqCta?.titleAr || "الأسئلة الشائعة") : (cmsData?.faqCta?.titleEn || "B2B FAQs");
+  const faqCtaDesc = isAr ? (cmsData?.faqCta?.descriptionAr || "ابحث عن إجابات للأسئلة الشائعة حول خدماتنا وعملياتنا.") : (cmsData?.faqCta?.descriptionEn || "Find answers to commonly asked questions about our services and processes.");
+  const faqCtaText = isAr ? (cmsData?.faqCta?.ctaTextAr || "عرض الأسئلة") : (cmsData?.faqCta?.ctaTextEn || "View FAQs");
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
