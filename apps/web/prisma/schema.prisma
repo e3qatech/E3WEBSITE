@@ -97,6 +97,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   systemLogs    SystemLog[]
+  jobApplications JobApplication[]
 }
 
 // ---------------------------------------------------------
@@ -115,11 +116,16 @@ model JobApplication {
   cvParsedData    Json?
   status          String   @default("NEW")
   portal          PortalType @default(SHARED)
+  
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([status])
   @@index([portal])
+  @@index([userId])
 }
 
 model Account {

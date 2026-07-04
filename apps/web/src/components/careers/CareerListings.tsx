@@ -1,21 +1,21 @@
 "use client"
 
-import React, { useState } from 'react'
+import React from 'react'
+import Link from 'next/link'
 import { Card } from '@/components/ui/Card'
 import { ArrowUpRight, MapPin } from 'lucide-react'
-import { JobApplicationModal } from './JobApplicationModal'
 
 export function CareerListings({ jobs, isAr, portal = 'SHARED' }: { jobs: any[], isAr: boolean, portal?: 'B2B' | 'B2C' | 'SHARED' }) {
-  const [selectedJob, setSelectedJob] = useState<any>(null)
-
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {jobs.map((job: any, idx: number) => (
+        {jobs.map((job: any, idx: number) => {
+          const applyUrl = `/${isAr ? 'ar' : 'en'}/apply?jobTitle=${encodeURIComponent(isAr ? job.titleAr : job.titleEn)}&department=${encodeURIComponent(job.department || '')}&portal=${portal}`
+
+          return (
           <Card 
             key={idx} 
-            className="group relative bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 hover:border-zinc-700/80 hover:bg-zinc-800/40 transition-all duration-300 overflow-hidden flex flex-col p-6 h-full cursor-pointer"
-            onClick={() => setSelectedJob(job)}
+            className="group relative bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 hover:border-zinc-700/80 hover:bg-zinc-800/40 transition-all duration-300 overflow-hidden flex flex-col p-6 h-full"
           >
             {/* Subtle gradient background effect on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/0 via-zinc-800/0 to-zinc-700/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -44,25 +44,16 @@ export function CareerListings({ jobs, isAr, portal = 'SHARED' }: { jobs: any[],
               <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">
                 {isAr ? "تقديم الطلب" : "Apply Now"}
               </span>
-              <button 
+              <Link 
+                href={applyUrl}
                 className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300"
               >
                 {isAr ? <ArrowUpRight className="w-5 h-5 rtl:-scale-x-100" /> : <ArrowUpRight className="w-5 h-5" />}
-              </button>
+              </Link>
             </div>
           </Card>
-        ))}
+        )})}
       </div>
-
-      {selectedJob && (
-        <JobApplicationModal 
-          isOpen={!!selectedJob} 
-          onClose={() => setSelectedJob(null)} 
-          jobTitle={isAr ? selectedJob.titleAr : selectedJob.titleEn} 
-          department={selectedJob.department}
-          portal={portal}
-        />
-      )}
     </>
   )
 }

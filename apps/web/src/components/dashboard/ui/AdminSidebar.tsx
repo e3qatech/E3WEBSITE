@@ -60,7 +60,7 @@ const sidebarConfig = [
     { label: "Media Library", href: "/dashboard/cms/media" },
     { label: "CMS Pages", href: "/dashboard/cms/pages" }
   ] },
-  { label: "Global Careers", icon: Briefcase, href: "/dashboard/careers/applications", roles: ["SUPER_ADMIN", "STAFF"], subItems: [
+  { label: "Global Careers", icon: Briefcase, href: "/dashboard/careers/applications", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Job Listings", href: "/dashboard/b2b/careers" },
     { label: "Applications", href: "/dashboard/careers/applications" }
   ] },
