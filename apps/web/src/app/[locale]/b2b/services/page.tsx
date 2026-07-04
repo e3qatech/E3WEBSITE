@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Settings2 } from 'lucide-react'
+import { ArrowRight, Settings2, Sparkles } from 'lucide-react'
 import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 
@@ -67,49 +67,114 @@ export default async function ServicesIndexPage() {
         </div>
       </section>
 
-      {/* Services List */}
+      {/* Services Bento Grid */}
       <section className="py-20 md:py-32">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 auto-rows-[350px]">
             {services.map((service, i) => {
-              const processList = Array.isArray(service.process) ? service.process : []
+              // Bento layout pattern for 3 columns
+              const getBentoClasses = (index: number) => {
+                const j = index % 7;
+                switch (j) {
+                  case 0: return "md:col-span-2 md:row-span-2"; // Large square
+                  case 1: return "md:col-span-1 md:row-span-1"; // Small square
+                  case 2: return "md:col-span-1 md:row-span-1"; // Small square
+                  case 3: return "md:col-span-2 md:row-span-1"; // Wide rectangle
+                  case 4: return "md:col-span-1 md:row-span-2"; // Tall rectangle
+                  case 5: return "md:col-span-1 md:row-span-1"; // Small square
+                  case 6: return "md:col-span-1 md:row-span-1"; // Small square
+                  default: return "md:col-span-1 md:row-span-1";
+                }
+              }
+
               return (
-                <div key={service.id} className="group relative p-8 md:p-12 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/30 transition-all flex flex-col h-full">
-                  <div className="mb-8 p-4 bg-zinc-950 inline-flex rounded-lg border border-zinc-800 text-emerald-400">
-                    <Settings2 className="w-8 h-8" />
-                  </div>
-                  
-                  <h2 className="text-3xl font-black text-zinc-100 mb-4 tracking-tight group-hover:text-emerald-400 transition-colors">
-                    {service.titleEn}
-                  </h2>
-                  
-                  <p className="text-lg text-zinc-400 mb-8 max-w-md">
-                    {service.taglineEn || service.contentEn?.slice(0, 150) + "..."}
-                  </p>
-                  
-                  <div className="mt-auto">
-                    {processList.length > 0 && (
-                      <>
-                        <h4 className="text-sm font-bold text-zinc-500 uppercase tracking-wide mb-4">Core Capabilities</h4>
-                        <ul className="space-y-3 mb-10">
-                          {processList.slice(0, 4).map((feature: any, j) => (
-                            <li key={j} className="flex items-center gap-3 text-zinc-300 font-medium">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              {feature.titleEn || feature.title}
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
+                <Link 
+                  key={service.id} 
+                  href={`/b2b/services/${service.slug}`}
+                  className={`group relative flex flex-col rounded-3xl bg-zinc-900 border border-zinc-800/50 overflow-hidden shadow-sm hover:shadow-2xl hover:border-indigo-500/30 transition-all duration-500 ${getBentoClasses(i)}`}
+                >
+                  {/* Media Background */}
+                  <div className="absolute inset-0 z-0">
+                    {/* Default Media (Thumbnail) */}
+                    <div className="absolute inset-0 transition-opacity duration-700 group-hover:opacity-0">
+                      {service.thumbnail ? (
+                        <UniversalMediaRenderer 
+                          type="IMAGE" 
+                          src={service.thumbnail}
+                          alt={service.titleEn}
+                          className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-700">
+                          <Sparkles className="w-12 h-12" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Hover Media (Video/3D/Iframe/Image) */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                      {(service.heroMediaType && service.heroMediaUrl) ? (
+                        <UniversalMediaRenderer 
+                          type={service.heroMediaType as any}
+                          src={service.heroMediaUrl}
+                          alt={service.titleEn}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : service.thumbnail ? (
+                        <UniversalMediaRenderer 
+                          type="IMAGE" 
+                          src={service.thumbnail}
+                          alt={service.titleEn}
+                          className="w-full h-full object-cover opacity-90 scale-105 transition-transform duration-1000"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/50 to-purple-900/50 text-indigo-400">
+                          <Sparkles className="w-12 h-12 animate-pulse" />
+                        </div>
+                      )}
+                    </div>
                     
-                    <Link 
-                      href={`/b2b/services/${service.slug}`}
-                      className="inline-flex items-center gap-2 text-zinc-100 font-bold hover:text-emerald-400 transition-colors"
-                    >
-                      Explore Discipline <ArrowRight className="w-5 h-5" />
-                    </Link>
+                    {/* Gradient Overlays for Readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/40 to-transparent z-10" />
                   </div>
-                </div>
+                  
+                  {/* Content overlay */}
+                  <div className="relative z-20 p-6 md:p-8 flex flex-col justify-end h-full w-full">
+                    
+                    {/* Status / Category */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2 text-indigo-400 bg-zinc-950/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-zinc-800">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{service.category || 'Core Capability'}</span>
+                      </div>
+                      
+                      <div className="w-10 h-10 rounded-full bg-zinc-950/50 backdrop-blur-sm text-indigo-400 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 border border-zinc-800">
+                        <ArrowRight className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    {/* Title & Description */}
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-3 tracking-tight group-hover:text-indigo-300 transition-colors">
+                      {service.titleEn}
+                    </h2>
+                    <p className="text-zinc-300 mb-6 max-w-xl line-clamp-2 text-sm md:text-base font-medium">
+                      {service.taglineEn || service.contentEn?.slice(0, 150) + "..."}
+                    </p>
+
+                    {/* Footer / Metrics */}
+                    <div className="mt-auto pt-5 border-t border-zinc-800 flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+                          {service.successMetricLabel || 'Key Success Metric'}
+                        </p>
+                        <p className="text-base font-bold text-zinc-200">
+                          {service.successMetricValue || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               )
             })}
           </div>

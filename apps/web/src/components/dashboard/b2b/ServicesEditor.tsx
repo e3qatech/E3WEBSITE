@@ -48,6 +48,9 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
     ctaPrimary: initialData?.ctaPrimary || "CONTACT",
     ctaSecondary: initialData?.ctaSecondary || "",
     attractionId: initialData?.attractionId || "",
+    category: initialData?.category || "",
+    successMetricLabel: initialData?.successMetricLabel || "",
+    successMetricValue: initialData?.successMetricValue || "",
     seo: initialData?.seo || { metaTitle: "", metaDescription: "", keywords: "" },
   })
 
@@ -233,6 +236,22 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                     <textarea rows={2} value={formData.taglineAr} onChange={e => handleChange('taglineAr', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none resize-none transition-colors font-arabic" placeholder="وصف قصير..." />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Category (Eyebrow)</label>
+                    <input type="text" value={formData.category} onChange={e => handleChange('category', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. MEGA EVENTS" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Metric Label</label>
+                    <input type="text" value={formData.successMetricLabel} onChange={e => handleChange('successMetricLabel', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. KEY SUCCESS METRIC" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Metric Value</label>
+                    <input type="text" value={formData.successMetricValue} onChange={e => handleChange('successMetricValue', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. 45% repeat visitor rate" />
+                  </div>
+                </div>
+
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>

@@ -340,6 +340,10 @@ model Service {
   ctaPrimary     String   @default("CONTACT") // CONTACT, LEARN_MORE, BOOK_APPOINTMENT
   ctaSecondary   String?
   seo            Json?    // { metaTitle, metaDescription, keywords }
+  
+  category           String?
+  successMetricLabel String?
+  successMetricValue String?
 
   gallery        ServiceGalleryItem[]
   projects       ServiceProject[]
