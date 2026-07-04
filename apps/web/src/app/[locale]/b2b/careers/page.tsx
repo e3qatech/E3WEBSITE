@@ -21,6 +21,12 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
   const mediaType = content?.hero?.mediaType || "IMAGE";
   const mediaUrl = content?.hero?.mediaUrl || "";
 
+  const bgMediaType = content?.background?.mediaType || "IMAGE";
+  const bgMediaUrl = content?.background?.mediaUrl || "";
+
+  const footerMediaType = content?.footer?.mediaType || "IMAGE";
+  const footerMediaUrl = content?.footer?.mediaUrl || "";
+
   const jobs = Array.isArray(content.jobs) && content.jobs.length > 0 ? content.jobs : [
     {
       titleEn: "Senior Full Stack Engineer",
@@ -41,17 +47,25 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
   ]
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20 relative" dir={isAr ? 'rtl' : 'ltr'}>
       
+      {/* Background Media */}
+      {bgMediaUrl && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <UniversalMediaRenderer src={bgMediaUrl} type={bgMediaType} className="w-full h-full object-cover opacity-20" />
+          <div className="absolute inset-0 bg-zinc-950/50" />
+        </div>
+      )}
+
       {/* Hero Section */}
-      <section className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+      <section className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden z-10">
         {mediaUrl && (
           <div className="absolute inset-0 z-0">
             <UniversalMediaRenderer src={mediaUrl} type={mediaType} className="w-full h-full object-cover opacity-60" />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
           </div>
         )}
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-20">
           <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight uppercase mb-6 drop-shadow-lg">
             {heroTitle}
           </h1>
@@ -72,6 +86,14 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
 
         <CareerListings jobs={jobs} isAr={isAr} portal="B2B" />
       </section>
+
+      {/* Footer Media */}
+      {footerMediaUrl && (
+        <section className="relative w-full h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden z-10 mt-12">
+          <UniversalMediaRenderer src={footerMediaUrl} type={footerMediaType} className="w-full h-full object-cover opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
+        </section>
+      )}
       
     </div>
   )

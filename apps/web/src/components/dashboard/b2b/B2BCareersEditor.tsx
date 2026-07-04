@@ -18,6 +18,14 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
       mediaType: initialData?.hero?.mediaType || "IMAGE",
       mediaUrl: initialData?.hero?.mediaUrl || "",
     },
+    background: {
+      mediaType: initialData?.background?.mediaType || "IMAGE",
+      mediaUrl: initialData?.background?.mediaUrl || "",
+    },
+    footer: {
+      mediaType: initialData?.footer?.mediaType || "IMAGE",
+      mediaUrl: initialData?.footer?.mediaUrl || "",
+    },
     jobs: Array.isArray(initialData?.jobs) ? initialData.jobs : []
   })
 
@@ -46,6 +54,20 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
     setData(prev => ({
       ...prev,
       hero: { ...prev.hero, [field]: value }
+    }))
+  }
+
+  const handleBackgroundChange = (field: string, value: any) => {
+    setData(prev => ({
+      ...prev,
+      background: { ...prev.background, [field]: value }
+    }))
+  }
+
+  const handleFooterChange = (field: string, value: any) => {
+    setData(prev => ({
+      ...prev,
+      footer: { ...prev.footer, [field]: value }
     }))
   }
 
@@ -119,6 +141,43 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Hero Background</label>
                 <MediaUploader value={data.hero.mediaUrl} onChange={(url) => handleHeroChange('mediaUrl', url)} accept={data.hero.mediaType === 'VIDEO' ? "video/*" : "image/*"} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Background & Footer Media Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-text-primary">Background Media</h2>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
+                <select value={data.background.mediaType} onChange={e => handleBackgroundChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
+                  <option value="IMAGE">Image</option>
+                  <option value="VIDEO">Video</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Background</label>
+                <MediaUploader value={data.background.mediaUrl} onChange={(url) => handleBackgroundChange('mediaUrl', url)} accept={data.background.mediaType === 'VIDEO' ? "video/*" : "image/*"} />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-text-primary">Footer Media</h2>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
+                <select value={data.footer.mediaType} onChange={e => handleFooterChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
+                  <option value="IMAGE">Image</option>
+                  <option value="VIDEO">Video</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Footer</label>
+                <MediaUploader value={data.footer.mediaUrl} onChange={(url) => handleFooterChange('mediaUrl', url)} accept={data.footer.mediaType === 'VIDEO' ? "video/*" : "image/*"} />
               </div>
             </div>
           </div>
