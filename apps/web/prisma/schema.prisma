@@ -99,6 +99,29 @@ model User {
   systemLogs    SystemLog[]
 }
 
+// ---------------------------------------------------------
+// Global Careers Layer
+// ---------------------------------------------------------
+
+model JobApplication {
+  id              String   @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  jobTitle        String
+  department      String?
+  cvUrl           String
+  cvParsedData    Json?
+  status          String   @default("NEW")
+  portal          PortalType @default(SHARED)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([portal])
+}
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String

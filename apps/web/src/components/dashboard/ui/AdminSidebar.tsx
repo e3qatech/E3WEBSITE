@@ -45,8 +45,7 @@ const sidebarConfig = [
     { label: "Cases Page", href: "/dashboard/b2b/cases-page" },
     { label: "Partners Page", href: "/dashboard/b2b/partners-page" },
     { label: "FAQs Editor", href: "/dashboard/b2b/faqs" },
-    { label: "Feedback Form", href: "/dashboard/b2b/feedback" },
-    { label: "Careers Editor", href: "/dashboard/b2b/careers" }
+    { label: "Feedback Form", href: "/dashboard/b2b/feedback" }
   ] },
   { label: "B2C Content", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
@@ -60,6 +59,10 @@ const sidebarConfig = [
   { label: "Global Media", icon: Database, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
     { label: "Media Library", href: "/dashboard/cms/media" },
     { label: "CMS Pages", href: "/dashboard/cms/pages" }
+  ] },
+  { label: "Global Careers", icon: Briefcase, href: "/dashboard/careers/applications", roles: ["SUPER_ADMIN", "STAFF"], subItems: [
+    { label: "Job Listings", href: "/dashboard/b2b/careers" },
+    { label: "Applications", href: "/dashboard/careers/applications" }
   ] },
   { label: "CRM & Sales", icon: Users, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },
