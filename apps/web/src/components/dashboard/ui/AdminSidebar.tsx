@@ -43,7 +43,10 @@ const sidebarConfig = [
     { label: "Contact Editor", href: "/dashboard/b2b/contact" },
     { label: "Services Page", href: "/dashboard/b2b/services-page" },
     { label: "Cases Page", href: "/dashboard/b2b/cases-page" },
-    { label: "Partners Page", href: "/dashboard/b2b/partners-page" }
+    { label: "Partners Page", href: "/dashboard/b2b/partners-page" },
+    { label: "FAQs Editor", href: "/dashboard/b2b/faqs" },
+    { label: "Feedback Form", href: "/dashboard/b2b/feedback" },
+    { label: "Careers Editor", href: "/dashboard/b2b/careers" }
   ] },
   { label: "B2C Content", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Attractions", href: "/dashboard/b2c/attractions" },
