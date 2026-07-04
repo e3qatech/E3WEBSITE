@@ -5,12 +5,15 @@ import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { MediaUploader } from "@/components/shared/MediaUploader"
 
 export function B2BPartnersEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
     hero: {
       title: initialData?.hero?.title || "Trusted by the Best.",
       subtitle: initialData?.hero?.subtitle || "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.",
+      mediaType: initialData?.hero?.mediaType || "IMAGE",
+      mediaUrl: initialData?.hero?.mediaUrl || "",
     }
   })
 
@@ -78,6 +81,40 @@ export function B2BPartnersEditor({ initialData }: { initialData: any }) {
                 onChange={e => handleChange('hero', 'subtitle', e.target.value)}
                 className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
               />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
+                <select 
+                  value={data.hero.mediaType}
+                  onChange={e => handleChange('hero', 'mediaType', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                >
+                  <option value="IMAGE">Image</option>
+                  <option value="VIDEO">Video</option>
+                  <option value="SPLINE">Spline / 3D Scene</option>
+                  <option value="IFRAME">iFrame Embed</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media URL / Source</label>
+                {['IFRAME', 'SPLINE'].includes(data.hero.mediaType) ? (
+                  <input 
+                    type="text" 
+                    value={data.hero.mediaUrl}
+                    onChange={e => handleChange('hero', 'mediaUrl', e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  />
+                ) : (
+                  <MediaUploader 
+                    value={data.hero.mediaUrl} 
+                    onChange={url => handleChange('hero', 'mediaUrl', url)} 
+                    accept={data.hero.mediaType === 'VIDEO' ? "video/*" : "image/*"}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

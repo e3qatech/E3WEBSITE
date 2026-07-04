@@ -1,5 +1,8 @@
 import React from 'react'
+import Link from 'next/link'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { db } from "@/lib/db"
+import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 
 export const metadata = {
   title: 'Clients & Partners - E3 Corporate',
@@ -24,8 +27,12 @@ export default async function ClientsPage() {
   ])
 
   const content = pageData?.content as any || {}
-  const heroTitle = content?.hero?.title || "Trusted by the Best."
-  const heroSubtitle = content?.hero?.subtitle || "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter."
+  const hero = content?.hero || {
+    title: "Trusted by the Best.",
+    subtitle: "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  }
 
   // Group by category
   const categoriesMap = {
@@ -64,15 +71,29 @@ export default async function ClientsPage() {
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
       
       {/* Header */}
-      <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
-        <div className="container mx-auto px-4 md:px-8">
-          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
-            {heroTitle.split(' ').map((word: string, i: number, arr: string[]) => 
+      <section className="relative min-h-[60vh] flex items-center py-20 md:py-32 border-b border-zinc-900 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          {hero.mediaUrl ? (
+            <UniversalMediaRenderer 
+              type={hero.mediaType || "IMAGE"} 
+              src={hero.mediaUrl}
+              alt="Clients Hero Background"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+          )}
+          {hero.mediaUrl && <div className="absolute inset-0 bg-zinc-950/80" />}
+          {hero.mediaUrl && <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />}
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6 max-w-4xl">
+            {hero.title.split(' ').map((word: string, i: number, arr: string[]) => 
               i === arr.length - 1 ? <span key={i} className="text-emerald-400">{word}</span> : <span key={i}>{word} </span>
             )}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            {heroSubtitle}
+            {hero.subtitle}
           </p>
         </div>
       </section>

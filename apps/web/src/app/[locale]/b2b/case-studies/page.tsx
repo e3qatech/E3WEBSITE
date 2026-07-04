@@ -1,7 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Filter } from 'lucide-react'
+import { Filter, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { db } from "@/lib/db"
+import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { MediaRenderer } from "@/components/ui/MediaRenderer"
 
 export const metadata = {
@@ -24,8 +25,14 @@ export default async function CaseStudiesIndexPage() {
   ])
 
   const content = pageData?.content as any || {}
-  const heroTitle = content?.hero?.title || "Featured Work."
-  const heroSubtitle = content?.hero?.subtitle || "A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale."
+  
+  const hero = content?.hero || {
+    title: "Featured Work.",
+    subtitle: "A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale.",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  }
+  
   const cta = content?.cta
 
   const categories = ['All', 'Mega Event', 'Attractions', 'Live Production', 'Immersive', 'Destination', 'Family Entertainment']
@@ -34,15 +41,29 @@ export default async function CaseStudiesIndexPage() {
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
       
       {/* Header */}
-      <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
-        <div className="container mx-auto px-4 md:px-8">
-          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
-            {heroTitle.split(' ').map((word: string, i: number, arr: string[]) => 
+      <section className="relative min-h-[60vh] flex items-center py-20 md:py-32 border-b border-zinc-900 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          {hero.mediaUrl ? (
+            <UniversalMediaRenderer 
+              type={hero.mediaType || "IMAGE"} 
+              src={hero.mediaUrl}
+              alt="Cases Hero Background"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+          )}
+          {hero.mediaUrl && <div className="absolute inset-0 bg-zinc-950/80" />}
+          {hero.mediaUrl && <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />}
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6 max-w-4xl">
+            {hero.title.split(' ').map((word: string, i: number, arr: string[]) => 
               i === arr.length - 1 ? <span key={i} className="text-emerald-400">{word}</span> : <span key={i}>{word} </span>
             )}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            {heroSubtitle}
+            {hero.subtitle}
           </p>
         </div>
       </section>
@@ -127,8 +148,21 @@ export default async function CaseStudiesIndexPage() {
 
       {/* CTA */}
       {cta && cta.title && (
-        <section className="py-20 border-t border-zinc-900 bg-zinc-950">
-          <div className="container mx-auto px-4 md:px-8 text-center">
+        <section className="py-24 border-t border-zinc-900 bg-zinc-950 relative overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            {cta.mediaUrl ? (
+              <UniversalMediaRenderer 
+                type={cta.mediaType || "IMAGE"} 
+                src={cta.mediaUrl}
+                alt="CTA Background"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+            )}
+            {cta.mediaUrl && <div className="absolute inset-0 bg-zinc-950/80" />}
+          </div>
+
+          <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
             <h2 className="text-4xl md:text-5xl font-black text-zinc-100 mb-6">{cta.title}</h2>
             <p className="text-xl text-zinc-400 mb-10 max-w-2xl mx-auto">{cta.description}</p>
             <Link 

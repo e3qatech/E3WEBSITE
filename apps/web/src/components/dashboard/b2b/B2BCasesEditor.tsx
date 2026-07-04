@@ -5,18 +5,23 @@ import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { MediaUploader } from "@/components/shared/MediaUploader"
 
 export function B2BCasesEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
     hero: {
       title: initialData?.hero?.title || "Featured Work.",
       subtitle: initialData?.hero?.subtitle || "A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale.",
+      mediaType: initialData?.hero?.mediaType || "IMAGE",
+      mediaUrl: initialData?.hero?.mediaUrl || "",
     },
     cta: {
       title: initialData?.cta?.title || "Ready to start a project?",
       description: initialData?.cta?.description || "Let's build something extraordinary together.",
       primaryCta: initialData?.cta?.primaryCta || "Contact Us",
       primaryLink: initialData?.cta?.primaryLink || "/b2b/contact",
+      mediaType: initialData?.cta?.mediaType || "IMAGE",
+      mediaUrl: initialData?.cta?.mediaUrl || "",
     }
   })
 
@@ -85,6 +90,40 @@ export function B2BCasesEditor({ initialData }: { initialData: any }) {
                 className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
               />
             </div>
+            
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
+                <select 
+                  value={data.hero.mediaType}
+                  onChange={e => handleChange('hero', 'mediaType', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                >
+                  <option value="IMAGE">Image</option>
+                  <option value="VIDEO">Video</option>
+                  <option value="SPLINE">Spline / 3D Scene</option>
+                  <option value="IFRAME">iFrame Embed</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media URL / Source</label>
+                {['IFRAME', 'SPLINE'].includes(data.hero.mediaType) ? (
+                  <input 
+                    type="text" 
+                    value={data.hero.mediaUrl}
+                    onChange={e => handleChange('hero', 'mediaUrl', e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  />
+                ) : (
+                  <MediaUploader 
+                    value={data.hero.mediaUrl} 
+                    onChange={url => handleChange('hero', 'mediaUrl', url)} 
+                    accept={data.hero.mediaType === 'VIDEO' ? "video/*" : "image/*"}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -126,6 +165,27 @@ export function B2BCasesEditor({ initialData }: { initialData: any }) {
                   value={data.cta.primaryLink}
                   onChange={e => handleChange('cta', 'primaryLink', e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
+                <select 
+                  value={data.cta.mediaType}
+                  onChange={e => handleChange('cta', 'mediaType', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                >
+                  <option value="IMAGE">Image</option>
+                  <option value="VIDEO">Video</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media URL</label>
+                <MediaUploader 
+                  value={data.cta.mediaUrl} 
+                  onChange={url => handleChange('cta', 'mediaUrl', url)} 
+                  accept={data.cta.mediaType === 'VIDEO' ? "video/*" : "image/*"}
                 />
               </div>
             </div>
