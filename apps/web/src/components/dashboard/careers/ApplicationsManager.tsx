@@ -11,6 +11,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
   const [applications, setApplications] = useState(initialApplications)
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null)
   const [parsing, setParsing] = useState(false)
+  const [updating, setUpdating] = useState(false)
   const { toast } = useToast()
 
   const selectedApp = applications.find(a => a.id === selectedAppId)
@@ -30,6 +31,28 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
       toast(e.message || "Failed to parse CV.", "error")
     } finally {
       setParsing(false)
+    }
+  }
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    setUpdating(true)
+    try {
+      const res = await fetch(`/api/careers/${id}/status`, { 
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      const json = await res.json()
+      
+      if (!res.ok) throw new Error(json.error || "Failed to update status")
+      
+      setApplications(prev => prev.map(app => app.id === id ? { ...app, status: newStatus } : app))
+      toast("Application status updated.", "success")
+    } catch (e: any) {
+      console.error(e)
+      toast(e.message || "Failed to update status.", "error")
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -110,7 +133,20 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   <h2 className="text-2xl font-bold text-white mb-1">{selectedApp.firstName} {selectedApp.lastName}</h2>
                   <p className="text-primary font-medium">{selectedApp.jobTitle} {selectedApp.department ? `· ${selectedApp.department}` : ''}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <select 
+                    value={selectedApp.status}
+                    onChange={(e) => handleUpdateStatus(selectedApp.id, e.target.value)}
+                    disabled={updating}
+                    className="bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary disabled:opacity-50"
+                  >
+                    <option value="NEW">New</option>
+                    <option value="REVIEWING">Reviewing</option>
+                    <option value="INTERVIEW">Interview</option>
+                    <option value="HIRED">Hired</option>
+                    <option value="REJECTED">Rejected</option>
+                  </select>
+
                   <a href={selectedApp.cvUrl} target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
                     <Download className="w-4 h-4 mr-2" /> Download CV
                   </a>

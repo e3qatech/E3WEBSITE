@@ -280,7 +280,7 @@ export default function ContactRFPPage() {
                       {careersCtaDesc}
                     </p>
                     <Link 
-                      href={cmsData?.careersCta?.ctaLink || '#'} 
+                      href={cmsData?.careersCta?.ctaLink || `/${locale}/b2b/careers`} 
                       className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
                     >
                       {careersCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />

@@ -52,7 +52,7 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
   const addJob = () => {
     setData(prev => ({
       ...prev,
-      jobs: [...prev.jobs, { titleEn: "", titleAr: "", department: "", location: "", type: "Full-time", applicationLink: "" }]
+      jobs: [...prev.jobs, { titleEn: "", titleAr: "", department: "", location: "", type: "Full-time" }]
     }))
   }
 
@@ -171,10 +171,6 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
                         <option value="Contract">Contract</option>
                         <option value="Internship">Internship</option>
                       </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Application Link</label>
-                      <input type="text" placeholder="mailto: or https://..." value={job.applicationLink} onChange={e => updateJob(index, 'applicationLink', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
                     </div>
                   </div>
                 </div>
