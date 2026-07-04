@@ -16,7 +16,7 @@ const b2bLinks = [
   { label: 'Contact', href: '/b2b/contact' }
 ]
 
-export function B2BHeader() {
+export function B2BHeader({ settings = {} }: { settings?: Record<string, string> }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -32,6 +32,10 @@ export function B2BHeader() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const lightLogoUrl = settings.lightLogoUrl;
+  const darkLogoUrl = settings.darkLogoUrl;
+  const siteName = settings.siteNameEn || "E3 Corporate";
+
   return (
     <header
       className={cn(
@@ -44,11 +48,19 @@ export function B2BHeader() {
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo */}
         <Link href="/b2b" className="flex items-center gap-2 z-50">
-          <div className="w-10 h-10 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-white tracking-tighter">
-            E3
-          </div>
+          {(lightLogoUrl || darkLogoUrl) ? (
+            <img 
+              src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)} 
+              alt={`${siteName} Logo`}
+              className="h-10 w-auto object-contain"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-white tracking-tighter">
+              E3
+            </div>
+          )}
           <span className="font-bold text-xl tracking-tight hidden sm:block text-zinc-100">
-            Corporate
+            {!(lightLogoUrl || darkLogoUrl) ? "Corporate" : ""}
           </span>
         </Link>
 

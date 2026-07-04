@@ -12,8 +12,17 @@ export default async function RootB2BLayout({
 }: {
   children: React.ReactNode
 }) {
+  const settingsRecords = await db.setting.findMany({
+    where: { type: "GENERAL" }
+  })
+  
+  const settings = settingsRecords.reduce((acc, curr) => {
+    acc[curr.key] = curr.value as string
+    return acc
+  }, {} as Record<string, string>)
+
   return (
-    <B2BLayout>
+    <B2BLayout settings={settings}>
       {children}
     </B2BLayout>
   )

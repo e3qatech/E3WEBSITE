@@ -8,15 +8,7 @@ export default async function B2CLayout({
   children: React.ReactNode;
 }) {
   const settings = await db.setting.findMany({
-    where: {
-      key: { in: [
-        'lightLogoUrl', 'darkLogoUrl',
-        'contactEmail', 'contactPhone', 'addressEn', 'addressAr', 
-        'siteNameEn', 'siteNameAr', 'socialInstagram', 'socialTwitter', 
-        'socialLinkedin', 'socialYoutube', 'socialSnapchat', 'socialFacebook', 
-        'bookingqubeWebsite'
-      ] }
-    }
+    where: { type: "GENERAL" }
   });
   
   const lightLogoUrl = settings.find(s => s.key === 'lightLogoUrl')?.value as string | undefined;

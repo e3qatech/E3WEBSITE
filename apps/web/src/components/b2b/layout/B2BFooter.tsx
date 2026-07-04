@@ -34,7 +34,16 @@ function Linkedin({ className }: { className?: string }) {
   );
 }
 
-export function B2BFooter() {
+export function B2BFooter({ settings = {} }: { settings?: Record<string, string> }) {
+  const siteName = settings.siteNameEn || "E3 Corporate";
+  const address = settings.addressEn || "";
+  const phone = settings.contactPhone || "";
+  const emailAddr = settings.contactEmail || "";
+  const desc = settings.gatewayB2BDesc || "E3 turns ideas into landmark experiences — through creative design, fabrication, ticketing, staffing, operations, and measurable delivery across Qatar and the region.";
+  
+  const lightLogoUrl = settings.lightLogoUrl;
+  const darkLogoUrl = settings.darkLogoUrl;
+
   return (
     <footer className="bg-zinc-950 text-zinc-400 border-t border-zinc-900 pt-20 pb-10">
       <div className="container mx-auto px-4 md:px-8">
@@ -62,15 +71,23 @@ export function B2BFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
             <Link href="/b2b" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-white tracking-tighter">
-                E3
-              </div>
+              {(lightLogoUrl || darkLogoUrl) ? (
+                <img 
+                  src={(darkLogoUrl || lightLogoUrl)} 
+                  alt={`${siteName} Logo`}
+                  className="h-10 w-auto object-contain"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-white tracking-tighter">
+                  E3
+                </div>
+              )}
               <span className="font-bold text-xl tracking-tight text-zinc-100">
-                Corporate
+                {!(lightLogoUrl || darkLogoUrl) ? "Corporate" : ""}
               </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
-              E3 turns ideas into landmark experiences — through creative design, fabrication, ticketing, staffing, operations, and measurable delivery across Qatar and the region.
+              {desc}
             </p>
           </div>
 
@@ -98,39 +115,54 @@ export function B2BFooter() {
           <div>
             <h4 className="text-zinc-100 font-bold mb-6 tracking-wide uppercase text-sm">Connect</h4>
             <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 shrink-0 text-zinc-600" />
-                <span>Palm Tower B, West Bay<br />Doha, Qatar</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 shrink-0 text-zinc-600" />
-                <a href="mailto:business@e3.qa" className="hover:text-emerald-400 transition-colors">business@e3.qa</a>
-              </li>
+              {address && (
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-zinc-500 mt-0.5 shrink-0" />
+                  <span>{address}</span>
+                </li>
+              )}
+              {emailAddr && (
+                <li className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <a href={`mailto:${emailAddr}`} className="hover:text-emerald-400 transition-colors">{emailAddr}</a>
+                </li>
+              )}
+              {phone && (
+                <li className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-emerald-400 transition-colors">{phone}</a>
+                </li>
+              )}
             </ul>
             
-            <div className="flex items-center gap-4 mt-8">
-              <a href="#" className="w-10 h-10 rounded-sm bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 hover:text-emerald-400 transition-all">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-sm bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 hover:text-emerald-400 transition-all">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-sm bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 hover:text-emerald-400 transition-all">
-                <Facebook className="w-5 h-5" />
-              </a>
+            <div className="flex items-center gap-4 mt-6">
+              {settings.socialInstagram && (
+                <a href={settings.socialInstagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 hover:text-emerald-400 transition-colors">
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {settings.socialFacebook && (
+                <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 hover:text-emerald-400 transition-colors">
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
+              {settings.socialLinkedin && (
+                <a href={settings.socialLinkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 hover:text-emerald-400 transition-colors">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-zinc-900 pt-8 mt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <p>&copy; {new Date().getFullYear()} E3 (Events & Entertainment Enterprises). All rights reserved.</p>
+        <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <p>© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/b2b/privacy" className="hover:text-zinc-100 transition-colors">Privacy Policy</Link>
-            <Link href="/b2b/terms" className="hover:text-zinc-100 transition-colors">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-emerald-400 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-emerald-400 transition-colors">Terms of Service</Link>
           </div>
         </div>
-
       </div>
     </footer>
   )

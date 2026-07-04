@@ -7,8 +7,10 @@ import { cn } from '@/lib/utils'
 
 export function B2BLayout({
   children,
+  settings = {},
 }: {
   children: React.ReactNode
+  settings?: Record<string, string>
 }) {
   // Simple mount state to avoid hydration mismatch with themes
   const [mounted, setMounted] = useState(false)
@@ -26,13 +28,13 @@ export function B2BLayout({
       "min-h-screen flex flex-col font-sans bg-zinc-950 text-zinc-100",
       "b2b-portal-root" // Marker class for scoped global styles if needed
     )}>
-      <B2BHeader />
+      <B2BHeader settings={settings} />
       
       <main className="flex-1 flex flex-col pt-[88px] relative z-10">
         {children}
       </main>
       
-      <B2BFooter />
+      <B2BFooter settings={settings} />
     </div>
   )
 }
