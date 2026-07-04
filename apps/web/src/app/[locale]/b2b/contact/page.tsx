@@ -312,7 +312,7 @@ export default function ContactRFPPage() {
                       {feedbackCtaDesc}
                     </p>
                     <Link 
-                      href={cmsData?.feedbackCta?.ctaLink || '#'} 
+                      href={`/${locale}/b2b/feedback`} 
                       className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
                     >
                       {feedbackCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />

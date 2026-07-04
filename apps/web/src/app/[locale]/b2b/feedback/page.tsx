@@ -12,6 +12,15 @@ export default function B2BFeedbackPage({ params }: { params: any }) {
   const [isAr, setIsAr] = useState(false)
   const [cmsData, setCmsData] = useState<any>({})
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    title: '', // Reusing company/title for title
+    message: '',
+    rating: 0
+  })
 
   useEffect(() => {
     // Determine locale from path since we can't await params in a client component easily without a wrapper
@@ -29,9 +38,29 @@ export default function B2BFeedbackPage({ params }: { params: any }) {
       .catch(console.error)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    setIsSubmitting(true)
+    
+    try {
+      const res = await fetch('/api/b2b/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      if (res.ok) {
+        setSubmitted(true)
+        setFormData({ name: '', email: '', title: '', message: '', rating: 0 })
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const headerTitle = isAr ? (cmsData?.header?.titleAr || "الاقتراحات والملاحظات") : (cmsData?.header?.titleEn || "Suggestions & Feedback");
@@ -78,22 +107,22 @@ export default function B2BFeedbackPage({ params }: { params: any }) {
                   <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
                     {isAr ? "الاسم" : "Name"}
                   </label>
-                  <Input required placeholder={isAr ? "أدخل اسمك" : "Enter your name"} className="bg-zinc-950/50 border-zinc-800 text-white" />
+                  <Input name="name" value={formData.name} onChange={handleChange} required placeholder={isAr ? "أدخل اسمك" : "Enter your name"} className="bg-zinc-950/50 border-zinc-800 text-white" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
                     {isAr ? "البريد الإلكتروني" : "Email"}
                   </label>
-                  <Input type="email" required placeholder={isAr ? "أدخل بريدك الإلكتروني" : "Enter your email"} className="bg-zinc-950/50 border-zinc-800 text-white" />
+                  <Input name="email" value={formData.email} onChange={handleChange} type="email" required placeholder={isAr ? "أدخل بريدك الإلكتروني" : "Enter your email"} className="bg-zinc-950/50 border-zinc-800 text-white" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                    {isAr ? "الشركة" : "Company"}
+                    {isAr ? "الموضوع أو العنوان" : "Subject / Title"}
                   </label>
-                  <Input placeholder={isAr ? "اسم شركتك" : "Your company name"} className="bg-zinc-950/50 border-zinc-800 text-white" />
+                  <Input name="title" value={formData.title} onChange={handleChange} required placeholder={isAr ? "عنوان الرسالة" : "Message subject"} className="bg-zinc-950/50 border-zinc-800 text-white" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
@@ -115,15 +144,18 @@ export default function B2BFeedbackPage({ params }: { params: any }) {
                 </label>
                 <textarea 
                   required 
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   rows={6}
                   placeholder={isAr ? "أخبرنا كيف يمكننا التحسين..." : "Tell us how we can improve..."}
                   className="flex w-full rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-white text-black hover:bg-zinc-200">
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-white text-black hover:bg-zinc-200">
                 <Send className={`w-4 h-4 ${isAr ? 'ml-2' : 'mr-2'}`} />
-                {isAr ? "إرسال الملاحظات" : "Submit Feedback"}
+                {isSubmitting ? (isAr ? "جاري الإرسال..." : "Submitting...") : (isAr ? "إرسال الملاحظات" : "Submit Feedback")}
               </Button>
             </form>
           )}
