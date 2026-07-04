@@ -1,5 +1,6 @@
 import { PrismaClient, RoleType, LeadStatus } from '@prisma/client'
 import * as bcrypt from 'bcryptjs'
+import { seedServices } from './seed-services'
 
 const prisma = new PrismaClient()
 
@@ -98,31 +99,7 @@ async function main() {
   console.log('Created Attraction:', inflataPark.nameEn)
 
   // 4. B2B Services & Proofs
-  const megaEvents = await prisma.service.upsert({
-    where: { slug: 'mega-events' },
-    update: {},
-    create: {
-      slug: 'mega-events',
-      titleEn: 'Mega Events & Festivals',
-      titleAr: 'الفعاليات الكبرى والمهرجانات',
-      contentEn: 'End-to-end event engineering for massive national celebrations.',
-      contentAr: 'هندسة الفعاليات الشاملة للاحتفالات الوطنية الضخمة.',
-      isPublished: true,
-    }
-  })
-
-  const fecs = await prisma.service.upsert({
-    where: { slug: 'fecs' },
-    update: {},
-    create: {
-      slug: 'fecs',
-      titleEn: 'Family Entertainment Centers (FECs)',
-      titleAr: 'مراكز الترفيه العائلي',
-      contentEn: 'Design, installation, and operation of permanent attractions.',
-      contentAr: 'تصميم وتركيب وتشغيل الوجهات الترفيهية الدائمة.',
-      isPublished: true,
-    }
-  })
+  await seedServices(prisma)
   console.log('Created Services.')
 
   // Doha Balloon Parade Case Study
