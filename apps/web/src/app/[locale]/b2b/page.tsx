@@ -278,10 +278,18 @@ export default async function B2BHomePage() {
                 return (
                   <Link key={i} href={`/b2b/case-studies/${project.slug}`} className="group block">
                     <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-zinc-900 mb-6">
-                      {/* Placeholder for project hero image */}
-                      <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600 font-medium">
-                        [Cover: {title}]
-                      </div>
+                      {(project.thumbnailUrl || project.heroImageUrl) ? (
+                        <UniversalMediaRenderer 
+                          type={project.thumbnailMediaType || project.heroMediaType || "IMAGE"}
+                          src={project.thumbnailUrl || project.heroImageUrl}
+                          alt={title}
+                          className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-all duration-700"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600 font-medium">
+                          [Cover: {title}]
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
                     </div>
                     <h3 className="text-2xl font-bold text-zinc-100 mb-2">{title}</h3>
