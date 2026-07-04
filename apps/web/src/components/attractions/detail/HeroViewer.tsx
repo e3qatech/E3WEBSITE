@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), {
   ssr: false,
@@ -19,6 +20,8 @@ interface HeroViewerProps {
   fallbackUrl?: string | null;
   status?: string;
   logoUrl?: string | null;
+  ctaText?: string;
+  ctaLink?: string;
 }
 
 const extractUrl = (raw: string | null | undefined) => {
@@ -30,7 +33,7 @@ const extractUrl = (raw: string | null | undefined) => {
   return raw;
 };
 
-export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl }: HeroViewerProps) {
+export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl, ctaText, ctaLink }: HeroViewerProps) {
   const [mediaError, setMediaError] = React.useState(false);
   
   const currentMediaUrl = mediaError && fallbackUrl ? fallbackUrl : mediaUrl;
@@ -143,6 +146,22 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
           >
             {tagline}
           </motion.p>
+        )}
+
+        {ctaText && ctaLink && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-12"
+          >
+            <Link 
+              href={ctaLink}
+              className="inline-flex items-center justify-center px-10 py-5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-lg md:text-xl uppercase tracking-widest transition-all duration-300 rounded-sm hover:scale-105"
+            >
+              {ctaText}
+            </Link>
+          </motion.div>
         )}
       </div>
 

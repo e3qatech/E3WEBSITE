@@ -10,6 +10,7 @@ import { LiveBookingCard } from "@/components/attractions/detail/LiveBookingCard
 import { FaqAccordion } from "@/components/attractions/detail/FaqAccordion"
 import { PartnersSection } from '@/components/attractions/detail/PartnersSection';
 import { SocialNewsSection } from '@/components/attractions/detail/SocialNewsSection';
+import { RelatedProjects } from '@/components/attractions/detail/RelatedProjects';
 
 import { db } from "@/lib/db"
 import { toZonedTime, format } from 'date-fns-tz';
@@ -101,13 +102,28 @@ async function getAttractionData(slug: string) {
     averageVisitDuration: 90,
   };
 
+  const projects = await db.caseStudy.findMany({
+    where: { attractionId: attraction.id, isPublished: true },
+    select: {
+      id: true,
+      slug: true,
+      titleEn: true,
+      titleAr: true,
+      challengeEn: true,
+      challengeAr: true,
+      thumbnailUrl: true,
+      heroImageUrl: true
+    }
+  });
+
   return { 
     attraction, 
     pricing: attraction.pricing, 
     gallery: attraction.gallery, 
     faq: attraction.faqs, 
     schedule: null, 
-    operations 
+    operations,
+    projects
   }
 }
 
@@ -137,7 +153,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     notFound()
   }
 
-  const { attraction, pricing, gallery, faq, schedule, operations } = data
+  const { attraction, pricing, gallery, faq, schedule, operations, projects } = data
   const displayName = locale === 'ar' ? attraction.nameAr : attraction.nameEn
   const displayDesc = locale === 'ar' ? attraction.descriptionAr : attraction.descriptionEn
 
@@ -182,6 +198,8 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         fallbackUrl={attraction.heroFallbackUrl}
         status={attraction.isFeatured ? "Featured Experience" : undefined}
         logoUrl={attraction.logoUrl}
+        ctaText="Get Tickets"
+        ctaLink={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
       />
 
       {/* 2 & 3. Intro + What's Inside */}
@@ -192,6 +210,9 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
           imageUrl={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
         />
       )}
+
+      {/* Projects / Case Studies */}
+      <RelatedProjects projects={projects} locale={locale} />
 
       {/* 4. Pricing & Tickets */}
       <PricingCards 

@@ -19,56 +19,63 @@ export default async function EditCasePage({ params }: EditProps) {
 
   const { id } = await params
   const caseStudy = await db.caseStudy.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      teamMembers: true
+    }
   })
 
   if (!caseStudy) {
     notFound()
   }
 
+  const [attractions, teamMembersDb] = await Promise.all([
+    db.attraction.findMany({
+      select: { id: true, nameEn: true },
+      orderBy: { nameEn: 'asc' }
+    }),
+    db.teamMember.findMany({
+      select: { id: true, nameEn: true, roleTitleEn: true },
+      orderBy: { nameEn: 'asc' }
+    })
+  ])
+
   // Parse JSON fields safely for Editor UI
-  const beforeAfter = caseStudy.beforeAfter as any
-  const testimonial = caseStudy.testimonial as any
+  const testimonials = (caseStudy.testimonials as any[]) || []
   const metrics = (caseStudy.metrics as any[]) || []
+  const gallery = (caseStudy.gallery as any[]) || []
+  const technicalSpecs = (caseStudy.technicalSpecs as any[]) || []
+  const servicesUsed = (caseStudy.servicesUsed as any[]) || []
 
   const formattedData = {
     id: caseStudy.id,
     slug: caseStudy.slug,
-    title: {
-      en: caseStudy.titleEn || "",
-      ar: caseStudy.titleAr || ""
-    },
-    clientName: caseStudy.clientName,
-    category: [caseStudy.category],
-    year: caseStudy.year,
-    challenge: {
-      en: caseStudy.challengeEn || "",
-      ar: caseStudy.challengeAr || ""
-    },
-    solution: {
-      en: caseStudy.solutionEn || "",
-      ar: caseStudy.solutionAr || ""
-    },
-    results: {
-      en: "", // schema doesn't have resultsEn, it has results as Json or flat fields, but we map challenge/solution/results as text
-      ar: ""
-    },
-    testimonial: {
-      quoteEn: testimonial?.quote || "",
-      quoteAr: testimonial?.quoteAr || "",
-      author: testimonial?.authorName || ""
-    },
+    titleEn: caseStudy.titleEn || "",
+    titleAr: caseStudy.titleAr || "",
+    clientName: caseStudy.clientName || "",
+    category: caseStudy.category || "Corporate",
+    year: caseStudy.year || 2024,
+    challengeEn: caseStudy.challengeEn || "",
+    challengeAr: caseStudy.challengeAr || "",
+    solutionEn: caseStudy.solutionEn || "",
+    solutionAr: caseStudy.solutionAr || "",
+    heroImageUrl: caseStudy.heroImageUrl || "",
+    thumbnailUrl: caseStudy.thumbnailUrl || "",
+    clientLogoUrl: caseStudy.clientLogoUrl || "",
     isPublished: caseStudy.isPublished,
     isFeatured: caseStudy.isFeatured,
-    telemetry: metrics.map((m: any) => ({
-      labelEn: m.label || "",
-      valueEn: m.value || "",
-      labelAr: m.labelAr || "",
-      valueAr: m.valueAr || ""
-    })),
-    beforeImage: beforeAfter?.beforeUrl || "",
-    afterImage: beforeAfter?.afterUrl || ""
+    attractionId: caseStudy.attractionId || "",
+    metrics,
+    testimonials,
+    gallery,
+    technicalSpecs,
+    servicesUsed,
+    teamMembers: caseStudy.teamMembers.map(tm => ({
+      teamMemberId: tm.teamMemberId,
+      roleEn: tm.roleEn || "",
+      roleAr: tm.roleAr || ""
+    }))
   }
 
-  return <CaseEditor initialData={formattedData} />
+  return <CaseEditor initialData={formattedData} attractions={attractions} teamMembers={teamMembersDb} />
 }

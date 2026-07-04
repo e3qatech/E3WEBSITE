@@ -6,7 +6,7 @@ import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
 
-export function CaseEditor({ initialData }: { initialData?: any }) {
+export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: { initialData?: any, attractions?: any[], teamMembers?: any[] }) {
   const router = useRouter()
   const isEditing = !!initialData
 
@@ -18,26 +18,28 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
   const [titleEn, setTitleEn] = useState(initialData?.titleEn || "")
   const [titleAr, setTitleAr] = useState(initialData?.titleAr || "")
   const [clientName, setClientName] = useState(initialData?.clientName || "")
-  const [location, setLocation] = useState(initialData?.location || "")
-  const [eventDate, setEventDate] = useState(initialData?.eventDate ? new Date(initialData.eventDate).toISOString().split('T')[0] : "")
+  const [category, setCategory] = useState(initialData?.category || "Corporate")
+  const [year, setYear] = useState(initialData?.year || new Date().getFullYear())
+  const [attractionId, setAttractionId] = useState(initialData?.attractionId || "")
   
-  const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || "")
-  const [heroMediaType, setHeroMediaType] = useState(initialData?.heroMediaType || "IMAGE")
-  const [heroMediaUrl, setHeroMediaUrl] = useState(initialData?.heroMediaUrl || "")
+  const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnailUrl || "")
+  const [heroImageUrl, setHeroImageUrl] = useState(initialData?.heroImageUrl || "")
+  const [clientLogoUrl, setClientLogoUrl] = useState(initialData?.clientLogoUrl || "")
   
   const [challengeEn, setChallengeEn] = useState(initialData?.challengeEn || "")
   const [challengeAr, setChallengeAr] = useState(initialData?.challengeAr || "")
   const [solutionEn, setSolutionEn] = useState(initialData?.solutionEn || "")
   const [solutionAr, setSolutionAr] = useState(initialData?.solutionAr || "")
-  const [resultEn, setResultEn] = useState(initialData?.resultEn || "")
-  const [resultAr, setResultAr] = useState(initialData?.resultAr || "")
 
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
-  const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? false)
+  const [isVisible, setIsVisible] = useState(initialData?.isPublished ?? false)
   
   const [metrics, setMetrics] = useState<any[]>(Array.isArray(initialData?.metrics) ? initialData.metrics : [])
-  const [challenges, setChallenges] = useState<any[]>(Array.isArray(initialData?.challenges) ? initialData.challenges : [])
+  const [testimonials, setTestimonials] = useState<any[]>(Array.isArray(initialData?.testimonials) ? initialData.testimonials : [])
   const [gallery, setGallery] = useState<any[]>(Array.isArray(initialData?.gallery) ? initialData.gallery : [])
+  const [technicalSpecs, setTechnicalSpecs] = useState<any[]>(Array.isArray(initialData?.technicalSpecs) ? initialData.technicalSpecs : [])
+  const [servicesUsed, setServicesUsed] = useState<any[]>(Array.isArray(initialData?.servicesUsed) ? initialData.servicesUsed : [])
+  const [caseTeamMembers, setCaseTeamMembers] = useState<any[]>(Array.isArray(initialData?.teamMembers) ? initialData.teamMembers : [])
 
   const handleSave = async () => {
     if (!slug || !titleEn || !titleAr) {
@@ -48,11 +50,13 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
     setIsSaving(true)
     try {
       const payload = {
-        slug, titleEn, titleAr, clientName, location, eventDate,
-        thumbnail, heroMediaType, heroMediaUrl,
-        challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
-        isFeatured, isVisible, isPublished: isVisible,
-        metrics, challenges, gallery
+        slug, titleEn, titleAr, clientName, year, category,
+        heroImageUrl, thumbnailUrl, clientLogoUrl,
+        challengeEn, challengeAr, solutionEn, solutionAr,
+        isFeatured, isPublished: isVisible,
+        attractionId, metrics, gallery,
+        technicalSpecs, servicesUsed, testimonials,
+        teamMembers: caseTeamMembers
       }
 
       if (isEditing) {
@@ -140,7 +144,7 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Nav */}
         <div className="w-full md:w-64 shrink-0 flex flex-col gap-2">
-          {["general", "hero", "narrative", "metrics", "challenges", "gallery"].map(tab => (
+          {["general", "hero", "narrative", "metrics", "team", "testimonials", "gallery"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -185,17 +189,26 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
                   <input type="text" value={clientName} onChange={e => setClientName(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Location</label>
-                  <input type="text" value={location} onChange={e => setLocation(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Category</label>
+                  <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Event Date</label>
-                  <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Year</label>
+                  <input type="number" value={year} onChange={e => setYear(parseInt(e.target.value))} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
                 </div>
               </div>
               <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Linked Attraction</label>
+                <select value={attractionId} onChange={e => setAttractionId(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none">
+                  <option value="">Select an Attraction (Optional)</option>
+                  {attractions.map(a => (
+                    <option key={a.id} value={a.id}>{a.nameEn}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
                 <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>
-                <MediaUploader value={thumbnail} onChange={setThumbnail} />
+                <MediaUploader value={thumbnailUrl} onChange={setThumbnailUrl} />
               </div>
             </div>
           )}
@@ -204,18 +217,13 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
           {activeTab === "hero" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <h2 className="text-lg font-black mb-6 border-b border-[var(--border-default)] pb-4">Hero Media</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Media Type</label>
-                  <select value={heroMediaType} onChange={e => setHeroMediaType(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none">
-                    <option value="IMAGE">Image</option>
-                    <option value="VIDEO">Video File</option>
-                  </select>
-                </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hero Image URL</label>
+                <MediaUploader value={heroImageUrl} onChange={setHeroImageUrl} />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hero Media URL</label>
-                <MediaUploader value={heroMediaUrl} onChange={setHeroMediaUrl} />
+                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Client Logo URL</label>
+                <MediaUploader value={clientLogoUrl} onChange={setClientLogoUrl} />
               </div>
             </div>
           )}
@@ -247,16 +255,6 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-amber-500 uppercase tracking-wider">The Results (EN)</label>
-                    <textarea value={resultEn} rows={4} onChange={e => setResultEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-amber-500 uppercase tracking-wider">The Results (AR)</label>
-                    <textarea value={resultAr} dir="rtl" rows={4} onChange={e => setResultAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none resize-none font-arabic" />
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -298,41 +296,77 @@ export function CaseEditor({ initialData }: { initialData?: any }) {
             </div>
           )}
 
-          {/* CHALLENGES OVERCOME */}
-          {activeTab === "challenges" && (
+          {/* TEAM TAB */}
+          {activeTab === "team" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
-                <h2 className="text-lg font-black">Specific Challenges Overcome</h2>
-                <Button onClick={() => setChallenges([...challenges, { titleEn: "", descriptionEn: "", titleAr: "", descriptionAr: "", icon: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
-                  <Plus className="w-4 h-4" /> Add Challenge
+                <h2 className="text-lg font-black">Team Members</h2>
+                <Button onClick={() => setCaseTeamMembers([...caseTeamMembers, { teamMemberId: "", roleEn: "", roleAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Add Team Member
                 </Button>
               </div>
               <div className="space-y-4">
-                {challenges.map((item, index) => (
+                {caseTeamMembers.map((item, index) => (
                   <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
-                    <button onClick={() => setChallenges(challenges.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setCaseTeamMembers(caseTeamMembers.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-12">
                       <div className="space-y-2 md:col-span-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Icon Component Name (e.g. Clock, Shield)</label>
-                        <input type="text" value={item.icon || ""} onChange={e => updateArrayItem(setChallenges, challenges, index, "icon", e.target.value)} className="w-full max-w-xs bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Select Member</label>
+                        <select value={item.teamMemberId} onChange={e => updateArrayItem(setCaseTeamMembers, caseTeamMembers, index, "teamMemberId", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
+                          <option value="">Select a Team Member</option>
+                          {teamMembers.map((tm: any) => (
+                            <option key={tm.id} value={tm.id}>{tm.nameEn} - {tm.roleTitleEn}</option>
+                          ))}
+                        </select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Title (EN)</label>
-                        <input type="text" value={item.titleEn} onChange={e => updateArrayItem(setChallenges, challenges, index, "titleEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Project Role (EN)</label>
+                        <input type="text" value={item.roleEn} onChange={e => updateArrayItem(setCaseTeamMembers, caseTeamMembers, index, "roleEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" placeholder="e.g. Lead Designer" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Title (AR)</label>
-                        <input type="text" dir="rtl" value={item.titleAr || ""} onChange={e => updateArrayItem(setChallenges, challenges, index, "titleAr", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm font-arabic" />
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Project Role (AR)</label>
+                        <input type="text" dir="rtl" value={item.roleAr || ""} onChange={e => updateArrayItem(setCaseTeamMembers, caseTeamMembers, index, "roleAr", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm font-arabic" placeholder="المصمم الرئيسي" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TESTIMONIALS TAB */}
+          {activeTab === "testimonials" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
+                <h2 className="text-lg font-black">Testimonials</h2>
+                <Button onClick={() => setTestimonials([...testimonials, { authorName: "", quoteEn: "", quoteAr: "", isVisible: true }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Add Testimonial
+                </Button>
+              </div>
+              <div className="space-y-4">
+                {testimonials.map((item, index) => (
+                  <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
+                    <button onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 gap-4 pr-12">
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" checked={item.isVisible !== false} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "isVisible", e.target.checked)} className="rounded" />
+                        <label className="text-sm font-bold">Visible on Website</label>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Description (EN)</label>
-                        <textarea value={item.descriptionEn} onChange={e => updateArrayItem(setChallenges, challenges, index, "descriptionEn", e.target.value)} rows={2} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none" />
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Author Name / Designation</label>
+                        <input type="text" value={item.authorName} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "authorName", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Description (AR)</label>
-                        <textarea value={item.descriptionAr || ""} dir="rtl" onChange={e => updateArrayItem(setChallenges, challenges, index, "descriptionAr", e.target.value)} rows={2} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none font-arabic" />
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Quote (EN)</label>
+                        <textarea value={item.quoteEn} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "quoteEn", e.target.value)} rows={3} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)]">Quote (AR)</label>
+                        <textarea value={item.quoteAr || ""} dir="rtl" onChange={e => updateArrayItem(setTestimonials, testimonials, index, "quoteAr", e.target.value)} rows={3} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none font-arabic" />
                       </div>
                     </div>
                   </div>

@@ -19,22 +19,43 @@ export async function PUT(
       heroImageUrl, thumbnailUrl, clientLogoUrl,
       challengeEn, challengeAr, solutionEn, solutionAr,
       isFeatured, isPublished,
-      gallery, metrics, technicalSpecs, servicesUsed
+      gallery, metrics, technicalSpecs, servicesUsed,
+      attractionId, teamMembers, testimonials
     } = body
 
-    await db.caseStudy.update({
-      where: { id },
-      data: {
-        slug, titleEn, titleAr, clientName, category,
-        year: year ? parseInt(year) : 2024,
-        heroImageUrl, thumbnailUrl, clientLogoUrl,
-        challengeEn, challengeAr, solutionEn, solutionAr,
-        isFeatured, isPublished,
-        gallery: gallery || [],
-        metrics: metrics || [],
-        technicalSpecs: technicalSpecs || [],
-        servicesUsed: servicesUsed || []
-      }
+    await db.$transaction(async (tx) => {
+      // 1. Delete existing team members
+      await tx.caseStudyTeamMember.deleteMany({
+        where: { caseStudyId: id }
+      })
+
+      // 2. Update case study
+      await tx.caseStudy.update({
+        where: { id },
+        data: {
+          slug, titleEn, titleAr, clientName, category,
+          year: year ? parseInt(year) : 2024,
+          heroImageUrl, thumbnailUrl, clientLogoUrl,
+          challengeEn, challengeAr, solutionEn, solutionAr,
+          isFeatured, isPublished,
+          attractionId: attractionId || null,
+          gallery: gallery || [],
+          metrics: metrics || [],
+          technicalSpecs: technicalSpecs || [],
+          servicesUsed: servicesUsed || [],
+          testimonials: testimonials || [],
+          ...(teamMembers && teamMembers.length > 0 && {
+            teamMembers: {
+              create: teamMembers.map((tm: any, i: number) => ({
+                teamMemberId: tm.teamMemberId,
+                roleEn: tm.roleEn,
+                roleAr: tm.roleAr,
+                orderIndex: i
+              }))
+            }
+          })
+        }
+      })
     })
 
     return NextResponse.json({ success: true })

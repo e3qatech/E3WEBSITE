@@ -184,6 +184,7 @@ model Attraction {
   calendarEvents CalendarEvent[]
   services       Service[]
   serviceProjects ServiceProject[]
+  caseStudies    CaseStudy[]
 
   @@index([isPublished, isHidden])
 }
@@ -408,12 +409,17 @@ model CaseStudy {
   solutionAr     String?  @db.Text
   
   metrics        Json?    // Array of { value, label, trend, prefix, suffix }
-  testimonial    Json?    // { quote, authorName, authorTitle, authorImage }
+  testimonials   Json?    // Array of { id, quote, authorName, authorTitle, authorImage, isVisible }
   gallery        Json?    // Array of { url, type, caption }
   beforeAfter    Json?    // { beforeUrl, afterUrl }
   servicesUsed   Json?    // Array of service slugs/names
   technicalSpecs Json?    // Array of { label, value }
   
+  attractionId   String?
+  attraction     Attraction? @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+
+  teamMembers    CaseStudyTeamMember[]
+
   isPublished    Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -421,6 +427,22 @@ model CaseStudy {
   @@index([isPublished])
   @@index([category])
   @@index([year])
+  @@index([attractionId])
+}
+
+model CaseStudyTeamMember {
+  id             String   @id @default(cuid())
+  caseStudyId    String
+  teamMemberId   String
+  roleEn         String?
+  roleAr         String?
+  orderIndex     Int      @default(0)
+
+  caseStudy      CaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  teamMember     TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  
+  @@index([caseStudyId])
+  @@index([teamMemberId])
 }
 
 model Lead {
@@ -475,6 +497,7 @@ model TeamMember {
   updatedAt      DateTime @updatedAt
 
   availability   AvailabilitySlot[]
+  caseStudies    CaseStudyTeamMember[]
 }
 
 model AvailabilitySlot {
