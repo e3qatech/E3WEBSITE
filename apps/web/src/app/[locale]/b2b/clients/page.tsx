@@ -11,8 +11,8 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function ClientsPage() {
-  
+export default async function ClientsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const isAr = locale === 'ar'
   
   const [dbPartners, pageData] = await Promise.all([
