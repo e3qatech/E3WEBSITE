@@ -216,10 +216,10 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                           </div>
                           
                           {/* Hover Image Reveal */}
-                          {tm.teamMember?.profileImageUrl && (
+                          {tm.teamMember?.imageUrl && (
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full overflow-hidden opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-0 shadow-2xl">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={tm.teamMember.profileImageUrl} alt={tm.teamMember.nameEn} className="w-full h-full object-cover" />
+                              <img src={tm.teamMember.imageUrl} alt={tm.teamMember.nameEn} className="w-full h-full object-cover" />
                             </div>
                           )}
                         </div>
