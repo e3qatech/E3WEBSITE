@@ -54,11 +54,13 @@ export async function POST(request: Request) {
           labelAr: m.labelAr || "",
           valueAr: m.valueAr || ""
         })) || [],
-        testimonial: {
-          quote: testimonial?.quoteEn || "",
-          quoteAr: testimonial?.quoteAr || "",
-          authorName: testimonial?.author || ""
-        }
+        testimonials: [
+          {
+            quoteEn: testimonial?.quoteEn || "",
+            quoteAr: testimonial?.quoteAr || "",
+            authorName: testimonial?.author || ""
+          }
+        ]
       }
     })
 
