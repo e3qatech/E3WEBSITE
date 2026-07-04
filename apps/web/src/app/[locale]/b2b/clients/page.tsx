@@ -13,6 +13,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function ClientsPage() {
   
+  const isAr = locale === 'ar'
+  
   const [dbPartners, pageData] = await Promise.all([
     db.partner.findMany({
       where: { isVisible: true },
@@ -28,20 +30,25 @@ export default async function ClientsPage() {
 
   const content = pageData?.content as any || {}
   const hero = content?.hero || {
-    title: "Trusted by the Best.",
-    subtitle: "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.",
+    titleEn: "Trusted by the Best.",
+    titleAr: "يحظى بثقة الأفضل.",
+    subtitleEn: "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.",
+    subtitleAr: "نحن نتشارك مع هيئات حكومية طموحة، وعلامات تجارية عالمية، ووجهات رائدة لتقديم تجارب تهم.",
     mediaType: "IMAGE",
     mediaUrl: ""
   }
 
+  const heroTitle = isAr ? hero.titleAr : hero.titleEn;
+  const heroSubtitle = isAr ? hero.subtitleAr : hero.subtitleEn;
+
   // Group by category
   const categoriesMap = {
-    'GOVERNMENT': { name: 'Government & Tourism', clients: [] as any[] },
-    'CORPORATE': { name: 'Corporate & Brands', clients: [] as any[] },
-    'VENUE': { name: 'Venues & Destinations', clients: [] as any[] },
-    'AGENCY': { name: 'Agencies', clients: [] as any[] },
-    'TECHNOLOGY': { name: 'Technology', clients: [] as any[] },
-    'OTHER': { name: 'Other', clients: [] as any[] },
+    'GOVERNMENT': { nameEn: 'Government & Tourism', nameAr: 'الجهات الحكومية والسياحة', clients: [] as any[] },
+    'CORPORATE': { nameEn: 'Corporate & Brands', nameAr: 'الشركات والعلامات التجارية', clients: [] as any[] },
+    'VENUE': { nameEn: 'Venues & Destinations', nameAr: 'الوجهات والمواقع', clients: [] as any[] },
+    'AGENCY': { nameEn: 'Agencies', nameAr: 'الوكالات', clients: [] as any[] },
+    'TECHNOLOGY': { nameEn: 'Technology', nameAr: 'التكنولوجيا', clients: [] as any[] },
+    'OTHER': { nameEn: 'Other', nameAr: 'أخرى', clients: [] as any[] },
   }
 
   dbPartners.forEach(p => {
@@ -54,21 +61,21 @@ export default async function ClientsPage() {
 
   const testimonials = [
     {
-      quote: "E3 delivered on an impossible timeline. Their ability to marshal resources, engineer safe structures, and operate smoothly at scale is unmatched in the region.",
-      author: "Hassan Al Ibrahim",
-      title: "Director of Events",
-      company: "Qatar Tourism"
+      quote: isAr ? "لقد أوفت E3 بوعدها في وقت زمني قياسي. قدرتهم على حشد الموارد، وهندسة الهياكل الآمنة، والعمل بسلاسة على نطاق واسع لا مثيل لها في المنطقة." : "E3 delivered on an impossible timeline. Their ability to marshal resources, engineer safe structures, and operate smoothly at scale is unmatched in the region.",
+      author: isAr ? "حسن الإبراهيم" : "Hassan Al Ibrahim",
+      title: isAr ? "مدير الفعاليات" : "Director of Events",
+      company: isAr ? "قطر للسياحة" : "Qatar Tourism"
     },
     {
-      quote: "The XR Dome was a masterclass in immersive storytelling. Flawless execution from concept to final delivery.",
-      author: "Sarah Al-Thani",
-      title: "Creative Director",
-      company: "Msheireb Properties"
+      quote: isAr ? "كانت قبة XR درسًا متقدمًا في سرد القصص الغامرة. تنفيذ لا تشوبه شائبة من الفكرة إلى التسليم النهائي." : "The XR Dome was a masterclass in immersive storytelling. Flawless execution from concept to final delivery.",
+      author: isAr ? "سارة آل ثاني" : "Sarah Al-Thani",
+      title: isAr ? "المدير الإبداعي" : "Creative Director",
+      company: isAr ? "مشيرب العقارية" : "Msheireb Properties"
     }
   ]
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
       <section className="relative min-h-[60vh] flex items-center py-20 md:py-32 border-b border-zinc-900 overflow-hidden">
@@ -88,12 +95,12 @@ export default async function ClientsPage() {
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6 max-w-4xl">
-            {hero.title.split(' ').map((word: string, i: number, arr: string[]) => 
+            {heroTitle.split(' ').map((word: string, i: number, arr: string[]) => 
               i === arr.length - 1 ? <span key={i} className="text-emerald-400">{word}</span> : <span key={i}>{word} </span>
             )}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            {hero.subtitle}
+            {heroSubtitle}
           </p>
         </div>
       </section>
@@ -109,7 +116,7 @@ export default async function ClientsPage() {
           ) : categories.map((category, i) => (
             <div key={i}>
               <h2 className="text-2xl font-black text-zinc-100 tracking-tight mb-8 flex items-center gap-4">
-                {category.name}
+                {isAr ? category.nameAr : category.nameEn}
                 <div className="h-px flex-1 bg-zinc-900" />
               </h2>
               

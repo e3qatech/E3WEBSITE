@@ -10,8 +10,10 @@ import { MediaUploader } from "@/components/shared/MediaUploader"
 export function B2BPartnersEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
     hero: {
-      title: initialData?.hero?.title || "Trusted by the Best.",
-      subtitle: initialData?.hero?.subtitle || "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.",
+      titleEn: initialData?.hero?.titleEn || "Trusted by the Best.",
+      titleAr: initialData?.hero?.titleAr || "يحظى بثقة الأفضل.",
+      subtitleEn: initialData?.hero?.subtitleEn || "We partner with ambitious government entities, global brands, and premier destinations to deliver experiences that matter.",
+      subtitleAr: initialData?.hero?.subtitleAr || "نحن نتشارك مع هيئات حكومية طموحة، وعلامات تجارية عالمية، ووجهات رائدة لتقديم تجارب تهم.",
       mediaType: initialData?.hero?.mediaType || "IMAGE",
       mediaUrl: initialData?.hero?.mediaUrl || "",
     }
@@ -65,22 +67,43 @@ export function B2BPartnersEditor({ initialData }: { initialData: any }) {
         <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
           <h2 className="text-lg font-bold text-text-primary">Hero Section</h2>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title</label>
-              <input 
-                type="text" 
-                value={data.hero.title}
-                onChange={e => handleChange('hero', 'title', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle</label>
-              <textarea 
-                value={data.hero.subtitle}
-                onChange={e => handleChange('hero', 'subtitle', e.target.value)}
-                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
+                <input 
+                  type="text" 
+                  value={data.hero.titleEn}
+                  onChange={e => handleChange('hero', 'titleEn', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.hero.titleAr}
+                  onChange={e => handleChange('hero', 'titleAr', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
+                <textarea 
+                  value={data.hero.subtitleEn}
+                  onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
+                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
+                <textarea 
+                  dir="rtl"
+                  value={data.hero.subtitleAr}
+                  onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
+                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
