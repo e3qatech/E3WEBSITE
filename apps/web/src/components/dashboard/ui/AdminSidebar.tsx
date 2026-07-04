@@ -30,20 +30,20 @@ import { AdminStatusBadge } from "./AdminStatusBadge";
 // Updated configuration mapping 17 domain modules into refined logical buckets
 const sidebarConfig = [
   { label: "Command Center", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
-  { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+  { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team Scheduling", href: "/dashboard/b2b/team" },
-    { label: "Partners CMS", href: "/dashboard/b2b/partners" },
+    { label: "Clients CMS", href: "/dashboard/b2b/partners" },
     { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
-  { label: "B2B Pages", icon: FileText, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+  { label: "B2B Pages", icon: FileText, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Homepage Editor", href: "/dashboard/b2b/home" },
     { label: "About Us Editor", href: "/dashboard/b2b/about" },
     { label: "Contact Editor", href: "/dashboard/b2b/contact" },
     { label: "Services Page", href: "/dashboard/b2b/services-page" },
     { label: "Cases Page", href: "/dashboard/b2b/cases-page" },
-    { label: "Partners Page", href: "/dashboard/b2b/partners-page" },
+    { label: "Clients Page", href: "/dashboard/b2b/partners-page" },
     { label: "FAQs Editor", href: "/dashboard/b2b/faqs" },
     { label: "Feedback Form", href: "/dashboard/b2b/feedback" }
   ] },
