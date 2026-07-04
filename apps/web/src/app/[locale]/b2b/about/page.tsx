@@ -50,13 +50,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     { title: 'Cultural Resonance', desc: 'Rooted in Qatar, built for the world. Our experiences respect local context while setting global benchmarks.' },
   ];
 
-  // Fetch story image if it's a media ID
+  // Fetch story image if it's a media URL
   let finalMediaUrl = storyMediaUrl || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
   if (['IMAGE', 'VIDEO'].includes(storyMediaType) && storyImageMediaId) {
-    const media = await prisma.media.findUnique({ where: { id: storyImageMediaId } });
-    if (media) {
-      finalMediaUrl = media.url;
-    }
+    // AdminMediaPicker actually returns the URL string, not the ID
+    finalMediaUrl = storyImageMediaId;
   }
 
   return (

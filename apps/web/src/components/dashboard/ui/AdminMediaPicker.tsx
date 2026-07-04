@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { SlideOver } from "./SlideOver"
 import { AdminButton } from "./AdminButton"
-import { Image as ImageIcon, Video, FileText, UploadCloud, X, Check } from "lucide-react"
+import { Image as ImageIcon, Video, FileText, UploadCloud, X, Check, Trash2 } from "lucide-react"
 
 interface Media {
   id: string
@@ -73,6 +73,24 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   const handleSelect = (url: string) => {
     onChange(url)
     setIsOpen(false)
+  }
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    if (!confirm("Are you sure you want to delete this media? This cannot be undone.")) return
+    
+    try {
+      const mediaToDelete = mediaList.find(m => m.id === id)
+      setMediaList(prev => prev.filter(m => m.id !== id))
+      if (mediaToDelete && mediaToDelete.url === value) {
+        onChange("")
+      }
+      await fetch(`/api/cms/media/${id}`, { method: "DELETE" })
+    } catch (err) {
+      console.error(err)
+      // Refresh on error
+      fetchMedia()
+    }
   }
 
   return (
@@ -160,10 +178,17 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                     )}
                   </div>
                   {value === media.url && (
-                    <div className="absolute top-2 end-2 w-6 h-6 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center">
+                    <div className="absolute top-2 end-2 w-6 h-6 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center shadow-md">
                       <Check className="w-4 h-4" />
                     </div>
                   )}
+                  <button
+                    onClick={(e) => handleDelete(e, media.id)}
+                    className="absolute top-2 start-2 w-7 h-7 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                    title="Delete Media"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               ))}
               
