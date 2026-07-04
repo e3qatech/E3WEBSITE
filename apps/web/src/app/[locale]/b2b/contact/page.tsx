@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { CheckCircle2, ArrowRight } from 'lucide-react'
 import { useB2BRFP } from '@/store/b2b-store'
 import { useParams } from 'next/navigation'
+import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+import Link from 'next/link'
 
 export default function ContactRFPPage() {
   const { inquiryType, setInquiryType } = useB2BRFP()
@@ -31,21 +33,44 @@ export default function ContactRFPPage() {
     setSubmitted(true)
   }
 
-  const headerTitle = isAr ? (cmsData?.header?.titleAr || 'ابدأ مشروعاً.') : (cmsData?.header?.titleEn || 'Start a Project.');
-  const headerSubtitle = isAr ? (cmsData?.header?.subtitleAr || 'سواء كان لديك طلب تقديم عروض صياغة كاملة أو مجرد مفهوم أولي، فإن فريقنا مستعد لهندسة حل.') : (cmsData?.header?.subtitleEn || 'Whether you have a fully drafted RFP or just a preliminary concept, our team is ready to engineer a solution.');
+  const headerTitle = isAr ? cmsData?.header?.titleAr : cmsData?.header?.titleEn;
+  const headerSubtitle = isAr ? cmsData?.header?.subtitleAr : cmsData?.header?.subtitleEn;
   
-  const businessEmail = cmsData?.inquiries?.business || 'business@e3.qa'
-  const careersEmail = cmsData?.inquiries?.careers || 'careers@e3.qa'
-  const phone = cmsData?.inquiries?.phone || '+974 4444 4444'
+  const businessEmail = cmsData?.inquiries?.business;
+  const careersEmail = cmsData?.inquiries?.careers;
+  const phone = cmsData?.inquiries?.phone;
 
-  const hqAddress = isAr ? (cmsData?.headquarters?.addressAr || 'برج النخلة ب، الطابق 22\nالخليج الغربي، الدوحة\nدولة قطر') : (cmsData?.headquarters?.addressEn || 'Palm Tower B, Floor 22\nWest Bay, Doha\nState of Qatar');
+  const hqAddress = isAr ? cmsData?.headquarters?.addressAr : cmsData?.headquarters?.addressEn;
+
+  const careersCtaTitle = isAr ? cmsData?.careersCta?.titleAr : cmsData?.careersCta?.titleEn;
+  const careersCtaDesc = isAr ? cmsData?.careersCta?.descriptionAr : cmsData?.careersCta?.descriptionEn;
+  const careersCtaText = isAr ? cmsData?.careersCta?.ctaTextAr : cmsData?.careersCta?.ctaTextEn;
+
+  const feedbackCtaTitle = isAr ? cmsData?.feedbackCta?.titleAr : cmsData?.feedbackCta?.titleEn;
+  const feedbackCtaDesc = isAr ? cmsData?.feedbackCta?.descriptionAr : cmsData?.feedbackCta?.descriptionEn;
+  const feedbackCtaText = isAr ? cmsData?.feedbackCta?.ctaTextAr : cmsData?.feedbackCta?.ctaTextEn;
+
+  const faqCtaTitle = isAr ? cmsData?.faqCta?.titleAr : cmsData?.faqCta?.titleEn;
+  const faqCtaDesc = isAr ? cmsData?.faqCta?.descriptionAr : cmsData?.faqCta?.descriptionEn;
+  const faqCtaText = isAr ? cmsData?.faqCta?.ctaTextAr : cmsData?.faqCta?.ctaTextEn;
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
-      <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
-        <div className="container mx-auto px-4 md:px-8">
+      <section className="relative py-32 border-b border-zinc-900 overflow-hidden">
+        {cmsData?.header?.mediaUrl && (
+          <div className="absolute inset-0 z-0">
+            <UniversalMediaRenderer 
+              src={cmsData.header.mediaUrl}
+              type={cmsData.header.mediaType || "IMAGE"}
+              alt="B2B Contact Header"
+              className="w-full h-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
+          </div>
+        )}
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
           <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
             {headerTitle}
           </h1>
@@ -62,30 +87,40 @@ export default function ContactRFPPage() {
             
             {/* Left Column - Contact Info */}
             <div className="md:col-span-5 space-y-12">
-              <div>
-                <h3 className="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">{isAr ? 'استفسارات مباشرة' : 'Direct Inquiries'}</h3>
-                <ul className="space-y-6">
-                  <li>
-                    <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'تطوير الأعمال' : 'Business Development'}</div>
-                    <a href={`mailto:${businessEmail}`} className="text-xl font-medium text-emerald-400 hover:text-emerald-300 transition-colors">{businessEmail}</a>
-                  </li>
-                  <li>
-                    <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'الوظائف والمواهب' : 'Careers & Talent'}</div>
-                    <a href={`mailto:${careersEmail}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{careersEmail}</a>
-                  </li>
-                  <li>
-                    <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'الهاتف' : 'Phone'}</div>
-                    <a href={`tel:${phone}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{phone}</a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">{isAr ? 'المقر الرئيسي' : 'Headquarters'}</h3>
-                <div className="text-lg text-zinc-400 leading-relaxed whitespace-pre-wrap">
-                  {hqAddress}
+              {(businessEmail || careersEmail || phone) && (
+                <div>
+                  <h3 className="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">{isAr ? 'استفسارات مباشرة' : 'Direct Inquiries'}</h3>
+                  <ul className="space-y-6">
+                    {businessEmail && (
+                      <li>
+                        <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'تطوير الأعمال' : 'Business Development'}</div>
+                        <a href={`mailto:${businessEmail}`} className="text-xl font-medium text-emerald-400 hover:text-emerald-300 transition-colors">{businessEmail}</a>
+                      </li>
+                    )}
+                    {careersEmail && (
+                      <li>
+                        <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'الوظائف والمواهب' : 'Careers & Talent'}</div>
+                        <a href={`mailto:${careersEmail}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{careersEmail}</a>
+                      </li>
+                    )}
+                    {phone && (
+                      <li>
+                        <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'الهاتف' : 'Phone'}</div>
+                        <a href={`tel:${phone}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{phone}</a>
+                      </li>
+                    )}
+                  </ul>
                 </div>
-              </div>
+              )}
+
+              {hqAddress && (
+                <div>
+                  <h3 className="text-2xl font-bold text-zinc-100 mb-6 tracking-tight">{isAr ? 'المقر الرئيسي' : 'Headquarters'}</h3>
+                  <div className="text-lg text-zinc-400 leading-relaxed whitespace-pre-wrap">
+                    {hqAddress}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right Column - Form */}
@@ -213,6 +248,113 @@ export default function ContactRFPPage() {
           </div>
         </div>
       </section>
+
+      {/* CTA Bento Grid */}
+      {(careersCtaTitle || feedbackCtaTitle || faqCtaTitle) && (
+        <section className="py-24 border-t border-zinc-900 bg-zinc-950">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              {/* Careers CTA */}
+              {careersCtaTitle && (
+                <div className="relative group overflow-hidden rounded-2xl aspect-square md:aspect-auto md:h-[400px] flex flex-col justify-end p-8 border border-zinc-800/50">
+                  {cmsData?.careersCta?.mediaUrl && (
+                    <div className="absolute inset-0 z-0">
+                      <UniversalMediaRenderer 
+                        src={cmsData.careersCta.mediaUrl}
+                        type={cmsData.careersCta.mediaType || "IMAGE"}
+                        alt="Careers Background"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
+                  {/* Glassmorphism overlay */}
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500 pointer-events-none" />
+                  
+                  <div className="relative z-20 mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-2xl font-black text-white mb-2">{careersCtaTitle}</h3>
+                    <p className="text-zinc-300 font-medium mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      {careersCtaDesc}
+                    </p>
+                    <Link 
+                      href={cmsData?.careersCta?.ctaLink || '#'} 
+                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
+                    >
+                      {careersCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Feedback CTA */}
+              {feedbackCtaTitle && (
+                <div className="relative group overflow-hidden rounded-2xl aspect-square md:aspect-auto md:h-[400px] flex flex-col justify-end p-8 border border-zinc-800/50">
+                  {cmsData?.feedbackCta?.mediaUrl && (
+                    <div className="absolute inset-0 z-0">
+                      <UniversalMediaRenderer 
+                        src={cmsData.feedbackCta.mediaUrl}
+                        type={cmsData.feedbackCta.mediaType || "IMAGE"}
+                        alt="Feedback Background"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
+                  {/* Glassmorphism overlay */}
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500 pointer-events-none" />
+                  
+                  <div className="relative z-20 mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-2xl font-black text-white mb-2">{feedbackCtaTitle}</h3>
+                    <p className="text-zinc-300 font-medium mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      {feedbackCtaDesc}
+                    </p>
+                    <Link 
+                      href={cmsData?.feedbackCta?.ctaLink || '#'} 
+                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
+                    >
+                      {feedbackCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* FAQ CTA */}
+              {faqCtaTitle && (
+                <div className="relative group overflow-hidden rounded-2xl aspect-square md:aspect-auto md:h-[400px] flex flex-col justify-end p-8 border border-zinc-800/50">
+                  {cmsData?.faqCta?.mediaUrl && (
+                    <div className="absolute inset-0 z-0">
+                      <UniversalMediaRenderer 
+                        src={cmsData.faqCta.mediaUrl}
+                        type={cmsData.faqCta.mediaType || "IMAGE"}
+                        alt="FAQ Background"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
+                  {/* Glassmorphism overlay */}
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500 pointer-events-none" />
+                  
+                  <div className="relative z-20 mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-2xl font-black text-white mb-2">{faqCtaTitle}</h3>
+                    <p className="text-zinc-300 font-medium mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      {faqCtaDesc}
+                    </p>
+                    <Link 
+                      href={cmsData?.faqCta?.ctaLink || '#'} 
+                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
+                    >
+                      {faqCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </section>
+      )}
 
     </div>
   )
