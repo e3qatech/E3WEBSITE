@@ -25,23 +25,63 @@ async function main() {
   console.log('Created Super Admin:', superAdmin.email)
 
   // 2. Organizational Hierarchy (Team Members)
-  const chairman = await prisma.teamMember.create({
+  const chairman = await prisma.employeeProfile.create({
     data: {
-      nameEn: 'Abdullah Al Kubaisi',
-      nameAr: 'عبدالله الكبيسي',
-      roleTitleEn: 'Chairman',
-      roleTitleAr: 'رئيس مجلس الإدارة',
-      orderIndex: 1,
+      slug: 'abdullah-al-kubaisi',
+      firstName: 'Abdullah',
+      lastName: 'Al Kubaisi',
+      firstNameAr: 'عبدالله',
+      lastNameAr: 'الكبيسي',
+      designation: 'Chairman',
+      designationAr: 'رئيس مجلس الإدارة',
+      department: 'Executive',
+      yearsOfExperience: 20,
+      tagline: 'Leading the future of events',
+      aboutSummary: 'Visionary leader behind E3.',
+      aboutSummaryAr: 'القائد المتبصر وراء E3.',
+      careerJourney: '20+ years in the industry.',
+      keyStrengths: 'Leadership, Vision, Strategy',
+      expertiseTags: [],
+      coreCompetencies: [],
+      experience: [],
+      projects: [],
+      certifications: [],
+      education: [],
+      awards: [],
+      skillsMatrix: [],
+      mediaGallery: [],
+      testimonials: [],
+      order: 1,
     }
   })
 
-  const gm = await prisma.teamMember.create({
+  const gm = await prisma.employeeProfile.create({
     data: {
-      nameEn: 'Mohammad Ali Awada',
-      nameAr: 'محمد علي عواضة',
-      roleTitleEn: 'General Manager',
-      roleTitleAr: 'المدير العام',
-      orderIndex: 2,
+      slug: 'mohammad-ali-awada',
+      firstName: 'Mohammad Ali',
+      lastName: 'Awada',
+      firstNameAr: 'محمد علي',
+      lastNameAr: 'عواضة',
+      designation: 'General Manager',
+      designationAr: 'المدير العام',
+      department: 'Executive',
+      yearsOfExperience: 15,
+      tagline: 'Driving operational excellence',
+      aboutSummary: 'Expert in large-scale event operations.',
+      aboutSummaryAr: 'خبير في عمليات الفعاليات واسعة النطاق.',
+      careerJourney: '15+ years in large scale events.',
+      keyStrengths: 'Operations, Management, Logistics',
+      expertiseTags: [],
+      coreCompetencies: [],
+      experience: [],
+      projects: [],
+      certifications: [],
+      education: [],
+      awards: [],
+      skillsMatrix: [],
+      mediaGallery: [],
+      testimonials: [],
+      order: 2,
     }
   })
   console.log('Created Organizational Hierarchy.')

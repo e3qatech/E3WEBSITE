@@ -12,13 +12,15 @@ import { useRouter } from "next/navigation"
 
 interface TeamMember {
   id: string
-  nameEn: string
-  nameAr: string
-  roleTitleEn: string
-  roleTitleAr: string
-  bioEn?: string | null
-  bioAr?: string | null
-  imageUrl?: string | null
+  firstName: string
+  lastName: string
+  firstNameAr?: string | null
+  lastNameAr?: string | null
+  designation: string
+  designationAr?: string | null
+  aboutSummary?: string | null
+  aboutSummaryAr?: string | null
+  profileImage?: string | null
   availability: {
     id: string
     startTime: string
@@ -41,13 +43,15 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
   // New Member State
   const [showAddModal, setShowAddModal] = useState(false)
   const [newMember, setNewMember] = useState({
-    nameEn: "",
-    nameAr: "",
-    roleTitleEn: "",
-    roleTitleAr: "",
-    bioEn: "",
-    bioAr: "",
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"
+    firstName: "",
+    lastName: "",
+    firstNameAr: "",
+    lastNameAr: "",
+    designation: "",
+    designationAr: "",
+    aboutSummary: "",
+    aboutSummaryAr: "",
+    profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"
   })
 
   // Slot Config State
@@ -58,7 +62,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
   const [buffer, setBuffer] = useState(15)
 
   const handleAddMember = async () => {
-    if (!newMember.nameEn || !newMember.roleTitleEn) return
+    if (!newMember.firstName || !newMember.lastName || !newMember.designation) return
     setIsSaving(true)
 
     try {
@@ -74,13 +78,15 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
       setSelectedMemberId(data.id)
       setShowAddModal(false)
       setNewMember({
-        nameEn: "",
-        nameAr: "",
-        roleTitleEn: "",
-        roleTitleAr: "",
-        bioEn: "",
-        bioAr: "",
-        imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"
+        firstName: "",
+        lastName: "",
+        firstNameAr: "",
+        lastNameAr: "",
+        designation: "",
+        designationAr: "",
+        aboutSummary: "",
+        aboutSummaryAr: "",
+        profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"
       })
       router.refresh()
     } catch {
@@ -157,6 +163,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
         <div className="flex-1 overflow-y-auto space-y-2 pr-1">
           {members.map(member => {
             const isSelected = selectedMemberId === member.id
+            const fullNameEn = `${member.firstName} ${member.lastName}`
             return (
               <div
                 key={member.id}
@@ -169,13 +176,13 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                 `}
               >
                 <img 
-                  src={member.imageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"} 
-                  alt={member.nameEn} 
+                  src={member.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"} 
+                  alt={fullNameEn} 
                   className="w-10 h-10 rounded-full object-cover border border-[var(--border-default)]"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm text-[var(--text-primary)] truncate">{member.nameEn}</div>
-                  <div className="text-xs text-[var(--text-secondary)] truncate">{member.roleTitleEn}</div>
+                  <div className="font-bold text-sm text-[var(--text-primary)] truncate">{fullNameEn}</div>
+                  <div className="text-xs text-[var(--text-secondary)] truncate">{member.designation}</div>
                 </div>
                 <ChevronRight className={`w-4 h-4 text-[var(--text-tertiary)] ${isSelected ? 'translate-x-1' : ''} transition-transform`} />
               </div>
@@ -192,16 +199,16 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
             <div className="border-b border-[var(--border-default)] bg-[var(--surface-default)] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <img 
-                  src={selectedMember.imageUrl || ""} 
-                  alt={selectedMember.nameEn} 
+                  src={selectedMember.profileImage || ""} 
+                  alt={`${selectedMember.firstName} ${selectedMember.lastName}`} 
                   className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-primary)]"
                 />
                 <div>
                   <h1 className="text-2xl font-black text-[var(--text-primary)] flex items-center gap-2">
-                    {selectedMember.nameEn}
-                    <span className="text-sm font-medium text-[var(--text-tertiary)]" dir="rtl">{selectedMember.nameAr}</span>
+                    {selectedMember.firstName} {selectedMember.lastName}
+                    <span className="text-sm font-medium text-[var(--text-tertiary)]" dir="rtl">{selectedMember.firstNameAr} {selectedMember.lastNameAr}</span>
                   </h1>
-                  <p className="text-sm text-[var(--text-secondary)]">{selectedMember.roleTitleEn} • <span dir="rtl">{selectedMember.roleTitleAr}</span></p>
+                  <p className="text-sm text-[var(--text-secondary)]">{selectedMember.designation} • <span dir="rtl">{selectedMember.designationAr}</span></p>
                 </div>
               </div>
 
@@ -242,13 +249,13 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                       <div>
                         <div className="text-xs font-bold text-[var(--text-secondary)] mb-1">Bio (English)</div>
                         <p className="text-sm text-[var(--text-primary)] bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-default)]">
-                          {selectedMember.bioEn || "No English biography set."}
+                          {selectedMember.aboutSummary || "No English biography set."}
                         </p>
                       </div>
                       <div dir="rtl">
                         <div className="text-xs font-bold text-[var(--text-secondary)] text-right mb-1">السيرة الذاتية (عربي)</div>
                         <p className="text-sm text-[var(--text-primary)] bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-default)] text-right">
-                          {selectedMember.bioAr || "لا توجد سيرة ذاتية بالعربية."}
+                          {selectedMember.aboutSummaryAr || "لا توجد سيرة ذاتية بالعربية."}
                         </p>
                       </div>
                     </div>
@@ -444,23 +451,46 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)]">Name (English)</label>
+                    <label className="text-xs font-bold text-[var(--text-secondary)]">First Name (English)</label>
                     <input 
                       type="text" 
-                      value={newMember.nameEn}
-                      onChange={e => setNewMember(prev => ({ ...prev, nameEn: e.target.value }))}
+                      value={newMember.firstName}
+                      onChange={e => setNewMember(prev => ({ ...prev, firstName: e.target.value }))}
                       className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
-                      placeholder="e.g. John Doe"
+                      placeholder="e.g. John"
                     />
                   </div>
-                  <div className="space-y-1" dir="rtl">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">الاسم (عربي)</label>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[var(--text-secondary)]">Last Name (English)</label>
                     <input 
                       type="text" 
-                      value={newMember.nameAr}
-                      onChange={e => setNewMember(prev => ({ ...prev, nameAr: e.target.value }))}
+                      value={newMember.lastName}
+                      onChange={e => setNewMember(prev => ({ ...prev, lastName: e.target.value }))}
+                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                      placeholder="e.g. Doe"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4" dir="rtl">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">الاسم الأول (عربي)</label>
+                    <input 
+                      type="text" 
+                      value={newMember.firstNameAr}
+                      onChange={e => setNewMember(prev => ({ ...prev, firstNameAr: e.target.value }))}
                       className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right"
-                      placeholder="الاسم بالعربية"
+                      placeholder="الاسم الأول"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">اسم العائلة (عربي)</label>
+                    <input 
+                      type="text" 
+                      value={newMember.lastNameAr}
+                      onChange={e => setNewMember(prev => ({ ...prev, lastNameAr: e.target.value }))}
+                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right"
+                      placeholder="اسم العائلة"
                     />
                   </div>
                 </div>
@@ -470,8 +500,8 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                     <label className="text-xs font-bold text-[var(--text-secondary)]">Designation (English)</label>
                     <input 
                       type="text" 
-                      value={newMember.roleTitleEn}
-                      onChange={e => setNewMember(prev => ({ ...prev, roleTitleEn: e.target.value }))}
+                      value={newMember.designation}
+                      onChange={e => setNewMember(prev => ({ ...prev, designation: e.target.value }))}
                       className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
                       placeholder="e.g. Technical Director"
                     />
@@ -480,8 +510,8 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                     <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">المنصب (عربي)</label>
                     <input 
                       type="text" 
-                      value={newMember.roleTitleAr}
-                      onChange={e => setNewMember(prev => ({ ...prev, roleTitleAr: e.target.value }))}
+                      value={newMember.designationAr}
+                      onChange={e => setNewMember(prev => ({ ...prev, designationAr: e.target.value }))}
                       className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right"
                       placeholder="المنصب بالعربية"
                     />
@@ -493,8 +523,8 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                     <label className="text-xs font-bold text-[var(--text-secondary)]">Biography (English)</label>
                     <textarea 
                       rows={3}
-                      value={newMember.bioEn}
-                      onChange={e => setNewMember(prev => ({ ...prev, bioEn: e.target.value }))}
+                      value={newMember.aboutSummary}
+                      onChange={e => setNewMember(prev => ({ ...prev, aboutSummary: e.target.value }))}
                       className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] resize-none"
                     />
                   </div>
@@ -502,8 +532,8 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                     <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">السيرة (عربي)</label>
                     <textarea 
                       rows={3}
-                      value={newMember.bioAr}
-                      onChange={e => setNewMember(prev => ({ ...prev, bioAr: e.target.value }))}
+                      value={newMember.aboutSummaryAr}
+                      onChange={e => setNewMember(prev => ({ ...prev, aboutSummaryAr: e.target.value }))}
                       className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right resize-none"
                     />
                   </div>

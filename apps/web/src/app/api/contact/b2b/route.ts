@@ -46,9 +46,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (actionType === 'MEETING_REQUEST') {
-      const { name, company, email, phone, message, teamMemberId, startTime, endTime } = body;
+      const { name, company, email, phone, message, employeeProfileId, startTime, endTime } = body;
       
-      if (!name || !email || !teamMemberId || !startTime || !endTime) {
+      if (!name || !email || !employeeProfileId || !startTime || !endTime) {
         return NextResponse.json({ error: 'Missing required fields for meeting request' }, { status: 400 });
       }
 
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
         const slot = await tx.availabilitySlot.findFirst({
           where: {
-            teamMemberId,
+            employeeProfileId,
             startTime: new Date(startTime),
             isBooked: false,
           }

@@ -10,17 +10,37 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { nameEn, nameAr, roleTitleEn, roleTitleAr, bioEn, bioAr, imageUrl } = body
+    const { firstName, lastName, firstNameAr, lastNameAr, designation, designationAr, department, yearsOfExperience, tagline, aboutSummary, aboutSummaryAr, profileImage } = body
 
-    const member = await db.teamMember.create({
+    const slug = `${firstName}-${lastName}`.toLowerCase().replace(/[^a-z0-9]/g, "-") + "-" + Date.now().toString().slice(-4)
+
+    const member = await db.employeeProfile.create({
       data: {
-        nameEn,
-        nameAr: nameAr || nameEn,
-        roleTitleEn,
-        roleTitleAr: roleTitleAr || roleTitleEn,
-        bioEn,
-        bioAr,
-        imageUrl,
+        slug,
+        firstName,
+        lastName,
+        firstNameAr,
+        lastNameAr,
+        designation,
+        designationAr,
+        department: department || "General",
+        yearsOfExperience: yearsOfExperience || 0,
+        tagline: tagline || "",
+        aboutSummary: aboutSummary || "",
+        aboutSummaryAr,
+        profileImage,
+        careerJourney: "",
+        keyStrengths: "",
+        expertiseTags: [],
+        coreCompetencies: [],
+        experience: [],
+        projects: [],
+        certifications: [],
+        education: [],
+        awards: [],
+        skillsMatrix: [],
+        mediaGallery: [],
+        testimonials: []
       }
     })
 
@@ -45,7 +65,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 })
     }
 
-    await db.teamMember.delete({
+    await db.employeeProfile.delete({
       where: { id }
     })
 

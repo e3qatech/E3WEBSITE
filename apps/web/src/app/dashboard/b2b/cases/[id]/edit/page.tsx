@@ -34,9 +34,9 @@ export default async function EditCasePage({ params }: EditProps) {
       select: { id: true, nameEn: true },
       orderBy: { nameEn: 'asc' }
     }),
-    db.teamMember.findMany({
-      select: { id: true, nameEn: true, roleTitleEn: true },
-      orderBy: { nameEn: 'asc' }
+    db.employeeProfile.findMany({
+      select: { id: true, firstName: true, lastName: true, designation: true },
+      orderBy: { firstName: 'asc' }
     })
   ])
 
@@ -73,7 +73,7 @@ export default async function EditCasePage({ params }: EditProps) {
     technicalSpecs,
     servicesUsed,
     teamMembers: caseStudy.teamMembers.map(tm => ({
-      teamMemberId: tm.teamMemberId,
+      employeeProfileId: tm.employeeProfileId,
       roleEn: tm.roleEn || "",
       roleAr: tm.roleAr || ""
     }))

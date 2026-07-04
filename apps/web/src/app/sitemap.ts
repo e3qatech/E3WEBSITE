@@ -62,13 +62,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       db.attraction.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.service.findMany({ where: { isVisible: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.caseStudy.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
-      db.teamMember.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
+      db.employeeProfile.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
       db.calendarEvent.findMany({ where: { status: 'PUBLISHED' }, select: { id: true, updatedAt: true } }).catch(() => []),
     ]);
 
     // 3. Map Dynamic Routes to Sitemap
     const dynamicRoutes: MetadataRoute.Sitemap = [
-      ...attractions.map((item) => ({
+      ...attractions.map((item: any) => ({
         url: `${baseUrl}/b2c/attractions/${item.slug}`,
         lastModified: item.updatedAt,
         changeFrequency: 'weekly' as const,
@@ -80,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         },
       })),
-      ...services.map((item) => ({
+      ...services.map((item: any) => ({
         url: `${baseUrl}/b2b/services/${item.slug}`,
         lastModified: item.updatedAt,
         changeFrequency: 'monthly' as const,
@@ -92,7 +92,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         },
       })),
-      ...caseStudies.map((item) => ({
+      ...caseStudies.map((item: any) => ({
         url: `${baseUrl}/b2b/case-studies/${item.slug}`,
         lastModified: item.updatedAt,
         changeFrequency: 'monthly' as const,
@@ -104,7 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         },
       })),
-      ...teamMembers.map((item) => ({
+      ...teamMembers.map((item: any) => ({
         url: `${baseUrl}/b2b/team/${item.id}`,
         lastModified: item.updatedAt,
         changeFrequency: 'monthly' as const,
@@ -116,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         },
       })),
-      ...events.map((item) => ({
+      ...events.map((item: any) => ({
         url: `${baseUrl}/b2c/events/${item.id}`,
         lastModified: item.updatedAt,
         changeFrequency: 'daily' as const,

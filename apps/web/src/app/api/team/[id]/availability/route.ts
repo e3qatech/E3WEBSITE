@@ -12,14 +12,14 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id: teamMemberId } = await params
+    const { id: employeeProfileId } = await params
     const body = await request.json()
     const { daysOfWeek, startTime, endTime, duration, buffer } = body
 
     // 1. Clear existing unbooked slots for this member to prevent duplicates
     await db.availabilitySlot.deleteMany({
       where: {
-        teamMemberId,
+        employeeProfileId,
         isBooked: false,
         startTime: { gte: new Date() }
       }
@@ -52,7 +52,7 @@ export async function POST(
           const currentEnd = new Date(currentStart.getTime() + duration * 60 * 1000)
           
           slots.push({
-            teamMemberId,
+            employeeProfileId,
             startTime: new Date(currentStart),
             endTime: new Date(currentEnd),
             isBooked: false

@@ -51,7 +51,7 @@ export async function PUT(
           ...(teamMembers && teamMembers.length > 0 && {
             teamMembers: {
               create: teamMembers.map((tm: any, i: number) => ({
-                teamMemberId: tm.teamMemberId,
+                employeeProfileId: tm.employeeProfileId,
                 roleEn: tm.roleEn,
                 roleAr: tm.roleAr,
                 orderIndex: i

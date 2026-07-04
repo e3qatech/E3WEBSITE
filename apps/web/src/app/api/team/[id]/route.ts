@@ -16,17 +16,17 @@ export async function GET(
       return NextResponse.json(JSON.parse(cached));
     }
 
-    const teamMember = await db.teamMember.findUnique({
+    const employeeProfile = await db.employeeProfile.findUnique({
       where: { id },
       // Assuming a generic schema; if there were certs/projects, we'd include them here.
     });
 
-    if (!teamMember) {
+    if (!employeeProfile) {
       return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
     }
 
-    await redis.set(cacheKey, JSON.stringify(teamMember), 'EX', 3600);
-    return NextResponse.json(teamMember);
+    await redis.set(cacheKey, JSON.stringify(employeeProfile), 'EX', 3600);
+    return NextResponse.json(employeeProfile);
   } catch (error: any) {
     console.error('[TEAM_DETAIL_GET]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -47,7 +47,7 @@ export async function PUT(
     const { id } = await params;
     const body = await req.json();
 
-    const updated = await db.teamMember.update({
+    const updated = await db.employeeProfile.update({
       where: { id },
       data: body,
     });
@@ -75,7 +75,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await db.teamMember.delete({
+    await db.employeeProfile.delete({
       where: { id },
     });
 

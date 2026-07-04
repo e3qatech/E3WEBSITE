@@ -13,10 +13,20 @@ export const dynamic = 'force-dynamic'
 
 export default async function CaseStudiesIndexPage() {
   
-  const caseStudies = await db.caseStudy.findMany({
-    where: { isPublished: true },
-    orderBy: { year: 'desc' }
-  })
+  const [caseStudies, pageData] = await Promise.all([
+    db.caseStudy.findMany({
+      where: { isPublished: true },
+      orderBy: { year: 'desc' }
+    }),
+    db.pages.findUnique({
+      where: { slug: 'b2b-cases' }
+    })
+  ])
+
+  const content = pageData?.content as any || {}
+  const heroTitle = content?.hero?.title || "Featured Work."
+  const heroSubtitle = content?.hero?.subtitle || "A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale."
+  const cta = content?.cta
 
   const categories = ['All', 'Mega Event', 'Attractions', 'Live Production', 'Immersive', 'Destination', 'Family Entertainment']
 
@@ -27,10 +37,12 @@ export default async function CaseStudiesIndexPage() {
       <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
         <div className="container mx-auto px-4 md:px-8">
           <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
-            Featured <span className="text-emerald-400">Work.</span>
+            {heroTitle.split(' ').map((word: string, i: number, arr: string[]) => 
+              i === arr.length - 1 ? <span key={i} className="text-emerald-400">{word}</span> : <span key={i}>{word} </span>
+            )}
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl font-medium">
-            A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale.
+            {heroSubtitle}
           </p>
         </div>
       </section>
@@ -112,6 +124,22 @@ export default async function CaseStudiesIndexPage() {
 
         </div>
       </section>
+
+      {/* CTA */}
+      {cta && cta.title && (
+        <section className="py-20 border-t border-zinc-900 bg-zinc-950">
+          <div className="container mx-auto px-4 md:px-8 text-center">
+            <h2 className="text-4xl md:text-5xl font-black text-zinc-100 mb-6">{cta.title}</h2>
+            <p className="text-xl text-zinc-400 mb-10 max-w-2xl mx-auto">{cta.description}</p>
+            <Link 
+              href={cta.primaryLink || '/b2b/contact'}
+              className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-emerald-500 text-zinc-950 font-bold hover:bg-emerald-400 transition-colors"
+            >
+              {cta.primaryCta || 'Contact Us'}
+            </Link>
+          </div>
+        </section>
+      )}
 
     </div>
   )

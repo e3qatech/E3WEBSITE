@@ -433,18 +433,18 @@ model CaseStudy {
 }
 
 model CaseStudyTeamMember {
-  id             String   @id @default(cuid())
-  caseStudyId    String
-  teamMemberId   String
-  roleEn         String?
-  roleAr         String?
-  orderIndex     Int      @default(0)
+  id                String   @id @default(cuid())
+  caseStudyId       String
+  employeeProfileId String
+  roleEn            String?
+  roleAr            String?
+  orderIndex        Int      @default(0)
 
-  caseStudy      CaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
-  teamMember     TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  caseStudy         CaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id], onDelete: Cascade)
   
   @@index([caseStudyId])
-  @@index([teamMemberId])
+  @@index([employeeProfileId])
 }
 
 model Lead {
@@ -485,31 +485,14 @@ model LeadActivity {
 // Logistics & Scheduling Hub
 // ---------------------------------------------------------
 
-model TeamMember {
-  id             String   @id @default(cuid())
-  nameEn         String
-  nameAr         String
-  roleTitleEn    String
-  roleTitleAr    String
-  bioEn          String?  @db.Text
-  bioAr          String?  @db.Text
-  imageUrl       String?
-  orderIndex     Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  availability   AvailabilitySlot[]
-  caseStudies    CaseStudyTeamMember[]
-}
-
 model AvailabilitySlot {
-  id             String     @id @default(cuid())
-  teamMemberId   String
-  startTime      DateTime
-  endTime        DateTime
-  isBooked       Boolean    @default(false)
+  id                String     @id @default(cuid())
+  employeeProfileId String
+  startTime         DateTime
+  endTime           DateTime
+  isBooked          Boolean    @default(false)
 
-  teamMember     TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id], onDelete: Cascade)
 
   @@index([startTime, endTime])
   @@index([isBooked])
@@ -740,13 +723,17 @@ model EmployeeProfile {
   slug             String   @unique
   firstName        String
   lastName         String
+  firstNameAr      String?
+  lastNameAr       String?
   designation      String
+  designationAr    String?
   department       String
   yearsOfExperience Int
   tagline          String
   profileImage     String?
   
   aboutSummary     String   @db.Text
+  aboutSummaryAr   String?  @db.Text
   careerJourney    String   @db.Text
   keyStrengths     String   @db.Text
 
@@ -771,6 +758,9 @@ model EmployeeProfile {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  availability     AvailabilitySlot[]
+  caseStudies      CaseStudyTeamMember[]
+  
   @@index([department])
   @@index([isActive])
 }

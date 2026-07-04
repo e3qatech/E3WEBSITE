@@ -29,17 +29,17 @@ export default async function B2BTeamPage(props: { params: Promise<{ locale: str
     slug: emp.slug,
     name: { 
       en: `${emp.firstName} ${emp.lastName}`,
-      ar: `${emp.firstName} ${emp.lastName}` // Fallback, extend DB later for full AR support
+      ar: emp.firstNameAr && emp.lastNameAr ? `${emp.firstNameAr} ${emp.lastNameAr}` : `${emp.firstName} ${emp.lastName}`
     },
     designation: { 
       en: emp.designation,
-      ar: emp.designation
+      ar: emp.designationAr || emp.designation
     },
     department: emp.department,
     profilePhoto: emp.profileImage || "https://i.pravatar.cc/500",
     bioExcerpt: { 
       en: emp.aboutSummary,
-      ar: emp.aboutSummary
+      ar: emp.aboutSummaryAr || emp.aboutSummary
     },
     socialLinks: { 
       linkedin: emp.linkedinUrl || undefined,

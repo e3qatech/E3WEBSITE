@@ -13,7 +13,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
     include: {
       teamMembers: {
         include: {
-          teamMember: true
+          employeeProfile: true
         }
       },
       attraction: true
@@ -209,17 +209,17 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                       {project.teamMembers.map((tm, i) => (
                         <div key={i} className="group relative py-4 border-b border-zinc-800/50 last:border-0 flex justify-between items-center cursor-default">
                           <div className="text-xl font-bold text-zinc-300 group-hover:text-zinc-100 transition-colors z-10 mix-blend-difference">
-                            {tm.teamMember?.nameEn}
+                            {tm.employeeProfile?.firstName} {tm.employeeProfile?.lastName}
                           </div>
                           <div className="text-zinc-500 uppercase tracking-widest text-xs font-bold z-10">
-                            {tm.roleEn || tm.teamMember?.roleTitleEn}
+                            {tm.roleEn || tm.employeeProfile?.designation}
                           </div>
                           
                           {/* Hover Image Reveal */}
-                          {tm.teamMember?.imageUrl && (
+                          {tm.employeeProfile?.profileImage && (
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full overflow-hidden opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-0 shadow-2xl">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={tm.teamMember.imageUrl} alt={tm.teamMember.nameEn} className="w-full h-full object-cover" />
+                              <img src={tm.employeeProfile.profileImage} alt={tm.employeeProfile.firstName} className="w-full h-full object-cover" />
                             </div>
                           )}
                         </div>

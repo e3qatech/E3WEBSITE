@@ -325,7 +325,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
                 <h2 className="text-lg font-black">Team Members</h2>
-                <Button onClick={() => setCaseTeamMembers([...caseTeamMembers, { teamMemberId: "", roleEn: "", roleAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                <Button onClick={() => setCaseTeamMembers([...caseTeamMembers, { employeeProfileId: "", roleEn: "", roleAr: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                   <Plus className="w-4 h-4" /> Add Team Member
                 </Button>
               </div>
@@ -338,10 +338,10 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-12">
                       <div className="space-y-2 md:col-span-2">
                         <label className="text-xs font-bold text-[var(--text-secondary)]">Select Member</label>
-                        <select value={item.teamMemberId} onChange={e => updateArrayItem(setCaseTeamMembers, caseTeamMembers, index, "teamMemberId", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
+                        <select value={item.employeeProfileId} onChange={e => updateArrayItem(setCaseTeamMembers, caseTeamMembers, index, "employeeProfileId", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
                           <option value="">Select a Team Member</option>
                           {teamMembers.map((tm: any) => (
-                            <option key={tm.id} value={tm.id}>{tm.nameEn} - {tm.roleTitleEn}</option>
+                            <option key={tm.id} value={tm.id}>{tm.firstName} {tm.lastName} - {tm.designation}</option>
                           ))}
                         </select>
                       </div>

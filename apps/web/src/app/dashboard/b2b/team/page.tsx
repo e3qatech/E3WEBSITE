@@ -13,8 +13,8 @@ export default async function B2BTeamPage() {
     redirect("/login")
   }
 
-  const teamMembers = await db.teamMember.findMany({
-    orderBy: { orderIndex: "asc" },
+  const teamMembers = await db.employeeProfile.findMany({
+    orderBy: { order: "asc" },
     include: {
       availability: {
         orderBy: { startTime: "asc" }
@@ -25,13 +25,15 @@ export default async function B2BTeamPage() {
   // Safe type formatting
   const formattedMembers = teamMembers.map(m => ({
     id: m.id,
-    nameEn: m.nameEn,
-    nameAr: m.nameAr,
-    roleTitleEn: m.roleTitleEn,
-    roleTitleAr: m.roleTitleAr,
-    bioEn: m.bioEn,
-    bioAr: m.bioAr,
-    imageUrl: m.imageUrl,
+    firstName: m.firstName,
+    lastName: m.lastName,
+    firstNameAr: m.firstNameAr,
+    lastNameAr: m.lastNameAr,
+    designation: m.designation,
+    designationAr: m.designationAr,
+    aboutSummary: m.aboutSummary,
+    aboutSummaryAr: m.aboutSummaryAr,
+    profileImage: m.profileImage,
     availability: m.availability.map(slot => ({
       id: slot.id,
       startTime: slot.startTime.toISOString(),

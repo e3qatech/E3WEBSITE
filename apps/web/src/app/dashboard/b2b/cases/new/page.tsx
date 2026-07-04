@@ -19,9 +19,9 @@ export default async function NewCasePage() {
       select: { id: true, nameEn: true },
       orderBy: { nameEn: 'asc' }
     }),
-    db.teamMember.findMany({
-      select: { id: true, nameEn: true, roleTitleEn: true },
-      orderBy: { nameEn: 'asc' }
+    db.employeeProfile.findMany({
+      select: { id: true, firstName: true, lastName: true, designation: true },
+      orderBy: { firstName: 'asc' }
     })
   ])
 
