@@ -23,7 +23,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const leadership = employeeProfiles.map((emp) => ({
     name: `${emp.firstName} ${emp.lastName}`,
     title: emp.designation,
-    image: emp.profileImage || '/mock/team-1.jpg'
+    image: emp.profileImage || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   }))
 
   const page = await prisma.pages.findUnique({
@@ -49,7 +49,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   ];
 
   // Fetch story image if it's a media ID
-  let storyImageUrl = '/mock/about-office.jpg';
+  let storyImageUrl = 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
   if (storyImageMediaId) {
     const media = await prisma.media.findUnique({ where: { id: storyImageMediaId } });
     if (media) {
