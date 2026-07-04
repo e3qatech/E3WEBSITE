@@ -201,28 +201,49 @@ export default async function B2BHomePage() {
             {dbServices.length > 0 ? (
               dbServices.map((service, i) => {
                 const name = service.titleEn || service.slug
-                const desc = service.contentEn || "Premium entertainment service"
+                const desc = service.taglineEn || service.contentEn?.substring(0, 150) || "Premium entertainment service"
                 return (
                   <Link 
                     key={i} 
                     href={`/b2b/services/${service.slug}`}
                     className={cn(
-                      "group relative p-8 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all overflow-hidden flex flex-col justify-between",
-                      i === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "min-h-[200px]"
+                      "group relative rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all overflow-hidden flex flex-col justify-between",
+                      i === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "min-h-[250px]"
                     )}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative z-10 mb-8">
-                      <h3 className={cn("font-black text-zinc-100 tracking-tight mb-3", i === 0 ? "text-3xl" : "text-xl")}>
-                        {name}
-                      </h3>
-                      <p className="text-zinc-400 font-medium line-clamp-3">
-                        {desc}
-                      </p>
+                    {/* Thumbnail Background */}
+                    <div className="absolute inset-0 z-0">
+                      {service.thumbnail ? (
+                        <UniversalMediaRenderer 
+                          type="IMAGE"
+                          src={service.thumbnail}
+                          alt={name}
+                          className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-950" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
                     </div>
-                    <div className="relative z-10 flex justify-end">
-                      <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-zinc-950 transition-all">
-                        <ArrowRight className="w-5 h-5" />
+
+                    <div className="relative z-10 p-8 h-full flex flex-col justify-end">
+                      <div className="mb-4">
+                        {service.category && (
+                          <div className="inline-block px-3 py-1 mb-4 text-[10px] font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full backdrop-blur-sm">
+                            {service.category}
+                          </div>
+                        )}
+                        <h3 className={cn("font-black text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-400 transition-colors", i === 0 ? "text-3xl" : "text-xl")}>
+                          {name}
+                        </h3>
+                        <p className={cn("text-zinc-400 font-medium line-clamp-2", i === 0 ? "text-lg" : "text-sm")}>
+                          {desc}
+                        </p>
+                      </div>
+                      
+                      {/* CTA */}
+                      <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300">
+                        {service.ctaPrimary || "Explore Capability"} <ArrowRight className="w-4 h-4" />
                       </div>
                     </div>
                   </Link>
