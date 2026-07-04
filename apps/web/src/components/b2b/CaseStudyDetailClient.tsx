@@ -162,7 +162,6 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
             src={caseStudy.heroImageUrl || caseStudy.thumbnailUrl || ""}
             type={(caseStudy.heroMediaType || "IMAGE") as any}
             alt={caseStudy.titleEn}
-            fill
             className="object-cover opacity-60" 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-black/40 to-black/20" />
