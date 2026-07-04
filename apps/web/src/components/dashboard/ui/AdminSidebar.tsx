@@ -33,7 +33,7 @@ const sidebarConfig = [
   { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
-    { label: "Team & Roster", href: "/dashboard/b2b/team" },
+    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
     { label: "Partners CMS", href: "/dashboard/b2b/partners" },
     { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
@@ -60,7 +60,8 @@ const sidebarConfig = [
     { label: "Media Library", href: "/dashboard/cms/media" },
     { label: "CMS Pages", href: "/dashboard/cms/pages" }
   ] },
-  { label: "Global Careers", icon: Briefcase, href: "/dashboard/careers/applications", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
+  { label: "HR & Careers", icon: Briefcase, href: "/dashboard/team", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Team Profiles", href: "/dashboard/team" },
     { label: "Job Listings", href: "/dashboard/b2b/careers" },
     { label: "Applications", href: "/dashboard/careers/applications" }
   ] },
