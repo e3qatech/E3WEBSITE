@@ -40,7 +40,7 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
   )
 
   const renderPreferences = (prefs: any) => {
-    if (!prefs) return <span className="text-[var(--text-tertiary)]">-</span>
+    if (!prefs) return <span className="text-text-tertiary">-</span>
     let parsed: any = {}
     if (typeof prefs === "string") {
       try { parsed = JSON.parse(prefs) } catch { parsed = {} }
@@ -51,7 +51,7 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
     return (
       <div className="flex flex-wrap gap-1">
         {Object.entries(parsed).map(([key, val]) => (
-          val ? <Badge key={key} variant="default" className="text-[10px] bg-transparent border border-[var(--border-default)]">{key}</Badge> : null
+          val ? <Badge key={key} variant="default" className="text-[10px] bg-transparent border border-border-default">{key}</Badge> : null
         ))}
       </div>
     )
@@ -61,18 +61,18 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Subscribers</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Manage newsletter and event subscribers.</p>
+          <h1 className="text-2xl font-black text-text-primary">Subscribers</h1>
+          <p className="text-sm text-text-secondary">Manage newsletter and event subscribers.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input 
               type="text" 
               placeholder="Search email/phone..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm focus:outline-none focus:border-accent w-full md:w-64"
             />
           </div>
           <Button variant="outline" className="gap-2" onClick={() => {
@@ -102,10 +102,10 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
         </div>
       </div>
 
-      <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface-default border border-border-default rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[var(--surface-subtle)] border-b border-[var(--border-default)] text-[var(--text-secondary)]">
+            <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               <tr>
                 <th className="px-6 py-4 font-medium">Contact</th>
                 <th className="px-6 py-4 font-medium">Verification</th>
@@ -114,25 +114,25 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border-default)]">
+            <tbody className="divide-y divide-border-default">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[var(--text-tertiary)]">
+                  <td colSpan={5} className="px-6 py-12 text-center text-text-tertiary">
                     No subscribers found.
                   </td>
                 </tr>
               ) : (
                 filtered.map(s => (
-                  <tr key={s.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                  <tr key={s.id} className="hover:bg-surface-hover transition-colors">
                     <td className="px-6 py-4">
                       {s.email && (
-                        <div className="flex items-center gap-2 text-[var(--text-primary)] font-medium">
-                          <Mail className="w-4 h-4 text-[var(--text-tertiary)]" /> {s.email}
+                        <div className="flex items-center gap-2 text-text-primary font-medium">
+                          <Mail className="w-4 h-4 text-text-tertiary" /> {s.email}
                         </div>
                       )}
                       {s.phone && (
-                        <div className="flex items-center gap-2 text-[var(--text-primary)] font-medium mt-1">
-                          <Phone className="w-4 h-4 text-[var(--text-tertiary)]" /> {s.phone}
+                        <div className="flex items-center gap-2 text-text-primary font-medium mt-1">
+                          <Phone className="w-4 h-4 text-text-tertiary" /> {s.phone}
                         </div>
                       )}
                     </td>
@@ -142,16 +142,16 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
                           <CheckCircle className="w-4 h-4" /> Verified
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-[var(--text-tertiary)]">
+                        <div className="flex items-center gap-1.5 text-text-tertiary">
                           <XCircle className="w-4 h-4" /> Unverified
                         </div>
                       )}
-                      {s.verifiedAt && <div className="text-xs text-[var(--text-tertiary)] mt-1">{new Date(s.verifiedAt).toLocaleDateString()}</div>}
+                      {s.verifiedAt && <div className="text-xs text-text-tertiary mt-1">{new Date(s.verifiedAt).toLocaleDateString()}</div>}
                     </td>
                     <td className="px-6 py-4">
                       {renderPreferences(s.preferences)}
                     </td>
-                    <td className="px-6 py-4 text-[var(--text-secondary)]">
+                    <td className="px-6 py-4 text-text-secondary">
                       {new Date(s.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">

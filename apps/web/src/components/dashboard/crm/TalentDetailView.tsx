@@ -39,12 +39,12 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/crm/talent" className="p-2 hover:bg-[var(--surface-hover)] rounded-xl transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[var(--text-secondary)]" />
+          <Link href="/dashboard/crm/talent" className="p-2 hover:bg-surface-hover rounded-xl transition-colors">
+            <ArrowLeft className="w-5 h-5 text-text-secondary" />
           </Link>
           <div>
-            <h1 className="text-3xl font-black text-[var(--text-primary)]">{talent.name}</h1>
-            <div className="flex flex-wrap items-center gap-3 mt-2 text-[var(--text-secondary)] text-sm">
+            <h1 className="text-3xl font-black text-text-primary">{talent.name}</h1>
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-text-secondary text-sm">
               <span className="flex items-center"><Mail className="w-4 h-4 me-1" /> {talent.email}</span>
               {talent.phone && <span className="flex items-center"><Phone className="w-4 h-4 me-1" /> {talent.phone}</span>}
               <span className="flex items-center"><Briefcase className="w-4 h-4 me-1" /> {talent.experienceLevel || "Unknown"} Experience</span>
@@ -66,14 +66,14 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
         {/* Left Column */}
         <div className="lg:col-span-1 space-y-6">
           
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] mb-4">Application Details</h3>
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary mb-4">Application Details</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Status</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Status</label>
                 <select 
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                   value={talent.status}
                   onChange={(e) => handleUpdate({ status: e.target.value })}
                   disabled={isUpdating}
@@ -83,9 +83,9 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Rating</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Rating</label>
                 <select 
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                   value={talent.rating || 0}
                   onChange={(e) => handleUpdate({ rating: parseInt(e.target.value) })}
                   disabled={isUpdating}
@@ -96,9 +96,9 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Assign to Team Member</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Assign to Team Member</label>
                 <select 
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                   value={talent.assignedToId || ""}
                   onChange={(e) => handleUpdate({ assignedToId: e.target.value || null })}
                   disabled={isUpdating}
@@ -110,19 +110,19 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
             </div>
           </div>
           
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary flex items-center mb-4">
               <Globe className="w-5 h-5 me-2 text-blue-500" /> Languages
             </h3>
             <ul className="space-y-2">
               {(talent.languages || []).map((l: any, i: number) => (
                 <li key={i} className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-[var(--text-primary)]">{l.language || l}</span>
-                  <span className="text-[var(--text-secondary)] text-xs bg-[var(--surface-hover)] px-2 py-1 rounded-md">{l.level || "Unknown"}</span>
+                  <span className="font-bold text-text-primary">{l.language || l}</span>
+                  <span className="text-text-secondary text-xs bg-surface-hover px-2 py-1 rounded-md">{l.level || "Unknown"}</span>
                 </li>
               ))}
               {(!talent.languages || talent.languages.length === 0) && (
-                <li className="text-sm text-[var(--text-tertiary)] italic">No languages parsed.</li>
+                <li className="text-sm text-text-tertiary italic">No languages parsed.</li>
               )}
             </ul>
           </div>
@@ -132,57 +132,57 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
         {/* Right Column */}
         <div className="lg:col-span-2 space-y-6">
           
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary flex items-center mb-4">
               <Award className="w-5 h-5 me-2 text-amber-500" /> Skills
             </h3>
             <div className="flex flex-wrap gap-2">
               {(talent.skills || []).map((skill: string, i: number) => (
-                <span key={i} className="px-3 py-1 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-full text-sm font-bold text-[var(--text-primary)]">
+                <span key={i} className="px-3 py-1 bg-surface-hover border border-border-default rounded-full text-sm font-bold text-text-primary">
                   {skill}
                 </span>
               ))}
               {(!talent.skills || talent.skills.length === 0) && (
-                <span className="text-sm text-[var(--text-tertiary)] italic">No skills parsed.</span>
+                <span className="text-sm text-text-tertiary italic">No skills parsed.</span>
               )}
             </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary flex items-center mb-4">
               <GraduationCap className="w-5 h-5 me-2 text-emerald-500" /> Education
             </h3>
             <div className="space-y-4">
               {(talent.education || []).map((edu: any, i: number) => (
                 <div key={i} className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[var(--surface-hover)] flex items-center justify-center shrink-0">
-                    <GraduationCap className="w-6 h-6 text-[var(--text-secondary)]" />
+                  <div className="w-12 h-12 rounded-full bg-surface-hover flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-6 h-6 text-text-secondary" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-[var(--text-primary)]">{edu.degree || edu}</h4>
-                    {edu.institution && <p className="text-sm text-[var(--text-secondary)]">{edu.institution}</p>}
-                    {edu.year && <p className="text-xs text-[var(--text-tertiary)]">{edu.year}</p>}
+                    <h4 className="font-bold text-text-primary">{edu.degree || edu}</h4>
+                    {edu.institution && <p className="text-sm text-text-secondary">{edu.institution}</p>}
+                    {edu.year && <p className="text-xs text-text-tertiary">{edu.year}</p>}
                   </div>
                 </div>
               ))}
               {(!talent.education || talent.education.length === 0) && (
-                <span className="text-sm text-[var(--text-tertiary)] italic">No education details parsed.</span>
+                <span className="text-sm text-text-tertiary italic">No education details parsed.</span>
               )}
             </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary flex items-center mb-4">
               <Briefcase className="w-5 h-5 me-2 text-green-500" /> Certifications
             </h3>
             <ul className="list-disc ps-5 space-y-1">
               {(talent.certifications || []).map((cert: any, i: number) => (
-                <li key={i} className="text-sm text-[var(--text-secondary)]">
-                  <span className="font-bold text-[var(--text-primary)]">{cert.name || cert}</span>
+                <li key={i} className="text-sm text-text-secondary">
+                  <span className="font-bold text-text-primary">{cert.name || cert}</span>
                 </li>
               ))}
               {(!talent.certifications || talent.certifications.length === 0) && (
-                <li className="text-sm text-[var(--text-tertiary)] italic list-none -ms-5">No certifications parsed.</li>
+                <li className="text-sm text-text-tertiary italic list-none -ms-5">No certifications parsed.</li>
               )}
             </ul>
           </div>

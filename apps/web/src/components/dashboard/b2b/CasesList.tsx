@@ -76,8 +76,8 @@ export function CasesList({ initialCases }: CasesListProps) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Case Studies & Portfolios</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Manage E3's corporate credibility proofs and event engineering portfolio.</p>
+          <h1 className="text-2xl font-black text-text-primary">Case Studies & Portfolios</h1>
+          <p className="text-sm text-text-secondary">Manage E3's corporate credibility proofs and event engineering portfolio.</p>
         </div>
         <Link href="/dashboard/b2b/cases/new">
           <Button className="gap-2">
@@ -87,32 +87,32 @@ export function CasesList({ initialCases }: CasesListProps) {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex gap-4 items-center bg-[var(--surface-default)] p-4 rounded-xl border border-[var(--border-default)]">
+      <div className="flex gap-4 items-center bg-surface-default p-4 rounded-xl border border-border-default">
         <div className="relative flex-1">
-          <Search className="absolute start-3 top-2.5 h-4 w-4 text-[var(--text-tertiary)]" />
+          <Search className="absolute start-3 top-2.5 h-4 w-4 text-text-tertiary" />
           <input
             type="text"
             placeholder="Search by title, client, tags, or execution year..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg py-2 ps-10 pe-4 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]"
+            className="w-full bg-surface-hover border border-border-default rounded-lg py-2 ps-10 pe-4 text-sm focus:border-accent outline-none text-text-primary"
           />
         </div>
       </div>
 
       {/* Case Studies Grid/List */}
       {filteredCases.length === 0 ? (
-        <div className="border border-dashed border-[var(--border-default)] rounded-xl p-12 text-center bg-[var(--surface-default)]">
-          <FolderKanban className="w-12 h-12 mx-auto text-[var(--text-tertiary)] mb-4" />
-          <p className="text-sm font-bold text-[var(--text-primary)] mb-1">No case studies found</p>
-          <p className="text-xs text-[var(--text-secondary)]">Get started by building E3's first activation showcase.</p>
+        <div className="border border-dashed border-border-default rounded-xl p-12 text-center bg-surface-default">
+          <FolderKanban className="w-12 h-12 mx-auto text-text-tertiary mb-4" />
+          <p className="text-sm font-bold text-text-primary mb-1">No case studies found</p>
+          <p className="text-xs text-text-secondary">Get started by building E3's first activation showcase.</p>
         </div>
       ) : (
-        <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-surface-default border border-border-default rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[var(--border-default)] bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-xs font-bold uppercase">
+                <tr className="border-b border-border-default bg-surface-hover text-text-secondary text-xs font-bold uppercase">
                   <th className="px-6 py-4">Showcase Info</th>
                   <th className="px-6 py-4">Client</th>
                   <th className="px-6 py-4">Year</th>
@@ -122,20 +122,20 @@ export function CasesList({ initialCases }: CasesListProps) {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border-default)] text-sm text-[var(--text-primary)]">
+              <tbody className="divide-y divide-border-default text-sm text-text-primary">
                 {filteredCases.map(c => {
                   const titleEn = c.title?.en || "Untitled Showcase"
                   const titleAr = c.title?.ar || ""
                   const tags = Array.isArray(c.category) ? c.category : []
 
                   return (
-                    <tr key={c.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                    <tr key={c.id} className="hover:bg-surface-hover transition-colors">
                       <td className="px-6 py-4">
                         <div className="font-bold">{titleEn}</div>
-                        {titleAr && <div className="text-xs text-[var(--text-tertiary)] text-right font-medium" dir="rtl">{titleAr}</div>}
-                        <div className="text-xs text-[var(--text-secondary)] font-mono">/{c.slug}</div>
+                        {titleAr && <div className="text-xs text-text-tertiary text-right font-medium" dir="rtl">{titleAr}</div>}
+                        <div className="text-xs text-text-secondary font-mono">/{c.slug}</div>
                       </td>
-                      <td className="px-6 py-4 font-medium text-[var(--text-secondary)]">
+                      <td className="px-6 py-4 font-medium text-text-secondary">
                         {c.clientName}
                       </td>
                       <td className="px-6 py-4 font-mono font-bold">
@@ -148,7 +148,7 @@ export function CasesList({ initialCases }: CasesListProps) {
                               {tag}
                             </Badge>
                           ))}
-                          {tags.length > 3 && <span className="text-xs text-[var(--text-tertiary)]">+{tags.length - 3}</span>}
+                          {tags.length > 3 && <span className="text-xs text-text-tertiary">+{tags.length - 3}</span>}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -157,7 +157,7 @@ export function CasesList({ initialCases }: CasesListProps) {
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all
                             ${c.isPublished
                               ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                              : "bg-[var(--border-default)] text-[var(--text-tertiary)] border border-transparent"
+                              : "bg-border-default text-text-tertiary border border-transparent"
                             }
                           `}
                         >
@@ -171,7 +171,7 @@ export function CasesList({ initialCases }: CasesListProps) {
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all
                             ${c.isFeatured
                               ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                              : "bg-[var(--border-default)] text-[var(--text-tertiary)] border border-transparent"
+                              : "bg-border-default text-text-tertiary border border-transparent"
                             }
                           `}
                         >
@@ -182,14 +182,14 @@ export function CasesList({ initialCases }: CasesListProps) {
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <Link href={`/dashboard/b2b/cases/${c.id}/edit`}>
-                            <button className="p-2 text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors rounded-lg hover:bg-[var(--surface-hover)]">
+                            <button className="p-2 text-text-secondary hover:text-accent transition-colors rounded-lg hover:bg-surface-hover">
                               <Edit2 className="w-4 h-4" />
                             </button>
                           </Link>
                           <button
                             onClick={() => handleDelete(c.id)}
                             disabled={isDeletingId === c.id}
-                            className="p-2 text-[var(--text-secondary)] hover:text-red-500 transition-colors rounded-lg hover:bg-[var(--surface-hover)] disabled:opacity-50"
+                            className="p-2 text-text-secondary hover:text-red-500 transition-colors rounded-lg hover:bg-surface-hover disabled:opacity-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

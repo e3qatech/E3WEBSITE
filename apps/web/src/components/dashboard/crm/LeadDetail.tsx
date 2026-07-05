@@ -82,17 +82,17 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between bg-[var(--surface-default)] p-4 rounded-xl border border-[var(--border-default)] shadow-sm sticky top-6 z-10">
+      <div className="flex items-center justify-between bg-surface-default p-4 rounded-xl border border-border-default shadow-sm sticky top-6 z-10">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => router.push("/dashboard/crm/leads")}
-            className="p-2 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-[var(--text-secondary)]"
+            className="p-2 hover:bg-surface-hover rounded-lg transition-colors text-text-secondary"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-[var(--text-primary)]">Lead: {lead.name}</h1>
-            <p className="text-xs text-[var(--text-secondary)]">{lead.company || "Individual"}</p>
+            <h1 className="text-xl font-bold text-text-primary">Lead: {lead.name}</h1>
+            <p className="text-xs text-text-secondary">{lead.company || "Individual"}</p>
           </div>
         </div>
         <Button onClick={handleSave} disabled={isSaving} className="gap-2">
@@ -104,50 +104,50 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Details Form */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm space-y-6">
-            <h2 className="font-bold text-[var(--text-primary)] border-b border-[var(--border-default)] pb-4">Contact Information</h2>
+          <div className="bg-surface-default p-6 rounded-xl border border-border-default shadow-sm space-y-6">
+            <h2 className="font-bold text-text-primary border-b border-border-default pb-4">Contact Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Full Name</label>
+                <label className="text-sm font-bold text-text-primary">Full Name</label>
                 <input 
                   type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Company</label>
+                <label className="text-sm font-bold text-text-primary">Company</label>
                 <input 
                   type="text" value={form.company} onChange={e => setForm({...form, company: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Email</label>
+                <label className="text-sm font-bold text-text-primary">Email</label>
                 <input 
                   type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Phone</label>
+                <label className="text-sm font-bold text-text-primary">Phone</label>
                 <input 
                   type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                 />
               </div>
             </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm space-y-6">
-            <h2 className="font-bold text-[var(--text-primary)] border-b border-[var(--border-default)] pb-4">Opportunity Details</h2>
+          <div className="bg-surface-default p-6 rounded-xl border border-border-default shadow-sm space-y-6">
+            <h2 className="font-bold text-text-primary border-b border-border-default pb-4">Opportunity Details</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Status</label>
+                <label className="text-sm font-bold text-text-primary">Status</label>
                 <select 
                   value={form.status} onChange={e => setForm({...form, status: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                 >
                   <option value="NEW">New</option>
                   <option value="CONTACTED">Contacted</option>
@@ -158,18 +158,18 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Estimated Value (QAR)</label>
+                <label className="text-sm font-bold text-text-primary">Estimated Value (QAR)</label>
                 <input 
                   type="number" value={form.value} onChange={e => setForm({...form, value: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                   placeholder="0"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[var(--text-primary)]">Probability (%)</label>
+                <label className="text-sm font-bold text-text-primary">Probability (%)</label>
                 <input 
                   type="number" value={form.probability} onChange={e => setForm({...form, probability: e.target.value})}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-2.5"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2.5"
                   placeholder="50" min="0" max="100"
                 />
               </div>
@@ -178,14 +178,14 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
 
           {/* Connected Inquiries */}
           {lead.inquiries.length > 0 && (
-            <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm space-y-4">
-              <h2 className="font-bold text-[var(--text-primary)] border-b border-[var(--border-default)] pb-4">Original Inquiries</h2>
+            <div className="bg-surface-default p-6 rounded-xl border border-border-default shadow-sm space-y-4">
+              <h2 className="font-bold text-text-primary border-b border-border-default pb-4">Original Inquiries</h2>
               <div className="space-y-4">
                 {lead.inquiries.map(inq => (
-                  <div key={inq.id} className="p-4 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm">
+                  <div key={inq.id} className="p-4 bg-surface-hover border border-border-default rounded-lg text-sm">
                     {inq.subject && <div className="font-bold mb-2">{inq.subject}</div>}
-                    <div className="text-[var(--text-secondary)] whitespace-pre-wrap">{inq.message}</div>
-                    <div className="mt-2 text-xs text-[var(--text-tertiary)]">{new Date(inq.createdAt).toLocaleString()}</div>
+                    <div className="text-text-secondary whitespace-pre-wrap">{inq.message}</div>
+                    <div className="mt-2 text-xs text-text-tertiary">{new Date(inq.createdAt).toLocaleString()}</div>
                   </div>
                 ))}
               </div>
@@ -195,15 +195,15 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
 
         {/* Right Column - Activities */}
         <div className="space-y-6">
-          <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm h-full flex flex-col">
-            <h2 className="font-bold text-[var(--text-primary)] border-b border-[var(--border-default)] pb-4 mb-4">Activity Timeline</h2>
+          <div className="bg-surface-default p-6 rounded-xl border border-border-default shadow-sm h-full flex flex-col">
+            <h2 className="font-bold text-text-primary border-b border-border-default pb-4 mb-4">Activity Timeline</h2>
             
             <div className="space-y-4 mb-6">
               <textarea 
                 value={newNote}
                 onChange={e => setNewNote(e.target.value)}
                 placeholder="Log a call, meeting, or internal note..."
-                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-4 py-3 text-sm resize-y"
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-3 text-sm resize-y"
                 rows={3}
               />
               <Button onClick={handleAddNote} className="w-full gap-2" disabled={!newNote.trim()}>
@@ -213,14 +213,14 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
 
             <div className="flex-1 overflow-y-auto space-y-4 pe-2">
               {lead.activities.map(activity => (
-                <div key={activity.id} className="relative ps-6 border-s-2 border-[var(--border-default)] pb-4 last:pb-0">
-                  <div className="absolute w-3 h-3 bg-[var(--color-primary)] rounded-full -start-[7px] top-1" />
-                  <div className="bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-default)]">
+                <div key={activity.id} className="relative ps-6 border-s-2 border-border-default pb-4 last:pb-0">
+                  <div className="absolute w-3 h-3 bg-accent rounded-full -start-[7px] top-1" />
+                  <div className="bg-surface-hover p-3 rounded-lg border border-border-default">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="font-bold text-xs text-[var(--text-primary)]">{activity.author}</span>
-                      <span className="text-xs text-[var(--text-tertiary)]">{new Date(activity.timestamp).toLocaleString()}</span>
+                      <span className="font-bold text-xs text-text-primary">{activity.author}</span>
+                      <span className="text-xs text-text-tertiary">{new Date(activity.timestamp).toLocaleString()}</span>
                     </div>
-                    <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{activity.description}</p>
+                    <p className="text-sm text-text-secondary whitespace-pre-wrap">{activity.description}</p>
                   </div>
                 </div>
               ))}

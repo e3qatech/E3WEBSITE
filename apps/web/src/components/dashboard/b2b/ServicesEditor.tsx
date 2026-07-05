@@ -137,20 +137,20 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
   }
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-[var(--background)]">
+    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-bg-base">
       
       {/* Sidebar Navigation */}
-      <div className="w-64 border-e border-[var(--border-default)] bg-[var(--surface-default)] p-4 flex flex-col z-10 shrink-0">
+      <div className="w-64 border-e border-border-default bg-surface-default p-4 flex flex-col z-10 shrink-0">
         <div className="mb-6 flex items-center gap-3">
           <button 
             onClick={() => router.push('/dashboard/b2b/services')}
-            className="p-1.5 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-[var(--text-secondary)]"
+            className="p-1.5 hover:bg-surface-hover rounded-lg transition-colors text-text-secondary"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-lg font-black text-[var(--text-primary)] leading-tight">Services CMS</h2>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-tertiary)]">Advanced Capability Editor</p>
+            <h2 className="text-lg font-black text-text-primary leading-tight">Services CMS</h2>
+            <p className="text-[10px] uppercase font-bold tracking-wider text-text-tertiary">Advanced Capability Editor</p>
           </div>
         </div>
         
@@ -164,12 +164,12 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left
                   ${isActive 
-                    ? 'bg-[var(--color-primary)] text-white font-bold shadow-md' 
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
+                    ? 'bg-accent text-white font-bold shadow-md' 
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                   }
                 `}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[var(--text-tertiary)]'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-text-tertiary'}`} />
                 {tab.label}
                 {isActive && <ChevronRight className="w-4 h-4 ms-auto rtl:-scale-x-100" />}
               </button>
@@ -177,9 +177,9 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
           })}
         </nav>
 
-        <div className="pt-4 border-t border-[var(--border-default)] space-y-3">
+        <div className="pt-4 border-t border-border-default space-y-3">
           {hasUnsavedChanges && (
-            <p className="text-xs text-center font-bold text-[var(--color-warning)]">Unsaved Changes</p>
+            <p className="text-xs text-center font-bold text-warning">Unsaved Changes</p>
           )}
           <Button className="w-full gap-2 rounded-xl h-12 text-sm" onClick={handleSave} disabled={isSaving}>
             {isSaving ? <span className="animate-spin text-xl">⟳</span> : <Save className="w-4 h-4" />}
@@ -189,7 +189,7 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-8 relative bg-[var(--surface-hover)]">
+      <div className="flex-1 overflow-y-auto p-8 relative bg-surface-hover">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -201,69 +201,69 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
           >
             
             {activeTab === "basic" && (
-              <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-8 space-y-8">
+              <div className="bg-surface-default border border-border-default rounded-2xl p-8 space-y-8">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Basic Details</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">Set the core identity and bilingual descriptions for this service.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">Basic Details</h3>
+                  <p className="text-sm text-text-secondary">Set the core identity and bilingual descriptions for this service.</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Title (English) *</label>
-                    <input type="text" value={formData.titleEn} onChange={e => handleChange('titleEn', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. Festival Engineering" />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (English) *</label>
+                    <input type="text" value={formData.titleEn} onChange={e => handleChange('titleEn', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none transition-colors" placeholder="e.g. Festival Engineering" />
                   </div>
                   <div className="space-y-2" dir="rtl">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Title (Arabic) *</label>
-                    <input type="text" value={formData.titleAr} onChange={e => handleChange('titleAr', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors font-arabic" placeholder="عنوان الخدمة" />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider block">Title (Arabic) *</label>
+                    <input type="text" value={formData.titleAr} onChange={e => handleChange('titleAr', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none transition-colors font-arabic" placeholder="عنوان الخدمة" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">URL Slug *</label>
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">URL Slug *</label>
                   <div className="flex items-center gap-2">
-                    <span className="text-[var(--text-tertiary)] bg-[var(--surface-hover)] px-4 py-3 rounded-xl border border-[var(--border-default)]">/b2b/services/</span>
-                    <input type="text" value={formData.slug} onChange={e => handleChange('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} className="flex-1 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none font-mono transition-colors" placeholder="festival-engineering" />
+                    <span className="text-text-tertiary bg-surface-hover px-4 py-3 rounded-xl border border-border-default">/b2b/services/</span>
+                    <input type="text" value={formData.slug} onChange={e => handleChange('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} className="flex-1 bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none font-mono transition-colors" placeholder="festival-engineering" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Tagline (English)</label>
-                    <textarea rows={2} value={formData.taglineEn} onChange={e => handleChange('taglineEn', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none resize-none transition-colors" placeholder="Short description..." />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Tagline (English)</label>
+                    <textarea rows={2} value={formData.taglineEn} onChange={e => handleChange('taglineEn', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none resize-none transition-colors" placeholder="Short description..." />
                   </div>
                   <div className="space-y-2" dir="rtl">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Tagline (Arabic)</label>
-                    <textarea rows={2} value={formData.taglineAr} onChange={e => handleChange('taglineAr', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none resize-none transition-colors font-arabic" placeholder="وصف قصير..." />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider block">Tagline (Arabic)</label>
+                    <textarea rows={2} value={formData.taglineAr} onChange={e => handleChange('taglineAr', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none resize-none transition-colors font-arabic" placeholder="وصف قصير..." />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Category (Eyebrow)</label>
-                    <input type="text" value={formData.category} onChange={e => handleChange('category', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. MEGA EVENTS" />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Category (Eyebrow)</label>
+                    <input type="text" value={formData.category} onChange={e => handleChange('category', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none transition-colors" placeholder="e.g. MEGA EVENTS" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Metric Label</label>
-                    <input type="text" value={formData.successMetricLabel} onChange={e => handleChange('successMetricLabel', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. KEY SUCCESS METRIC" />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Metric Label</label>
+                    <input type="text" value={formData.successMetricLabel} onChange={e => handleChange('successMetricLabel', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none transition-colors" placeholder="e.g. KEY SUCCESS METRIC" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Metric Value</label>
-                    <input type="text" value={formData.successMetricValue} onChange={e => handleChange('successMetricValue', e.target.value)} className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors" placeholder="e.g. 45% repeat visitor rate" />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Metric Value</label>
+                    <input type="text" value={formData.successMetricValue} onChange={e => handleChange('successMetricValue', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none transition-colors" placeholder="e.g. 45% repeat visitor rate" />
                   </div>
                 </div>
 
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Card Thumbnail</label>
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Card Thumbnail</label>
                   <MediaUploader value={formData.thumbnail} onChange={val => handleChange('thumbnail', val)} />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Linked Attraction (Optional)</label>
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Linked Attraction (Optional)</label>
                   <select
                     value={formData.attractionId}
                     onChange={(e) => handleChange("attractionId", e.target.value)}
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-3 text-sm focus:border-[var(--color-primary)] outline-none transition-colors"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm focus:border-accent outline-none transition-colors"
                   >
                     <option value="">None</option>
                     {attractions?.map(a => (
@@ -272,20 +272,20 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                   </select>
                 </div>
 
-                <div className="flex gap-8 pt-6 border-t border-[var(--border-default)]">
+                <div className="flex gap-8 pt-6 border-t border-border-default">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.isVisible ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : 'border-[var(--border-default)] bg-[var(--surface-hover)] group-hover:border-[var(--color-primary)]'}`}>
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.isVisible ? 'bg-accent border-accent' : 'border-border-default bg-surface-hover group-hover:border-accent'}`}>
                       {formData.isVisible && <div className="w-2 h-2 rounded-sm bg-white" />}
                     </div>
                     <input type="checkbox" checked={formData.isVisible} onChange={e => handleChange('isVisible', e.target.checked)} className="hidden" />
-                    <span className="font-bold text-sm text-[var(--text-primary)]">Visible to Public</span>
+                    <span className="font-bold text-sm text-text-primary">Visible to Public</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.isFeatured ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : 'border-[var(--border-default)] bg-[var(--surface-hover)] group-hover:border-[var(--color-primary)]'}`}>
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.isFeatured ? 'bg-accent border-accent' : 'border-border-default bg-surface-hover group-hover:border-accent'}`}>
                       {formData.isFeatured && <div className="w-2 h-2 rounded-sm bg-white" />}
                     </div>
                     <input type="checkbox" checked={formData.isFeatured} onChange={e => handleChange('isFeatured', e.target.checked)} className="hidden" />
-                    <span className="font-bold text-sm text-[var(--text-primary)]">Featured Service</span>
+                    <span className="font-bold text-sm text-text-primary">Featured Service</span>
                   </label>
                 </div>
               </div>
@@ -294,17 +294,17 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "inside" && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">What's Inside</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">Compile the distinct deliverables and components of this service.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">What's Inside</h3>
+                  <p className="text-sm text-text-secondary">Compile the distinct deliverables and components of this service.</p>
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8 space-y-4">
-                  <h2 className="text-lg font-black text-[var(--text-primary)]">Description (English)</h2>
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8 space-y-4">
+                  <h2 className="text-lg font-black text-text-primary">Description (English)</h2>
                   <TipTapEditor value={formData.contentEn} onChange={val => handleChange('contentEn', val)} dir="ltr" />
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8 space-y-4">
-                  <h2 className="text-lg font-black text-[var(--text-primary)] text-right">Description (Arabic)</h2>
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8 space-y-4">
+                  <h2 className="text-lg font-black text-text-primary text-right">Description (Arabic)</h2>
                   <TipTapEditor value={formData.contentAr} onChange={val => handleChange('contentAr', val)} dir="rtl" />
                 </div>
               </div>
@@ -313,11 +313,11 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "process" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Process Stepper</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">Map E3's execution phases (e.g. Discovery → Feasibility → Fabrication).</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">Process Stepper</h3>
+                  <p className="text-sm text-text-secondary">Map E3's execution phases (e.g. Discovery → Feasibility → Fabrication).</p>
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8">
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8">
                   <RepeaterField
                     items={processSteps}
                     setItems={(items) => { setProcessSteps(items); setHasUnsavedChanges(true) }}
@@ -328,10 +328,10 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                     addLabel="Add Process Phase"
                     renderItem={(item, index, update) => (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                        <input placeholder="Phase Title (EN)" value={item.titleEn} onChange={e => update({ titleEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none" />
-                        <input placeholder="Phase Title (AR)" value={item.titleAr} onChange={e => update({ titleAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none font-arabic" />
-                        <textarea placeholder="Description (EN)" value={item.descEn} onChange={e => update({ descEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none min-h-[100px] resize-none" />
-                        <textarea placeholder="Description (AR)" value={item.descAr} onChange={e => update({ descAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none min-h-[100px] resize-none font-arabic" />
+                        <input placeholder="Phase Title (EN)" value={item.titleEn} onChange={e => update({ titleEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none" />
+                        <input placeholder="Phase Title (AR)" value={item.titleAr} onChange={e => update({ titleAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none font-arabic" />
+                        <textarea placeholder="Description (EN)" value={item.descEn} onChange={e => update({ descEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none min-h-[100px] resize-none" />
+                        <textarea placeholder="Description (AR)" value={item.descAr} onChange={e => update({ descAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none min-h-[100px] resize-none font-arabic" />
                       </div>
                     )}
                   />
@@ -342,17 +342,17 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "hero" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Hero Media</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">The primary visual that sits behind the service title.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">Hero Media</h3>
+                  <p className="text-sm text-text-secondary">The primary visual that sits behind the service title.</p>
                 </div>
 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8 space-y-6">
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8 space-y-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Media Format</label>
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Format</label>
                     <select 
                       value={formData.heroMediaType} 
                       onChange={e => handleChange('heroMediaType', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-sm focus:border-[var(--color-primary)] outline-none"
+                      className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none"
                     >
                       <option value="IMAGE">Image</option>
                       <option value="VIDEO">Video</option>
@@ -363,14 +363,14 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Source</label>
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Source</label>
                     {(formData.heroMediaType === 'IFRAME' || formData.heroMediaType === 'SPLINE') ? (
                       <input 
                         type="text" 
                         value={formData.heroMediaUrl} 
                         onChange={e => handleChange('heroMediaUrl', e.target.value)} 
                         placeholder="https://..." 
-                        className="w-full px-4 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-sm focus:border-[var(--color-primary)] outline-none font-mono" 
+                        className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none font-mono" 
                       />
                     ) : (
                       <div className="space-y-4">
@@ -380,13 +380,13 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                           accept={formData.heroMediaType === 'VIDEO' ? "video/*" : formData.heroMediaType === 'MODEL_3D' ? ".glb,.gltf" : "image/*"}
                         />
                         <div className="flex items-center gap-3">
-                          <span className="text-[10px] text-[var(--text-secondary)] font-bold tracking-wider">OR URL:</span>
+                          <span className="text-[10px] text-text-secondary font-bold tracking-wider">OR URL:</span>
                           <input 
                             type="text" 
                             value={formData.heroMediaUrl} 
                             onChange={e => handleChange('heroMediaUrl', e.target.value)} 
                             placeholder="https://..." 
-                            className="flex-1 px-4 py-2 text-sm rounded-lg bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none font-mono" 
+                            className="flex-1 px-4 py-2 text-sm rounded-lg bg-surface-hover border border-border-default focus:border-accent outline-none font-mono" 
                           />
                         </div>
                       </div>
@@ -399,11 +399,11 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "gallery" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Portfolio Gallery</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">A masonry or grid gallery showcasing deliverables from this service.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">Portfolio Gallery</h3>
+                  <p className="text-sm text-text-secondary">A masonry or grid gallery showcasing deliverables from this service.</p>
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8">
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8">
                   <RepeaterField
                     items={gallery}
                     setItems={(items) => { setGallery(items); setHasUnsavedChanges(true) }}
@@ -418,8 +418,8 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                           <MediaUploader value={item.url} onChange={url => update({ url })} />
                         </div>
                         <div className="flex-1 space-y-4 w-full">
-                          <input placeholder="Caption (EN)" value={item.captionEn} onChange={e => update({ captionEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none" />
-                          <input placeholder="Caption (AR)" value={item.captionAr} onChange={e => update({ captionAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none font-arabic" />
+                          <input placeholder="Caption (EN)" value={item.captionEn} onChange={e => update({ captionEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none" />
+                          <input placeholder="Caption (AR)" value={item.captionAr} onChange={e => update({ captionAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none font-arabic" />
                         </div>
                       </div>
                     )}
@@ -431,11 +431,11 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "projects" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Cross-Reference</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">Link to related case studies or projects where this service was utilized.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">Cross-Reference</h3>
+                  <p className="text-sm text-text-secondary">Link to related case studies or projects where this service was utilized.</p>
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8">
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8">
                   <RepeaterField
                     items={projects}
                     setItems={(items) => { setProjects(items); setHasUnsavedChanges(true) }}
@@ -447,11 +447,11 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                     renderItem={(item, index, update) => (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         <div className="col-span-1 md:col-span-2 space-y-2">
-                          <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 block">Linked Attraction (Optional)</label>
+                          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 block">Linked Attraction (Optional)</label>
                           <select 
                             value={item.attractionId || ""}
                             onChange={e => update({ attractionId: e.target.value })}
-                            className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none"
+                            className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none"
                           >
                             <option value="">Custom Project (No Attraction Link)</option>
                             {attractions?.map(a => (
@@ -460,13 +460,13 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                           </select>
                         </div>
                         <div className="col-span-1 md:col-span-2 mt-4">
-                          <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 block">Project Cover</label>
+                          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 block">Project Cover</label>
                           <MediaUploader value={item.imageUrl} onChange={url => update({ imageUrl: url })} />
                         </div>
-                        <input placeholder="Project Title (EN)" value={item.titleEn} onChange={e => update({ titleEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none" />
-                        <input placeholder="Project Title (AR)" value={item.titleAr} onChange={e => update({ titleAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none font-arabic" />
-                        <textarea placeholder="Short Description (EN)" value={item.descriptionEn} onChange={e => update({ descriptionEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none min-h-[80px] resize-none" />
-                        <textarea placeholder="Short Description (AR)" value={item.descriptionAr} onChange={e => update({ descriptionAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] focus:border-[var(--color-primary)] outline-none min-h-[80px] resize-none font-arabic" />
+                        <input placeholder="Project Title (EN)" value={item.titleEn} onChange={e => update({ titleEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none" />
+                        <input placeholder="Project Title (AR)" value={item.titleAr} onChange={e => update({ titleAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none font-arabic" />
+                        <textarea placeholder="Short Description (EN)" value={item.descriptionEn} onChange={e => update({ descriptionEn: e.target.value })} className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none min-h-[80px] resize-none" />
+                        <textarea placeholder="Short Description (AR)" value={item.descriptionAr} onChange={e => update({ descriptionAr: e.target.value })} dir="rtl" className="w-full px-4 py-3 text-sm rounded-xl bg-surface-hover border border-border-default focus:border-accent outline-none min-h-[80px] resize-none font-arabic" />
                       </div>
                     )}
                   />
@@ -477,17 +477,17 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "cta" && (
               <div className="space-y-6">
                  <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Call to Action</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">The concluding interaction for this service page.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">Call to Action</h3>
+                  <p className="text-sm text-text-secondary">The concluding interaction for this service page.</p>
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8 space-y-4">
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8 space-y-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Primary Action</label>
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary Action</label>
                     <select 
                       value={formData.ctaPrimary} 
                       onChange={e => handleChange('ctaPrimary', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-sm focus:border-[var(--color-primary)] outline-none"
+                      className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none"
                     >
                       <option value="CONTACT">Contact Us</option>
                       <option value="LEARN_MORE">Learn More</option>
@@ -501,18 +501,18 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "seo" && (
               <div className="space-y-6">
                  <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">SEO Customizer</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">Control how this service appears on search engines.</p>
+                  <h3 className="text-xl font-black text-text-primary mb-2">SEO Customizer</h3>
+                  <p className="text-sm text-text-secondary">Control how this service appears on search engines.</p>
                 </div>
                 
-                <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 md:p-8 space-y-6">
+                <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8 space-y-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Meta Title</label>
-                    <input type="text" value={formData.seo?.metaTitle || ''} onChange={e => handleChange('seo', { ...formData.seo, metaTitle: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-sm focus:border-[var(--color-primary)] outline-none" placeholder="Default inherits from Service Title if blank" />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Meta Title</label>
+                    <input type="text" value={formData.seo?.metaTitle || ''} onChange={e => handleChange('seo', { ...formData.seo, metaTitle: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none" placeholder="Default inherits from Service Title if blank" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Meta Description</label>
-                    <textarea value={formData.seo?.metaDescription || ''} onChange={e => handleChange('seo', { ...formData.seo, metaDescription: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-sm focus:border-[var(--color-primary)] outline-none h-24 resize-none" placeholder="Brief summary of the service for search results..." />
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Meta Description</label>
+                    <textarea value={formData.seo?.metaDescription || ''} onChange={e => handleChange('seo', { ...formData.seo, metaDescription: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none h-24 resize-none" placeholder="Brief summary of the service for search results..." />
                   </div>
                 </div>
               </div>

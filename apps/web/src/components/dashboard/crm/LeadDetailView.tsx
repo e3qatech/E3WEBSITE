@@ -23,10 +23,10 @@ import { useSession } from "next-auth/react"
 const STAGES = [
   { id: "NEW", label: "New Leads", color: "bg-blue-600" },
   { id: "CONTACTED", label: "Contacted", color: "bg-amber-600" },
-  { id: "QUALIFIED", label: "Qualified", color: "bg-[var(--color-primary)]" },
+  { id: "QUALIFIED", label: "Qualified", color: "bg-accent" },
   { id: "PROPOSAL", label: "Proposal", color: "bg-orange-600" },
   { id: "WON", label: "Won", color: "bg-[var(--color-success)]" },
-  { id: "LOST", label: "Lost", color: "bg-[var(--color-error)]" }
+  { id: "LOST", label: "Lost", color: "bg-error" }
 ]
 
 export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, salesTeam: any[] }) {
@@ -75,7 +75,7 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
     switch (type) {
       case "EMAIL": return <Mail className="w-4 h-4 text-blue-500" />
       case "CALL": return <Phone className="w-4 h-4 text-green-500" />
-      case "MEETING": return <Video className="w-4 h-4 text-[var(--color-primary)]" />
+      case "MEETING": return <Video className="w-4 h-4 text-accent" />
       case "NOTE": return <FileText className="w-4 h-4 text-amber-500" />
     }
   }
@@ -85,12 +85,12 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
       
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/dashboard/crm/leads" className="p-2 hover:bg-[var(--surface-hover)] rounded-xl transition-colors">
-          <ArrowLeft className="w-5 h-5 text-[var(--text-secondary)]" />
+        <Link href="/dashboard/crm/leads" className="p-2 hover:bg-surface-hover rounded-xl transition-colors">
+          <ArrowLeft className="w-5 h-5 text-text-secondary" />
         </Link>
         <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">{lead.name}</h1>
-          <div className="flex items-center gap-3 mt-2 text-[var(--text-secondary)] text-sm">
+          <h1 className="text-3xl font-black text-text-primary">{lead.name}</h1>
+          <div className="flex items-center gap-3 mt-2 text-text-secondary text-sm">
             {lead.company && <span className="flex items-center"><Building className="w-4 h-4 me-1" /> {lead.company}</span>}
             <span className="flex items-center"><Mail className="w-4 h-4 me-1" /> {lead.email}</span>
             {lead.phone && <span className="flex items-center"><Phone className="w-4 h-4 me-1" /> {lead.phone}</span>}
@@ -102,14 +102,14 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
         
         {/* Left Col: Details & Controls */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] mb-4">Lead Status</h3>
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary mb-4">Lead Status</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Stage</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Stage</label>
                 <select 
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                   value={lead.status}
                   onChange={(e) => handleUpdate({ status: e.target.value })}
                   disabled={isUpdating}
@@ -119,9 +119,9 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Assigned To</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Assigned To</label>
                 <select 
-                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                   value={lead.assignedToId || ""}
                   onChange={(e) => handleUpdate({ assignedToId: e.target.value || null })}
                   disabled={isUpdating}
@@ -133,22 +133,22 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Value (QAR)</label>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">Value (QAR)</label>
                   <input 
                     type="number"
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                     defaultValue={lead.value || ""}
                     onBlur={(e) => handleUpdate({ value: e.target.value })}
                     disabled={isUpdating}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Probability (%)</label>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">Probability (%)</label>
                   <input 
                     type="number"
                     min="0"
                     max="100"
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                     defaultValue={lead.probability || ""}
                     onBlur={(e) => handleUpdate({ probability: e.target.value })}
                     disabled={isUpdating}
@@ -159,14 +159,14 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
             </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] mb-4">Original Inquiries</h3>
+          <div className="bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-text-primary mb-4">Original Inquiries</h3>
             {lead.inquiries?.length > 0 ? (
               <div className="space-y-3">
                 {lead.inquiries.map((inq: any) => (
-                  <div key={inq.id} className="p-3 bg-[var(--surface-hover)] rounded-xl text-sm text-[var(--text-secondary)]">
+                  <div key={inq.id} className="p-3 bg-surface-hover rounded-xl text-sm text-text-secondary">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="font-bold text-[var(--text-primary)]">{inq.type}</span>
+                      <span className="font-bold text-text-primary">{inq.type}</span>
                       <span className="text-xs">{format(new Date(inq.createdAt), "MMM d")}</span>
                     </div>
                     <p className="line-clamp-2">{inq.message}</p>
@@ -174,16 +174,16 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[var(--text-tertiary)] italic">No inquiries linked to this lead.</p>
+              <p className="text-sm text-text-tertiary italic">No inquiries linked to this lead.</p>
             )}
           </div>
         </div>
 
         {/* Right Col: Activity Timeline */}
         <div className="lg:col-span-2 flex flex-col h-[700px]">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl flex flex-col h-full shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-[var(--border-default)] bg-[var(--surface-hover)]">
-              <h3 className="font-bold text-[var(--text-primary)]">Activity Timeline</h3>
+          <div className="bg-surface-default border border-border-default rounded-2xl flex flex-col h-full shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-border-default bg-surface-hover">
+              <h3 className="font-bold text-text-primary">Activity Timeline</h3>
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -191,29 +191,29 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
                 lead.activities.map((activity: any, index: number) => (
                   <div key={activity.id} className="flex gap-4 relative">
                     {index !== lead.activities.length - 1 && (
-                      <div className="absolute top-8 bottom-[-24px] start-[15px] w-[2px] bg-[var(--border-default)]" />
+                      <div className="absolute top-8 bottom-[-24px] start-[15px] w-[2px] bg-border-default" />
                     )}
-                    <div className="w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-default)] flex items-center justify-center shrink-0 z-10">
+                    <div className="w-8 h-8 rounded-full bg-surface-hover border border-border-default flex items-center justify-center shrink-0 z-10">
                       {getActivityIcon(activity.type)}
                     </div>
-                    <div className="bg-[var(--surface-hover)] p-4 rounded-xl flex-1 border border-[var(--border-default)]">
+                    <div className="bg-surface-hover p-4 rounded-xl flex-1 border border-border-default">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-sm text-[var(--text-primary)]">{activity.author}</span>
-                        <span className="text-xs text-[var(--text-tertiary)]">{format(new Date(activity.timestamp), 'MMM d, yyyy h:mm a')}</span>
+                        <span className="font-bold text-sm text-text-primary">{activity.author}</span>
+                        <span className="text-xs text-text-tertiary">{format(new Date(activity.timestamp), 'MMM d, yyyy h:mm a')}</span>
                       </div>
-                      <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{activity.description}</p>
+                      <p className="text-sm text-text-secondary whitespace-pre-wrap">{activity.description}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-[var(--text-tertiary)]">
+                <div className="flex flex-col items-center justify-center h-full text-text-tertiary">
                   <MessageSquare className="w-8 h-8 mb-2 opacity-50" />
                   <p>No activity recorded yet.</p>
                 </div>
               )}
             </div>
 
-            <div className="p-4 border-t border-[var(--border-default)] bg-[var(--surface-hover)]">
+            <div className="p-4 border-t border-border-default bg-surface-hover">
               <form onSubmit={handleAddActivity} className="flex flex-col gap-3">
                 <div className="flex gap-2">
                   {["NOTE", "CALL", "EMAIL", "MEETING"].map(type => (
@@ -221,7 +221,7 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
                       key={type}
                       type="button"
                       onClick={() => setActivityType(type)}
-                      className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${activityType === type ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--surface-default)] text-[var(--text-secondary)] hover:bg-[var(--surface-active)]'}`}
+                      className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${activityType === type ? 'bg-accent text-white' : 'bg-surface-default text-text-secondary hover:bg-surface-active'}`}
                     >
                       {type}
                     </button>
@@ -233,7 +233,7 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
                     placeholder="Log an activity..."
                     value={activityDesc}
                     onChange={(e) => setActivityDesc(e.target.value)}
-                    className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                    className="flex-1 bg-surface-default border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
                   />
                   <Button type="submit" disabled={isUpdating || !activityDesc.trim()}>
                     <Plus className="w-4 h-4 me-2" /> Log

@@ -86,18 +86,18 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Clients Database</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Manage accounts, agencies, and government partners.</p>
+          <h1 className="text-2xl font-black text-text-primary">Clients Database</h1>
+          <p className="text-sm text-text-secondary">Manage accounts, agencies, and government partners.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input 
               type="text" 
               placeholder="Search companies..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm focus:outline-none focus:border-accent w-full md:w-64"
             />
           </div>
           <Button className="gap-2" onClick={() => setIsAdding(true)}>
@@ -110,39 +110,39 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
         <div className="fixed inset-0 z-50 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-center p-4">
           <form 
             onSubmit={handleAddClient}
-            className="bg-[var(--surface-default)] rounded-2xl w-full max-w-lg p-6 border border-[var(--border-default)] shadow-xl animate-in fade-in zoom-in duration-200"
+            className="bg-surface-default rounded-2xl w-full max-w-lg p-6 border border-border-default shadow-xl animate-in fade-in zoom-in duration-200"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">New Client</h2>
-              <button type="button" onClick={() => setIsAdding(false)} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+              <h2 className="text-xl font-bold text-text-primary">New Client</h2>
+              <button type="button" onClick={() => setIsAdding(false)} className="text-text-tertiary hover:text-text-primary">
                 ✕
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Company Name *</label>
-                <input required name="company" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                <label className="text-xs font-bold text-text-secondary">Company Name *</label>
+                <input required name="company" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[var(--text-secondary)]">Type</label>
-                  <select name="type" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm">
+                  <label className="text-xs font-bold text-text-secondary">Type</label>
+                  <select name="type" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm">
                     <option value="B2B">B2B</option>
                     <option value="GOVERNMENT">Government</option>
                     <option value="AGENCY">Agency</option>
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[var(--text-secondary)]">Industry</label>
-                  <input name="industry" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                  <label className="text-xs font-bold text-text-secondary">Industry</label>
+                  <input name="industry" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Website</label>
-                <input type="url" name="website" placeholder="https://" className="w-full px-3 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg text-sm" />
+                <label className="text-xs font-bold text-text-secondary">Website</label>
+                <input type="url" name="website" placeholder="https://" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
               </div>
             </div>
 
@@ -156,10 +156,10 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
         </div>
       )}
 
-      <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface-default border border-border-default rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[var(--surface-subtle)] border-b border-[var(--border-default)] text-[var(--text-secondary)]">
+            <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               <tr>
                 <th className="px-6 py-4 font-medium">Company</th>
                 <th className="px-6 py-4 font-medium">Type</th>
@@ -169,36 +169,36 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border-default)]">
+            <tbody className="divide-y divide-border-default">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[var(--text-tertiary)]">
+                  <td colSpan={5} className="px-6 py-12 text-center text-text-tertiary">
                     <Building2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
                     No clients found.
                   </td>
                 </tr>
               ) : (
                 filtered.map(c => (
-                  <tr key={c.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                  <tr key={c.id} className="hover:bg-surface-hover transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-[var(--text-primary)]">{c.company}</div>
+                      <div className="font-bold text-text-primary">{c.company}</div>
                     </td>
                     <td className="px-6 py-4">
                       {getTypeBadge(c.type)}
                     </td>
-                    <td className="px-6 py-4 text-[var(--text-secondary)]">
+                    <td className="px-6 py-4 text-text-secondary">
                       {c.industry || "-"}
                     </td>
                     <td className="px-6 py-4">
                       {c.website ? (
-                        <a href={c.website.startsWith('http') ? c.website : `https://${c.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[var(--color-primary)] hover:underline">
+                        <a href={c.website.startsWith('http') ? c.website : `https://${c.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-accent hover:underline">
                           <Globe className="w-4 h-4" /> {c.website.replace(/^https?:\/\//, '')}
                         </a>
                       ) : (
-                        <span className="text-[var(--text-tertiary)]">-</span>
+                        <span className="text-text-tertiary">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-[var(--text-secondary)]">
+                    <td className="px-6 py-4 text-text-secondary">
                       {new Date(c.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">

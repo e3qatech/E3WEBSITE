@@ -142,18 +142,18 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
   const selectedMember = members.find(m => m.id === selectedMemberId)
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-[var(--background)]">
+    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-bg-base">
       
       {/* Sidebar - Roster Registry */}
-      <div className="w-80 border-e border-[var(--border-default)] bg-[var(--surface-default)] p-4 flex flex-col">
+      <div className="w-80 border-e border-border-default bg-surface-default p-4 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-black text-[var(--text-primary)]">Roster Directory</h2>
-            <p className="text-xs text-[var(--text-secondary)]">Event Engineering Roster</p>
+            <h2 className="text-lg font-black text-text-primary">Roster Directory</h2>
+            <p className="text-xs text-text-secondary">Event Engineering Roster</p>
           </div>
           <button 
             onClick={() => setShowAddModal(true)}
-            className="p-2 bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/90 transition-colors rounded-lg"
+            className="p-2 bg-accent text-white hover:bg-accent/90 transition-colors rounded-lg"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -170,21 +170,21 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                 onClick={() => setSelectedMemberId(member.id)}
                 className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3
                   ${isSelected 
-                    ? 'bg-[var(--surface-hover)] border-[var(--color-primary)] shadow-sm' 
-                    : 'border-[var(--border-default)] hover:bg-[var(--surface-hover)]'
+                    ? 'bg-surface-hover border-accent shadow-sm' 
+                    : 'border-border-default hover:bg-surface-hover'
                   }
                 `}
               >
                 <img 
                   src={member.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120"} 
                   alt={fullNameEn} 
-                  className="w-10 h-10 rounded-full object-cover border border-[var(--border-default)]"
+                  className="w-10 h-10 rounded-full object-cover border border-border-default"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm text-[var(--text-primary)] truncate">{fullNameEn}</div>
-                  <div className="text-xs text-[var(--text-secondary)] truncate">{member.designation}</div>
+                  <div className="font-bold text-sm text-text-primary truncate">{fullNameEn}</div>
+                  <div className="text-xs text-text-secondary truncate">{member.designation}</div>
                 </div>
-                <ChevronRight className={`w-4 h-4 text-[var(--text-tertiary)] ${isSelected ? 'translate-x-1' : ''} transition-transform`} />
+                <ChevronRight className={`w-4 h-4 text-text-tertiary ${isSelected ? 'translate-x-1' : ''} transition-transform`} />
               </div>
             )
           })}
@@ -196,31 +196,31 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
         {selectedMember ? (
           <>
             {/* Header / Sub-Nav */}
-            <div className="border-b border-[var(--border-default)] bg-[var(--surface-default)] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="border-b border-border-default bg-surface-default p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <img 
                   src={selectedMember.profileImage || ""} 
                   alt={`${selectedMember.firstName} ${selectedMember.lastName}`} 
-                  className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-primary)]"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-accent"
                 />
                 <div>
-                  <h1 className="text-2xl font-black text-[var(--text-primary)] flex items-center gap-2">
+                  <h1 className="text-2xl font-black text-text-primary flex items-center gap-2">
                     {selectedMember.firstName} {selectedMember.lastName}
-                    <span className="text-sm font-medium text-[var(--text-tertiary)]" dir="rtl">{selectedMember.firstNameAr} {selectedMember.lastNameAr}</span>
+                    <span className="text-sm font-medium text-text-tertiary" dir="rtl">{selectedMember.firstNameAr} {selectedMember.lastNameAr}</span>
                   </h1>
-                  <p className="text-sm text-[var(--text-secondary)]">{selectedMember.designation} • <span dir="rtl">{selectedMember.designationAr}</span></p>
+                  <p className="text-sm text-text-secondary">{selectedMember.designation} • <span dir="rtl">{selectedMember.designationAr}</span></p>
                 </div>
               </div>
 
-              <div className="flex gap-1.5 p-1 bg-[var(--surface-subtle)] rounded-lg border border-[var(--border-default)]">
+              <div className="flex gap-1.5 p-1 bg-surface-hover rounded-lg border border-border-default">
                 {(["roster", "availability", "meetings"] as const).map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-4 py-2 rounded-md text-xs font-bold transition-all uppercase tracking-wider
                       ${activeTab === tab 
-                        ? 'bg-[var(--surface-default)] text-[var(--text-primary)] shadow-sm' 
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'bg-surface-default text-text-primary shadow-sm' 
+                        : 'text-text-secondary hover:text-text-primary'
                       }
                     `}
                   >
@@ -231,12 +231,12 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
             </div>
 
             {/* Content Tabs */}
-            <div className="flex-1 overflow-y-auto p-8 bg-[var(--background)]">
+            <div className="flex-1 overflow-y-auto p-8 bg-bg-base">
               {activeTab === "roster" && (
                 <div className="max-w-2xl space-y-6">
-                  <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
-                    <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-2">
-                      <h3 className="font-black text-xs text-[var(--text-secondary)] uppercase tracking-wider">Biography & Experience</h3>
+                  <div className="bg-surface-default p-6 rounded-xl border border-border-default space-y-4">
+                    <div className="flex items-center justify-between border-b border-border-default pb-2">
+                      <h3 className="font-black text-xs text-text-secondary uppercase tracking-wider">Biography & Experience</h3>
                       <button 
                         onClick={() => handleDeleteMember(selectedMember.id)}
                         className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
@@ -247,14 +247,14 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
 
                     <div className="space-y-4">
                       <div>
-                        <div className="text-xs font-bold text-[var(--text-secondary)] mb-1">Bio (English)</div>
-                        <p className="text-sm text-[var(--text-primary)] bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-default)]">
+                        <div className="text-xs font-bold text-text-secondary mb-1">Bio (English)</div>
+                        <p className="text-sm text-text-primary bg-surface-hover p-3 rounded-lg border border-border-default">
                           {selectedMember.aboutSummary || "No English biography set."}
                         </p>
                       </div>
                       <div dir="rtl">
-                        <div className="text-xs font-bold text-[var(--text-secondary)] text-right mb-1">السيرة الذاتية (عربي)</div>
-                        <p className="text-sm text-[var(--text-primary)] bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-default)] text-right">
+                        <div className="text-xs font-bold text-text-secondary text-right mb-1">السيرة الذاتية (عربي)</div>
+                        <p className="text-sm text-text-primary bg-surface-hover p-3 rounded-lg border border-border-default text-right">
                           {selectedMember.aboutSummaryAr || "لا توجد سيرة ذاتية بالعربية."}
                         </p>
                       </div>
@@ -266,16 +266,16 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
               {activeTab === "availability" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Configuration */}
-                  <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-6">
+                  <div className="bg-surface-default p-6 rounded-xl border border-border-default space-y-6">
                     <div>
-                      <h3 className="text-lg font-black text-[var(--text-primary)] mb-1">Configure Slot Matrix</h3>
-                      <p className="text-xs text-[var(--text-secondary)]">Define standard working parameters to generate upcoming slots.</p>
+                      <h3 className="text-lg font-black text-text-primary mb-1">Configure Slot Matrix</h3>
+                      <p className="text-xs text-text-secondary">Define standard working parameters to generate upcoming slots.</p>
                     </div>
 
                     {/* Weekday Selection */}
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)]">Working Days</label>
-                      <div className="flex justify-between gap-1 bg-[var(--surface-subtle)] p-2 rounded-lg border border-[var(--border-default)]">
+                      <label className="text-xs font-bold text-text-secondary">Working Days</label>
+                      <div className="flex justify-between gap-1 bg-surface-hover p-2 rounded-lg border border-border-default">
                         {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => {
                           const isSelected = daysOfWeek.includes(idx)
                           return (
@@ -288,8 +288,8 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                               }}
                               className={`w-8 h-8 rounded-full text-xs font-bold transition-all
                                 ${isSelected 
-                                  ? 'bg-[var(--color-primary)] text-white' 
-                                  : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
+                                  ? 'bg-accent text-white' 
+                                  : 'text-text-secondary hover:bg-surface-hover'
                                 }
                               `}
                             >
@@ -303,21 +303,21 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                     {/* Hours Range */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Start Time</label>
+                        <label className="text-xs font-bold text-text-secondary">Start Time</label>
                         <input 
                           type="time" 
                           value={startTime}
                           onChange={e => setStartTime(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                          className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">End Time</label>
+                        <label className="text-xs font-bold text-text-secondary">End Time</label>
                         <input 
                           type="time" 
                           value={endTime}
                           onChange={e => setEndTime(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                          className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                         />
                       </div>
                     </div>
@@ -325,11 +325,11 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                     {/* Duration / Buffer */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Slot Duration (Mins)</label>
+                        <label className="text-xs font-bold text-text-secondary">Slot Duration (Mins)</label>
                         <select 
                           value={duration}
                           onChange={e => setDuration(parseInt(e.target.value))}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                          className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                         >
                           <option value={15}>15 mins</option>
                           <option value={30}>30 mins</option>
@@ -338,11 +338,11 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                         </select>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-[var(--text-secondary)]">Post-Meeting Buffer (Mins)</label>
+                        <label className="text-xs font-bold text-text-secondary">Post-Meeting Buffer (Mins)</label>
                         <select 
                           value={buffer}
                           onChange={e => setBuffer(parseInt(e.target.value))}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                          className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                         >
                           <option value={0}>No buffer</option>
                           <option value={10}>10 mins</option>
@@ -363,16 +363,16 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                   </div>
 
                   {/* Active Slots Preview */}
-                  <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
+                  <div className="bg-surface-default p-6 rounded-xl border border-border-default space-y-4">
                     <div>
-                      <h3 className="text-lg font-black text-[var(--text-primary)] mb-1">Active Slots Preview</h3>
-                      <p className="text-xs text-[var(--text-secondary)]">Currently generated slots for the upcoming week.</p>
+                      <h3 className="text-lg font-black text-text-primary mb-1">Active Slots Preview</h3>
+                      <p className="text-xs text-text-secondary">Currently generated slots for the upcoming week.</p>
                     </div>
 
                     {selectedMember.availability.length === 0 ? (
-                      <div className="border border-dashed border-[var(--border-default)] rounded-lg p-8 text-center bg-[var(--surface-subtle)]">
-                        <CalendarDays className="w-8 h-8 mx-auto text-[var(--text-tertiary)] mb-2" />
-                        <p className="text-xs font-bold text-[var(--text-secondary)]">No active availability slots found</p>
+                      <div className="border border-dashed border-border-default rounded-lg p-8 text-center bg-surface-hover">
+                        <CalendarDays className="w-8 h-8 mx-auto text-text-tertiary mb-2" />
+                        <p className="text-xs font-bold text-text-secondary">No active availability slots found</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pe-1">
@@ -406,16 +406,16 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
               )}
 
               {activeTab === "meetings" && (
-                <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-6">
+                <div className="bg-surface-default p-6 rounded-xl border border-border-default space-y-6">
                   <div>
-                    <h3 className="text-lg font-black text-[var(--text-primary)] mb-1">Conflict-Prevention Grid</h3>
-                    <p className="text-xs text-[var(--text-secondary)]">Visual validation of consultations against staff vectors.</p>
+                    <h3 className="text-lg font-black text-text-primary mb-1">Conflict-Prevention Grid</h3>
+                    <p className="text-xs text-text-secondary">Visual validation of consultations against staff vectors.</p>
                   </div>
 
-                  <div className="border border-dashed border-[var(--border-default)] rounded-xl p-12 text-center bg-[var(--surface-subtle)]">
-                    <Calendar className="w-12 h-12 mx-auto text-[var(--text-tertiary)] mb-4" />
-                    <p className="text-sm font-bold text-[var(--text-primary)] mb-1">Double-Booking Engine Active</p>
-                    <p className="text-xs text-[var(--text-secondary)] mb-4">All meetings are automatically locked on staff availability matrices.</p>
+                  <div className="border border-dashed border-border-default rounded-xl p-12 text-center bg-surface-hover">
+                    <Calendar className="w-12 h-12 mx-auto text-text-tertiary mb-4" />
+                    <p className="text-sm font-bold text-text-primary mb-1">Double-Booking Engine Active</p>
+                    <p className="text-xs text-text-secondary mb-4">All meetings are automatically locked on staff availability matrices.</p>
                     <div className="inline-flex items-center gap-1.5 bg-green-500/10 text-green-500 px-3 py-1.5 rounded-full text-xs font-bold">
                       <CheckCircle2 className="w-4 h-4" /> Real-time Prevention Guard Online
                     </div>
@@ -426,9 +426,9 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-            <Users className="w-12 h-12 text-[var(--text-tertiary)] mb-4" />
-            <h2 className="text-lg font-bold text-[var(--text-primary)]">Roster Empty</h2>
-            <p className="text-sm text-[var(--text-secondary)]">Add a staff member to begin scheduling.</p>
+            <Users className="w-12 h-12 text-text-tertiary mb-4" />
+            <h2 className="text-lg font-bold text-text-primary">Roster Empty</h2>
+            <p className="text-sm text-text-secondary">Add a staff member to begin scheduling.</p>
           </div>
         )}
       </div>
@@ -441,32 +441,32 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
+              className="bg-surface-default border border-border-default rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
             >
-              <div className="p-6 border-b border-[var(--border-default)]">
-                <h3 className="text-lg font-black text-[var(--text-primary)]">Add Team Member</h3>
-                <p className="text-xs text-[var(--text-secondary)]">Incorporate event engineers & consultants into roster</p>
+              <div className="p-6 border-b border-border-default">
+                <h3 className="text-lg font-black text-text-primary">Add Team Member</h3>
+                <p className="text-xs text-text-secondary">Incorporate event engineers & consultants into roster</p>
               </div>
 
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)]">First Name (English)</label>
+                    <label className="text-xs font-bold text-text-secondary">First Name (English)</label>
                     <input 
                       type="text" 
                       value={newMember.firstName}
                       onChange={e => setNewMember(prev => ({ ...prev, firstName: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                       placeholder="e.g. John"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)]">Last Name (English)</label>
+                    <label className="text-xs font-bold text-text-secondary">Last Name (English)</label>
                     <input 
                       type="text" 
                       value={newMember.lastName}
                       onChange={e => setNewMember(prev => ({ ...prev, lastName: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                       placeholder="e.g. Doe"
                     />
                   </div>
@@ -474,22 +474,22 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
 
                 <div className="grid grid-cols-2 gap-4" dir="rtl">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">الاسم الأول (عربي)</label>
+                    <label className="text-xs font-bold text-text-secondary text-right block">الاسم الأول (عربي)</label>
                     <input 
                       type="text" 
                       value={newMember.firstNameAr}
                       onChange={e => setNewMember(prev => ({ ...prev, firstNameAr: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary text-right"
                       placeholder="الاسم الأول"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">اسم العائلة (عربي)</label>
+                    <label className="text-xs font-bold text-text-secondary text-right block">اسم العائلة (عربي)</label>
                     <input 
                       type="text" 
                       value={newMember.lastNameAr}
                       onChange={e => setNewMember(prev => ({ ...prev, lastNameAr: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary text-right"
                       placeholder="اسم العائلة"
                     />
                   </div>
@@ -497,22 +497,22 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)]">Designation (English)</label>
+                    <label className="text-xs font-bold text-text-secondary">Designation (English)</label>
                     <input 
                       type="text" 
                       value={newMember.designation}
                       onChange={e => setNewMember(prev => ({ ...prev, designation: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                       placeholder="e.g. Technical Director"
                     />
                   </div>
                   <div className="space-y-1" dir="rtl">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">المنصب (عربي)</label>
+                    <label className="text-xs font-bold text-text-secondary text-right block">المنصب (عربي)</label>
                     <input 
                       type="text" 
                       value={newMember.designationAr}
                       onChange={e => setNewMember(prev => ({ ...prev, designationAr: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary text-right"
                       placeholder="المنصب بالعربية"
                     />
                   </div>
@@ -520,27 +520,27 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)]">Biography (English)</label>
+                    <label className="text-xs font-bold text-text-secondary">Biography (English)</label>
                     <textarea 
                       rows={3}
                       value={newMember.aboutSummary}
                       onChange={e => setNewMember(prev => ({ ...prev, aboutSummary: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] resize-none"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary resize-none"
                     />
                   </div>
                   <div className="space-y-1" dir="rtl">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] text-right block">السيرة (عربي)</label>
+                    <label className="text-xs font-bold text-text-secondary text-right block">السيرة (عربي)</label>
                     <textarea 
                       rows={3}
                       value={newMember.aboutSummaryAr}
                       onChange={e => setNewMember(prev => ({ ...prev, aboutSummaryAr: e.target.value }))}
-                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] text-right resize-none"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary text-right resize-none"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 bg-[var(--surface-subtle)] border-t border-[var(--border-default)] flex justify-end gap-3">
+              <div className="p-6 bg-surface-hover border-t border-border-default flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isSaving}>
                   Cancel
                 </Button>

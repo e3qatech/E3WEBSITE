@@ -140,8 +140,8 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
     <div className="space-y-6 p-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Corporate Partners Directory</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Manage relationships and marketing logos for sponsors and venue hosts.</p>
+          <h1 className="text-2xl font-black text-text-primary">Corporate Partners Directory</h1>
+          <p className="text-sm text-text-secondary">Manage relationships and marketing logos for sponsors and venue hosts.</p>
         </div>
         <Button className="gap-2" onClick={() => setShowAddModal(true)}>
           <Plus className="w-4 h-4" /> Add Partner Link
@@ -149,38 +149,38 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
       </div>
 
       {partners.length === 0 ? (
-        <div className="border border-dashed border-[var(--border-default)] rounded-xl p-12 text-center bg-[var(--surface-default)]">
-          <Building2 className="w-12 h-12 mx-auto text-[var(--text-tertiary)] mb-4" />
-          <p className="text-sm font-bold text-[var(--text-primary)] mb-1">No partners added</p>
-          <p className="text-xs text-[var(--text-secondary)]">Add corporate entities like Qatar Tourism or UDC to begin.</p>
+        <div className="border border-dashed border-border-default rounded-xl p-12 text-center bg-surface-default">
+          <Building2 className="w-12 h-12 mx-auto text-text-tertiary mb-4" />
+          <p className="text-sm font-bold text-text-primary mb-1">No partners added</p>
+          <p className="text-xs text-text-secondary">Add corporate entities like Qatar Tourism or UDC to begin.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Re-order & Quick Control Roster (Left/2 Cols) */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="bg-[var(--surface-default)] rounded-xl border border-[var(--border-default)] shadow-sm overflow-hidden">
-              <div className="p-4 bg-[var(--surface-subtle)] border-b border-[var(--border-default)] flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Priority Sorting & Status</span>
+            <div className="bg-surface-default rounded-xl border border-border-default shadow-sm overflow-hidden">
+              <div className="p-4 bg-surface-hover border-b border-border-default flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">Priority Sorting & Status</span>
                 <Badge variant="default" className="font-mono text-xs">{partners.length} Entities</Badge>
               </div>
 
-              <div className="divide-y divide-[var(--border-default)]">
+              <div className="divide-y divide-border-default">
                 {partners.map((partner, idx) => (
-                  <div key={partner.id} className="p-4 flex items-center gap-4 hover:bg-[var(--surface-hover)] transition-colors">
+                  <div key={partner.id} className="p-4 flex items-center gap-4 hover:bg-surface-hover transition-colors">
                     {/* Re-order controls */}
                     <div className="flex flex-col gap-1">
                       <button 
                         onClick={() => handleMove(idx, "up")}
                         disabled={idx === 0}
-                        className="p-1 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] disabled:opacity-30 rounded hover:bg-[var(--surface-subtle)]"
+                        className="p-1 text-text-tertiary hover:text-accent disabled:opacity-30 rounded hover:bg-surface-hover"
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => handleMove(idx, "down")}
                         disabled={idx === partners.length - 1}
-                        className="p-1 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] disabled:opacity-30 rounded hover:bg-[var(--surface-subtle)]"
+                        className="p-1 text-text-tertiary hover:text-accent disabled:opacity-30 rounded hover:bg-surface-hover"
                       >
                         <ArrowDown className="w-4 h-4" />
                       </button>
@@ -190,14 +190,14 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
                     <img 
                       src={partner.logoUrl || "/placeholder-logo.png"} 
                       alt={partner.name} 
-                      className="w-12 h-12 rounded-lg object-contain bg-[var(--surface-subtle)] p-2 border border-[var(--border-default)]"
+                      className="w-12 h-12 rounded-lg object-contain bg-surface-hover p-2 border border-border-default"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-[var(--text-primary)] truncate">{partner.name}</span>
+                        <span className="font-bold text-sm text-text-primary truncate">{partner.name}</span>
                         <Badge className="text-[10px] font-black uppercase tracking-wider">{partner.category}</Badge>
                       </div>
-                      <div className="text-xs text-[var(--text-secondary)] truncate">{partner.website || "No website listed"}</div>
+                      <div className="text-xs text-text-secondary truncate">{partner.website || "No website listed"}</div>
                     </div>
 
                     {/* Actions */}
@@ -205,19 +205,19 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
                       {/* Publish Switch */}
                       <button 
                         onClick={() => handleToggleVisibility(partner.id, partner.isVisible)}
-                        className="flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                        className="flex items-center gap-1 text-text-secondary hover:text-text-primary"
                       >
                         {partner.isVisible ? (
                           <ToggleRight className="w-9 h-9 text-green-500 transition-colors" />
                         ) : (
-                          <ToggleLeft className="w-9 h-9 text-[var(--text-tertiary)] transition-colors" />
+                          <ToggleLeft className="w-9 h-9 text-text-tertiary transition-colors" />
                         )}
                       </button>
 
                       {/* Delete */}
                       <button 
                         onClick={() => handleDeletePartner(partner.id)}
-                        className="p-2 text-[var(--text-tertiary)] hover:text-red-500 rounded-lg hover:bg-[var(--surface-hover)] transition-colors"
+                        className="p-2 text-text-tertiary hover:text-red-500 rounded-lg hover:bg-surface-hover transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -230,13 +230,13 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
 
           {/* Dynamic Public Ribbons Preview (Right/1 Col) */}
           <div className="space-y-6">
-            <div className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] space-y-4">
-              <h3 className="font-black text-xs text-[var(--text-secondary)] uppercase tracking-wider border-b border-[var(--border-default)] pb-2">
+            <div className="bg-surface-default p-6 rounded-xl border border-border-default space-y-4">
+              <h3 className="font-black text-xs text-text-secondary uppercase tracking-wider border-b border-border-default pb-2">
                 Public Ribbon Preview
               </h3>
-              <p className="text-xs text-[var(--text-secondary)]">Simulated public site footer ribbon showing only visible partners sorted by priority index.</p>
+              <p className="text-xs text-text-secondary">Simulated public site footer ribbon showing only visible partners sorted by priority index.</p>
               
-              <div className="p-4 bg-[var(--surface-subtle)] rounded-lg border border-[var(--border-default)] flex flex-wrap gap-3 items-center justify-center min-h-24">
+              <div className="p-4 bg-surface-hover rounded-lg border border-border-default flex flex-wrap gap-3 items-center justify-center min-h-24">
                 {partners.filter(p => p.isVisible).map(p => (
                   <img 
                     key={p.id}
@@ -256,41 +256,41 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
       {/* Add Partner Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-[var(--border-default)]">
-              <h3 className="text-lg font-black text-[var(--text-primary)]">Add Corporate Partner</h3>
-              <p className="text-xs text-[var(--text-secondary)]">Create sponsor, venue, or media links</p>
+          <div className="bg-surface-default border border-border-default rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-border-default">
+              <h3 className="text-lg font-black text-text-primary">Add Corporate Partner</h3>
+              <p className="text-xs text-text-secondary">Create sponsor, venue, or media links</p>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Company Name</label>
+                <label className="text-xs font-bold text-text-secondary">Company Name</label>
                 <input 
                   type="text" 
                   value={newPartner.name}
                   onChange={e => setNewPartner(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                   placeholder="e.g. Qatar Tourism"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Website URL</label>
+                <label className="text-xs font-bold text-text-secondary">Website URL</label>
                 <input 
                   type="text" 
                   value={newPartner.website}
                   onChange={e => setNewPartner(prev => ({ ...prev, website: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                   placeholder="https://example.qa"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Category</label>
+                <label className="text-xs font-bold text-text-secondary">Category</label>
                 <select 
                   value={newPartner.category}
                   onChange={e => setNewPartner(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)]"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary"
                 >
                   {CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -299,28 +299,28 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Logo URL</label>
+                <label className="text-xs font-bold text-text-secondary">Logo URL</label>
                 <input 
                   type="text" 
                   value={newPartner.logoUrl}
                   onChange={e => setNewPartner(prev => ({ ...prev, logoUrl: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] font-mono"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary font-mono"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--text-secondary)]">Description</label>
+                <label className="text-xs font-bold text-text-secondary">Description</label>
                 <textarea 
                   rows={2}
                   value={newPartner.description}
                   onChange={e => setNewPartner(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg p-2.5 text-sm outline-none text-[var(--text-primary)] resize-none"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg p-2.5 text-sm outline-none text-text-primary resize-none"
                   placeholder="Short description of partnership..."
                 />
               </div>
             </div>
 
-            <div className="p-6 bg-[var(--surface-subtle)] border-t border-[var(--border-default)] flex justify-end gap-3">
+            <div className="p-6 bg-surface-hover border-t border-border-default flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isSaving}>
                 Cancel
               </Button>

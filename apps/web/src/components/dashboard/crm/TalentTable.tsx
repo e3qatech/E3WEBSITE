@@ -34,17 +34,17 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
       accessorKey: "name",
       header: "Applicant Name",
       cell: (info: any) => (
-        <div className="font-bold text-[var(--text-primary)]">{info.getValue()}</div>
+        <div className="font-bold text-text-primary">{info.getValue()}</div>
       )
     },
     {
       accessorKey: "position",
       header: "Applied For",
       cell: (info: any) => (
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-text-secondary">
           {info.getValue() || "-"}
           {info.row.original.department && (
-            <span className="block text-xs text-[var(--text-tertiary)]">{info.row.original.department}</span>
+            <span className="block text-xs text-text-tertiary">{info.row.original.department}</span>
           )}
         </div>
       )
@@ -53,7 +53,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
       accessorKey: "status",
       header: "Status",
       cell: (info: any) => (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-[var(--surface-active)] text-[var(--text-secondary)]">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-surface-active text-text-secondary">
           {info.getValue()}
         </span>
       )
@@ -68,7 +68,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
       cell: (info: any) => (
         <div className="flex text-amber-500">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className={`w-3 h-3 ${i < (info.getValue() || 0) ? "fill-current" : "text-[var(--surface-active)]"}`} />
+            <Star key={i} className={`w-3 h-3 ${i < (info.getValue() || 0) ? "fill-current" : "text-surface-active"}`} />
           ))}
         </div>
       )
@@ -136,19 +136,19 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">Talent Pool</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Manage applicants and parsed CV data.</p>
+          <h1 className="text-3xl font-black text-text-primary">Talent Pool</h1>
+          <p className="text-text-secondary mt-1">Manage applicants and parsed CV data.</p>
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary w-4 h-4" />
             <input 
               type="text" 
               placeholder="Search talent..." 
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="w-full ps-9 pe-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--color-primary)] text-sm"
+              className="w-full ps-9 pe-4 py-2 rounded-xl bg-surface-default border border-border-default focus:outline-none focus:border-accent text-sm"
             />
           </div>
           
@@ -169,16 +169,16 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
       </div>
 
       {/* Table */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl overflow-hidden shadow-sm flex-1">
+      <div className="bg-surface-default border border-border-default rounded-2xl overflow-hidden shadow-sm flex-1">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[var(--surface-hover)] border-b border-[var(--border-default)] text-[var(--text-secondary)]">
+            <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className={`p-4 font-bold ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-[var(--text-primary)]' : ''}`}
+                      className={`p-4 font-bold ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-text-primary' : ''}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       {flexRender(
@@ -194,11 +194,11 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-[var(--border-default)]">
+            <tbody className="divide-y divide-border-default">
               {table.getRowModel().rows.map(row => (
                 <tr 
                   key={row.id} 
-                  className="hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                  className="hover:bg-surface-hover transition-colors cursor-pointer"
                   onClick={() => router.push(`/dashboard/crm/talent/${(row.original as any).id}`)}
                 >
                   {row.getVisibleCells().map(cell => (
@@ -210,7 +210,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
               ))}
               {table.getRowModel().rows.length === 0 && (
                 <tr>
-                  <td colSpan={columns.length} className="p-8 text-center text-[var(--text-tertiary)]">
+                  <td colSpan={columns.length} className="p-8 text-center text-text-tertiary">
                     No talent found. Try uploading a CV.
                   </td>
                 </tr>
@@ -220,8 +220,8 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
         </div>
         
         {/* Pagination */}
-        <div className="p-4 border-t border-[var(--border-default)] flex items-center justify-between">
-          <div className="text-sm text-[var(--text-secondary)]">
+        <div className="p-4 border-t border-border-default flex items-center justify-between">
+          <div className="text-sm text-text-secondary">
             Showing {table.getRowModel().rows.length} of {data.length} entries
           </div>
           <div className="flex gap-2">
