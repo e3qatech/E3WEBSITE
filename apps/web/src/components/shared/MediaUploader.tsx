@@ -182,7 +182,9 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*", c
             <UploadCloud size={24} />
           </div>
           <h4 className="font-bold text-[var(--text-primary)] mb-1">Click to upload or drag and drop</h4>
-          <p className="text-xs text-[var(--text-secondary)] mb-4">SVG, PNG, JPG, GIF or MP4 (max. 10MB)</p>
+          <p className="text-xs text-[var(--text-secondary)] mb-4">
+            {accept === "image/*" ? "SVG, PNG, JPG, GIF or MP4" : accept.replace(/,/g, ", ").toUpperCase()} (max. 50MB)
+          </p>
           
           {error && (
             <div className="text-xs font-bold text-[var(--color-error)] bg-[var(--color-error)]/10 px-3 py-1.5 rounded-full">

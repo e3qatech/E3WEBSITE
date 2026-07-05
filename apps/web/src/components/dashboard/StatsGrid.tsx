@@ -113,16 +113,14 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
         return (
           <motion.div 
             variants={itemVars}
-            whileHover={{ y: -6, scale: 1.01 }}
+            whileHover={{ y: -4 }}
             key={stat.id} 
-            className="glass border-gradient rounded-2xl p-6 transition-all duration-300 hover:shadow-[0_15px_30px_-10px_rgba(var(--color-primary-rgb),0.1)] hover:border-[var(--color-primary)]/40 relative overflow-hidden group"
+            className="bg-bg-level-2 border border-border-default rounded-xl p-6 transition-all duration-300 hover:shadow-2 hover:border-accent relative overflow-hidden group"
           >
-            {/* Ambient Background Glow on Hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 pointer-events-none" />
 
             <div className="relative z-10 flex justify-between items-start mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-accent)]/5 flex items-center justify-center text-[var(--color-primary)] border border-[var(--color-primary)]/20 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                <Icon className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-lg bg-surface-default flex items-center justify-center text-text-primary border border-border-default shadow-sm group-hover:text-accent transition-colors">
+                <Icon className="w-5 h-5" strokeWidth={2.5} />
               </div>
               <Sparkline 
                 data={stat.history} 
@@ -131,16 +129,16 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
             </div>
 
             <div className="relative z-10">
-              <p className="text-xs font-black text-[var(--text-tertiary)] uppercase tracking-[0.2em] mb-2">
+              <p className="text-[11px] font-bold text-text-tertiary uppercase tracking-wider mb-2">
                 {stat.label}
               </p>
               <div className="flex items-end gap-3">
-                <h3 className="text-4xl font-black text-gradient tracking-tight">
+                <h3 className="text-3xl font-black text-text-primary tracking-tight">
                   {stat.value}
                 </h3>
-                <div className={`flex items-center text-sm font-bold pb-1.5 ${trendColor} bg-[var(--surface-active)] px-2 py-0.5 rounded-md`}>
-                  {isPositive && <ArrowUpRight className="w-4 h-4 me-0.5" />}
-                  {!isPositive && !isNeutral && <ArrowDownRight className="w-4 h-4 me-0.5" />}
+                <div className={`flex items-center text-xs font-bold pb-1 ${trendColor} bg-surface-default px-2 py-0.5 rounded border border-border-subtle`}>
+                  {isPositive && <ArrowUpRight className="w-3.5 h-3.5 me-0.5" />}
+                  {!isPositive && !isNeutral && <ArrowDownRight className="w-3.5 h-3.5 me-0.5" />}
                   {Math.abs(stat.trend)}%
                 </div>
               </div>

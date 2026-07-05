@@ -149,9 +149,9 @@ export function AdminSidebar() {
                 href={item.href}
                 whileHover={!isActive ? { x: 2 } : {}}
                 className={cn(
-                  "relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                   isActive 
-                    ? "bg-primary/10 text-primary font-semibold" 
+                    ? "bg-surface-selected text-accent font-semibold shadow-sm" 
                     : "text-text-secondary hover:bg-surface-hover hover:text-text-primary font-medium",
                   collapsed && !mobileOpen ? "justify-center px-0" : ""
                 )}
@@ -160,11 +160,11 @@ export function AdminSidebar() {
                 {isActive && (
                   <motion.div
                     layoutId="active-sidebar-tab"
-                    className="absolute start-0 top-1.5 bottom-1.5 w-1 bg-primary rounded-e-sm"
+                    className="absolute start-0 top-1.5 bottom-1.5 w-[3px] bg-accent rounded-r-md"
                   />
                 )}
                 
-                <item.icon size={18} className={cn("shrink-0 relative z-10", isActive ? "text-primary" : "")} />
+                <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} className={cn("shrink-0 relative z-10 transition-colors", isActive ? "text-accent" : "")} />
                 
                 {(!collapsed || mobileOpen) && (
                   <span className="whitespace-nowrap flex-1 relative z-10 truncate text-sm">
@@ -198,13 +198,14 @@ export function AdminSidebar() {
                           key={sub.href}
                           href={sub.href}
                           className={cn(
-                            "text-sm py-2 px-3 rounded-md transition-colors relative flex items-center",
+                            "text-[13px] py-1.5 px-3 rounded-md transition-all duration-200 relative flex items-center group/sub",
                             isSubActive 
-                              ? "text-primary font-semibold" 
-                              : "text-text-secondary hover:text-text-primary"
+                              ? "text-accent font-medium bg-surface-selected/50" 
+                              : "text-text-secondary hover:text-text-primary hover:bg-surface-hover"
                           )}
                         >
-                          {isSubActive && <span className="absolute -start-4 w-1.5 h-1.5 rounded-full bg-primary" />}
+                          {isSubActive && <span className="absolute -start-3 w-1 h-1 rounded-full bg-accent" />}
+                          {!isSubActive && <span className="absolute -start-3 w-1 h-1 rounded-full bg-border-strong opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
                           <span className="truncate">{sub.label}</span>
                         </MotionLink>
                       )

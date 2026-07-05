@@ -34,12 +34,12 @@ export const AdminButton = React.forwardRef<HTMLButtonElement, AdminButtonProps>
     }, 
     ref
   ) => {
-    const baseStyles = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+    const baseStyles = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-level-1 disabled:opacity-50 disabled:pointer-events-none";
     
     const variants: Record<AdminButtonVariant, string> = {
-      primary: "bg-primary text-white hover:bg-primary/90 shadow-sm",
+      primary: "bg-accent text-white hover:bg-accent/90 shadow-sm",
       secondary: "bg-surface-active text-text-primary hover:bg-surface-hover border border-border-default",
-      outline: "border-2 border-primary text-primary hover:bg-primary/10",
+      outline: "border border-border-strong text-text-primary hover:bg-surface-active hover:border-accent hover:text-accent transition-all",
       ghost: "text-text-secondary hover:text-text-primary hover:bg-surface-active",
       danger: "bg-error text-white hover:bg-error/90 shadow-sm",
       success: "bg-success text-white hover:bg-success/90 shadow-sm",

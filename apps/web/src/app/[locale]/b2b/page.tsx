@@ -63,9 +63,9 @@ export default async function B2BHomePage() {
     // Sort them according to the selected order
     dbProjects.sort((a, b) => featuredCaseStudyIds.indexOf(a.id) - featuredCaseStudyIds.indexOf(b.id))
   } else {
-    // Fallback: recent featured
+    // Fallback: recent published
     dbProjects = await db.caseStudy.findMany({
-      where: { isPublished: true, isFeatured: true },
+      where: { isPublished: true },
       orderBy: { year: 'desc' },
       take: 3
     })

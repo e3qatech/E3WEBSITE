@@ -37,161 +37,160 @@
 
 :root {
   /* Default to Light Mode (Pristine Snow) */
-  --color-primary: #d97706;  /* Royal Ochre */
-  --color-secondary: #059669; /* Cyber Emerald (for secondary accents) */
-  --color-accent: #f59e0b;    /* Amber */
+  --color-primary: #1A1A1A;  /* Deep Charcoal / Almost Black */
+  --color-secondary: #4A4A4A; /* IBM Gray */
+  --color-accent: #0F62FE;    /* IBM Blue / Apple Blue Accent */
   
-  --gradient-start: #d97706; /* amber-600 */
-  --gradient-end: #a16207;   /* yellow-700 */
+  --gradient-start: #1A1A1A;
+  --gradient-end: #333333;
   
   /* Semantic Colors */
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: #3B82F6;
+  --color-success: #24A148;
+  --color-warning: #F1C21B;
+  --color-error: #DA1E28;
+  --color-info: #0F62FE;
 
-  /* Default Theme (Respects prefers-color-scheme, Light by default if undefined) */
+  /* Default Theme (Light by default if undefined) */
   --bg-level-1: #FAFAFA;
-  --bg-level-2: #F5F5F5;
-  --bg-level-3: #EEEEEE;
-  --bg-level-4: #E5E5E5;
-  --bg-level-5: #D4D4D4;
+  --bg-level-2: #F4F4F4;
+  --bg-level-3: #E0E0E0;
+  --bg-level-4: #C6C6C6;
+  --bg-level-5: #A8A8A8;
 
   --surface-default: #FFFFFF;
-  --surface-hover: #F9FAFB;
-  --surface-active: #F3F4F6;
-  --surface-selected: #EFF6FF;
+  --surface-hover: #F4F4F4;
+  --surface-active: #E8E8E8;
+  --surface-selected: #EDF5FF;
 
-  --border-level-1: rgba(0, 0, 0, 0.04);
-  --border-level-2: rgba(0, 0, 0, 0.08);
-  --border-level-3: rgba(0, 0, 0, 0.12);
+  --border-level-1: rgba(0, 0, 0, 0.08);
+  --border-level-2: rgba(0, 0, 0, 0.12);
+  --border-level-3: rgba(0, 0, 0, 0.16);
 
-  --text-primary: #0A0A0A;
-  --text-secondary: rgba(0, 0, 0, 0.6);
-  --text-tertiary: rgba(0, 0, 0, 0.4);
-  --text-disabled: rgba(0, 0, 0, 0.25);
+  --text-primary: #161616;
+  --text-secondary: #525252;
+  --text-tertiary: #8D8D8D;
+  --text-disabled: #C6C6C6;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   
   --glow-effect: none;
 }
 
 /* "Pristine Snow" - Explicit Light Theme */
 [data-theme="light"] {
-  --color-primary: #d97706;  /* Royal Ochre */
-  --color-secondary: #059669; /* Cyber Emerald */
-  --color-accent: #f59e0b;    /* Amber */
+  --color-primary: #1A1A1A;
+  --color-secondary: #4A4A4A;
+  --color-accent: #0F62FE;
 
-  --gradient-start: #d97706; /* amber-600 */
-  --gradient-end: #a16207;   /* yellow-700 */
+  --gradient-start: #1A1A1A;
+  --gradient-end: #333333;
 
   --bg-level-1: #FAFAFA;
-  --bg-level-2: #F5F5F5;
-  --bg-level-3: #EEEEEE;
-  --bg-level-4: #E5E5E5;
-  --bg-level-5: #D4D4D4;
+  --bg-level-2: #F4F4F4;
+  --bg-level-3: #E0E0E0;
+  --bg-level-4: #C6C6C6;
+  --bg-level-5: #A8A8A8;
 
   --surface-default: #FFFFFF;
-  --surface-hover: #F9FAFB;
-  --surface-active: #F3F4F6;
-  --surface-selected: #EFF6FF;
+  --surface-hover: #F4F4F4;
+  --surface-active: #E8E8E8;
+  --surface-selected: #EDF5FF;
 
-  --border-level-1: rgba(0, 0, 0, 0.04);
-  --border-level-2: rgba(0, 0, 0, 0.08);
-  --border-level-3: rgba(0, 0, 0, 0.12);
+  --border-level-1: rgba(0, 0, 0, 0.08);
+  --border-level-2: rgba(0, 0, 0, 0.12);
+  --border-level-3: rgba(0, 0, 0, 0.16);
 
-  --text-primary: #0A0A0A;
-  --text-secondary: rgba(0, 0, 0, 0.6);
-  --text-tertiary: rgba(0, 0, 0, 0.4);
-  --text-disabled: rgba(0, 0, 0, 0.25);
+  --text-primary: #161616;
+  --text-secondary: #525252;
+  --text-tertiary: #8D8D8D;
+  --text-disabled: #C6C6C6;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   
   --glow-effect: none;
 }
 
-/* "Cosmic Void" - Explicit Dark Theme */
+/* "Cosmic Void" - Explicit Dark Theme (Deep Charcoal / Zinc) */
 [data-theme="dark"] {
-  --color-primary: #059669;  /* Cyber Emerald */
-  --color-secondary: #d97706; /* Royal Ochre */
-  --color-accent: #10b981;    /* Emerald-500 */
+  --color-primary: #F4F4F4;
+  --color-secondary: #A8A8A8;
+  --color-accent: #4589FF;
 
-  --gradient-start: #047857; /* emerald-700 */
-  --gradient-end: #134e4a;   /* teal-900 */
+  --gradient-start: #262626;
+  --gradient-end: #161616;
 
-  /* Deep solid charcoal Zinc-950 matching Lila Ban */
-  --bg-level-1: #09090b;
-  --bg-level-2: #050505;
-  --bg-level-3: #0A0A0A;
-  --bg-level-4: #18181b;
-  --bg-level-5: #27272a;
+  /* Deep solid charcoal Zinc - No pure black */
+  --bg-level-1: #161616; /* Base background */
+  --bg-level-2: #262626; /* Slightly lighter layer */
+  --bg-level-3: #393939;
+  --bg-level-4: #525252;
+  --bg-level-5: #6F6F6F;
 
-  --surface-default: rgba(255, 255, 255, 0.03);
-  --surface-hover: rgba(255, 255, 255, 0.06);
-  --surface-active: rgba(255, 255, 255, 0.1);
-  --surface-selected: rgba(0, 102, 255, 0.15); /* Brand tinted */
+  --surface-default: #262626; /* Cards / Modules */
+  --surface-hover: #393939; /* Hover state */
+  --surface-active: #525252; /* Active/Pressed state */
+  --surface-selected: rgba(69, 137, 255, 0.15); /* Brand tinted */
 
-  --border-level-1: rgba(255, 255, 255, 0.04);
-  --border-level-2: rgba(255, 255, 255, 0.08);
-  --border-level-3: rgba(255, 255, 255, 0.16);
+  --border-level-1: #393939; /* Subtle borders */
+  --border-level-2: #525252; /* Default borders */
+  --border-level-3: #6F6F6F; /* Strong borders */
 
-  --text-primary: #EEEEEE;
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-tertiary: rgba(255, 255, 255, 0.4);
-  --text-disabled: rgba(255, 255, 255, 0.25);
+  --text-primary: #F4F4F4; /* Almost white */
+  --text-secondary: #C6C6C6; /* Light gray */
+  --text-tertiary: #A8A8A8; /* Muted gray */
+  --text-disabled: #6F6F6F; /* Disabled gray */
 
-  --shadow-1: none;
-  --shadow-2: none;
-  --shadow-3: none;
-  --shadow-4: none;
+  --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
+  --shadow-3: 0 8px 16px rgba(0,0,0,0.3);
+  --shadow-4: 0 16px 32px rgba(0,0,0,0.4);
   
   /* Tinted Drop Shadows (No generic neon glows) */
-  --glow-effect: 0 0 30px rgba(5, 150, 105, 0.15); /* Cyber Emerald Tinted Glow (Max 15%) */
+  --glow-effect: none; 
 }
 
 /* Auto Dark Mode if user prefers it and no data-theme is set */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-primary: #059669;  /* Cyber Emerald */
-    --color-secondary: #d97706; /* Royal Ochre */
-    --color-accent: #10b981;    /* Emerald-500 */
+    --color-primary: #F4F4F4;
+    --color-secondary: #A8A8A8;
+    --color-accent: #4589FF;
 
-    --gradient-start: #047857; /* emerald-700 */
-    --gradient-end: #134e4a;   /* teal-900 */
+    --gradient-start: #262626;
+    --gradient-end: #161616;
 
-    --bg-level-1: #09090b;
-    --bg-level-2: #050505;
-    --bg-level-3: #0A0A0A;
-    --bg-level-4: #18181b;
-    --bg-level-5: #27272a;
-  
-    --surface-default: rgba(255, 255, 255, 0.03);
-    --surface-hover: rgba(255, 255, 255, 0.06);
-    --surface-active: rgba(255, 255, 255, 0.1);
-    --surface-selected: rgba(0, 102, 255, 0.15);
-  
-    --border-level-1: rgba(255, 255, 255, 0.04);
-    --border-level-2: rgba(255, 255, 255, 0.08);
-    --border-level-3: rgba(255, 255, 255, 0.16);
-  
-    --text-primary: #EEEEEE;
-    --text-secondary: rgba(255, 255, 255, 0.6);
-    --text-tertiary: rgba(255, 255, 255, 0.4);
-    --text-disabled: rgba(255, 255, 255, 0.25);
-  
-    --shadow-1: none;
-    --shadow-2: none;
-    --shadow-3: none;
-    --shadow-4: none;
+    --bg-level-1: #161616;
+    --bg-level-2: #262626;
+    --bg-level-3: #393939;
+    --bg-level-4: #525252;
+    --bg-level-5: #6F6F6F;
+
+    --surface-default: #262626;
+    --surface-hover: #393939;
+    --surface-active: #525252;
+    --surface-selected: rgba(69, 137, 255, 0.15);
+
+    --border-level-1: #393939;
+    --border-level-2: #525252;
+    --border-level-3: #6F6F6F;
+
+    --text-primary: #F4F4F4;
+    --text-secondary: #C6C6C6;
+    --text-tertiary: #A8A8A8;
+    --text-disabled: #6F6F6F;
+
+    --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
+    --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
+    --shadow-3: 0 8px 16px rgba(0,0,0,0.3);
+    --shadow-4: 0 16px 32px rgba(0,0,0,0.4);
     
-    /* Tinted Drop Shadows */
-    --glow-effect: 0 0 30px rgba(5, 150, 105, 0.15); /* Cyber Emerald Tinted Glow */
+    --glow-effect: none; 
   }
 }
 

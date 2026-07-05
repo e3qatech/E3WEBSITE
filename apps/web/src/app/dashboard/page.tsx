@@ -133,15 +133,13 @@ export default async function DashboardOverviewPage() {
     <div className="space-y-8 pb-24 animate-fade-in-up">
       
       {/* WELCOME BAR */}
-      <div className="relative overflow-hidden glass border border-border-default rounded-2xl p-8 md:p-10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 group">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/5 z-0 pointer-events-none group-hover:scale-105 transition-transform duration-1000" />
-        <div className="absolute -top-24 -end-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden group">
         
         <div className="relative z-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-text-primary tracking-tight mb-2">
-            {greeting}, <span className="text-gradient">{userName}</span> 👋
+          <h1 className="text-2xl md:text-3xl font-semibold text-text-primary tracking-tight mb-2">
+            {greeting}, <span className="text-accent">{userName}</span> 👋
           </h1>
-          <p className="text-base text-text-secondary font-medium max-w-xl">
+          <p className="text-sm md:text-base text-text-secondary font-medium">
             Welcome to the E3 Command Center. All systems operational.
           </p>
         </div>
@@ -167,10 +165,10 @@ export default async function DashboardOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* LEFT: Kanban Board */}
-        <div className="lg:col-span-8 xl:col-span-9 bg-surface-default border border-border-default rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+        <div className="lg:col-span-8 xl:col-span-9 bg-bg-level-2 border border-border-default rounded-xl p-6 shadow-sm relative overflow-hidden group">
           <div className="relative z-10 mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-text-primary tracking-tight">Active Inquiries</h3>
+              <h3 className="text-lg font-semibold text-text-primary tracking-tight">Active Inquiries</h3>
               <p className="text-sm text-text-tertiary mt-0.5">Real-time pipeline overview</p>
             </div>
             <Link href="/dashboard/crm/leads">
@@ -188,55 +186,54 @@ export default async function DashboardOverviewPage() {
         <div className="lg:col-span-4 xl:col-span-3 space-y-6 flex flex-col">
           
           {/* Work Queues & Approvals */}
-          <div className="bg-surface-default border border-border-default rounded-2xl p-5 shadow-sm">
+          <div className="bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-text-primary tracking-tight flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-warning" /> 
+              <h3 className="text-[15px] font-semibold text-text-primary tracking-tight flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-warning" strokeWidth={2.5} /> 
                 Pending Approvals
               </h3>
             </div>
             <div className="space-y-3">
-              <div className="p-3 bg-surface-active rounded-xl border border-border-default hover:bg-surface-hover transition-colors cursor-pointer">
-                <h4 className="font-semibold text-text-primary text-sm mb-1">Corporate Profile Update</h4>
-                <p className="text-xs text-text-secondary">Submitted by Content Team</p>
+              <div className="p-3 bg-bg-level-1 rounded-lg border border-border-default hover:border-accent transition-colors cursor-pointer">
+                <h4 className="font-semibold text-text-primary text-[13px] mb-0.5">Corporate Profile Update</h4>
+                <p className="text-[11px] text-text-secondary">Submitted by Content Team</p>
               </div>
-              <div className="p-3 bg-surface-active rounded-xl border border-border-default hover:bg-surface-hover transition-colors cursor-pointer">
-                <h4 className="font-semibold text-text-primary text-sm mb-1">New Partner Logo</h4>
-                <p className="text-xs text-text-secondary">Submitted by B2B Sales</p>
+              <div className="p-3 bg-bg-level-1 rounded-lg border border-border-default hover:border-accent transition-colors cursor-pointer">
+                <h4 className="font-semibold text-text-primary text-[13px] mb-0.5">New Partner Logo</h4>
+                <p className="text-[11px] text-text-secondary">Submitted by B2B Sales</p>
               </div>
             </div>
             <Link href="/dashboard/settings/approvals">
-              <AdminButton variant="ghost" fullWidth className="mt-4 text-xs">
+              <AdminButton variant="ghost" fullWidth className="mt-4 text-xs font-medium">
                 View Queue
               </AdminButton>
             </Link>
           </div>
           
           {/* Upcoming Events */}
-          <div className="bg-surface-default border border-border-default rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:border-primary/30 transition-colors">
-            <div className="absolute top-0 end-0 w-32 h-32 bg-accent/5 blur-[40px] rounded-full pointer-events-none group-hover:scale-150 transition-transform duration-700" />
+          <div className="bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-accent transition-colors">
             
             <div className="relative z-10 flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-text-primary tracking-tight">Live Operations</h3>
-              <div className="p-1.5 bg-surface-active rounded-md text-text-secondary">
-                <Activity className="w-4 h-4" />
+              <h3 className="text-[15px] font-semibold text-text-primary tracking-tight">Live Operations</h3>
+              <div className="p-1.5 bg-bg-level-1 rounded border border-border-default text-text-secondary">
+                <Activity className="w-3.5 h-3.5" />
               </div>
             </div>
             
             <div className="space-y-3 relative z-10">
               {upcomingEvents.length === 0 ? (
-                <div className="text-center p-4 bg-surface-active rounded-xl border border-border-default">
-                  <p className="text-sm font-medium text-text-tertiary">No upcoming events.</p>
+                <div className="text-center p-4 bg-bg-level-1 rounded-lg border border-border-default">
+                  <p className="text-[13px] font-medium text-text-tertiary">No upcoming events.</p>
                 </div>
               ) : upcomingEvents.map(event => (
-                <div key={event.id} className="p-3 bg-surface-active rounded-xl border border-border-default hover:bg-surface-hover transition-colors group/event cursor-pointer">
-                  <h4 className="font-semibold text-text-primary text-sm mb-0.5 line-clamp-1 group-hover/event:text-primary transition-colors">{event.name}</h4>
+                <div key={event.id} className="p-3 bg-bg-level-1 rounded-lg border border-border-default hover:border-accent transition-colors group/event cursor-pointer">
+                  <h4 className="font-semibold text-text-primary text-[13px] mb-0.5 line-clamp-1 group-hover/event:text-accent transition-colors">{event.name}</h4>
                   <p className="text-[11px] font-medium text-text-tertiary mb-3">{event.date}</p>
                   
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-surface-default rounded-full overflow-hidden">
+                    <div className="flex-1 h-1 bg-surface-active rounded-full overflow-hidden">
                       <div 
-                        className={`h-full rounded-full transition-all duration-1000 ${event.capacity > 90 ? 'bg-error' : 'bg-primary'}`}
+                        className={`h-full rounded-full transition-all duration-1000 ${event.capacity > 90 ? 'bg-error' : 'bg-accent'}`}
                         style={{ width: `${Math.min(event.capacity, 100)}%` }}
                       />
                     </div>
@@ -248,8 +245,8 @@ export default async function DashboardOverviewPage() {
           </div>
 
           {/* Live Activity Feed */}
-          <div className="flex-1 min-h-[300px] bg-surface-default border border-border-default rounded-2xl p-5 shadow-sm">
-            <h3 className="text-base font-bold text-text-primary tracking-tight mb-4">Recent Activity</h3>
+          <div className="flex-1 min-h-[300px] bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm">
+            <h3 className="text-[15px] font-semibold text-text-primary tracking-tight mb-4">Recent Activity</h3>
             <LiveFeed initialItems={feedItems} />
           </div>
 

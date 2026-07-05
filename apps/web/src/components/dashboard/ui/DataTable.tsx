@@ -55,7 +55,7 @@ export function DataTable<T>({
     <div className="space-y-4">
       {searchKey && (
         <div className="relative max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
           <input
             type="text"
             value={search}
@@ -64,43 +64,43 @@ export function DataTable<T>({
               setCurrentPage(1);
             }}
             placeholder={searchPlaceholder}
-            className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2 ps-9 pe-4 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+            className="w-full bg-bg-level-2 border border-border-default rounded-md py-2 ps-9 pe-4 text-[13px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all shadow-sm"
           />
         </div>
       )}
 
-      <div className="relative w-full overflow-auto bg-zinc-950 border border-zinc-800 rounded-xl shadow-sm">
+      <div className="relative w-full overflow-auto bg-surface-default border border-border-default rounded-xl shadow-sm">
         <table className="w-full caption-bottom text-sm">
-          <thead className="[&_tr]:border-b [&_tr]:border-zinc-800 bg-zinc-900/50">
-            <tr className="border-b border-zinc-800 transition-colors hover:bg-zinc-900/50">
+          <thead className="[&_tr]:border-b [&_tr]:border-border-default bg-surface-active">
+            <tr className="border-b border-border-default transition-colors">
               {columns.map((col, i) => (
-                <th key={i} className="h-12 px-4 text-left align-middle font-bold text-zinc-400 text-xs uppercase tracking-wider">
+                <th key={i} className="h-12 px-4 text-left align-middle font-semibold text-text-secondary text-xs uppercase tracking-wider">
                   {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="[&_tr:last-child]:border-0 divide-y divide-zinc-800">
+          <tbody className="[&_tr:last-child]:border-0 divide-y divide-border-default">
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length} className="h-32 text-center align-middle">
-                  <div className="flex flex-col items-center justify-center text-zinc-500">
-                    <Loader2 className="w-6 h-6 animate-spin mb-2 text-emerald-500" />
+                  <div className="flex flex-col items-center justify-center text-text-tertiary">
+                    <Loader2 className="w-6 h-6 animate-spin mb-2 text-accent" />
                     <span>Loading data...</span>
                   </div>
                 </td>
               </tr>
             ) : paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="h-32 text-center align-middle text-zinc-500">
+                <td colSpan={columns.length} className="h-32 text-center align-middle text-text-tertiary text-[13px]">
                   {emptyMessage}
                 </td>
               </tr>
             ) : (
               paginatedData.map((item, rowIndex) => (
-                <tr key={rowIndex} className="border-b border-zinc-800 transition-colors hover:bg-zinc-900/50 group">
+                <tr key={rowIndex} className="border-b border-border-default transition-colors hover:bg-surface-hover group">
                   {columns.map((col, colIndex) => (
-                    <td key={colIndex} className="p-4 align-middle text-zinc-100">
+                    <td key={colIndex} className="p-4 align-middle text-text-primary text-[13px] font-medium">
                       {col.cell
                         ? col.cell(item)
                         : col.accessorKey
@@ -116,7 +116,7 @@ export function DataTable<T>({
       </div>
 
       {!isLoading && filteredData.length > itemsPerPage && (
-        <div className="flex items-center justify-between text-sm text-zinc-400">
+        <div className="flex items-center justify-between text-[13px] text-text-secondary">
           <div>
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} results
@@ -125,19 +125,19 @@ export function DataTable<T>({
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-1 rounded hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+              className="p-1 rounded hover:bg-surface-active disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
             >
-              <ChevronLeft className="w-5 h-5 rtl:-scale-x-100" />
+              <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" />
             </button>
-            <span className="font-medium">
+            <span className="font-semibold">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-1 rounded hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+              className="p-1 rounded hover:bg-surface-active disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
             >
-              <ChevronRight className="w-5 h-5 rtl:-scale-x-100" />
+              <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
             </button>
           </div>
         </div>

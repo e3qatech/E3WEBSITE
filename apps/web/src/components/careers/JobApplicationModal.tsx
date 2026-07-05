@@ -146,6 +146,7 @@ export function JobApplicationModal({ isOpen, onClose, jobTitle, department, por
                     value="" 
                     onChange={url => setFormData(prev => ({ ...prev, cvUrl: url }))} 
                     accept=".pdf,.doc,.docx"
+                    context="public_resume"
                   />
                 )}
               </div>

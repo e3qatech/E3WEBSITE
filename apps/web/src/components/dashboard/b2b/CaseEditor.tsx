@@ -189,7 +189,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                   <input type="text" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} className="flex-1 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Client Name</label>
                   <input type="text" value={clientName} onChange={e => setClientName(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
@@ -201,6 +201,18 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Year</label>
                   <input type="number" value={year} onChange={e => setYear(parseInt(e.target.value))} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2 flex flex-col justify-center">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Featured Work</label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={isFeatured} 
+                      onChange={e => setIsFeatured(e.target.checked)} 
+                      className="w-5 h-5 rounded border-[var(--border-default)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] bg-[var(--surface-subtle)]"
+                    />
+                    <span className="text-sm font-bold text-[var(--text-primary)]">Feature on Homepage</span>
+                  </label>
                 </div>
               </div>
               <div className="space-y-2">

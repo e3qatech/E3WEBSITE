@@ -20,26 +20,23 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <AdminThemeProvider>
       <ToastProvider>
-        <div className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden relative transition-colors duration-300">
-          <div className="absolute inset-0 noise-bg pointer-events-none z-0"></div>
-          <div className="absolute top-[-20%] start-[-10%] w-[50%] h-[50%] bg-[var(--color-primary)]/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
-          <div className="absolute bottom-[-20%] end-[-10%] w-[50%] h-[50%] bg-[var(--color-accent)]/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+        <div className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden transition-colors duration-300 selection:bg-[var(--color-accent)] selection:text-white">
           
-          {/* Layer 1: Sidebar */}
-          <div className="relative z-10 border-e border-[var(--border-level-1)] bg-[var(--surface-default)]/50 backdrop-blur-md">
+          {/* Layer 1: Sidebar (Clean, unblurred solid surface) */}
+          <div className="relative z-20 flex-shrink-0 bg-[var(--bg-level-2)] border-e border-[var(--border-level-1)] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
             <AdminSidebar />
           </div>
 
           {/* Layer 2 & 3: TopBar and Workspace */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden md:pt-0 pt-16 relative z-10">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden md:pt-0 pt-16 relative z-10 bg-[var(--bg-level-1)]">
             <SystemBroadcastBanner initialBroadcast={activeBroadcast} />
             
-            <div className="border-b border-[var(--border-level-1)] bg-[var(--surface-default)]/50 backdrop-blur-md">
+            <div className="border-b border-[var(--border-level-1)] bg-[var(--bg-level-1)] z-10">
               <AdminTopBar />
             </div>
             
-            <main className="flex-1 overflow-y-auto">
-              <div className="mx-auto max-w-7xl">
+            <main className="flex-1 overflow-y-auto custom-scrollbar">
+              <div className="mx-auto max-w-[1600px] w-full p-4 md:p-8 animate-in fade-in duration-500">
                 {children}
               </div>
             </main>

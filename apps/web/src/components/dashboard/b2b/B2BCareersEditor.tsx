@@ -106,34 +106,46 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
         }
       />
 
-      <AdminFormLayout>
+      <AdminFormLayout sidebar={
+        <div className="flex flex-col gap-2">
+          <div className="p-4 bg-bg-level-2 border border-border-default rounded-xl">
+            <h3 className="text-sm font-semibold text-text-primary mb-2">Page Structure</h3>
+            <ul className="space-y-1 text-[13px] text-text-secondary">
+              <li className="flex items-center gap-2 text-accent"><span className="w-1.5 h-1.5 rounded-full bg-accent" /> Hero Section</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> Background & Footer</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> Open Roles</li>
+            </ul>
+          </div>
+        </div>
+      }>
+        
         {/* Hero Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Hero Section</h2>
+        <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
+          <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Hero Section</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-                <input type="text" value={data.hero.titleEn} onChange={e => handleHeroChange('titleEn', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
+                <input type="text" value={data.hero.titleEn} onChange={e => handleHeroChange('titleEn', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-                <input type="text" dir="rtl" value={data.hero.titleAr} onChange={e => handleHeroChange('titleAr', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
+                <input type="text" dir="rtl" value={data.hero.titleAr} onChange={e => handleHeroChange('titleAr', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
-                <textarea value={data.hero.subtitleEn} onChange={e => handleHeroChange('subtitleEn', e.target.value)} className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none" />
+                <textarea value={data.hero.subtitleEn} onChange={e => handleHeroChange('subtitleEn', e.target.value)} className="w-full h-24 bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm resize-none" />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
-                <textarea dir="rtl" value={data.hero.subtitleAr} onChange={e => handleHeroChange('subtitleAr', e.target.value)} className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none" />
+                <textarea dir="rtl" value={data.hero.subtitleAr} onChange={e => handleHeroChange('subtitleAr', e.target.value)} className="w-full h-24 bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm resize-none" />
               </div>
             </div>
             
             <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Hero Media Type</label>
-                <select value={data.hero.mediaType} onChange={e => handleHeroChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
+                <select value={data.hero.mediaType} onChange={e => handleHeroChange('mediaType', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
                   <option value="IMAGE">Image</option>
                   <option value="VIDEO">Video</option>
                 </select>
@@ -148,12 +160,12 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
 
         {/* Background & Footer Media Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-text-primary">Background Media</h2>
+          <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
+            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Background Media</h2>
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
-                <select value={data.background.mediaType} onChange={e => handleBackgroundChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
+                <select value={data.background.mediaType} onChange={e => handleBackgroundChange('mediaType', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
                   <option value="IMAGE">Image</option>
                   <option value="VIDEO">Video</option>
                 </select>
@@ -165,12 +177,12 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
             </div>
           </div>
           
-          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-text-primary">Footer Media</h2>
+          <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
+            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Footer Media</h2>
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
-                <select value={data.footer.mediaType} onChange={e => handleFooterChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
+                <select value={data.footer.mediaType} onChange={e => handleFooterChange('mediaType', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
                   <option value="IMAGE">Image</option>
                   <option value="VIDEO">Video</option>
                 </select>
@@ -184,9 +196,9 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
         </div>
 
         {/* Jobs Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-text-primary">Open Roles</h2>
+            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Open Roles</h2>
             <AdminButton variant="outline" size="sm" onClick={addJob}>
               <Plus className="w-4 h-4 me-2" />
               Add Job
@@ -195,12 +207,12 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
           
           <div className="space-y-4">
             {data.jobs.length === 0 ? (
-              <div className="text-center py-8 text-text-secondary border border-dashed border-border-default rounded-lg">
+              <div className="text-center py-8 text-text-secondary border border-dashed border-border-default rounded-lg bg-surface-default/50">
                 No open roles added yet.
               </div>
             ) : (
               data.jobs.map((job: any, index: number) => (
-                <div key={index} className="border border-border-default rounded-lg p-4 bg-surface-hover space-y-4 relative group">
+                <div key={index} className="border border-border-default rounded-lg p-4 bg-surface-default space-y-4 relative group">
                   <button onClick={() => removeJob(index)} className="absolute top-4 end-4 text-text-secondary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -208,23 +220,23 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Job Title (En)</label>
-                      <input type="text" value={job.titleEn} onChange={e => updateJob(index, 'titleEn', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
+                      <input type="text" value={job.titleEn} onChange={e => updateJob(index, 'titleEn', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Job Title (Ar)</label>
-                      <input type="text" dir="rtl" value={job.titleAr} onChange={e => updateJob(index, 'titleAr', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
+                      <input type="text" dir="rtl" value={job.titleAr} onChange={e => updateJob(index, 'titleAr', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Department</label>
-                      <input type="text" placeholder="e.g. Engineering, Design..." value={job.department} onChange={e => updateJob(index, 'department', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
+                      <input type="text" placeholder="e.g. Engineering, Design..." value={job.department} onChange={e => updateJob(index, 'department', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Location</label>
-                      <input type="text" placeholder="e.g. Doha, Qatar" value={job.location} onChange={e => updateJob(index, 'location', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
+                      <input type="text" placeholder="e.g. Doha, Qatar" value={job.location} onChange={e => updateJob(index, 'location', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Job Type</label>
-                      <select value={job.type} onChange={e => updateJob(index, 'type', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
+                      <select value={job.type} onChange={e => updateJob(index, 'type', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
                         <option value="Full-time">Full-time</option>
                         <option value="Part-time">Part-time</option>
                         <option value="Contract">Contract</option>

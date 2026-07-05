@@ -19,7 +19,7 @@ export function AdminFormSection({
   return (
     <div 
       className={cn(
-        "bg-surface-default rounded-2xl border border-border-default p-6 md:p-8 shadow-sm flex flex-col space-y-6",
+        "bg-bg-level-2 rounded-xl border border-border-default p-5 md:p-6 shadow-sm flex flex-col space-y-6 transition-colors",
         className
       )}
       {...props}
@@ -27,10 +27,10 @@ export function AdminFormSection({
       {(title || description) && (
         <div className="border-b border-border-default pb-4">
           {title && (
-            <h2 className="text-lg font-black text-text-primary">{title}</h2>
+            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">{title}</h2>
           )}
           {description && (
-            <p className="text-sm text-text-secondary mt-1">{description}</p>
+            <p className="text-[13px] text-text-secondary mt-1 max-w-2xl">{description}</p>
           )}
         </div>
       )}
