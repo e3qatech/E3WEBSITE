@@ -90,7 +90,7 @@ export function PortalSwitcher() {
                 className="group relative flex flex-col text-start bg-[var(--surface-active)] hover:bg-[var(--surface-hover)] border-2 border-transparent hover:border-[var(--color-primary)] rounded-2xl p-6 transition-all duration-300 overflow-hidden"
               >
                 <div className="absolute top-0 end-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-4 group-hover:translate-x-0 rtl:-translate-x-4 rtl:group-hover:translate-x-0">
-                  <ArrowRight className="text-[var(--color-primary)]" />
+                  <ArrowRight className="text-[var(--color-primary)] rtl:-scale-x-100" />
                 </div>
                 
                 <div className="w-14 h-14 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -120,7 +120,7 @@ export function PortalSwitcher() {
                 className="group relative flex flex-col text-start bg-[var(--surface-active)] hover:bg-[var(--surface-hover)] border-2 border-transparent hover:border-[var(--color-secondary)] rounded-2xl p-6 transition-all duration-300 overflow-hidden"
               >
                 <div className="absolute top-0 end-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-4 group-hover:translate-x-0 rtl:-translate-x-4 rtl:group-hover:translate-x-0">
-                  <ArrowRight className="text-[var(--color-secondary)]" />
+                  <ArrowRight className="text-[var(--color-secondary)] rtl:-scale-x-100" />
                 </div>
                 
                 <div className="w-14 h-14 rounded-xl bg-[var(--color-secondary)]/10 flex items-center justify-center text-[var(--color-secondary)] mb-6 group-hover:scale-110 transition-transform duration-300">

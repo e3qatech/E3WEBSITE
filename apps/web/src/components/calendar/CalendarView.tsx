@@ -94,7 +94,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
         .font-righteous { font-family: 'Righteous', cursive; }
         .font-poppins { font-family: 'Poppins', sans-serif; }
       `}} />
-      <div className="min-h-screen font-poppins bg-[#0F0F23] text-zinc-50 relative selection:bg-[#F43F5E]/30 selection:text-black">
+      <div className="min-h-screen font-poppins bg-[#0F0F23] text-zinc-50 relative selection:bg-[#F43F5E]/30 selection:text-zinc-950">
       
       {/* Interactive Background Orbs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -105,7 +105,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
               y: [0, -50, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
           <motion.div
             animate={{
@@ -114,7 +114,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
               y: [0, 100, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
         </div>
 
@@ -171,9 +171,9 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
           
           {/* Partner Discounts Section (Scroll Ticker) */}
           {discounts && discounts.length > 0 && (
-            <div className="mb-12 w-full overflow-hidden bg-purple-500/10 border-y border-purple-500/20 py-4 relative">
-              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-zinc-950 to-transparent z-10" />
-              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
+            <div className="mb-12 w-full overflow-hidden bg-emerald-500/10 border-y border-emerald-500/20 py-4 relative">
+              <div className="absolute start-0 top-0 bottom-0 w-24 bg-gradient-to-r from-zinc-950 to-transparent z-10" />
+              <div className="absolute end-0 top-0 bottom-0 w-24 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
               <motion.div 
                 className="flex gap-16 w-max px-8"
                 animate={{ x: ["0%", "-50%"] }}
@@ -181,11 +181,11 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
               >
                 {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
                   <div key={`${discount.id}-${idx}`} className="flex items-center gap-4 shrink-0">
-                    <span className="text-purple-500 font-bold uppercase tracking-widest">{discount.title}</span>
+                    <span className="text-emerald-500 font-bold uppercase tracking-widest">{discount.title}</span>
                     <span className="text-zinc-600 font-black">/</span>
                     <span className="text-white font-black text-lg">{discount.discount}</span>
                     <span className="text-zinc-600 font-black">/</span>
-                    <span className="text-zinc-400 text-sm tracking-wider uppercase">Code: <span className="text-white font-mono bg-white/10 px-2 py-1 rounded ml-1 border border-white/20">{discount.promoCode}</span></span>
+                    <span className="text-zinc-400 text-sm tracking-wider uppercase">Code: <span className="text-white font-mono bg-white/10 px-2 py-1 rounded ms-1 border border-white/20">{discount.promoCode}</span></span>
                   </div>
                 ))}
               </motion.div>

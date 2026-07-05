@@ -255,7 +255,7 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
 
       {/* Add Partner Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="p-6 border-b border-[var(--border-default)]">
               <h3 className="text-lg font-black text-[var(--text-primary)]">Add Corporate Partner</h3>

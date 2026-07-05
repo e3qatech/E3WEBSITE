@@ -209,7 +209,7 @@ export function ContactPageManager() {
                     />
                     <label className="shrink-0 flex items-center justify-center px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl cursor-pointer transition-colors relative">
                       {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                      <span className="ml-2 font-bold text-sm">{uploading ? 'Uploading...' : 'Upload'}</span>
+                      <span className="ms-2 font-bold text-sm">{uploading ? 'Uploading...' : 'Upload'}</span>
                       <input 
                         type="file" 
                         accept="image/*,video/*" 
@@ -254,7 +254,7 @@ export function ContactPageManager() {
             </div>
             <div className="mt-4 flex justify-end">
               <Button onClick={handleAddFaq} disabled={!newFaq.questionEn || !newFaq.answerEn}>
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 me-2" />
                 Add FAQ
               </Button>
             </div>

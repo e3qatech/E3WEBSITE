@@ -88,7 +88,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm"
         />
 
         <motion.div 
@@ -101,7 +101,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
           <div className="p-6 border-b border-zinc-800 flex justify-between items-start bg-[#1A1A2E]/80 backdrop-blur-md/50">
             <div>
               <h2 className="text-xl font-black text-white mb-1 font-satoshi uppercase tracking-wide flex items-center gap-2">
-                <Users className="w-5 h-5 text-purple-500" />
+                <Users className="w-5 h-5 text-emerald-500" />
                 Group & Bulk Booking
               </h2>
               <p className="text-zinc-400 text-sm font-medium">Request a quote for groups of 10 or more guests.</p>
@@ -131,7 +131,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                 </p>
                 <button 
                   onClick={onClose}
-                  className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-zinc-200 transition-colors"
+                  className="px-8 py-3 bg-white text-zinc-950 font-bold rounded-xl hover:bg-zinc-200 transition-colors"
                 >
                   Close Window
                 </button>
@@ -141,7 +141,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                 
                 {/* Event Details Section */}
                 <div className="bg-[#1A1A2E]/80 backdrop-blur-md/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
-                  <h3 className="text-sm font-bold text-purple-500 uppercase tracking-widest">Event Details</h3>
+                  <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Event Details</h3>
                   
                   <div>
                     <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Attraction / Event</label>
@@ -149,7 +149,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                       required
                       value={formData.attractionName}
                       onChange={e => setFormData({...formData, attractionName: e.target.value})}
-                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                     >
                       <option value="" disabled>Select an attraction</option>
                       {attractions.map(a => (
@@ -170,7 +170,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         required
                         value={formData.date}
                         onChange={e => setFormData({...formData, date: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -180,7 +180,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         required
                         value={formData.time}
                         onChange={e => setFormData({...formData, time: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -191,7 +191,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         required
                         value={formData.quantity}
                         onChange={e => setFormData({...formData, quantity: Number(e.target.value)})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -199,7 +199,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
 
                 {/* Contact Information Section */}
                 <div className="bg-[#1A1A2E]/80 backdrop-blur-md/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
-                  <h3 className="text-sm font-bold text-purple-500 uppercase tracking-widest">Contact Information</h3>
+                  <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Contact Information</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -210,7 +210,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="John Doe"
                         value={formData.name}
                         onChange={e => setFormData({...formData, name: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -220,7 +220,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="Company XYZ"
                         value={formData.company}
                         onChange={e => setFormData({...formData, company: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -234,7 +234,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="john@example.com"
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -245,7 +245,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                         placeholder="+974 1234 5678"
                         value={formData.phone}
                         onChange={e => setFormData({...formData, phone: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all"
+                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                       placeholder="Any specific requirements (e.g. F&B, VIP access, private guide)..."
                       value={formData.notes}
                       onChange={e => setFormData({...formData, notes: e.target.value})}
-                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all resize-none"
+                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -285,7 +285,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                 form="bulk-booking-form"
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-purple-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-purple-400 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[200px]"
+                className="px-8 py-3 bg-emerald-500 text-zinc-950 font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[200px]"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Request Quote'}
               </button>

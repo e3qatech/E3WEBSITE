@@ -58,7 +58,7 @@ export function UsersSettingsView({ initialUsers }: { initialUsers: any[] }) {
         <form onSubmit={handleInvite} className="glass rounded-3xl border-gradient p-6 mb-8 relative overflow-hidden shadow-xl group">
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
           <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center relative z-10">
-            <UserPlus className="w-5 h-5 mr-2 text-[var(--color-primary)]" /> Send Invitation
+            <UserPlus className="w-5 h-5 me-2 text-[var(--color-primary)]" /> Send Invitation
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end relative z-10">
             <div>
@@ -89,7 +89,7 @@ export function UsersSettingsView({ initialUsers }: { initialUsers: any[] }) {
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
           <div className="p-4 border-b border-zinc-800/50 bg-zinc-950/40 relative z-10">
             <h2 className="font-bold text-[var(--text-primary)] flex items-center">
-              <Users className="w-5 h-5 mr-2 text-blue-500" /> System Users
+              <Users className="w-5 h-5 me-2 text-blue-500" /> System Users
             </h2>
           </div>
           <div className="overflow-x-auto relative z-10">
@@ -117,16 +117,16 @@ export function UsersSettingsView({ initialUsers }: { initialUsers: any[] }) {
                     </td>
                     <td className="p-4">
                       {user.isActive ? (
-                        <span className="inline-flex items-center text-green-500 text-xs font-bold"><Check className="w-3 h-3 mr-1" /> Active</span>
+                        <span className="inline-flex items-center text-green-500 text-xs font-bold"><Check className="w-3 h-3 me-1" /> Active</span>
                       ) : (
-                        <span className="inline-flex items-center text-red-500 text-xs font-bold"><X className="w-3 h-3 mr-1" /> Inactive</span>
+                        <span className="inline-flex items-center text-red-500 text-xs font-bold"><X className="w-3 h-3 me-1" /> Inactive</span>
                       )}
                     </td>
                     <td className="p-4 text-[var(--text-tertiary)] text-xs">
                       {format(new Date(user.createdAt), 'MMM d, yyyy')}
                     </td>
                     <td className="p-4 text-right">
-                      <Button variant="outline" size="sm" className="mr-2">Edit</Button>
+                      <Button variant="outline" size="sm" className="me-2">Edit</Button>
                       <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-500/10">Disable</Button>
                     </td>
                   </tr>
@@ -141,7 +141,7 @@ export function UsersSettingsView({ initialUsers }: { initialUsers: any[] }) {
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
           <div className="p-4 border-b border-zinc-800/50 bg-zinc-950/40 relative z-10">
             <h2 className="font-bold text-[var(--text-primary)] flex items-center">
-              <ShieldAlert className="w-5 h-5 mr-2 text-amber-500" /> Permission Matrix
+              <ShieldAlert className="w-5 h-5 me-2 text-amber-500" /> Permission Matrix
             </h2>
             <p className="text-xs text-[var(--text-secondary)] mt-1">Resource access by role.</p>
           </div>
@@ -153,7 +153,7 @@ export function UsersSettingsView({ initialUsers }: { initialUsers: any[] }) {
                   <div className="flex flex-wrap gap-2">
                     {ROLES.filter(r => r !== "CLIENT").map(role => (
                       <span key={role} className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold ${row.actions.includes(role) ? 'bg-green-500/10 text-green-500' : 'bg-[var(--surface-active)] text-[var(--text-tertiary)]'}`}>
-                        {row.actions.includes(role) ? <Check className="w-3 h-3 mr-1" /> : <X className="w-3 h-3 mr-1" />}
+                        {row.actions.includes(role) ? <Check className="w-3 h-3 me-1" /> : <X className="w-3 h-3 me-1" />}
                         {role.replace("_", " ")}
                       </span>
                     ))}

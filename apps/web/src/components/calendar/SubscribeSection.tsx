@@ -53,8 +53,8 @@ export function SubscribeSection() {
     <div className="relative mt-24 mb-12 rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-800 p-8 md:p-12 lg:p-16 text-center lg:text-left">
       
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 end-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 start-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-center">
         
@@ -72,7 +72,7 @@ export function SubscribeSection() {
               type="button"
               onClick={() => setChannel('EMAIL')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold tracking-widest uppercase transition-colors border ${
-                channel === 'EMAIL' ? 'bg-white text-black border-white' : 'bg-zinc-900 text-zinc-500 border-zinc-800 hover:border-zinc-600'
+                channel === 'EMAIL' ? 'bg-white text-zinc-950 border-white' : 'bg-zinc-900 text-zinc-500 border-zinc-800 hover:border-zinc-600'
               }`}
             >
               <Mail className="w-4 h-4" /> Email
@@ -135,7 +135,7 @@ export function SubscribeSection() {
                 <div>
                   <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">WhatsApp Number</label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-4 bg-zinc-900 border border-r-0 border-zinc-800 rounded-l-xl text-zinc-500 font-bold">
+                    <span className="inline-flex items-center px-4 bg-zinc-900 border border-e-0 border-zinc-800 rounded-s-xl text-zinc-500 font-bold">
                       +974
                     </span>
                     <input 
@@ -144,7 +144,7 @@ export function SubscribeSection() {
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
                       placeholder="33XX XXXX"
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-r-xl px-4 py-3 text-white placeholder-zinc-700 focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-e-xl px-4 py-3 text-white placeholder-zinc-700 focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export function SubscribeSection() {
                   <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
                     prefs.specialEvents ? 'bg-emerald-500 border-emerald-500' : 'bg-zinc-950 border-zinc-700 group-hover:border-zinc-500'
                   }`}>
-                    {prefs.specialEvents && <CheckCircle2 className="w-3.5 h-3.5 text-black" />}
+                    {prefs.specialEvents && <CheckCircle2 className="w-3.5 h-3.5 text-zinc-950" />}
                   </div>
                   <span className={`text-sm ${prefs.specialEvents ? 'text-white' : 'text-zinc-400'}`}>Special Events & Festivals</span>
                   <input type="checkbox" className="hidden" checked={prefs.specialEvents} onChange={e => setPrefs({...prefs, specialEvents: e.target.checked})} />
@@ -165,7 +165,7 @@ export function SubscribeSection() {
                   <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
                     prefs.newAttractions ? 'bg-emerald-500 border-emerald-500' : 'bg-zinc-950 border-zinc-700 group-hover:border-zinc-500'
                   }`}>
-                    {prefs.newAttractions && <CheckCircle2 className="w-3.5 h-3.5 text-black" />}
+                    {prefs.newAttractions && <CheckCircle2 className="w-3.5 h-3.5 text-zinc-950" />}
                   </div>
                   <span className={`text-sm ${prefs.newAttractions ? 'text-white' : 'text-zinc-400'}`}>New Attraction Launches</span>
                   <input type="checkbox" className="hidden" checked={prefs.newAttractions} onChange={e => setPrefs({...prefs, newAttractions: e.target.checked})} />
@@ -181,10 +181,10 @@ export function SubscribeSection() {
               <button 
                 type="submit"
                 disabled={status === 'LOADING'}
-                className="w-full py-4 bg-white hover:bg-emerald-400 text-black font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-white hover:bg-emerald-400 text-zinc-950 font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
               >
                 {status === 'LOADING' ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Subscribe Now'}
-                {status !== 'LOADING' && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                {status !== 'LOADING' && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform rtl:-scale-x-100" />}
               </button>
             </form>
           )}

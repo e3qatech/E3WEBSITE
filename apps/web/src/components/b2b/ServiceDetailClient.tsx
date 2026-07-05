@@ -67,7 +67,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
     <div ref={containerRef} className="relative w-full overflow-hidden bg-[var(--surface-default)]">
       
       {/* RIGHT SIDE DOT NAVIGATION */}
-      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
+      <div className="fixed end-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
         {[0, 1, 2, 3].map((i) => (
           <button 
             key={i}
@@ -82,7 +82,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
       </div>
 
       {/* 1. HERO SECTION */}
-      <section ref={heroRef} className="relative h-[100vh] w-full flex flex-col justify-end overflow-hidden bg-black text-white">
+      <section ref={heroRef} className="relative h-[100vh] w-full flex flex-col justify-end overflow-hidden bg-zinc-950 text-white">
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
           {service.heroMediaType === 'VIDEO' ? (
             <video src={service.heroMediaUrl} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-70" />
@@ -161,7 +161,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
             
             <div className="relative">
               {/* Timeline Line */}
-              <div className="absolute left-8 md:left-0 md:top-12 md:w-full w-1 h-full md:h-1 bg-[var(--border-subtle)]" />
+              <div className="absolute start-8 md:start-0 md:top-12 md:w-full w-1 h-full md:h-1 bg-[var(--border-subtle)]" />
               
               <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
                 {processSteps.map((step: any, idx: number) => (
@@ -204,11 +204,11 @@ export function ServiceDetailClient({ service }: { service: any }) {
                 onClick={() => setLightboxIndex(idx)}
               >
                 <img src={item.url} alt={item.captionEn || ''} className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/40 transition-colors duration-300 flex items-center justify-center">
                   <Play className="text-white opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300 w-12 h-12" />
                 </div>
                 {item.captionEn && (
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white opacity-0 group-hover:opacity-100 transition-opacity">
                     {item.captionEn}
                   </div>
                 )}
@@ -278,8 +278,8 @@ export function ServiceDetailClient({ service }: { service: any }) {
 
       {/* LIGHTBOX MODAL */}
       {lightboxIndex !== null && service.gallery && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center backdrop-blur-sm p-4">
-          <button onClick={() => setLightboxIndex(null)} className="absolute top-8 right-8 text-white/50 hover:text-white">
+        <div className="fixed inset-0 z-[100] bg-zinc-950/95 flex items-center justify-center backdrop-blur-sm p-4">
+          <button onClick={() => setLightboxIndex(null)} className="absolute top-8 end-8 text-white/50 hover:text-white">
             <X size={40} />
           </button>
           <img 
@@ -292,9 +292,9 @@ export function ServiceDetailClient({ service }: { service: any }) {
 
       {/* BOOKING MODAL (Placeholder for actual form implementation) */}
       {isBookingModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] bg-zinc-950/80 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[var(--surface-default)] border border-[var(--border-subtle)] w-full max-w-2xl rounded-3xl p-8 relative shadow-2xl">
-            <button onClick={() => setIsBookingModalOpen(false)} className="absolute top-6 right-6 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+            <button onClick={() => setIsBookingModalOpen(false)} className="absolute top-6 end-6 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
               <X size={24} />
             </button>
             <h3 className="text-3xl font-black mb-2">Book an Appointment</h3>

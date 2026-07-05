@@ -51,13 +51,13 @@ export function MediaUploader({ value, onChange, placeholder = "https://...", cl
   return (
     <div className={cn("flex w-full items-center gap-2", className)}>
       <div className="relative flex-1">
-        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+        <LinkIcon className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
         <input 
           type="text" 
           value={value} 
           onChange={e => onChange(e.target.value)} 
           placeholder={placeholder}
-          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg pl-9 pr-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none transition-colors text-[var(--text-primary)]"
+          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg ps-9 pe-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none transition-colors text-[var(--text-primary)]"
         />
       </div>
       <input 

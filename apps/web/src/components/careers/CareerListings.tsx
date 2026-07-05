@@ -35,7 +35,7 @@ export function CareerListings({ jobs, isAr, portal = 'SHARED' }: { jobs: any[],
               </h3>
               
               <div className="flex items-center text-zinc-400 text-sm mt-4">
-                <MapPin className="w-4 h-4 mr-2" />
+                <MapPin className="w-4 h-4 me-2" />
                 {job.location}
               </div>
             </div>
@@ -46,7 +46,7 @@ export function CareerListings({ jobs, isAr, portal = 'SHARED' }: { jobs: any[],
               </span>
               <Link 
                 href={applyUrl}
-                className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300"
+                className="w-10 h-10 bg-white text-zinc-950 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300"
               >
                 {isAr ? <ArrowUpRight className="w-5 h-5 rtl:-scale-x-100" /> : <ArrowUpRight className="w-5 h-5" />}
               </Link>

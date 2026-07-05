@@ -222,7 +222,7 @@ export function BroadcastManager({ initialBroadcasts }: { initialBroadcasts: any
                   <td className="p-4">
                     <button 
                       onClick={() => handleToggle(msg.id, msg.isActive)}
-                      className="p-2 -ml-2 rounded-full hover:bg-[var(--surface-active)] transition-colors"
+                      className="p-2 -ms-2 rounded-full hover:bg-[var(--surface-active)] transition-colors"
                     >
                       {msg.isActive ? (
                         <ToggleRight className="w-6 h-6 text-[var(--color-primary)]" />

@@ -47,11 +47,11 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
     <div className="relative w-full overflow-hidden">
       
       {/* 1. HERO SECTION (80vh) */}
-      <section ref={heroRef} className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden bg-black text-white">
+      <section ref={heroRef} className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden bg-zinc-950 text-white">
         {/* Animated Background wireframe grid */}
         <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-          <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-b from-transparent via-transparent to-black" />
+          <div className="absolute top-0 start-0 end-0 h-full bg-gradient-to-b from-transparent via-transparent to-black" />
         </motion.div>
         
         <div className="relative z-10 text-center max-w-4xl px-4 flex flex-col items-center">
@@ -94,7 +94,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 text-white/50"
+          className="absolute bottom-10 start-1/2 -translate-x-1/2 z-10 text-white/50"
         >
           <ChevronDown size={32} />
         </motion.div>
@@ -199,7 +199,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
                         className="inline-flex items-center font-medium text-[var(--color-primary)] group/link"
                       >
                         Learn More 
-                        <ArrowRight className="ml-2 w-5 h-5 group-hover/link:translate-x-2 transition-transform" />
+                        <ArrowRight className="ms-2 w-5 h-5 group-hover/link:translate-x-2 transition-transform rtl:-scale-x-100" />
                       </Link>
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
 
         <div className="relative">
           {/* Horizontal Line connecting steps (Desktop) */}
-          <div className="absolute top-12 left-0 right-0 h-1 bg-[var(--border-subtle)] hidden md:block z-0" />
+          <div className="absolute top-12 start-0 end-0 h-1 bg-[var(--border-subtle)] hidden md:block z-0" />
           
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             {PROCESS_STEPS.map((step, index) => (
@@ -248,10 +248,10 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
       </section>
 
       {/* 5. CTA SECTION */}
-      <section className="py-32 px-4 relative overflow-hidden bg-black text-white">
+      <section className="py-32 px-4 relative overflow-hidden bg-zinc-950 text-white">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-primary)] to-transparent" />
-          <div className="absolute bottom-0 left-0 w-1/2 h-full bg-gradient-to-r from-[var(--color-accent)] to-transparent" />
+          <div className="absolute top-0 end-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-primary)] to-transparent" />
+          <div className="absolute bottom-0 start-0 w-1/2 h-full bg-gradient-to-r from-[var(--color-accent)] to-transparent" />
         </div>
         
         <div className="relative z-10 max-w-4xl mx-auto text-center">
@@ -263,7 +263,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             <Button size="lg" variant="primary" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full">
               <Link href="/b2b/contact">Start a Project</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full border-white/20 hover:bg-white hover:text-black">
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full border-white/20 hover:bg-white hover:text-zinc-950">
               <Link href="/b2b/case-studies">View Our Work</Link>
             </Button>
           </div>

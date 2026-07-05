@@ -67,7 +67,7 @@ export function PortalGateway({
         
         {/* B2C Card (Left) */}
         <motion.div 
-          className="flex-1 flex flex-col justify-center p-8 md:p-16 relative group cursor-pointer border-r border-white/5"
+          className="flex-1 flex flex-col justify-center p-8 md:p-16 relative group cursor-pointer border-e border-white/5"
           onMouseEnter={() => setHoveredPortal('b2c')}
           onMouseLeave={() => setHoveredPortal(null)}
           onClick={() => handleSelect('b2c')}
@@ -159,7 +159,7 @@ export function PortalGateway({
       </div>
 
       {/* Center Logo branding */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+      <div className="absolute top-8 start-1/2 -translate-x-1/2 z-20 pointer-events-none">
         <div className="font-black text-2xl tracking-tighter text-white drop-shadow-xl">
           E3 <span className="text-zinc-500">QATAR</span>
         </div>

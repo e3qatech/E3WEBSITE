@@ -22,8 +22,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <ToastProvider>
         <div className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden relative transition-colors duration-300">
           <div className="absolute inset-0 noise-bg pointer-events-none z-0"></div>
-          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[var(--color-primary)]/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
-          <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[var(--color-accent)]/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+          <div className="absolute top-[-20%] start-[-10%] w-[50%] h-[50%] bg-[var(--color-primary)]/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+          <div className="absolute bottom-[-20%] end-[-10%] w-[50%] h-[50%] bg-[var(--color-accent)]/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
           
           {/* Layer 1: Sidebar */}
           <div className="relative z-10 border-e border-[var(--border-level-1)] bg-[var(--surface-default)]/50 backdrop-blur-md">

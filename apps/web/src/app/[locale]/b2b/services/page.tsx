@@ -128,7 +128,7 @@ export default async function ServicesIndexPage() {
                           className="w-full h-full object-cover opacity-90 scale-105 transition-transform duration-1000"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/50 to-purple-900/50 text-indigo-400">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/50 to-emerald-900/50 text-indigo-400">
                           <Sparkles className="w-12 h-12 animate-pulse" />
                         </div>
                       )}
@@ -150,7 +150,7 @@ export default async function ServicesIndexPage() {
                       </div>
                       
                       <div className="w-10 h-10 rounded-full bg-zinc-950/50 backdrop-blur-sm text-indigo-400 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 border border-zinc-800">
-                        <ArrowRight className="w-5 h-5" />
+                        <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
                       </div>
                     </div>
 

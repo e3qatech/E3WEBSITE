@@ -61,11 +61,11 @@ function ResetPasswordForm() {
     <div className="w-full max-w-md p-8 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-default)] shadow-xl relative overflow-hidden">
       
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-accent)]/10 rounded-full blur-3xl" />
+      <div className="absolute top-0 end-0 w-32 h-32 bg-[var(--color-accent)]/10 rounded-full blur-3xl" />
 
       <div className="mb-8">
         <Link href="/auth/login" className="inline-flex items-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 me-2" />
           Back to login
         </Link>
         <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">

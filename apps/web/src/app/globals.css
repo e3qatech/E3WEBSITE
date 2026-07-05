@@ -437,3 +437,4 @@ html[dir="rtl"] .icon-flip {
     scroll-behavior: auto !important;
   }
 }
+[dir="rtl"] body { font-family: 'Noto Sans Arabic', sans-serif !important; }

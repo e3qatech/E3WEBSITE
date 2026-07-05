@@ -76,7 +76,7 @@ function ApplicationForm() {
         </p>
         <div className="flex gap-4 w-full mt-8">
           <Link href="/candidate" className="flex-1">
-            <Button className="w-full bg-white text-black hover:bg-zinc-200">
+            <Button className="w-full bg-white text-zinc-950 hover:bg-zinc-200">
               Go to Dashboard
             </Button>
           </Link>
@@ -92,7 +92,7 @@ function ApplicationForm() {
     <div className="max-w-3xl mx-auto bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 p-8 md:p-12 rounded-2xl shadow-2xl">
       <div className="mb-8">
         <button onClick={() => router.back()} className="text-zinc-500 hover:text-white flex items-center text-sm mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Careers
+          <ArrowLeft className="w-4 h-4 me-2" /> Back to Careers
         </button>
         <h1 className="text-3xl font-bold text-white mb-2">Apply for {jobTitle}</h1>
         {department && <p className="text-primary font-medium">{department} Department</p>}
@@ -154,7 +154,7 @@ function ApplicationForm() {
             {formData.cvUrl ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-sm text-green-400 font-medium">
-                  <FileText className="w-5 h-5 mr-3" />
+                  <FileText className="w-5 h-5 me-3" />
                   CV Uploaded Successfully
                 </div>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setFormData(prev => ({ ...prev, cvUrl: '' }))}>
@@ -189,10 +189,10 @@ function ApplicationForm() {
         </div>
 
         <div className="pt-6 flex justify-end">
-          <Button type="submit" disabled={submitting} className="w-full md:w-auto bg-white text-black hover:bg-zinc-200 px-8 py-6 text-lg rounded-xl">
+          <Button type="submit" disabled={submitting} className="w-full md:w-auto bg-white text-zinc-950 hover:bg-zinc-200 px-8 py-6 text-lg rounded-xl">
             {submitting ? "Submitting..." : (
               <>
-                Submit Application <Send className="w-5 h-5 ml-2" />
+                Submit Application <Send className="w-5 h-5 ms-2" />
               </>
             )}
           </Button>
@@ -206,8 +206,8 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-zinc-950 py-32 px-4 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] start-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] end-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
       
       <div className="relative z-10">
         <Suspense fallback={<div className="text-center text-zinc-500">Loading form...</div>}>

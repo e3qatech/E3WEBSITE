@@ -125,7 +125,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
           </button>
           <button
             className="p-1 rounded hover:bg-[var(--surface-hover)] disabled:opacity-50"

@@ -27,7 +27,7 @@ class ModelErrorBoundary extends React.Component<{children: React.ReactNode, fal
           <div className="absolute inset-0 w-full h-full">
             <img src={this.props.fallbackUrl} alt="Fallback Media" className="w-full h-full object-cover opacity-60" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-white/50 text-xs font-bold uppercase tracking-widest bg-black/50 px-4 py-2 rounded-full backdrop-blur-md">3D Experience Unavailable</span>
+              <span className="text-white/50 text-xs font-bold uppercase tracking-widest bg-zinc-950/50 px-4 py-2 rounded-full backdrop-blur-md">3D Experience Unavailable</span>
             </div>
           </div>
         );

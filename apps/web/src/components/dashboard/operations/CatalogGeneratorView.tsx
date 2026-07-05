@@ -69,14 +69,14 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
                     className="text-[var(--color-primary)] hover:underline"
                   >Select All</button>
                 </label>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pe-2">
                   {services.map(s => (
                     <div 
                       key={s.id} 
                       onClick={() => toggleService(s.id)}
                       className={`flex items-center p-3 rounded-xl border cursor-pointer transition-colors ${selectedServices.includes(s.id) ? 'bg-[var(--color-primary)]/10 border-[var(--color-primary)]' : 'bg-[var(--surface-hover)] border-[var(--border-default)]'}`}
                     >
-                      {selectedServices.includes(s.id) ? <CheckSquare className="w-4 h-4 mr-3 text-[var(--color-primary)]" /> : <Square className="w-4 h-4 mr-3 text-[var(--text-tertiary)]" />}
+                      {selectedServices.includes(s.id) ? <CheckSquare className="w-4 h-4 me-3 text-[var(--color-primary)]" /> : <Square className="w-4 h-4 me-3 text-[var(--text-tertiary)]" />}
                       <span className="text-sm font-bold text-[var(--text-primary)]">{s.titleEn}</span>
                     </div>
                   ))}
@@ -104,7 +104,7 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
               </div>
               
               <div className="p-8 flex-1 bg-[var(--surface-hover)]">
-                <div className="aspect-[1/1.4] w-full max-w-sm mx-auto bg-black text-white p-8 flex flex-col justify-center items-center text-center rounded shadow-lg border border-[var(--border-default)]">
+                <div className="aspect-[1/1.4] w-full max-w-sm mx-auto bg-zinc-950 text-white p-8 flex flex-col justify-center items-center text-center rounded shadow-lg border border-[var(--border-default)]">
                   <div className="text-2xl font-black mb-2">E3 {catalogData.template}</div>
                   <div className="text-sm text-white/50 uppercase tracking-widest">Service Portfolio</div>
                   <div className="mt-8 pt-8 border-t border-white/20 w-full">

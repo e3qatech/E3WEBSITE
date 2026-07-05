@@ -121,13 +121,13 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input 
               type="text" 
               placeholder="Search leads..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
             />
           </div>
           <Button className="gap-2" onClick={() => setIsAdding(true)}>
@@ -137,7 +137,7 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
       </div>
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-center p-4">
           <form 
             onSubmit={handleAddLead}
             className="bg-[var(--surface-default)] rounded-2xl w-full max-w-lg p-6 border border-[var(--border-default)] shadow-xl animate-in fade-in zoom-in duration-200"

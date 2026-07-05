@@ -4,7 +4,7 @@ import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#ffffff' },
-  coverPage: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#000000', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'center' },
+  coverPage: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#09090b', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'center' },
   coverTitle: { fontSize: 36, fontWeight: 'bold', marginBottom: 20 },
   coverSubtitle: { fontSize: 18, color: '#aaaaaa' },
   section: { marginBottom: 30, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 20 },

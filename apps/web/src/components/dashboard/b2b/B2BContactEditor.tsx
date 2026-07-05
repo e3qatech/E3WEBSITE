@@ -148,7 +148,7 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
               </div>
             </div>
             
-            <div className="space-y-4 border-t lg:border-t-0 lg:border-l border-border-default pt-4 lg:pt-0 lg:pl-6">
+            <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
                 <select 
@@ -298,7 +298,7 @@ function CtaEditorBlock({ title, data, onChange }: { title: string, data: any, o
           </div>
         </div>
         
-        <div className="space-y-4 border-t lg:border-t-0 lg:border-l border-border-default pt-4 lg:pt-0 lg:pl-6">
+        <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
           <div className="space-y-2">
             <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
             <select value={data.mediaType} onChange={e => onChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">

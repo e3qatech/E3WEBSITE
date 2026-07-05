@@ -151,7 +151,7 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               y: [0, -50, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
           <motion.div
             animate={{
@@ -160,7 +160,7 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               y: [0, 100, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
         </div>
 
@@ -208,7 +208,7 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                 {member.designation}
               </motion.h2>
               
-              <motion.p variants={itemVariants} className="text-lg text-zinc-300 font-medium leading-relaxed max-w-xl mb-12 border-l-2 border-[#7C3AED] pl-6">
+              <motion.p variants={itemVariants} className="text-lg text-zinc-300 font-medium leading-relaxed max-w-xl mb-12 border-s-2 border-[#7C3AED] ps-6">
                 {member.tagline || member.aboutSummary}
               </motion.p>
               
@@ -233,7 +233,7 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
             <motion.div variants={itemVariants} className="relative">
               <TiltCard className="w-full aspect-[3/4] group perspective-1000">
                 <div className="w-full h-full rounded-2xl bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/40 shadow-[0_0_30px_rgba(124,58,237,0.2)] group-hover:shadow-[0_0_50px_rgba(244,63,94,0.4)] group-hover:border-[#F43F5E]/60 transition-all duration-500 p-2 relative overflow-hidden">
-                  <div className="absolute top-4 left-4 z-10 flex gap-2">
+                  <div className="absolute top-4 start-4 z-10 flex gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#F43F5E]" />
                     <div className="w-2 h-2 rounded-full bg-[#7C3AED]" />
                     <div className="w-2 h-2 rounded-full bg-white" />
@@ -288,7 +288,7 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                 {projects.map((project: any, idx: number) => (
                   <TiltCard key={idx} className="group h-full perspective-1000">
                     <div className="h-full bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 shadow-[0_0_15px_rgba(124,58,237,0.1)] group-hover:border-[#F43F5E]/60 group-hover:shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-all duration-300 rounded-2xl p-6 flex flex-col relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-0 end-0 p-4 opacity-20 group-hover:opacity-100 transition-opacity">
                         <ArrowUpRight className="w-6 h-6 text-[#F43F5E]" />
                       </div>
                       <div className="text-zinc-500 font-bold text-xs mb-4">{project.year} // {project.client}</div>
@@ -310,16 +310,16 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
           {experience.length > 0 && (
             <div className="mb-24">
               <h3 className="font-bold text-sm tracking-widest uppercase text-zinc-400 mb-12 border-b border-[#7C3AED]/20 pb-4">History Log</h3>
-              <div className="space-y-12 pl-4 border-l border-[#7C3AED]/30">
+              <div className="space-y-12 ps-4 border-s border-[#7C3AED]/30">
                 {experience.map((exp: any, idx: number) => (
                   <motion.div 
                     initial={{ opacity: 0, x: -20 }} 
                     whileInView={{ opacity: 1, x: 0 }} 
                     viewport={{ once: true }}
                     key={idx} 
-                    className="relative pl-8"
+                    className="relative ps-8"
                   >
-                    <div className="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-[#F43F5E] shadow-[0_0_15px_rgba(244,63,94,0.6)]" />
+                    <div className="absolute -start-[5px] top-2 w-2.5 h-2.5 rounded-full bg-[#F43F5E] shadow-[0_0_15px_rgba(244,63,94,0.6)]" />
                     <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4 mb-2">
                       <h4 className="text-xl font-black text-white font-righteous">{exp.role}</h4>
                       <span className="text-[#7C3AED] font-bold text-sm">@ {exp.company}</span>

@@ -13,16 +13,27 @@ const prismaClientSingleton = () => {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
           const start = performance.now()
-          const result = await query(args)
-          const end = performance.now()
-          const duration = end - start
+          const TIMEOUT_MS = 5000 // 5 seconds max per query
+          
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS)
+          })
 
-          // Log warning if query exceeds 100ms budget
-          if (duration > 100) {
-            console.warn(`[PRISMA PERFORMANCE BREACH] ${model}.${operation} took ${Math.round(duration)}ms`)
+          try {
+            const result = await Promise.race([query(args), timeoutPromise])
+            const end = performance.now()
+            const duration = end - start
+
+            // Log warning if query exceeds 100ms budget
+            if (duration > 100) {
+              console.warn(`[PRISMA PERFORMANCE BREACH] ${model}.${operation} took ${Math.round(duration)}ms`)
+            }
+
+            return result
+          } catch (error) {
+            console.error(`[DB ERROR] ${model}.${operation} failed:`, error)
+            throw error
           }
-
-          return result
         }
       }
     }

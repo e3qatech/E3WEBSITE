@@ -50,7 +50,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[var(--surface-default)] p-4">
       <div className="w-full max-w-md p-8 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-white/5 blur-3xl rounded-full pointer-events-none" />
+        <div className="absolute top-0 start-1/2 -translate-x-1/2 w-3/4 h-32 bg-white/5 blur-3xl rounded-full pointer-events-none" />
         
         <div className="text-center mb-8 relative z-10">
           <h1 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">

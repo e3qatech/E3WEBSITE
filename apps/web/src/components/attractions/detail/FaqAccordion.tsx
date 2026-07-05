@@ -16,7 +16,7 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
   if (!faqs || faqs.length === 0) return null;
 
   return (
-    <section className="py-32 bg-black text-white relative border-t border-white/5">
+    <section className="py-32 bg-zinc-950 text-white relative border-t border-white/5">
       <div className="max-w-4xl mx-auto px-6">
         
         <motion.div 
@@ -47,10 +47,10 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
                   className="w-full flex items-center justify-between py-8 text-left focus:outline-none"
                 >
-                  <span className={`text-xl md:text-2xl font-bold pr-8 transition-colors duration-300 ${isOpen ? 'text-emerald-400' : 'text-white group-hover:text-zinc-300'}`}>
+                  <span className={`text-xl md:text-2xl font-bold pe-8 transition-colors duration-300 ${isOpen ? 'text-emerald-400' : 'text-white group-hover:text-zinc-300'}`}>
                     {faq.questionEn}
                   </span>
-                  <div className={`shrink-0 ml-4 transition-transform duration-500 ease-[0.22,1,0.36,1] ${isOpen ? 'rotate-180 text-emerald-400' : 'text-zinc-500 group-hover:text-white'}`}>
+                  <div className={`shrink-0 ms-4 transition-transform duration-500 ease-[0.22,1,0.36,1] ${isOpen ? 'rotate-180 text-emerald-400' : 'text-zinc-500 group-hover:text-white'}`}>
                     {isOpen ? <Minus className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
                   </div>
                 </button>
@@ -63,7 +63,7 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <div className="pb-8 text-lg text-zinc-400 font-light leading-relaxed prose prose-invert max-w-none pr-12">
+                      <div className="pb-8 text-lg text-zinc-400 font-light leading-relaxed prose prose-invert max-w-none pe-12">
                         <div dangerouslySetInnerHTML={{ __html: faq.answerEn }} />
                       </div>
                     </motion.div>

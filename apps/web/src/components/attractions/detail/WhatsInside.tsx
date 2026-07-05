@@ -37,9 +37,9 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
   };
 
   return (
-    <section className="py-32 md:py-48 bg-black text-white relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-zinc-950 text-white relative overflow-hidden">
       {/* Background Subtle Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-emerald-900/10 blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 start-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-emerald-900/10 blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Intro Description & Image */}
@@ -98,7 +98,7 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
                   ) : null}
 
                   <div className="relative p-10 z-10 flex-1 flex flex-col justify-end">
-                    <div className="absolute top-10 left-10 p-4 rounded-2xl bg-white/5 border border-white/10 text-white backdrop-blur-md group-hover:scale-110 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-all duration-500 ease-out">
+                    <div className="absolute top-10 start-10 p-4 rounded-2xl bg-white/5 border border-white/10 text-white backdrop-blur-md group-hover:scale-110 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-all duration-500 ease-out">
                       <IconComponent className="w-6 h-6" />
                     </div>
                     

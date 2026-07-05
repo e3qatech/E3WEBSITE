@@ -34,7 +34,7 @@ export default async function PartnersPage() {
           {partners.map(partner => (
             <div key={partner.id} className="group relative bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all hover:border-[var(--color-primary)]">
               
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 end-2">
                 {partner.isVisible ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                 ) : (
@@ -57,7 +57,7 @@ export default async function PartnersPage() {
               
               {partner.website && (
                 <a href={partner.website} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline flex items-center text-xs">
-                  <Globe className="w-3 h-3 mr-1" /> Visit
+                  <Globe className="w-3 h-3 me-1" /> Visit
                 </a>
               )}
             </div>

@@ -140,7 +140,7 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
     <div className="flex h-[calc(100vh-6rem)] -m-6 bg-[var(--background)]">
       
       {/* Sidebar Navigation */}
-      <div className="w-64 border-r border-[var(--border-default)] bg-[var(--surface-default)] p-4 flex flex-col z-10 shrink-0">
+      <div className="w-64 border-e border-[var(--border-default)] bg-[var(--surface-default)] p-4 flex flex-col z-10 shrink-0">
         <div className="mb-6 flex items-center gap-3">
           <button 
             onClick={() => router.push('/dashboard/b2b/services')}
@@ -171,7 +171,7 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[var(--text-tertiary)]'}`} />
                 {tab.label}
-                {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
+                {isActive && <ChevronRight className="w-4 h-4 ms-auto rtl:-scale-x-100" />}
               </button>
             )
           })}

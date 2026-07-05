@@ -62,7 +62,7 @@ export default async function ServiceProjectsPage(props: { params: Promise<{ loc
       <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/10">
         <div className="mb-8">
           <Link href={`/${locale}/b2b/services/${slug}`} className="inline-flex items-center text-zinc-400 hover:text-emerald-500 transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0 rtl:-scale-x-100" />
+            <ArrowLeft className="w-4 h-4 me-2 rtl:ms-2 rtl:me-0 rtl:-scale-x-100" />
             <span className="text-sm font-bold tracking-widest uppercase">
               {locale === 'ar' ? 'العودة إلى الخدمة' : 'Back to Service'}
             </span>
@@ -89,7 +89,7 @@ export default async function ServiceProjectsPage(props: { params: Promise<{ loc
               className="group block relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-500/30 transition-all duration-500"
             >
               <div className="aspect-video relative overflow-hidden">
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors duration-500 z-10" />
+                <div className="absolute inset-0 bg-zinc-950/40 group-hover:bg-transparent transition-colors duration-500 z-10" />
                 <img 
                   src={project.coverImage || "https://images.unsplash.com/photo-1540839045646-19f7381eb6c7"} 
                   alt={project.title?.[locale as 'en'|'ar']} 
@@ -105,7 +105,7 @@ export default async function ServiceProjectsPage(props: { params: Promise<{ loc
                 </h3>
                 <div className="flex items-center text-zinc-400 text-sm font-bold uppercase tracking-wider group-hover:text-white transition-colors">
                   {locale === 'ar' ? 'اقرأ دراسة الحالة' : 'Read Case Study'}
-                  <ExternalLink className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" />
+                  <ExternalLink className="w-4 h-4 ms-2 rtl:me-2 rtl:ms-0" />
                 </div>
               </div>
             </Link>

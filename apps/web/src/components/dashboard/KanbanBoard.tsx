@@ -279,11 +279,11 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
 
                 <section>
                   <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-[var(--color-primary)]" /> Consulting Actions
+                    <ArrowRight className="w-4 h-4 text-[var(--color-primary)] rtl:-scale-x-100" /> Consulting Actions
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <Button variant="outline" className="w-full justify-start text-xs">
-                      <Calendar className="w-4 h-4 mr-2" /> Schedule Meeting
+                      <Calendar className="w-4 h-4 me-2" /> Schedule Meeting
                     </Button>
                     <Button variant="outline" className="w-full justify-start text-xs border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10">
                       Convert to Client
@@ -299,7 +299,7 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
                     <MessageSquare className="w-4 h-4 text-[var(--color-primary)]" /> Activity Timeline
                   </h3>
                   
-                  <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[var(--border-level-2)] before:to-transparent">
+                  <div className="space-y-6 relative before:absolute before:inset-0 before:ms-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[var(--border-level-2)] before:to-transparent">
                     
                     <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                       <div className="flex items-center justify-center w-10 h-10 rounded-full border border-[var(--border-default)] bg-[var(--surface-default)] text-[var(--color-primary)] shadow shrink-0 z-10 font-bold text-xs">

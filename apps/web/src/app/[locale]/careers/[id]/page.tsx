@@ -43,7 +43,7 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
             href={`/${locale}/careers`}
             className="inline-flex items-center text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors mb-8"
           >
-            <ArrowLeft className={`w-4 h-4 mr-2 ${isRTL ? 'rotate-180 ml-2 mr-0' : ''}`} />
+            <ArrowLeft className={`w-4 h-4 me-2 ${isRTL ? 'rotate-180 ms-2 me-0' : ''}`} />
             {locale === 'ar' ? 'العودة إلى الوظائف' : 'Back to Careers'}
           </Link>
 

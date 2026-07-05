@@ -120,13 +120,13 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input 
               type="text" 
               placeholder="Search feedback..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
             />
           </div>
           <select 
@@ -162,11 +162,11 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
                   onClick={() => setSelectedFeedback(f)}
                   className={cn(
                     "w-full text-left p-5 hover:bg-zinc-900/50 transition-all relative group",
-                    selectedFeedback?.id === f.id ? "bg-zinc-900/80 border-l-2 border-[var(--color-primary)] shadow-inner" : "border-l-2 border-transparent"
+                    selectedFeedback?.id === f.id ? "bg-zinc-900/80 border-s-2 border-[var(--color-primary)] shadow-inner" : "border-s-2 border-transparent"
                   )}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <div className="font-bold text-sm text-[var(--text-primary)] truncate pr-2">
+                    <div className="font-bold text-sm text-[var(--text-primary)] truncate pe-2">
                       {f.name || "Anonymous User"}
                     </div>
                     <div className="shrink-0">
@@ -187,7 +187,7 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
                     {f.message}
                   </div>
                   {f.isFeatured && (
-                    <Star className="w-3 h-3 text-[var(--color-warning)] fill-current absolute bottom-4 right-4" />
+                    <Star className="w-3 h-3 text-[var(--color-warning)] fill-current absolute bottom-4 end-4" />
                   )}
                 </button>
               ))
@@ -197,7 +197,7 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
 
         {/* Detail Panel */}
         {selectedFeedback && (
-          <div className="col-span-1 lg:col-span-7 glass rounded-3xl border-gradient shadow-2xl overflow-hidden flex flex-col h-full animate-in slide-in-from-right-4 lg:slide-in-from-bottom-0 duration-300 relative">
+          <div className="col-span-1 lg:col-span-7 glass rounded-3xl border-gradient shadow-2xl overflow-hidden flex flex-col h-full animate-in slide-in-from-end-4 lg:slide-in-from-bottom-0 duration-300 relative">
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between bg-zinc-950/40 relative z-10">
               <div className="flex items-center gap-3">
@@ -254,7 +254,7 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
                   onClick={() => updateStatus(selectedFeedback.id, "REVIEWED")}
                   disabled={selectedFeedback.status === "REVIEWED"}
                 >
-                  <Eye className="w-4 h-4 mr-2" /> Mark Reviewed
+                  <Eye className="w-4 h-4 me-2" /> Mark Reviewed
                 </Button>
                 <Button 
                   size="sm"
@@ -262,7 +262,7 @@ export function FeedbackInbox({ initialFeedback }: { initialFeedback: Feedback[]
                   onClick={() => updateStatus(selectedFeedback.id, "RESOLVED")}
                   disabled={selectedFeedback.status === "RESOLVED"}
                 >
-                  <CheckCircle className="w-4 h-4 mr-2" /> Mark Resolved
+                  <CheckCircle className="w-4 h-4 me-2" /> Mark Resolved
                 </Button>
                 <Button
                   size="sm"

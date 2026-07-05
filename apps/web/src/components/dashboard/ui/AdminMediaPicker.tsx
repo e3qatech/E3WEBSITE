@@ -106,7 +106,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           ) : (
             <img src={value} alt="Selected Media" className="w-full h-full object-cover" />
           )}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+          <div className="absolute inset-0 bg-zinc-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
             <AdminButton variant="outline" size="sm" onClick={() => setIsOpen(true)}>
               Change Media
             </AdminButton>

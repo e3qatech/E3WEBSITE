@@ -61,7 +61,7 @@ export function ContactClient({
               y: [0, -50, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
           <motion.div
             animate={{
@@ -70,7 +70,7 @@ export function ContactClient({
               y: [0, 100, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
         </div>
 
@@ -197,7 +197,7 @@ export function ContactClient({
           {/* SOCIAL LINKS */}
           <div className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl p-8 relative overflow-hidden group shadow-[0_0_20px_rgba(124,58,237,0.1)]">
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+            <div className="absolute top-0 end-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
               <Instagram className="w-32 h-32 text-[#F43F5E]" />
             </div>
             <h3 className="text-xl font-black text-white mb-6 relative z-10 tracking-tight font-righteous">Connect with Us</h3>
@@ -239,7 +239,7 @@ export function ContactClient({
                 className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl p-8 relative overflow-hidden shadow-[0_0_20px_rgba(124,58,237,0.1)] hover:border-[#F43F5E]/50 transition-colors"
               >
                 <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
-                <Quote className="absolute top-6 right-6 w-12 h-12 text-[#7C3AED]/20" />
+                <Quote className="absolute top-6 end-6 w-12 h-12 text-[#7C3AED]/20" />
                 <div className="flex gap-1 mb-6">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} className={`w-5 h-5 ${i < (fb.rating || 5) ? 'fill-[#F43F5E] text-[#F43F5E]' : 'text-zinc-700'}`} />
@@ -503,13 +503,13 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
           <input 
             type="text" 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search FAQs..."
-            className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all"
+            className="w-full bg-[#0F0F23] border border-[#7C3AED]/30 rounded-xl py-3 ps-10 pe-4 text-white focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all"
           />
         </div>
         <div className="w-full md:w-64">
@@ -537,7 +537,7 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
                   onClick={() => toggleFaq(faq.id)}
                   className="w-full flex items-center justify-between p-5 text-left hover:bg-[#7C3AED]/10 transition-colors"
                 >
-                  <span className="font-bold text-white pr-8">{faq.questionEn}</span>
+                  <span className="font-bold text-white pe-8">{faq.questionEn}</span>
                   {isActive ? <ChevronUp className="w-5 h-5 text-[#F43F5E] shrink-0" /> : <ChevronDown className="w-5 h-5 text-zinc-400 shrink-0" />}
                 </button>
                 {isActive && (

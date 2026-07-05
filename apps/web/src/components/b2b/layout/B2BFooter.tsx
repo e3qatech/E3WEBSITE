@@ -62,7 +62,7 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
               href="/b2b/contact" 
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
             >
-              Start Inquiry <ArrowRight className="w-5 h-5" />
+              Start Inquiry <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
             </Link>
           </div>
         </div>

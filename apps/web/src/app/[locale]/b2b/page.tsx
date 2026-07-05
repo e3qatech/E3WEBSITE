@@ -129,7 +129,7 @@ export default async function B2BHomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             {stats.map((stat: any, i: number) => (
-              <div key={i} className="flex flex-col border-l border-emerald-500/30 pl-6">
+              <div key={i} className="flex flex-col border-s border-emerald-500/30 ps-6">
                 <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 mb-2">
                   {stat.value}
                 </span>
@@ -193,7 +193,7 @@ export default async function B2BHomePage() {
               <p className="text-lg text-zinc-400">Everything required to deliver landmark experiences.</p>
             </div>
             <Link href="/b2b/services" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
-              View All Services <ArrowRight className="w-5 h-5" />
+              View All Services <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
             </Link>
           </div>
 
@@ -243,7 +243,7 @@ export default async function B2BHomePage() {
                       
                       {/* CTA */}
                       <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300">
-                        {service.ctaPrimary || "Explore Capability"} <ArrowRight className="w-4 h-4" />
+                        {service.ctaPrimary || "Explore Capability"} <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                       </div>
                     </div>
                   </Link>
@@ -267,7 +267,7 @@ export default async function B2BHomePage() {
               <p className="text-lg text-zinc-400">Landmark projects delivered across the region.</p>
             </div>
             <Link href="/b2b/case-studies" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
-              View All Case Studies <ArrowRight className="w-5 h-5" />
+              View All Case Studies <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
             </Link>
           </div>
 
@@ -317,7 +317,7 @@ export default async function B2BHomePage() {
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-4 relative">
             {/* Connecting Line */}
-            <div className="hidden md:block absolute top-12 left-0 right-0 h-0.5 bg-zinc-800 -z-10" />
+            <div className="hidden md:block absolute top-12 start-0 end-0 h-0.5 bg-zinc-800 -z-10" />
             
             {['Discover', 'Design', 'Build', 'Operate', 'Report'].map((step, i) => (
               <div key={i} className="flex flex-col items-center text-center w-full md:w-auto">

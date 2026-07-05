@@ -188,7 +188,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                   <h3 className="text-2xl font-black text-zinc-100 tracking-tight mb-4">Client Feedback</h3>
                   {testimonials.map((t, i) => (
                     <div key={i} className="bg-gradient-to-br from-zinc-900 to-zinc-900/50 border border-zinc-800 rounded-3xl p-8 relative overflow-hidden flex-1 flex flex-col">
-                      <Quote className="w-12 h-12 text-zinc-800 absolute top-6 right-6 -rotate-6" />
+                      <Quote className="w-12 h-12 text-zinc-800 absolute top-6 end-6 -rotate-6" />
                       <div className="text-lg md:text-xl text-zinc-300 italic mb-8 relative z-10 flex-1">
                         "{t.quoteEn}"
                       </div>
@@ -217,7 +217,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                           
                           {/* Hover Image Reveal */}
                           {tm.employeeProfile?.profileImage && (
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full overflow-hidden opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-0 shadow-2xl">
+                            <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full overflow-hidden opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-0 shadow-2xl">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img src={tm.employeeProfile.profileImage} alt={tm.employeeProfile.firstName} className="w-full h-full object-cover" />
                             </div>
@@ -278,8 +278,8 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <div className="container mx-auto px-4">
             <div className="text-sm font-bold uppercase tracking-widest mb-6 opacity-80">Next Project</div>
             <Link href={`/b2b/case-studies/${nextProject.slug}`} className="group inline-flex flex-col md:flex-row items-center gap-4 text-4xl md:text-7xl font-black tracking-tight">
-              <span className="group-hover:mr-4 transition-all">{nextProject.titleEn}</span>
-              <ArrowRight className="w-10 h-10 md:w-16 md:h-16 opacity-0 group-hover:opacity-100 transition-all -translate-x-8 group-hover:translate-x-0" />
+              <span className="group-hover:me-4 transition-all">{nextProject.titleEn}</span>
+              <ArrowRight className="w-10 h-10 md:w-16 md:h-16 opacity-0 group-hover:opacity-100 transition-all -translate-x-8 group-hover:translate-x-0 rtl:-scale-x-100" />
             </Link>
           </div>
         </section>

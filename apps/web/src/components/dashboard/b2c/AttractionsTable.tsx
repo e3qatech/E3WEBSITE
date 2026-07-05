@@ -77,11 +77,11 @@ export function AttractionsTable({ attractions }: { attractions: AttractionSumma
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
         <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] w-4 h-4" />
           <input 
             type="text" 
             placeholder="Search attractions..." 
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:border-[var(--color-primary)] focus:outline-none transition-colors text-sm"
+            className="w-full ps-10 pe-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] focus:border-[var(--color-primary)] focus:outline-none transition-colors text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -94,13 +94,13 @@ export function AttractionsTable({ attractions }: { attractions: AttractionSumma
               <div className="w-px h-4 bg-[var(--color-primary)]/20 mx-1" />
               <button onClick={() => handleBulkTogglePublish(false)} className="hover:underline">Unpublish</button>
               <button onClick={() => handleBulkTogglePublish(true)} className="hover:underline">Publish</button>
-              <button onClick={handleBulkDelete} className="text-[var(--color-error)] hover:underline ml-2">Delete</button>
+              <button onClick={handleBulkDelete} className="text-[var(--color-error)] hover:underline ms-2">Delete</button>
             </div>
           )}
           
           <Link 
             href="/dashboard/b2c/attractions/new"
-            className="flex items-center gap-2 bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity ml-auto"
+            className="flex items-center gap-2 bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity ms-auto"
           >
             <Plus className="w-4 h-4" />
             Add Attraction
@@ -166,7 +166,7 @@ export function AttractionsTable({ attractions }: { attractions: AttractionSumma
                         {attraction.isPublished ? 'Published' : 'Draft'}
                       </span>
                       {attraction.isHidden && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--surface-active)] text-[var(--text-tertiary)] ml-2">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--surface-active)] text-[var(--text-tertiary)] ms-2">
                           Hidden
                         </span>
                       )}

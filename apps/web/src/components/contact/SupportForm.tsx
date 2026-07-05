@@ -224,7 +224,7 @@ export function SupportForm({ locale, attractions }: SupportFormProps) {
             <button 
               type="button" 
               onClick={() => setFile(null)}
-              className="p-2 hover:bg-black/10 rounded-full transition-colors"
+              className="p-2 hover:bg-zinc-950/10 rounded-full transition-colors"
             >
               <X className="w-5 h-5 text-[var(--text-secondary)]" />
             </button>

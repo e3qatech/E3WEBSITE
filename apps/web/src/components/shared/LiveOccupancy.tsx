@@ -67,7 +67,7 @@ export function LiveOccupancy({ attractionId, initialCurrent = 0, initialMax = 1
         
         <div className="text-right">
           <div className="text-sm font-bold text-white/90">
-            <span className={`${textColor} text-xl mr-1`}>{displayCurrent}</span>
+            <span className={`${textColor} text-xl me-1`}>{displayCurrent}</span>
             <span className="text-white/40 text-xs">/ {max}</span>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function LiveOccupancy({ attractionId, initialCurrent = 0, initialMax = 1
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`absolute top-0 left-0 bottom-0 ${barColor}`}
+          className={`absolute top-0 start-0 bottom-0 ${barColor}`}
         />
       </div>
     </div>

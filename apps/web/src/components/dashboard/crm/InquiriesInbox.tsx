@@ -109,13 +109,13 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input 
               type="text" 
               placeholder="Search..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64"
             />
           </div>
           <select 
@@ -150,11 +150,11 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
                   onClick={() => setSelected(inq)}
                   className={cn(
                     "w-full text-left p-5 hover:bg-zinc-900/50 transition-all relative group",
-                    selected?.id === inq.id ? "bg-zinc-900/80 border-l-2 border-[var(--color-primary)] shadow-inner" : "border-l-2 border-transparent"
+                    selected?.id === inq.id ? "bg-zinc-900/80 border-s-2 border-[var(--color-primary)] shadow-inner" : "border-s-2 border-transparent"
                   )}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <div className="font-bold text-sm text-[var(--text-primary)] truncate pr-2">
+                    <div className="font-bold text-sm text-[var(--text-primary)] truncate pe-2">
                       {inq.name}
                     </div>
                     <Badge variant={inq.status === "NEW" ? "info" : inq.status === "RESOLVED" ? "success" : "warning"}>
@@ -181,7 +181,7 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
         </div>
 
         {selected && (
-          <div className="col-span-1 lg:col-span-7 glass rounded-3xl border-gradient shadow-2xl flex flex-col h-full animate-in slide-in-from-right-4 lg:slide-in-from-bottom-0 duration-300 relative overflow-hidden">
+          <div className="col-span-1 lg:col-span-7 glass rounded-3xl border-gradient shadow-2xl flex flex-col h-full animate-in slide-in-from-end-4 lg:slide-in-from-bottom-0 duration-300 relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between bg-zinc-950/40 shrink-0 relative z-10">
               <div className="flex items-center gap-3">
@@ -193,7 +193,7 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
                   <a href={`mailto:${selected.email}`} className="text-xs text-[var(--text-tertiary)] hover:text-[var(--color-primary)] transition-colors">
                     {selected.email}
                   </a>
-                  {selected.phone && <span className="text-xs text-[var(--text-tertiary)] ml-2">({selected.phone})</span>}
+                  {selected.phone && <span className="text-xs text-[var(--text-tertiary)] ms-2">({selected.phone})</span>}
                 </div>
               </div>
               <button 
@@ -224,7 +224,7 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
                   onClick={() => updateStatus(selected.id, "IN_PROGRESS")}
                   disabled={selected.status === "IN_PROGRESS"}
                 >
-                  <MessageSquare className="w-4 h-4 mr-2" /> In Progress
+                  <MessageSquare className="w-4 h-4 me-2" /> In Progress
                 </Button>
                 <Button 
                   size="sm"
@@ -232,16 +232,16 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
                   onClick={() => updateStatus(selected.id, "RESOLVED")}
                   disabled={selected.status === "RESOLVED"}
                 >
-                  <CheckCircle className="w-4 h-4 mr-2" /> Mark Resolved
+                  <CheckCircle className="w-4 h-4 me-2" /> Mark Resolved
                 </Button>
                 {!selected.lead && (
                   <Button
                     size="sm"
                     variant="primary"
                     onClick={() => convertToLead(selected)}
-                    className="ml-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent)]/90"
+                    className="ms-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent)]/90"
                   >
-                    <UserPlus className="w-4 h-4 mr-2" /> Convert to Lead
+                    <UserPlus className="w-4 h-4 me-2" /> Convert to Lead
                   </Button>
                 )}
               </div>

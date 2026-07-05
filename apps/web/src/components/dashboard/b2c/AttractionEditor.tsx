@@ -398,10 +398,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div className="space-y-4">
                 {features.map((item, index) => (
                   <div key={item.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                    <button type="button" onClick={() => setFeatures(features.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <button type="button" onClick={() => setFeatures(features.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pe-10">
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Item Title</label>
                         <input type="text" value={item.title} onChange={e => updateArrayItem(setFeatures, features, index, "title", e.target.value)}
@@ -439,10 +439,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
               <div className="space-y-4">
                 {pricing.map((tier, index) => (
                   <div key={tier.id || index} className="p-5 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                    <button type="button" onClick={() => setPricing(pricing.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <button type="button" onClick={() => setPricing(pricing.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pr-10">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pe-10">
                       <div className="md:col-span-4 space-y-3">
                         <div>
                           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1 block">Tier Title (EN)</label>
@@ -513,10 +513,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 <div className="space-y-4">
                   {partnerOffers.map((offer, index) => (
                     <div key={offer.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                      <button type="button" onClick={() => setPartnerOffers(partnerOffers.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setPartnerOffers(partnerOffers.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pe-10">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Partner Name</label>
                           <input type="text" value={offer.name} onChange={e => updateArrayItem(setPartnerOffers, partnerOffers, index, "name", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
@@ -551,8 +551,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-4">
                   {partners.map((partner, index) => (
-                    <div key={partner.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pr-10">
-                      <button type="button" onClick={() => setPartners(partners.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <div key={partner.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pe-10">
+                      <button type="button" onClick={() => setPartners(partners.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <input type="text" placeholder="Name (e.g. Visit Qatar)" value={partner.name} onChange={e => updateArrayItem(setPartners, partners, index, "name", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
@@ -582,12 +582,12 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-3">
                   {socialLinks.map((link, index) => (
-                    <div key={link.id || index} className="flex gap-4 relative pr-10">
+                    <div key={link.id || index} className="flex gap-4 relative pe-10">
                       <select value={link.platform} onChange={e => updateArrayItem(setSocialLinks, socialLinks, index, "platform", e.target.value)} className="w-40 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
                         <option>Instagram</option><option>TikTok</option><option>Facebook</option><option>X / Twitter</option><option>LinkedIn</option>
                       </select>
                       <input type="text" placeholder="Profile URL" value={link.url} onChange={e => updateArrayItem(setSocialLinks, socialLinks, index, "url", e.target.value)} className="flex-1 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <button type="button" onClick={() => setSocialLinks(socialLinks.filter((_, i) => i !== index))} className="absolute top-1.5 right-0 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <button type="button" onClick={() => setSocialLinks(socialLinks.filter((_, i) => i !== index))} className="absolute top-1.5 end-0 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -605,8 +605,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-4">
                   {socialPreviews.map((post, index) => (
-                    <div key={post.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex flex-col gap-4 pr-10">
-                      <button type="button" onClick={() => setSocialPreviews(socialPreviews.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <div key={post.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex flex-col gap-4 pe-10">
+                      <button type="button" onClick={() => setSocialPreviews(socialPreviews.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <div className="flex gap-4">
@@ -641,8 +641,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-4">
                   {newsCoverage.map((news, index) => (
-                    <div key={news.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative grid grid-cols-2 gap-4 pr-10">
-                      <button type="button" onClick={() => setNewsCoverage(newsCoverage.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <div key={news.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative grid grid-cols-2 gap-4 pe-10">
+                      <button type="button" onClick={() => setNewsCoverage(newsCoverage.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       <input type="text" placeholder="Publisher (e.g. Forbes)" value={news.publisher} onChange={e => updateArrayItem(setNewsCoverage, newsCoverage, index, "publisher", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
@@ -664,8 +664,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 </div>
                 <div className="space-y-4">
                   {testimonials.map((testimonial, index) => (
-                    <div key={testimonial.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex flex-col gap-4 pr-10">
-                      <button type="button" onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                    <div key={testimonial.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex flex-col gap-4 pe-10">
+                      <button type="button" onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       
@@ -763,11 +763,11 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                           const newSchedules = [...(operations.schedules || [])];
                           newSchedules.splice(index, 1);
                           setOperations({...operations, schedules: newSchedules});
-                        }} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                        }} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
                           <Trash2 className="w-4 h-4" />
                         </button>
                         
-                        <div className="grid grid-cols-1 gap-6 pr-10">
+                        <div className="grid grid-cols-1 gap-6 pe-10">
                           <div className="space-y-2">
                             <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Rule Title</label>
                             <input type="text" placeholder="e.g. Weekends, National Day" value={schedule.title || ""} onChange={e => {
@@ -998,12 +998,12 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 <div className="space-y-4">
                   {faqs.map((faq, index) => (
                     <div key={faq.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] space-y-4 relative">
-                      <button type="button" onClick={() => setFaqs(faqs.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                      <button type="button" onClick={() => setFaqs(faqs.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3 pr-8 md:pr-0">
+                        <div className="space-y-3 pe-8 md:pe-0">
                           <input type="text" placeholder="Question (EN)" value={faq.questionEn} onChange={e => updateArrayItem(setFaqs, faqs, index, "questionEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm font-bold" />
                           <textarea placeholder="Answer (EN)" value={faq.answerEn} rows={3} onChange={e => updateArrayItem(setFaqs, faqs, index, "answerEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm resize-none" />
                         </div>
@@ -1079,7 +1079,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
                     <button
                       onClick={() => setGallery(gallery.filter((_, i) => i !== index))}
-                      className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-4 end-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

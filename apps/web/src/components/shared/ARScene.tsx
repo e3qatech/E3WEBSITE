@@ -9,7 +9,7 @@ import * as THREE from "three"
 function Loader() {
   return (
     <Html center>
-      <div className="bg-black/80 text-white px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap">
+      <div className="bg-zinc-950/80 text-white px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap">
         Loading Model...
       </div>
     </Html>
@@ -49,7 +49,7 @@ export function ARScene({ modelUrl, name, dimensions, powerReq, isARMode }: ARSc
 
           {/* Dimension / Info Overlay attached to the model */}
           <Html position={[0, 1.5, 0]} center className="pointer-events-none">
-            <div className="bg-black/90 border border-white/20 p-3 rounded-xl shadow-xl w-48 text-center transition-opacity opacity-0 md:opacity-100">
+            <div className="bg-zinc-950/90 border border-white/20 p-3 rounded-xl shadow-xl w-48 text-center transition-opacity opacity-0 md:opacity-100">
               <h4 className="font-bold text-white text-sm mb-1">{name}</h4>
               <p className="text-xs text-gray-400">Dim: {dimensions}</p>
               <p className="text-xs text-gray-400">Power: {powerReq}</p>

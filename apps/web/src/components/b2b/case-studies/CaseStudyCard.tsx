@@ -56,8 +56,8 @@ export function CaseStudyCard({ caseStudy, locale, isFeatured = false, index = 0
               className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             />
             {/* View Case Study Overlay on hover */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-              <span className="bg-white text-black font-bold px-6 py-3 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+            <div className="absolute inset-0 bg-zinc-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
+              <span className="bg-white text-zinc-950 font-bold px-6 py-3 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                 {locale === 'ar' ? 'عرض دراسة الحالة' : 'View Case Study'}
                 <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
               </span>
@@ -112,15 +112,15 @@ export function CaseStudyCard({ caseStudy, locale, isFeatured = false, index = 0
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
           {/* View Case Study Overlay on hover */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-            <span className="bg-white text-black font-bold px-6 py-3 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+          <div className="absolute inset-0 bg-zinc-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+            <span className="bg-white text-zinc-950 font-bold px-6 py-3 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
               {locale === 'ar' ? 'عرض التفاصيل' : 'View Details'}
               <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             </span>
           </div>
 
           <div className="absolute top-4 start-4 z-10">
-            <Badge variant="default" className="bg-black/50 backdrop-blur-md text-white border-none">
+            <Badge variant="default" className="bg-zinc-950/50 backdrop-blur-md text-white border-none">
               {caseStudy.category}
             </Badge>
           </div>

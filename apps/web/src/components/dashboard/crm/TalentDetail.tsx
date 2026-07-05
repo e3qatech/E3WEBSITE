@@ -136,7 +136,7 @@ export function TalentDetail({ initialTalent, onClose }: { initialTalent: Talent
                 {talent.resumeUrl ? (
                   <Button variant="outline" size="sm" asChild className="mt-1">
                     <a href={talent.resumeUrl} target="_blank" rel="noopener noreferrer">
-                      <Download className="w-4 h-4 mr-2" /> Download CV
+                      <Download className="w-4 h-4 me-2" /> Download CV
                     </a>
                   </Button>
                 ) : (

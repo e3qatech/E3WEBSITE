@@ -405,7 +405,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               onClick={addFaq}
               className="px-4 py-2 bg-surface-hover border border-border-default text-text-primary rounded-lg text-sm font-bold flex items-center hover:bg-surface-active"
             >
-              <Plus size={16} className="mr-2" />
+              <Plus size={16} className="me-2" />
               Add FAQ
             </button>
           </div>
@@ -415,11 +415,11 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               <div key={idx} className="p-4 bg-surface-hover border border-border-default rounded-lg relative">
                 <button 
                   onClick={() => removeFaq(idx)}
-                  className="absolute top-4 right-4 p-2 text-text-tertiary hover:text-error hover:bg-error/10 rounded-md transition-colors"
+                  className="absolute top-4 end-4 p-2 text-text-tertiary hover:text-error hover:bg-error/10 rounded-md transition-colors"
                 >
                   <Trash2 size={16} />
                 </button>
-                <div className="grid grid-cols-2 gap-4 pr-12">
+                <div className="grid grid-cols-2 gap-4 pe-12">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Question (En)</label>
                     <input 

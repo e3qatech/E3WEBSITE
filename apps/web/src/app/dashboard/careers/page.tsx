@@ -55,7 +55,7 @@ export default async function CareersPage() {
                   <td className="p-4">
                     <div className="font-bold text-[var(--text-primary)] mb-1">{job.title}</div>
                     <div className="text-xs text-[var(--text-secondary)] flex items-center">
-                      <Briefcase className="w-3 h-3 mr-1" /> {job.location || "Any"}
+                      <Briefcase className="w-3 h-3 me-1" /> {job.location || "Any"}
                     </div>
                   </td>
                   <td className="p-4">
@@ -65,7 +65,7 @@ export default async function CareersPage() {
                     </span>
                   </td>
                   <td className="p-4 text-[var(--text-primary)] font-bold flex items-center mt-2">
-                    <Users className="w-4 h-4 mr-2 text-blue-500" />
+                    <Users className="w-4 h-4 me-2 text-blue-500" />
                     {job._count.applications}
                   </td>
                   <td className="p-4">

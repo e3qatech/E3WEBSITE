@@ -78,7 +78,7 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
                   </div>
                   
                   <div className={`shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[var(--surface-hover)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors text-[var(--text-secondary)] ${isRTL ? 'rotate-180' : ''}`}>
-                    <ArrowRight className="w-6 h-6" />
+                    <ArrowRight className="w-6 h-6 rtl:-scale-x-100" />
                   </div>
                 </div>
               </Link>

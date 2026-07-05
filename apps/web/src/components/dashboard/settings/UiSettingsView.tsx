@@ -64,7 +64,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
 
       {toast && (
         <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
-          <CheckCircle2 className="w-5 h-5 mr-2" />
+          <CheckCircle2 className="w-5 h-5 me-2" />
           Settings saved successfully.
         </div>
       )}
@@ -77,7 +77,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Palette className="w-5 h-5 mr-2 text-pink-500" /> Brand Colors
+              <Palette className="w-5 h-5 me-2 text-pink-500" /> Brand Colors
             </h2>
             
             <div className="space-y-4">
@@ -127,7 +127,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
               <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-                <Palette className="w-5 h-5 mr-2 text-purple-500" /> Calendar Hero Settings
+                <Palette className="w-5 h-5 me-2 text-emerald-500" /> Calendar Hero Settings
               </h2>
               
               <div className="space-y-4">
@@ -170,7 +170,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Layout className="w-5 h-5 mr-2 text-blue-500" /> Interface Options
+              <Layout className="w-5 h-5 me-2 text-blue-500" /> Interface Options
             </h2>
             
             <div className="space-y-4">
@@ -221,7 +221,7 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Code className="w-5 h-5 mr-2 text-green-500" /> Custom CSS
+              <Code className="w-5 h-5 me-2 text-green-500" /> Custom CSS
             </h2>
             <div>
               <p className="text-xs text-[var(--text-secondary)] mb-2">Inject custom CSS into the global stylesheet. Use with caution.</p>

@@ -153,8 +153,8 @@ export default function B2BFeedbackPage({ params }: { params: any }) {
                 />
               </div>
 
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-white text-black hover:bg-zinc-200">
-                <Send className={`w-4 h-4 ${isAr ? 'ml-2' : 'mr-2'}`} />
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-white text-zinc-950 hover:bg-zinc-200">
+                <Send className={`w-4 h-4 ${isAr ? 'ms-2' : 'me-2'}`} />
                 {isSubmitting ? (isAr ? "جاري الإرسال..." : "Submitting...") : (isAr ? "إرسال الملاحظات" : "Submit Feedback")}
               </Button>
             </form>

@@ -63,7 +63,7 @@ export function CursorFollower() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999] flex items-center justify-center text-center overflow-hidden mix-blend-difference"
+      className="fixed top-0 start-0 w-8 h-8 rounded-full pointer-events-none z-[9999] flex items-center justify-center text-center overflow-hidden mix-blend-difference"
       style={{
         x,
         y,

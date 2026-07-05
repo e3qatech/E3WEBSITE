@@ -93,7 +93,7 @@ export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: A
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <div className="absolute bottom-4 start-4 end-4 text-white">
                       <h2 className="text-2xl font-black mb-1 drop-shadow-md">
                         {attraction.attractionNameEn}
                       </h2>

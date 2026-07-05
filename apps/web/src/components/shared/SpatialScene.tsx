@@ -169,7 +169,7 @@ export function SpatialScene({ attractions, onAttractionClick }: SpatialScenePro
             {/* Hover Tooltip */}
             {hoveredIdx === i && selectedIdx !== i && (
               <Html center position={[0, 1.5, 0]} className="pointer-events-none">
-                <div className="bg-black/80 backdrop-blur border border-white/20 text-white px-3 py-1.5 rounded-sg text-sm font-bold whitespace-nowrap">
+                <div className="bg-zinc-950/80 backdrop-blur border border-white/20 text-white px-3 py-1.5 rounded-sg text-sm font-bold whitespace-nowrap">
                   {attr.name}
                 </div>
               </Html>
@@ -178,7 +178,7 @@ export function SpatialScene({ attractions, onAttractionClick }: SpatialScenePro
             {/* Clicked Info Panel */}
             {selectedIdx === i && (
               <Html position={[1, 0, 0]} className="pointer-events-auto">
-                <div className="bg-black/90 backdrop-blur-md border border-[var(--color-primary)]/50 p-5 rounded-2xl w-64 shadow-2xl animate-in slide-in-from-left-4 fade-in">
+                <div className="bg-zinc-950/90 backdrop-blur-md border border-[var(--color-primary)]/50 p-5 rounded-2xl w-64 shadow-2xl animate-in slide-in-from-start-4 fade-in">
                   <h3 className="text-xl font-black text-white mb-1">{attr.name}</h3>
                   <p className="text-sm text-gray-400 mb-4">{attr.tagline}</p>
                   

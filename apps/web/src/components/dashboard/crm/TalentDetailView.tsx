@@ -45,9 +45,9 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
           <div>
             <h1 className="text-3xl font-black text-[var(--text-primary)]">{talent.name}</h1>
             <div className="flex flex-wrap items-center gap-3 mt-2 text-[var(--text-secondary)] text-sm">
-              <span className="flex items-center"><Mail className="w-4 h-4 mr-1" /> {talent.email}</span>
-              {talent.phone && <span className="flex items-center"><Phone className="w-4 h-4 mr-1" /> {talent.phone}</span>}
-              <span className="flex items-center"><Briefcase className="w-4 h-4 mr-1" /> {talent.experienceLevel || "Unknown"} Experience</span>
+              <span className="flex items-center"><Mail className="w-4 h-4 me-1" /> {talent.email}</span>
+              {talent.phone && <span className="flex items-center"><Phone className="w-4 h-4 me-1" /> {talent.phone}</span>}
+              <span className="flex items-center"><Briefcase className="w-4 h-4 me-1" /> {talent.experienceLevel || "Unknown"} Experience</span>
             </div>
           </div>
         </div>
@@ -112,7 +112,7 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
           
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
             <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Globe className="w-5 h-5 mr-2 text-blue-500" /> Languages
+              <Globe className="w-5 h-5 me-2 text-blue-500" /> Languages
             </h3>
             <ul className="space-y-2">
               {(talent.languages || []).map((l: any, i: number) => (
@@ -134,7 +134,7 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
           
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
             <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Award className="w-5 h-5 mr-2 text-amber-500" /> Skills
+              <Award className="w-5 h-5 me-2 text-amber-500" /> Skills
             </h3>
             <div className="flex flex-wrap gap-2">
               {(talent.skills || []).map((skill: string, i: number) => (
@@ -150,7 +150,7 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
 
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
             <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <GraduationCap className="w-5 h-5 mr-2 text-purple-500" /> Education
+              <GraduationCap className="w-5 h-5 me-2 text-emerald-500" /> Education
             </h3>
             <div className="space-y-4">
               {(talent.education || []).map((edu: any, i: number) => (
@@ -173,16 +173,16 @@ export function TalentDetailView({ initialData, team }: { initialData: any, team
 
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
             <h3 className="font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Briefcase className="w-5 h-5 mr-2 text-green-500" /> Certifications
+              <Briefcase className="w-5 h-5 me-2 text-green-500" /> Certifications
             </h3>
-            <ul className="list-disc pl-5 space-y-1">
+            <ul className="list-disc ps-5 space-y-1">
               {(talent.certifications || []).map((cert: any, i: number) => (
                 <li key={i} className="text-sm text-[var(--text-secondary)]">
                   <span className="font-bold text-[var(--text-primary)]">{cert.name || cert}</span>
                 </li>
               ))}
               {(!talent.certifications || talent.certifications.length === 0) && (
-                <li className="text-sm text-[var(--text-tertiary)] italic list-none -ml-5">No certifications parsed.</li>
+                <li className="text-sm text-[var(--text-tertiary)] italic list-none -ms-5">No certifications parsed.</li>
               )}
             </ul>
           </div>

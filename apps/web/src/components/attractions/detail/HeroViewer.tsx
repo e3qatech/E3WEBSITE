@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 flex items-center justify-center bg-black"><span className="text-white/50">Loading 3D Experience...</span></div>
+  loading: () => <div className="absolute inset-0 flex items-center justify-center bg-zinc-950"><span className="text-white/50">Loading 3D Experience...</span></div>
 });
 
 interface HeroViewerProps {
@@ -40,7 +40,7 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
   const currentMediaType = mediaError && fallbackUrl ? 'IMAGE' : mediaType; // assume fallback is image
 
   return (
-    <section className="relative w-full h-[100vh] overflow-hidden bg-black flex items-center justify-center">
+    <section className="relative w-full h-[100vh] overflow-hidden bg-zinc-950 flex items-center justify-center">
       {/* Background Media */}
       <div className="absolute inset-0 z-0">
         {currentMediaType === 'IMAGE' && currentMediaUrl && (
@@ -170,12 +170,12 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
+        className="absolute bottom-10 start-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
       >
         <span className="text-[10px] text-amber-500 uppercase tracking-[0.3em] mb-4 font-mono font-bold drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">Discover</span>
         <div className="w-[1px] h-24 bg-white/10 relative overflow-hidden rounded-full">
           <motion.div 
-            className="absolute top-0 left-0 w-full h-1/2 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,1)]"
+            className="absolute top-0 start-0 w-full h-1/2 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,1)]"
             animate={{ y: ["-100%", "200%"] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           />

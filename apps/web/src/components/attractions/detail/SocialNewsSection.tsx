@@ -94,14 +94,14 @@ export function SocialNewsSection({
                     alt={social.title || 'Social preview'} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full">
+                  <div className="absolute top-4 end-4 bg-zinc-950/60 backdrop-blur-md p-2 rounded-full">
                     <MessageCircle className="w-5 h-5 text-emerald-400" />
                   </div>
                 </div>
               ) : (
                 <div className="h-48 w-full bg-gradient-to-br from-zinc-800 to-zinc-900 relative flex items-center justify-center">
                   <MessageCircle className="w-12 h-12 text-zinc-700" />
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full">
+                  <div className="absolute top-4 end-4 bg-zinc-950/60 backdrop-blur-md p-2 rounded-full">
                     <MessageCircle className="w-5 h-5 text-emerald-400" />
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export function SocialNewsSection({
               transition={{ delay: ((hasSocial ? socialPreviews.length : 0) + (hasTestimonials ? testimonials.length : 0)) * 0.1 + idx * 0.1 }}
               className="block w-80 md:w-96 shrink-0 bg-emerald-950 rounded-3xl p-8 border border-emerald-900/50 hover:border-emerald-500/50 transition-colors group relative"
             >
-              <div className="absolute top-6 right-6">
+              <div className="absolute top-6 end-6">
                 <ExternalLink className="w-5 h-5 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
               </div>
               <Newspaper className="w-10 h-10 text-emerald-500 mb-6" />

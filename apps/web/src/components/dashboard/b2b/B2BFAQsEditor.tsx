@@ -108,7 +108,7 @@ export function B2BFAQsEditor({ initialData }: { initialData: any }) {
               </div>
             </div>
             
-            <div className="space-y-4 border-t lg:border-t-0 lg:border-l border-border-default pt-4 lg:pt-0 lg:pl-6">
+            <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
                 <select value={data.header.mediaType} onChange={e => handleHeaderChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
@@ -129,7 +129,7 @@ export function B2BFAQsEditor({ initialData }: { initialData: any }) {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-text-primary">FAQ Items</h2>
             <AdminButton variant="outline" size="sm" onClick={addFaq}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 me-2" />
               Add FAQ
             </AdminButton>
           </div>
@@ -142,7 +142,7 @@ export function B2BFAQsEditor({ initialData }: { initialData: any }) {
             ) : (
               data.items.map((item: any, index: number) => (
                 <div key={index} className="border border-border-default rounded-lg p-4 bg-surface-hover space-y-4 relative group">
-                  <button onClick={() => removeFaq(index)} className="absolute top-4 right-4 text-text-secondary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                  <button onClick={() => removeFaq(index)} className="absolute top-4 end-4 text-text-secondary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wider">Question {index + 1}</h3>

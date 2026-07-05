@@ -101,13 +101,13 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
         <input 
           type="text" 
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search partners..."
-          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl py-3 pl-10 pr-4 text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl py-3 ps-10 pe-4 text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
         />
       </div>
 
@@ -121,11 +121,11 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
               ) : (
                 <div className="text-[var(--text-tertiary)] font-bold text-xl">{partner.name}</div>
               )}
-              <div className="absolute top-3 right-3 flex items-center gap-2">
+              <div className="absolute top-3 end-3 flex items-center gap-2">
                 {partner.isVisible ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 bg-black/50 rounded-full" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 bg-zinc-950/50 rounded-full" />
                 ) : (
-                  <XCircle className="w-5 h-5 text-zinc-500 bg-black/50 rounded-full" />
+                  <XCircle className="w-5 h-5 text-zinc-500 bg-zinc-950/50 rounded-full" />
                 )}
               </div>
             </div>
@@ -170,7 +170,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
       </div>
 
       {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="sticky top-0 bg-[var(--surface-default)]/80 backdrop-blur-md border-b border-[var(--border-default)] px-6 py-4 flex items-center justify-between z-10">
               <h2 className="text-xl font-bold text-[var(--text-primary)]">

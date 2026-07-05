@@ -134,7 +134,7 @@ export function JobApplicationModal({ isOpen, onClose, jobTitle, department, por
                 {formData.cvUrl ? (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-green-400">
-                      <FileText className="w-4 h-4 mr-2" />
+                      <FileText className="w-4 h-4 me-2" />
                       CV Uploaded Successfully
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => setFormData(prev => ({ ...prev, cvUrl: '' }))}>
@@ -155,10 +155,10 @@ export function JobApplicationModal({ isOpen, onClose, jobTitle, department, por
               <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={submitting} className="bg-white text-black hover:bg-zinc-200">
+              <Button type="submit" disabled={submitting} className="bg-white text-zinc-950 hover:bg-zinc-200">
                 {submitting ? "Submitting..." : (
                   <>
-                    Submit Application <Send className="w-4 h-4 ml-2" />
+                    Submit Application <Send className="w-4 h-4 ms-2" />
                   </>
                 )}
               </Button>

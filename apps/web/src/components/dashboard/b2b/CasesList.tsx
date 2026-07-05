@@ -89,13 +89,13 @@ export function CasesList({ initialCases }: CasesListProps) {
       {/* Filter and Search Bar */}
       <div className="flex gap-4 items-center bg-[var(--surface-default)] p-4 rounded-xl border border-[var(--border-default)]">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-tertiary)]" />
+          <Search className="absolute start-3 top-2.5 h-4 w-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             placeholder="Search by title, client, tags, or execution year..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg py-2 pl-10 pr-4 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]"
+            className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg py-2 ps-10 pe-4 text-sm focus:border-[var(--color-primary)] outline-none text-[var(--text-primary)]"
           />
         </div>
       </div>

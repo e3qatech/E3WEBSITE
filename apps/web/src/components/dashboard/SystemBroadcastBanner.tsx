@@ -77,7 +77,7 @@ export function SystemBroadcastBanner({ initialBroadcast }: SystemBroadcastBanne
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className={`p-1.5 rounded-full bg-white/50 dark:bg-black/20 ${iconColor} animate-pulse`}>
+            <div className={`p-1.5 rounded-full bg-white/50 dark:bg-zinc-950/20 ${iconColor} animate-pulse`}>
               <Megaphone className="w-5 h-5" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export function SystemBroadcastBanner({ initialBroadcast }: SystemBroadcastBanne
           
           <button
             onClick={() => setIsVisible(false)}
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-tertiary)] transition-colors shrink-0"
+            className="p-2 rounded-full hover:bg-zinc-950/5 dark:hover:bg-white/5 text-[var(--text-tertiary)] transition-colors shrink-0"
             aria-label="Dismiss broadcast"
           >
             <X className="w-4 h-4" />

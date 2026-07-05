@@ -103,16 +103,16 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }: { beforeUrl: string, afterUr
       {/* After Image (Background) */}
       <div className="absolute inset-0">
          <img src={afterUrl} alt="After" className="object-cover w-full h-full" />
-         <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase">After</div>
+         <div className="absolute top-4 end-4 bg-zinc-950/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase">After</div>
       </div>
       
       {/* Before Image (Foreground, clipped) */}
       <div 
-        className="absolute inset-0 border-r-2 border-white"
+        className="absolute inset-0 border-e-2 border-white"
         style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
       >
         <img src={beforeUrl} alt="Before" className="object-cover w-full h-full" />
-        <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase">Before</div>
+        <div className="absolute top-4 start-4 bg-zinc-950/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase">Before</div>
       </div>
       
       {/* Handle */}
@@ -120,7 +120,7 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }: { beforeUrl: string, afterUr
         className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize flex items-center justify-center z-10"
         style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
       >
-        <div className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-black pointer-events-none">
+        <div className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-zinc-950 pointer-events-none">
            <GripVertical size={20} />
         </div>
       </div>
@@ -156,7 +156,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
     <div className="relative w-full bg-[var(--surface-default)]">
       
       {/* 1. HERO SECTION */}
-      <section className="relative h-[70vh] min-h-[500px] w-full overflow-hidden bg-black text-white">
+      <section className="relative h-[70vh] min-h-[500px] w-full overflow-hidden bg-zinc-950 text-white">
         <motion.div style={{ y: heroY }} className="absolute inset-0 z-0">
           <MediaRenderer
             src={caseStudy.heroImageUrl || caseStudy.thumbnailUrl || ""}
@@ -168,12 +168,12 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
         </motion.div>
         
         {caseStudy.clientLogoUrl && (
-          <div className="absolute top-8 right-8 md:top-12 md:right-12 z-20 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
+          <div className="absolute top-8 end-8 md:top-12 md:end-12 z-20 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
             <MediaRenderer src={caseStudy.clientLogoUrl} type="IMAGE" alt={caseStudy.clientName} className="object-contain w-[120px] h-[60px]" />
           </div>
         )}
 
-        <div className="absolute bottom-0 left-0 right-0 z-10 px-4 md:px-8 pb-16 max-w-[1000px] mx-auto text-center">
+        <div className="absolute bottom-0 start-0 end-0 z-10 px-4 md:px-8 pb-16 max-w-[1000px] mx-auto text-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -224,7 +224,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
           
           {servicesUsed.length > 0 && (
             <div className="flex flex-wrap gap-3 mb-12">
-              <span className="text-[var(--text-secondary)] font-medium mr-2 flex items-center">Services utilized:</span>
+              <span className="text-[var(--text-secondary)] font-medium me-2 flex items-center">Services utilized:</span>
               {servicesUsed.map((svc: string) => (
                 <span key={svc} className="px-4 py-1.5 bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-full text-sm font-bold text-[var(--text-primary)] hover:border-[var(--color-primary)] cursor-default transition-colors">
                   {svc}
@@ -274,7 +274,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
           {/* Testimonial */}
           {testimonial?.quote && (
             <div className="relative bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-3xl p-8 md:p-16 mt-24">
-               <Quote className="absolute -top-8 left-12 w-16 h-16 text-[var(--color-primary)] opacity-50 bg-[var(--surface-default)] rounded-full p-2" />
+               <Quote className="absolute -top-8 start-12 w-16 h-16 text-[var(--color-primary)] opacity-50 bg-[var(--surface-default)] rounded-full p-2" />
                <p className="text-2xl md:text-3xl font-light italic leading-relaxed text-[var(--text-primary)] mb-8 relative z-10">
                  "{testimonial.quote}"
                </p>
@@ -326,7 +326,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
             <h2 className="text-4xl md:text-6xl font-black mb-6 text-white">Want Results Like These?</h2>
             <p className="text-xl text-gray-300 mb-12">Let's discuss how our engineering and creative teams can deliver impact for your next project.</p>
             <Button size="lg" variant="primary" asChild className="rounded-full h-14 px-10 text-lg shadow-[0_0_40px_var(--color-primary)]">
-               <Link href="/b2b/contact">Start Your Project <ArrowRight className="ml-2" /></Link>
+               <Link href="/b2b/contact">Start Your Project <ArrowRight className="ms-2 rtl:-scale-x-100" /></Link>
             </Button>
          </div>
       </section>

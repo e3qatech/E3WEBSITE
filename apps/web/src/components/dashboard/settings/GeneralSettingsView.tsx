@@ -80,7 +80,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
 
       {toast && (
         <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
-          <CheckCircle2 className="w-5 h-5 mr-2" />
+          <CheckCircle2 className="w-5 h-5 me-2" />
           Settings saved successfully.
         </div>
       )}
@@ -93,7 +93,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Building className="w-5 h-5 mr-2 text-blue-500" /> Site Identity
+              <Building className="w-5 h-5 me-2 text-blue-500" /> Site Identity
             </h2>
             
             <div className="space-y-4">
@@ -124,7 +124,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Mail className="w-5 h-5 mr-2 text-amber-500" /> Contact Details
+              <Mail className="w-5 h-5 me-2 text-amber-500" /> Contact Details
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -217,7 +217,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
         <div className="space-y-6">
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Share2 className="w-5 h-5 mr-2 text-pink-500" /> Social Media Links
+              <Share2 className="w-5 h-5 me-2 text-pink-500" /> Social Media Links
             </h2>
             <div className="space-y-4">
               <div>

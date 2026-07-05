@@ -28,7 +28,7 @@ export default async function CandidateDashboardPage({ params }: { params: Promi
       case 'REVIEWING':
         return { label: isAr ? 'قيد المراجعة' : 'Under Review', icon: <Search className="w-5 h-5 text-yellow-500" />, color: 'text-yellow-500', bg: 'bg-yellow-500/10 border-yellow-500/20' }
       case 'INTERVIEW':
-        return { label: isAr ? 'مقابلة' : 'Interviewing', icon: <Clock className="w-5 h-5 text-purple-500" />, color: 'text-purple-500', bg: 'bg-purple-500/10 border-purple-500/20' }
+        return { label: isAr ? 'مقابلة' : 'Interviewing', icon: <Clock className="w-5 h-5 text-emerald-500" />, color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' }
       case 'HIRED':
         return { label: isAr ? 'تم التعيين' : 'Hired', icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, color: 'text-green-500', bg: 'bg-green-500/10 border-green-500/20' }
       case 'REJECTED':
@@ -108,7 +108,7 @@ export default async function CandidateDashboardPage({ params }: { params: Promi
                   
                   {/* Status Progress Bar */}
                   <div className="mt-8 relative">
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-zinc-800 -translate-y-1/2 rounded-full" />
+                    <div className="absolute top-1/2 start-0 w-full h-1 bg-zinc-800 -translate-y-1/2 rounded-full" />
                     
                     <div className="relative flex justify-between">
                       {['NEW', 'REVIEWING', 'INTERVIEW', 'HIRED'].map((step, idx) => {

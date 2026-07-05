@@ -66,7 +66,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Component
-        ref={ref as any}
+        // @ts-expect-error polymorphic ref mismatch between div and button
+        ref={ref}
         whileHover={isDisabled ? undefined : { scale: 1.02 }}
         whileTap={isDisabled ? undefined : { scale: 0.98 }}
         transition={springTransition}
@@ -79,7 +80,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         disabled={isDisabled}
-        {...(props as any)}
+        {...props}
       >
         <span className="flex items-center justify-center gap-2 relative z-10">
           <AnimatePresence>

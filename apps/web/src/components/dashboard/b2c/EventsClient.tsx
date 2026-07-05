@@ -110,7 +110,7 @@ export function EventsClient({ initialEvents, attractions }: { initialEvents: an
           <p className="text-[var(--text-secondary)]">Manage schedules and special events for B2C attractions.</p>
         </div>
         <Button onClick={() => openModal()} className="shrink-0">
-          <Plus className="w-4 h-4 mr-2" /> Add Event
+          <Plus className="w-4 h-4 me-2" /> Add Event
         </Button>
       </div>
 
@@ -172,7 +172,7 @@ export function EventsClient({ initialEvents, attractions }: { initialEvents: an
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
           <div className="w-full max-w-xl bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-4 border-b border-[var(--border-default)]">
               <h2 className="text-lg font-bold text-[var(--text-primary)]">

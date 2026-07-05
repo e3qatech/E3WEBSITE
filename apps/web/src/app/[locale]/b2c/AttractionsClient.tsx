@@ -147,7 +147,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               y: [0, -50, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
           <motion.div
             animate={{
@@ -156,7 +156,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               y: [0, 100, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
         </div>
 
@@ -240,7 +240,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               className="w-full max-w-xl relative"
             >
               <div className="relative flex items-center w-full">
-                <Search className={`absolute ${isAr ? 'right-4' : 'left-4'} w-5 h-5 text-[#A1A1AA] peer-focus:text-[#F43F5E] transition-colors z-20`} />
+                <Search className={`absolute ${isAr ? 'end-4' : 'start-4'} w-5 h-5 text-[#A1A1AA] peer-focus:text-[#F43F5E] transition-colors z-20`} />
                 <input
                   type="search"
                   value={localSearch}
@@ -248,7 +248,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                   placeholder={isAr ? "ابحث عن التجارب..." : "Search attractions..."}
-                  className={`w-full bg-[#1A1A2E]/80 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl py-4 ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all shadow-[0_0_20px_rgba(124,58,237,0.1)] relative z-10 peer`}
+                  className={`w-full bg-[#1A1A2E]/80 backdrop-blur-md border border-[#7C3AED]/30 rounded-xl py-4 ${isAr ? 'pe-12 ps-4' : 'ps-12 pe-4'} text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#F43F5E] focus:ring-1 focus:ring-[#F43F5E] transition-all shadow-[0_0_20px_rgba(124,58,237,0.1)] relative z-10 peer`}
                   dir="auto"
                 />
 
@@ -259,7 +259,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-[#1A1A2E] border border-[#7C3AED]/30 rounded-xl shadow-[0_0_30px_rgba(124,58,237,0.2)] z-50 overflow-hidden text-left"
+                      className="absolute top-full start-0 end-0 mt-2 bg-[#1A1A2E] border border-[#7C3AED]/30 rounded-xl shadow-[0_0_30px_rgba(124,58,237,0.2)] z-50 overflow-hidden text-left"
                     >
                       {dropdownResults.length > 0 ? (
                         <ul className="flex flex-col">
@@ -328,14 +328,14 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   <select
                     value={sortMode}
                     onChange={(e) => setSortMode(e.target.value as any)}
-                    className="appearance-none bg-[#1A1A2E]/80 border border-[#7C3AED]/30 rounded-xl pl-4 pr-10 py-2 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#F43F5E] transition-colors"
+                    className="appearance-none bg-[#1A1A2E]/80 border border-[#7C3AED]/30 rounded-xl ps-4 pe-10 py-2 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#F43F5E] transition-colors"
                   >
                     <option value="Recommended">{isAr ? 'موصى به' : 'Recommended'}</option>
                     <option value="Distance">{isAr ? 'المسافة' : 'Distance'}</option>
                     <option value="PriceLowToHigh">{isAr ? 'السعر: من الأقل للأعلى' : 'Price: Low to High'}</option>
                     <option value="PriceHighToLow">{isAr ? 'السعر: من الأعلى للأقل' : 'Price: High to Low'}</option>
                   </select>
-                  <ChevronDown className="absolute right-3 w-4 h-4 text-[#A1A1AA] pointer-events-none" />
+                  <ChevronDown className="absolute end-3 w-4 h-4 text-[#A1A1AA] pointer-events-none" />
                 </div>
               </div>
             </motion.div>
@@ -424,7 +424,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                         </div>
                       )}
                       {featuredAttraction.isSpecialEvent && (
-                        <div className="flex items-center gap-2 bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-bold tracking-wide border border-purple-500/20">
+                        <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold tracking-wide border border-emerald-500/20">
                           ★ SPECIAL EVENT
                         </div>
                       )}
@@ -525,7 +525,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                                className="w-12 h-12 rounded-full bg-[#1A1A2E] border border-[#7C3AED]/30 flex items-center justify-center hover:bg-[#7C3AED]/20 hover:border-[#F43F5E]/50 transition-all active:scale-95 text-[#FAFAFA]"
                                aria-label="Scroll right"
                              >
-                               <ChevronRight className="w-5 h-5 text-[#FAFAFA]" />
+                               <ChevronRight className="w-5 h-5 text-[#FAFAFA] rtl:-scale-x-100" />
                              </button>
                           </div>
                         </div>
@@ -553,19 +553,19 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
 
             {/* Subscribe Section */}
             <section className="w-full bg-[#1A1A2E]/50 border border-[#7C3AED]/30 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden shadow-[0_0_40px_rgba(124,58,237,0.1)]">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#7C3AED]/20 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F43F5E]/20 rounded-full blur-3xl" />
+              <div className="absolute top-0 end-0 w-64 h-64 bg-[#7C3AED]/20 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 start-0 w-64 h-64 bg-[#F43F5E]/20 rounded-full blur-3xl" />
               
               <div className="relative z-10 w-full md:w-1/2">
                 <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight font-righteous">
                   {isAr ? subscribe.titleAr || "" : subscribe.titleEn || ""}
                 </h2>
-                <p className="text-purple-200">
+                <p className="text-emerald-200">
                   {isAr ? subscribe.subtitleAr : subscribe.subtitleEn}
                 </p>
               </div>
               <div className="relative z-10 w-full md:w-1/2">
-                <form className="flex flex-col sm:flex-row gap-3 w-full max-w-md ml-auto" onSubmit={e => { e.preventDefault(); /* Handle submit */ }}>
+                <form className="flex flex-col sm:flex-row gap-3 w-full max-w-md ms-auto" onSubmit={e => { e.preventDefault(); /* Handle submit */ }}>
                   <input 
                     type="email" 
                     placeholder={isAr ? "عنوان بريدك الإلكتروني" : "Your email address"}
@@ -739,7 +739,7 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
         </div>
 
         <div className="relative z-10 p-6 flex flex-col h-full justify-end">
-            <div className="absolute top-6 left-6 flex flex-col gap-2 items-start">
+            <div className="absolute top-6 start-6 flex flex-col gap-2 items-start">
              {attraction.computedStatus === 'ACTIVE' && (
                 <div className="flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-emerald-500/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -757,13 +757,13 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
                 </div>
               )}
              {attraction.isSpecialEvent && (
-                <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-md text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-purple-500/30">
+                <div className="flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-emerald-500/30">
                   ★ SPECIAL EVENT
                 </div>
               )}
             </div>
             
-            <div className="absolute top-6 right-6 flex flex-col gap-2 items-end text-right">
+            <div className="absolute top-6 end-6 flex flex-col gap-2 items-end text-right">
                {attraction.distanceKm !== undefined && (
                  <div className="flex items-center gap-1.5 bg-[#1A1A2E]/80 backdrop-blur-md text-[#FAFAFA] px-3 py-1.5 rounded-xl text-xs font-bold border border-[#7C3AED]/30">
                    <MapPin className="w-3.5 h-3.5 text-[#F43F5E]" />

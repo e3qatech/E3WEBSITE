@@ -185,7 +185,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
   } : null
 
   return (
-    <main className="min-h-screen bg-black relative selection:bg-emerald-500 selection:text-black">
+    <main className="min-h-screen bg-zinc-950 relative selection:bg-emerald-500 selection:text-zinc-950">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
 
@@ -260,7 +260,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       />
 
       {/* 8. Footer CTA */}
-      <section className="relative w-full bg-black py-32 text-center overflow-hidden border-t border-white/5">
+      <section className="relative w-full bg-zinc-950 py-32 text-center overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-black to-black pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-10 tracking-tighter uppercase leading-[1.1] max-w-4xl mx-auto break-words">
@@ -271,7 +271,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
               href={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative group px-10 py-5 bg-emerald-500 text-black font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-400 transition-all duration-300 overflow-hidden"
+              className="relative group px-10 py-5 bg-emerald-500 text-zinc-950 font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-400 transition-all duration-300 overflow-hidden"
             >
               <span className="relative z-10">{locale === 'ar' ? 'احجز الآن' : 'Book Now'}</span>
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />

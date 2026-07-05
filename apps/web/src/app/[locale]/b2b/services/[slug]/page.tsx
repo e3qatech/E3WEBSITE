@@ -118,7 +118,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
                       )}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent opacity-90 z-10" />
-                    <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+                    <div className="absolute bottom-0 start-0 end-0 p-8 z-20">
                       <div className="flex justify-between items-end">
                         <div className="max-w-[85%]">
                           {isAttraction && (
@@ -136,7 +136,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
                         </div>
                         {isAttraction && (
                            <div className="w-10 h-10 rounded-full bg-zinc-800/80 backdrop-blur border border-zinc-700 flex items-center justify-center text-emerald-400 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
-                             <ArrowRight className="w-5 h-5" />
+                             <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
                            </div>
                         )}
                       </div>

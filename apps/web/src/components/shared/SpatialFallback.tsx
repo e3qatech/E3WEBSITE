@@ -90,7 +90,7 @@ export function SpatialFallback({ attractions, onAttractionClick }: SpatialFallb
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-4 end-4 bg-black/50 backdrop-blur border border-white/10 p-3 rounded-xl flex flex-col gap-2 pointer-events-none">
+      <div className="absolute bottom-4 end-4 bg-zinc-950/50 backdrop-blur border border-white/10 p-3 rounded-xl flex flex-col gap-2 pointer-events-none">
         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[var(--color-success)]" /><span className="text-xs font-bold text-white">Active</span></div>
         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[var(--color-warning)]" /><span className="text-xs font-bold text-white">Upcoming</span></div>
         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[var(--color-primary)]" /><span className="text-xs font-bold text-white">Coming Soon</span></div>

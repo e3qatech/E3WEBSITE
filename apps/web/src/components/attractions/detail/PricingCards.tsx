@@ -40,7 +40,7 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
   if (!pricing || pricing.length === 0) return null;
 
   return (
-    <section className="py-32 bg-black text-white relative overflow-hidden border-t border-white/5">
+    <section className="py-32 bg-zinc-950 text-white relative overflow-hidden border-t border-white/5">
       {/* Background Subtle Gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black pointer-events-none" />
 
@@ -77,12 +77,12 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
               >
                 {/* Glow Effect for Featured */}
                 {isFeatured && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-emerald-500/10 blur-[50px] pointer-events-none rounded-full" />
+                  <div className="absolute top-0 start-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-emerald-500/10 blur-[50px] pointer-events-none rounded-full" />
                 )}
 
                 <div className="mb-10 relative z-10">
                   <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-6 ${isFeatured ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-white/70 border border-white/10'}`}>
-                    <Ticket className="w-3.5 h-3.5 mr-2" />
+                    <Ticket className="w-3.5 h-3.5 me-2" />
                     {tier.type}
                   </span>
                   <h3 className="text-3xl font-black mb-4 tracking-tight">{tier.titleEn}</h3>
@@ -102,8 +102,8 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                       const discountedPrice = tier.price * (1 - activeDiscount / 100);
                       return (
                         <div className="flex flex-col gap-2">
-                          <div className="absolute -top-4 -right-4">
-                            <span className="bg-emerald-500 text-black text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.4)] transform rotate-[8deg]">
+                          <div className="absolute -top-4 -end-4">
+                            <span className="bg-emerald-500 text-zinc-950 text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.4)] transform rotate-[8deg]">
                               {activeDiscount}% OFF
                             </span>
                           </div>
@@ -132,7 +132,7 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                   <Link
                     href={bookingUrl || '#'}
                     className={`relative group/btn w-full flex justify-center items-center py-5 rounded-2xl font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-300 ${
-                      isFeatured ? 'bg-emerald-500 text-black' : 'bg-white text-black'
+                      isFeatured ? 'bg-emerald-500 text-zinc-950' : 'bg-white text-zinc-950'
                     }`}
                   >
                     <span className="relative z-10">Secure Pass</span>
@@ -170,7 +170,7 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                   
                   <button
                     onClick={() => handleCopy(offer.code)}
-                    className="relative z-10 flex items-center gap-3 bg-black/50 border border-white/10 px-5 py-3 rounded-xl hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm"
+                    className="relative z-10 flex items-center gap-3 bg-zinc-950/50 border border-white/10 px-5 py-3 rounded-xl hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm"
                   >
                     <span className="font-mono font-bold tracking-[0.2em] text-sm">{offer.code}</span>
                     {copiedCode === offer.code ? (

@@ -96,13 +96,13 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
         action={
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-primary transition-colors" />
+              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search attractions..." 
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64 shadow-sm"
+                className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] w-full md:w-64 shadow-sm"
               />
             </div>
             <Link href="/dashboard/b2c/attractions/new">
@@ -156,12 +156,12 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
                 <MapPin className="w-8 h-8 text-[var(--text-tertiary)] opacity-50" />
               </div>
               
-              <div className="absolute top-3 left-3 flex flex-col gap-1">
-                <Badge variant={attraction.isPublished ? "success" : "default"} className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-black/90">
+              <div className="absolute top-3 start-3 flex flex-col gap-1">
+                <Badge variant={attraction.isPublished ? "success" : "default"} className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-zinc-950/90">
                   {attraction.isPublished ? "Live" : "Draft"}
                 </Badge>
                 {attraction.isFeatured && (
-                  <Badge variant="warning" className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-black/90 gap-1">
+                  <Badge variant="warning" className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-zinc-950/90 gap-1">
                     <Star className="w-3 h-3 fill-current" /> Featured
                   </Badge>
                 )}

@@ -62,7 +62,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
 
       {toast && (
         <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
-          <CheckCircle2 className="w-5 h-5 mr-2" />
+          <CheckCircle2 className="w-5 h-5 me-2" />
           Settings saved successfully and cache cleared.
         </div>
       )}
@@ -73,7 +73,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Globe className="w-5 h-5 mr-2 text-blue-500" /> Global Meta Tags
+              <Globe className="w-5 h-5 me-2 text-blue-500" /> Global Meta Tags
             </h2>
             
             <div className="space-y-4">
@@ -121,7 +121,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <Search className="w-5 h-5 mr-2 text-amber-500" /> Tracking IDs
+              <Search className="w-5 h-5 me-2 text-amber-500" /> Tracking IDs
             </h2>
             <div className="space-y-4">
               <div>
@@ -152,7 +152,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10">
             <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center mb-4">
-              <FileJson className="w-5 h-5 mr-2 text-green-500" /> Advanced SEO
+              <FileJson className="w-5 h-5 me-2 text-green-500" /> Advanced SEO
             </h2>
             
             <div className="space-y-4">

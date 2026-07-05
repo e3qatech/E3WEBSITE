@@ -62,7 +62,7 @@ const AdminTableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttrib
     <th
       ref={ref}
       className={cn(
-        "h-12 px-4 text-left align-middle font-bold text-text-secondary text-xs uppercase tracking-wider [&:has([role=checkbox])]:pr-0",
+        "h-12 px-4 text-left align-middle font-bold text-text-secondary text-xs uppercase tracking-wider [&:has([role=checkbox])]:pe-0",
         className
       )}
       {...props}
@@ -75,7 +75,7 @@ const AdminTableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttrib
   ({ className, ...props }, ref) => (
     <td
       ref={ref}
-      className={cn("p-4 align-middle text-text-primary [&:has([role=checkbox])]:pr-0", className)}
+      className={cn("p-4 align-middle text-text-primary [&:has([role=checkbox])]:pe-0", className)}
       {...props}
     />
   )

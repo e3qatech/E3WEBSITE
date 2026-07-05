@@ -42,8 +42,8 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
       </div>
 
       <div className="relative w-full flex overflow-x-hidden">
-        <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 start-0 w-32 h-full bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 end-0 w-32 h-full bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
         
         <motion.div 
           className="flex whitespace-nowrap gap-16 items-center py-4"

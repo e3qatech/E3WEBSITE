@@ -70,7 +70,7 @@ function GroundMap() {
       {/* Base Map */}
       <mesh>
         <shapeGeometry args={[shape]} />
-        <meshStandardMaterial color="#050505" emissive="#000000" />
+        <meshStandardMaterial color="#050505" emissive="#09090b" />
       </mesh>
       {/* Edge highlight */}
       <lineSegments>
@@ -163,7 +163,7 @@ function Markers({ attractions, onMarkerClick, hoveredId, setHoveredId }: any) {
           <group key={attr.id} position={[pos.x, 0, pos.z]}>
             {isActive && <pointLight position={[0, 1, 0]} intensity={1.5} distance={3} color="#00e676" />}
             <Html position={[0, (attr.capacityLevel * 0.4) + 0.5, 0]} center style={{ pointerEvents: 'none', opacity: isHovered ? 1 : 0, transition: 'opacity 0.2s' }}>
-              <div className="bg-black/90 backdrop-blur border border-white/10 px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl">
+              <div className="bg-zinc-950/90 backdrop-blur border border-white/10 px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl">
                 <div className="text-white font-bold text-xs">{attr.name}</div>
                 <div className="text-[var(--color-primary)] font-bold text-[10px]">{attr.status}</div>
               </div>
@@ -260,7 +260,7 @@ export default function SpatialHub({ attractions, onAttractionClick }: SpatialHu
   // Graceful degradation fallback
   if (isLowEnd) {
     return (
-      <div className="w-full h-[40vh] md:h-[60vh] bg-black border border-white/10 rounded-2xl relative overflow-hidden flex items-center justify-center">
+      <div className="w-full h-[40vh] md:h-[60vh] bg-zinc-950 border border-white/10 rounded-2xl relative overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, #333 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         
         <div className="relative w-full max-w-sm aspect-square border border-white/5 rounded-full flex items-center justify-center">
@@ -312,11 +312,11 @@ export default function SpatialHub({ attractions, onAttractionClick }: SpatialHu
 
       {/* Info Panel Overlay */}
       <div 
-        className={`absolute top-4 right-4 bottom-4 w-72 bg-black/80 backdrop-blur-md border border-white/10 rounded-xl p-5 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col ${activeAttraction ? 'translate-x-0' : 'translate-x-[120%]'}`}
+        className={`absolute top-4 end-4 bottom-4 w-72 bg-zinc-950/80 backdrop-blur-md border border-white/10 rounded-xl p-5 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col ${activeAttraction ? 'translate-x-0' : 'translate-x-[120%]'}`}
       >
         {activeAttraction && (
           <>
-            <button onClick={handleClosePanel} className="absolute top-4 right-4 text-white/50 hover:text-white">
+            <button onClick={handleClosePanel} className="absolute top-4 end-4 text-white/50 hover:text-white">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
             <div className="inline-flex px-2 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-[10px] font-black tracking-widest rounded mb-3 w-fit">
@@ -331,7 +331,7 @@ export default function SpatialHub({ attractions, onAttractionClick }: SpatialHu
                 onDoubleClick={() => {
                    window.open(`/b2b/services/${activeAttraction.slug}`, '_blank')
                 }}
-                className="w-full py-2.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition-colors"
+                className="w-full py-2.5 bg-white text-zinc-950 font-bold text-sm rounded-lg hover:bg-white/90 transition-colors"
               >
                 View Attraction (Double-click to open)
               </button>
@@ -346,7 +346,7 @@ export default function SpatialHub({ attractions, onAttractionClick }: SpatialHu
       </div>
 
       {/* Control Hint */}
-      <div className="absolute bottom-4 left-4 text-[10px] font-bold text-white/30 uppercase tracking-widest pointer-events-none">
+      <div className="absolute bottom-4 start-4 text-[10px] font-bold text-white/30 uppercase tracking-widest pointer-events-none">
         Drag to rotate • Scroll to zoom
       </div>
     </div>

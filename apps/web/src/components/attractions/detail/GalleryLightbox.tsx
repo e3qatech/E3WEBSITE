@@ -34,7 +34,7 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
   };
 
   return (
-    <section className="py-32 bg-black relative border-t border-white/5">
+    <section className="py-32 bg-zinc-950 relative border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -79,13 +79,13 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
                   loading="lazy"
                 />
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center backdrop-blur-[2px]">
+              <div className="absolute inset-0 bg-zinc-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center backdrop-blur-[2px]">
                 {item.url.match(/\.(mp4|webm|mov)$/i) ? (
-                  <div className="w-16 h-16 rounded-full border border-white/30 bg-black/50 backdrop-blur-md flex items-center justify-center transform scale-90 group-hover:scale-100 transition-all duration-500">
-                    <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white border-b-8 border-b-transparent ml-1" />
+                  <div className="w-16 h-16 rounded-full border border-white/30 bg-zinc-950/50 backdrop-blur-md flex items-center justify-center transform scale-90 group-hover:scale-100 transition-all duration-500">
+                    <div className="w-0 h-0 border-t-8 border-t-transparent border-s-[14px] border-s-white border-b-8 border-b-transparent ms-1" />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 rounded-full border border-white/30 bg-black/50 backdrop-blur-md flex items-center justify-center transform scale-90 group-hover:scale-100 transition-all duration-500">
+                  <div className="w-16 h-16 rounded-full border border-white/30 bg-zinc-950/50 backdrop-blur-md flex items-center justify-center transform scale-90 group-hover:scale-100 transition-all duration-500">
                     <Maximize2 className="w-6 h-6 text-white" />
                   </div>
                 )}
@@ -103,13 +103,13 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-3xl"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/95 backdrop-blur-3xl"
             onClick={closeLightbox}
           >
             {/* Close Button */}
             <button
               onClick={closeLightbox}
-              className="absolute top-8 right-8 p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 z-50 hover:rotate-90"
+              className="absolute top-8 end-8 p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 z-50 hover:rotate-90"
             >
               <X className="w-8 h-8" />
             </button>
@@ -117,7 +117,7 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
             {/* Previous Button */}
             <button
               onClick={prevImage}
-              className="absolute left-8 p-5 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 z-50 hover:-translate-x-1"
+              className="absolute start-8 p-5 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 z-50 hover:-translate-x-1"
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
@@ -135,13 +135,13 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
               {items[selectedIndex].url.match(/\.(mp4|webm|mov)$/i) ? (
                 <video
                   src={items[selectedIndex].url}
-                  className="w-full h-full object-contain bg-black"
+                  className="w-full h-full object-contain bg-zinc-950"
                   controls
                   autoPlay
                   playsInline
                 />
               ) : (
-                <div className="relative w-full h-full bg-black">
+                <div className="relative w-full h-full bg-zinc-950">
                   <Image
                     src={items[selectedIndex].url}
                     alt={items[selectedIndex].captionEn || `Gallery Image ${selectedIndex + 1}`}
@@ -153,7 +153,7 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
                 </div>
               )}
               {items[selectedIndex].captionEn && (
-                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black via-black/80 to-transparent">
+                <div className="absolute bottom-0 start-0 end-0 p-8 bg-gradient-to-t from-black via-black/80 to-transparent">
                   <p className="text-white text-xl text-center font-light tracking-wide">
                     {items[selectedIndex].captionEn}
                   </p>
@@ -164,13 +164,13 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
             {/* Next Button */}
             <button
               onClick={nextImage}
-              className="absolute right-8 p-5 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 z-50 hover:translate-x-1"
+              className="absolute end-8 p-5 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 z-50 hover:translate-x-1"
             >
-              <ChevronRight className="w-8 h-8" />
+              <ChevronRight className="w-8 h-8 rtl:-scale-x-100" />
             </button>
             
             {/* Counter */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white font-mono tracking-[0.3em] text-xs">
+            <div className="absolute bottom-10 start-1/2 -translate-x-1/2 px-6 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white font-mono tracking-[0.3em] text-xs">
               {selectedIndex + 1} / {items.length}
             </div>
           </motion.div>

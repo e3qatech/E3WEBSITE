@@ -53,7 +53,7 @@ export function LiveBookingCard({
   if (occupancyPercentage > 90) capacityColor = 'bg-red-500';
 
   return (
-    <section className="py-32 bg-black text-white relative border-t border-white/5">
+    <section className="py-32 bg-zinc-950 text-white relative border-t border-white/5">
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black pointer-events-none" />
       
@@ -69,7 +69,7 @@ export function LiveBookingCard({
             className="relative bg-white/[0.02] border border-white/5 backdrop-blur-3xl rounded-[2.5rem] p-10 md:p-14 flex flex-col justify-between overflow-hidden"
           >
             {/* Subtle glow overlay */}
-            <div className={`absolute -top-40 -right-40 w-80 h-80 blur-[100px] rounded-full pointer-events-none ${isOpen ? 'bg-emerald-500/10' : 'bg-red-500/10'}`} />
+            <div className={`absolute -top-40 -end-40 w-80 h-80 blur-[100px] rounded-full pointer-events-none ${isOpen ? 'bg-emerald-500/10' : 'bg-red-500/10'}`} />
 
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
@@ -80,7 +80,7 @@ export function LiveBookingCard({
               </p>
 
               {/* Live Operations Panel */}
-              <div className="bg-black/40 backdrop-blur-md rounded-3xl p-8 border border-white/5 mb-10 shadow-inner">
+              <div className="bg-zinc-950/40 backdrop-blur-md rounded-3xl p-8 border border-white/5 mb-10 shadow-inner">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
                     <div className="relative flex h-4 w-4">
@@ -107,7 +107,7 @@ export function LiveBookingCard({
                   {/* Progress Bar */}
                   <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden shadow-inner relative">
                     <motion.div 
-                      className={`absolute top-0 left-0 h-full ${capacityColor}`}
+                      className={`absolute top-0 start-0 h-full ${capacityColor}`}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min(occupancyPercentage, 100)}%` }}
                       transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
@@ -120,7 +120,7 @@ export function LiveBookingCard({
 
             <Link
               href={bookingUrl || '#'}
-              className="relative group w-full flex justify-center items-center py-5 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-300 z-10"
+              className="relative group w-full flex justify-center items-center py-5 rounded-2xl bg-white text-zinc-950 font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-300 z-10"
             >
               <span className="relative z-10">Initiate Booking</span>
               <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
@@ -193,7 +193,7 @@ export function LiveBookingCard({
             })()}
 
             {/* Location Overlay Card */}
-            <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/80 backdrop-blur-md rounded-2xl border border-white/10 pointer-events-none">
+            <div className="absolute bottom-6 start-6 end-6 p-6 bg-zinc-950/80 backdrop-blur-md rounded-2xl border border-white/10 pointer-events-none">
               <h3 className="font-bold text-lg mb-2">Location</h3>
               <p className="text-zinc-400 text-sm leading-relaxed mb-4">
                 {locationAddress || "Doha, Qatar"}

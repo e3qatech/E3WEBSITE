@@ -101,7 +101,7 @@ export function Sidebar() {
           onClick={() => setCollapsed(!collapsed)}
           className="hidden md:flex p-1.5 rounded-full hover:bg-[var(--surface-active)] text-[var(--text-secondary)] transition-all absolute -end-3 top-7 bg-[var(--bg-level-1)] border border-[var(--border-level-2)] shadow-md hover:shadow-lg z-50 hover:scale-110"
         >
-          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          {collapsed ? <ChevronRight size={14}  className="rtl:-scale-x-100" /> : <ChevronLeft size={14} />}
         </button>
       </div>
 

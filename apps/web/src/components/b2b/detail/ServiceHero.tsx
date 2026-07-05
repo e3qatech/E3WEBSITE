@@ -55,7 +55,7 @@ export function ServiceHero({ locale, name, tagline, heroMediaType, heroMediaUrl
             <div className="absolute bottom-32 end-8 z-30 flex items-center gap-4">
               <button 
                 onClick={() => setIsMuted(!isMuted)}
-                className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-black/70 transition"
+                className="w-12 h-12 rounded-full bg-zinc-950/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-zinc-950/70 transition"
               >
                 {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </button>
@@ -107,7 +107,7 @@ export function ServiceHero({ locale, name, tagline, heroMediaType, heroMediaUrl
 
       {/* Gradient Overlays for Readability */}
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/40 to-transparent" />
-      <div className="absolute inset-0 z-10 bg-black/20" />
+      <div className="absolute inset-0 z-10 bg-zinc-950/20" />
 
       {/* Content */}
       <motion.div 

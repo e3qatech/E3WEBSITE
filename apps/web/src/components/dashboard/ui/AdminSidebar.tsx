@@ -278,7 +278,7 @@ export function AdminSidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-40 md:hidden"
             />
             <motion.aside
               initial={{ x: "-100%" }}

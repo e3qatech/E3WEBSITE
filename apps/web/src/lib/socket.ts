@@ -74,7 +74,8 @@ export const initSocket = (server: HttpServer) => {
   if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
     redisUrl = redisUrl.startsWith('//') ? 'rediss:' + redisUrl : 'rediss://' + redisUrl;
   }
-  const pubClient = new Redis(redisUrl)
+  const redisOptions = { maxRetriesPerRequest: 3, retryStrategy: (times: number) => times > 3 ? null : 1000 }
+  const pubClient = new Redis(redisUrl, redisOptions)
   const subClient = pubClient.duplicate()
   io.adapter(createAdapter(pubClient, subClient))
 

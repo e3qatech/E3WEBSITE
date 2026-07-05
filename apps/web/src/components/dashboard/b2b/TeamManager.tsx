@@ -145,7 +145,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
     <div className="flex h-[calc(100vh-6rem)] -m-6 bg-[var(--background)]">
       
       {/* Sidebar - Roster Registry */}
-      <div className="w-80 border-r border-[var(--border-default)] bg-[var(--surface-default)] p-4 flex flex-col">
+      <div className="w-80 border-e border-[var(--border-default)] bg-[var(--surface-default)] p-4 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-black text-[var(--text-primary)]">Roster Directory</h2>
@@ -160,7 +160,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
         </div>
 
         {/* Members List */}
-        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+        <div className="flex-1 overflow-y-auto space-y-2 pe-1">
           {members.map(member => {
             const isSelected = selectedMemberId === member.id
             const fullNameEn = `${member.firstName} ${member.lastName}`
@@ -375,7 +375,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
                         <p className="text-xs font-bold text-[var(--text-secondary)]">No active availability slots found</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
+                      <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pe-1">
                         {selectedMember.availability.map(slot => (
                           <div 
                             key={slot.id} 
@@ -436,7 +436,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
       {/* Add Staff Modal */}
       <AnimatePresence>
         {showAddModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

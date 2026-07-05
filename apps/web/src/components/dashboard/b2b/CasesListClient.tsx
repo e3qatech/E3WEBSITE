@@ -58,13 +58,13 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
 
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">
         <div className="relative w-full sm:max-w-md group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary group-focus-within:text-primary transition-colors" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary group-focus-within:text-primary transition-colors" />
           <input 
             type="text" 
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search case studies..."
-            className="w-full bg-surface-default border border-border-default rounded-md py-2 pl-9 pr-4 text-sm font-medium text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-tertiary shadow-sm"
+            className="w-full bg-surface-default border border-border-default rounded-md py-2 ps-9 pe-4 text-sm font-medium text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-tertiary shadow-sm"
           />
         </div>
       </div>

@@ -99,7 +99,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm"
         />
 
         <motion.div 
@@ -115,7 +115,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
               <p className="text-zinc-400 text-sm font-medium flex items-center gap-2 font-mono">
                 {format(new Date(event.startTime), 'EEEE, MMMM d, yyyy')} <br className="sm:hidden" />
                 <span className="hidden sm:inline">•</span>
-                <span className="text-purple-500">{format(new Date(event.startTime), 'h:mm a')}</span>
+                <span className="text-emerald-500">{format(new Date(event.startTime), 'h:mm a')}</span>
               </p>
             </div>
             <button 
@@ -130,7 +130,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
           <div className="p-6 overflow-y-auto flex-1">
             {loading ? (
               <div className="py-12 flex flex-col items-center justify-center text-zinc-500">
-                <Loader2 className="w-8 h-8 animate-spin mb-4 text-purple-500" />
+                <Loader2 className="w-8 h-8 animate-spin mb-4 text-emerald-500" />
                 <p className="text-sm font-bold font-mono uppercase tracking-widest">Loading Tickets...</p>
               </div>
             ) : (
@@ -144,7 +144,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
                     <div key={tier.id} className="flex items-center justify-between p-4 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 rounded-2xl">
                       <div>
                         <h4 className="font-bold font-satoshi text-white text-lg">{tier.titleEn}</h4>
-                        <p className="text-purple-500 font-bold font-mono uppercase tracking-widest text-sm">{tier.currency} {tier.price}</p>
+                        <p className="text-emerald-500 font-bold font-mono uppercase tracking-widest text-sm">{tier.currency} {tier.price}</p>
                       </div>
                       
                       <div className="flex items-center gap-3 bg-[#0F0F23] border border-zinc-800 rounded-xl p-1">
@@ -170,7 +170,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
                   ))
                 )}
 
-                <div className="mt-6 p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex justify-between items-center text-purple-500">
+                <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex justify-between items-center text-emerald-500">
                   <span className="text-sm font-bold font-mono uppercase tracking-widest">Remaining Capacity</span>
                   <span className="text-xl font-black font-mono">{remainingCapacity}</span>
                 </div>
@@ -183,7 +183,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
             {onOpenBulkBooking && (
               <button 
                 onClick={onOpenBulkBooking}
-                className="w-full text-center text-sm text-zinc-500 hover:text-purple-500 transition-colors mb-4 underline underline-offset-4"
+                className="w-full text-center text-sm text-zinc-500 hover:text-emerald-500 transition-colors mb-4 underline underline-offset-4"
               >
                 Need 10 or more tickets? Request a Group Booking
               </button>
@@ -195,10 +195,10 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
             <button
               onClick={handleProceed}
               disabled={totalSelected === 0}
-              className="w-full py-4 bg-purple-500 hover:bg-purple-400 text-black font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-purple-500 flex items-center justify-center gap-2 group font-satoshi"
+              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-emerald-500 flex items-center justify-center gap-2 group font-satoshi"
             >
               Proceed to Booking
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform rtl:-scale-x-100" />
             </button>
           </div>
         </motion.div>

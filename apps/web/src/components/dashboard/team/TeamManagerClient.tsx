@@ -49,12 +49,12 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
       <div className="glass rounded-2xl border-gradient overflow-hidden">
         <div className="p-4 border-b border-[var(--border-level-2)] flex flex-col sm:flex-row gap-4 justify-between items-center bg-[var(--surface-default)]/50">
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
             <Input 
               placeholder="Search team..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 w-full"
+              className="ps-9 w-full"
             />
           </div>
         </div>

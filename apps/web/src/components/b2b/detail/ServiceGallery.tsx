@@ -55,7 +55,7 @@ export function ServiceGallery({ items, locale }: ServiceGalleryProps) {
                   muted 
                   playsInline
                 />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                <div className="absolute inset-0 bg-zinc-950/30 flex items-center justify-center group-hover:bg-zinc-950/10 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                     <Play className="w-5 h-5 text-white fill-white" />
                   </div>
@@ -82,7 +82,7 @@ export function ServiceGallery({ items, locale }: ServiceGalleryProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-4 md:p-8"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/95 backdrop-blur-md p-4 md:p-8"
             onClick={() => setActiveItem(null)}
           >
             <button 

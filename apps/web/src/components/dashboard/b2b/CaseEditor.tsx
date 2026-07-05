@@ -295,7 +295,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {metrics.map((metric, index) => (
                   <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group flex flex-col gap-3">
-                    <button onClick={() => setMetrics(metrics.filter((_, i) => i !== index))} className="absolute top-2 right-2 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setMetrics(metrics.filter((_, i) => i !== index))} className="absolute top-2 end-2 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <div>
@@ -332,10 +332,10 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
               <div className="space-y-4">
                 {caseTeamMembers.map((item, index) => (
                   <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
-                    <button onClick={() => setCaseTeamMembers(caseTeamMembers.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setCaseTeamMembers(caseTeamMembers.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pe-12">
                       <div className="space-y-2 md:col-span-2">
                         <label className="text-xs font-bold text-[var(--text-secondary)]">Select Member</label>
                         <select value={item.employeeProfileId} onChange={e => updateArrayItem(setCaseTeamMembers, caseTeamMembers, index, "employeeProfileId", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
@@ -372,10 +372,10 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
               <div className="space-y-4">
                 {testimonials.map((item, index) => (
                   <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
-                    <button onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <div className="grid grid-cols-1 gap-4 pr-12">
+                    <div className="grid grid-cols-1 gap-4 pe-12">
                       <div className="flex items-center gap-2">
                         <input type="checkbox" checked={item.isVisible !== false} onChange={e => updateArrayItem(setTestimonials, testimonials, index, "isVisible", e.target.checked)} className="rounded" />
                         <label className="text-sm font-bold">Visible on Website</label>
@@ -411,7 +411,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
               <div className="space-y-4">
                 {gallery.map((item, index) => (
                   <div key={index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative group">
-                    <button onClick={() => setGallery(gallery.filter((_, i) => i !== index))} className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setGallery(gallery.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-2 text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">

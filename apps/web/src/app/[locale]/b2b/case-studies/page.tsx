@@ -75,7 +75,7 @@ export default async function CaseStudiesIndexPage() {
           {/* Filters */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 opacity-50 pointer-events-none">
             <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
-              <div className="flex items-center gap-2 text-zinc-500 font-bold uppercase tracking-wider text-xs mr-4 shrink-0">
+              <div className="flex items-center gap-2 text-zinc-500 font-bold uppercase tracking-wider text-xs me-4 shrink-0">
                 <Filter className="w-4 h-4" /> Filter by
               </div>
               {categories.map((cat, i) => (

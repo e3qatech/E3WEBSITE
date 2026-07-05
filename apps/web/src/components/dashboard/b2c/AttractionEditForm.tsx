@@ -133,7 +133,7 @@ export function AttractionEditForm({ initialData }: { initialData: any }) {
       <div className="flex items-center justify-between p-4 md:p-6 bg-[var(--surface-default)] border-b border-[var(--border-default)] shrink-0 z-10">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/b2c/attractions')}>
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+            <ArrowLeft className="w-4 h-4 me-2" /> Back
           </Button>
           <div>
             <h1 className="text-xl font-black text-[var(--text-primary)]">Edit Attraction: {formData.nameEn}</h1>
@@ -143,18 +143,18 @@ export function AttractionEditForm({ initialData }: { initialData: any }) {
         <div className="flex items-center gap-3">
           <Button variant="outline" asChild>
             <a href={`/en/b2c/attractions/${formData.slug}`} target="_blank" rel="noreferrer">
-              <Eye className="w-4 h-4 mr-2" /> Preview
+              <Eye className="w-4 h-4 me-2" /> Preview
             </a>
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
-            <Save className="w-4 h-4 mr-2" /> {isSaving ? "Saving..." : "Save Changes"}
+            <Save className="w-4 h-4 me-2" /> {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Tabs */}
-        <div className="w-64 bg-[var(--surface-default)] border-r border-[var(--border-default)] p-4 overflow-y-auto hidden md:block shrink-0">
+        <div className="w-64 bg-[var(--surface-default)] border-e border-[var(--border-default)] p-4 overflow-y-auto hidden md:block shrink-0">
           <div className="space-y-1">
             {tabs.map(tab => (
               <button

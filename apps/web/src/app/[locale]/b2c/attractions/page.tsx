@@ -104,14 +104,14 @@ async function FeaturedAttractionsHero({ locale, baseUrl }: { locale: string, ba
           fill
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
         />
-        <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold uppercase tracking-wider mb-4">
+        <div className="absolute bottom-0 start-0 end-0 p-8 z-20">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500 text-zinc-950 text-xs font-bold uppercase tracking-wider mb-4">
             {locale === 'ar' ? 'فعالية مميزة' : 'Featured Event'}
           </span>
           <h1 className="text-5xl md:text-7xl font-black text-white mb-4 leading-tight">
             {attractions[0]?.name?.[locale as 'en'|'ar'] || (locale === 'ar' ? 'اكتشف الروعة' : 'Experience the Wonder')}
           </h1>
-          <Button asChild variant="primary" className="bg-amber-500 hover:bg-amber-600 text-black border-none">
+          <Button asChild variant="primary" className="bg-amber-500 hover:bg-amber-600 text-zinc-950 border-none">
             <Link href={`/${locale}/b2c/attractions/${attractions[0]?.slug || '1'}`}>
               {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
             </Link>
@@ -121,7 +121,7 @@ async function FeaturedAttractionsHero({ locale, baseUrl }: { locale: string, ba
 
       {/* Metric Card 1 */}
       <div className="rounded-3xl p-8 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/50 flex flex-col justify-between hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all duration-500 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors" />
+        <div className="absolute top-0 end-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors" />
         <div className="relative z-10">
           <p className="text-zinc-400 text-sm font-bold uppercase tracking-wider mb-2">
             {locale === 'ar' ? 'فعاليات نشطة' : 'Active Events'}
@@ -146,7 +146,7 @@ async function FeaturedAttractionsHero({ locale, baseUrl }: { locale: string, ba
           </p>
         </div>
         <div className="relative z-10 flex justify-end">
-          <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-black transition-colors">
+          <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-zinc-950 transition-colors">
             <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
           </div>
         </div>
@@ -167,7 +167,7 @@ async function FeaturedAttractionsList({ locale, baseUrl }: { locale: string, ba
           className="min-w-[300px] md:min-w-[400px] snap-center group"
         >
           <div className="aspect-[4/5] rounded-3xl overflow-hidden relative mb-6">
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
+            <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
             <E3Image 
               src={attr.thumbnailImage || "https://images.unsplash.com/photo-1540839045646-19f7381eb6c7"} 
               alt={attr.name?.[locale as 'en'|'ar'] || "Attraction"} 
@@ -175,7 +175,7 @@ async function FeaturedAttractionsList({ locale, baseUrl }: { locale: string, ba
               isThumbnail={true}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+            <div className="absolute top-4 end-4 z-20 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
               <ArrowRight className="w-5 h-5 text-amber-600 rtl:-scale-x-100" />
             </div>
           </div>
@@ -255,7 +255,7 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
 
       {/* 3. QUICK TICKETING CTA */}
       <section className="py-32 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <Ticket className="w-16 h-16 text-amber-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
           <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tighter uppercase drop-shadow-lg">
@@ -269,7 +269,7 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
           
           <Link href={`/${locale}/b2c/tickets`} className="inline-block relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full blur opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200" />
-            <div className="relative bg-black border border-amber-500/30 hover:border-amber-500/80 px-12 py-5 rounded-full text-amber-500 hover:text-amber-400 font-black tracking-widest uppercase transition-all duration-300">
+            <div className="relative bg-zinc-950 border border-amber-500/30 hover:border-amber-500/80 px-12 py-5 rounded-full text-amber-500 hover:text-amber-400 font-black tracking-widest uppercase transition-all duration-300">
               {locale === 'ar' ? 'شراء التذاكر' : 'Buy Tickets'}
             </div>
           </Link>

@@ -167,13 +167,13 @@ export function CaseStudiesClient({ initialCaseStudies }: { initialCaseStudies: 
             alt={cs.titleEn}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/40 transition-colors duration-300 flex items-center justify-center">
                     <Button variant="primary" className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 rounded-full h-12 px-6 shadow-xl">
                       View Case Study
                     </Button>
                   </div>
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="px-3 py-1 text-xs font-bold bg-black/60 backdrop-blur-md text-white rounded-full uppercase tracking-wider">{cs.category}</span>
+                  <div className="absolute top-4 start-4 flex gap-2">
+                    <span className="px-3 py-1 text-xs font-bold bg-zinc-950/60 backdrop-blur-md text-white rounded-full uppercase tracking-wider">{cs.category}</span>
                   </div>
                 </Link>
                 <div className="p-8 flex-1 flex flex-col justify-between">

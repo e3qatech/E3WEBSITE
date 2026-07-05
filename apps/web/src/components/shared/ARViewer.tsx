@@ -28,7 +28,7 @@ function Loader() {
   const { progress } = useProgress()
   return (
     <Html center>
-      <div className="flex flex-col items-center justify-center p-4 bg-black/80 backdrop-blur rounded-xl border border-white/10 w-48">
+      <div className="flex flex-col items-center justify-center p-4 bg-zinc-950/80 backdrop-blur rounded-xl border border-white/10 w-48">
         <div className="text-white font-bold text-sm mb-2">Loading Model</div>
         <div className="w-full bg-white/20 rounded-full h-1.5 overflow-hidden">
           <div className="bg-[var(--color-primary)] h-full transition-all" style={{ width: `${progress}%` }} />
@@ -123,11 +123,11 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
   }
 
   return (
-    <div className="relative w-full h-[60vh] bg-black/90 rounded-2xl overflow-hidden border border-white/10 font-sans flex flex-col">
+    <div className="relative w-full h-[60vh] bg-zinc-950/90 rounded-2xl overflow-hidden border border-white/10 font-sans flex flex-col">
       
       {/* HEADER */}
-      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
-        <div className="bg-black/80 backdrop-blur border border-white/10 rounded-xl p-3 pointer-events-auto">
+      <div className="absolute top-0 start-0 end-0 p-4 flex justify-between items-start z-10 pointer-events-none">
+        <div className="bg-zinc-950/80 backdrop-blur border border-white/10 rounded-xl p-3 pointer-events-auto">
           <h3 className="text-white font-black text-sm">{modelName}</h3>
           {dimensions && (
             <p className="text-white/70 text-xs mt-1">
@@ -140,7 +140,7 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
         </div>
         
         {onClose && (
-          <button onClick={onClose} className="p-2 bg-black/80 border border-white/10 rounded-full text-white/70 hover:text-white pointer-events-auto">
+          <button onClick={onClose} className="p-2 bg-zinc-950/80 border border-white/10 rounded-full text-white/70 hover:text-white pointer-events-auto">
             <X className="w-5 h-5" />
           </button>
         )}
@@ -190,26 +190,26 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
       </div>
 
       {/* FOOTER CONTROLS */}
-      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end z-10 pointer-events-none">
+      <div className="absolute bottom-4 start-4 end-4 flex justify-between items-end z-10 pointer-events-none">
         
         <div className="flex gap-2 pointer-events-auto">
           {inAR && modelPlaced && (
-            <button onClick={handleReset} className="p-3 bg-black/80 backdrop-blur border border-white/10 rounded-full text-white hover:bg-white/10 transition-colors tooltip-trigger relative group">
+            <button onClick={handleReset} className="p-3 bg-zinc-950/80 backdrop-blur border border-white/10 rounded-full text-white hover:bg-white/10 transition-colors tooltip-trigger relative group">
               <RefreshCcw className="w-5 h-5" />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Reset</span>
+              <span className="absolute -top-8 start-1/2 -translate-x-1/2 bg-zinc-950 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Reset</span>
             </button>
           )}
           
-          <button onClick={takeScreenshot} className="p-3 bg-black/80 backdrop-blur border border-white/10 rounded-full text-white hover:bg-white/10 transition-colors tooltip-trigger relative group">
+          <button onClick={takeScreenshot} className="p-3 bg-zinc-950/80 backdrop-blur border border-white/10 rounded-full text-white hover:bg-white/10 transition-colors tooltip-trigger relative group">
             <Camera className="w-5 h-5" />
-            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Snapshot</span>
+            <span className="absolute -top-8 start-1/2 -translate-x-1/2 bg-zinc-950 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Snapshot</span>
           </button>
         </div>
 
         <div className="pointer-events-auto flex flex-col items-end">
           {showTooltip && xrSupported && !inAR && (
-            <div className="bg-[var(--color-primary)] text-black text-xs font-bold px-3 py-2 rounded-lg mb-2 shadow-lg animate-bounce flex items-center">
-              <Info className="w-4 h-4 mr-1" /> Tap to view in your space
+            <div className="bg-[var(--color-primary)] text-zinc-950 text-xs font-bold px-3 py-2 rounded-lg mb-2 shadow-lg animate-bounce flex items-center">
+              <Info className="w-4 h-4 me-1" /> Tap to view in your space
             </div>
           )}
           
@@ -220,7 +220,7 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
                   setInAR(true)
                   store.enterAR()
                 }}
-                className="flex items-center gap-2 px-6 py-3 bg-white text-black font-black text-sm rounded-xl hover:bg-gray-200 transition-colors shadow-xl"
+                className="flex items-center gap-2 px-6 py-3 bg-white text-zinc-950 font-black text-sm rounded-xl hover:bg-gray-200 transition-colors shadow-xl"
               >
                 Enter AR
               </button>

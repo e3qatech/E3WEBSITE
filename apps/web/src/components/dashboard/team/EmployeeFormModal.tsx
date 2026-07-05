@@ -113,7 +113,7 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
       <div className="flex flex-col md:flex-row max-h-[85vh] overflow-hidden bg-zinc-950/50 backdrop-blur-xl">
         
         {/* Sidebar Nav */}
-        <div className="w-full md:w-64 border-r border-zinc-800/50 bg-zinc-900/30 p-4 flex flex-col gap-2 shrink-0 overflow-y-auto">
+        <div className="w-full md:w-64 border-e border-zinc-800/50 bg-zinc-900/30 p-4 flex flex-col gap-2 shrink-0 overflow-y-auto">
           <div className="px-3 py-2 text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Sections</div>
           <button
             type="button"
@@ -168,7 +168,7 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
           
           <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
             {activeTab === "basic" && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">First Name</label>
@@ -216,7 +216,7 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
             )}
 
             {activeTab === "media" && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-8 animate-in fade-in slide-in-from-end-4 duration-300">
                 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Profile Portrait / Video</label>
@@ -247,7 +247,7 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
             )}
 
             {activeTab === "advanced" && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-6">
                   <h4 className="text-amber-500 font-bold text-sm mb-1">JSON Array Formatting</h4>
                   <p className="text-xs text-zinc-400">These fields accept strict JSON arrays. Ensure they are valid or the save will fail.</p>

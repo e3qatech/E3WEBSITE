@@ -30,10 +30,15 @@ interface EventCardProps {
 }
 
 export function EventCard({ events, onSelectTickets }: EventCardProps) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
   const event = events[0]; // Base details on the first event
   const startDate = new Date(event.startTime);
   const endDate = new Date(events[events.length - 1].endTime);
   
+  if (!mounted) return <div className="h-48 w-full bg-[#1A1A2E]/50 animate-pulse rounded-2xl"></div>;
+
   // Status logic for overall availability
   const totalRemaining = events.reduce((sum, e) => sum + (e.capacityGate - e.currentCount), 0);
   let statusBadge = null;
@@ -53,7 +58,7 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
   // Type badge colors
   const typeColors = {
     REGULAR: 'bg-zinc-800 text-zinc-300',
-    SPECIAL: 'bg-purple-500 text-black font-bold',
+    SPECIAL: 'bg-emerald-500 text-zinc-950 font-bold',
     FESTIVAL: 'bg-indigo-500 text-white font-bold',
     PRIVATE: 'bg-rose-500 text-white font-bold',
   };
@@ -62,7 +67,7 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
     <div className="group relative bg-[#1A1A2E]/80 backdrop-blur-md/50 backdrop-blur-xl border border-zinc-800 rounded-2xl overflow-hidden transition-all hover:bg-[#1A1A2E]/80 backdrop-blur-md hover:border-zinc-700">
       
       {/* Type Badge Floating */}
-      <div className={`absolute top-4 left-4 z-10 px-2 py-1 text-[10px] uppercase tracking-widest rounded-md ${typeColors[event.eventType] || typeColors.REGULAR}`}>
+      <div className={`absolute top-4 start-4 z-10 px-2 py-1 text-[10px] uppercase tracking-widest rounded-md ${typeColors[event.eventType] || typeColors.REGULAR}`}>
         {event.eventType}
       </div>
 
@@ -96,8 +101,8 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent md:bg-gradient-to-r pointer-events-none" />
 
           {/* Date Block Overlay */}
-          <div className="absolute bottom-4 left-4 text-white">
-            <div className="text-sm font-medium text-purple-500 font-mono uppercase tracking-widest">
+          <div className="absolute bottom-4 start-4 text-white">
+            <div className="text-sm font-medium text-emerald-500 font-mono uppercase tracking-widest">
               {format(startDate, 'MMM')}
             </div>
             <div className="text-3xl font-black leading-none font-satoshi">
@@ -116,14 +121,14 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
                     {event.title}
                   </h3>
                 )}
-                <Link href={`/en/b2c/attractions/${event.attractionSlug}`} className={`hover:text-purple-500 transition-colors ${event.title ? 'text-sm text-zinc-400 font-medium' : 'text-xl md:text-2xl font-bold text-white leading-tight font-satoshi'}`}>
+                <Link href={`/en/b2c/attractions/${event.attractionSlug}`} className={`hover:text-emerald-500 transition-colors ${event.title ? 'text-sm text-zinc-400 font-medium' : 'text-xl md:text-2xl font-bold text-white leading-tight font-satoshi'}`}>
                   {event.attractionNameEn}
                 </Link>
               </div>
-              <div className="flex flex-col items-end gap-2 ml-4 shrink-0">
+              <div className="flex flex-col items-end gap-2 ms-4 shrink-0">
                 {statusBadge}
                 {event.hasOffer && (
-                  <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-purple-500/20 text-purple-500 rounded-sm border border-purple-500/30">
+                  <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">
                     Offer
                   </div>
                 )}
@@ -141,7 +146,7 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
               </div>
               {event.price && (
                 <div className="flex items-center gap-1.5 text-white bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-700">
-                  <Tag className="w-3.5 h-3.5 text-purple-500" />
+                  <Tag className="w-3.5 h-3.5 text-emerald-500" />
                   From {event.price}
                 </div>
               )}
@@ -151,7 +156,7 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
           <div className="flex items-center justify-between border-t border-zinc-800/60 pt-5 mt-auto">
             <Link 
               href={`/en/b2c/attractions/${event.attractionSlug}`}
-              className="px-5 py-2 text-sm font-bold text-zinc-300 hover:text-black hover:bg-white bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-700 rounded-lg uppercase tracking-widest transition-all"
+              className="px-5 py-2 text-sm font-bold text-zinc-300 hover:text-zinc-950 hover:bg-white bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-700 rounded-lg uppercase tracking-widest transition-all"
             >
               Explore
             </Link>
@@ -164,7 +169,7 @@ export function EventCard({ events, onSelectTickets }: EventCardProps) {
                 className={`px-6 py-2 text-sm font-bold uppercase tracking-widest rounded-lg transition-all border flex items-center gap-2
                   ${isPast(endDate) || totalRemaining <= 0
                     ? 'bg-[#1A1A2E]/80 backdrop-blur-md border-zinc-800 text-zinc-600 cursor-not-allowed pointer-events-none' 
-                    : 'bg-purple-500 text-black hover:bg-white border-purple-500'}
+                    : 'bg-emerald-500 text-zinc-950 hover:bg-white border-emerald-500'}
                 `}
               >
                 Book Now <ExternalLink className="w-4 h-4" />

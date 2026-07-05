@@ -22,7 +22,7 @@ export function TopBar() {
               <span className={isLast ? "text-[var(--text-primary)] font-black tracking-tight" : "hover:text-[var(--text-primary)] cursor-pointer transition-colors"}>
                 {formattedPath}
               </span>
-              {!isLast && <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)]" />}
+              {!isLast && <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] rtl:-scale-x-100" />}
             </div>
           )
         })}

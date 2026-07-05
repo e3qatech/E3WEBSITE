@@ -174,7 +174,7 @@ export default async function DashboardOverviewPage() {
               <p className="text-sm text-text-tertiary mt-0.5">Real-time pipeline overview</p>
             </div>
             <Link href="/dashboard/crm/leads">
-              <AdminButton variant="ghost" rightIcon={<ArrowRight className="w-4 h-4" />}>
+              <AdminButton variant="ghost" rightIcon={<ArrowRight className="w-4 h-4 rtl:-scale-x-100" />}>
                 View All
               </AdminButton>
             </Link>

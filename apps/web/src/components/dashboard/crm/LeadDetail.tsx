@@ -211,10 +211,10 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
               </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+            <div className="flex-1 overflow-y-auto space-y-4 pe-2">
               {lead.activities.map(activity => (
-                <div key={activity.id} className="relative pl-6 border-l-2 border-[var(--border-default)] pb-4 last:pb-0">
-                  <div className="absolute w-3 h-3 bg-[var(--color-primary)] rounded-full -left-[7px] top-1" />
+                <div key={activity.id} className="relative ps-6 border-s-2 border-[var(--border-default)] pb-4 last:pb-0">
+                  <div className="absolute w-3 h-3 bg-[var(--color-primary)] rounded-full -start-[7px] top-1" />
                   <div className="bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-default)]">
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-bold text-xs text-[var(--text-primary)]">{activity.author}</span>

@@ -39,7 +39,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+        "fixed top-0 start-0 end-0 z-50 transition-all duration-300 border-b",
         isScrolled
           ? "bg-zinc-950/80 backdrop-blur-md border-zinc-800/50 py-4 shadow-sm"
           : "bg-transparent border-transparent py-6"
@@ -81,7 +81,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
                 {isActive && (
                   <motion.div
                     layoutId="b2b-nav-indicator"
-                    className="absolute -bottom-2 left-0 right-0 h-0.5 bg-emerald-500"
+                    className="absolute -bottom-2 start-0 end-0 h-0.5 bg-emerald-500"
                     initial={false}
                   />
                 )}

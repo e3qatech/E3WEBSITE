@@ -89,14 +89,14 @@ export function TopFilterBar({
               onClick={goToToday}
               className="flex items-center gap-2 px-4 py-2 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 hover:border-zinc-600 rounded-full text-sm font-bold text-white whitespace-nowrap transition-colors"
             >
-              <Calendar className="w-4 h-4 text-purple-500" />
+              <Calendar className="w-4 h-4 text-emerald-500" />
               Today
             </button>
             <button 
               onClick={onDiscountToggle}
               className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
                 isDiscountActive 
-                  ? 'bg-purple-500 border-purple-500 text-black' 
+                  ? 'bg-emerald-500 border-emerald-500 text-zinc-950' 
                   : 'bg-[#1A1A2E]/80 backdrop-blur-md border-zinc-800 hover:border-zinc-600 text-white'
               }`}
             >
@@ -105,7 +105,7 @@ export function TopFilterBar({
             </button>
             <button 
               onClick={onBulkBookingClick}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-100 hover:bg-white text-black border border-zinc-100 rounded-full text-sm font-bold whitespace-nowrap transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 rounded-full text-sm font-bold whitespace-nowrap transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             >
               <Users className="w-4 h-4" />
               Group Booking
@@ -114,7 +114,7 @@ export function TopFilterBar({
             {(selectedAttractions.length > 0 || selectedEventTypes.length > 0 || isDiscountActive) && (
               <button
                 onClick={onResetFilters}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase transition-colors bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white ml-auto"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase transition-colors bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white ms-auto"
               >
                 Reset Filters
               </button>
@@ -129,7 +129,7 @@ export function TopFilterBar({
                 onClick={() => onEventTypeToggle(type)}
                 className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors border ${
                   selectedEventTypes.includes(type) 
-                    ? 'bg-zinc-100 text-black border-zinc-100' 
+                    ? 'bg-zinc-100 text-zinc-950 border-zinc-100' 
                     : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
                 }`}
               >
@@ -147,7 +147,7 @@ export function TopFilterBar({
                 <ChevronLeft className="w-4 h-4 text-zinc-300" />
               </button>
               <button onClick={nextMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
-                <ChevronRight className="w-4 h-4 text-zinc-300" />
+                <ChevronRight className="w-4 h-4 text-zinc-300 rtl:-scale-x-100" />
               </button>
             </div>
           </div>
@@ -156,8 +156,8 @@ export function TopFilterBar({
 
         {/* Middle Row: Date Scroller */}
         <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0C0C0C]/90 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0C0C0C]/90 to-transparent z-10 pointer-events-none" />
+          <div className="absolute start-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0C0C0C]/90 to-transparent z-10 pointer-events-none" />
+          <div className="absolute end-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0C0C0C]/90 to-transparent z-10 pointer-events-none" />
           
           <div 
             ref={dateScrollRef}
@@ -175,9 +175,9 @@ export function TopFilterBar({
                   className={`
                     flex flex-col items-center justify-center min-w-[64px] h-[72px] rounded-2xl border transition-all shrink-0
                     ${isSelected 
-                      ? 'bg-purple-500 border-purple-500 text-black scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
+                      ? 'bg-emerald-500 border-emerald-500 text-zinc-950 scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
                       : isTodayDay
-                        ? 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-purple-500/50 text-purple-500 hover:bg-zinc-800'
+                        ? 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-emerald-500/50 text-emerald-500 hover:bg-zinc-800'
                         : 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700'
                     }
                   `}
@@ -185,7 +185,7 @@ export function TopFilterBar({
                   <span className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">
                     {format(day, 'EEE')}
                   </span>
-                  <span className={`text-xl font-black font-satoshi ${isSelected ? 'text-black' : 'text-white'}`}>
+                  <span className={`text-xl font-black font-satoshi ${isSelected ? 'text-zinc-950' : 'text-white'}`}>
                     {format(day, 'd')}
                   </span>
                 </button>
@@ -196,7 +196,7 @@ export function TopFilterBar({
 
         {/* Bottom Row: Attractions Filter */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-          <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest shrink-0 flex items-center gap-2 mr-2">
+          <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest shrink-0 flex items-center gap-2 me-2">
             <Filter className="w-3 h-3" /> Attractions
           </span>
           {attractions.map(attr => (
@@ -205,7 +205,7 @@ export function TopFilterBar({
               onClick={() => onAttractionToggle(attr.id)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors border shrink-0 ${
                 selectedAttractions.includes(attr.id) 
-                  ? 'bg-white text-black border-white font-bold' 
+                  ? 'bg-white text-zinc-950 border-white font-bold' 
                   : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
               }`}
             >

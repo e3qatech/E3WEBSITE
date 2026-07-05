@@ -74,7 +74,7 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
               y: [0, -50, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -left-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
           <motion.div
             animate={{
@@ -83,7 +83,7 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
               y: [0, 100, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
           />
         </div>
 
@@ -119,7 +119,7 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
                   <div className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 hover:border-[#F43F5E]/60 shadow-[0_0_20px_rgba(124,58,237,0.1)] hover:shadow-[0_0_40px_rgba(244,63,94,0.3)] transition-all duration-300 rounded-2xl p-4 flex flex-col relative overflow-hidden h-full">
                     
                     {/* Glassmorphism Frame Detail */}
-                    <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-0 end-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
                       <ArrowUpRight className="w-6 h-6 text-[#F43F5E]" />
                     </div>
                     

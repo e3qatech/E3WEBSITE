@@ -177,7 +177,7 @@ export function B2BHomeEditor({
                     newStats.splice(idx, 1)
                     setStats(newStats)
                   }}
-                  className="absolute top-2 right-2 text-text-tertiary hover:text-error transition-colors"
+                  className="absolute top-2 end-2 text-text-tertiary hover:text-error transition-colors"
                 >
                   &times;
                 </button>

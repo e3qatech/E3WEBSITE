@@ -46,7 +46,7 @@ export function AdminTopBar() {
               )}>
                 {formattedPath}
               </span>
-              {!isLast && <ChevronRight className="w-4 h-4 text-text-tertiary icon-directional" />}
+              {!isLast && <ChevronRight className="w-4 h-4 text-text-tertiary icon-directional rtl:-scale-x-100" />}
             </div>
           )
         })}

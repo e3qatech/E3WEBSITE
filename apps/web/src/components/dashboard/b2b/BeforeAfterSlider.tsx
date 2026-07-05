@@ -73,7 +73,7 @@ export function BeforeAfterSlider({
         alt="After" 
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
       />
-      <div className="absolute right-4 bottom-4 bg-black/60 text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider backdrop-blur-sm z-10">
+      <div className="absolute end-4 bottom-4 bg-zinc-950/60 text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider backdrop-blur-sm z-10">
         {afterLabel}
       </div>
 
@@ -88,7 +88,7 @@ export function BeforeAfterSlider({
           className="absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none"
           style={{ width: containerRef.current?.getBoundingClientRect().width }}
         />
-        <div className="absolute left-4 bottom-4 bg-[var(--color-primary)] text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10">
+        <div className="absolute start-4 bottom-4 bg-[var(--color-primary)] text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10">
           {beforeLabel}
         </div>
       </div>
@@ -98,7 +98,7 @@ export function BeforeAfterSlider({
         className="absolute top-0 bottom-0 w-1 bg-white hover:bg-[var(--color-primary)] cursor-ew-resize z-20"
         style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white hover:bg-[var(--color-primary)] hover:text-white text-[var(--text-secondary)] shadow-md border border-[var(--border-default)] flex items-center justify-center transition-colors">
+        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white hover:bg-[var(--color-primary)] hover:text-white text-[var(--text-secondary)] shadow-md border border-[var(--border-default)] flex items-center justify-center transition-colors">
           <Sparkles className="w-4 h-4 animate-pulse" />
         </div>
       </div>

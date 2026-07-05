@@ -78,18 +78,18 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
         <div className="w-full lg:w-1/3 flex flex-col gap-4 bg-surface-default border border-border-default rounded-xl overflow-hidden">
           <div className="p-4 border-b border-border-default space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-text-secondary" />
+              <Search className="absolute start-3 top-2.5 h-4 w-4 text-text-secondary" />
               <input 
                 placeholder="Search candidates..." 
-                className="w-full pl-9 pr-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm text-text-primary focus:border-primary focus:outline-none"
+                className="w-full ps-9 pe-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm text-text-primary focus:border-primary focus:outline-none"
               />
             </div>
             <div className="flex gap-2">
               <button className="text-xs flex items-center px-3 py-1.5 bg-surface-hover rounded-md border border-border-default text-text-secondary hover:text-white transition-colors">
-                <Filter className="w-3 h-3 mr-1" /> All Portals
+                <Filter className="w-3 h-3 me-1" /> All Portals
               </button>
               <button className="text-xs flex items-center px-3 py-1.5 bg-surface-hover rounded-md border border-border-default text-text-secondary hover:text-white transition-colors">
-                <Filter className="w-3 h-3 mr-1" /> Status
+                <Filter className="w-3 h-3 me-1" /> Status
               </button>
             </div>
           </div>
@@ -104,7 +104,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                 <button
                   key={app.id}
                   onClick={() => setSelectedAppId(app.id)}
-                  className={`w-full text-left p-4 border-b border-border-default hover:bg-surface-hover transition-colors ${selectedAppId === app.id ? 'bg-surface-hover border-l-2 border-l-primary' : ''}`}
+                  className={`w-full text-left p-4 border-b border-border-default hover:bg-surface-hover transition-colors ${selectedAppId === app.id ? 'bg-surface-hover border-s-2 border-s-primary' : ''}`}
                 >
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-bold text-text-primary">{app.firstName} {app.lastName}</span>
@@ -148,11 +148,11 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   </select>
 
                   <a href={selectedApp.cvUrl} target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
-                    <Download className="w-4 h-4 mr-2" /> Download CV
+                    <Download className="w-4 h-4 me-2" /> Download CV
                   </a>
                   {!selectedApp.cvParsedData && (
                     <AdminButton variant="primary" onClick={() => handleParseCV(selectedApp.id)} disabled={parsing}>
-                      <Cpu className="w-4 h-4 mr-2" /> {parsing ? "Parsing..." : "AI Parse CV"}
+                      <Cpu className="w-4 h-4 me-2" /> {parsing ? "Parsing..." : "AI Parse CV"}
                     </AdminButton>
                   )}
                 </div>
@@ -181,7 +181,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               {/* Parsed Data / AI Analysis */}
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-white flex items-center">
-                  <Cpu className="w-5 h-5 mr-2 text-primary" /> AI Candidate Analysis
+                  <Cpu className="w-5 h-5 me-2 text-primary" /> AI Candidate Analysis
                 </h3>
                 
                 {selectedApp.cvParsedData ? (
@@ -225,7 +225,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       Use the AI parser to automatically extract skills, years of experience, and generate an executive summary from the uploaded CV document.
                     </p>
                     <AdminButton variant="outline" onClick={() => handleParseCV(selectedApp.id)} disabled={parsing}>
-                      <Cpu className="w-4 h-4 mr-2" /> {parsing ? "Analyzing CV..." : "Run AI Analysis"}
+                      <Cpu className="w-4 h-4 me-2" /> {parsing ? "Analyzing CV..." : "Run AI Analysis"}
                     </AdminButton>
                   </div>
                 )}

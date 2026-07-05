@@ -91,9 +91,9 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
         <div>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">{lead.name}</h1>
           <div className="flex items-center gap-3 mt-2 text-[var(--text-secondary)] text-sm">
-            {lead.company && <span className="flex items-center"><Building className="w-4 h-4 mr-1" /> {lead.company}</span>}
-            <span className="flex items-center"><Mail className="w-4 h-4 mr-1" /> {lead.email}</span>
-            {lead.phone && <span className="flex items-center"><Phone className="w-4 h-4 mr-1" /> {lead.phone}</span>}
+            {lead.company && <span className="flex items-center"><Building className="w-4 h-4 me-1" /> {lead.company}</span>}
+            <span className="flex items-center"><Mail className="w-4 h-4 me-1" /> {lead.email}</span>
+            {lead.phone && <span className="flex items-center"><Phone className="w-4 h-4 me-1" /> {lead.phone}</span>}
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
                 lead.activities.map((activity: any, index: number) => (
                   <div key={activity.id} className="flex gap-4 relative">
                     {index !== lead.activities.length - 1 && (
-                      <div className="absolute top-8 bottom-[-24px] left-[15px] w-[2px] bg-[var(--border-default)]" />
+                      <div className="absolute top-8 bottom-[-24px] start-[15px] w-[2px] bg-[var(--border-default)]" />
                     )}
                     <div className="w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-default)] flex items-center justify-center shrink-0 z-10">
                       {getActivityIcon(activity.type)}
@@ -236,7 +236,7 @@ export function LeadDetailView({ initialLead, salesTeam }: { initialLead: any, s
                     className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                   />
                   <Button type="submit" disabled={isUpdating || !activityDesc.trim()}>
-                    <Plus className="w-4 h-4 mr-2" /> Log
+                    <Plus className="w-4 h-4 me-2" /> Log
                   </Button>
                 </div>
               </form>
