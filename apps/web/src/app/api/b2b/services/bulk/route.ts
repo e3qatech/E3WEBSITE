@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server"
+import { auth } from '@/lib/auth';
 import db from "@/lib/db"
 
 export async function DELETE(req: Request) {
+  const session = await auth();
+  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { ids } = await req.json()
     
@@ -23,6 +29,11 @@ export async function DELETE(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const session = await auth();
+  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { ids, isVisible } = await req.json()
     

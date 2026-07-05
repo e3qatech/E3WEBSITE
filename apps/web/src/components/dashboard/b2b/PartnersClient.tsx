@@ -92,11 +92,11 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">B2B Partners</h1>
+          <h1 className="text-3xl font-black text-[var(--text-primary)]">Clients CMS</h1>
           <p className="text-[var(--text-secondary)] mt-1">Manage corporate clients, government partners, and agencies.</p>
         </div>
         <Button onClick={handleAddNew} className="gap-2 rounded-xl">
-          <Plus className="w-4 h-4" /> Add Partner
+          <Plus className="w-4 h-4" /> Add Client
         </Button>
       </div>
 

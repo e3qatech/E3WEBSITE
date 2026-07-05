@@ -6,7 +6,7 @@
     "dev": "tsx server.ts",
     "build": "prisma generate && prisma db push --accept-data-loss && next build",
     "start": "NODE_ENV=production tsx server.ts",
-    "lint": "next lint -d src",
+    "lint": "next lint",
     "seed:events": "tsx prisma/seed-events.ts",
     "seed:attractions": "tsx prisma/seed-attractions.ts",
     "seed:team": "tsx prisma/seed-team.ts"

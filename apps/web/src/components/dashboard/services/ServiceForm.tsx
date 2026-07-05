@@ -67,11 +67,54 @@ export function ServiceForm({ initialData, isEdit }: ServiceFormProps) {
 
   const handleSave = async () => {
     setIsSaving(true)
-    // Mock save delay
-    await new Promise(r => setTimeout(r, 1000))
-    setIsSaving(false)
-    setIsDirty(false)
-    router.push("/dashboard/b2b/services")
+    try {
+      const isNew = !isEdit
+      const url = isNew ? '/api/b2b/services' : `/api/b2b/services/${initialData?.id}`
+      const method = isNew ? 'POST' : 'PUT'
+      
+      const payload = {
+        slug: formData.slug,
+        titleEn: formData.nameEn,
+        titleAr: formData.nameAr,
+        taglineEn: formData.taglineEn,
+        taglineAr: formData.taglineAr,
+        isFeatured: formData.featured,
+        isVisible: formData.status === "Visible",
+        isPublished: true,
+        heroMediaType: formData.heroType,
+        heroMediaUrl: formData.heroMediaUrl,
+        contentEn: formData.descriptionEn,
+        contentAr: formData.descriptionAr,
+        process: formData.processSteps,
+        ctaPrimary: formData.ctaLabelEn,
+        ctaSecondary: formData.ctaLabelAr, // mapping to secondary for Ar (temporary)
+        seo: {
+          titleEn: formData.seoTitleEn,
+          titleAr: formData.seoTitleAr,
+          descEn: formData.seoDescEn,
+          descAr: formData.seoDescAr,
+          ogImage: formData.seoOgImage
+        },
+        gallery: formData.gallery,
+        projects: formData.similarProjects
+      }
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) throw new Error("Failed to save service")
+      
+      setIsDirty(false)
+      router.push("/dashboard/b2b/services")
+    } catch (e) {
+      console.error(e)
+      alert("Failed to save service")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (

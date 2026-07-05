@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const isPublished = searchParams.get('isPublished') === 'true';

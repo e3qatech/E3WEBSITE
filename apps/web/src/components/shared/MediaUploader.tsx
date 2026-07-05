@@ -9,9 +9,10 @@ interface MediaUploaderProps {
   onRemove?: () => void
   accept?: string
   className?: string
+  context?: string
 }
 
-export function MediaUploader({ value, onChange, onRemove, accept = "image/*", className = "" }: MediaUploaderProps) {
+export function MediaUploader({ value, onChange, onRemove, accept = "image/*", className = "", context }: MediaUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -31,6 +32,9 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*", c
 
       const formData = new FormData()
       formData.append("file", file)
+      if (context) {
+        formData.append("context", context)
+      }
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -93,6 +97,18 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*", c
             <Box className="w-12 h-12 mb-2 text-[var(--color-primary)] opacity-50" />
             <span className="text-sm font-bold">3D Model Uploaded</span>
             <span className="text-xs max-w-[80%] truncate mt-1">{value.split('/').pop()}</span>
+          </div>
+        ) : value.match(/\.(pdf)$/i) ? (
+          <div className="w-full h-48 bg-[var(--surface-hover)] flex flex-col items-center justify-center text-[var(--text-secondary)]">
+            <FileIcon className="w-12 h-12 mb-2 text-red-500" />
+            <span className="text-sm font-bold text-white">PDF Document</span>
+            <span className="text-xs max-w-[80%] truncate mt-1 text-zinc-400">{value.split('/').pop()}</span>
+          </div>
+        ) : value.match(/\.(doc|docx)$/i) ? (
+          <div className="w-full h-48 bg-[var(--surface-hover)] flex flex-col items-center justify-center text-[var(--text-secondary)]">
+            <FileIcon className="w-12 h-12 mb-2 text-blue-500" />
+            <span className="text-sm font-bold text-white">Word Document</span>
+            <span className="text-xs max-w-[80%] truncate mt-1 text-zinc-400">{value.split('/').pop()}</span>
           </div>
         ) : (
           <img src={value} alt="Uploaded Media" className="w-full h-48 object-cover" />

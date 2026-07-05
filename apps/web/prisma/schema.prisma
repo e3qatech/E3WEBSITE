@@ -25,6 +25,14 @@ enum PageStatus {
   ARCHIVED
 }
 
+enum WorkflowStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
 enum PortalType {
   B2B
   B2C

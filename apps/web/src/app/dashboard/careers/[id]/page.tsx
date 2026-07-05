@@ -6,7 +6,6 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { Tabs, TabsContent } from "@/components/dashboard/ui/Tabs"
 import { RichTextEditor } from "@/components/dashboard/ui/RichTextEditor"
 import { DataTable } from "@/components/dashboard/ui/DataTable"
-import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
 
 const MOCK_APPS = [
@@ -37,11 +36,11 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
     setIsSaving(false)
   }
 
-  const columns: ColumnDef<typeof MOCK_APPS[0]>[] = [
-    { accessorKey: "name", header: "Applicant Name", cell: ({ row }) => <span className="font-bold">{row.original.name}</span> },
-    { accessorKey: "date", header: "Applied Date" },
-    { accessorKey: "status", header: "Status" },
-    { id: "actions", cell: () => <Button variant="ghost" size="sm">Review</Button> }
+  const columns = [
+    { key: "name", header: "Applicant Name", render: (item: any) => <span className="font-bold">{item.name}</span> },
+    { key: "date", header: "Applied Date", render: (item: any) => item.date },
+    { key: "status", header: "Status", render: (item: any) => item.status },
+    { key: "actions", header: "", render: (item: any) => <Button variant="ghost" size="sm">Review</Button> }
   ]
 
   return (

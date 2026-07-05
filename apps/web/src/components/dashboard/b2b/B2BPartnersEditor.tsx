@@ -53,8 +53,8 @@ export function B2BPartnersEditor({ initialData }: { initialData: any }) {
   return (
     <div className="flex flex-col gap-6 h-full p-6">
       <AdminPageHeader 
-        title="B2B Partners Page"
-        description="Manage the main partners index page hero section."
+        title="Client Page Editor"
+        description="Manage the main clients index page hero section."
         action={
           <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save Changes"}

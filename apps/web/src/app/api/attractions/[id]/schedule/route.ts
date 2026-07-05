@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
@@ -7,6 +8,11 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);

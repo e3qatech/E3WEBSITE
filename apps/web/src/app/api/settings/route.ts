@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { auth } from '@/lib/auth';
 import db from "@/lib/db"
 
 // Mock Redis client for invalidation
@@ -10,6 +11,11 @@ const redis = {
 }
 
 export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { key, value, type } = await req.json()
 
@@ -37,6 +43,11 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const session = await auth();
+  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { searchParams } = new URL(req.url)
     const type = searchParams.get('type')

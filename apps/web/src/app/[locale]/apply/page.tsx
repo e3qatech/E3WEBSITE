@@ -166,6 +166,7 @@ function ApplicationForm() {
                 value="" 
                 onChange={url => setFormData(prev => ({ ...prev, cvUrl: url }))} 
                 accept=".pdf,.doc,.docx"
+                context="public_resume"
               />
             )}
           </div>

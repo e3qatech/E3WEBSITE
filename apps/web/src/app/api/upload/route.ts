@@ -15,12 +15,15 @@ const ALLOWED_TYPES = [
 
 export async function POST(request: Request) {
   try {
+    const data = await request.formData()
+    const context = data.get('context') as string | null
+
     const session = await auth();
-    if (!session?.user) {
+    const isAdmin = session?.user && ((session.user as any).role === 'SUPER_ADMIN' || (session.user as any).role === 'SALES_ADMIN' || (session.user as any).role === 'SUPPORT_ADMIN');
+
+    if (!isAdmin && context !== 'public_resume') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-
-    const data = await request.formData()
     const file: File | null = data.get('file') as unknown as File
 
     if (!file) {
