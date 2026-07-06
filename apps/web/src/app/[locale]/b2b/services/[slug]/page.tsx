@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+import { DynamicARViewer } from '@/components/shared/DynamicWrappers'
 import { db } from "@/lib/db"
 
 export default async function ServiceMicrosite({ params }: { params: Promise<{ slug: string }> }) {
@@ -87,6 +88,22 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
                 </ul>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5 WebXR AR Viewer */}
+      <section className="py-24 bg-zinc-950 border-t border-zinc-900 relative">
+        <div className="container mx-auto px-4 md:px-8 text-center mb-8">
+          <h2 className="text-3xl font-black text-zinc-100 tracking-tight mb-2">Immersive Equipment Viewer</h2>
+          <p className="text-zinc-400 max-w-2xl mx-auto">
+            Experience our stage fabrications and technical setups directly in your space using augmented reality. 
+            Compatible with WebXR-enabled mobile devices or VR headsets.
+          </p>
+        </div>
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="w-full h-[600px] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 relative">
+            <DynamicARViewer modelUrl="/models/mock-equipment.glb" modelName={service.titleEn} />
           </div>
         </div>
       </section>

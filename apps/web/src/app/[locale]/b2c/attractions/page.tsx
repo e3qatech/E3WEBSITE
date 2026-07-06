@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button"
 import { SEO } from "@/components/shared/SEO"
 import { Suspense, cache } from "react"
 import { E3Image } from "@/lib/images"
+import { DynamicSpatialHub } from "@/components/shared/DynamicWrappers"
 
 const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL
@@ -251,6 +252,27 @@ export default async function B2CPage(props: { params: Promise<{ locale: string 
         <Suspense fallback={<AttractionsSkeleton />}>
           <FeaturedAttractionsList locale={locale} baseUrl={baseUrl} />
         </Suspense>
+      </section>
+
+      {/* 2.5 SPATIAL HUB MAP */}
+      <section className="py-24 bg-zinc-950 border-t border-zinc-900 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center relative z-10">
+          <h2 className="text-4xl font-black text-white tracking-tight">
+            {locale === 'ar' ? 'خريطة قطر التفاعلية' : 'Interactive Qatar Map'}
+          </h2>
+          <p className="text-zinc-400 mt-2 text-lg">
+            {locale === 'ar' ? 'استكشف الوجهات عبر خريطة ثلاثية الأبعاد.' : 'Explore attractions via an immersive 3D map.'}
+          </p>
+        </div>
+        <div className="h-[600px] w-full border-y border-zinc-900 bg-zinc-950 relative">
+          <DynamicSpatialHub 
+            attractions={[
+              { id: '1', name: 'Winter Wonderland', slug: 'winter-wonderland', tagline: 'Al Maha Island', lat: 25.409, lng: 51.523, status: 'ACTIVE', capacityLevel: 4 },
+              { id: '2', name: 'Desert Safari', slug: 'desert-safari', tagline: 'Sealine', lat: 24.858, lng: 51.516, status: 'ACTIVE', capacityLevel: 2 },
+              { id: '3', name: 'Lusail Boulevard', slug: 'lusail', tagline: 'Lusail City', lat: 25.405, lng: 51.493, status: 'ACTIVE', capacityLevel: 5 },
+            ]}
+          />
+        </div>
       </section>
 
       {/* 3. QUICK TICKETING CTA */}

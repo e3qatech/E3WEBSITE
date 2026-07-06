@@ -7,6 +7,7 @@ import db from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { format } from "date-fns"
 import Link from "next/link"
+import { LiveOccupancy } from "@/components/shared/LiveOccupancy"
 
 export const metadata = {
   title: "Command Center | E3 Admin"
@@ -209,7 +210,14 @@ export default async function DashboardOverviewPage() {
               </AdminButton>
             </Link>
           </div>
-          
+          {/* Live Telemetry (Phase 6) */}
+          <div className="bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-accent transition-colors">
+            <div className="relative z-10 flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-semibold text-text-primary tracking-tight">Live Telemetry</h3>
+            </div>
+            <LiveOccupancy attractionId="mock-1" initialCurrent={720} initialMax={1000} />
+          </div>
+
           {/* Upcoming Events */}
           <div className="bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-accent transition-colors">
             

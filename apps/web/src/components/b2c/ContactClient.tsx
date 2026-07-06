@@ -272,11 +272,12 @@ function SupportForm({ attractions }: { attractions: any[] }) {
     const data = Object.fromEntries(formData.entries());
     
     try {
-      const res = await fetch("/api/contact/b2c", {
+      const res = await fetch("/api/crm/inquiries/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          actionType: "SUPPORT_TICKET",
+          type: "SUPPORT",
+          subject: `Support: ${data.category}`,
           name: data.name,
           email: data.email,
           phone: data.phone,

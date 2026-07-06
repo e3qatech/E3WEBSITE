@@ -29,10 +29,35 @@ export default function ContactRFPPage() {
       .catch(console.error)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Mock submission
-    setSubmitted(true)
+    
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get("name"),
+      company: formData.get("company"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      interestServices: [inquiryType],
+      notes: formData.get("notes"),
+    }
+
+    try {
+      const res = await fetch("/api/crm/leads/ingest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+
+      if (res.ok) {
+        setSubmitted(true)
+      } else {
+        alert(isAr ? 'عذرًا، حدث خطأ أثناء إرسال طلبك. يرجى المحاولة لاحقًا.' : 'Sorry, there was an error submitting your request. Please try again later.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert(isAr ? 'خطأ في الاتصال بالخادم.' : 'Error connecting to the server.')
+    }
   }
 
   const headerTitle = isAr ? cmsData?.header?.titleAr : cmsData?.header?.titleEn;
@@ -179,6 +204,7 @@ export default function ContactRFPPage() {
                       <label className="text-sm font-bold text-zinc-400">{isAr ? 'الاسم الكامل' : 'Full Name'}</label>
                       <input 
                         required
+                        name="name"
                         type="text" 
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
                         placeholder={isAr ? 'فلان الفلاني' : 'Jane Doe'}
@@ -188,6 +214,7 @@ export default function ContactRFPPage() {
                       <label className="text-sm font-bold text-zinc-400">{isAr ? 'الشركة' : 'Company'}</label>
                       <input 
                         required
+                        name="company"
                         type="text" 
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
                         placeholder={isAr ? 'اسم المنظمة' : 'Organization Name'}
@@ -197,6 +224,7 @@ export default function ContactRFPPage() {
                       <label className="text-sm font-bold text-zinc-400">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</label>
                       <input 
                         required
+                        name="email"
                         type="email" 
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
                         placeholder={isAr ? 'name@company.com' : 'jane@company.com'}
@@ -206,6 +234,7 @@ export default function ContactRFPPage() {
                       <label className="text-sm font-bold text-zinc-400">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
                       <input 
                         type="tel" 
+                        name="phone"
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
                         placeholder="+974 XXXX XXXX"
                       />
@@ -217,6 +246,7 @@ export default function ContactRFPPage() {
                     <label className="text-sm font-bold text-zinc-400">{isAr ? 'تفاصيل المشروع أو الرسالة' : 'Project Details or Message'}</label>
                     <textarea 
                       required
+                      name="notes"
                       rows={5}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-sm px-4 py-3 text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                       placeholder={isAr ? 'أخبرنا عن متطلباتك والجدول الزمني والنطاق...' : 'Tell us about your requirements, timeline, and scale...'}

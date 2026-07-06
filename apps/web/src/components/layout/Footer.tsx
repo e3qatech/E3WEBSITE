@@ -50,10 +50,10 @@ export function Footer({ portal, settings = {} }: FooterProps) {
     setSubscribing(true);
     setSubscribeStatus('idle');
     try {
-      const res = await fetch('/api/subscribe', {
+      const res = await fetch('/api/crm/subscribers/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actionType: 'SUBSCRIBE', email })
+        body: JSON.stringify({ email })
       });
       if (res.ok) {
         setSubscribeStatus('success');

@@ -12,8 +12,36 @@ const applicationSchema = z.object({
   jobTitle: z.string().min(1, "Job title is required"),
   department: z.string().optional(),
   cvUrl: z.string().url("Valid CV URL is required"),
+  cvText: z.string().optional(),
   portal: z.enum(["B2B", "B2C", "SHARED"]).default("SHARED")
 });
+
+// Simulated AI Parser Function
+function simulateAIParse(text: string) {
+  const lowercaseText = text.toLowerCase();
+  
+  // Extract Experience Level
+  let experienceLevel = "Entry Level";
+  if (lowercaseText.includes("senior") || lowercaseText.includes("lead") || lowercaseText.includes("10+ years") || lowercaseText.includes("5+ years")) {
+    experienceLevel = "Senior";
+  } else if (lowercaseText.includes("mid") || lowercaseText.includes("3+ years")) {
+    experienceLevel = "Mid Level";
+  }
+
+  // Extract Skills
+  const commonSkills = ["react", "node.js", "typescript", "python", "aws", "docker", "figma", "design", "marketing", "sales", "leadership", "next.js", "tailwind"];
+  const extractedSkills = commonSkills.filter(skill => lowercaseText.includes(skill));
+
+  // Extract Languages
+  const commonLanguages = ["english", "arabic", "french", "spanish"];
+  const extractedLanguages = commonLanguages.filter(lang => lowercaseText.includes(lang));
+
+  return {
+    experienceLevel,
+    skills: extractedSkills.length > 0 ? extractedSkills : ["General"],
+    languages: extractedLanguages.length > 0 ? extractedLanguages : ["English"],
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,7 +80,31 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, application });
+    // 3. Simulated AI Parse and create CRM Talent Record
+    let parsedData = { experienceLevel: "Unknown", skills: [] as string[], languages: [] as string[] };
+    if (validatedData.cvText) {
+      parsedData = simulateAIParse(validatedData.cvText);
+    } else {
+      parsedData = simulateAIParse(validatedData.jobTitle + " " + (validatedData.department || ""));
+    }
+
+    const talent = await db.talent.create({
+      data: {
+        name: `${validatedData.firstName} ${validatedData.lastName}`,
+        email: validatedData.email,
+        phone: validatedData.phone,
+        position: validatedData.jobTitle,
+        department: validatedData.department,
+        resumeUrl: validatedData.cvUrl,
+        experienceLevel: parsedData.experienceLevel,
+        skills: parsedData.skills,
+        languages: parsedData.languages,
+        status: "NEW",
+        notes: validatedData.cvText ? `[AI Summary] Candidate parsed from CV submission.` : undefined,
+      }
+    });
+
+    return NextResponse.json({ success: true, application, talentId: talent.id });
   } catch (error) {
     console.error("[POST /api/careers/apply] error:", error);
     if (error instanceof z.ZodError) {
