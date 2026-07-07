@@ -20,7 +20,7 @@
     "@react-pdf/renderer": "^4.5.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
-    "@react-three/xr": "6.1.1",
+    "@react-three/xr": "6.6.30",
     "@socket.io/redis-adapter": "^8.3.0",
     "@socket.io/redis-emitter": "^5.1.0",
     "@splinetool/react-spline": "^4.1.0",
