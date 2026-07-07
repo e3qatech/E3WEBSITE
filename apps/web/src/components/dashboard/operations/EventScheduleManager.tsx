@@ -75,17 +75,13 @@ export function EventScheduleManager({
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this schedule?")) return
     try {
-      // In a real app we'd have a DELETE endpoint. Since we didn't write it, 
-      // let's assume we can hide it or we should add the DELETE endpoint.
-      // For now we'll do an optimistic delete. 
-      // Wait, let's create the DELETE endpoint next!
       const res = await fetch(`/api/operations/schedules/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
 
       setSchedules(prev => prev.filter(s => s.id !== id))
       router.refresh()
     } catch {
-      alert("Failed to delete schedule. Please make sure the API route is implemented.")
+      alert("Failed to delete schedule. Please try again.")
     }
   }
 

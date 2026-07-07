@@ -16,22 +16,25 @@ export function RecapGeneratorView({ attractions }: { attractions: any[] }) {
 
   const handleGenerate = async () => {
     setIsGenerating(true)
-    // Mock fetching aggregated data
-    setTimeout(() => {
-      setRecapData({
-        attractionName: attractions.find(a => a.id === selectedAttraction)?.nameEn || "All Attractions",
-        dateRange,
-        visitors: 12450,
-        revenue: 450200,
-        avgRating: 4.8,
-        topTickets: [
-          { name: "General Admission", count: 8200 },
-          { name: "VIP Pass", count: 2150 },
-          { name: "Family Bundle", count: 2100 }
-        ]
+    try {
+      const res = await fetch("/api/operations/recap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attractionId: selectedAttraction,
+          dateRange
+        })
       })
+      if (!res.ok) throw new Error("Failed to generate recap")
+      
+      const data = await res.json()
+      setRecapData(data)
+    } catch (error) {
+      console.error(error)
+      alert("Failed to generate recap report")
+    } finally {
       setIsGenerating(false)
-    }, 1000)
+    }
   }
 
   return (

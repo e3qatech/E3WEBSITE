@@ -22,13 +22,25 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
 
   const handleGenerate = async () => {
     setIsGenerating(true)
-    setTimeout(() => {
+    try {
+      await fetch("/api/operations/catalog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          template,
+          serviceIds: selectedServices
+        })
+      })
+
       setCatalogData({
         template,
         items: services.filter(s => selectedServices.includes(s.id))
       })
+    } catch (error) {
+      console.error(error)
+    } finally {
       setIsGenerating(false)
-    }, 800)
+    }
   }
 
   return (

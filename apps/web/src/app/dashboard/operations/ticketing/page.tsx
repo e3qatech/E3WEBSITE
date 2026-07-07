@@ -34,6 +34,12 @@ export default async function TicketingPage() {
     }
   })
 
+  // Fetch latest mock ticketing/operations logs for the live feed
+  const logs = await db.systemLog.findMany({
+    take: 10,
+    orderBy: { createdAt: "desc" }
+  })
+
   // Format dates for client
   const formattedSchedules = schedules.map(s => ({
     ...s,
@@ -41,5 +47,10 @@ export default async function TicketingPage() {
     endTime: s.endTime.toISOString(),
   }))
 
-  return <TicketingDashboard schedules={formattedSchedules as any} />
+  const formattedLogs = logs.map(l => ({
+    ...l,
+    createdAt: l.createdAt.toISOString()
+  }))
+
+  return <TicketingDashboard schedules={formattedSchedules as any} liveFeed={formattedLogs as any} />
 }

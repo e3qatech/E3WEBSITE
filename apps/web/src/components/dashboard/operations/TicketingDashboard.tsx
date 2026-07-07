@@ -15,7 +15,15 @@ type EventSchedule = {
   attraction: { nameEn: string }
 }
 
-export function TicketingDashboard({ schedules }: { schedules: EventSchedule[] }) {
+type SystemLog = {
+  id: string
+  action: string
+  entity: string
+  createdAt: string
+  metadata?: any
+}
+
+export function TicketingDashboard({ schedules, liveFeed }: { schedules: EventSchedule[], liveFeed: SystemLog[] }) {
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0])
 
   const filteredSchedules = schedules.filter(s => s.startTime.startsWith(filterDate))
@@ -167,24 +175,25 @@ export function TicketingDashboard({ schedules }: { schedules: EventSchedule[] }
               Awaiting new webhook events...
             </div>
             
-            {/* Static mock data to show how it looks */}
-            <div className="border-s-2 border-[var(--color-success)] ps-3">
-              <div className="text-xs font-bold text-[var(--color-success)] mb-0.5">Ticket Purchased</div>
-              <div className="text-xs text-[var(--text-primary)]">InflataPark FEC (General Admission)</div>
-              <div className="text-[10px] text-[var(--text-tertiary)] mt-1">2 mins ago • ID: BQ-928471</div>
-            </div>
-            
-            <div className="border-s-2 border-[var(--color-success)] ps-3">
-              <div className="text-xs font-bold text-[var(--color-success)] mb-0.5">Ticket Purchased</div>
-              <div className="text-xs text-[var(--text-primary)]">InflataPark FEC (General Admission)</div>
-              <div className="text-[10px] text-[var(--text-tertiary)] mt-1">5 mins ago • ID: BQ-928470</div>
-            </div>
-
-            <div className="border-s-2 border-[var(--color-error)] ps-3">
-              <div className="text-xs font-bold text-[var(--color-error)] mb-0.5">Ticket Cancelled</div>
-              <div className="text-xs text-[var(--text-primary)]">Doha Balloon Parade</div>
-              <div className="text-[10px] text-[var(--text-tertiary)] mt-1">12 mins ago • ID: BQ-928412</div>
-            </div>
+            {liveFeed && liveFeed.length > 0 ? (
+              liveFeed.map(log => {
+                const isError = log.action.includes('DELETE') || log.action.includes('CANCEL') || log.action.includes('ERROR');
+                const colorVar = isError ? 'var(--color-error)' : 'var(--color-success)';
+                const timeAgo = Math.floor((new Date().getTime() - new Date(log.createdAt).getTime()) / 60000);
+                
+                return (
+                  <div key={log.id} className="border-s-2 ps-3" style={{ borderColor: colorVar }}>
+                    <div className="text-xs font-bold mb-0.5" style={{ color: colorVar }}>{log.action}</div>
+                    <div className="text-xs text-[var(--text-primary)]">{log.entity}</div>
+                    <div className="text-[10px] text-[var(--text-tertiary)] mt-1">{timeAgo} mins ago • ID: {log.id.slice(0,8)}</div>
+                  </div>
+                )
+              })
+            ) : (
+              <div className="text-xs text-[var(--text-tertiary)] text-center py-4">
+                No recent activity.
+              </div>
+            )}
           </div>
         </div>
       </div>
