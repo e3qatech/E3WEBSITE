@@ -67,8 +67,8 @@ importers:
         specifier: ^9.6.1
         version: 9.6.1(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0)
       '@react-three/xr':
-        specifier: 6.1.1
-        version: 6.1.1(@react-three/fiber@9.6.1(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0))(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0)
+        specifier: 6.6.30
+        version: 6.6.30(@react-three/fiber@9.6.1(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0))(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0)
       '@socket.io/redis-adapter':
         specifier: ^8.3.0
         version: 8.3.0(socket.io-adapter@2.5.8)
@@ -845,8 +845,8 @@ packages:
       react-native:
         optional: true
 
-  '@react-three/xr@6.1.1':
-    resolution: {integrity: sha512-j2jCADZN6AWtzmmgHHNfudFv4JC43EwK+D38XpfUwZ5RV2P23VeliKTLfJbJaQQj+dL2O6/UAW8069jwNNg+NA==}
+  '@react-three/xr@6.6.30':
+    resolution: {integrity: sha512-C+PYxnDsWvF2WG669DXwlcKnxcy7O+FMhxlaOq75HrRSJRtk4T5iZCv6qak2+8ztcYrip8t79W9E+LSV3P93hA==}
     peerDependencies:
       '@react-three/fiber': '>=8'
       react: '>=18'
@@ -3328,7 +3328,7 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@react-three/xr@6.1.1(@react-three/fiber@9.6.1(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0))(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0)':
+  '@react-three/xr@6.6.30(@react-three/fiber@9.6.1(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0))(@types/react@18.3.31)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.0)':
     dependencies:
       '@pmndrs/pointer-events': 6.6.30
       '@pmndrs/xr': 6.6.30(@types/react@18.3.31)(react@19.2.7)(three@0.185.0)
