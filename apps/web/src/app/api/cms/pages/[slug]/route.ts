@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
@@ -60,6 +61,8 @@ export async function PUT(
         seo: validatedData.seo || {},
       }
     });
+
+    revalidatePath('/', 'layout');
 
     return NextResponse.json({ data: updatedPage });
   } catch (error) {
