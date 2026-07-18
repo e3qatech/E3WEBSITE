@@ -30,21 +30,18 @@ const variants = {
 };
 
 export function PageTransition({ children, variant = "fade" }: PageTransitionProps) {
-  // Use pathname as key so AnimatePresence triggers on route change
+  // Use pathname as key so motion.div triggers enter animation on route change
   const pathname = usePathname();
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={pathname}
-        initial="initial"
-        animate="enter"
-        exit="exit"
-        variants={variants[variant] as any}
-        className="w-full h-full flex-1 flex flex-col"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      initial="initial"
+      animate="enter"
+      variants={variants[variant] as any}
+      className="w-full h-full flex-1 flex flex-col"
+    >
+      {children}
+    </motion.div>
   );
 }
