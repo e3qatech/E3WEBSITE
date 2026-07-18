@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* --------------------------------------------------------------------------
    E3 QATAR - LIVING DIGITAL ECOSYSTEM
    Theme: "Cosmic Void" (Dark) & "Pristine Snow" (Light)
@@ -36,40 +38,40 @@
    -------------------------------------------------------------------------- */
 
 :root {
-  /* Default to Light Mode (Pristine Snow) */
-  --color-primary: #1A1A1A;  /* Deep Charcoal / Almost Black */
-  --color-secondary: #4A4A4A; /* IBM Gray */
-  --color-accent: #0F62FE;    /* IBM Blue / Apple Blue Accent */
+  /* Default to Light Mode */
+  --color-primary: #D97706; /* amber-600 */
+  --color-secondary: #52525B; /* zinc-600 */
+  --color-accent: #B45309; /* amber-700 */
   
-  --gradient-start: #1A1A1A;
-  --gradient-end: #333333;
+  --gradient-start: #FAFAF9;
+  --gradient-end: #E7E5E4;
   
   /* Semantic Colors */
-  --color-success: #24A148;
-  --color-warning: #F1C21B;
-  --color-error: #DA1E28;
-  --color-info: #0F62FE;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
 
   /* Default Theme (Light by default if undefined) */
-  --bg-level-1: #FAFAFA;
-  --bg-level-2: #F4F4F4;
-  --bg-level-3: #E0E0E0;
-  --bg-level-4: #C6C6C6;
-  --bg-level-5: #A8A8A8;
+  --bg-level-1: #FAFAF9;
+  --bg-level-2: #F4F4F5;
+  --bg-level-3: #E4E4E7;
+  --bg-level-4: #D4D4D8;
+  --bg-level-5: #A1A1AA;
 
   --surface-default: #FFFFFF;
-  --surface-hover: #F4F4F4;
-  --surface-active: #E8E8E8;
-  --surface-selected: #EDF5FF;
+  --surface-hover: #FAFAFA;
+  --surface-active: #F4F4F5;
+  --surface-selected: #FEF3C7;
 
-  --border-level-1: rgba(0, 0, 0, 0.08);
-  --border-level-2: rgba(0, 0, 0, 0.12);
-  --border-level-3: rgba(0, 0, 0, 0.16);
+  --border-level-1: rgba(0, 0, 0, 0.05);
+  --border-level-2: #E7E5E4;
+  --border-level-3: #D6D3D1;
 
-  --text-primary: #161616;
-  --text-secondary: #525252;
-  --text-tertiary: #8D8D8D;
-  --text-disabled: #C6C6C6;
+  --text-primary: #27272A;
+  --text-secondary: #52525B;
+  --text-tertiary: #A1A1AA;
+  --text-disabled: #D4D4D8;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -81,32 +83,32 @@
 
 /* "Pristine Snow" - Explicit Light Theme */
 [data-theme="light"] {
-  --color-primary: #1A1A1A;
-  --color-secondary: #4A4A4A;
-  --color-accent: #0F62FE;
+  --color-primary: #D97706;
+  --color-secondary: #52525B;
+  --color-accent: #B45309;
 
-  --gradient-start: #1A1A1A;
-  --gradient-end: #333333;
+  --gradient-start: #FAFAF9;
+  --gradient-end: #E7E5E4;
 
-  --bg-level-1: #FAFAFA;
-  --bg-level-2: #F4F4F4;
-  --bg-level-3: #E0E0E0;
-  --bg-level-4: #C6C6C6;
-  --bg-level-5: #A8A8A8;
+  --bg-level-1: #FAFAF9;
+  --bg-level-2: #F4F4F5;
+  --bg-level-3: #E4E4E7;
+  --bg-level-4: #D4D4D8;
+  --bg-level-5: #A1A1AA;
 
   --surface-default: #FFFFFF;
-  --surface-hover: #F4F4F4;
-  --surface-active: #E8E8E8;
-  --surface-selected: #EDF5FF;
+  --surface-hover: #FAFAFA;
+  --surface-active: #F4F4F5;
+  --surface-selected: #FEF3C7;
 
-  --border-level-1: rgba(0, 0, 0, 0.08);
-  --border-level-2: rgba(0, 0, 0, 0.12);
-  --border-level-3: rgba(0, 0, 0, 0.16);
+  --border-level-1: rgba(0, 0, 0, 0.05);
+  --border-level-2: #E7E5E4;
+  --border-level-3: #D6D3D1;
 
-  --text-primary: #161616;
-  --text-secondary: #525252;
-  --text-tertiary: #8D8D8D;
-  --text-disabled: #C6C6C6;
+  --text-primary: #27272A;
+  --text-secondary: #52525B;
+  --text-tertiary: #A1A1AA;
+  --text-disabled: #D4D4D8;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -118,72 +120,71 @@
 
 /* "Cosmic Void" - Explicit Dark Theme (Deep Charcoal / Zinc) */
 [data-theme="dark"] {
-  --color-primary: #F4F4F4;
-  --color-secondary: #A8A8A8;
-  --color-accent: #4589FF;
+  --color-primary: #F59E0B; /* amber-500 */
+  --color-secondary: #A1A1AA; /* zinc-400 */
+  --color-accent: #FBBF24; /* amber-400 */
 
-  --gradient-start: #262626;
-  --gradient-end: #161616;
+  --gradient-start: #0C0C0C;
+  --gradient-end: #141414;
 
-  /* Deep solid charcoal Zinc - No pure black */
-  --bg-level-1: #161616; /* Base background */
-  --bg-level-2: #262626; /* Slightly lighter layer */
-  --bg-level-3: #393939;
-  --bg-level-4: #525252;
-  --bg-level-5: #6F6F6F;
+  --bg-level-1: #0C0C0C; /* Base background */
+  --bg-level-2: #141414; /* Slightly lighter layer */
+  --bg-level-3: #262626;
+  --bg-level-4: #3F3F46;
+  --bg-level-5: #52525B;
 
-  --surface-default: #262626; /* Cards / Modules */
-  --surface-hover: #393939; /* Hover state */
-  --surface-active: #525252; /* Active/Pressed state */
-  --surface-selected: rgba(69, 137, 255, 0.15); /* Brand tinted */
+  --surface-default: #141414; /* Cards / Modules */
+  --surface-hover: #262626; /* Hover state */
+  --surface-active: #3F3F46; /* Active/Pressed state */
+  --surface-selected: rgba(245, 158, 11, 0.15); /* Brand tinted */
 
-  --border-level-1: #393939; /* Subtle borders */
-  --border-level-2: #525252; /* Default borders */
-  --border-level-3: #6F6F6F; /* Strong borders */
+  --border-level-1: #18181B; /* Subtle borders */
+  --border-level-2: #262626; /* Default borders */
+  --border-level-3: #3F3F46; /* Strong borders */
 
-  --text-primary: #F4F4F4; /* Almost white */
-  --text-secondary: #C6C6C6; /* Light gray */
-  --text-tertiary: #A8A8A8; /* Muted gray */
-  --text-disabled: #6F6F6F; /* Disabled gray */
+  --text-primary: #FAFAFA; /* zinc-50 */
+  --text-secondary: #A1A1AA; /* zinc-400 */
+  --text-tertiary: #71717A; /* Muted gray */
+  --text-disabled: #52525B; /* Disabled gray */
 
   --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
   --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
   --shadow-3: 0 8px 16px rgba(0,0,0,0.3);
   --shadow-4: 0 16px 32px rgba(0,0,0,0.4);
   
-  /* Tinted Drop Shadows (No generic neon glows) */
+  /* Tinted Drop Shadows */
   --glow-effect: none; 
 }
 
 /* Auto Dark Mode if user prefers it and no data-theme is set */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-primary: #F4F4F4;
-    --color-secondary: #A8A8A8;
-    --color-accent: #4589FF;
+    --color-primary: #F59E0B;
+    --color-secondary: #A1A1AA;
+    --color-accent: #FBBF24;
 
-    --gradient-start: #262626;
-    --gradient-end: #161616;
+    --gradient-start: #0C0C0C;
+    --gradient-end: #141414;
 
-    --bg-level-1: #161616;
-    --bg-level-2: #262626;
-    --bg-level-3: #393939;
-    --bg-level-4: #525252;
-    --bg-level-5: #6F6F6F;
+    --bg-level-1: #0C0C0C;
+    --bg-level-2: #141414;
+    --bg-level-3: #262626;
+    --bg-level-4: #3F3F46;
+    --bg-level-5: #52525B;
 
-    --surface-default: #262626;
-    --surface-hover: #393939;
-    --surface-active: #525252;
-    --surface-selected: rgba(69, 137, 255, 0.15);
+    --surface-default: #141414;
+    --surface-hover: #262626;
+    --surface-active: #3F3F46;
+    --surface-selected: rgba(245, 158, 11, 0.15);
 
-    --border-level-1: #393939;
-    --border-level-2: #525252;
-    --border-level-3: #6F6F6F;
+    --border-level-1: #18181B;
+    --border-level-2: #262626;
+    --border-level-3: #3F3F46;
 
-    --text-primary: #F4F4F4;
-    --text-secondary: #C6C6C6;
-    --text-tertiary: #A8A8A8;
-    --text-disabled: #6F6F6F;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --text-disabled: #52525B;
 
     --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
     --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
@@ -325,12 +326,12 @@ html[dir="rtl"] .icon-flip {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.03;
+  opacity: 0.02;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 [data-theme="dark"] .noise-bg::after {
-  opacity: 0.05;
+  opacity: 0.03;
 }
 
 /* Dot grid pattern */
