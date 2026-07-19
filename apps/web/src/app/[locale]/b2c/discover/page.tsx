@@ -3,6 +3,8 @@ import { DiscoverClient } from "@/components/b2c/DiscoverClient";
 
 import prisma from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Discover E3 | Event Engineering Experts",
   description: "Learn about the E3 story, our heritage, corporate team, and how to book VIP or corporate experiences.",

@@ -75,18 +75,18 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
     ...(initialSettings?.hero || {})
   };
 
+  const rawHeritage = initialSettings?.heritage || {};
   const heritage = {
-    titleEn: "",
-    titleAr: "",
-    descriptionEn: "",
-    descriptionAr: "",
-    visionEn: "",
-    visionAr: "",
-    missionEn: "",
-    missionAr: "",
-    valuesEn: "",
-    valuesAr: "",
-    ...(initialSettings?.heritage || {})
+    titleEn: rawHeritage.titleEn || rawHeritage.title || "",
+    titleAr: rawHeritage.titleAr || rawHeritage.title || "",
+    descriptionEn: rawHeritage.descriptionEn || rawHeritage.description || "",
+    descriptionAr: rawHeritage.descriptionAr || rawHeritage.description || "",
+    visionEn: rawHeritage.visionEn || rawHeritage.vision || "",
+    visionAr: rawHeritage.visionAr || rawHeritage.vision || "",
+    missionEn: rawHeritage.missionEn || rawHeritage.mission || "",
+    missionAr: rawHeritage.missionAr || rawHeritage.mission || "",
+    valuesEn: rawHeritage.valuesEn || rawHeritage.values || "",
+    valuesAr: rawHeritage.valuesAr || rawHeritage.values || "",
   };
 
   const careers = {

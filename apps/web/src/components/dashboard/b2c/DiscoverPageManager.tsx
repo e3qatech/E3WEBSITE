@@ -18,17 +18,17 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       mediaUrl: initialData?.hero?.mediaUrl || "",
     },
     heritage: {
-      titleEn: initialData?.heritage?.titleEn || "",
-      titleAr: initialData?.heritage?.titleAr || "",
-      descriptionEn: initialData?.heritage?.descriptionEn || "",
-      descriptionAr: initialData?.heritage?.descriptionAr || "",
-      visionEn: initialData?.heritage?.visionEn || "",
-      visionAr: initialData?.heritage?.visionAr || "",
-      missionEn: initialData?.heritage?.missionEn || "",
-      missionAr: initialData?.heritage?.missionAr || "",
-      valuesEn: initialData?.heritage?.valuesEn || "",
-      valuesAr: initialData?.heritage?.valuesAr || "",
-    }
+      titleEn: initialData?.heritage?.titleEn || initialData?.heritage?.title || "",
+      titleAr: initialData?.heritage?.titleAr || initialData?.heritage?.title || "",
+      descriptionEn: initialData?.heritage?.descriptionEn || initialData?.heritage?.description || "",
+      descriptionAr: initialData?.heritage?.descriptionAr || initialData?.heritage?.description || "",
+      visionEn: initialData?.heritage?.visionEn || initialData?.heritage?.vision || "",
+      visionAr: initialData?.heritage?.visionAr || initialData?.heritage?.vision || "",
+      missionEn: initialData?.heritage?.missionEn || initialData?.heritage?.mission || "",
+      missionAr: initialData?.heritage?.missionAr || initialData?.heritage?.mission || "",
+      valuesEn: initialData?.heritage?.valuesEn || initialData?.heritage?.values || "",
+      valuesAr: initialData?.heritage?.valuesAr || initialData?.heritage?.values || ""
+    },
   })
 
   const { toast } = useToast()
