@@ -6,56 +6,13 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { 
   useB2CTheme, 
-  B2CCard, 
   B2CBadge 
 } from "@/components/ui/B2CThemeComponents";
+import { AnimatedText } from "@/components/ui/AnimatedText";
+import { InteractiveCard } from "@/components/ui/InteractiveCard";
+import { B2CGrid } from "@/components/ui/B2CGrid";
 
-const TiltCard = ({ children, className }: any) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 20 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 20 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={`relative ${className}`}
-    >
-      <div className="absolute inset-0 z-50 pointer-events-none rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-        style={{ background: 'radial-gradient(circle at 50% 0%, rgba(26, 31, 214, 0.15) 0%, transparent 70%)' }} 
-      />
-      <div style={{ transform: "translateZ(30px)" }} className="h-full">
-        {children}
-      </div>
-    </motion.div>
-  );
-};
+// Removed TiltCard in favor of unified InteractiveCard
 
 export function TeamClient({ locale, initialMembers, initialSettings }: { locale: string; initialMembers: any[]; initialSettings?: any }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -76,13 +33,11 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
           
           {/* HERO */}
           <header className="mb-24 text-center">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase"
-            >
-              {initialSettings?.heroTitle || ""}
-            </motion.h1>
+            <AnimatedText 
+              as="h1" 
+              text={initialSettings?.heroTitle || "The Minds Behind E3"}
+              className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase justify-center"
+            />
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -93,12 +48,11 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
             </motion.p>
           </header>
 
-          {/* GAMIFIED GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <B2CGrid columns={3} gap="md">
             {initialMembers.map((member, i) => (
-              <TiltCard key={member.slug} className="group perspective-1000">
-                <Link href={`/${locale}/b2c/team/${member.slug}`} className="block h-full">
-                  <B2CCard className="p-4 flex flex-col relative overflow-hidden h-full border-[rgba(75,0,143,0.3)]">
+              <InteractiveCard key={member.slug} glowColor="rgba(26, 31, 214, 0.4)" tiltStrength={8}>
+                <Link href={`/${locale}/b2c/team/${member.slug}`} className="block h-full relative z-10">
+                  <div className="p-4 flex flex-col relative overflow-hidden h-full">
                     
                     {/* Glassmorphism Frame Detail */}
                     <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} p-2 opacity-50 group-hover:opacity-100 transition-opacity`}>
@@ -122,7 +76,7 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
                     </div>
                     
                     {/* Info */}
-                    <div className="flex-1 flex flex-col text-start">
+                    <div className="flex-1 flex flex-col text-start px-2">
                       <div className="text-[var(--e3-magenta)] font-black text-[10px] uppercase tracking-widest mb-2 font-display">
                         {member.department}
                       </div>
@@ -133,9 +87,9 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
                         {member.designation}
                       </p>
                     </div>
-                  </B2CCard>
+                  </div>
                 </Link>
-              </TiltCard>
+              </InteractiveCard>
             ))}
             
             {initialMembers.length === 0 && (
@@ -145,7 +99,7 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
                 </p>
               </div>
             )}
-          </div>
+          </B2CGrid>
 
         </main>
       </div>

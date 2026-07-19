@@ -14,6 +14,11 @@ import {
   B2CInput, 
   B2CBadge 
 } from "@/components/ui/B2CThemeComponents";
+import { ImmersiveCanvas } from "@/components/ui/ImmersiveCanvas";
+import { AnimatedText } from "@/components/ui/AnimatedText";
+import { InteractiveCard } from "@/components/ui/InteractiveCard";
+import { B2CGrid, B2CBentoItem } from "@/components/ui/B2CGrid";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 
 function ModelViewer({ url }: { url: string }) {
   const { scene } = useGLTF(url);
@@ -99,47 +104,11 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-50 mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
 
       {/* SECTION 1: IMMERSIVE HERO */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
-        {/* Dot Grid Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(#1A1FD6_1px,transparent_1px)] [background-size:32px_32px] opacity-15"></div>
-        
-        {/* Background Media */}
-        {hero.mediaType === "ORBS" && (
-          <>
-            <div className="absolute top-1/4 start-1/4 w-[45vw] h-[45vw] bg-[var(--e3-purple)] rounded-full blur-[140px] mix-blend-screen opacity-[0.12] animate-pulse duration-[8s]"></div>
-            <div className="absolute bottom-1/4 end-1/4 w-[40vw] h-[40vw] bg-[var(--e3-royal-blue)] rounded-full blur-[120px] mix-blend-screen opacity-[0.12] animate-pulse duration-[10s] delay-1000"></div>
-          </>
-        )}
-        {hero.mediaType === "IMAGE" && hero.mediaUrl && (
-          <div className="absolute inset-0 opacity-25 dark:opacity-30 mix-blend-screen">
-            <img src={hero.mediaUrl} alt="Hero Background" className="w-full h-full object-cover" />
-          </div>
-        )}
-        {hero.mediaType === "VIDEO" && hero.mediaUrl && (
-          <div className="absolute inset-0 opacity-25 dark:opacity-30 mix-blend-screen">
-            <video src={hero.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-          </div>
-        )}
-        {hero.mediaType === "IFRAME" && hero.mediaUrl && (
-          <div className="absolute inset-0 opacity-40 dark:opacity-50 mix-blend-screen pointer-events-none">
-            {String(hero.mediaUrl).startsWith("<iframe") ? (
-              <div dangerouslySetInnerHTML={{ __html: hero.mediaUrl }} className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-none" />
-            ) : (
-              <iframe src={hero.mediaUrl} className="w-full h-full border-none" />
-            )}
-          </div>
-        )}
-        {hero.mediaType === "3D_MODEL" && hero.mediaUrl && (
-          <div className="absolute inset-0 z-0 opacity-80 mix-blend-screen">
-            <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-              <Suspense fallback={null}>
-                <ModelViewer url={hero.mediaUrl} />
-              </Suspense>
-            </Canvas>
-          </div>
-        )}
+      <section className="relative min-h-[100vh] flex items-center justify-center pt-20 overflow-hidden">
+        {/* Cinematic WebGL Background Layer */}
+        <ImmersiveCanvas />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-[var(--bg-level-1)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-[var(--bg-level-1)] pointer-events-none" />
         
         <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-8 text-center mt-12">
           <motion.div
@@ -147,9 +116,11 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            <h1 className="text-5xl md:text-7xl lg:text-8.5xl font-black tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase">
-              {isAr ? hero.titleAr : hero.titleEn}
-            </h1>
+            <AnimatedText 
+              as="h1" 
+              text={isAr ? hero.titleAr : hero.titleEn || "E3 Immersive Experience"}
+              className="text-5xl md:text-7xl lg:text-8.5xl font-black tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase justify-center"
+            />
             <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-3xl mx-auto leading-relaxed font-medium whitespace-pre-wrap">
               {isAr ? hero.subtitleAr : hero.subtitleEn}
             </p>
@@ -182,23 +153,23 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <B2CCard className="p-8 group">
-              <Target className="w-10 h-10 text-[var(--e3-royal-blue)] mb-6 group-hover:scale-110 transition-transform duration-300" />
+          <B2CGrid columns={3} gap="lg">
+            <InteractiveCard className="p-8 group" glowColor="rgba(26, 31, 214, 0.3)">
+              <Target className="w-10 h-10 text-[var(--e3-royal-blue)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
               <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{heritage.visionTitle || "Vision"}</h3>
               <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{heritage.vision}</p>
-            </B2CCard>
-            <B2CCard className="p-8 group">
-              <Building className="w-10 h-10 text-[var(--e3-purple)] mb-6 group-hover:scale-110 transition-transform duration-300" />
+            </InteractiveCard>
+            <InteractiveCard className="p-8 group" glowColor="rgba(75, 0, 143, 0.3)">
+              <Building className="w-10 h-10 text-[var(--e3-purple)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
               <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{heritage.missionTitle || "Mission"}</h3>
               <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{heritage.mission}</p>
-            </B2CCard>
-            <B2CCard className="p-8 group">
-              <Heart className="w-10 h-10 text-[var(--e3-magenta)] mb-6 group-hover:scale-110 transition-transform duration-300" />
+            </InteractiveCard>
+            <InteractiveCard className="p-8 group" glowColor="rgba(176, 19, 184, 0.3)">
+              <Heart className="w-10 h-10 text-[var(--e3-magenta)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
               <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{heritage.valuesTitle || "Core Values"}</h3>
               <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{heritage.values}</p>
-            </B2CCard>
-          </div>
+            </InteractiveCard>
+          </B2CGrid>
         </div>
       </section>
 
@@ -214,10 +185,9 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <B2CGrid columns={4} gap="md">
             {team.map((member: { name: string; role: string; desc: string }, i: number) => (
-              <B2CCard key={member.name} className="p-6 relative group overflow-hidden border-[rgba(75,0,143,0.3)]">
-                <div className="absolute top-0 start-0 w-full h-1 bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-magenta)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <InteractiveCard key={member.name} className="p-6 relative group border-[rgba(75,0,143,0.3)]">
                 <div className="w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] mb-6 border border-[var(--e3-royal-blue)]/30 flex items-center justify-center text-[var(--e3-royal-blue)] font-black text-xl shadow-[0_0_15px_rgba(26,31,214,0.1)] group-hover:border-[var(--e3-magenta)] group-hover:text-[var(--e3-magenta)] transition-all duration-300">
                   {(member.name || "?").charAt(0)}
                 </div>
@@ -230,9 +200,9 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
                 <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
                   {member.desc}
                 </p>
-              </B2CCard>
+              </InteractiveCard>
             ))}
-          </div>
+          </B2CGrid>
         </div>
       </section>
 
@@ -445,16 +415,16 @@ function BookingForm({ type, accentColor = "purple" }: { type: string, accentCol
         placeholder="Minimum 10 guests"
       />
       
-      <div className="pt-4">
-        <B2CButton 
+      <div className="pt-4 w-full">
+        <MagneticButton 
           type="submit" 
           variant={isRose ? "secondary" : "primary"} 
-          className="w-full flex items-center justify-center gap-2 uppercase font-black tracking-wider text-base py-4 h-auto"
+          className="w-full flex items-center justify-center gap-2 uppercase font-black tracking-wider text-base py-4"
           disabled={status === "submitting"}
         >
           {status === "submitting" ? "Processing..." : "Submit Inquiry"} 
           <ChevronRight className="w-5 h-5 ms-2 rtl:-scale-x-100" />
-        </B2CButton>
+        </MagneticButton>
       </div>
     </form>
   );

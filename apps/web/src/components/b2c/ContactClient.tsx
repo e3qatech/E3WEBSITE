@@ -6,11 +6,12 @@ import { Star, MessageSquare, HeadphonesIcon, HelpCircle, Phone, Mail, Clock, Se
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { 
   useB2CTheme, 
-  B2CCard, 
-  B2CButton, 
   B2CInput, 
   B2CBadge 
 } from "@/components/ui/B2CThemeComponents";
+import { AnimatedText } from "@/components/ui/AnimatedText";
+import { InteractiveCard } from "@/components/ui/InteractiveCard";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 
 export function ContactClient({ 
   attractions, 
@@ -85,9 +86,11 @@ export function ContactClient({
             >
               <HeadphonesIcon className="w-8 h-8" />
             </motion.div>
-            <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight font-display uppercase leading-tight">
-              {pageSettings?.title || ""}
-            </h1>
+            <AnimatedText 
+              as="h1" 
+              text={pageSettings?.title || "Contact Us"}
+              className="text-4xl md:text-6xl font-black mb-6 tracking-tight font-display uppercase leading-tight justify-center"
+            />
             <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl font-medium leading-relaxed">
               {pageSettings?.tagline || ""}
             </p>
@@ -121,7 +124,7 @@ export function ContactClient({
                   </TabsTrigger>
                 </TabsList>
               
-                <B2CCard className="p-6 md:p-8 border-[rgba(75,0,143,0.3)] shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
+                <InteractiveCard className="p-6 md:p-8 border-[rgba(75,0,143,0.3)] shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
                   <TabsContent value="support"><SupportForm attractions={attractions} /></TabsContent>
                   <TabsContent value="feedback"><FeedbackForm attractions={attractions} /></TabsContent>
                   <TabsContent value="faq">
@@ -137,14 +140,14 @@ export function ContactClient({
                       switchToSupport={() => setActiveTab("support")}
                     />
                   </TabsContent>
-                </B2CCard>
+                </InteractiveCard>
               </Tabs>
             </div>
 
             {/* SIDEBAR DETAILS */}
             <div className="lg:col-span-4 space-y-6">
               {/* Contact Info Card */}
-              <B2CCard className="p-6 border-[rgba(75,0,143,0.3)]">
+              <InteractiveCard className="p-6 border-[rgba(75,0,143,0.3)]">
                 <h3 className="text-xl font-bold mb-6 font-display uppercase tracking-wide">Contact Details</h3>
                 <div className="space-y-6 text-start">
                   <div className="flex items-start gap-4">
@@ -177,14 +180,14 @@ export function ContactClient({
                     </div>
                   </div>
                 </div>
-              </B2CCard>
+              </InteractiveCard>
 
               {/* Featured Testimonials */}
               {featuredFeedbacks && featuredFeedbacks.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-xs font-black uppercase text-[var(--text-tertiary)] tracking-widest text-start px-2">Visitor Stories</h3>
                   {featuredFeedbacks.map((f: any, idx: number) => (
-                    <B2CCard key={idx} className="p-6 border-[rgba(75,0,143,0.3)]">
+                    <InteractiveCard key={idx} className="p-6 border-[rgba(75,0,143,0.3)]">
                       <Quote className="w-8 h-8 text-[var(--e3-purple)] opacity-35 mb-2" />
                       <p className="text-xs italic text-[var(--text-secondary)] font-medium mb-4 line-clamp-3">"{f.comment}"</p>
                       <div className="flex items-center justify-between">
@@ -195,7 +198,7 @@ export function ContactClient({
                           ))}
                         </div>
                       </div>
-                    </B2CCard>
+                    </InteractiveCard>
                   ))}
                 </div>
               )}
@@ -251,9 +254,9 @@ function SupportForm({ attractions }: { attractions: any[] }) {
         </div>
         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Request Submitted</h3>
         <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your ticket number is <strong>#E3-{Math.floor(Math.random() * 10000)}</strong>. We will get back to you shortly.</p>
-        <B2CButton onClick={() => setSuccess(false)} variant="primary" size="sm">
+        <MagneticButton onClick={() => setSuccess(false)} variant="primary" size="sm">
           Submit Another Request
-        </B2CButton>
+        </MagneticButton>
       </div>
     );
   }
@@ -321,9 +324,9 @@ function SupportForm({ attractions }: { attractions: any[] }) {
       </div>
 
       <div className="pt-4">
-        <B2CButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4 h-auto" disabled={isSubmitting}>
+        <MagneticButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4" disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : "Submit Support Request"}
-        </B2CButton>
+        </MagneticButton>
       </div>
     </form>
   );
@@ -371,9 +374,9 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
         </div>
         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Thank You!</h3>
         <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your feedback helps us improve our experiences.</p>
-        <B2CButton onClick={() => { setSuccess(false); setRating(0); }} variant="primary" size="sm">
+        <MagneticButton onClick={() => { setSuccess(false); setRating(0); }} variant="primary" size="sm">
           Submit More Feedback
-        </B2CButton>
+        </MagneticButton>
       </div>
     );
   }
@@ -425,9 +428,9 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
       </div>
 
       <div className="pt-4">
-        <B2CButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4 h-auto" disabled={isSubmitting || rating === 0}>
+        <MagneticButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4" disabled={isSubmitting || rating === 0}>
           Submit Feedback
-        </B2CButton>
+        </MagneticButton>
       </div>
     </form>
   );
@@ -491,9 +494,9 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
 
       <div className="text-center pt-8 border-t border-[var(--border-level-2)]">
         <p className="text-[var(--text-secondary)] font-medium mb-4">Still need help?</p>
-        <B2CButton onClick={switchToSupport} variant="outline" size="sm">
+        <MagneticButton onClick={switchToSupport} variant="outline" size="sm">
           Contact Support
-        </B2CButton>
+        </MagneticButton>
       </div>
     </div>
   );

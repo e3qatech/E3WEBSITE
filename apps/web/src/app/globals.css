@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Righteous&display=swap');
+@import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -247,6 +247,18 @@
   --font-sans: var(--font-b2c-sans);
   --font-display: var(--font-b2c-display);
   font-family: var(--font-b2c-sans);
+
+  /* B2C Premium Light Tokens */
+  --background-primary: var(--e3-soft-white);
+  --background-secondary: var(--e3-light-bg);
+  --surface-primary: var(--e3-white);
+  --surface-secondary: #EBF0FF;
+  --text-primary: var(--e3-midnight);
+  --text-secondary: var(--e3-blue-text);
+  --border-primary: var(--e3-soft-border);
+  --accent-primary: var(--e3-royal-blue);
+  --accent-secondary: var(--e3-purple);
+  --accent-highlight: var(--e3-magenta);
 }
 
 [data-theme="dark"] .b2c-theme,
@@ -274,6 +286,18 @@
   --text-secondary: var(--e3-soft-white);
   --text-tertiary: #A1A5D8;
   --text-disabled: #616499;
+
+  /* B2C Premium Dark Tokens */
+  --background-primary: var(--e3-midnight);
+  --background-secondary: var(--e3-purple);
+  --surface-primary: rgba(16, 15, 122, 0.4);
+  --surface-secondary: var(--e3-deep-blue);
+  --text-primary: var(--e3-white);
+  --text-secondary: var(--e3-soft-white);
+  --border-primary: rgba(75, 0, 143, 0.5);
+  --accent-primary: var(--e3-royal-blue);
+  --accent-secondary: var(--e3-purple);
+  --accent-highlight: var(--e3-magenta);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -301,6 +325,18 @@
     --text-secondary: var(--e3-soft-white);
     --text-tertiary: #A1A5D8;
     --text-disabled: #616499;
+
+    /* B2C Premium Dark Tokens */
+    --background-primary: var(--e3-midnight);
+    --background-secondary: var(--e3-purple);
+    --surface-primary: rgba(16, 15, 122, 0.4);
+    --surface-secondary: var(--e3-deep-blue);
+    --text-primary: var(--e3-white);
+    --text-secondary: var(--e3-soft-white);
+    --border-primary: rgba(75, 0, 143, 0.5);
+    --accent-primary: var(--e3-royal-blue);
+    --accent-secondary: var(--e3-purple);
+    --accent-highlight: var(--e3-magenta);
   }
 }
 

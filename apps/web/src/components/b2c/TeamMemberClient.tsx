@@ -7,98 +7,14 @@ import React, { useRef, useEffect } from "react";
 import { 
   useB2CTheme, 
   B2CCard, 
-  B2CButton, 
   B2CBadge 
 } from "@/components/ui/B2CThemeComponents";
+import { AnimatedText } from "@/components/ui/AnimatedText";
+import { InteractiveCard } from "@/components/ui/InteractiveCard";
+import { MagneticButton } from "@/components/ui/MagneticButton";
+import { B2CGrid } from "@/components/ui/B2CGrid";
 
-// Magnetic Button Component
-const MagneticButton = ({ children, className, onClick, href }: any) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const { clientX, clientY } = e;
-    const { width, height, left, top } = ref.current.getBoundingClientRect();
-    const centerX = left + width / 2;
-    const centerY = top + height / 2;
-    x.set((clientX - centerX) * 0.2);
-    y.set((clientY - centerY) * 0.2);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  const Component = href ? motion.a : motion.button;
-
-  return (
-    <Component
-      ref={ref as any}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      href={href}
-      style={{ x: mouseXSpring, y: mouseYSpring }}
-      className={className}
-    >
-      {children}
-    </Component>
-  );
-};
-
-// 3D Tilt Card Component
-const TiltCard = ({ children, className }: any) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 20 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 20 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={`relative ${className}`}
-    >
-      <div className="absolute inset-0 z-50 pointer-events-none rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-        style={{ background: 'radial-gradient(circle at 50% 0%, rgba(26, 31, 214, 0.15) 0%, transparent 70%)' }} 
-      />
-      <div style={{ transform: "translateZ(30px)" }} className="h-full">
-        {children}
-      </div>
-    </motion.div>
-  );
-};
+// Custom magnetic/tilt cards removed in favor of unified UI components
 
 export function TeamMemberClient({ locale, member, initialSettings }: { locale: string; member: any; initialSettings?: any }) {
   const { isAr } = useB2CTheme();
@@ -181,9 +97,11 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                 <span className="text-[var(--text-tertiary)] font-mono text-xs">ID: {member.id?.substring(0, 8) || '0x992A'}</span>
               </motion.div>
               
-              <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl lg:text-8xl leading-[0.95] font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] mb-4 font-display uppercase">
-                {member.firstName} <br/> {member.lastName}
-              </motion.h1>
+              <AnimatedText 
+                as="h1" 
+                text={`${member.firstName} ${member.lastName}`}
+                className="text-5xl md:text-7xl lg:text-8xl leading-[0.95] font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] mb-4 font-display uppercase"
+              />
               
               <motion.h2 variants={itemVariants} className="text-xl md:text-2xl font-bold text-[var(--text-secondary)] mb-8 flex items-center gap-3 uppercase font-display">
                 <Terminal className="w-5 h-5 text-[var(--e3-royal-blue)]" />
@@ -195,30 +113,30 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               </motion.p>
               
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-                <B2CButton 
+                <MagneticButton 
                   href={`mailto:${member.contactEmail}?subject=Contact Request`}
                   variant="primary"
                   size="md"
                   className="flex items-center justify-center gap-2 font-black uppercase"
                 >
                   <Calendar className="w-5 h-5" /> {initialSettings?.initiateMeetingText || "Contact Member"}
-                </B2CButton>
+                </MagneticButton>
                 
-                <B2CButton 
+                <MagneticButton 
                   onClick={() => alert(initialSettings?.pressKitAlertText || "Downloading member kit...")}
                   variant="outline"
                   size="md"
                   className="flex items-center justify-center gap-2 font-black uppercase"
                 >
                   <Download className="w-4 h-4" /> {initialSettings?.pressKitText || "Press Kit"}
-                </B2CButton>
+                </MagneticButton>
               </motion.div>
             </div>
 
             {/* Right Image Container */}
-            <motion.div variants={itemVariants} className="relative">
-              <TiltCard className="w-full aspect-[3/4] group perspective-1000">
-                <B2CCard className="w-full h-full p-2 relative overflow-hidden border-[rgba(75,0,143,0.3)] shadow-[0_12px_40px_rgba(0,0,0,0.3)]">
+            <motion.div variants={itemVariants} className="relative z-10">
+              <InteractiveCard className="w-full aspect-[3/4] group border-[rgba(75,0,143,0.3)]" glowColor="rgba(26, 31, 214, 0.4)">
+                <div className="w-full h-full p-2 relative overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.3)]">
                   <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} z-10 flex gap-2`}>
                     <div className="w-2.5 h-2.5 rounded-full bg-[var(--e3-magenta)]" />
                     <div className="w-2.5 h-2.5 rounded-full bg-[var(--e3-royal-blue)]" />
@@ -234,8 +152,8 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                     )}
                     <div className="absolute inset-0 bg-[rgba(26,31,214,0.06)] mix-blend-overlay pointer-events-none" />
                   </div>
-                </B2CCard>
-              </TiltCard>
+                </div>
+              </InteractiveCard>
             </motion.div>
 
           </motion.div>
@@ -269,10 +187,10 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
           {projects.length > 0 && (
             <div className="mb-24 text-start">
               <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-8 border-b border-[var(--border-level-2)] pb-4 font-display">Key Projects</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <B2CGrid columns={3} gap="md">
                 {projects.map((project: any, idx: number) => (
-                  <TiltCard key={idx} className="group h-full perspective-1000">
-                    <B2CCard className="h-full p-6 flex flex-col relative overflow-hidden border-[rgba(75,0,143,0.3)]">
+                  <InteractiveCard key={idx} className="group h-full border-[rgba(75,0,143,0.3)]">
+                    <div className="h-full p-6 flex flex-col relative overflow-hidden">
                       <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} p-2 opacity-20 group-hover:opacity-100 transition-opacity`}>
                         <ArrowUpRight className="w-5 h-5 text-[var(--e3-magenta)]" />
                       </div>
@@ -284,10 +202,10 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                           ROLE: {project.role}
                         </span>
                       </div>
-                    </B2CCard>
-                  </TiltCard>
+                    </div>
+                  </InteractiveCard>
                 ))}
-              </div>
+              </B2CGrid>
             </div>
           )}
 

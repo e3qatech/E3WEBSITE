@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Ticket, ShieldCheck, Zap, Smartphone, ChevronDown, ChevronUp } from "lucide-react";
 import { 
   useB2CTheme, 
-  B2CCard, 
-  B2CButton, 
   B2CBadge 
 } from "@/components/ui/B2CThemeComponents";
+import { AnimatedText } from "@/components/ui/AnimatedText";
+import { InteractiveCard } from "@/components/ui/InteractiveCard";
+import { B2CGrid } from "@/components/ui/B2CGrid";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 
 interface PricingTier {
   id: string;
@@ -58,9 +60,11 @@ export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: A
           >
             <Ticket className="w-10 h-10" />
           </motion.div>
-          <h1 className="text-4xl md:text-5xl font-black mb-4 font-display uppercase tracking-wide">
-            {initialSettings?.heroTitle || "Experiences Tickets"}
-          </h1>
+          <AnimatedText 
+            as="h1" 
+            text={initialSettings?.heroTitle || "Experiences Tickets"}
+            className="text-4xl md:text-5xl font-black mb-4 font-display uppercase tracking-wide justify-center"
+          />
           <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto font-medium leading-relaxed">
             {initialSettings?.heroDescription || "Reserve your slot for Doha's most anticipated futuristic entertainment concepts."}
           </p>
@@ -72,7 +76,7 @@ export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: A
             <p className="text-[var(--text-secondary)] font-medium">{initialSettings?.emptyStateText || "No ticketing offers currently available."}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <B2CGrid columns={2} gap="lg">
             {ticketsData.map((attraction) => {
               const isExpanded = expandedId === attraction.attractionId;
               const minPrice = attraction.pricingTiers?.length > 0 
@@ -81,9 +85,11 @@ export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: A
               const currency = attraction.pricingTiers?.[0]?.currency || "QAR";
 
               return (
-                <B2CCard 
+                <InteractiveCard 
                   key={attraction.attractionId}
-                  className="overflow-hidden border-[rgba(75,0,143,0.3)] shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex flex-col h-full"
+                  className="flex flex-col h-full border-[rgba(75,0,143,0.3)] shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
+                  glowColor="rgba(75, 0, 143, 0.4)"
+                  tiltStrength={5}
                 >
                   {/* Card Header (Image + Title) */}
                   <div 
@@ -157,15 +163,15 @@ export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: A
                                       {tier.currency} {tier.price}
                                     </span>
                                   </div>
-                                  <B2CButton 
+                                  <MagneticButton 
                                     onClick={() => window.open(`${attraction.bookingUrl}?ticketType=${tier.ticketType}`, '_blank')}
                                     disabled={!tier.isAvailable}
                                     variant="primary"
                                     size="sm"
-                                    className="uppercase font-black py-2.5 px-4"
+                                    className="uppercase font-black py-2.5 px-4 rounded-xl"
                                   >
                                     {tier.isAvailable ? "Buy" : "Sold Out"}
-                                  </B2CButton>
+                                  </MagneticButton>
                                 </div>
                               </div>
                             ))
@@ -174,10 +180,10 @@ export function TicketsClient({ ticketsData, initialSettings }: { ticketsData: A
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </B2CCard>
+                </InteractiveCard>
               );
             })}
-          </div>
+          </B2CGrid>
         )}
 
         {/* 3. TRUST BADGES */}
