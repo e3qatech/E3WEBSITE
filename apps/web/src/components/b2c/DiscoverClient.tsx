@@ -76,11 +76,16 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
   };
 
   const heritage = {
-    title: "",
-    description: "",
-    vision: "",
-    mission: "",
-    values: "",
+    titleEn: "",
+    titleAr: "",
+    descriptionEn: "",
+    descriptionAr: "",
+    visionEn: "",
+    visionAr: "",
+    missionEn: "",
+    missionAr: "",
+    valuesEn: "",
+    valuesAr: "",
     ...(initialSettings?.heritage || {})
   };
 
@@ -133,10 +138,10 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
             <div>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-6 font-display uppercase">{heritage.title}</h2>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-6 font-display uppercase">{isAr ? heritage.titleAr : heritage.titleEn || "E3 Story & Heritage"}</h2>
               <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6 whitespace-pre-wrap font-medium" 
                 dangerouslySetInnerHTML={{ 
-                  __html: (heritage.description || "").replace(
+                  __html: ((isAr ? heritage.descriptionAr : heritage.descriptionEn) || "").replace(
                     /(InflataRun track|Doha Balloon Parade)/g, 
                     `<strong class="text-[var(--e3-royal-blue)] font-semibold">$1</strong>`
                   ) 
@@ -156,18 +161,18 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
           <B2CGrid columns={3} gap="lg">
             <InteractiveCard className="p-8 group" glowColor="rgba(26, 31, 214, 0.3)">
               <Target className="w-10 h-10 text-[var(--e3-royal-blue)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{heritage.visionTitle || "Vision"}</h3>
-              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{heritage.vision}</p>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{isAr ? "الرؤية" : "Vision"}</h3>
+              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{isAr ? heritage.visionAr : heritage.visionEn}</p>
             </InteractiveCard>
             <InteractiveCard className="p-8 group" glowColor="rgba(75, 0, 143, 0.3)">
               <Building className="w-10 h-10 text-[var(--e3-purple)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{heritage.missionTitle || "Mission"}</h3>
-              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{heritage.mission}</p>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{isAr ? "المهمة" : "Mission"}</h3>
+              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{isAr ? heritage.missionAr : heritage.missionEn}</p>
             </InteractiveCard>
             <InteractiveCard className="p-8 group" glowColor="rgba(176, 19, 184, 0.3)">
               <Heart className="w-10 h-10 text-[var(--e3-magenta)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{heritage.valuesTitle || "Core Values"}</h3>
-              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{heritage.values}</p>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{isAr ? "القيم" : "Core Values"}</h3>
+              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{isAr ? heritage.valuesAr : heritage.valuesEn}</p>
             </InteractiveCard>
           </B2CGrid>
         </div>
