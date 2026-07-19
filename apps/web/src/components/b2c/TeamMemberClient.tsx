@@ -4,6 +4,12 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Download, Code, Terminal, Activity, ArrowUpRight } from "lucide-react";
 import React, { useRef, useEffect } from "react";
+import { 
+  useB2CTheme, 
+  B2CCard, 
+  B2CButton, 
+  B2CBadge 
+} from "@/components/ui/B2CThemeComponents";
 
 // Magnetic Button Component
 const MagneticButton = ({ children, className, onClick, href }: any) => {
@@ -84,9 +90,8 @@ const TiltCard = ({ children, className }: any) => {
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       className={`relative ${className}`}
     >
-      {/* Glare effect */}
-      <div className="absolute inset-0 z-50 pointer-events-none rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-        style={{ background: 'radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.15) 0%, transparent 70%)' }} 
+      <div className="absolute inset-0 z-50 pointer-events-none rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+        style={{ background: 'radial-gradient(circle at 50% 0%, rgba(26, 31, 214, 0.15) 0%, transparent 70%)' }} 
       />
       <div style={{ transform: "translateZ(30px)" }} className="h-full">
         {children}
@@ -96,7 +101,7 @@ const TiltCard = ({ children, className }: any) => {
 };
 
 export function TeamMemberClient({ locale, member, initialSettings }: { locale: string; member: any; initialSettings?: any }) {
-  const isRtl = locale === 'ar';
+  const { isAr } = useB2CTheme();
   
   const expertise = member.expertiseTags as string[] || [];
   const experience = member.experience as any[] || [];
@@ -136,34 +141,11 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;500;600;700&display=swap');
-        .font-righteous { font-family: 'Righteous', cursive; }
-        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-righteous { font-family: var(--font-display), 'Righteous', sans-serif; }
+        .font-poppins { font-family: var(--font-sans), 'Poppins', sans-serif; }
       `}} />
-      <div className="min-h-screen bg-[#0F0F23] text-zinc-100 font-poppins selection:bg-[#F43F5E]/30 relative overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="w-full relative text-[var(--text-primary)] font-poppins selection:bg-[rgba(26,31,214,0.3)] overflow-x-hidden" dir={isAr ? 'rtl' : 'ltr'}>
         
-        {/* Interactive Background Orbs */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.5, 1],
-              x: [0, -100, 0],
-              y: [0, 100, 0],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
-          />
-        </div>
-
         {/* Noise Texture */}
         <div className="pointer-events-none fixed inset-0 z-0 h-full w-full opacity-[0.03]">
           <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
@@ -174,132 +156,135 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
           </svg>
         </div>
 
-        <main className="max-w-[1200px] mx-auto px-4 md:px-8 pt-24 pb-32 relative z-10">
+        <main className="max-w-[1200px] mx-auto px-4 md:px-8 pt-12 pb-32 relative z-10">
           
           {/* Top Bar */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-12 flex justify-between items-center">
-            <Link href={`/${locale}/b2c/team`} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 text-sm font-bold text-zinc-300 hover:text-white hover:border-[#F43F5E] transition-colors group">
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-              {initialSettings?.backButtonText || ""}
+            <Link href={`/${locale}/b2c/team`} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:translate-x-1" /> 
+              {initialSettings?.backButtonText || "Back to Team"}
             </Link>
-            <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-[#7C3AED]">
-              <Activity className="w-4 h-4 text-[#F43F5E]" /> {initialSettings?.systemStatus || ""}
+            <div className="flex items-center gap-2 text-xs font-black tracking-widest text-[var(--e3-royal-blue)] uppercase">
+              <Activity className="w-4 h-4 text-[var(--e3-magenta)] animate-pulse" /> {initialSettings?.systemStatus || "Online"}
             </div>
           </motion.div>
 
           {/* Hero Section */}
-          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-12 lg:gap-24 mb-32">
+          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-12 lg:gap-24 mb-24">
             
             {/* Left Info */}
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col justify-center text-start">
               <motion.div variants={itemVariants} className="mb-6 flex items-center gap-3">
-                <span className="px-3 py-1 rounded bg-[#F43F5E]/10 border border-[#F43F5E]/30 text-[#F43F5E] text-xs font-bold tracking-widest uppercase">
+                <span className="px-3 py-1 rounded-lg bg-[rgba(176,19,184,0.1)] border border-[var(--e3-magenta)]/30 text-[var(--e3-magenta)] text-[10px] font-black tracking-widest uppercase">
                   {member.department}
                 </span>
-                <span className="text-zinc-500 font-mono text-xs">ID: {member.id?.substring(0, 8) || '0x992A'}</span>
+                <span className="text-[var(--text-tertiary)] font-mono text-xs">ID: {member.id?.substring(0, 8) || '0x992A'}</span>
               </motion.div>
               
-              <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl lg:text-[80px] leading-[0.9] font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#7C3AED] mb-4 font-righteous">
+              <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl lg:text-8xl leading-[0.95] font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] mb-4 font-display uppercase">
                 {member.firstName} <br/> {member.lastName}
               </motion.h1>
               
-              <motion.h2 variants={itemVariants} className="text-xl md:text-2xl font-bold text-zinc-300 mb-8 flex items-center gap-3">
-                <Terminal className="w-5 h-5 text-[#F43F5E]" />
+              <motion.h2 variants={itemVariants} className="text-xl md:text-2xl font-bold text-[var(--text-secondary)] mb-8 flex items-center gap-3 uppercase font-display">
+                <Terminal className="w-5 h-5 text-[var(--e3-royal-blue)]" />
                 {member.designation}
               </motion.h2>
               
-              <motion.p variants={itemVariants} className="text-lg text-zinc-300 font-medium leading-relaxed max-w-xl mb-12 border-s-2 border-[#7C3AED] ps-6">
+              <motion.p variants={itemVariants} className="text-lg text-[var(--text-secondary)] font-medium leading-relaxed max-w-xl mb-12 border-s-2 border-[var(--e3-royal-blue)] ps-6">
                 {member.tagline || member.aboutSummary}
               </motion.p>
               
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-                <MagneticButton 
+                <B2CButton 
                   href={`mailto:${member.contactEmail}?subject=Contact Request`}
-                  className="px-8 py-4 bg-[#F43F5E] text-white shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:bg-[#E11D48] rounded-lg font-bold tracking-wide transition-colors flex items-center justify-center gap-3"
+                  variant="primary"
+                  size="md"
+                  className="flex items-center justify-center gap-2 font-black uppercase"
                 >
-                  <Calendar className="w-5 h-5" /> {initialSettings?.initiateMeetingText || ""}
-                </MagneticButton>
+                  <Calendar className="w-5 h-5" /> {initialSettings?.initiateMeetingText || "Contact Member"}
+                </B2CButton>
                 
-                <MagneticButton 
-                  onClick={() => alert(initialSettings?.pressKitAlertText || "")}
-                  className="px-8 py-4 bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 hover:border-[#F43F5E]/50 hover:shadow-[0_0_15px_rgba(124,58,237,0.3)] text-white rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-3"
+                <B2CButton 
+                  onClick={() => alert(initialSettings?.pressKitAlertText || "Downloading member kit...")}
+                  variant="outline"
+                  size="md"
+                  className="flex items-center justify-center gap-2 font-black uppercase"
                 >
-                  <Download className="w-4 h-4" /> {initialSettings?.pressKitText || ""}
-                </MagneticButton>
+                  <Download className="w-4 h-4" /> {initialSettings?.pressKitText || "Press Kit"}
+                </B2CButton>
               </motion.div>
             </div>
 
             {/* Right Image Container */}
             <motion.div variants={itemVariants} className="relative">
               <TiltCard className="w-full aspect-[3/4] group perspective-1000">
-                <div className="w-full h-full rounded-2xl bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/40 shadow-[0_0_30px_rgba(124,58,237,0.2)] group-hover:shadow-[0_0_50px_rgba(244,63,94,0.4)] group-hover:border-[#F43F5E]/60 transition-all duration-500 p-2 relative overflow-hidden">
-                  <div className="absolute top-4 start-4 z-10 flex gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#F43F5E]" />
-                    <div className="w-2 h-2 rounded-full bg-[#7C3AED]" />
-                    <div className="w-2 h-2 rounded-full bg-white" />
+                <B2CCard className="w-full h-full p-2 relative overflow-hidden border-[rgba(75,0,143,0.3)] shadow-[0_12px_40px_rgba(0,0,0,0.3)]">
+                  <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} z-10 flex gap-2`}>
+                    <div className="w-2.5 h-2.5 rounded-full bg-[var(--e3-magenta)]" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[var(--e3-royal-blue)]" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[var(--text-primary)]" />
                   </div>
-                  <div className="w-full h-full rounded-xl overflow-hidden relative grayscale group-hover:grayscale-0 transition-all duration-700">
+                  <div className="w-full h-full rounded-2xl overflow-hidden relative grayscale group-hover:grayscale-0 transition-all duration-700 bg-zinc-950">
                     {member.profileImage ? (
                       <img src={member.profileImage} alt={member.firstName} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-[#0F0F23] text-zinc-700 font-righteous text-9xl">
+                      <div className="w-full h-full flex items-center justify-center text-zinc-800 font-display text-9xl uppercase">
                         {member.firstName.charAt(0)}
                       </div>
                     )}
-                    {/* Glitch Overlay */}
-                    <div className="absolute inset-0 bg-[#7C3AED]/10 mix-blend-overlay pointer-events-none" />
+                    <div className="absolute inset-0 bg-[rgba(26,31,214,0.06)] mix-blend-overlay pointer-events-none" />
                   </div>
-                </div>
+                </B2CCard>
               </TiltCard>
             </motion.div>
 
           </motion.div>
 
           {/* Data Dense Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="lg:col-span-2 bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 shadow-[0_0_20px_rgba(124,58,237,0.1)] p-8 rounded-2xl">
-               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#7C3AED]/20 text-[#F43F5E]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24 text-start">
+            <B2CCard className="lg:col-span-2 p-8 border-[rgba(75,0,143,0.3)]">
+               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-magenta)]">
                  <Code className="w-5 h-5" />
-                 <h3 className="font-bold text-sm tracking-widest uppercase">System Bio</h3>
+                 <h3 className="font-bold text-sm tracking-widest uppercase font-display">System Bio</h3>
                </div>
-               <p className="text-zinc-300 leading-relaxed font-medium">{member.aboutSummary}</p>
-            </motion.div>
+               <p className="text-[var(--text-secondary)] leading-relaxed font-medium">{member.aboutSummary}</p>
+            </B2CCard>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 shadow-[0_0_20px_rgba(124,58,237,0.1)] p-8 rounded-2xl">
-               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#7C3AED]/20 text-[#F43F5E]">
+            <B2CCard className="p-8 border-[rgba(75,0,143,0.3)]">
+               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-royal-blue)]">
                  <Activity className="w-5 h-5" />
-                 <h3 className="font-bold text-sm tracking-widest uppercase">Core Skills</h3>
+                 <h3 className="font-bold text-sm tracking-widest uppercase font-display">Core Skills</h3>
                </div>
                <div className="flex flex-wrap gap-2">
                  {expertise.map((tag: string) => (
-                   <span key={tag} className="px-3 py-1 bg-[#0F0F23] border border-[#7C3AED]/40 rounded text-xs font-bold text-zinc-300">
+                   <span key={tag} className="px-3 py-1.5 bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-lg text-xs font-bold text-[var(--text-primary)]">
                      {tag}
                    </span>
                  ))}
                </div>
-            </motion.div>
+            </B2CCard>
           </div>
 
           {/* Bento Box Projects */}
           {projects.length > 0 && (
-            <div className="mb-24">
-              <h3 className="font-bold text-sm tracking-widest uppercase text-zinc-400 mb-8 border-b border-[#7C3AED]/20 pb-4">Key Projects</h3>
+            <div className="mb-24 text-start">
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-8 border-b border-[var(--border-level-2)] pb-4 font-display">Key Projects</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {projects.map((project: any, idx: number) => (
                   <TiltCard key={idx} className="group h-full perspective-1000">
-                    <div className="h-full bg-[#1A1A2E]/60 backdrop-blur-md border border-[#7C3AED]/30 shadow-[0_0_15px_rgba(124,58,237,0.1)] group-hover:border-[#F43F5E]/60 group-hover:shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-all duration-300 rounded-2xl p-6 flex flex-col relative overflow-hidden">
-                      <div className="absolute top-0 end-0 p-4 opacity-20 group-hover:opacity-100 transition-opacity">
-                        <ArrowUpRight className="w-6 h-6 text-[#F43F5E]" />
+                    <B2CCard className="h-full p-6 flex flex-col relative overflow-hidden border-[rgba(75,0,143,0.3)]">
+                      <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} p-2 opacity-20 group-hover:opacity-100 transition-opacity`}>
+                        <ArrowUpRight className="w-5 h-5 text-[var(--e3-magenta)]" />
                       </div>
-                      <div className="text-zinc-500 font-bold text-xs mb-4">{project.year} // {project.client}</div>
-                      <h4 className="text-xl font-black text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#7C3AED] group-hover:to-[#F43F5E] transition-colors font-righteous">{project.name}</h4>
-                      <p className="text-zinc-400 text-sm font-medium flex-1 mb-6">{project.description}</p>
+                      <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4 uppercase tracking-wider">{project.year} // {project.client}</div>
+                      <h4 className="text-xl font-black text-[var(--text-primary)] mb-4 group-hover:text-[var(--e3-royal-blue)] transition-colors font-display uppercase">{project.name}</h4>
+                      <p className="text-[var(--text-secondary)] text-sm font-medium flex-1 mb-6">{project.description}</p>
                       <div className="mt-auto">
-                        <span className="text-xs font-bold text-[#F43F5E] bg-[#F43F5E]/10 px-2 py-1 rounded border border-[#F43F5E]/20">
+                        <span className="text-xs font-black text-[var(--e3-magenta)] bg-[rgba(176,19,184,0.1)] px-3 py-1.5 rounded-lg border border-[var(--e3-magenta)]/20 uppercase tracking-wider">
                           ROLE: {project.role}
                         </span>
                       </div>
-                    </div>
+                    </B2CCard>
                   </TiltCard>
                 ))}
               </div>
@@ -308,9 +293,9 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
 
           {/* Timeline */}
           {experience.length > 0 && (
-            <div className="mb-24">
-              <h3 className="font-bold text-sm tracking-widest uppercase text-zinc-400 mb-12 border-b border-[#7C3AED]/20 pb-4">History Log</h3>
-              <div className="space-y-12 ps-4 border-s border-[#7C3AED]/30">
+            <div className="mb-24 text-start">
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-12 border-b border-[var(--border-level-2)] pb-4 font-display">History Log</h3>
+              <div className="space-y-12 ps-4 border-s border-[var(--border-level-2)]">
                 {experience.map((exp: any, idx: number) => (
                   <motion.div 
                     initial={{ opacity: 0, x: -20 }} 
@@ -319,13 +304,13 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                     key={idx} 
                     className="relative ps-8"
                   >
-                    <div className="absolute -start-[5px] top-2 w-2.5 h-2.5 rounded-full bg-[#F43F5E] shadow-[0_0_15px_rgba(244,63,94,0.6)]" />
+                    <div className="absolute -start-[5.5px] top-2 w-2.5 h-2.5 rounded-full bg-[var(--e3-magenta)] shadow-[0_0_10px_rgba(176,19,184,0.6)] animate-pulse" />
                     <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4 mb-2">
-                      <h4 className="text-xl font-black text-white font-righteous">{exp.role}</h4>
-                      <span className="text-[#7C3AED] font-bold text-sm">@ {exp.company}</span>
+                      <h4 className="text-xl font-black text-[var(--text-primary)] font-display uppercase">{exp.role}</h4>
+                      <span className="text-[var(--e3-royal-blue)] font-bold text-sm">@ {exp.company}</span>
                     </div>
-                    <div className="text-zinc-500 font-bold text-xs mb-4">[{exp.duration}]</div>
-                    <p className="text-zinc-300 font-medium max-w-3xl whitespace-pre-wrap">{exp.responsibilities}</p>
+                    <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4">[{exp.duration}]</div>
+                    <p className="text-[var(--text-secondary)] font-medium max-w-3xl whitespace-pre-wrap leading-relaxed text-sm md:text-base">{exp.responsibilities}</p>
                   </motion.div>
                 ))}
               </div>

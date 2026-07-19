@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Righteous&display=swap');
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -38,6 +39,25 @@
    -------------------------------------------------------------------------- */
 
 :root {
+  /* E3 B2C Design Tokens (Inspired by E3 Brand Identity) */
+  --e3-midnight: #080A2A;
+  --e3-deep-blue: #100F7A;
+  --e3-royal-blue: #1A1FD6;
+  --e3-purple: #4B008F;
+  --e3-magenta: #B013B8;
+  --e3-white: #FFFFFF;
+  --e3-soft-white: #F5F7FF;
+
+  --e3-light-bg: #F7F8FF;
+  --e3-card-white: #FFFFFF;
+  --e3-ink: #111133;
+  --e3-blue-text: #17178A;
+  --e3-purple-accent: #4B008F;
+  --e3-soft-border: #DDE1FF;
+
+  --font-b2c-sans: 'Poppins', var(--font-sans);
+  --font-b2c-display: 'Righteous', var(--font-sans);
+
   /* Default to Light Mode */
   --color-primary: #D97706; /* amber-600 */
   --color-secondary: #52525B; /* zinc-600 */
@@ -192,6 +212,95 @@
     --shadow-4: 0 16px 32px rgba(0,0,0,0.4);
     
     --glow-effect: none; 
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1b. B2C THEME CLASS MAPPINGS
+   -------------------------------------------------------------------------- */
+
+.b2c-theme {
+  --color-primary: var(--e3-royal-blue);
+  --color-secondary: var(--e3-purple);
+  --color-accent: var(--e3-magenta);
+  
+  --bg-level-1: var(--e3-light-bg);
+  --bg-level-2: var(--e3-soft-border);
+  --bg-level-3: #ECEFFF;
+  --bg-level-4: #DDE1FF;
+  --bg-level-5: var(--e3-blue-text);
+  
+  --surface-default: var(--e3-card-white);
+  --surface-hover: #F0F2FF;
+  --surface-active: #E5E8FF;
+  --surface-selected: #ECEFFF;
+  
+  --border-level-1: rgba(23, 23, 138, 0.05);
+  --border-level-2: var(--e3-soft-border);
+  --border-level-3: var(--e3-blue-text);
+  
+  --text-primary: var(--e3-ink);
+  --text-secondary: var(--e3-blue-text);
+  --text-tertiary: #52528C;
+  --text-disabled: #A1A1C2;
+
+  --font-sans: var(--font-b2c-sans);
+  --font-display: var(--font-b2c-display);
+  font-family: var(--font-b2c-sans);
+}
+
+[data-theme="dark"] .b2c-theme,
+.b2c-theme[data-theme="dark"] {
+  --color-primary: var(--e3-royal-blue);
+  --color-secondary: var(--e3-purple);
+  --color-accent: var(--e3-magenta);
+  
+  --bg-level-1: var(--e3-midnight);
+  --bg-level-2: var(--e3-deep-blue);
+  --bg-level-3: #1A18AA;
+  --bg-level-4: var(--e3-purple);
+  --bg-level-5: var(--e3-royal-blue);
+  
+  --surface-default: #0C0E38;
+  --surface-hover: #121554;
+  --surface-active: var(--e3-deep-blue);
+  --surface-selected: rgba(26, 31, 214, 0.2);
+  
+  --border-level-1: rgba(75, 0, 143, 0.2);
+  --border-level-2: rgba(75, 0, 143, 0.4);
+  --border-level-3: var(--e3-purple);
+  
+  --text-primary: var(--e3-white);
+  --text-secondary: var(--e3-soft-white);
+  --text-tertiary: #A1A5D8;
+  --text-disabled: #616499;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .b2c-theme {
+    --color-primary: var(--e3-royal-blue);
+    --color-secondary: var(--e3-purple);
+    --color-accent: var(--e3-magenta);
+    
+    --bg-level-1: var(--e3-midnight);
+    --bg-level-2: var(--e3-deep-blue);
+    --bg-level-3: #1A18AA;
+    --bg-level-4: var(--e3-purple);
+    --bg-level-5: var(--e3-royal-blue);
+    
+    --surface-default: #0C0E38;
+    --surface-hover: #121554;
+    --surface-active: var(--e3-deep-blue);
+    --surface-selected: rgba(26, 31, 214, 0.2);
+    
+    --border-level-1: rgba(75, 0, 143, 0.2);
+    --border-level-2: rgba(75, 0, 143, 0.4);
+    --border-level-3: var(--e3-purple);
+    
+    --text-primary: var(--e3-white);
+    --text-secondary: var(--e3-soft-white);
+    --text-tertiary: #A1A5D8;
+    --text-disabled: #616499;
   }
 }
 
