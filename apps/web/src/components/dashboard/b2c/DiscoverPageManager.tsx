@@ -92,7 +92,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const removeTeamMember = (index: number) => {
     setData(prev => ({
       ...prev,
-      team: prev.team.filter((_, i) => i !== index)
+      team: prev.team.filter((_: any, i: number) => i !== index)
     }));
   }
 
@@ -331,7 +331,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               <AdminButton variant="outline" onClick={addTeamMember} type="button">Add Member</AdminButton>
             </div>
             
-            {data.team.map((member, idx) => {
+            {data.team.map((member: any, idx: number) => {
               const safeMember: any = {
                 nameEn: member.nameEn || (member as any).name || "",
                 nameAr: member.nameAr || "",
