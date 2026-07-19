@@ -96,6 +96,13 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
     ...(initialSettings?.careers || {})
   };
 
+  const corporate = {
+    titleEn: initialSettings?.corporate?.titleEn || initialSettings?.corporateRosterTitle || "Corporate Roster",
+    titleAr: initialSettings?.corporate?.titleAr || "",
+    subtitleEn: initialSettings?.corporate?.subtitleEn || initialSettings?.corporateRosterSubtitle || "Leadership & Engineering Core",
+    subtitleAr: initialSettings?.corporate?.subtitleAr || "",
+  };
+
   const isAr = locale === 'ar';
 
   return (
@@ -183,30 +190,36 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-4 font-display uppercase">
-              {initialSettings?.corporateRosterTitle || "Corporate Roster"}
+              {isAr ? (corporate.titleAr || corporate.titleEn) : corporate.titleEn}
             </h2>
             <p className="text-[var(--e3-royal-blue)] font-bold text-xs uppercase tracking-[0.2em] font-poppins">
-              {initialSettings?.corporateRosterSubtitle || "Leadership & Engineering Core"}
+              {isAr ? (corporate.subtitleAr || corporate.subtitleEn) : corporate.subtitleEn}
             </p>
           </div>
           
           <B2CGrid columns={4} gap="md">
-            {team.map((member: { name: string; role: string; desc: string }, i: number) => (
-              <InteractiveCard key={member.name} className="p-6 relative group border-[rgba(75,0,143,0.3)]">
-                <div className="w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] mb-6 border border-[var(--e3-royal-blue)]/30 flex items-center justify-center text-[var(--e3-royal-blue)] font-black text-xl shadow-[0_0_15px_rgba(26,31,214,0.1)] group-hover:border-[var(--e3-magenta)] group-hover:text-[var(--e3-magenta)] transition-all duration-300">
-                  {(member.name || "?").charAt(0)}
-                </div>
-                <h4 className="text-lg font-bold text-[var(--text-primary)] mb-1 font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors duration-300">
-                  {member.name}
-                </h4>
-                <p className="text-xs font-black text-[var(--e3-magenta)] mb-4 tracking-wider uppercase">
-                  {member.role}
-                </p>
-                <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
-                  {member.desc}
-                </p>
-              </InteractiveCard>
-            ))}
+            {team.map((member: any, i: number) => {
+              const name = isAr ? (member.nameAr || member.nameEn || member.name) : (member.nameEn || member.name);
+              const role = isAr ? (member.roleAr || member.roleEn || member.role) : (member.roleEn || member.role);
+              const desc = isAr ? (member.descAr || member.descEn || member.desc) : (member.descEn || member.desc);
+
+              return (
+                <InteractiveCard key={name + i} className="p-6 relative group border-[rgba(75,0,143,0.3)]">
+                  <div className="w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] mb-6 border border-[var(--e3-royal-blue)]/30 flex items-center justify-center text-[var(--e3-royal-blue)] font-black text-xl shadow-[0_0_15px_rgba(26,31,214,0.1)] group-hover:border-[var(--e3-magenta)] group-hover:text-[var(--e3-magenta)] transition-all duration-300">
+                    {(name || "?").charAt(0)}
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-primary)] mb-1 font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors duration-300">
+                    {name}
+                  </h4>
+                  <p className="text-xs font-black text-[var(--e3-magenta)] mb-4 tracking-wider uppercase">
+                    {role}
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
+                    {desc}
+                  </p>
+                </InteractiveCard>
+              );
+            })}
           </B2CGrid>
         </div>
       </section>

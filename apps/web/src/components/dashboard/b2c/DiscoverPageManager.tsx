@@ -29,6 +29,18 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       valuesEn: initialData?.heritage?.valuesEn || initialData?.heritage?.values || "",
       valuesAr: initialData?.heritage?.valuesAr || initialData?.heritage?.values || ""
     },
+    corporate: {
+      titleEn: initialData?.corporate?.titleEn || initialData?.corporateRosterTitle || "Corporate Roster",
+      titleAr: initialData?.corporate?.titleAr || "",
+      subtitleEn: initialData?.corporate?.subtitleEn || initialData?.corporateRosterSubtitle || "Leadership & Engineering Core",
+      subtitleAr: initialData?.corporate?.subtitleAr || "",
+    },
+    team: initialData?.team || [
+      { nameEn: "Abdullah Al Kubaisi", nameAr: "", roleEn: "Chairman", roleAr: "", descEn: "National alignment & strategic partnerships.", descAr: "" },
+      { nameEn: "Adil Ahmed", nameAr: "", roleEn: "Managing Director & CEO", roleAr: "", descEn: "Global resources & operations.", descAr: "" },
+      { nameEn: "Mohammad Ali Awada", nameAr: "", roleEn: "General Manager", roleAr: "", descEn: "Directing physical landmark properties.", descAr: "" },
+      { nameEn: "Ebrahim Karolia", nameAr: "", roleEn: "Sr. Project Manager", roleAr: "", descEn: "AV rigging, fabrication, custom builds.", descAr: "" }
+    ],
   })
 
   const { toast } = useToast()
@@ -60,6 +72,28 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         [field]: value
       }
     }))
+  }
+
+  const handleTeamChange = (index: number, field: string, value: string) => {
+    setData(prev => {
+      const newTeam = [...prev.team];
+      newTeam[index] = { ...newTeam[index], [field]: value };
+      return { ...prev, team: newTeam };
+    });
+  }
+
+  const addTeamMember = () => {
+    setData(prev => ({
+      ...prev,
+      team: [...prev.team, { nameEn: "", nameAr: "", roleEn: "", roleAr: "", descEn: "", descAr: "" }]
+    }));
+  }
+
+  const removeTeamMember = (index: number) => {
+    setData(prev => ({
+      ...prev,
+      team: prev.team.filter((_, i) => i !== index)
+    }));
   }
 
   return (
@@ -243,6 +277,132 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Corporate & Team Section */}
+        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-bold text-text-primary">Corporate Roster</h2>
+          
+          <div className="grid grid-cols-2 gap-6 pb-6 border-b border-border-default">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Title (En)</label>
+              <input 
+                type="text" 
+                value={data.corporate.titleEn}
+                onChange={e => handleChange('corporate', 'titleEn', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Title (Ar)</label>
+              <input 
+                type="text" 
+                dir="rtl"
+                value={data.corporate.titleAr}
+                onChange={e => handleChange('corporate', 'titleAr', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
+              <input 
+                type="text" 
+                value={data.corporate.subtitleEn}
+                onChange={e => handleChange('corporate', 'subtitleEn', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
+              <input 
+                type="text" 
+                dir="rtl"
+                value={data.corporate.subtitleAr}
+                onChange={e => handleChange('corporate', 'subtitleAr', e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-text-primary">Team Members</h3>
+              <AdminButton variant="outline" onClick={addTeamMember} type="button">Add Member</AdminButton>
+            </div>
+            
+            {data.team.map((member, idx) => {
+              const safeMember: any = {
+                nameEn: member.nameEn || (member as any).name || "",
+                nameAr: member.nameAr || "",
+                roleEn: member.roleEn || (member as any).role || "",
+                roleAr: member.roleAr || "",
+                descEn: member.descEn || (member as any).desc || "",
+                descAr: member.descAr || ""
+              };
+              return (
+              <div key={idx} className="border border-border-default p-4 rounded-lg relative space-y-4">
+                <button type="button" onClick={() => removeTeamMember(idx)} className="absolute top-4 right-4 text-red-500 text-xs font-bold">Remove</button>
+                <h4 className="font-bold text-text-secondary text-sm">Member {idx + 1}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Name (En)</label>
+                    <input 
+                      type="text" 
+                      value={safeMember.nameEn}
+                      onChange={e => handleTeamChange(idx, 'nameEn', e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Name (Ar)</label>
+                    <input 
+                      type="text" 
+                      dir="rtl"
+                      value={safeMember.nameAr}
+                      onChange={e => handleTeamChange(idx, 'nameAr', e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Role (En)</label>
+                    <input 
+                      type="text" 
+                      value={safeMember.roleEn}
+                      onChange={e => handleTeamChange(idx, 'roleEn', e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Role (Ar)</label>
+                    <input 
+                      type="text" 
+                      dir="rtl"
+                      value={safeMember.roleAr}
+                      onChange={e => handleTeamChange(idx, 'roleAr', e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
+                    <textarea 
+                      value={safeMember.descEn}
+                      onChange={e => handleTeamChange(idx, 'descEn', e.target.value)}
+                      className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
+                    <textarea 
+                      dir="rtl"
+                      value={safeMember.descAr}
+                      onChange={e => handleTeamChange(idx, 'descAr', e.target.value)}
+                      className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )})}
           </div>
         </div>
 
