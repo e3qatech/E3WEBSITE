@@ -1,5 +1,4 @@
 import { LocaleProvider } from "@/components/layout/LocaleProvider";
-import { PageTransition } from "@/components/layout/PageTransition";
 
 export default async function LocaleLayout({
   children,
@@ -11,9 +10,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   return (
     <LocaleProvider>
-      <PageTransition>
-        {children}
-      </PageTransition>
+      {children}
     </LocaleProvider>
   );
 }

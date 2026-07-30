@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 type TransitionVariant = "fade" | "slideUp" | "scale";
 
@@ -30,12 +29,8 @@ const variants = {
 };
 
 export function PageTransition({ children, variant = "fade" }: PageTransitionProps) {
-  // Use pathname as key so motion.div triggers enter animation on route change
-  const pathname = usePathname();
-
   return (
     <motion.div
-      key={pathname}
       initial="initial"
       animate="enter"
       variants={variants[variant] as any}

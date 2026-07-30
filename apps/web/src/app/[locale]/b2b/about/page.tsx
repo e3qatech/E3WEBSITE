@@ -34,7 +34,9 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   const headerTitle = isAr ? (cmsData?.header?.titleAr || 'نحن اي ثري.') : (cmsData?.header?.titleEn || 'We are E3.');
   const headerSubtitle = isAr ? (cmsData?.header?.subtitleAr || 'خبراء هندسة الفعاليات. نحول الرؤى الإبداعية الطموحة إلى واقع تشغيلي لا تشوبه شائبة.') : (cmsData?.header?.subtitleEn || 'Event Engineering Experts. We turn ambitious creative visions into flawless operational reality.');
-  
+  const headerMediaType = cmsData?.header?.mediaType || 'IMAGE';
+  const headerMediaUrl = cmsData?.header?.mediaUrl || null;
+
   const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
   const storyContent = isAr ? (cmsData?.story?.contentAr || '') : (cmsData?.story?.contentEn || '');
   const storyMediaType = cmsData?.story?.mediaType || 'IMAGE';
@@ -58,12 +60,25 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
-      <section className="py-20 border-b border-zinc-900 bg-zinc-900/50">
-        <div className="container mx-auto px-4 md:px-8">
-          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6">
+      <section className="relative min-h-[50vh] flex flex-col justify-center py-20 border-b border-zinc-900 overflow-hidden">
+        {headerMediaUrl ? (
+          <div className="absolute inset-0 z-0">
+            <UniversalMediaRenderer 
+              type={headerMediaType as any}
+              src={headerMediaUrl}
+              alt="About Hero Background"
+            />
+            <div className="absolute inset-0 bg-zinc-950/70" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-0 bg-zinc-900/50" />
+        )}
+        
+        <div className="container relative z-10 mx-auto px-4 md:px-8">
+          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6 drop-shadow-xl">
             {headerTitle}
           </h1>
-          <p className="text-xl text-zinc-400 max-w-2xl font-medium">
+          <p className="text-xl text-zinc-300 max-w-2xl font-medium drop-shadow-md">
             {headerSubtitle}
           </p>
         </div>

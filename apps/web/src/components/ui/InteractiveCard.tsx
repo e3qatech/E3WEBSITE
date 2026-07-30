@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } from 'framer-motion';
 import { cn } from './AnimatedText';
 
 interface InteractiveCardProps {
@@ -76,7 +76,7 @@ export function InteractiveCard({
         className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition-opacity duration-300 z-0"
         style={{
           opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(600px circle at ${useTransform(mouseX, [-0.5, 0.5], ['0%', '100%'])} ${useTransform(mouseY, [-0.5, 0.5], ['0%', '100%'])}, ${glowColor}, transparent 40%)`,
+          background: useMotionTemplate`radial-gradient(600px circle at ${useTransform(mouseX, [-0.5, 0.5], ['0%', '100%'])} ${useTransform(mouseY, [-0.5, 0.5], ['0%', '100%'])}, ${glowColor}, transparent 40%)`,
         }}
       />
       

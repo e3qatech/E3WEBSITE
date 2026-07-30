@@ -72,7 +72,7 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
         </div>
 
         {/* Features Bento Grid */}
-        {features && features.length > 0 && (
+        {Array.isArray(features) && features.length > 0 && (
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -81,6 +81,8 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {features.map((feature, idx) => {
+              if (!feature) return null;
+
               const IconComponent = (LucideIcons as any)[feature.icon] || LucideIcons.Circle;
               const isLarge = idx === 0 && features.length % 2 !== 0;
 
