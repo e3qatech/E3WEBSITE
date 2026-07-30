@@ -11,7 +11,9 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function ServicesIndexPage() {
+export default async function ServicesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
   
   const page = await db.pages.findUnique({
     where: { slug: 'b2b-services' }
@@ -19,18 +21,18 @@ export default async function ServicesIndexPage() {
   
   const content = (page?.content as any) || {}
   
-  const hero = content.hero || {
-    title: "Everything Required to Build the Extraordinary.",
-    subtitle: "We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery.",
-    mediaType: "IMAGE",
-    mediaUrl: ""
+  const hero = {
+    title: isAr ? (content.hero?.titleAr || content.hero?.title || 'كل ما تحتاجه لبناء الاستثنائي.') : (content.hero?.titleEn || content.hero?.title || "Everything Required to Build the Extraordinary."),
+    subtitle: isAr ? (content.hero?.subtitleAr || content.hero?.subtitle || 'نحن لا نستعين بمصادر خارجية للأجزاء الصعبة.') : (content.hero?.subtitleEn || content.hero?.subtitle || "We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery."),
+    mediaType: content.hero?.mediaType || "IMAGE",
+    mediaUrl: content.hero?.mediaUrl || ""
   }
   
-  const cta = content.cta || {
-    title: "Ready to start a project?",
-    description: "Let's build something extraordinary together.",
-    primaryCta: "Contact Us",
-    primaryLink: "/b2b/contact"
+  const cta = {
+    title: isAr ? (content.cta?.titleAr || content.cta?.title || 'مستعد لبدء مشروع؟') : (content.cta?.titleEn || content.cta?.title || "Ready to start a project?"),
+    description: isAr ? (content.cta?.descriptionAr || content.cta?.description || 'دعنا نبني شيئًا استثنائيًا معًا.') : (content.cta?.descriptionEn || content.cta?.description || "Let's build something extraordinary together."),
+    primaryCta: isAr ? (content.cta?.primaryCtaAr || content.cta?.primaryCta || 'اتصل بنا') : (content.cta?.primaryCtaEn || content.cta?.primaryCta || "Contact Us"),
+    primaryLink: content.cta?.primaryLink || "/b2b/contact"
   }
 
   const services = await db.service.findMany({
@@ -39,7 +41,7 @@ export default async function ServicesIndexPage() {
   })
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center py-20 md:py-32 border-b border-zinc-900 overflow-hidden">
@@ -101,7 +103,7 @@ export default async function ServicesIndexPage() {
                         <UniversalMediaRenderer 
                           type="IMAGE" 
                           src={service.thumbnail}
-                          alt={service.titleEn}
+                          alt={isAr ? service.titleAr : service.titleEn}
                           className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
                         />
                       ) : (
@@ -117,14 +119,14 @@ export default async function ServicesIndexPage() {
                         <UniversalMediaRenderer 
                           type={service.heroMediaType as any}
                           src={service.heroMediaUrl}
-                          alt={service.titleEn}
+                          alt={isAr ? service.titleAr : service.titleEn}
                           className="w-full h-full object-cover"
                         />
                       ) : service.thumbnail ? (
                         <UniversalMediaRenderer 
                           type="IMAGE" 
                           src={service.thumbnail}
-                          alt={service.titleEn}
+                          alt={isAr ? service.titleAr : service.titleEn}
                           className="w-full h-full object-cover opacity-90 scale-105 transition-transform duration-1000"
                         />
                       ) : (
@@ -146,7 +148,7 @@ export default async function ServicesIndexPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2 text-indigo-400 bg-zinc-950/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-zinc-800">
                         <Sparkles className="w-4 h-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{service.category || 'Core Capability'}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{isAr ? service.categoryAr || service.category || 'القدرة الأساسية' : service.category || 'Core Capability'}</span>
                       </div>
                       
                       <div className="w-10 h-10 rounded-full bg-zinc-950/50 backdrop-blur-sm text-indigo-400 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 border border-zinc-800">
@@ -156,20 +158,20 @@ export default async function ServicesIndexPage() {
 
                     {/* Title & Description */}
                     <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-3 tracking-tight group-hover:text-indigo-300 transition-colors">
-                      {service.titleEn}
+                      {isAr ? service.titleAr : service.titleEn}
                     </h2>
                     <p className="text-zinc-300 mb-6 max-w-xl line-clamp-2 text-sm md:text-base font-medium">
-                      {service.taglineEn || service.contentEn?.slice(0, 150) + "..."}
+                      {isAr ? (service.taglineAr || service.contentAr?.slice(0, 150) + "...") : (service.taglineEn || service.contentEn?.slice(0, 150) + "...")}
                     </p>
 
                     {/* Footer / Metrics */}
                     <div className="mt-auto pt-5 border-t border-zinc-800 flex items-center justify-between">
                       <div>
                         <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
-                          {service.successMetricLabel || 'Key Success Metric'}
+                          {isAr ? service.successMetricLabelAr || 'مقياس النجاح' : service.successMetricLabel || 'Key Success Metric'}
                         </p>
                         <p className="text-base font-bold text-zinc-200">
-                          {service.successMetricValue || 'N/A'}
+                          {isAr ? service.successMetricValueAr || service.successMetricValue || 'غير متوفر' : service.successMetricValue || 'N/A'}
                         </p>
                       </div>
                     </div>

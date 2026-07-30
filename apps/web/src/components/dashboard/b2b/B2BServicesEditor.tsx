@@ -8,17 +8,21 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 
 export function B2BServicesEditor({ initialData }: { initialData: any }) {
-  const [data, setData] = useState({
     hero: {
-      title: initialData?.hero?.title || "Everything Required to Build the Extraordinary.",
-      subtitle: initialData?.hero?.subtitle || "We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery.",
+      titleEn: initialData?.hero?.titleEn || initialData?.hero?.title || "Everything Required to Build the Extraordinary.",
+      titleAr: initialData?.hero?.titleAr || "",
+      subtitleEn: initialData?.hero?.subtitleEn || initialData?.hero?.subtitle || "We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery.",
+      subtitleAr: initialData?.hero?.subtitleAr || "",
       mediaType: initialData?.hero?.mediaType || "IMAGE",
       mediaUrl: initialData?.hero?.mediaUrl || "",
     },
     cta: {
-      title: initialData?.cta?.title || "Ready to start a project?",
-      description: initialData?.cta?.description || "Let's build something extraordinary together.",
-      primaryCta: initialData?.cta?.primaryCta || "Contact Us",
+      titleEn: initialData?.cta?.titleEn || initialData?.cta?.title || "Ready to start a project?",
+      titleAr: initialData?.cta?.titleAr || "",
+      descriptionEn: initialData?.cta?.descriptionEn || initialData?.cta?.description || "Let's build something extraordinary together.",
+      descriptionAr: initialData?.cta?.descriptionAr || "",
+      primaryCtaEn: initialData?.cta?.primaryCtaEn || initialData?.cta?.primaryCta || "Contact Us",
+      primaryCtaAr: initialData?.cta?.primaryCtaAr || "",
       primaryLink: initialData?.cta?.primaryLink || "/b2b/contact",
     }
   })
@@ -70,23 +74,46 @@ export function B2BServicesEditor({ initialData }: { initialData: any }) {
         {/* Hero Section */}
         <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
           <h2 className="text-lg font-bold text-text-primary">Hero Section</h2>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title</label>
-              <input 
-                type="text" 
-                value={data.hero.title}
-                onChange={e => handleChange('hero', 'title', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
+                <input 
+                  type="text" 
+                  value={data.hero.titleEn}
+                  onChange={e => handleChange('hero', 'titleEn', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.hero.titleAr}
+                  onChange={e => handleChange('hero', 'titleAr', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle</label>
-              <textarea 
-                value={data.hero.subtitle}
-                onChange={e => handleChange('hero', 'subtitle', e.target.value)}
-                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
+            
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
+                <textarea 
+                  value={data.hero.subtitleEn}
+                  onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
+                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
+                <textarea 
+                  dir="rtl"
+                  value={data.hero.subtitleAr}
+                  onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
+                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
@@ -129,30 +156,65 @@ export function B2BServicesEditor({ initialData }: { initialData: any }) {
         <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
           <h2 className="text-lg font-bold text-text-primary">Footer Call to Action</h2>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title</label>
-              <input 
-                type="text" 
-                value={data.cta.title}
-                onChange={e => handleChange('cta', 'title', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description</label>
-              <textarea 
-                value={data.cta.description}
-                onChange={e => handleChange('cta', 'description', e.target.value)}
-                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Button Text</label>
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
                 <input 
                   type="text" 
-                  value={data.cta.primaryCta}
-                  onChange={e => handleChange('cta', 'primaryCta', e.target.value)}
+                  value={data.cta.titleEn}
+                  onChange={e => handleChange('cta', 'titleEn', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.cta.titleAr}
+                  onChange={e => handleChange('cta', 'titleAr', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
+                <textarea 
+                  value={data.cta.descriptionEn}
+                  onChange={e => handleChange('cta', 'descriptionEn', e.target.value)}
+                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
+                <textarea 
+                  dir="rtl"
+                  value={data.cta.descriptionAr}
+                  onChange={e => handleChange('cta', 'descriptionAr', e.target.value)}
+                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Button Text (En)</label>
+                <input 
+                  type="text" 
+                  value={data.cta.primaryCtaEn}
+                  onChange={e => handleChange('cta', 'primaryCtaEn', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Button Text (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.cta.primaryCtaAr}
+                  onChange={e => handleChange('cta', 'primaryCtaAr', e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
                 />
               </div>
