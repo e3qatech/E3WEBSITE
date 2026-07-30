@@ -148,7 +148,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2 text-indigo-400 bg-zinc-950/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-zinc-800">
                         <Sparkles className="w-4 h-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{isAr ? service.categoryAr || service.category || 'القدرة الأساسية' : service.category || 'Core Capability'}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{isAr ? (service as any).categoryAr || service.category || 'القدرة الأساسية' : service.category || 'Core Capability'}</span>
                       </div>
                       
                       <div className="w-10 h-10 rounded-full bg-zinc-950/50 backdrop-blur-sm text-indigo-400 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 border border-zinc-800">
@@ -168,10 +168,10 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                     <div className="mt-auto pt-5 border-t border-zinc-800 flex items-center justify-between">
                       <div>
                         <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
-                          {isAr ? service.successMetricLabelAr || 'مقياس النجاح' : service.successMetricLabel || 'Key Success Metric'}
+                          {isAr ? (service as any).successMetricLabelAr || 'مقياس النجاح' : service.successMetricLabel || 'Key Success Metric'}
                         </p>
                         <p className="text-base font-bold text-zinc-200">
-                          {isAr ? service.successMetricValueAr || service.successMetricValue || 'غير متوفر' : service.successMetricValue || 'N/A'}
+                          {isAr ? (service as any).successMetricValueAr || service.successMetricValue || 'غير متوفر' : service.successMetricValue || 'N/A'}
                         </p>
                       </div>
                     </div>

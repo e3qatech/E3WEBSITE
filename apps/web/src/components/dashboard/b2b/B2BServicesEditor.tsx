@@ -8,6 +8,7 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 
 export function B2BServicesEditor({ initialData }: { initialData: any }) {
+  const [data, setData] = useState({
     hero: {
       titleEn: initialData?.hero?.titleEn || initialData?.hero?.title || "Everything Required to Build the Extraordinary.",
       titleAr: initialData?.hero?.titleAr || "",
@@ -74,6 +75,7 @@ export function B2BServicesEditor({ initialData }: { initialData: any }) {
         {/* Hero Section */}
         <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
           <h2 className="text-lg font-bold text-text-primary">Hero Section</h2>
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
