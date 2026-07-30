@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react"
 import { Plus, Edit2, Trash2, Save, Image as ImageIcon, CheckCircle2, Loader2, X, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 
 type PageSettings = {
   title: string
   tagline: string
   heroMediaType: string
   heroMediaUrl: string
+  seo?: any
 }
 
 type DiscountOffer = {
@@ -19,7 +21,7 @@ type DiscountOffer = {
 }
 
 export function CalendarPageManager() {
-  const [activeTab, setActiveTab] = useState<"HERO" | "DISCOUNTS">("HERO")
+  const [activeTab, setActiveTab] = useState<"HERO" | "DISCOUNTS" | "SEO">("HERO")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -29,7 +31,8 @@ export function CalendarPageManager() {
     title: "Events Calendar",
     tagline: "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions.",
     heroMediaType: "IMAGE",
-    heroMediaUrl: ""
+    heroMediaUrl: "",
+    seo: {}
   })
 
   const [discounts, setDiscounts] = useState<DiscountOffer[]>([])
@@ -191,6 +194,12 @@ export function CalendarPageManager() {
           className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "DISCOUNTS" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
         >
           Partner Discounts
+        </button>
+        <button
+          onClick={() => setActiveTab("SEO")}
+          className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "SEO" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
+        >
+          SEO Settings
         </button>
       </div>
 
@@ -364,6 +373,18 @@ export function CalendarPageManager() {
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* SEO Settings Content */}
+      {activeTab === "SEO" && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <AdminSeoCustomizer 
+            seo={pageSettings.seo} 
+            setSeo={(seo) => setPageSettings({ ...pageSettings, seo })} 
+            formData={null} 
+            setFormData={() => {}} 
+          />
         </div>
       )}
     </div>

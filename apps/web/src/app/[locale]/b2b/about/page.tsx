@@ -37,6 +37,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const headerMediaType = cmsData?.header?.mediaType || 'IMAGE';
   const headerMediaUrl = cmsData?.header?.mediaUrl || null;
 
+  const headerFallbackImageUrl = cmsData?.header?.fallbackImageUrl || null;
+
   const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
   const storyContent = isAr ? (cmsData?.story?.contentAr || '') : (cmsData?.story?.contentEn || '');
   const storyMediaType = cmsData?.story?.mediaType || 'IMAGE';
@@ -67,6 +69,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               type={headerMediaType as any}
               src={headerMediaUrl}
               alt="About Hero Background"
+              poster={headerFallbackImageUrl}
             />
             <div className="absolute inset-0 bg-zinc-950/70" />
           </div>

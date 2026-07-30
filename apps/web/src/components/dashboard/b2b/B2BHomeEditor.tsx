@@ -11,6 +11,7 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { Save, Image as ImageIcon } from "lucide-react"
 
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
+import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
 
 export function B2BHomeEditor({ 
   initialData,
@@ -31,6 +32,7 @@ export function B2BHomeEditor({
   const [wowAndHow, setWowAndHow] = React.useState(initialData.content?.wowAndHow || {})
   const [featuredServiceIds, setFeaturedServiceIds] = React.useState<string[]>(initialData.content?.featuredServiceIds || [])
   const [featuredCaseStudyIds, setFeaturedCaseStudyIds] = React.useState<string[]>(initialData.content?.featuredCaseStudyIds || [])
+  const [seo, setSeo] = React.useState<any>(initialData.seo || {})
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -45,7 +47,8 @@ export function B2BHomeEditor({
             wowAndHow,
             featuredServiceIds,
             featuredCaseStudyIds
-          }
+          },
+          seo
         })
       })
 
@@ -390,6 +393,9 @@ export function B2BHomeEditor({
             </div>
           </div>
         </AdminFormSection>
+
+        {/* SEO */}
+        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </div>
     </AdminFormLayout>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
+import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
 
 export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: { initialData?: any, attractions?: any[], teamMembers?: any[] }) {
   const router = useRouter()
@@ -44,6 +45,8 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
   const [technicalSpecs, setTechnicalSpecs] = useState<any[]>(Array.isArray(initialData?.technicalSpecs) ? initialData.technicalSpecs : [])
   const [servicesUsed, setServicesUsed] = useState<any[]>(Array.isArray(initialData?.servicesUsed) ? initialData.servicesUsed : [])
   const [caseTeamMembers, setCaseTeamMembers] = useState<any[]>(Array.isArray(initialData?.teamMembers) ? initialData.teamMembers : [])
+  
+  const [seo, setSeo] = useState<any>(initialData?.seo || {})
 
   const handleSave = async () => {
     if (!slug || !titleEn || !titleAr) {
@@ -62,7 +65,8 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
         isFeatured, isPublished: isVisible,
         attractionId, metrics, gallery,
         technicalSpecs, servicesUsed, testimonials,
-        teamMembers: caseTeamMembers
+        teamMembers: caseTeamMembers,
+        seo
       }
 
       if (isEditing) {
@@ -150,7 +154,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Nav */}
         <div className="w-full md:w-64 shrink-0 flex flex-col gap-2">
-          {["general", "hero", "narrative", "metrics", "team", "testimonials", "gallery"].map(tab => (
+          {["general", "hero", "narrative", "metrics", "team", "testimonials", "gallery", "seo"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -438,6 +442,13 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* SEO TAB */}
+          {activeTab === "seo" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
             </div>
           )}
 

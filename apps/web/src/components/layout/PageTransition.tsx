@@ -3,6 +3,8 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 
+import { usePathname } from "next/navigation";
+
 type TransitionVariant = "fade" | "slideUp" | "scale";
 
 interface PageTransitionProps {
@@ -29,10 +31,14 @@ const variants = {
 };
 
 export function PageTransition({ children, variant = "fade" }: PageTransitionProps) {
+  const pathname = usePathname();
+  
   return (
     <motion.div
+      key={pathname}
       initial="initial"
       animate="enter"
+      exit="exit"
       variants={variants[variant] as any}
       className="w-full h-full flex-1 flex flex-col"
     >

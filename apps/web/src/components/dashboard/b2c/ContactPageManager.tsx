@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react"
 import { Plus, Trash2, Save, CheckCircle2, Loader2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 
 type PageSettings = {
   title: string
   tagline: string
   heroMediaType: string
   heroMediaUrl: string
+  seo?: any
 }
 
 type GeneralFaq = {
@@ -18,7 +20,7 @@ type GeneralFaq = {
 }
 
 export function ContactPageManager() {
-  const [activeTab, setActiveTab] = useState<"HERO" | "FAQS">("HERO")
+  const [activeTab, setActiveTab] = useState<"HERO" | "FAQS" | "SEO">("HERO")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -28,7 +30,8 @@ export function ContactPageManager() {
     title: "How Can We Help?",
     tagline: "Need support with a ticket, want to leave feedback, or just have a general question? We're here for you.",
     heroMediaType: "IMAGE",
-    heroMediaUrl: ""
+    heroMediaUrl: "",
+    seo: {}
   })
 
   const [faqs, setFaqs] = useState<GeneralFaq[]>([])
@@ -148,6 +151,12 @@ export function ContactPageManager() {
           className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "FAQS" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
         >
           General FAQs
+        </button>
+        <button
+          onClick={() => setActiveTab("SEO")}
+          className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "SEO" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
+        >
+          SEO Settings
         </button>
       </div>
 
@@ -282,6 +291,18 @@ export function ContactPageManager() {
               </p>
             )}
           </div>
+        </div>
+      )}
+
+      {/* SEO Settings Content */}
+      {activeTab === "SEO" && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <AdminSeoCustomizer 
+            seo={pageSettings.seo} 
+            setSeo={(seo) => setPageSettings({ ...pageSettings, seo })} 
+            formData={null} 
+            setFormData={() => {}} 
+          />
         </div>
       )}
     </div>

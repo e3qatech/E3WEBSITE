@@ -12,6 +12,7 @@ import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { useEffect } from "react"
+import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
 
 export function AttractionEditor({ initialData }: { initialData?: any }) {
   const router = useRouter()
@@ -83,6 +84,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   // 9. Gallery
   const [gallery, setGallery] = useState<any[]>(initialData?.gallery || [])
 
+  const [seo, setSeo] = useState<any>(initialData?.seo || {})
+
   const [errors, setErrors] = useState<string[]>([])
 
   const currentData = JSON.stringify({
@@ -128,7 +131,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
         partnerOffers, partners,
         socialLinks, socialPreviews, newsCoverage,
         mapUrl, ticketingUrl, operations, temporalStatus,
-        faqs, testimonials, gallery
+        faqs, testimonials, gallery, seo
       }
       
       const url = isEditing 
@@ -163,6 +166,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     { id: "visibility", label: "Visibility", icon: Calendar },
     { id: "gallery", label: "Gallery", icon: ImageIcon },
     { id: "faqs", label: "FAQs", icon: HelpCircle },
+    { id: "seo", label: "SEO Settings", icon: Settings },
   ]
 
   // Helper for generic array updates
@@ -1126,6 +1130,13 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* SEO */}
+          {activeTab === "seo" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
             </div>
           )}
 

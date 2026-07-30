@@ -6,6 +6,7 @@ import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
@@ -43,6 +44,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     ],
   })
 
+  const [seo, setSeo] = useState<any>(initialData?.seo || {})
+
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
 
@@ -52,7 +55,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       const res = await fetch('/api/cms/pages/b2c-discover', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data })
+        body: JSON.stringify({ content: data, seo })
       })
       if (!res.ok) throw new Error("Failed to save")
       toast("B2C Discover Page updated successfully.", "success")
@@ -413,6 +416,9 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
             )})}
           </div>
         </div>
+
+        {/* SEO Customizer */}
+        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </AdminFormLayout>
     </div>

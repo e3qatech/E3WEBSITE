@@ -7,6 +7,7 @@ import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import { AdminButton } from "../ui/AdminButton"
 import { Plus, Trash2 } from "lucide-react"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 
 export function B2BAboutEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
@@ -17,6 +18,7 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       subtitleAr: initialData?.header?.subtitleAr || "",
       mediaType: initialData?.header?.mediaType || "IMAGE",
       mediaUrl: initialData?.header?.mediaUrl || "",
+      fallbackImageUrl: initialData?.header?.fallbackImageUrl || "",
     },
     story: {
       titleEn: initialData?.story?.titleEn || "",
@@ -30,6 +32,8 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
     values: initialData?.values || []
   })
 
+  const [seo, setSeo] = useState<any>(initialData?.seo || {})
+
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
 
@@ -39,7 +43,7 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       const res = await fetch('/api/cms/pages/b2b-about', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data })
+        body: JSON.stringify({ content: data, seo })
       })
       if (!res.ok) throw new Error("Failed to save")
       toast("B2B About Us page updated successfully.", "success")
@@ -170,6 +174,20 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
                 />
               )}
             </div>
+
+            {data.header.mediaType !== 'IMAGE' && (
+              <div className="space-y-2 lg:col-start-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  Fallback Image / Poster
+                </label>
+                <p className="text-xs text-text-tertiary mb-2">Shows while loading, or as a poster frame.</p>
+                <AdminMediaPicker 
+                  value={data.header.fallbackImageUrl}
+                  onChange={url => handleChange('header', 'fallbackImageUrl', url)}
+                  accept="image/*"
+                />
+              </div>
+            )}
 
           </div>
         </div>
@@ -341,6 +359,9 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
             )}
           </div>
         </div>
+
+        {/* SEO Customizer */}
+        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </AdminFormLayout>
     </div>

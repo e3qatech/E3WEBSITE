@@ -7,6 +7,7 @@ import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { Plus, Trash2 } from "lucide-react"
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 
 export function B2BCareersEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
@@ -29,6 +30,8 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
     jobs: Array.isArray(initialData?.jobs) ? initialData.jobs : []
   })
 
+  const [seo, setSeo] = useState<any>(initialData?.seo || {})
+
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
 
@@ -38,7 +41,7 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
       const res = await fetch('/api/cms/pages/b2b-careers', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data })
+        body: JSON.stringify({ content: data, seo })
       })
       if (!res.ok) throw new Error("Failed to save")
       toast("B2B Careers page updated successfully.", "success")
@@ -114,6 +117,7 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
               <li className="flex items-center gap-2 text-accent"><span className="w-1.5 h-1.5 rounded-full bg-accent" /> Hero Section</li>
               <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> Background & Footer</li>
               <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> Open Roles</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> SEO Settings</li>
             </ul>
           </div>
         </div>
@@ -249,6 +253,9 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
             )}
           </div>
         </div>
+
+        {/* SEO Customizer */}
+        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </AdminFormLayout>
     </div>

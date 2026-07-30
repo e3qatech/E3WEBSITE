@@ -6,6 +6,7 @@ import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 
 export function B2BContactEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
@@ -61,6 +62,8 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
     }
   })
 
+  const [seo, setSeo] = useState<any>(initialData?.seo || {})
+
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
 
@@ -70,7 +73,7 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
       const res = await fetch('/api/cms/pages/b2b-contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data })
+        body: JSON.stringify({ content: data, seo })
       })
       if (!res.ok) throw new Error("Failed to save")
       toast("B2B Contact page updated successfully.", "success")
@@ -250,6 +253,9 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
           data={data.faqCta} 
           onChange={(field, value) => handleChange('faqCta', field, value)} 
         />
+
+        {/* SEO Customizer */}
+        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </AdminFormLayout>
     </div>
