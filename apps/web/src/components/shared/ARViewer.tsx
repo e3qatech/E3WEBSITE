@@ -39,6 +39,33 @@ function Loader() {
   )
 }
 
+class ModelErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true }
+  }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Model load failed:", error)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <mesh>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="#3f3f46" wireframe />
+          <Html center>
+            <div className="text-xs text-white/50 bg-black/50 px-2 py-1 rounded backdrop-blur">Model Unavailable</div>
+          </Html>
+        </mesh>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function Model({ url, position, rotation, scale }: { url: string, position: THREE.Vector3, rotation: THREE.Euler, scale: number }) {
   const { scene } = useGLTF(url)
   return <primitive object={scene.clone()} position={position} rotation={rotation} scale={scale} />
@@ -161,12 +188,14 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
               <XR store={store}>
                 {inAR && !modelPlaced && <HitTestReticle onPlace={handlePlace} />}
                 {(!inAR || modelPlaced) && (
-                  <Model 
-                    url={modelUrl} 
-                    position={inAR ? modelPosition : new THREE.Vector3(0, 0, 0)} 
-                    rotation={new THREE.Euler(0, 0, 0)} 
-                    scale={1} 
-                  />
+                  <ModelErrorBoundary>
+                    <Model 
+                      url={modelUrl} 
+                      position={inAR ? modelPosition : new THREE.Vector3(0, 0, 0)} 
+                      rotation={new THREE.Euler(0, 0, 0)} 
+                      scale={1} 
+                    />
+                  </ModelErrorBoundary>
                 )}
                 {!inAR && (
                   <>
@@ -179,7 +208,9 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
             ) : (
               // Fallback 3D Preview (No XR)
               <>
-                <Model url={modelUrl} position={new THREE.Vector3(0, 0, 0)} rotation={new THREE.Euler(0, 0, 0)} scale={1} />
+                <ModelErrorBoundary>
+                  <Model url={modelUrl} position={new THREE.Vector3(0, 0, 0)} rotation={new THREE.Euler(0, 0, 0)} scale={1} />
+                </ModelErrorBoundary>
                 <OrbitControls makeDefault autoRotate autoRotateSpeed={1} minDistance={2} maxDistance={20} />
                 <Grid position={[0, -0.01, 0]} args={[10, 10]} cellColor="#333" sectionColor="#666" />
                 <ContactShadows position={[0, -0.01, 0]} opacity={0.4} scale={10} blur={2} far={4} />
