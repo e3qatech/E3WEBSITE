@@ -150,7 +150,7 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
       {/* Testimonials */}
       <section className="py-24 bg-zinc-900 border-t border-zinc-800">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-4xl font-black text-zinc-100 tracking-tight mb-16 text-center">What They Say</h2>
+          <h2 className="text-4xl font-black text-zinc-100 tracking-tight mb-16 text-center">{isAr ? "ماذا يقولون عنا" : "What They Say"}</h2>
           
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {testimonials.map((test, i) => (

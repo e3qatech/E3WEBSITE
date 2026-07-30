@@ -12,7 +12,9 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function CaseStudiesIndexPage() {
+export default async function CaseStudiesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
   
   const [caseStudies, pageData] = await Promise.all([
     db.caseStudy.findMany({
@@ -26,19 +28,24 @@ export default async function CaseStudiesIndexPage() {
 
   const content = pageData?.content as any || {}
   
-  const hero = content?.hero || {
-    title: "Featured Work.",
-    subtitle: "A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale.",
-    mediaType: "IMAGE",
-    mediaUrl: ""
+  const hero = {
+    title: isAr ? (content.hero?.titleAr || content.hero?.title || 'أعمال مميزة.') : (content.hero?.titleEn || content.hero?.title || "Featured Work."),
+    subtitle: isAr ? (content.hero?.subtitleAr || content.hero?.subtitle || 'مجموعة مختارة من المشاريع البارزة التي توضح قدرتنا على هندسة وبناء وتشغيل التجارب على نطاق واسع.') : (content.hero?.subtitleEn || content.hero?.subtitle || "A selection of landmark projects demonstrating our capacity to engineer, build, and operate experiences at scale."),
+    mediaType: content.hero?.mediaType || "IMAGE",
+    mediaUrl: content.hero?.mediaUrl || ""
   }
   
-  const cta = content?.cta
+  const cta = content?.cta ? {
+    ...content.cta,
+    title: isAr ? (content.cta.titleAr || content.cta.title) : (content.cta.titleEn || content.cta.title),
+    description: isAr ? (content.cta.descriptionAr || content.cta.description) : (content.cta.descriptionEn || content.cta.description),
+    primaryCta: isAr ? (content.cta.primaryCtaAr || content.cta.primaryCta) : (content.cta.primaryCtaEn || content.cta.primaryCta)
+  } : null;
 
   const categories = ['All', 'Mega Event', 'Attractions', 'Live Production', 'Immersive', 'Destination', 'Family Entertainment']
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
       <section className="relative min-h-[60vh] flex items-center py-20 md:py-32 border-b border-zinc-900 overflow-hidden">
@@ -106,30 +113,30 @@ export default async function CaseStudiesIndexPage() {
                     <MediaRenderer 
                       url={project.heroImageUrl || project.thumbnailUrl} 
                       type={project.heroMediaType || project.thumbnailMediaType} 
-                      alt={project.titleEn} 
+                      alt={isAr ? project.titleAr : project.titleEn} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-medium">
-                      [Image: {project.titleEn}]
+                      [Image: {isAr ? project.titleAr : project.titleEn}]
                     </div>
                   )}
                   <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
                 </div>
                 
                 <h3 className="text-2xl font-bold text-zinc-100 mb-2 group-hover:text-emerald-400 transition-colors">
-                  {project.titleEn}
+                  {isAr ? project.titleAr : project.titleEn}
                 </h3>
                 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-zinc-400">
-                  {project.category && <span>{project.category}</span>}
+                  {project.category && <span>{isAr ? (project as any).categoryAr || project.category : project.category}</span>}
                   {project.category && project.clientName && <span className="w-1 h-1 rounded-full bg-zinc-700" />}
                   {project.clientName && <span>{project.clientName}</span>}
                   
                   {Array.isArray(project.metrics) && project.metrics.length > 0 && (
                     <>
                       <span className="w-1 h-1 rounded-full bg-zinc-700 hidden md:block" />
-                      <span className="text-emerald-400">{(project.metrics as any[])[0]?.value} {(project.metrics as any[])[0]?.label}</span>
+                      <span className="text-emerald-400">{(project.metrics as any[])[0]?.value} {isAr ? (project.metrics as any[])[0]?.labelAr || (project.metrics as any[])[0]?.label : (project.metrics as any[])[0]?.label}</span>
                     </>
                   )}
                 </div>
