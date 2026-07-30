@@ -25,6 +25,7 @@ export function B2BHomeEditor({
   const { toast } = useToast()
 
   // State
+  const [activeLang, setActiveLang] = React.useState<'en' | 'ar'>('en')
   const [hero, setHero] = React.useState(initialData.content?.hero || {})
   const [stats, setStats] = React.useState<any[]>(initialData.content?.stats || [])
   const [wowAndHow, setWowAndHow] = React.useState(initialData.content?.wowAndHow || {})
@@ -76,6 +77,24 @@ export function B2BHomeEditor({
       />
       <AdminFormLayout>
       <div className="space-y-8">
+        {/* LANGUAGE SWITCHER */}
+        <div className="flex bg-surface-default p-1 rounded-md w-fit border border-border-default">
+          <button
+            type="button"
+            onClick={() => setActiveLang('en')}
+            className={`px-4 py-2 text-sm font-semibold rounded-sm transition-colors ${activeLang === 'en' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveLang('ar')}
+            className={`px-4 py-2 text-sm font-semibold rounded-sm transition-colors ${activeLang === 'ar' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}
+          >
+            العربية
+          </button>
+        </div>
+
         {/* HERO SECTION */}
         <AdminFormSection id="hero" title="Hero Section" description="The main introduction at the top of the page.">
           <AdminFormGrid>
@@ -112,16 +131,16 @@ export function B2BHomeEditor({
             <div className="sm:col-span-2">
               <AdminInput 
                 label="Headline" 
-                value={hero.title || ""} 
-                onChange={e => setHero({ ...hero, title: e.target.value })} 
+                value={activeLang === 'en' ? (hero.title || "") : (hero.titleAr || "")} 
+                onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'title' : 'titleAr']: e.target.value })} 
                 placeholder="e.g. Ideas to Life"
               />
             </div>
             <div className="sm:col-span-2">
               <AdminTextarea 
                 label="Subtitle" 
-                value={hero.subtitle || ""} 
-                onChange={e => setHero({ ...hero, subtitle: e.target.value })} 
+                value={activeLang === 'en' ? (hero.subtitle || "") : (hero.subtitleAr || "")} 
+                onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'subtitle' : 'subtitleAr']: e.target.value })} 
                 placeholder="Short punchy text"
                 rows={2}
               />
@@ -129,16 +148,16 @@ export function B2BHomeEditor({
             <div className="sm:col-span-2">
               <AdminTextarea 
                 label="Description" 
-                value={hero.description || ""} 
-                onChange={e => setHero({ ...hero, description: e.target.value })} 
+                value={activeLang === 'en' ? (hero.description || "") : (hero.descriptionAr || "")} 
+                onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'description' : 'descriptionAr']: e.target.value })} 
                 placeholder="Longer descriptive text..."
                 rows={3}
               />
             </div>
             <AdminInput 
               label="Primary CTA Label" 
-              value={hero.primaryCta || ""} 
-              onChange={e => setHero({ ...hero, primaryCta: e.target.value })} 
+              value={activeLang === 'en' ? (hero.primaryCta || "") : (hero.primaryCtaAr || "")} 
+              onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'primaryCta' : 'primaryCtaAr']: e.target.value })} 
             />
             <AdminInput 
               label="Primary CTA Link" 
@@ -147,8 +166,8 @@ export function B2BHomeEditor({
             />
             <AdminInput 
               label="Secondary CTA Label" 
-              value={hero.secondaryCta || ""} 
-              onChange={e => setHero({ ...hero, secondaryCta: e.target.value })} 
+              value={activeLang === 'en' ? (hero.secondaryCta || "") : (hero.secondaryCtaAr || "")} 
+              onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'secondaryCta' : 'secondaryCtaAr']: e.target.value })} 
             />
             <AdminInput 
               label="Secondary CTA Link" 
@@ -184,10 +203,10 @@ export function B2BHomeEditor({
                 <div className="w-1/3">
                   <AdminInput 
                     label="Value" 
-                    value={stat.value} 
+                    value={activeLang === 'en' ? (stat.value || "") : (stat.valueAr || stat.value || "")} 
                     onChange={e => {
                       const newStats = [...stats]
-                      newStats[idx].value = e.target.value
+                      newStats[idx][activeLang === 'en' ? 'value' : 'valueAr'] = e.target.value
                       setStats(newStats)
                     }} 
                     placeholder="e.g. 50+"
@@ -196,10 +215,10 @@ export function B2BHomeEditor({
                 <div className="w-2/3">
                   <AdminInput 
                     label="Label" 
-                    value={stat.label} 
+                    value={activeLang === 'en' ? (stat.label || "") : (stat.labelAr || stat.label || "")} 
                     onChange={e => {
                       const newStats = [...stats]
-                      newStats[idx].label = e.target.value
+                      newStats[idx][activeLang === 'en' ? 'label' : 'labelAr'] = e.target.value
                       setStats(newStats)
                     }} 
                     placeholder="e.g. Years Experience"
@@ -216,15 +235,15 @@ export function B2BHomeEditor({
             <div className="sm:col-span-2">
               <AdminInput 
                 label="Section Title" 
-                value={wowAndHow.title || ""} 
-                onChange={e => setWowAndHow({ ...wowAndHow, title: e.target.value })} 
+                value={activeLang === 'en' ? (wowAndHow.title || "") : (wowAndHow.titleAr || "")} 
+                onChange={e => setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'title' : 'titleAr']: e.target.value })} 
               />
             </div>
             <div className="sm:col-span-2">
               <AdminTextarea 
                 label="Section Description" 
-                value={wowAndHow.description || ""} 
-                onChange={e => setWowAndHow({ ...wowAndHow, description: e.target.value })} 
+                value={activeLang === 'en' ? (wowAndHow.description || "") : (wowAndHow.descriptionAr || "")} 
+                onChange={e => setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'description' : 'descriptionAr']: e.target.value })} 
                 rows={3}
               />
             </div>
@@ -234,29 +253,34 @@ export function B2BHomeEditor({
               <div className="flex justify-between items-center">
                 <label className="block text-sm font-semibold text-text-primary">Wow Bullets</label>
                 <button 
-                  onClick={() => setWowAndHow({ ...wowAndHow, wowBullets: [...(wowAndHow.wowBullets || []), ''] })}
+                  onClick={() => {
+                    const currentBullets = activeLang === 'en' ? (wowAndHow.wowBullets || []) : (wowAndHow.wowBulletsAr || [])
+                    setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'wowBullets' : 'wowBulletsAr']: [...currentBullets, ''] })
+                  }}
                   className="text-xs font-bold bg-primary text-white px-2 py-1 rounded hover:bg-primary/90"
                 >
                   + Add Bullet
                 </button>
               </div>
-              {(wowAndHow.wowBullets || []).map((bullet: string, idx: number) => (
+              {(activeLang === 'en' ? (wowAndHow.wowBullets || []) : (wowAndHow.wowBulletsAr || [])).map((bullet: string, idx: number) => (
                 <div key={`wow-${idx}`} className="flex items-center gap-2">
                   <input 
                     type="text" 
                     value={bullet}
                     onChange={e => {
-                      const newBullets = [...(wowAndHow.wowBullets || [])]
+                      const currentBullets = activeLang === 'en' ? (wowAndHow.wowBullets || []) : (wowAndHow.wowBulletsAr || [])
+                      const newBullets = [...currentBullets]
                       newBullets[idx] = e.target.value
-                      setWowAndHow({ ...wowAndHow, wowBullets: newBullets })
+                      setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'wowBullets' : 'wowBulletsAr']: newBullets })
                     }}
                     className="w-full h-10 px-3 bg-surface-default border border-border-default rounded-md text-sm text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                   <button 
                     onClick={() => {
-                      const newBullets = [...(wowAndHow.wowBullets || [])]
+                      const currentBullets = activeLang === 'en' ? (wowAndHow.wowBullets || []) : (wowAndHow.wowBulletsAr || [])
+                      const newBullets = [...currentBullets]
                       newBullets.splice(idx, 1)
-                      setWowAndHow({ ...wowAndHow, wowBullets: newBullets })
+                      setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'wowBullets' : 'wowBulletsAr']: newBullets })
                     }}
                     className="text-text-tertiary hover:text-error px-2"
                   >
@@ -271,29 +295,34 @@ export function B2BHomeEditor({
               <div className="flex justify-between items-center">
                 <label className="block text-sm font-semibold text-text-primary">How Bullets</label>
                 <button 
-                  onClick={() => setWowAndHow({ ...wowAndHow, howBullets: [...(wowAndHow.howBullets || []), ''] })}
+                  onClick={() => {
+                    const currentBullets = activeLang === 'en' ? (wowAndHow.howBullets || []) : (wowAndHow.howBulletsAr || [])
+                    setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'howBullets' : 'howBulletsAr']: [...currentBullets, ''] })
+                  }}
                   className="text-xs font-bold bg-primary text-white px-2 py-1 rounded hover:bg-primary/90"
                 >
                   + Add Bullet
                 </button>
               </div>
-              {(wowAndHow.howBullets || []).map((bullet: string, idx: number) => (
+              {(activeLang === 'en' ? (wowAndHow.howBullets || []) : (wowAndHow.howBulletsAr || [])).map((bullet: string, idx: number) => (
                 <div key={`how-${idx}`} className="flex items-center gap-2">
                   <input 
                     type="text" 
                     value={bullet}
                     onChange={e => {
-                      const newBullets = [...(wowAndHow.howBullets || [])]
+                      const currentBullets = activeLang === 'en' ? (wowAndHow.howBullets || []) : (wowAndHow.howBulletsAr || [])
+                      const newBullets = [...currentBullets]
                       newBullets[idx] = e.target.value
-                      setWowAndHow({ ...wowAndHow, howBullets: newBullets })
+                      setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'howBullets' : 'howBulletsAr']: newBullets })
                     }}
                     className="w-full h-10 px-3 bg-surface-default border border-border-default rounded-md text-sm text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                   <button 
                     onClick={() => {
-                      const newBullets = [...(wowAndHow.howBullets || [])]
+                      const currentBullets = activeLang === 'en' ? (wowAndHow.howBullets || []) : (wowAndHow.howBulletsAr || [])
+                      const newBullets = [...currentBullets]
                       newBullets.splice(idx, 1)
-                      setWowAndHow({ ...wowAndHow, howBullets: newBullets })
+                      setWowAndHow({ ...wowAndHow, [activeLang === 'en' ? 'howBullets' : 'howBulletsAr']: newBullets })
                     }}
                     className="text-text-tertiary hover:text-error px-2"
                   >

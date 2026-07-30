@@ -6,7 +6,10 @@ import { ArrowRight, CheckCircle2, ChevronRight, Play } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
 
-export default async function B2BHomePage() {
+export default async function B2BHomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
+
   // Fetch real data from the CMS
   const page = await db.pages.findUnique({
     where: { slug: 'b2b-home' }
@@ -74,7 +77,7 @@ export default async function B2BHomePage() {
   const partners = ['Visit Qatar', 'Qatar Tourism', 'Qatar Calendar', 'UDC', 'QNCC', 'Doha Festival City']
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* 1. Hero: Ideas to Life */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
@@ -93,13 +96,13 @@ export default async function B2BHomePage() {
         <div className="container relative z-10 mx-auto px-4 md:px-8 pt-20">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-100 tracking-tighter leading-[1.1] mb-6">
-              {hero.title}
+              {isAr ? (hero.titleAr || hero.title) : hero.title}
             </h1>
             <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-2xl mb-4">
-              {hero.subtitle}
+              {isAr ? (hero.subtitleAr || hero.subtitle) : hero.subtitle}
             </p>
             <p className="text-lg text-zinc-400 max-w-2xl mb-10">
-              {hero.description}
+              {isAr ? (hero.descriptionAr || hero.description) : hero.description}
             </p>
             
             <div className="flex flex-wrap items-center gap-4">
@@ -108,7 +111,7 @@ export default async function B2BHomePage() {
                   href={hero.primaryLink || "#"} 
                   className="px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
                 >
-                  {hero.primaryCta}
+                  {isAr ? (hero.primaryCtaAr || hero.primaryCta) : hero.primaryCta}
                 </Link>
               )}
               {hero.secondaryCta && (
@@ -116,7 +119,7 @@ export default async function B2BHomePage() {
                   href={hero.secondaryLink || "#"} 
                   className="px-8 py-4 bg-transparent border-2 border-zinc-700 text-zinc-100 font-bold text-lg rounded-sm hover:border-zinc-500 hover:bg-zinc-800 transition-all"
                 >
-                  {hero.secondaryCta}
+                  {isAr ? (hero.secondaryCtaAr || hero.secondaryCta) : hero.secondaryCta}
                 </Link>
               )}
             </div>
@@ -131,10 +134,10 @@ export default async function B2BHomePage() {
             {stats.map((stat: any, i: number) => (
               <div key={i} className="flex flex-col border-s border-emerald-500/30 ps-6">
                 <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 mb-2">
-                  {stat.value}
+                  {isAr ? (stat.valueAr || stat.value) : stat.value}
                 </span>
                 <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">
-                  {stat.label}
+                  {isAr ? (stat.labelAr || stat.label) : stat.label}
                 </span>
               </div>
             ))}
@@ -147,10 +150,10 @@ export default async function B2BHomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-6">
-              {wowAndHow.title}
+              {isAr ? (wowAndHow.titleAr || wowAndHow.title) : wowAndHow.title}
             </h2>
             <p className="text-lg text-zinc-400">
-              {wowAndHow.description}
+              {isAr ? (wowAndHow.descriptionAr || wowAndHow.description) : wowAndHow.description}
             </p>
           </div>
 
@@ -159,7 +162,7 @@ export default async function B2BHomePage() {
             <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
               <h3 className="text-3xl font-black text-emerald-400 tracking-tight mb-8">The WOW</h3>
               <ul className="space-y-6">
-                {(wowAndHow.wowBullets || []).map((item: string) => (
+                {((isAr && wowAndHow.wowBulletsAr?.length > 0) ? wowAndHow.wowBulletsAr : (wowAndHow.wowBullets || [])).map((item: string) => (
                   <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
                     <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
                     {item}
@@ -172,7 +175,7 @@ export default async function B2BHomePage() {
             <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
               <h3 className="text-3xl font-black text-amber-500 tracking-tight mb-8">The HOW</h3>
               <ul className="space-y-6">
-                {(wowAndHow.howBullets || []).map((item: string) => (
+                {((isAr && wowAndHow.howBulletsAr?.length > 0) ? wowAndHow.howBulletsAr : (wowAndHow.howBullets || [])).map((item: string) => (
                   <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
                     <CheckCircle2 className="w-6 h-6 text-amber-500 shrink-0" />
                     {item}
@@ -189,19 +192,19 @@ export default async function B2BHomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">Core Capabilities</h2>
-              <p className="text-lg text-zinc-400">Everything required to deliver landmark experiences.</p>
+              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">{isAr ? "القدرات الأساسية" : "Core Capabilities"}</h2>
+              <p className="text-lg text-zinc-400">{isAr ? "كل ما يلزم لتقديم تجارب استثنائية." : "Everything required to deliver landmark experiences."}</p>
             </div>
             <Link href="/b2b/services" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
-              View All Services <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
+              {isAr ? "عرض جميع الخدمات" : "View All Services"} <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {dbServices.length > 0 ? (
               dbServices.map((service, i) => {
-                const name = service.titleEn || service.slug
-                const desc = service.taglineEn || service.contentEn?.substring(0, 150) || "Premium entertainment service"
+                const name = isAr ? (service.titleAr || service.titleEn || service.slug) : (service.titleEn || service.slug)
+                const desc = isAr ? (service.taglineAr || service.contentAr?.substring(0, 150) || service.taglineEn || service.contentEn?.substring(0, 150) || "Premium entertainment service") : (service.taglineEn || service.contentEn?.substring(0, 150) || "Premium entertainment service")
                 return (
                   <Link 
                     key={i} 
@@ -242,8 +245,8 @@ export default async function B2BHomePage() {
                       </div>
                       
                       {/* CTA */}
-                      <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300">
-                        {service.ctaPrimary || "Explore Capability"} <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
+                      <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-all duration-300">
+                        {service.ctaPrimary || (isAr ? "استكشف القدرات" : "Explore Capability")} <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                       </div>
                     </div>
                   </Link>
@@ -263,18 +266,18 @@ export default async function B2BHomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">Featured Work</h2>
-              <p className="text-lg text-zinc-400">Landmark projects delivered across the region.</p>
+              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">{isAr ? "أعمالنا المميزة" : "Featured Work"}</h2>
+              <p className="text-lg text-zinc-400">{isAr ? "مشاريع استثنائية تم تسليمها في جميع أنحاء المنطقة." : "Landmark projects delivered across the region."}</p>
             </div>
             <Link href="/b2b/case-studies" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
-              View All Case Studies <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
+              {isAr ? "عرض جميع دراسات الحالة" : "View All Case Studies"} <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
             </Link>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {dbProjects.length > 0 ? (
               dbProjects.map((project, i) => {
-                const title = project.titleEn || project.slug
+                const title = isAr ? (project.titleAr || project.titleEn || project.slug) : (project.titleEn || project.slug)
                 return (
                   <Link key={i} href={`/b2b/case-studies/${project.slug}`} className="group block">
                     <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-zinc-900 mb-6">
@@ -313,13 +316,13 @@ export default async function B2BHomePage() {
       {/* 7. Delivery Process */}
       <section className="py-24 bg-zinc-900 border-y border-zinc-800">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-4xl font-black text-zinc-100 tracking-tight mb-16 text-center">Delivery Process</h2>
+          <h2 className="text-4xl font-black text-zinc-100 tracking-tight mb-16 text-center">{isAr ? "عملية التسليم" : "Delivery Process"}</h2>
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-4 relative">
             {/* Connecting Line */}
             <div className="hidden md:block absolute top-12 start-0 end-0 h-0.5 bg-zinc-800 -z-10" />
             
-            {['Discover', 'Design', 'Build', 'Operate', 'Report'].map((step, i) => (
+            {(isAr ? ['اكتشاف', 'تصميم', 'بناء', 'تشغيل', 'تقرير'] : ['Discover', 'Design', 'Build', 'Operate', 'Report']).map((step, i) => (
               <div key={i} className="flex flex-col items-center text-center w-full md:w-auto">
                 <div className="w-24 h-24 rounded-full bg-zinc-950 border-4 border-zinc-900 flex items-center justify-center font-black text-2xl text-emerald-500 mb-6">
                   {i + 1}
@@ -334,7 +337,7 @@ export default async function B2BHomePage() {
       {/* 8. Partner Ribbon */}
       <section className="py-16 bg-zinc-950 overflow-hidden border-b border-zinc-900">
         <div className="container mx-auto px-4 md:px-8 mb-8 text-center">
-          <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">Trusted by</span>
+          <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">{isAr ? "موثوق به من قبل" : "Trusted by"}</span>
         </div>
         
         {/* Simple marquee placeholder */}
