@@ -39,7 +39,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const storyContent = isAr ? (cmsData?.story?.contentAr || '') : (cmsData?.story?.contentEn || '');
   const storyMediaType = cmsData?.story?.mediaType || 'IMAGE';
   const storyMediaUrl = cmsData?.story?.mediaUrl || null;
-  const storyImageMediaId = cmsData?.story?.imageMediaId || null;
+  const legacyImageMediaId = cmsData?.story?.imageMediaId || null;
+  const storyFallbackImageUrl = cmsData?.story?.fallbackImageUrl || null;
 
   const values = cmsData?.values && cmsData.values.length > 0 ? cmsData.values.map((v: any) => ({
     title: isAr ? v.titleAr : v.titleEn,
@@ -51,11 +52,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   ];
 
   // Fetch story image if it's a media URL
-  let finalMediaUrl = storyMediaUrl || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
-  if (['IMAGE', 'VIDEO'].includes(storyMediaType) && storyImageMediaId) {
-    // AdminMediaPicker actually returns the URL string, not the ID
-    finalMediaUrl = storyImageMediaId;
-  }
+  let finalMediaUrl = storyMediaUrl || legacyImageMediaId || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
@@ -91,6 +88,7 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
                 type={storyMediaType as any}
                 src={finalMediaUrl}
                 alt="E3 Headquarters"
+                poster={storyFallbackImageUrl}
                />
                <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-bold mix-blend-difference pointer-events-none">
                  [E3]

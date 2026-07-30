@@ -22,8 +22,8 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       contentEn: initialData?.story?.contentEn || "",
       contentAr: initialData?.story?.contentAr || "",
       mediaType: initialData?.story?.mediaType || "IMAGE",
-      mediaUrl: initialData?.story?.mediaUrl || "",
-      imageMediaId: initialData?.story?.imageMediaId || null,
+      mediaUrl: initialData?.story?.mediaUrl || initialData?.story?.imageMediaId || "",
+      fallbackImageUrl: initialData?.story?.fallbackImageUrl || "",
     },
     values: initialData?.values || []
   })
@@ -201,8 +201,9 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
                 </label>
                 {['IMAGE', 'VIDEO'].includes(data.story.mediaType) ? (
                   <AdminMediaPicker 
-                    value={data.story.imageMediaId}
-                    onChange={id => handleChange('story', 'imageMediaId', id)}
+                    value={data.story.mediaUrl}
+                    onChange={url => handleChange('story', 'mediaUrl', url)}
+                    accept={data.story.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
                   />
                 ) : (
                   <input 
@@ -215,6 +216,22 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
                 )}
               </div>
             </div>
+
+            {data.story.mediaType !== 'IMAGE' && (
+              <div className="grid grid-cols-2 gap-6 mt-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                    Fallback Image / Poster
+                  </label>
+                  <p className="text-xs text-text-tertiary mb-2">Shows while loading, or as a poster frame.</p>
+                  <AdminMediaPicker 
+                    value={data.story.fallbackImageUrl}
+                    onChange={url => handleChange('story', 'fallbackImageUrl', url)}
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
