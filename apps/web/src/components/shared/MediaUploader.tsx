@@ -25,36 +25,22 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*", c
     setProgress(0)
 
     try {
-      // Simulate progress for UI feel since fetch doesn't support upload progress natively easily without XMLHttpRequest
       const progressInterval = setInterval(() => {
         setProgress(p => Math.min(p + 10, 90))
       }, 100)
 
-      const formData = new FormData()
-      formData.append("file", file)
-      if (context) {
-        formData.append("context", context)
-      }
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      const { upload } = await import('@vercel/blob/client')
+      
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        clientPayload: context ? JSON.stringify({ context }) : undefined
       })
 
       clearInterval(progressInterval)
       setProgress(100)
 
-      if (!res.ok) {
-        throw new Error("Upload failed")
-      }
-
-      const data = await res.json()
-      
-      if (data.success && data.url) {
-        onChange(data.url)
-      } else {
-        throw new Error(data.error || "Upload failed")
-      }
+      onChange(blob.url)
     } catch (err: any) {
       setError(err.message || "Something went wrong")
     } finally {

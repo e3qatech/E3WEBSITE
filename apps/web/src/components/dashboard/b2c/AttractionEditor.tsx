@@ -1046,18 +1046,18 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                         
                         setIsSaving(true);
                         try {
+                          const { upload } = await import('@vercel/blob/client');
                           const newItems: any[] = [];
                           for (let i = 0; i < files.length; i++) {
-                            const formData = new FormData();
-                            formData.append("file", files[i]);
-                            const res = await fetch("/api/upload", { method: "POST", body: formData });
-                            const data = await res.json();
-                            if (data.success && data.url) {
-                              newItems.push({ url: data.url, captionEn: "", captionAr: "" });
-                            }
+                            const blob = await upload(files[i].name, files[i], {
+                              access: 'public',
+                              handleUploadUrl: '/api/upload'
+                            });
+                            newItems.push({ url: blob.url, captionEn: "", captionAr: "" });
                           }
                           setGallery(prev => [...prev, ...newItems]);
                         } catch (error) {
+                          console.error("Bulk upload error:", error);
                           alert("Failed to upload some files.");
                         } finally {
                           setIsSaving(false);

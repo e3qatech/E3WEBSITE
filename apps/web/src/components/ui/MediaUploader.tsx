@@ -10,38 +10,45 @@ interface MediaUploaderProps {
   placeholder?: string
   className?: string
   accept?: string
+  context?: string
 }
 
-export function MediaUploader({ value, onChange, placeholder = "https://...", className, accept = "image/*,video/*,audio/*" }: MediaUploaderProps) {
+export function MediaUploader({ value, onChange, placeholder = "https://...", className, accept = "image/*,video/*,audio/*", context }: MediaUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setError(null)
     setIsUploading(true)
-    
+    setProgress(0)
+
     try {
-      const formData = new FormData()
-      formData.append("file", file)
+      const progressInterval = setInterval(() => {
+        setProgress(p => Math.min(p + 10, 90))
+      }, 100)
+
+      const { upload } = await import('@vercel/blob/client')
       
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        clientPayload: context ? JSON.stringify({ context }) : undefined
       })
-      
-      const data = await res.json()
-      if (data.success && data.url) {
-        onChange(data.url)
-      } else {
-        alert("Failed to upload file")
-      }
-    } catch (error) {
-      console.error("Upload error:", error)
-      alert("Error uploading file")
+
+      clearInterval(progressInterval)
+      setProgress(100)
+
+      onChange(blob.url)
+    } catch (err: any) {
+      setError(err.message || "Something went wrong")
     } finally {
       setIsUploading(false)
+      setTimeout(() => setProgress(0), 1000)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }

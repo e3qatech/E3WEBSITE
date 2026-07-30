@@ -84,23 +84,17 @@ export function CalendarPageManager() {
     if (!file) return
 
     setUploading(true)
-    const formData = new FormData()
-    formData.append("file", file)
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      const { upload } = await import('@vercel/blob/client')
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload'
       })
-      const data = await res.json()
-      if (data.success) {
-        setPageSettings(prev => ({ ...prev, heroMediaUrl: data.url }))
-      } else {
-        alert("Upload failed: " + data.error)
-      }
-    } catch (error) {
+      setPageSettings(prev => ({ ...prev, heroMediaUrl: blob.url }))
+    } catch (error: any) {
       console.error("Upload error:", error)
-      alert("Failed to upload file.")
+      alert("Failed to upload file: " + error.message)
     } finally {
       setUploading(false)
       if (target) {
