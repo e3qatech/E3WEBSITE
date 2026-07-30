@@ -5,6 +5,40 @@ import { notFound } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { DynamicARViewer } from '@/components/shared/DynamicWrappers'
 import { db } from "@/lib/db"
+import { Metadata } from 'next'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {
+  const { slug, locale } = await params;
+  const isAr = locale === 'ar';
+  
+  const service = await db.service.findUnique({
+    where: { slug }
+  });
+
+  if (!service) {
+    return { title: 'Service Not Found' };
+  }
+
+  const seo = service.seo as any || {};
+  
+  const title = isAr 
+    ? (seo.metaTitleAr || service.titleAr || service.titleEn) 
+    : (seo.metaTitleEn || service.titleEn);
+    
+  const description = isAr 
+    ? (seo.metaDescriptionAr || service.taglineAr || '') 
+    : (seo.metaDescriptionEn || service.taglineEn || '');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: service.thumbnail ? [{ url: service.thumbnail }] : [],
+    }
+  };
+}
 
 export default async function ServiceMicrosite({ params }: { params: Promise<{ slug: string }> }) {
   

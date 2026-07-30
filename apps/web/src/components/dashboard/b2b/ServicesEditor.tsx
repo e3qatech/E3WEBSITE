@@ -506,13 +506,25 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
                 </div>
                 
                 <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8 space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Meta Title</label>
-                    <input type="text" value={formData.seo?.metaTitle || ''} onChange={e => handleChange('seo', { ...formData.seo, metaTitle: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none" placeholder="Default inherits from Service Title if blank" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Meta Title (English)</label>
+                      <input type="text" value={formData.seo?.metaTitleEn || ''} onChange={e => handleChange('seo', { ...formData.seo, metaTitleEn: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none" placeholder="Default inherits from Service Title if blank" />
+                    </div>
+                    <div className="space-y-2" dir="rtl">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider block">Meta Title (Arabic)</label>
+                      <input type="text" value={formData.seo?.metaTitleAr || ''} onChange={e => handleChange('seo', { ...formData.seo, metaTitleAr: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none font-arabic" placeholder="افتراضي يرث من عنوان الخدمة" />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Meta Description</label>
-                    <textarea value={formData.seo?.metaDescription || ''} onChange={e => handleChange('seo', { ...formData.seo, metaDescription: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none h-24 resize-none" placeholder="Brief summary of the service for search results..." />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Meta Description (English)</label>
+                      <textarea value={formData.seo?.metaDescriptionEn || ''} onChange={e => handleChange('seo', { ...formData.seo, metaDescriptionEn: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none h-24 resize-none" placeholder="Brief summary of the service for search results..." />
+                    </div>
+                    <div className="space-y-2" dir="rtl">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider block">Meta Description (Arabic)</label>
+                      <textarea value={formData.seo?.metaDescriptionAr || ''} onChange={e => handleChange('seo', { ...formData.seo, metaDescriptionAr: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-surface-hover border border-border-default text-sm focus:border-accent outline-none h-24 resize-none font-arabic" placeholder="ملخص موجز للخدمة لمحركات البحث..." />
+                    </div>
                   </div>
                 </div>
               </div>
