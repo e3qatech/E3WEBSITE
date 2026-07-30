@@ -36,10 +36,10 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       subtitleAr: initialData?.corporate?.subtitleAr || "",
     },
     team: initialData?.team || [
-      { nameEn: "Abdullah Al Kubaisi", nameAr: "", roleEn: "Chairman", roleAr: "", descEn: "National alignment & strategic partnerships.", descAr: "" },
-      { nameEn: "Adil Ahmed", nameAr: "", roleEn: "Managing Director & CEO", roleAr: "", descEn: "Global resources & operations.", descAr: "" },
-      { nameEn: "Mohammad Ali Awada", nameAr: "", roleEn: "General Manager", roleAr: "", descEn: "Directing physical landmark properties.", descAr: "" },
-      { nameEn: "Ebrahim Karolia", nameAr: "", roleEn: "Sr. Project Manager", roleAr: "", descEn: "AV rigging, fabrication, custom builds.", descAr: "" }
+      { nameEn: "Abdullah Al Kubaisi", nameAr: "", roleEn: "Chairman", roleAr: "", descEn: "National alignment & strategic partnerships.", descAr: "", imageUrl: "" },
+      { nameEn: "Adil Ahmed", nameAr: "", roleEn: "Managing Director & CEO", roleAr: "", descEn: "Global resources & operations.", descAr: "", imageUrl: "" },
+      { nameEn: "Mohammad Ali Awada", nameAr: "", roleEn: "General Manager", roleAr: "", descEn: "Directing physical landmark properties.", descAr: "", imageUrl: "" },
+      { nameEn: "Ebrahim Karolia", nameAr: "", roleEn: "Sr. Project Manager", roleAr: "", descEn: "AV rigging, fabrication, custom builds.", descAr: "", imageUrl: "" }
     ],
   })
 
@@ -85,7 +85,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const addTeamMember = () => {
     setData(prev => ({
       ...prev,
-      team: [...prev.team, { nameEn: "", nameAr: "", roleEn: "", roleAr: "", descEn: "", descAr: "" }]
+      team: [...prev.team, { nameEn: "", nameAr: "", roleEn: "", roleAr: "", descEn: "", descAr: "", imageUrl: "" }]
     }));
   }
 
@@ -338,7 +338,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 roleEn: member.roleEn || (member as any).role || "",
                 roleAr: member.roleAr || "",
                 descEn: member.descEn || (member as any).desc || "",
-                descAr: member.descAr || ""
+                descAr: member.descAr || "",
+                imageUrl: member.imageUrl || ""
               };
               return (
               <div key={idx} className="border border-border-default p-4 rounded-lg relative space-y-4">
@@ -398,6 +399,13 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                       value={safeMember.descAr}
                       onChange={e => handleTeamChange(idx, 'descAr', e.target.value)}
                       className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2 border-t border-border-default pt-4 mt-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 block">Profile Image (Optional)</label>
+                    <AdminMediaPicker 
+                      value={safeMember.imageUrl} 
+                      onChange={url => handleTeamChange(idx, 'imageUrl', url)}
                     />
                   </div>
                 </div>
