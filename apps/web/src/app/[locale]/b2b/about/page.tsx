@@ -42,6 +42,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const headerSubtitle = isAr ? (cmsData?.header?.subtitleAr || 'خبراء هندسة الفعاليات. نحول الرؤى الإبداعية الطموحة إلى واقع تشغيلي لا تشوبه شائبة.') : (cmsData?.header?.subtitleEn || 'Event Engineering Experts. We turn ambitious creative visions into flawless operational reality.');
   const headerMediaType = cmsData?.header?.mediaType || 'IMAGE';
   const headerMediaUrl = cmsData?.header?.mediaUrl || null;
+  const headerFallbackImageUrl = cmsData?.header?.fallbackImageUrl || null;
 
   const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
 
