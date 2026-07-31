@@ -7,22 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Search, Globe, Moon, Sun } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const b2bLinks = [
-  { label: 'Home', href: '/b2b' },
-  { label: 'Services', href: '/b2b/services' },
-  { label: 'Case Studies', href: '/b2b/case-studies' },
-  { label: 'Clients', href: '/b2b/clients' },
-  { label: 'About', href: '/b2b/about' },
-  { label: 'Contact', href: '/b2b/contact' }
-]
-
 export function B2BHeader({ settings = {} }: { settings?: Record<string, string> }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const pathname = usePathname() || ""
   
-  // Replace with actual Zustand theme store later
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+
+  const isAr = pathname.startsWith('/ar') || (typeof document !== 'undefined' && document.cookie.includes('NEXT_LOCALE=ar'))
+  const currentLocale = isAr ? 'ar' : 'en'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,9 +25,39 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const toggleLanguage = () => {
+    const targetLocale = isAr ? 'en' : 'ar'
+    document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = targetLocale === 'ar' ? 'rtl' : 'ltr'
+      document.documentElement.lang = targetLocale
+    }
+    
+    let newPath = pathname
+    if (pathname.startsWith('/ar/')) {
+      newPath = pathname.replace('/ar/', `/${targetLocale}/`)
+    } else if (pathname.startsWith('/en/')) {
+      newPath = pathname.replace('/en/', `/${targetLocale}/`)
+    } else if (pathname === '/ar' || pathname === '/en') {
+      newPath = `/${targetLocale}/b2b`
+    } else {
+      newPath = `/${targetLocale}${pathname}`
+    }
+    window.location.href = newPath
+  }
+
+  const b2bNavLinks = [
+    { label: isAr ? 'الرئيسية' : 'Home', href: `/${currentLocale}/b2b` },
+    { label: isAr ? 'الخدمات' : 'Services', href: `/${currentLocale}/b2b/services` },
+    { label: isAr ? 'أعمالنا' : 'Case Studies', href: `/${currentLocale}/b2b/case-studies` },
+    { label: isAr ? 'العملاء والشركاء' : 'Clients', href: `/${currentLocale}/b2b/clients` },
+    { label: isAr ? 'من نحن' : 'About', href: `/${currentLocale}/b2b/about` },
+    { label: isAr ? 'تواصل معنا' : 'Contact', href: `/${currentLocale}/b2b/contact` }
+  ]
+
   const lightLogoUrl = settings.lightLogoUrl;
   const darkLogoUrl = settings.darkLogoUrl;
-  const siteName = settings.siteNameEn || "E3 Corporate";
+  const siteName = isAr ? (settings.siteNameAr || "إي ثري للشركات") : (settings.siteNameEn || "E3 Corporate");
 
   return (
     <header
@@ -47,7 +70,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/b2b" className="flex items-center gap-2 z-50">
+        <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-2 z-50">
           {(lightLogoUrl || darkLogoUrl) ? (
             <img 
               src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)} 
@@ -60,21 +83,21 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             </div>
           )}
           <span className="font-bold text-xl tracking-tight hidden sm:block text-zinc-100">
-            {!(lightLogoUrl || darkLogoUrl) ? "Corporate" : ""}
+            {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
           </span>
         </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8">
-          {b2bLinks.map((link) => {
-            const isActive = pathname === link.href
+          {b2bNavLinks.map((link) => {
+            const isActive = pathname === link.href || (pathname.endsWith('/b2b') && link.href.endsWith('/b2b'))
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors hover:text-emerald-400 relative",
-                  isActive ? "text-emerald-500" : "text-zinc-400"
+                  isActive ? "text-emerald-500 font-bold" : "text-zinc-400"
                 )}
               >
                 {link.label}
@@ -104,22 +127,26 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           
-          <button className="flex items-center gap-2 p-2 text-zinc-400 hover:text-zinc-100 transition-colors">
-            <Globe className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase">EN</span>
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-emerald-400 hover:border-emerald-500/50 transition-all cursor-pointer"
+            title={isAr ? "Switch to English" : "التغيير إلى العربية"}
+          >
+            <Globe className="w-4 h-4 text-emerald-500" />
+            <span className="text-xs font-bold uppercase">{isAr ? "English" : "العربية"}</span>
           </button>
           
           <div className="w-px h-6 bg-zinc-800 mx-2" />
           
           <Link href="/b2b/client-login" className="text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors">
-            Client Login
+            {isAr ? "دخول العملاء" : "Client Login"}
           </Link>
           
           <Link
-            href="/b2b/contact"
+            href={`/${currentLocale}/b2b/contact`}
             className="px-5 py-2.5 bg-zinc-100 text-zinc-950 text-sm font-bold rounded-sm hover:bg-emerald-500 hover:text-zinc-950 transition-colors"
           >
-            Start a Project
+            {isAr ? "ابدأ مشروعك" : "Start a Project"}
           </Link>
         </div>
 
@@ -143,7 +170,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             className="fixed inset-0 z-40 bg-zinc-950 pt-24 px-6 pb-6 overflow-y-auto lg:hidden flex flex-col"
           >
             <nav className="flex flex-col gap-6 mb-8">
-              {b2bLinks.map((link) => (
+              {b2bNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -157,9 +184,12 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             
             <div className="mt-auto pt-8 border-t border-zinc-800 flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <button className="flex items-center gap-2 text-zinc-400 hover:text-zinc-100">
-                  <Globe className="w-6 h-6" />
-                  <span className="font-bold">English</span>
+                <button 
+                  onClick={toggleLanguage}
+                  className="flex items-center gap-2 text-zinc-300 hover:text-emerald-400"
+                >
+                  <Globe className="w-6 h-6 text-emerald-500" />
+                  <span className="font-bold">{isAr ? "English" : "العربية"}</span>
                 </button>
                 <button 
                   className="flex items-center gap-2 text-zinc-400 hover:text-zinc-100"
@@ -175,15 +205,15 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-center py-3 border border-zinc-800 text-zinc-400 font-bold rounded-sm"
               >
-                Client Login
+                {isAr ? "دخول العملاء" : "Client Login"}
               </Link>
               
               <Link
-                href="/b2b/contact"
+                href={`/${currentLocale}/b2b/contact`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-center py-3 bg-emerald-500 text-zinc-950 font-bold rounded-sm"
               >
-                Start a Project
+                {isAr ? "ابدأ مشروعك" : "Start a Project"}
               </Link>
             </div>
           </motion.div>

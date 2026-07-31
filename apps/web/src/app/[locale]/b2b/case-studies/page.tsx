@@ -50,7 +50,9 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
     primaryCta: isAr ? (content.cta.primaryCtaAr || content.cta.primaryCta) : (content.cta.primaryCtaEn || content.cta.primaryCta)
   } : null;
 
-  const categories = ['All', 'Mega Event', 'Attractions', 'Live Production', 'Immersive', 'Destination', 'Family Entertainment']
+  const categories = isAr 
+    ? ['الكل', 'فعالية كبرى', 'وجهات وتجارب', 'إنتاج حي', 'تقنيات غامرة', 'وجهات ترفيهية', 'ترفيه عائلي'] 
+    : ['All', 'Mega Event', 'Attractions', 'Live Production', 'Immersive', 'Destination', 'Family Entertainment']
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>

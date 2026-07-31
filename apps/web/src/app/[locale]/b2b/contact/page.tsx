@@ -60,8 +60,12 @@ export default function ContactRFPPage() {
     }
   }
 
-  const headerTitle = isAr ? cmsData?.header?.titleAr : cmsData?.header?.titleEn;
-  const headerSubtitle = isAr ? cmsData?.header?.subtitleAr : cmsData?.header?.subtitleEn;
+  const headerTitle = isAr 
+    ? (cmsData?.header?.titleAr || cmsData?.header?.titleEn || 'تواصل معنا / تقديم طلب عروض') 
+    : (cmsData?.header?.titleEn || 'Contact Us / Submit RFP');
+  const headerSubtitle = isAr 
+    ? (cmsData?.header?.subtitleAr || cmsData?.header?.subtitleEn || 'هل لديك مشروع أو فعاليات كبرى تخطط لها؟ دعنا نساعدك في بناء خطة تنفيذ ناجحة.') 
+    : (cmsData?.header?.subtitleEn || 'Planning a major event, venue, or activation? Let us help you engineer a successful delivery plan.');
   
   const businessEmail = cmsData?.inquiries?.business;
   const careersEmail = cmsData?.inquiries?.careers;

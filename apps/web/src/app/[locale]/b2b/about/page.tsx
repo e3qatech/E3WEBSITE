@@ -45,20 +45,40 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   const headerFallbackImageUrl = cmsData?.header?.fallbackImageUrl || null;
 
-  const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
-  const storyContent = isAr ? (cmsData?.story?.contentAr || '') : (cmsData?.story?.contentEn || '');
+  const defaultStoryAr = `تأسست E3 في الدوحة برؤية واضحة: قطاع الفعاليات السريع النمو في المنطقة بحاجة إلى شريك يفهم الطموح الإبداعي للفعاليات الضخمة والهندسة التشغيلية المطلوبة لتقديمها.
+
+على مدار العقد الماضي، نمونا من شركة تنفيذ منصات إلى منظومة متكاملة من هندسة الفعاليات، التكنولوجيا الغامرة، وتشغيل الوجهات.
+
+اليوم، نضم أكثر من 120 متخصصاً ونمتلك إحدى أكبر مستودعات المعدات والتقنيات في الشرق الأوسط.`;
+
+  const defaultStoryEn = `E3 was founded in Doha with a simple premise: the region's rapidly growing events sector needed a partner that understood both the creative ambition of mega-events and the hard engineering required to deliver them.
+
+Over the past decade, we have grown from a boutique staging company into a comprehensive ecosystem of event engineering, immersive technology, and venue operations. 
+
+Today, we employ over 120 full-time specialists and maintain one of the largest inventories of staging, rigging, and XR hardware in the Middle East.`;
+
+  const storyContent = isAr ? (cmsData?.story?.contentAr || defaultStoryAr) : (cmsData?.story?.contentEn || defaultStoryEn);
   const storyMediaType = cmsData?.story?.mediaType || 'IMAGE';
   const storyMediaUrl = cmsData?.story?.mediaUrl || null;
   const legacyImageMediaId = cmsData?.story?.imageMediaId || null;
   const storyFallbackImageUrl = cmsData?.story?.fallbackImageUrl || null;
 
   const values = cmsData?.values && cmsData.values.length > 0 ? cmsData.values.map((v: any) => ({
-    title: isAr ? v.titleAr : v.titleEn,
-    desc: isAr ? v.descAr : v.descEn
+    title: isAr ? (v.titleAr || v.titleEn) : v.titleEn,
+    desc: isAr ? (v.descAr || v.descEn) : v.descEn
   })) : [
-    { title: 'Engineering Precision', desc: 'We treat creativity with the rigor of structural engineering. No detail is too small, no safety margin too tight.' },
-    { title: 'Operational Excellence', desc: 'Beautiful designs mean nothing if the execution fails. We take extreme ownership of the live operation.' },
-    { title: 'Cultural Resonance', desc: 'Rooted in Qatar, built for the world. Our experiences respect local context while setting global benchmarks.' },
+    { 
+      title: isAr ? 'الدقة الهندسية' : 'Engineering Precision', 
+      desc: isAr ? 'نتعامل مع الإبداع بصرامة الهندسة الإنشائية. لا تفاصيل صغيرة جداً، ولا هامش أمان يتساهل به.' : 'We treat creativity with the rigor of structural engineering. No detail is too small, no safety margin too tight.' 
+    },
+    { 
+      title: isAr ? 'التميز التشغيلي' : 'Operational Excellence', 
+      desc: isAr ? 'التصاميم الجميلة لا تعني شيئاً إذا فشل التنفيذ. نحن نتحمل المسؤولية الكاملة عن التشغيل المباشر.' : 'Beautiful designs mean nothing if the execution fails. We take extreme ownership of the live operation.' 
+    },
+    { 
+      title: isAr ? 'الأصالة الثقافية' : 'Cultural Resonance', 
+      desc: isAr ? 'جذورنا في قطر، وبنينا للعالم. نحترم السياق المحلي مع وضع معايير عالمية.' : 'Rooted in Qatar, built for the world. Our experiences respect local context while setting global benchmarks.' 
+    },
   ];
 
   // Fetch story image if it's a media URL

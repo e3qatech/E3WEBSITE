@@ -21,26 +21,53 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   }
   
   const content = (page?.content as any) || {}
-  const hero = content?.hero || {
-    title: "Ideas to Life",
-    subtitle: "We design, build, operate, and scale immersive entertainment experiences across Qatar.",
-    description: "From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.",
-    primaryCta: "Explore Services",
-    primaryLink: "/b2b/services",
-    secondaryCta: "Start a Project",
-    secondaryLink: "/b2b/contact"
+  const hero = {
+    title: isAr 
+      ? (content.hero?.titleAr || content.hero?.title || "تحويل الأفكار إلى واقع") 
+      : (content.hero?.titleEn || content.hero?.title || "Ideas to Life"),
+    subtitle: isAr 
+      ? (content.hero?.subtitleAr || content.hero?.subtitle || "نحن نصمم ونبني ونشغل ونوسع تجارب الترفيه الغامرة في جميع أنحاء قطر.") 
+      : (content.hero?.subtitleEn || content.hero?.subtitle || "We design, build, operate, and scale immersive entertainment experiences across Qatar."),
+    description: isAr 
+      ? (content.hero?.descriptionAr || content.hero?.description || "من المفاهيم الإبداعية إلى تدفق الجماهير والتصنيع وإصدار التذاكر والتوظيف والعمليات المباشرة.") 
+      : (content.hero?.descriptionEn || content.hero?.description || "From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations."),
+    primaryCta: isAr 
+      ? (content.hero?.primaryCtaAr || content.hero?.primaryCta || "استكشف الخدمات") 
+      : (content.hero?.primaryCtaEn || content.hero?.primaryCta || "Explore Services"),
+    primaryLink: content.hero?.primaryLink || `/${locale}/b2b/services`,
+    secondaryCta: isAr 
+      ? (content.hero?.secondaryCtaAr || content.hero?.secondaryCta || "ابدأ مشروعاً") 
+      : (content.hero?.secondaryCtaEn || content.hero?.secondaryCta || "Start a Project"),
+    secondaryLink: content.hero?.secondaryLink || `/${locale}/b2b/contact`,
+    mediaType: content.hero?.mediaType || "IMAGE",
+    mediaUrl: content.hero?.mediaUrl || ""
   }
-  const stats = content?.stats || [
-    { value: '50+', label: 'Years Combined Experience' },
-    { value: '9+', label: 'Core Specializations' },
-    { value: '100%', label: 'Qatari Owned' },
-    { value: '3+', label: 'Regional Markets' },
-  ]
-  const wowAndHow = content?.wowAndHow || {
-    title: "The WOW & The HOW",
-    description: "Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them.",
-    wowBullets: ['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling'],
-    howBullets: ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing']
+
+  const stats = (content?.stats && content.stats.length > 0) 
+    ? content.stats.map((s: any) => ({
+        value: isAr ? (s.valueAr || s.value) : s.value,
+        label: isAr ? (s.labelAr || s.label) : s.label
+      }))
+    : [
+        { value: '50+', label: isAr ? 'سنوات من الخبرة المشتركة' : 'Years Combined Experience' },
+        { value: '9+', label: isAr ? 'التخصصات الأساسية' : 'Core Specializations' },
+        { value: '100%', label: isAr ? 'ملكية قطرية 100%' : 'Qatari Owned' },
+        { value: '3+', label: isAr ? 'أسواق إقليمية' : 'Regional Markets' },
+      ]
+
+  const wowAndHow = {
+    title: isAr 
+      ? (content.wowAndHow?.titleAr || content.wowAndHow?.title || "الإبهاار والتنفيذ الاحترافي") 
+      : (content.wowAndHow?.titleEn || content.wowAndHow?.title || "The WOW & The HOW"),
+    description: isAr 
+      ? (content.wowAndHow?.descriptionAr || content.wowAndHow?.description || "الأفكار الإبداعية تتطلب هندسة تشغيلية. نحن لا نصمم التجارب فحسب — بل نبنيها ونوظف طواقمها ونشغلها ونراقبها.") 
+      : (content.wowAndHow?.descriptionEn || content.wowAndHow?.description || "Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them."),
+    wowBullets: isAr 
+      ? (content.wowAndHow?.wowBulletsAr?.length > 0 ? content.wowAndHow.wowBulletsAr : ['المفاهيم الإبداعية', 'الترفيه الغامر', 'البيئات المنسقة', 'سرد القصص'])
+      : (content.wowAndHow?.wowBullets || ['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling']),
+    howBullets: isAr 
+      ? (content.wowAndHow?.howBulletsAr?.length > 0 ? content.wowAndHow.howBulletsAr : ['جدوى وسلامة المشاريع', 'التصنيع والإخراج المنصي', 'تدفق الجماهير والتوظيف', 'العمليات المباشرة والتذاكر'])
+      : (content.wowAndHow?.howBullets || ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing'])
   }
 
   // Determine which Services to show
@@ -126,30 +153,30 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         <div className="container relative z-10 mx-auto px-4 md:px-8 pt-20">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-100 tracking-tighter leading-[1.1] mb-6">
-              {isAr ? (hero.titleAr || hero.title) : hero.title}
+              {hero.title}
             </h1>
             <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-2xl mb-4">
-              {isAr ? (hero.subtitleAr || hero.subtitle) : hero.subtitle}
+              {hero.subtitle}
             </p>
             <p className="text-lg text-zinc-400 max-w-2xl mb-10">
-              {isAr ? (hero.descriptionAr || hero.description) : hero.description}
+              {hero.description}
             </p>
             
             <div className="flex flex-wrap items-center gap-4">
               {hero.primaryCta && (
                 <Link 
-                  href={hero.primaryLink || "#"} 
+                  href={hero.primaryLink || `/${locale}/b2b/services`} 
                   className="px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
                 >
-                  {isAr ? (hero.primaryCtaAr || hero.primaryCta) : hero.primaryCta}
+                  {hero.primaryCta}
                 </Link>
               )}
               {hero.secondaryCta && (
                 <Link 
-                  href={hero.secondaryLink || "#"} 
+                  href={hero.secondaryLink || `/${locale}/b2b/contact`} 
                   className="px-8 py-4 bg-transparent border-2 border-zinc-700 text-zinc-100 font-bold text-lg rounded-sm hover:border-zinc-500 hover:bg-zinc-800 transition-all"
                 >
-                  {isAr ? (hero.secondaryCtaAr || hero.secondaryCta) : hero.secondaryCta}
+                  {hero.secondaryCta}
                 </Link>
               )}
             </div>
