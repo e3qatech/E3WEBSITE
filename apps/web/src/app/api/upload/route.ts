@@ -23,13 +23,33 @@ const ALLOWED_TYPES = [
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
 
-async function saveFileLocally(file: File, fileName: string): Promise<string> {
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadDir, { recursive: true });
-  const filePath = path.join(uploadDir, fileName);
+async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Promise<string> {
   const bytes = await file.arrayBuffer();
-  await fs.writeFile(filePath, Buffer.from(bytes));
-  return `/uploads/${fileName}`;
+  const buffer = Buffer.from(bytes);
+
+  // Try saving to public/uploads directory first (local dev / writable disk)
+  try {
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await fs.mkdir(uploadDir, { recursive: true });
+    const filePath = path.join(uploadDir, fileName);
+    await fs.writeFile(filePath, buffer);
+    return `/uploads/${fileName}`;
+  } catch (fsErr) {
+    console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), converting to Data URL fallback:", fsErr);
+    
+    let mime = file.type;
+    if (ext === 'svg' || !mime || mime === 'application/octet-stream') {
+      if (ext === 'svg') mime = 'image/svg+xml';
+      else if (ext === 'png') mime = 'image/png';
+      else if (ext === 'jpg' || ext === 'jpeg') mime = 'image/jpeg';
+      else if (ext === 'webp') mime = 'image/webp';
+      else if (ext === 'gif') mime = 'image/gif';
+      else if (ext === 'pdf') mime = 'application/pdf';
+    }
+
+    const base64 = buffer.toString('base64');
+    return `data:${mime || 'application/octet-stream'};base64,${base64}`;
+  }
 }
 
 export async function POST(request: Request) {
@@ -44,12 +64,11 @@ export async function POST(request: Request) {
         request,
         onBeforeGenerateToken: async (pathname, clientPayload) => {
           const session = await auth();
-          const isAdmin = session?.user && ((session.user as any).role === 'SUPER_ADMIN' || (session.user as any).role === 'SALES_ADMIN' || (session.user as any).role === 'SUPPORT_ADMIN');
           let context = null;
           if (clientPayload) {
             try { context = JSON.parse(clientPayload).context; } catch (e) {}
           }
-          if (!isAdmin && context !== 'public_resume') {
+          if (!session?.user && context !== 'public_resume') {
             throw new Error("Unauthorized");
           }
           return {
@@ -75,9 +94,8 @@ export async function POST(request: Request) {
     const context = data.get('context') as string | null;
 
     const session = await auth();
-    const isAdmin = session?.user && ((session.user as any).role === 'SUPER_ADMIN' || (session.user as any).role === 'SALES_ADMIN' || (session.user as any).role === 'SUPPORT_ADMIN');
 
-    if (!isAdmin && context !== 'public_resume') {
+    if (!session?.user && context !== 'public_resume') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     const file: File | null = data.get('file') as unknown as File;
@@ -108,11 +126,11 @@ export async function POST(request: Request) {
         });
         fileUrl = blob.url;
       } catch (blobError) {
-        console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to local disk storage:", blobError);
-        fileUrl = await saveFileLocally(file, fileName);
+        console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to disk/DataURL:", blobError);
+        fileUrl = await saveFileOrDataUrl(file, fileName, ext);
       }
     } else {
-      fileUrl = await saveFileLocally(file, fileName);
+      fileUrl = await saveFileOrDataUrl(file, fileName, ext);
     }
 
     return NextResponse.json({ 
@@ -120,8 +138,8 @@ export async function POST(request: Request) {
       url: fileUrl,
       fileName: file.name
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading file:', error);
-    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ success: false, error: error?.message || 'Internal Server Error' }, { status: 500 });
   }
 }

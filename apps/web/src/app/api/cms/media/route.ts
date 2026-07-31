@@ -61,13 +61,33 @@ const ALLOWED_TYPES = [
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
 
-async function saveFileLocally(file: File, fileName: string): Promise<string> {
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadDir, { recursive: true });
-  const filePath = path.join(uploadDir, fileName);
+async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Promise<string> {
   const bytes = await file.arrayBuffer();
-  await fs.writeFile(filePath, Buffer.from(bytes));
-  return `/uploads/${fileName}`;
+  const buffer = Buffer.from(bytes);
+
+  // Try saving to public/uploads directory first (local dev / writable disk)
+  try {
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await fs.mkdir(uploadDir, { recursive: true });
+    const filePath = path.join(uploadDir, fileName);
+    await fs.writeFile(filePath, buffer);
+    return `/uploads/${fileName}`;
+  } catch (fsErr) {
+    console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), converting to Data URL fallback:", fsErr);
+    
+    let mime = file.type;
+    if (ext === 'svg' || !mime || mime === 'application/octet-stream') {
+      if (ext === 'svg') mime = 'image/svg+xml';
+      else if (ext === 'png') mime = 'image/png';
+      else if (ext === 'jpg' || ext === 'jpeg') mime = 'image/jpeg';
+      else if (ext === 'webp') mime = 'image/webp';
+      else if (ext === 'gif') mime = 'image/gif';
+      else if (ext === 'pdf') mime = 'application/pdf';
+    }
+
+    const base64 = buffer.toString('base64');
+    return `data:${mime || 'application/octet-stream'};base64,${base64}`;
+  }
 }
 
 export async function POST(request: Request) {
@@ -98,7 +118,7 @@ export async function POST(request: Request) {
     const filename = `${randomUUID()}.${ext || 'bin'}`
     let fileUrl = "";
     
-    // Upload to Vercel Blob if token exists, fallback to local storage
+    // Upload to Vercel Blob if token exists, fallback to local storage / Data URL
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const blob = await put(`uploads/${filename}`, file, {
@@ -107,11 +127,11 @@ export async function POST(request: Request) {
         })
         fileUrl = blob.url;
       } catch (blobError) {
-        console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to local disk storage:", blobError);
-        fileUrl = await saveFileLocally(file, filename);
+        console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to disk/DataURL:", blobError);
+        fileUrl = await saveFileOrDataUrl(file, filename, ext);
       }
     } else {
-      fileUrl = await saveFileLocally(file, filename);
+      fileUrl = await saveFileOrDataUrl(file, filename, ext);
     }
     
     // Determine MediaType based on mimeType
@@ -131,10 +151,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(media, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading media:', error);
     return NextResponse.json(
-      { error: 'Failed to upload media' },
+      { error: error?.message || 'Failed to upload media' },
       { status: 500 }
     );
   }
