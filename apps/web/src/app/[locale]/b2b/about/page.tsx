@@ -43,7 +43,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const headerMediaType = cmsData?.header?.mediaType || 'IMAGE';
   const headerMediaUrl = cmsData?.header?.mediaUrl || null;
 
-  const headerFallbackImageUrl = cmsData?.header?.fallbackImageUrl || null;
+  const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
 
   const defaultStoryAr = `تأسست E3 في الدوحة برؤية واضحة: قطاع الفعاليات السريع النمو في المنطقة بحاجة إلى شريك يفهم الطموح الإبداعي للفعاليات الضخمة والهندسة التشغيلية المطلوبة لتقديمها.
 
