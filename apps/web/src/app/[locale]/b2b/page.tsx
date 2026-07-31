@@ -217,9 +217,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
             {/* WOW */}
             <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
-              <h3 className="text-3xl font-black text-emerald-400 tracking-tight mb-8">The WOW</h3>
+              <h3 className="text-3xl font-black text-emerald-400 tracking-tight mb-8">
+                {isAr ? "الإبهار (The WOW)" : "The WOW"}
+              </h3>
               <ul className="space-y-6">
-                {((isAr && wowAndHow.wowBulletsAr?.length > 0) ? wowAndHow.wowBulletsAr : (wowAndHow.wowBullets || [])).map((item: string) => (
+                {(wowAndHow.wowBullets || []).map((item: string) => (
                   <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
                     <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
                     {item}
@@ -230,9 +232,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
             {/* HOW */}
             <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
-              <h3 className="text-3xl font-black text-amber-500 tracking-tight mb-8">The HOW</h3>
+              <h3 className="text-3xl font-black text-amber-500 tracking-tight mb-8">
+                {isAr ? "التنفيذ (The HOW)" : "The HOW"}
+              </h3>
               <ul className="space-y-6">
-                {((isAr && wowAndHow.howBulletsAr?.length > 0) ? wowAndHow.howBulletsAr : (wowAndHow.howBullets || [])).map((item: string) => (
+                {(wowAndHow.howBullets || []).map((item: string) => (
                   <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
                     <CheckCircle2 className="w-6 h-6 text-amber-500 shrink-0" />
                     {item}
