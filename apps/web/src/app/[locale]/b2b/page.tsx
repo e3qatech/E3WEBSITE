@@ -207,10 +207,10 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-6">
-              {isAr ? (wowAndHow.titleAr || wowAndHow.title) : wowAndHow.title}
+              {wowAndHow.title}
             </h2>
             <p className="text-lg text-zinc-400">
-              {isAr ? (wowAndHow.descriptionAr || wowAndHow.description) : wowAndHow.description}
+              {wowAndHow.description}
             </p>
           </div>
 
