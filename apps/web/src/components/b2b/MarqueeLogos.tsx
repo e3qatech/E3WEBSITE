@@ -2,21 +2,33 @@
 
 import { motion } from "framer-motion"
 
-interface MarqueeLogosProps {
-  locale: string
+interface PartnerItem {
+  id?: string
+  name: string
+  logoUrl?: string | null
 }
 
-export function MarqueeLogos({ locale }: MarqueeLogosProps) {
+interface MarqueeLogosProps {
+  locale: string
+  partners?: PartnerItem[]
+}
+
+export function MarqueeLogos({ locale, partners }: MarqueeLogosProps) {
   const isRTL = locale === 'ar'
 
-  // Mock partners (e.g., Qatar Tourism, Lusail City, FIFA, etc.)
-  const partners = [
-    "Qatar Tourism", "Lusail City", "Msheireb", "Qatar Foundation", 
-    "Supreme Committee", "Ooredoo", "Qatar Airways", "Katara"
+  const defaultPartners: PartnerItem[] = [
+    { name: "Qatar Tourism" },
+    { name: "Lusail City" },
+    { name: "Msheireb" },
+    { name: "Qatar Foundation" },
+    { name: "Supreme Committee" },
+    { name: "Ooredoo" },
+    { name: "Qatar Airways" },
+    { name: "Katara" }
   ]
 
-  // Double the array for seamless infinite scroll
-  const items = [...partners, ...partners]
+  const list = partners && partners.length > 0 ? partners : defaultPartners
+  const items = [...list, ...list]
 
   return (
     <div className="w-full overflow-hidden bg-[var(--surface-hover)] border-y border-[var(--border-default)] py-8 relative">
@@ -39,11 +51,20 @@ export function MarqueeLogos({ locale }: MarqueeLogosProps) {
         {items.map((partner, idx) => (
           <div 
             key={idx}
-            className="w-1/2 flex items-center justify-center shrink-0 basis-[auto] px-12"
+            className="w-1/2 flex items-center justify-center shrink-0 basis-[auto] px-8"
           >
-            <span className="text-xl md:text-2xl font-black text-[var(--text-tertiary)] uppercase tracking-widest whitespace-nowrap opacity-50 hover:opacity-100 transition-opacity cursor-default">
-              {partner}
-            </span>
+            {partner.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img 
+                src={partner.logoUrl} 
+                alt={partner.name} 
+                className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300" 
+              />
+            ) : (
+              <span className="text-xl md:text-2xl font-black text-[var(--text-tertiary)] uppercase tracking-widest whitespace-nowrap opacity-50 hover:opacity-100 transition-opacity cursor-default">
+                {partner.name}
+              </span>
+            )}
           </div>
         ))}
       </motion.div>

@@ -83,7 +83,28 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     console.error("Error loading case studies for B2B home:", error)
   }
 
-  const partners = ['Visit Qatar', 'Qatar Tourism', 'Qatar Calendar', 'UDC', 'QNCC', 'Doha Festival City']
+  // Fetch Partners safely from DB
+  let dbPartners: any[] = []
+  try {
+    dbPartners = await db.partner.findMany({
+      where: { isVisible: true },
+      orderBy: [
+        { orderIndex: 'asc' },
+        { createdAt: 'desc' }
+      ]
+    })
+  } catch (error) {
+    console.error("Error loading partners for B2B home:", error)
+  }
+
+  const partnersList = dbPartners.length > 0 ? dbPartners : [
+    { id: '1', name: 'Visit Qatar', logoUrl: '' },
+    { id: '2', name: 'Qatar Tourism', logoUrl: '' },
+    { id: '3', name: 'Qatar Calendar', logoUrl: '' },
+    { id: '4', name: 'UDC', logoUrl: '' },
+    { id: '5', name: 'QNCC', logoUrl: '' },
+    { id: '6', name: 'Doha Festival City', logoUrl: '' }
+  ]
 
   return (
     <div className="flex flex-col w-full" dir={isAr ? 'rtl' : 'ltr'}>
@@ -346,19 +367,46 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       {/* 8. Partner Ribbon */}
       <section className="py-16 bg-zinc-950 overflow-hidden border-b border-zinc-900">
         <div className="container mx-auto px-4 md:px-8 mb-8 text-center">
-          <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">{isAr ? "موثوق به من قبل" : "Trusted by"}</span>
+          <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">
+            {isAr ? "شركاء النجاح" : "Trusted by Industry Leaders"}
+          </span>
         </div>
         
-        {/* Simple marquee placeholder */}
         <div className="flex w-[200%] animate-marquee">
-          <div className="flex flex-1 justify-around items-center">
-            {partners.map(p => (
-              <div key={p} className="text-2xl font-bold text-zinc-700 mx-8 whitespace-nowrap">{p}</div>
+          <div className="flex flex-1 justify-around items-center gap-8 px-4">
+            {partnersList.map((p, idx) => (
+              <div key={p.id || idx} className="flex items-center justify-center shrink-0 mx-6">
+                {p.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={p.logoUrl} 
+                    alt={p.name} 
+                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-zinc-700 whitespace-nowrap hover:text-zinc-300 transition-colors">
+                    {p.name}
+                  </span>
+                )}
+              </div>
             ))}
           </div>
-          <div className="flex flex-1 justify-around items-center">
-            {partners.map(p => (
-              <div key={`${p}-clone`} className="text-2xl font-bold text-zinc-700 mx-8 whitespace-nowrap">{p}</div>
+          <div className="flex flex-1 justify-around items-center gap-8 px-4">
+            {partnersList.map((p, idx) => (
+              <div key={`clone-${p.id || idx}`} className="flex items-center justify-center shrink-0 mx-6">
+                {p.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={p.logoUrl} 
+                    alt={p.name} 
+                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-zinc-700 whitespace-nowrap hover:text-zinc-300 transition-colors">
+                    {p.name}
+                  </span>
+                )}
+              </div>
             ))}
           </div>
         </div>
