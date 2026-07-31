@@ -141,7 +141,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         <div className="absolute inset-0 z-0">
           <UniversalMediaRenderer 
             type={hero.mediaType || "IMAGE"} 
-            src={hero.mediaUrl || hero.backgroundImage || "/hero-b2b.jpg"}
+            src={hero.mediaUrl || (hero as any).backgroundImage || "/hero-b2b.jpg"}
             alt="Hero Background"
           />
           {/* Gradients to ensure text readability without purple/blue */}
