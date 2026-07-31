@@ -14,21 +14,27 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   const isAr = locale === 'ar';
 
-  const employeeProfiles = await prisma.employeeProfile.findMany({
-    where: { isActive: true },
-    orderBy: { order: "asc" },
-    take: 3
-  })
+  let employeeProfiles: any[] = []
+  let page: any = null
+
+  try {
+    employeeProfiles = await prisma.employeeProfile.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      take: 3
+    })
+    page = await prisma.pages.findUnique({
+      where: { slug: "b2b-about" }
+    });
+  } catch (error) {
+    console.error("Error fetching b2b about page data:", error)
+  }
 
   const leadership = employeeProfiles.map((emp) => ({
     name: `${emp.firstName} ${emp.lastName}`,
     title: emp.designation,
     image: emp.profileImage || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   }))
-
-  const page = await prisma.pages.findUnique({
-    where: { slug: "b2b-about" }
-  });
 
   const cmsData = (page?.content as any) || {};
 

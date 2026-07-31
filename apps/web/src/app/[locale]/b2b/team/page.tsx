@@ -17,11 +17,16 @@ export default async function B2BTeamPage(props: { params: Promise<{ locale: str
   const { locale } = params;
   const isRTL = locale === 'ar'
 
-  // Fetch real data from DB
-  const employeeProfiles = await prisma.employeeProfile.findMany({
-    where: { isActive: true },
-    orderBy: { order: "asc" }
-  })
+  // Fetch real data from DB safely
+  let employeeProfiles: any[] = []
+  try {
+    employeeProfiles = await prisma.employeeProfile.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" }
+    })
+  } catch (error) {
+    console.error("Error loading employee profiles:", error)
+  }
 
   // Map to the format expected by TeamGrid
   const mappedTeam: TeamMember[] = employeeProfiles.map((emp) => ({

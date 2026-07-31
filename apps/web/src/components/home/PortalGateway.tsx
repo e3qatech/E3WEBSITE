@@ -54,8 +54,6 @@ export function PortalGateway({
     }, 800)
   }
 
-  if (!mounted) return null
-
   return (
     <div className="relative min-h-screen w-full bg-[#09090b] text-white overflow-hidden font-sans">
       

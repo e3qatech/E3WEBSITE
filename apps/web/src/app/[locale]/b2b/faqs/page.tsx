@@ -9,9 +9,14 @@ export default async function B2BFAQsPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   const isAr = locale === 'ar'
 
-  const pageData = await db.pages.findUnique({
-    where: { slug: 'b2b-faqs' }
-  })
+  let pageData: any = null
+  try {
+    pageData = await db.pages.findUnique({
+      where: { slug: 'b2b-faqs' }
+    })
+  } catch (error) {
+    console.error("Error loading b2b faqs page:", error)
+  }
 
   const content = pageData?.content as any || {}
 

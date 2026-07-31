@@ -10,10 +10,15 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   const isAr = locale === 'ar';
 
-  // Fetch real data from the CMS
-  const page = await db.pages.findUnique({
-    where: { slug: 'b2b-home' }
-  })
+  // Fetch real data from the CMS safely
+  let page: any = null
+  try {
+    page = await db.pages.findUnique({
+      where: { slug: 'b2b-home' }
+    })
+  } catch (error) {
+    console.error("Error loading b2b-home page:", error)
+  }
   
   const content = (page?.content as any) || {}
   const hero = content?.hero || {
@@ -41,37 +46,41 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   // Determine which Services to show
   const featuredServiceIds = content?.featuredServiceIds || []
   let dbServices: any[] = []
-  if (featuredServiceIds.length > 0) {
-    dbServices = await db.service.findMany({
-      where: { id: { in: featuredServiceIds }, isVisible: true }
-    })
-    // Sort them according to the selected order
-    dbServices.sort((a, b) => featuredServiceIds.indexOf(a.id) - featuredServiceIds.indexOf(b.id))
-  } else {
-    // Fallback: recent featured
-    dbServices = await db.service.findMany({
-      where: { isVisible: true, isFeatured: true },
-      orderBy: { createdAt: 'desc' },
-      take: 4
-    })
+  try {
+    if (featuredServiceIds.length > 0) {
+      dbServices = await db.service.findMany({
+        where: { id: { in: featuredServiceIds }, isVisible: true }
+      })
+      dbServices.sort((a, b) => featuredServiceIds.indexOf(a.id) - featuredServiceIds.indexOf(b.id))
+    } else {
+      dbServices = await db.service.findMany({
+        where: { isVisible: true, isFeatured: true },
+        orderBy: { createdAt: 'desc' },
+        take: 4
+      })
+    }
+  } catch (error) {
+    console.error("Error loading services for B2B home:", error)
   }
 
   // Determine which Case Studies to show
   const featuredCaseStudyIds = content?.featuredCaseStudyIds || []
   let dbProjects: any[] = []
-  if (featuredCaseStudyIds.length > 0) {
-    dbProjects = await db.caseStudy.findMany({
-      where: { id: { in: featuredCaseStudyIds }, isPublished: true }
-    })
-    // Sort them according to the selected order
-    dbProjects.sort((a, b) => featuredCaseStudyIds.indexOf(a.id) - featuredCaseStudyIds.indexOf(b.id))
-  } else {
-    // Fallback: recent published
-    dbProjects = await db.caseStudy.findMany({
-      where: { isPublished: true },
-      orderBy: { year: 'desc' },
-      take: 3
-    })
+  try {
+    if (featuredCaseStudyIds.length > 0) {
+      dbProjects = await db.caseStudy.findMany({
+        where: { id: { in: featuredCaseStudyIds }, isPublished: true }
+      })
+      dbProjects.sort((a, b) => featuredCaseStudyIds.indexOf(a.id) - featuredCaseStudyIds.indexOf(b.id))
+    } else {
+      dbProjects = await db.caseStudy.findMany({
+        where: { isPublished: true },
+        orderBy: { year: 'desc' },
+        take: 3
+      })
+    }
+  } catch (error) {
+    console.error("Error loading case studies for B2B home:", error)
   }
 
   const partners = ['Visit Qatar', 'Qatar Tourism', 'Qatar Calendar', 'UDC', 'QNCC', 'Doha Festival City']

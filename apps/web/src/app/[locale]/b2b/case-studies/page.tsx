@@ -15,16 +15,24 @@ export const dynamic = 'force-dynamic'
 export default async function CaseStudiesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
+  let caseStudies: any[] = []
+  let pageData: any = null
   
-  const [caseStudies, pageData] = await Promise.all([
-    db.caseStudy.findMany({
-      where: { isPublished: true },
-      orderBy: { year: 'desc' }
-    }),
-    db.pages.findUnique({
-      where: { slug: 'b2b-cases' }
-    })
-  ])
+  try {
+    const results = await Promise.all([
+      db.caseStudy.findMany({
+        where: { isPublished: true },
+        orderBy: { year: 'desc' }
+      }),
+      db.pages.findUnique({
+        where: { slug: 'b2b-cases' }
+      })
+    ])
+    caseStudies = results[0]
+    pageData = results[1]
+  } catch (error) {
+    console.error("Error fetching b2b case studies:", error)
+  }
 
   const content = pageData?.content as any || {}
   

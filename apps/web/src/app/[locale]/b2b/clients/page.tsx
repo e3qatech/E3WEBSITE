@@ -15,18 +15,27 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   const isAr = locale === 'ar'
   
-  const [dbPartners, pageData] = await Promise.all([
-    db.partner.findMany({
-      where: { isVisible: true },
-      orderBy: [
-        { orderIndex: 'asc' },
-        { name: 'asc' }
-      ]
-    }),
-    db.pages.findUnique({
-      where: { slug: 'b2b-partners' }
-    })
-  ])
+  let dbPartners: any[] = []
+  let pageData: any = null
+
+  try {
+    const results = await Promise.all([
+      db.partner.findMany({
+        where: { isVisible: true },
+        orderBy: [
+          { orderIndex: 'asc' },
+          { name: 'asc' }
+        ]
+      }),
+      db.pages.findUnique({
+        where: { slug: 'b2b-partners' }
+      })
+    ])
+    dbPartners = results[0]
+    pageData = results[1]
+  } catch (error) {
+    console.error("Error fetching b2b partners data:", error)
+  }
 
   const content = pageData?.content as any || {}
   const hero = content?.hero || {

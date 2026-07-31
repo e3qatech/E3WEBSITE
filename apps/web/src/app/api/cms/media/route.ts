@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { put } from '@vercel/blob';
 import { randomUUID } from 'crypto';
 import { auth } from '@/lib/auth';
+import fs from 'fs/promises';
+import path from 'path';
 
 export async function GET(request: Request) {
   try {
@@ -43,14 +45,30 @@ export async function GET(request: Request) {
 }
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const ALLOWED_EXTENSIONS = [
+  'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'avif',
+  'mp4', 'webm', 'mov',
+  'pdf', 'doc', 'docx',
+  'glb', 'gltf'
+];
+
 const ALLOWED_TYPES = [
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/svg',
   'video/mp4', 'video/webm', 'video/quicktime',
   'application/pdf', 'application/x-pdf',
   'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'model/gltf-binary', 'model/gltf+json',
-  'application/octet-stream'
+  'application/octet-stream', 'text/xml', 'application/xml'
 ];
+
+async function saveFileLocally(file: File, fileName: string): Promise<string> {
+  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  await fs.mkdir(uploadDir, { recursive: true });
+  const filePath = path.join(uploadDir, fileName);
+  const bytes = await file.arrayBuffer();
+  await fs.writeFile(filePath, Buffer.from(bytes));
+  return `/uploads/${fileName}`;
+}
 
 export async function POST(request: Request) {
   try {
@@ -71,20 +89,30 @@ export async function POST(request: Request) {
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase();
-    const isAllowedExt = ext && ['pdf', 'doc', 'docx'].includes(ext);
+    const isAllowedExt = ext && ALLOWED_EXTENSIONS.includes(ext);
 
     if (!isAllowedExt && !ALLOWED_TYPES.includes(file.type) && !file.type.startsWith('image/') && !file.type.startsWith('video/')) {
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
     const filename = `${randomUUID()}.${ext || 'bin'}`
+    let fileUrl = "";
     
-    // Upload to Vercel Blob
-    const blob = await put(`uploads/${filename}`, file, {
-      access: 'public',
-    })
-    
-    const fileUrl = blob.url;
+    // Upload to Vercel Blob if token exists, fallback to local storage
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const blob = await put(`uploads/${filename}`, file, {
+          access: 'public',
+          contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
+        })
+        fileUrl = blob.url;
+      } catch (blobError) {
+        console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to local disk storage:", blobError);
+        fileUrl = await saveFileLocally(file, filename);
+      }
+    } else {
+      fileUrl = await saveFileLocally(file, filename);
+    }
     
     // Determine MediaType based on mimeType
     let mediaType = 'IMAGE';
@@ -96,7 +124,7 @@ export async function POST(request: Request) {
       data: {
         url: fileUrl,
         type: mediaType as any,
-        mimeType: file.type || 'application/octet-stream',
+        mimeType: ext === 'svg' ? 'image/svg+xml' : (file.type || 'application/octet-stream'),
         size: file.size,
         alt: JSON.stringify({ en: file.name, ar: file.name }),
       },

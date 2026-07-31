@@ -14,10 +14,20 @@ export const dynamic = 'force-dynamic'
 export default async function ServicesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
+  let page: any = null
+  let services: any[] = []
   
-  const page = await db.pages.findUnique({
-    where: { slug: 'b2b-services' }
-  })
+  try {
+    page = await db.pages.findUnique({
+      where: { slug: 'b2b-services' }
+    })
+    services = await db.service.findMany({
+      where: { isVisible: true },
+      orderBy: { createdAt: 'desc' }
+    })
+  } catch (error) {
+    console.error("Error fetching b2b services data:", error)
+  }
   
   const content = (page?.content as any) || {}
   
@@ -34,11 +44,6 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
     primaryCta: isAr ? (content.cta?.primaryCtaAr || content.cta?.primaryCta || 'اتصل بنا') : (content.cta?.primaryCtaEn || content.cta?.primaryCta || "Contact Us"),
     primaryLink: content.cta?.primaryLink || "/b2b/contact"
   }
-
-  const services = await db.service.findMany({
-    where: { isVisible: true },
-    orderBy: { createdAt: 'desc' }
-  })
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>

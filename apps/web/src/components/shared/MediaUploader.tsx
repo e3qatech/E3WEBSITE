@@ -12,7 +12,7 @@ interface MediaUploaderProps {
   context?: string
 }
 
-export function MediaUploader({ value, onChange, onRemove, accept = "image/*", className = "", context }: MediaUploaderProps) {
+export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.svg,image/svg+xml", className = "", context }: MediaUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -97,7 +97,10 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*", c
             <span className="text-xs max-w-[80%] truncate mt-1 text-zinc-400">{value.split('/').pop()}</span>
           </div>
         ) : (
-          <img src={value} alt="Uploaded Media" className="w-full h-48 object-cover" />
+          <div className="w-full h-48 bg-zinc-950/80 p-4 flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={value} alt="Uploaded Media" className="max-w-full max-h-full object-contain" />
+          </div>
         )}
         
         <div className="absolute inset-0 bg-zinc-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">

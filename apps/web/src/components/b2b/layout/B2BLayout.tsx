@@ -18,10 +18,7 @@ export function B2BLayout({
   useEffect(() => {
     setMounted(true)
     // Here we would sync with Zustand theme store to set body classes
-    // e.g. document.documentElement.classList.add('dark')
   }, [])
-
-  if (!mounted) return null // Or a skeleton
 
   return (
     <div className={cn(
