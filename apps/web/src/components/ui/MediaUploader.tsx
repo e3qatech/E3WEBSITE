@@ -4,6 +4,8 @@ import { useState, useRef } from "react"
 import { Upload, Loader2, Link as LinkIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { uploadFile } from "@/lib/upload"
+
 interface MediaUploaderProps {
   value: string
   onChange: (url: string) => void
@@ -32,18 +34,12 @@ export function MediaUploader({ value, onChange, placeholder = "https://...", cl
         setProgress(p => Math.min(p + 10, 90))
       }, 100)
 
-      const { upload } = await import('@vercel/blob/client')
-      
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        clientPayload: context ? JSON.stringify({ context }) : undefined
-      })
+      const result = await uploadFile(file, context)
 
       clearInterval(progressInterval)
       setProgress(100)
 
-      onChange(blob.url)
+      onChange(result.url)
     } catch (err: any) {
       setError(err.message || "Something went wrong")
     } finally {

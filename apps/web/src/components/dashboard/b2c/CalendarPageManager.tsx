@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Plus, Edit2, Trash2, Save, Image as ImageIcon, CheckCircle2, Loader2, X, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
+import { uploadFile } from "@/lib/upload"
 
 type PageSettings = {
   title: string
@@ -86,12 +87,8 @@ export function CalendarPageManager() {
     setUploading(true)
 
     try {
-      const { upload } = await import('@vercel/blob/client')
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload'
-      })
-      setPageSettings(prev => ({ ...prev, heroMediaUrl: blob.url }))
+      const result = await uploadFile(file)
+      setPageSettings(prev => ({ ...prev, heroMediaUrl: result.url }))
     } catch (error: any) {
       console.error("Upload error:", error)
       alert("Failed to upload file: " + error.message)

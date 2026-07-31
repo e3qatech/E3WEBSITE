@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { useEffect } from "react"
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
+import { uploadFile } from "@/lib/upload"
 
 export function AttractionEditor({ initialData }: { initialData?: any }) {
   const router = useRouter()
@@ -1046,14 +1047,10 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                         
                         setIsSaving(true);
                         try {
-                          const { upload } = await import('@vercel/blob/client');
                           const newItems: any[] = [];
                           for (let i = 0; i < files.length; i++) {
-                            const blob = await upload(files[i].name, files[i], {
-                              access: 'public',
-                              handleUploadUrl: '/api/upload'
-                            });
-                            newItems.push({ url: blob.url, captionEn: "", captionAr: "" });
+                            const res = await uploadFile(files[i]);
+                            newItems.push({ url: res.url, captionEn: "", captionAr: "" });
                           }
                           setGallery(prev => [...prev, ...newItems]);
                         } catch (error) {

@@ -3,6 +3,8 @@
 import React, { useState, useRef } from "react"
 import { UploadCloud, X, File as FileIcon, Loader2, Box } from "lucide-react"
 
+import { uploadFile } from "@/lib/upload"
+
 interface MediaUploaderProps {
   value?: string | null
   onChange: (url: string) => void
@@ -29,18 +31,12 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
         setProgress(p => Math.min(p + 10, 90))
       }, 100)
 
-      const { upload } = await import('@vercel/blob/client')
-      
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        clientPayload: context ? JSON.stringify({ context }) : undefined
-      })
+      const result = await uploadFile(file, context)
 
       clearInterval(progressInterval)
       setProgress(100)
 
-      onChange(blob.url)
+      onChange(result.url)
     } catch (err: any) {
       setError(err.message || "Something went wrong")
     } finally {
