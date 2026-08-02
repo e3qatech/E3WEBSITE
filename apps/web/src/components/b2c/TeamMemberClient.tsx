@@ -194,8 +194,12 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                       <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} p-2 opacity-20 group-hover:opacity-100 transition-opacity`}>
                         <ArrowUpRight className="w-5 h-5 text-[var(--e3-magenta)]" />
                       </div>
-                      <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4 uppercase tracking-wider">{project.year} // {project.client}</div>
-                      <h4 className="text-xl font-black text-[var(--text-primary)] mb-4 group-hover:text-[var(--e3-royal-blue)] transition-colors font-display uppercase">{project.name}</h4>
+                      { (project.year || project.client) && (
+                        <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4 uppercase tracking-wider">
+                          {[project.year, project.client].filter(Boolean).join(" ")}
+                        </div>
+                      )}
+                      <h4 className="text-xl font-black text-[var(--text-primary)] mb-4 group-hover:text-[var(--e3-royal-blue)] transition-colors font-display uppercase">{project.name || project.projectName}</h4>
                       <p className="text-[var(--text-secondary)] text-sm font-medium flex-1 mb-6">{project.description}</p>
                       <div className="mt-auto">
                         <span className="text-xs font-black text-[var(--e3-magenta)] bg-[rgba(176,19,184,0.1)] px-3 py-1.5 rounded-lg border border-[var(--e3-magenta)]/20 uppercase tracking-wider">
@@ -224,11 +228,11 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                   >
                     <div className="absolute -start-[5.5px] top-2 w-2.5 h-2.5 rounded-full bg-[var(--e3-magenta)] shadow-[0_0_10px_rgba(176,19,184,0.6)] animate-pulse" />
                     <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4 mb-2">
-                      <h4 className="text-xl font-black text-[var(--text-primary)] font-display uppercase">{exp.role}</h4>
-                      <span className="text-[var(--e3-royal-blue)] font-bold text-sm">@ {exp.company}</span>
+                      <h4 className="text-xl font-black text-[var(--text-primary)] font-display uppercase">{exp.role || exp.title}</h4>
+                      <span className="text-[var(--e3-royal-blue)] font-bold text-sm">{exp.company}</span>
                     </div>
-                    <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4">[{exp.duration}]</div>
-                    <p className="text-[var(--text-secondary)] font-medium max-w-3xl whitespace-pre-wrap leading-relaxed text-sm md:text-base">{exp.responsibilities}</p>
+                    <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4">{exp.duration || exp.year}</div>
+                    <p className="text-[var(--text-secondary)] font-medium max-w-3xl whitespace-pre-wrap leading-relaxed text-sm md:text-base">{exp.responsibilities || exp.description}</p>
                   </motion.div>
                 ))}
               </div>
