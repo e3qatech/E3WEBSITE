@@ -408,7 +408,6 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             {partnersList.map((p, idx) => (
               <div key={p.id || idx} className="flex items-center justify-center shrink-0 mx-6">
                 {p.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 
@@ -426,7 +425,6 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             {partnersList.map((p, idx) => (
               <div key={`clone-${p.id || idx}`} className="flex items-center justify-center shrink-0 mx-6">
                 {p.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 

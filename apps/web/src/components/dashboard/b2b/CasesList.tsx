@@ -77,7 +77,7 @@ export function CasesList({ initialCases }: CasesListProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-text-primary">Case Studies & Portfolios</h1>
-          <p className="text-sm text-text-secondary">Manage E3's corporate credibility proofs and event engineering portfolio.</p>
+          <p className="text-sm text-text-secondary">Manage E3&apos;s corporate credibility proofs and event engineering portfolio.</p>
         </div>
         <Link href="/dashboard/b2b/cases/new">
           <Button className="gap-2">
@@ -105,7 +105,7 @@ export function CasesList({ initialCases }: CasesListProps) {
         <div className="border border-dashed border-border-default rounded-xl p-12 text-center bg-surface-default">
           <FolderKanban className="w-12 h-12 mx-auto text-text-tertiary mb-4" />
           <p className="text-sm font-bold text-text-primary mb-1">No case studies found</p>
-          <p className="text-xs text-text-secondary">Get started by building E3's first activation showcase.</p>
+          <p className="text-xs text-text-secondary">Get started by building E3&apos;s first activation showcase.</p>
         </div>
       ) : (
         <div className="bg-surface-default border border-border-default rounded-xl overflow-hidden shadow-sm">

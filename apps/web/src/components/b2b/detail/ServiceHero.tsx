@@ -28,6 +28,7 @@ export function ServiceHero({ locale, name, tagline, heroMediaType, heroMediaUrl
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 1000], [0, 300])
   const opacity = useTransform(scrollY, [0, 500], [1, 0])
+  const scale = useTransform(scrollY, [0, 1000], [1, 1.15])
 
   const [isVideoPlaying, setIsVideoPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
@@ -83,7 +84,7 @@ export function ServiceHero({ locale, name, tagline, heroMediaType, heroMediaUrl
       default:
         return (
           <motion.div
-            style={{ y, scale: useTransform(scrollY, [0, 1000], [1, 1.15]) }}
+            style={{ y, scale }}
             className="absolute inset-0 w-full h-[120%] -top-[10%]"
           >
             <div 

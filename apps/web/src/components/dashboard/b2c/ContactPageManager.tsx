@@ -221,7 +221,7 @@ export function ContactPageManager() {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click "Save Changes" after editing to apply the settings to the frontend.</p>
+              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click &quot;Save Changes&quot; after editing to apply the settings to the frontend.</p>
             </div>
         </div>
       )}
@@ -258,7 +258,7 @@ export function ContactPageManager() {
                 Add FAQ
               </Button>
             </div>
-            <p className="text-xs text-[var(--text-secondary)] mt-4">Note: Make sure to click "Save Changes" at the top right after adding or deleting FAQs.</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-4">Note: Make sure to click &quot;Save Changes&quot; at the top right after adding or deleting FAQs.</p>
           </div>
 
           <div className="space-y-4">

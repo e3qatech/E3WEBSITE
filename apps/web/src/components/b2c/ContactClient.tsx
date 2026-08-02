@@ -189,7 +189,7 @@ export function ContactClient({
                   {featuredFeedbacks.map((f: any, idx: number) => (
                     <InteractiveCard key={idx} className="p-6 border-[rgba(75,0,143,0.3)]">
                       <Quote className="w-8 h-8 text-[var(--e3-purple)] opacity-35 mb-2" />
-                      <p className="text-xs italic text-[var(--text-secondary)] font-medium mb-4 line-clamp-3">"{f.comment}"</p>
+                      <p className="text-xs italic text-[var(--text-secondary)] font-medium mb-4 line-clamp-3">&quot;{f.comment}&quot;</p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-[var(--text-primary)]">{f.visitorName || "Verified Guest"}</span>
                         <div className="flex items-center gap-0.5 text-[var(--e3-magenta)]">

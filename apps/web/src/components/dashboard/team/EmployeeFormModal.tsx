@@ -256,21 +256,21 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 flex justify-between">
                     <span>Expertise Tags</span>
-                    <span className="text-zinc-600 normal-case font-mono">e.g. ["Events", "Logistics"]</span>
+                    <span className="text-zinc-600 normal-case font-mono">{"e.g. [\"Events\", \"Logistics\"]"}</span>
                   </label>
                   <Input value={formData.expertiseTags} onChange={e => setFormData({...formData, expertiseTags: e.target.value})} className="bg-zinc-900/50 font-mono text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 flex justify-between">
                     <span>Experience Timeline</span>
-                    <span className="text-zinc-600 normal-case font-mono">[{"{"} "role": "...", "company": "..." {"}"}]</span>
+                    <span className="text-zinc-600 normal-case font-mono">{'[{"role": "...", "company": "..."}]'}</span>
                   </label>
                   <textarea className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-200 font-mono text-xs min-h-[120px] focus:outline-none focus:border-amber-500/50 transition-colors" value={formData.experience} onChange={e => setFormData({...formData, experience: e.target.value})} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 flex justify-between">
                     <span>Projects Portfolio</span>
-                    <span className="text-zinc-600 normal-case font-mono">[{"{"} "name": "...", "role": "..." {"}"}]</span>
+                    <span className="text-zinc-600 normal-case font-mono">{'[{"name": "...", "role": "..."}]'}</span>
                   </label>
                   <textarea className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-200 font-mono text-xs min-h-[120px] focus:outline-none focus:border-amber-500/50 transition-colors" value={formData.projects} onChange={e => setFormData({...formData, projects: e.target.value})} />
                 </div>

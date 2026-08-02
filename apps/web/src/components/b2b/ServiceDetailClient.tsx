@@ -253,7 +253,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
         <div className="relative z-10 max-w-3xl mx-auto">
           <h2 className="text-5xl md:text-6xl font-black mb-8 text-[var(--text-primary)]">Ready to Build the Impossible?</h2>
           <p className="text-xl text-[var(--text-secondary)] mb-12">
-            Let's discuss how our technical expertise can elevate your next project.
+            Let&apos;s discuss how our technical expertise can elevate your next project.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

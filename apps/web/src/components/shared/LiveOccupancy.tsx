@@ -25,7 +25,7 @@ export function LiveOccupancy({ attractionId, initialCurrent = 0, initialMax = 1
       ease: "easeOut"
     })
     return controls.stop
-  }, [current])
+  }, [current, displayCurrent])
 
   // Color logic
   const getStatusColor = (percent: number) => {

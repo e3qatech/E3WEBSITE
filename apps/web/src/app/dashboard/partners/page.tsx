@@ -67,7 +67,7 @@ export default async function PartnersPage() {
             <div className="col-span-full py-12 text-center text-[var(--text-tertiary)] border-2 border-dashed border-[var(--border-default)] rounded-xl flex flex-col items-center justify-center">
               <Users className="w-12 h-12 mb-4 text-[var(--border-default)]" />
               <p className="font-bold">No partners added.</p>
-              <p className="text-sm">Click "Add Partner" to get started.</p>
+              <p className="text-sm">Click &quot;Add Partner&quot; to get started.</p>
             </div>
           )}
         </div>

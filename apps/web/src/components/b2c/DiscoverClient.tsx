@@ -207,7 +207,6 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
                 <InteractiveCard key={name + i} className="p-6 relative group border-[rgba(75,0,143,0.3)]">
                   <div className="w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] mb-6 border border-[var(--e3-royal-blue)]/30 flex items-center justify-center text-[var(--e3-royal-blue)] font-black text-xl shadow-[0_0_15px_rgba(26,31,214,0.1)] group-hover:border-[var(--e3-magenta)] group-hover:text-[var(--e3-magenta)] transition-all duration-300 overflow-hidden">
                     {member.imageUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img src={member.imageUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
                       (name || "?").charAt(0)

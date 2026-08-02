@@ -52,7 +52,10 @@ export const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
       return [];
     });
 
-    const activeValues = value !== undefined ? (Array.isArray(value) ? value : [value]) : internalValue;
+    const activeValues = React.useMemo(
+      () => (value !== undefined ? (Array.isArray(value) ? value : [value]) : internalValue),
+      [value, internalValue]
+    );
 
     const handleItemChange = React.useCallback(
       (itemValue: string) => {

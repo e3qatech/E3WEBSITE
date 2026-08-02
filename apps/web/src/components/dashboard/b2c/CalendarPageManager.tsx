@@ -264,7 +264,7 @@ export function CalendarPageManager() {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click "Save Changes" after editing to apply the settings to the frontend.</p>
+              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click &quot;Save Changes&quot; after editing to apply the settings to the frontend.</p>
             </div>
         </div>
       )}

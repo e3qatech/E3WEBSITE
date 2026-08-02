@@ -82,7 +82,6 @@ export function ServicesListClient({ initialData }: { initialData: any[] }) {
               <AdminTableCell>
                 <div className="flex items-center gap-4">
                   {service.thumbnail ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={service.thumbnail} alt={service.titleEn} className="w-12 h-12 rounded-lg object-cover border border-border-default shadow-sm" />
                   ) : (
                     <div className="w-12 h-12 rounded-lg bg-surface-active border border-border-default flex items-center justify-center text-text-tertiary shadow-sm">
@@ -122,7 +121,7 @@ export function ServicesListClient({ initialData }: { initialData: any[] }) {
           {filteredServices.length === 0 && (
             <AdminTableRow>
               <AdminTableCell colSpan={3} className="h-32 text-center text-text-tertiary font-medium">
-                No services found. Click "Add Service" to create one.
+                No services found. Click &quot;Add Service&quot; to create one.
               </AdminTableCell>
             </AdminTableRow>
           )}

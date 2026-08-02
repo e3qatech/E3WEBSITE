@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Sparkles } from "lucide-react"
 
 interface BeforeAfterSliderProps {
@@ -20,7 +20,7 @@ export function BeforeAfterSlider({
   const [isDragging, setIsDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const handleMove = (clientX: number) => {
+  const handleMove = useCallback((clientX: number) => {
     if (!containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
     const x = clientX - rect.left
@@ -28,21 +28,21 @@ export function BeforeAfterSlider({
     if (position < 0) position = 0
     if (position > 100) position = 100
     setSliderPosition(position)
-  }
+  }, [])
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging) return
     handleMove(e.touches[0].clientX)
-  }
+  }, [isDragging, handleMove])
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return
     handleMove(e.clientX)
-  }
+  }, [isDragging, handleMove])
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-  }
+  }, [])
 
   useEffect(() => {
     if (isDragging) {
@@ -58,7 +58,7 @@ export function BeforeAfterSlider({
       window.removeEventListener("touchmove", handleTouchMove)
       window.removeEventListener("touchend", handleMouseUp)
     }
-  }, [isDragging])
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove])
 
   return (
     <div 

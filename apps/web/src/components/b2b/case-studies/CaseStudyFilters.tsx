@@ -30,7 +30,7 @@ export function CaseStudyFilters({ items, onFilterChange, locale }: CaseStudyFil
     }
 
     onFilterChange(filtered)
-  }, [activeCategory, activeYear, items])
+  }, [activeCategory, activeYear, items, onFilterChange])
 
   return (
     <div className="bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-2xl p-4 md:p-6 mb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">

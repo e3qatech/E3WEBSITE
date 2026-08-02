@@ -72,7 +72,7 @@ function ApplicationForm() {
         </div>
         <h2 className="text-3xl font-bold text-white">Application Received!</h2>
         <p className="text-zinc-400">
-          Thank you for applying to the <strong>{jobTitle}</strong> position. We've created an account for you using your email address so you can track your application status.
+          Thank you for applying to the <strong>{jobTitle}</strong> position. We&apos;ve created an account for you using your email address so you can track your application status.
         </p>
         <div className="flex gap-4 w-full mt-8">
           <Link href="/candidate" className="flex-1">

@@ -84,7 +84,6 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
               <AdminTableCell>
                 <div className="flex items-center gap-4">
                   {caseStudy.thumbnail ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={caseStudy.thumbnail} alt={caseStudy.titleEn} className="w-16 h-12 rounded-lg object-cover border border-border-default shadow-sm" />
                   ) : (
                     <div className="w-16 h-12 rounded-lg bg-surface-active border border-border-default flex items-center justify-center text-text-tertiary shadow-sm">
@@ -130,7 +129,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
           {filteredCases.length === 0 && (
             <AdminTableRow>
               <AdminTableCell colSpan={4} className="h-32 text-center text-text-tertiary font-medium">
-                No case studies found. Click "Add Case Study" to create one.
+                No case studies found. Click &quot;Add Case Study&quot; to create one.
               </AdminTableCell>
             </AdminTableRow>
           )}

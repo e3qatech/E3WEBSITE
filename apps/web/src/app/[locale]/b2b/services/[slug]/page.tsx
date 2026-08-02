@@ -162,7 +162,6 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
                   <div className="group block relative aspect-video rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors">
                     <div className="absolute inset-0 z-0">
                       {targetImage ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={targetImage} alt={targetName} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-700 group-hover:scale-105" />
                       ) : (
                         <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-zinc-600 font-medium">[Project Image]</div>
@@ -218,7 +217,6 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {service.gallery.map((img: any, i) => (
                 <div key={i} className="aspect-square bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden relative group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={img.url} alt={img.captionEn || "Gallery Image"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               ))}

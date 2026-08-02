@@ -38,10 +38,11 @@ function useCountUp(end: number, duration: number = 2000) {
       { threshold: 0.5 }
     );
     
-    if (nodeRef.current) observer.observe(nodeRef.current);
+    const currentRef = nodeRef.current;
+    if (currentRef) observer.observe(currentRef);
     
     return () => {
-      if (nodeRef.current) observer.unobserve(nodeRef.current);
+      if (currentRef) observer.unobserve(currentRef);
       if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
     };
   }, [end, duration]);
@@ -276,7 +277,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
             <div className="relative bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-3xl p-8 md:p-16 mt-24">
                <Quote className="absolute -top-8 start-12 w-16 h-16 text-[var(--color-primary)] opacity-50 bg-[var(--surface-default)] rounded-full p-2" />
                <p className="text-2xl md:text-3xl font-light italic leading-relaxed text-[var(--text-primary)] mb-8 relative z-10">
-                 "{testimonial.quote}"
+                 &quot;{testimonial.quote}&quot;
                </p>
                <div className="flex items-center gap-4">
                  {testimonial.authorImage ? (
@@ -324,7 +325,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_bottom,var(--color-primary)_0%,transparent_60%)]" />
          <div className="relative z-10 max-w-2xl mx-auto">
             <h2 className="text-4xl md:text-6xl font-black mb-6 text-white">Want Results Like These?</h2>
-            <p className="text-xl text-gray-300 mb-12">Let's discuss how our engineering and creative teams can deliver impact for your next project.</p>
+            <p className="text-xl text-gray-300 mb-12">Let&apos;s discuss how our engineering and creative teams can deliver impact for your next project.</p>
             <Button size="lg" variant="primary" asChild className="rounded-full h-14 px-10 text-lg shadow-[0_0_40px_var(--color-primary)]">
                <Link href="/b2b/contact">Start Your Project <ArrowRight className="ms-2 rtl:-scale-x-100" /></Link>
             </Button>
