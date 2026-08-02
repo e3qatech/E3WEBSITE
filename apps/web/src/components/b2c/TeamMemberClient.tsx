@@ -80,9 +80,6 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:translate-x-1" /> 
               {initialSettings?.backButtonText || "Back to Team"}
             </Link>
-            <div className="flex items-center gap-2 text-xs font-black tracking-widest text-[var(--e3-royal-blue)] uppercase">
-              <Activity className="w-4 h-4 text-[var(--e3-magenta)] animate-pulse" /> {initialSettings?.systemStatus || "Online"}
-            </div>
           </motion.div>
 
           {/* Hero Section */}
@@ -94,7 +91,6 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                 <span className="px-3 py-1 rounded-lg bg-[rgba(176,19,184,0.1)] border border-[var(--e3-magenta)]/30 text-[var(--e3-magenta)] text-[10px] font-black tracking-widest uppercase">
                   {member.department}
                 </span>
-                <span className="text-[var(--text-tertiary)] font-mono text-xs">ID: {member.id?.substring(0, 8) || '0x992A'}</span>
               </motion.div>
               
               <AnimatedText 
@@ -104,7 +100,6 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               />
               
               <motion.h2 variants={itemVariants} className="text-xl md:text-2xl font-bold text-[var(--text-secondary)] mb-8 flex items-center gap-3 uppercase font-display">
-                <Terminal className="w-5 h-5 text-[var(--e3-royal-blue)]" />
                 {member.designation}
               </motion.h2>
               
@@ -162,7 +157,6 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24 text-start">
             <B2CCard className="lg:col-span-2 p-8 border-[rgba(75,0,143,0.3)]">
                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-magenta)]">
-                 <Code className="w-5 h-5" />
                  <h3 className="font-bold text-sm tracking-widest uppercase font-display">System Bio</h3>
                </div>
                <p className="text-[var(--text-secondary)] leading-relaxed font-medium">{member.aboutSummary}</p>
@@ -170,7 +164,6 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
 
             <B2CCard className="p-8 border-[rgba(75,0,143,0.3)]">
                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-royal-blue)]">
-                 <Activity className="w-5 h-5" />
                  <h3 className="font-bold text-sm tracking-widest uppercase font-display">Core Skills</h3>
                </div>
                <div className="flex flex-wrap gap-2">
