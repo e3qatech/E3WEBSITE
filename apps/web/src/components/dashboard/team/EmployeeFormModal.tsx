@@ -71,23 +71,23 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
-      ...formData,
-      yearsOfExperience: parseInt(formData.yearsOfExperience.toString()),
-      order: parseInt(formData.order.toString()),
-      expertiseTags: JSON.parse(formData.expertiseTags),
-      coreCompetencies: JSON.parse(formData.coreCompetencies),
-      experience: JSON.parse(formData.experience),
-      projects: JSON.parse(formData.projects),
-      certifications: JSON.parse(formData.certifications),
-      education: JSON.parse(formData.education),
-      awards: JSON.parse(formData.awards),
-      skillsMatrix: JSON.parse(formData.skillsMatrix),
-      mediaGallery: JSON.parse(formData.mediaGallery),
-      testimonials: JSON.parse(formData.testimonials),
-    };
-
     try {
+      const payload = {
+        ...formData,
+        yearsOfExperience: parseInt(formData.yearsOfExperience.toString()),
+        order: parseInt(formData.order.toString()),
+        expertiseTags: JSON.parse(formData.expertiseTags),
+        coreCompetencies: JSON.parse(formData.coreCompetencies),
+        experience: JSON.parse(formData.experience),
+        projects: JSON.parse(formData.projects),
+        certifications: JSON.parse(formData.certifications),
+        education: JSON.parse(formData.education),
+        awards: JSON.parse(formData.awards),
+        skillsMatrix: JSON.parse(formData.skillsMatrix),
+        mediaGallery: JSON.parse(formData.mediaGallery),
+        testimonials: JSON.parse(formData.testimonials),
+      };
+
       const res = await fetch(employee ? `/api/employees/${employee.id}` : `/api/employees`, {
         method: employee ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,7 +102,7 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
       }
     } catch (err) {
       console.error(err);
-      alert("Submission failed");
+      alert("Submission failed. Please check your inputs, particularly the Advanced Data JSON formatting.");
     } finally {
       setLoading(false);
     }
