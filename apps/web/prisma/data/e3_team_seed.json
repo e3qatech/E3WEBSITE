@@ -75,9 +75,18 @@
       "E3 Operations Excellence Award 2024"
     ],
     "skillsMatrix": [
-      { "skill": "Project Planning", "level": 95 },
-      { "skill": "Crisis Management", "level": 90 },
-      { "skill": "Team Leadership", "level": 85 }
+      {
+        "skill": "Project Planning",
+        "level": 95
+      },
+      {
+        "skill": "Crisis Management",
+        "level": 90
+      },
+      {
+        "skill": "Team Leadership",
+        "level": 85
+      }
     ],
     "mediaGallery": [],
     "testimonials": [],
@@ -154,9 +163,18 @@
       "Campaign of the Year 2024"
     ],
     "skillsMatrix": [
-      { "skill": "Digital Strategy", "level": 92 },
-      { "skill": "Content Creation", "level": 88 },
-      { "skill": "Analytics & SEO", "level": 85 }
+      {
+        "skill": "Digital Strategy",
+        "level": 92
+      },
+      {
+        "skill": "Content Creation",
+        "level": 88
+      },
+      {
+        "skill": "Analytics & SEO",
+        "level": 85
+      }
     ],
     "mediaGallery": [],
     "testimonials": [],
@@ -231,9 +249,18 @@
       "MENA Entertainment Leader of the Year 2024"
     ],
     "skillsMatrix": [
-      { "skill": "Strategic Planning", "level": 98 },
-      { "skill": "Negotiation", "level": 95 },
-      { "skill": "Visionary Leadership", "level": 100 }
+      {
+        "skill": "Strategic Planning",
+        "level": 98
+      },
+      {
+        "skill": "Negotiation",
+        "level": 95
+      },
+      {
+        "skill": "Visionary Leadership",
+        "level": 100
+      }
     ],
     "mediaGallery": [],
     "testimonials": [],
@@ -309,10 +336,908 @@
       "Best Indoor Entertainment Design 2024"
     ],
     "skillsMatrix": [
-      { "skill": "Spatial Design", "level": 95 },
-      { "skill": "3D Modeling", "level": 90 },
-      { "skill": "UX/UI for Physical Spaces", "level": 88 }
+      {
+        "skill": "Spatial Design",
+        "level": 95
+      },
+      {
+        "skill": "3D Modeling",
+        "level": 90
+      },
+      {
+        "skill": "UX/UI for Physical Spaces",
+        "level": 88
+      }
     ],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Arslan",
+    "lastName": "Arshad",
+    "slug": "arslan-arshad",
+    "department": "Logistics",
+    "designation": "Project & Logistics Coordinator",
+    "yearsOfExp": 12,
+    "profileImageUrl": "",
+    "tagline": "I enjoy the variety and pace at E3. Every project presents a different operational challenge and an opportunity to solve problems that directly shape the event outcome.",
+    "aboutSummary": "Arslan Arshad is a Project & Logistics Coordinator with more than 12 years of experience in logistics operations, project coordination and multi-site event delivery. At E3, he manages international shipments, customs coordination, regulatory approvals, procurement and on-ground installation teams across simultaneous venues. He is known for keeping complex movements on schedule, maintaining control of operational detail and securing cost efficiencies through direct contractor negotiation. Arslan is also developing his supply-chain leadership expertise through postgraduate study and professional training.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Logistics operations",
+      "Project coordination",
+      "Event installation",
+      "Site management"
+    ],
+    "coreCompetencies": [
+      "Logistics planning and coordination",
+      "Procurement",
+      "Customs and regulatory compliance",
+      "Contractor negotiation",
+      "Team leadership",
+      "Site supervision and handover reporting"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "InflataRUN Qatar",
+        "year": "2025",
+        "role": "Logistics & Operations Lead",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity Qatar",
+        "year": "2024-2025",
+        "role": "Logistics & Operations Lead",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "Logistics Coordinator",
+        "description": ""
+      },
+      {
+        "projectName": "Urban Arena",
+        "year": "2025-2026",
+        "role": "Logistics & Operations Lead",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "Certified Lean Six Sigma Black Belt (AI-Powered) - MF Treinamentos, 2025"
+    ],
+    "education": [
+      {
+        "degree": "MBA in Supply Chain Management with SQA Level 11 Diploma",
+        "institution": "Plymouth Marjon University (UK)",
+        "year": "In progress"
+      }
+    ],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Asghar",
+    "lastName": "Bhatti",
+    "slug": "asghar-bhatti",
+    "department": "Operations",
+    "designation": "Site Manager - City Center",
+    "yearsOfExp": 15,
+    "profileImageUrl": "",
+    "tagline": "I enjoy leading teams, solving challenges on site and seeing an event progress from preparation to successful delivery. The fast-paced environment continues to build my leadership and communication skills.",
+    "aboutSummary": "Asghar Bhatti is an experienced site-management and event-operations professional with 15 years in the entertainment industry and six years with E3. He specializes in live-site supervision, inflatable operations, team coordination and customer experience. Across large public events and permanent family entertainment venues, he supports the full operational journey from build-up and site preparation through live delivery and closure. His calm approach, practical problem-solving and focus on safety help teams respond effectively to on-ground challenges while maintaining a consistent guest experience.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Event operations",
+      "Site management",
+      "Inflatable operations"
+    ],
+    "coreCompetencies": [
+      "Site supervision",
+      "Team coordination",
+      "Customer satisfaction",
+      "Live event problem-solving",
+      "Operational safety"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "Doha Balloon Parade",
+        "year": "2023",
+        "role": "Site Supervisor",
+        "description": ""
+      },
+      {
+        "projectName": "AFC Football Fest",
+        "year": "2024",
+        "role": "Site Supervisor",
+        "description": ""
+      },
+      {
+        "projectName": "InflataRUN",
+        "year": "2023-2025",
+        "role": "Site Supervisor",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2024-2025",
+        "role": "Site Supervisor",
+        "description": ""
+      }
+    ],
+    "certifications": [],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Quasain",
+    "lastName": "Ali",
+    "slug": "quasain-ali",
+    "department": "Logistics",
+    "designation": "Logistics Operations Manager",
+    "yearsOfExp": 12,
+    "profileImageUrl": "",
+    "tagline": "End-to-end logistics coordination supported by vendor negotiation and data-led operational improvement.",
+    "aboutSummary": "Quasain Ali is an operations, supply-chain and logistics professional with 12 years of experience across large-scale events, fulfilment centres, warehousing, last-mile delivery and e-commerce. At E3, he leads logistics planning, procurement, freight coordination, vendor management and production delivery for projects across Qatar. His approach combines hands-on operational leadership with data-led process improvement, cost control and HSE-conscious execution. Quasain is particularly experienced in managing third-party logistics partners, negotiating contracts and coordinating cross-functional teams through demanding project timelines.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Logistics operations",
+      "Supply-chain management",
+      "Event delivery",
+      "Procurement"
+    ],
+    "coreCompetencies": [
+      "Event logistics planning",
+      "Vendor and contract negotiation",
+      "Third party logistics management",
+      "Productivity and throughput optimization",
+      "Delivery-experience management"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "Logistics Manager",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity",
+        "year": "2025",
+        "role": "Logistics Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Kids Driving School",
+        "year": "2025",
+        "role": "Logistics Manager",
+        "description": ""
+      },
+      {
+        "projectName": "InflataRUN",
+        "year": "2025",
+        "role": "Logistics Manager",
+        "description": ""
+      }
+    ],
+    "certifications": [],
+    "education": [
+      {
+        "degree": "Data Analytics Master Course",
+        "institution": "IIM Skills",
+        "year": "2026"
+      },
+      {
+        "degree": "MSc Operations & Supply Chain Management",
+        "institution": "University of Liverpool",
+        "year": "2019"
+      },
+      {
+        "degree": "BBA International Hospitality Management",
+        "institution": "Stenden University",
+        "year": "2015"
+      }
+    ],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Amal",
+    "lastName": "Jose",
+    "slug": "amal-jose",
+    "department": "Logistics & Production",
+    "designation": "Production Supervisor",
+    "yearsOfExp": 11,
+    "profileImageUrl": "",
+    "tagline": "What I value at E3 is the coordination and support across the team. Working together on demanding projects has helped me take on new responsibilities and grow as a production professional.",
+    "aboutSummary": "Amal Jose is a Production Supervisor with 11 years of experience spanning design, large-format printing, fabrication, installation and event coordination. He has worked across more than 100 events from concept development through on site execution. At E3, Amal coordinates production workflows, supervises installation teams and helps ensure branded environments are delivered accurately and on time. His technical range includes print preparation, CNC and laser cutting production, photography and basic 3D modelling, allowing him to connect creative requirements with practical production and site delivery.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Production supervision",
+      "Large-format printing",
+      "Event fabrication",
+      "Branding installation",
+      "Site supervision"
+    ],
+    "coreCompetencies": [
+      "Graphic design",
+      "Production coordination",
+      "Photography",
+      "Large- and small-format printing",
+      "CNC and laser-cutting machine operation"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "Mini Golf",
+        "year": "2021",
+        "role": "Production",
+        "description": ""
+      },
+      {
+        "projectName": "Balloon Festival",
+        "year": "2022",
+        "role": "Production",
+        "description": ""
+      },
+      {
+        "projectName": "InflataRUN",
+        "year": "2023-2025",
+        "role": "Production",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2024-2025",
+        "role": "Production",
+        "description": ""
+      }
+    ],
+    "certifications": [],
+    "education": [
+      {
+        "degree": "BSc Multimedia",
+        "institution": "Annamalai University",
+        "year": "2018"
+      }
+    ],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Nicole",
+    "lastName": "Bernido",
+    "slug": "nicole-bernido",
+    "department": "Marketing & Sales",
+    "designation": "Marketing & Partnerships",
+    "yearsOfExp": 2,
+    "profileImageUrl": "",
+    "tagline": "I enjoy owning the full journey from the first creative idea through execution. The variety of E3's projects means I am always meeting new people, solving new problems and developing skills across campaigns, partnerships and live events.",
+    "aboutSummary": "Nicole Bernido works across digital marketing, campaign production, social media and business partnerships for E3. She manages the company's seven social channels and takes campaigns from early concept, storyboard and script through shoot direction and final delivery. Her project experience includes LEGO Shows Qatar, InflataCity, InflataRUN, Summer Splash and E3's family entertainment venues. Nicole also develops B2B proposals, manages influencer and aggregator relationships and supports corporate partnership outreach, connecting creative campaign execution with measurable audience and commercial outcomes.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Digital marketing",
+      "Social media strategy",
+      "Campaign production",
+      "B2B partnerships",
+      "Influencer management"
+    ],
+    "coreCompetencies": [
+      "Storyboarding and scripting",
+      "Shoot direction",
+      "Content strategy",
+      "Contract negotiation",
+      "Proposal and pitch-deck development",
+      "Programme coordination"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "Campaign Lead / Director",
+        "description": ""
+      },
+      {
+        "projectName": "Brick by Brick Schools Competition",
+        "year": "2025",
+        "role": "Schools Outreach Lead",
+        "description": ""
+      },
+      {
+        "projectName": "Huawei Family Day - InflataCity",
+        "year": "2025",
+        "role": "Programme & Partnership Lead",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity",
+        "year": "2025",
+        "role": "Social, Media & Partnerships Lead",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "Market2Win Strategic Account Management & DiMark2Win - Market2Win, 2023",
+      "Cesim Global Qualifier - Cesim Business Simulations, 2023",
+      "INJAZ Qatar - Junior Achievement Worldwide, 2024"
+    ],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Rajan",
+    "lastName": "Pathak",
+    "slug": "rajan-pathak",
+    "department": "Operations / IT",
+    "designation": "Head of Operations - FEC / IT",
+    "yearsOfExp": 12,
+    "profileImageUrl": "",
+    "tagline": "I value the opportunity to solve complex operational challenges and contribute to memorable guest experiences. E3 has enabled me to grow across both technology and operations while taking on progressively larger responsibilities.",
+    "aboutSummary": "Rajan Pathak is an operations and project-management leader with more than 12 years of experience across technology, events, entertainment and family entertainment centres. At E3, he leads venue operations, operational improvement, technology initiatives, ticketing systems and complex project launches across Qatar. His work connects business continuity, process improvement and team development with hands-on delivery. Rajan's ability to coordinate stakeholders and maintain performance under tight timelines supported his progression to Head of Operations - FEC / IT.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Operations management",
+      "Project management",
+      "FEC operations",
+      "Event operations",
+      "Technology and ticketing systems"
+    ],
+    "coreCompetencies": [
+      "Strategic planning",
+      "Team leadership",
+      "Stakeholder management",
+      "Process improvement",
+      "Vendor and project coordination"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "InflataRUN Qatar",
+        "year": "2025",
+        "role": "Project Manager / Operations Lead",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity Qatar",
+        "year": "2024-2025",
+        "role": "Project Manager",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "Project Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Urban Arena",
+        "year": "2025-2026",
+        "role": "Operations & IT Lead",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "PMP - Project Management Professional - Project Management Institute, 2024-2027",
+      "PMI-ACP - Agile Certified Practitioner - Project Management Institute, 2022-2028",
+      "Lean Six Sigma AI Belt - MF Treinamentos, 2026"
+    ],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Mohasin",
+    "lastName": "Mohammadaly Parayil",
+    "slug": "mohasin-mohammadaly",
+    "department": "Operations",
+    "designation": "3D Visualizer",
+    "yearsOfExp": 10,
+    "profileImageUrl": "",
+    "tagline": "I enjoy translating ideas into clear visual concepts and supporting the team as those concepts become real event environments. E3 gives me varied projects and continuous opportunities to strengthen both creative and technical skills.",
+    "aboutSummary": "Mohasin Mohammadaly Parayil is a 3D Visualizer and draftsman with 10 years of experience across spatial design, events, entertainment and family entertainment centres. At E3, he translates project ideas into mood boards, floor plans, technical drafts and detailed 3D visualizations that support client approvals and production planning. He also provides site supervision to help completed environments remain aligned with the approved design. Mohasin combines visualization, drafting and practical site awareness to bridge the gap between early creative concepts and on-ground execution.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "3D visualization",
+      "Technical drafting",
+      "Floor-plan development",
+      "Site supervision"
+    ],
+    "coreCompetencies": [
+      "Mood-board development",
+      "Spatial visualization",
+      "Technical drawing",
+      "Team collaboration",
+      "Site coordination"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "InflataRUN Qatar",
+        "year": "2025",
+        "role": "3D Visualizer",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity Qatar",
+        "year": "2024-2025",
+        "role": "3D Visualizer",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "3D Visualizer",
+        "description": ""
+      },
+      {
+        "projectName": "Urban Arena",
+        "year": "2025-2026",
+        "role": "3D Visualizer",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "3D Visualization Certificate - CADD International, 2009",
+      "Architectural Certificate - CADD International, 2009"
+    ],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Waqar",
+    "lastName": "Asghar",
+    "slug": "waqar-asghar",
+    "department": "Operations",
+    "designation": "Event Supervisor",
+    "yearsOfExp": 5,
+    "profileImageUrl": "",
+    "tagline": "I enjoy leading teams, managing daily operations and solving challenges on site. Seeing an event progress from preparation to successful delivery is especially rewarding.",
+    "aboutSummary": "Waqar Asghar is an Event Supervisor with five years of experience in event operations and two and a half years with E3. He coordinates teams, supervises build-up and live operations and helps carry projects through to a controlled closure. His portfolio includes major family events, festivals, motorsport activations and permanent entertainment venues. Waqar is focused on practical site readiness, safety and customer experience, with a calm problem-solving approach that supports teams during high-pressure live-event situations.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Event operations",
+      "Site supervision"
+    ],
+    "coreCompetencies": [
+      "Team coordination",
+      "Event build-up and closure",
+      "Live-site supervision",
+      "Safety awareness",
+      "Operational problem-solving"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2024-2025",
+        "role": "Event Supervisor",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity",
+        "year": "2024-2025",
+        "role": "Event Supervisor",
+        "description": ""
+      },
+      {
+        "projectName": "Le Marche - Place Vendome",
+        "year": "2025",
+        "role": "Event Supervisor",
+        "description": ""
+      },
+      {
+        "projectName": "InflataRUN",
+        "year": "2024-2025",
+        "role": "Event Supervisor",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "Basic First Aid & CPR - Enertech Qatar, 2026-2028"
+    ],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Ebrahim",
+    "lastName": "Karolia",
+    "slug": "ebrahim-karolia",
+    "department": "Events",
+    "designation": "Project Manager",
+    "yearsOfExp": 26,
+    "profileImageUrl": "",
+    "tagline": "Leading complex event projects from creative planning through coordinated on-ground execution.",
+    "aboutSummary": "Ebrahim Karolia is a Project Manager with 26 years of experience in events and exhibitions. At E3, he leads large-scale events, activations and entertainment projects from planning through on-ground delivery. His work spans project planning, venue setup, ticketing, fabrication, supplier management and stakeholder coordination. Ebrahim combines operational leadership with creative input, helping teams shape new event concepts and translate presentations and early ideas into practical delivery plans. He is experienced in coordinating multiple suppliers and teams while maintaining quality under tight timelines.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "End-to-end event operations",
+      "Project management",
+      "Supplier management",
+      "Venue setup",
+      "Creative concept development"
+    ],
+    "coreCompetencies": [
+      "Event planning",
+      "Client servicing",
+      "Stakeholder coordination",
+      "3D design coordination",
+      "Reporting and presentations",
+      "Site supervision"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "InflataCity",
+        "year": "2025",
+        "role": "Project Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Winter Wonderland Activation",
+        "year": "2025",
+        "role": "Project Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Winter Fest - Meryal",
+        "year": "2025",
+        "role": "Project Manager",
+        "description": ""
+      },
+      {
+        "projectName": "InflataRUN",
+        "year": "2025",
+        "role": "Project Manager",
+        "description": ""
+      }
+    ],
+    "certifications": [],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Muhammad",
+    "lastName": "Izaan Shahid",
+    "slug": "muhammad-izaan-shahid",
+    "department": "IT",
+    "designation": "Software Engineer",
+    "yearsOfExp": 3,
+    "profileImageUrl": "",
+    "tagline": "I enjoy building tools that keep E3's venues running smoothly and then seeing those systems used live every day. It is rewarding to ship technology that visitors and operational teams rely on.",
+    "aboutSummary": "Muhammad Izaan Shahid is a Software Engineer who builds and operates BookingQube, E3's ticketing, POS and access-control platform. Working across React and TypeScript front ends, Node.js APIs, MongoDB and Microsoft Azure, he turns operational needs into reliable production systems for live venues and events. His role also covers CI/CD automation, hybrid hardware, POS devices, turnstiles, scanners and on-site IT operations. Izaan combines full-stack development with practical venue support, helping teams deploy new locations quickly and maintain resilient checkout and access-control workflows.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Full-stack product engineering",
+      "Azure cloud operations",
+      "Ticketing and POS systems",
+      "Access control",
+      "Hybrid venue technology"
+    ],
+    "coreCompetencies": [
+      "React and TypeScript development",
+      "Node.js API design",
+      "CI/CD automation",
+      "Azure infrastructure",
+      "Hardware and POS integration"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "BookingQube",
+        "year": "Ongoing",
+        "role": "Software Engineer - Product, Cloud & Systems",
+        "description": ""
+      },
+      {
+        "projectName": "InflataRUN",
+        "year": "2024",
+        "role": "Software Engineer",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity",
+        "year": "2025",
+        "role": "Software Engineer",
+        "description": ""
+      },
+      {
+        "projectName": "InflataPark",
+        "year": "2024",
+        "role": "Software Engineer",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "Microsoft Certified: Azure Administrator Associate (AZ-104) - Microsoft, 2026",
+      "Microsoft Certified: Azure Fundamentals (AZ-900) - Microsoft, 2026"
+    ],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Marcialou",
+    "lastName": "M. Macatangay",
+    "slug": "marcialou-macatangay",
+    "department": "Events & Entertainment",
+    "designation": "Events & Entertainment Coordinator",
+    "yearsOfExp": 17,
+    "profileImageUrl": "",
+    "tagline": "My role feels meaningful because our team creates memories that families will treasure. I value the trust, teamwork and joy shared across every event.",
+    "aboutSummary": "Marcialou M. Macatangay is an Events & Entertainment Coordinator with 17 years of experience in live performance, artist coordination and celebration planning. At E3, he coordinates birthday events from enquiry and theme development through programme flow, hosting and guest experience. He also schedules performers, manages costumes and props and supports backstage requirements for live shows and roaming entertainment. Marcialou combines performer awareness with careful event coordination, helping families enjoy celebrations that feel organized, joyful and personal.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Birthday-event coordination",
+      "Artist and performer management",
+      "Live entertainment",
+      "Programme design"
+    ],
+    "coreCompetencies": [
+      "Event planning",
+      "Performer scheduling",
+      "Client communication",
+      "Hosting and DJ support",
+      "Theme development",
+      "Costume and prop coordination"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "900 Park Events",
+        "year": "2024-2025",
+        "role": "Artist Coordinator",
+        "description": ""
+      },
+      {
+        "projectName": "InflataPark - City Center",
+        "year": "2025-present",
+        "role": "Birthday Event Coordinator",
+        "description": ""
+      },
+      {
+        "projectName": "Place Vendome",
+        "year": "2025",
+        "role": "Birthday Event Coordinator",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "Artist & Performer Coordinator",
+        "description": ""
+      }
+    ],
+    "certifications": [],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Lucian",
+    "lastName": "Moldovan",
+    "slug": "lucian-moldovan",
+    "department": "Operations & Guest Experience",
+    "designation": "Operations Manager",
+    "yearsOfExp": 25,
+    "profileImageUrl": "",
+    "tagline": "I enjoy working with people and being part of a team that brings projects to life. The variety of each event, the challenge of getting every detail in place, and the satisfaction of a successful delivery...",
+    "aboutSummary": "Lucian Moldovan is an operations professional with 25 years of experience and a strong background in live events, sports activations and entertainment venues. At E3, he organizes teams, coordinates daily operations and represents the company with venue stakeholders across active sites. His leadership approach emphasizes clear communication, attention to detail and building dependable team leaders. Lucian also uses reporting and data tools to support decisions, helping operational teams solve problems quickly and maintain a positive visitor experience.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Event operations",
+      "Guest experience",
+      "Team leadership",
+      "Venue coordination"
+    ],
+    "coreCompetencies": [
+      "Operational planning",
+      "Team building",
+      "Client and stakeholder communication",
+      "Administration and reporting",
+      "Problem-solving",
+      "Data interpretation"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "Asian Cup Fan Zone - Industrial Area",
+        "year": "2024",
+        "role": "Sports Area Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Place Vendome Winter Market",
+        "year": "2024-2025",
+        "role": "Operations Manager",
+        "description": ""
+      },
+      {
+        "projectName": "LEGO Shows Qatar",
+        "year": "2025",
+        "role": "Operations Manager",
+        "description": ""
+      },
+      {
+        "projectName": "City Center / Place Vendome / Doha Mall",
+        "year": "2024-2026",
+        "role": "Operations Manager",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "First Aid - Qatar Foundation, 2017"
+    ],
+    "education": [
+      {
+        "degree": "Sports Management Diploma",
+        "institution": "Josoor Institute",
+        "year": "2018"
+      },
+      {
+        "degree": "Project Management",
+        "institution": "Josoor Institute",
+        "year": "2018"
+      }
+    ],
+    "awards": [],
+    "skillsMatrix": [],
+    "mediaGallery": [],
+    "testimonials": [],
+    "active": true,
+    "visible": true
+  },
+  {
+    "firstName": "Ruben",
+    "lastName": "Yaralyan",
+    "slug": "ruben-yaralyan",
+    "department": "Food & Beverage",
+    "designation": "F&B Manager",
+    "yearsOfExp": 14,
+    "profileImageUrl": "",
+    "tagline": "I enjoy the diversity of E3's projects, the freedom to bring forward new ideas and the opportunity to contribute to the company's growth and the success of each venue.",
+    "aboutSummary": "Ruben Yaralyan is a Food & Beverage Manager with 14 years of experience in food service, outlet operations, menu development and team leadership. At E3, he oversees daily F&B operations across permanent venues and event kiosks, with responsibility for quality, food safety, cost control and customer experience. Ruben develops new concepts, selects equipment, establishes operating procedures and supports outlet launches from planning through day-to-day management. His practical approach to process improvement helps new F&B concepts open efficiently and maintain consistent service standards.",
+    "careerJourney": "",
+    "keyStrengths": "",
+    "linkedInUrl": "",
+    "contactEmail": "",
+    "expertiseTags": [
+      "Food & beverage operations",
+      "Outlet management",
+      "Menu development",
+      "Cost control",
+      "Food safety and HACCP"
+    ],
+    "coreCompetencies": [
+      "Team leadership",
+      "Budgeting",
+      "Operational procedures",
+      "Customer-experience management",
+      "HACCP compliance"
+    ],
+    "experienceTimeline": [],
+    "projectsPortfolio": [
+      {
+        "projectName": "Inflata Cafe",
+        "year": "2025",
+        "role": "F&B Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Kids Driving School",
+        "year": "2025",
+        "role": "F&B Manager",
+        "description": ""
+      },
+      {
+        "projectName": "Urban Cafe",
+        "year": "2026",
+        "role": "F&B Manager",
+        "description": ""
+      },
+      {
+        "projectName": "InflataCity",
+        "year": "2025",
+        "role": "F&B Manager",
+        "description": ""
+      }
+    ],
+    "certifications": [
+      "HABC Level 2 Award in HACCP for Catering - Highfield International Qualifications, 2018",
+      "HABC Level 3 Award in Supervising HACCP for Catering - Highfield International Qualifications, 2018"
+    ],
+    "education": [],
+    "awards": [],
+    "skillsMatrix": [],
     "mediaGallery": [],
     "testimonials": [],
     "active": true,
