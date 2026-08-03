@@ -3,17 +3,20 @@ import db from '@/lib/db';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+
 const applicationSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  jobTitle: z.string().min(1, "Job title is required"),
-  department: z.string().optional(),
-  cvUrl: z.string().url("Valid CV URL is required"),
-  cvText: z.string().optional(),
-  portal: z.enum(["B2B", "B2C", "SHARED"]).default("SHARED")
+  firstName: z.string().min(1, "First name is required").max(100),
+  lastName: z.string().min(1, "Last name is required").max(100),
+  email: z.string().email("Invalid email address").max(100),
+  phone: z.string().max(20).optional(),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100),
+  jobTitle: z.string().min(1, "Job title is required").max(150),
+  department: z.string().max(100).optional(),
+  cvUrl: z.string().url("Valid CV URL is required").max(1000),
+  cvText: z.string().max(20000).optional(),
+  portal: z.enum(["B2B", "B2C", "SHARED"]).default("SHARED"),
+  website_hp: z.string().max(0, "Spam detected").optional()
 });
 
 // Simulated AI Parser Function

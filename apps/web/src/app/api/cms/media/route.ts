@@ -90,11 +90,13 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Pr
   }
 }
 
+import { requireApiRole } from '@/lib/auth-helpers';
+
 export async function POST(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireApiRole(['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'SALES_ADMIN']);
+    if ('error' in authResult) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
     const formData = await request.formData();

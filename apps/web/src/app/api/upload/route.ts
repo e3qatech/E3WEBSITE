@@ -95,23 +95,35 @@ export async function POST(request: Request) {
 
     const session = await auth();
 
-    if (!session?.user && context !== 'public_resume') {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
     const file: File | null = data.get('file') as unknown as File;
 
     if (!file) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
 
+    if (!session?.user) {
+      if (context !== 'public_resume') {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      }
+      // Apply strict rules for public resume context
+      const RESUME_ALLOWED_EXTS = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (!ext || !RESUME_ALLOWED_EXTS.includes(ext)) {
+        return NextResponse.json({ success: false, error: 'Public resume uploads must be PDF, DOC, DOCX, JPG, or PNG' }, { status: 400 });
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        return NextResponse.json({ success: false, error: 'Public resume uploads must be under 10MB' }, { status: 400 });
+      }
+    }
+
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ success: false, error: 'File size exceeds 50MB limit' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'File size exceeds limit' }, { status: 400 });
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase();
     const isAllowedExt = ext && ALLOWED_EXTENSIONS.includes(ext);
 
-    if (!isAllowedExt && !ALLOWED_TYPES.includes(file.type) && !file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+    if (!isAllowedExt || (file.type && !ALLOWED_TYPES.includes(file.type) && !file.type.startsWith('image/') && !file.type.startsWith('video/'))) {
       return NextResponse.json({ success: false, error: 'Invalid file type' }, { status: 400 });
     }
 

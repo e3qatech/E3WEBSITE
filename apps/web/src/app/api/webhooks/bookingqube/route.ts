@@ -8,6 +8,8 @@ const WEBHOOK_SECRET = process.env.BOOKINGQUBE_WEBHOOK_SECRET || 'mock_secret'
 // We use a global Set to mock idempotency across dev hot-reloads
 const processedEvents = new Set<string>()
 
+const ALLOWED_EVENT_TYPES = ['ticket.purchased', 'ticket.cancelled', 'event.capacity_changed']
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text()
@@ -23,15 +25,28 @@ export async function POST(req: NextRequest) {
       .update(rawBody)
       .digest('hex')
 
-    if (signature !== expectedSignature) {
+    const sigBuffer = Buffer.from(signature, 'utf8')
+    const expBuffer = Buffer.from(expectedSignature, 'utf8')
+
+    if (sigBuffer.length !== expBuffer.length || !crypto.timingSafeEqual(sigBuffer, expBuffer)) {
       console.warn('BookingQube Webhook: Invalid signature')
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
-    // 2. Parse payload
-    const payload = JSON.parse(rawBody)
-    const eventId = payload.id
-    const eventType = payload.type
+    // 2. Parse payload safely
+    let payload: any
+    try {
+      payload = JSON.parse(rawBody)
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+    }
+
+    const eventId = payload?.id
+    const eventType = payload?.type
+
+    if (!eventType || !ALLOWED_EVENT_TYPES.includes(eventType)) {
+      return NextResponse.json({ error: 'Unrecognized or disallowed event type' }, { status: 400 })
+    }
     
     // 3. Check Idempotency (prevent duplicate processing)
     if (eventId && processedEvents.has(eventId)) {

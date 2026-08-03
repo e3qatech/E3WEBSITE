@@ -31,8 +31,39 @@ export async function GET(req: NextRequest) {
   }
 }
 
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const b2cFeedbackSchema = z.object({
+  actionType: z.literal('FEEDBACK'),
+  name: z.string().max(100).optional(),
+  email: z.string().email().max(100).optional().or(z.literal('')),
+  message: z.string().min(2).max(2000),
+  rating: z.union([z.number(), z.string()]).optional(),
+  attractionId: z.string().max(100).optional(),
+  website_hp: z.string().max(0, "Spam detected").optional()
+});
+
+const b2cSupportSchema = z.object({
+  actionType: z.literal('SUPPORT_TICKET'),
+  name: z.string().min(2).max(100),
+  email: z.string().email().max(100),
+  phone: z.string().max(20).optional(),
+  message: z.string().min(2).max(2000),
+  website_hp: z.string().max(0, "Spam detected").optional()
+});
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limitResult = await checkRateLimit(`rate_limit:contact_b2c:${ip}`, 10, 60);
+    if (!limitResult.allowed) {
+      if (limitResult.reason === 'redis_unavailable') {
+        return NextResponse.json({ error: "Service Temporarily Unavailable" }, { status: 503, headers: { 'Retry-After': '60' } });
+      }
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429, headers: limitResult.retryAfter ? { 'Retry-After': limitResult.retryAfter.toString() } : undefined });
+    }
+
     const body = await req.json();
     const { actionType } = body;
 
@@ -41,17 +72,18 @@ export async function POST(req: NextRequest) {
     }
 
     if (actionType === 'FEEDBACK') {
-      const { name, email, message, rating, attractionId } = body;
-      if (!message) {
-        return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+      const parseResult = b2cFeedbackSchema.safeParse(body);
+      if (!parseResult.success) {
+        return NextResponse.json({ error: 'Invalid data', details: parseResult.error.flatten().fieldErrors }, { status: 400 });
       }
+      const { name, email, message, rating, attractionId } = parseResult.data;
 
       const feedback = await db.feedback.create({
         data: {
           name,
           email,
           message,
-          rating: rating ? parseInt(rating, 10) : null,
+          rating: rating ? parseInt(String(rating), 10) : null,
           attractionId,
         }
       });
@@ -60,10 +92,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (actionType === 'SUPPORT_TICKET') {
-      const { name, email, phone, message } = body;
-      if (!name || !email || !message) {
-        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      const parseResult = b2cSupportSchema.safeParse(body);
+      if (!parseResult.success) {
+        return NextResponse.json({ error: 'Invalid data', details: parseResult.error.flatten().fieldErrors }, { status: 400 });
       }
+      const { name, email, phone, message } = parseResult.data;
 
       const inquiry = await db.inquiry.create({
         data: {

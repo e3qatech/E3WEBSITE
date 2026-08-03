@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { del } from '@vercel/blob';
-import { auth } from '@/lib/auth';
+import { requireApiRole } from '@/lib/auth-helpers';
 
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireApiRole(['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'SALES_ADMIN']);
+    if ('error' in authResult) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
     const { id } = await params;
