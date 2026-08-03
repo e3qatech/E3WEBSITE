@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { UploadCloud, ChevronRight, CheckCircle2, Target, Heart } from "lucide-react";
+import { UploadCloud, ChevronRight, CheckCircle2, Target, Heart, Building } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { 

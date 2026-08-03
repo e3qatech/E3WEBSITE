@@ -86,8 +86,8 @@ export const initSocket = (server: HttpServer) => {
   
   // Rate limiter per connection (very naive implementation)
   publicNamespace.use((socket, next) => {
-    const _emits = 0
-    const interval = setInterval(() => { emits = 0 }, 1000)
+    let _emits = 0
+    const interval = setInterval(() => { _emits = 0 }, 1000)
     socket.on('disconnect', () => clearInterval(interval))
     
     // Intercept incoming events if we wanted clients to emit, but clients only receive here.

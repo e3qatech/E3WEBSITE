@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
 
-export async function GET(_req: NextRequest // eslint-disable-line @typescript-eslint/no-unused-vars) {
+export async function GET(_req: NextRequest) { // eslint-disable-line @typescript-eslint/no-unused-vars
   try {
     const cacheKey = `tickets:active`;
     const cached = await redis.get(cacheKey);

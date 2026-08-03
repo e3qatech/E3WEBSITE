@@ -33,15 +33,9 @@ export function SystemBroadcastBanner({ initialBroadcast }: SystemBroadcastBanne
       setIsVisible(true)
     }
 
-    socket.on('connect', handleConnect)
-    socket.on('disconnect', handleDisconnect)
     socket.on("broadcast:active", handleBroadcast)
 
-    if (socket.connected) handleConnect()
-
     return () => {
-      socket.off('connect', handleConnect)
-      socket.off('disconnect', handleDisconnect)
       socket.off("broadcast:active", handleBroadcast)
     }
   }, [socket])

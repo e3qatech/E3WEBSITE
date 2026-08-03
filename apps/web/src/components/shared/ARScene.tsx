@@ -39,7 +39,6 @@ export function ARScene({ modelUrl, name, dimensions, powerReq, isARMode: _isARM
       <Suspense fallback={<Loader />}>
         <group 
           ref={modelGroupRef} 
-          rotation-y={rotation}
         >
           <primitive object={scene} />
 
