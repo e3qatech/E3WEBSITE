@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const attractionId = searchParams.get('attractionId');
 
     const cacheKey = `b2c:faqs:${attractionId || 'all'}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    await redis.set(cacheKey, JSON.stringify(faqs), 'EX', 3600);
+    await getRedisClient()?.set(cacheKey, JSON.stringify(faqs), 'EX', 3600);
     return NextResponse.json(faqs);
   } catch (error: any) {
     console.error('[CONTACT_B2C_GET]', error);

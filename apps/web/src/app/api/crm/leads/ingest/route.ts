@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { z } from "zod";
 
 const ingestSchema = z.object({
@@ -15,20 +15,21 @@ const ingestSchema = z.object({
 export async function POST(req: Request) {
   try {
     // 1. Rate Limiting (CSO Check)
-    const ip = req.headers.get("x-forwarded-for") || "unknown_ip";
+    const ip = getClientIp(req);
     const rateLimitKey = `rate_limit:leads_ingest:${ip}`;
     
-    // We try/catch redis so if redis is down locally, it degrades gracefully
-    try {
-      const currentCount = await redis.incr(rateLimitKey);
-      if (currentCount === 1) {
-        await redis.expire(rateLimitKey, 60); // 1 minute window
+    const limitResult = await checkRateLimit(rateLimitKey, 10, 60);
+    if (!limitResult.allowed) {
+      if (limitResult.reason === 'redis_unavailable') {
+        return NextResponse.json(
+          { error: "Service Temporarily Unavailable" }, 
+          { status: 503, headers: { 'Retry-After': '60' } }
+        );
       }
-      if (currentCount > 5) {
-        return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
-      }
-    } catch (redisError) {
-      console.warn("[CSO] Redis rate limit bypassed due to connection error:", redisError);
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." }, 
+        { status: 429, headers: limitResult.retryAfter ? { 'Retry-After': limitResult.retryAfter.toString() } : undefined }
+      );
     }
 
     // 2. Input Validation (CSO Check: Zod prevents NoSQL/SQL injection and formats properly)

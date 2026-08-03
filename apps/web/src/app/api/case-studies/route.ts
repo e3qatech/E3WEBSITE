@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     
     // Check cache for common query
     const cacheKey = `case-studies:${isPublished}:${limit || 'all'}:${category || 'all'}:${year || 'all'}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
     
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Cache results for 5 minutes
-    await redis.set(cacheKey, JSON.stringify(caseStudies), 'EX', 300);
+    await getRedisClient()?.set(cacheKey, JSON.stringify(caseStudies), 'EX', 300);
 
     return NextResponse.json(caseStudies);
   } catch (error: any) {

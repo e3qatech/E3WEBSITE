@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const cacheKey = `attractions:list:${page}:${limit}:${search}:${isPublished}:${sortBy}:${sortOrder}`;
     let cached = null;
     try {
-      cached = await redis.get(cacheKey);
+      cached = await getRedisClient()?.get(cacheKey);
     } catch (e) {
       console.warn('[REDIS_ERROR] Failed to get cache:', e);
     }
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
     };
 
     try {
-      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+      await getRedisClient()?.set(cacheKey, JSON.stringify(result), 'EX', 300);
     } catch (e) {
       console.warn('[REDIS_ERROR] Failed to set cache:', e);
     }
@@ -125,9 +125,9 @@ export async function POST(req: NextRequest) {
     });
 
     try {
-      const keys = await redis.keys('attractions:list:*');
+      const keys = (await getRedisClient()?.keys('attractions:list:*') || []);
       if (keys.length > 0) {
-        await redis.del(...keys);
+        await getRedisClient()?.del(...keys);
       }
     } catch (e) {
       console.warn('[REDIS_ERROR] Failed to clear cache:', e);

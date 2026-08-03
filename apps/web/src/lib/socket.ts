@@ -1,7 +1,7 @@
 import { Server as HttpServer } from 'http'
 import { Server as SocketIOServer } from 'socket.io'
 import { createAdapter } from '@socket.io/redis-adapter'
-import Redis from 'ioredis'
+import { getRedisAdapterClients } from '@/lib/redis'
 import { parse } from 'cookie'
 // Assuming next-auth sets a cookie, but we can't easily decrypt it without the secret.
 // For now, we will perform a basic check. In production, we'd use `getToken({ req, secret })`
@@ -67,17 +67,37 @@ export const initSocket = (server: HttpServer) => {
   })
 
   // Setup Redis Adapter for horizontal scaling
-  let redisUrl = (process.env.REDIS_URL || 'redis://localhost:6379')
-    .replace(/^REDIS_URL=/i, '')
-    .replace(/^"|"$/g, '')
-    .replace(/^'|'$/g, '');
-  if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
-    redisUrl = redisUrl.startsWith('//') ? 'rediss:' + redisUrl : 'rediss://' + redisUrl;
+  let socketState = 'disabled';
+  try {
+    // Explicit degradation policy for Socket.IO
+    const adapterClients = getRedisAdapterClients();
+    if (adapterClients) {
+      io.adapter(createAdapter(adapterClients.pubClient, adapterClients.subClient));
+      socketState = 'ready';
+      console.log(`[Socket] Transitioning to state: ${socketState} (Redis Adapter bound)`);
+    } else {
+      if (process.env.NODE_ENV === 'production' && process.env.REDIS_DISABLED !== 'true') {
+        socketState = 'failed';
+        console.error(`[Socket] Transitioning to state: ${socketState} (Redis Adapter is missing in Production! Refusing to initialize Socket.IO to prevent split-brain)`);
+        throw new Error('Redis Adapter required for Production Socket.IO');
+      } else {
+        socketState = 'degraded';
+        console.log(`[Socket] Transitioning to state: ${socketState} (Running with in-memory adapter)`);
+      }
+    }
+  } catch (error: any) {
+    if (process.env.NODE_ENV === 'production') {
+      socketState = 'unavailable';
+      console.error(`[Socket] Transitioning to state: ${socketState} (Failed to initialize Redis Adapter in Production. Socket.IO disabled)`, error.message);
+      // Disable the IO server by closing it or setting it to null to expose a controlled unavailable state
+      io.close();
+      io = null;
+      return null;
+    } else {
+      socketState = 'degraded';
+      console.warn(`[Socket] Transitioning to state: ${socketState} (Failed to initialize Redis Adapter, falling back to in-memory)`, error.message);
+    }
   }
-  const redisOptions = { maxRetriesPerRequest: 3, retryStrategy: (times: number) => times > 3 ? null : 1000 }
-  const pubClient = new Redis(redisUrl, redisOptions)
-  const subClient = pubClient.duplicate()
-  io.adapter(createAdapter(pubClient, subClient))
 
   // ---------------------------------------------------------
   // NAMESPACE: /public

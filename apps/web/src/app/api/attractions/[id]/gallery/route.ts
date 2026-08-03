@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -41,7 +41,7 @@ export async function POST(
       },
     });
 
-    await redis.del(`attractions:detail:${attractionId}`);
+    await getRedisClient()?.del(`attractions:detail:${attractionId}`);
     return NextResponse.json(newItem, { status: 201 });
   } catch (error: any) {
     console.error('[ATTRACTIONS_GALLERY_POST]', error);
@@ -67,7 +67,7 @@ export async function DELETE(
       where: { id: itemId, attractionId },
     });
 
-    await redis.del(`attractions:detail:${attractionId}`);
+    await getRedisClient()?.del(`attractions:detail:${attractionId}`);
     return NextResponse.json({ message: 'Item deleted' });
   } catch (error: any) {
     console.error('[ATTRACTIONS_GALLERY_DELETE]', error);

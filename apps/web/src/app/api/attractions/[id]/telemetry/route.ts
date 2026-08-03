@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { emitter } from '@/lib/emitter';
+import { getEventEmitter } from '@/lib/redis';
 
 export async function POST(
   request: Request,
@@ -64,13 +64,16 @@ export async function POST(
       timestamp: log.timestamp.toISOString(),
     };
 
-    // Emit to /public namespace, targeting the specific attraction room
-    emitter.of('/public')
-      .to(`attraction:${id}`)
-      .emit('occupancy:update', occupancyEvent);
+    const emitter = getEventEmitter();
+    if (emitter) {
+      // Emit to /public namespace, targeting the specific attraction room
+      emitter.of('/public')
+        .to(`attraction:${id}`)
+        .emit('occupancy:update', occupancyEvent);
 
-    // Also emit to dashboard for global visibility
-    emitter.of('/dashboard').emit('occupancy:update', occupancyEvent);
+      // Also emit to dashboard for global visibility
+      emitter.of('/dashboard').emit('occupancy:update', occupancyEvent);
+    }
 
     return NextResponse.json({ success: true, event: occupancyEvent });
   } catch (error) {

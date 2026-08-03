@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { toZonedTime } from 'date-fns-tz';
 
 const QATAR_TZ = 'Asia/Qatar';
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     
     let cached = null;
     try {
-      cached = await redis.get(cacheKey);
+      cached = await getRedisClient()?.get(cacheKey);
     } catch (e: any) {
       console.warn('[REDIS_ERROR] Redis connection error: ', e.message);
     }
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
       // If asking for available now, strictly return those with capacity
       const filtered = result.filter(r => r.isAvailable);
       try {
-        await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60); // 1 min cache for live availability
+        await getRedisClient()?.set(cacheKey, JSON.stringify(filtered), 'EX', 60); // 1 min cache for live availability
       } catch (e: any) {
         console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
       }
@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300); // 5 min cache for generic calendars
+      await getRedisClient()?.set(cacheKey, JSON.stringify(result), 'EX', 300); // 5 min cache for generic calendars
     } catch (e: any) {
       console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
     }

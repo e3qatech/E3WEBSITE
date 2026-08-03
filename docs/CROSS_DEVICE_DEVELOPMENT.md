@@ -97,3 +97,8 @@ This document outlines the standard operating procedure for developing the E3 We
 
 ## 25. Never Push Directly to main
 - Branch protection rules enforce PRs.
+
+## 26. Troubleshooting Turbopack Build "os error 80"
+- If `pnpm run build` using Next.js 15+ Turbopack fails on Windows with an opaque error `failed to create junction point... The file exists. (os error 80)`, it is often masking an underlying strict TypeScript check failure on `RouteContext` `params`.
+- Next.js 15+ strictly requires dynamic route parameters to be typed purely as a Promise (e.g., `Promise<{ id: string }>`). If a union type is incorrectly used (e.g., `Promise<{ id: string }> | { id: string }`), Turbopack's build process may panic on Windows with an unhelpful junction point error rather than gracefully surfacing the TypeScript type mismatch.
+- **Resolution**: Run `pnpm exec tsc --noEmit` in the `apps/web` directory to surface the true TypeScript failure, and correct the `params` constraint.

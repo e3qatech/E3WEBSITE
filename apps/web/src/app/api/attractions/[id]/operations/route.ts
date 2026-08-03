@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { isWithinInterval, getDay, format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 
 const QATAR_TZ = 'Asia/Qatar';
 
@@ -21,7 +21,7 @@ export async function GET(
 
     // 30 second cache for live operations endpoint
     const cacheKey = `attractions:operations:${attractionId}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
@@ -99,7 +99,7 @@ export async function GET(
       averageVisitDuration: 90, // Derived from static rules for now
     };
 
-    await redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+    await getRedisClient()?.set(cacheKey, JSON.stringify(response), 'EX', 30);
 
     return NextResponse.json(response);
 

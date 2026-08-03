@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { id } = await params;
     const cacheKey = `attractions:detail:${id}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
 
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
@@ -31,7 +31,7 @@ export async function GET(
     if (!attraction || attraction.isHidden) {
       return NextResponse.json({ error: 'Attraction not found' }, { status: 404 });
     }
-    await redis.set(cacheKey, JSON.stringify({ data: attraction }), 'EX', 600);
+    await getRedisClient()?.set(cacheKey, JSON.stringify({ data: attraction }), 'EX', 600);
 
     return NextResponse.json({ data: attraction });
   } catch (error: any) {
@@ -62,10 +62,10 @@ export async function PUT(
       data: body,
     });
 
-    await redis.del(`attractions:detail:${id}`);
-    const keys = await redis.keys('attractions:list:*');
+    await getRedisClient()?.del(`attractions:detail:${id}`);
+    const keys = (await getRedisClient()?.keys('attractions:list:*') || []);
     if (keys.length > 0) {
-      await redis.del(...keys);
+      await getRedisClient()?.del(...keys);
     }
 
     return NextResponse.json(updatedAttraction);
@@ -95,10 +95,10 @@ export async function DELETE(
       data: { isHidden: true, isPublished: false },
     });
 
-    await redis.del(`attractions:detail:${id}`);
-    const keys = await redis.keys('attractions:list:*');
+    await getRedisClient()?.del(`attractions:detail:${id}`);
+    const keys = (await getRedisClient()?.keys('attractions:list:*') || []);
     if (keys.length > 0) {
-      await redis.del(...keys);
+      await getRedisClient()?.del(...keys);
     }
 
     return NextResponse.json({ message: 'Attraction soft deleted', id: deletedAttraction.id });

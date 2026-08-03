@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { id } = await params;
     const cacheKey = `services:detail:${id}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
 
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
@@ -33,7 +33,7 @@ export async function GET(
     }
 
     // 10-minute TTL
-    await redis.set(cacheKey, JSON.stringify(service), 'EX', 600);
+    await getRedisClient()?.set(cacheKey, JSON.stringify(service), 'EX', 600);
 
     return NextResponse.json(service);
   } catch (error: any) {
@@ -71,10 +71,10 @@ export async function PUT(
     });
 
     // Invalidate caches
-    await redis.del(`services:detail:${id}`);
-    const keys = await redis.keys('services:list:*');
+    await getRedisClient()?.del(`services:detail:${id}`);
+    const keys = (await getRedisClient()?.keys('services:list:*') || []);
     if (keys.length > 0) {
-      await redis.del(...keys);
+      await getRedisClient()?.del(...keys);
     }
 
     return NextResponse.json(updatedService);
@@ -108,10 +108,10 @@ export async function DELETE(
     });
 
     // Invalidate caches
-    await redis.del(`services:detail:${id}`);
-    const keys = await redis.keys('services:list:*');
+    await getRedisClient()?.del(`services:detail:${id}`);
+    const keys = (await getRedisClient()?.keys('services:list:*') || []);
     if (keys.length > 0) {
-      await redis.del(...keys);
+      await getRedisClient()?.del(...keys);
     }
 
     return NextResponse.json({ message: 'Service soft deleted', id: deletedService.id });

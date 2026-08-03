@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { id } = await params;
     const cacheKey = `case-studies:detail:${id}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
@@ -23,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: 'Case study not found' }, { status: 404 });
     }
 
-    await redis.set(cacheKey, JSON.stringify(caseStudy), 'EX', 600); // 10 min cache
+    await getRedisClient()?.set(cacheKey, JSON.stringify(caseStudy), 'EX', 600); // 10 min cache
     return NextResponse.json(caseStudy);
   } catch (error: any) {
     console.error('[CASE_STUDIES_DETAIL_GET]', error);
@@ -49,9 +49,9 @@ export async function PUT(
       data: body,
     });
 
-    await redis.del(`case-studies:detail:${id}`);
-    const keys = await redis.keys('case-studies:list:*');
-    if (keys.length > 0) await redis.del(...keys);
+    await getRedisClient()?.del(`case-studies:detail:${id}`);
+    const keys = (await getRedisClient()?.keys('case-studies:list:*') || []);
+    if (keys.length > 0) await getRedisClient()?.del(...keys);
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -79,9 +79,9 @@ export async function DELETE(
       data: { isPublished: false },
     });
 
-    await redis.del(`case-studies:detail:${id}`);
-    const keys = await redis.keys('case-studies:list:*');
-    if (keys.length > 0) await redis.del(...keys);
+    await getRedisClient()?.del(`case-studies:detail:${id}`);
+    const keys = (await getRedisClient()?.keys('case-studies:list:*') || []);
+    if (keys.length > 0) await getRedisClient()?.del(...keys);
 
     return NextResponse.json({ message: 'Soft deleted successfully' });
   } catch (error: any) {

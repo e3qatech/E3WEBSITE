@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -55,7 +55,7 @@ export async function POST(
     });
 
     // Invalidate service detail cache
-    await redis.del(`services:detail:${serviceId}`);
+    await getRedisClient()?.del(`services:detail:${serviceId}`);
 
     return NextResponse.json(newItem, { status: 201 });
   } catch (error: any) {
@@ -91,7 +91,7 @@ export async function DELETE(
     });
 
     // Invalidate service detail cache
-    await redis.del(`services:detail:${serviceId}`);
+    await getRedisClient()?.del(`services:detail:${serviceId}`);
 
     return NextResponse.json({ message: 'Gallery item deleted' });
   } catch (error: any) {

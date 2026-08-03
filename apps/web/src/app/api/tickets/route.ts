@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 
 export async function GET(_req: NextRequest) { // eslint-disable-line @typescript-eslint/no-unused-vars
   try {
     const cacheKey = `tickets:active`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
 
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
@@ -63,7 +63,7 @@ export async function GET(_req: NextRequest) { // eslint-disable-line @typescrip
     });
 
     // 5 min cache
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+    await getRedisClient()?.set(cacheKey, JSON.stringify(result), 'EX', 300);
 
     return NextResponse.json(result);
   } catch (error: any) {

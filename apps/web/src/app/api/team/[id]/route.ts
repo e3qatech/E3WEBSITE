@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { getRedisClient } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { id } = await params;
     const cacheKey = `team:detail:${id}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await getRedisClient()?.get(cacheKey);
 
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
@@ -25,7 +25,7 @@ export async function GET(
       return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
     }
 
-    await redis.set(cacheKey, JSON.stringify(employeeProfile), 'EX', 3600);
+    await getRedisClient()?.set(cacheKey, JSON.stringify(employeeProfile), 'EX', 3600);
     return NextResponse.json(employeeProfile);
   } catch (error: any) {
     console.error('[TEAM_DETAIL_GET]', error);
@@ -52,8 +52,8 @@ export async function PUT(
       data: body,
     });
 
-    await redis.del(`team:detail:${id}`);
-    await redis.del(`team:list`);
+    await getRedisClient()?.del(`team:detail:${id}`);
+    await getRedisClient()?.del(`team:list`);
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -79,8 +79,8 @@ export async function DELETE(
       where: { id },
     });
 
-    await redis.del(`team:detail:${id}`);
-    await redis.del(`team:list`);
+    await getRedisClient()?.del(`team:detail:${id}`);
+    await getRedisClient()?.del(`team:list`);
 
     return NextResponse.json({ message: 'Deleted successfully' });
   } catch (error: any) {
