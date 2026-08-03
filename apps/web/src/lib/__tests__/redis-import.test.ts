@@ -15,7 +15,7 @@ test('Redis is not instantiated upon import', async (t) => {
       const originalIoRedis = originalRequire.apply(this, [id]);
       
       class MockRedis extends originalIoRedis {
-        constructor(...args) {
+        constructor(...args: any[]) {
           constructorCount++;
           super(...args);
         }

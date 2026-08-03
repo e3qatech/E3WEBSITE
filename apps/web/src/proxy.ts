@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { nextUrl } = req;
 
   // Check for NextAuth session token cookie
@@ -33,7 +33,7 @@ export function middleware(req: NextRequest) {
 
   // Handle missing locale prefix for B2B and B2C public routes
   if (nextUrl.pathname.startsWith('/b2b') || nextUrl.pathname.startsWith('/b2c')) {
-    return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
+    return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}${nextUrl.search}`, nextUrl));
   }
 
 
@@ -45,7 +45,7 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/auth/login', nextUrl));
     }
     // Note: Role-based access control is enforced at the page/API level via auth() calls,
-    // not in the middleware, since we cannot decode the JWT here without importing Node.js modules.
+    // not in the proxy, since we cannot decode the JWT here without importing Node.js modules.
   }
 
   // Prevent logged-in users from seeing the login page
