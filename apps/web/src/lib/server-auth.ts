@@ -1,7 +1,7 @@
 import { auth } from "./auth";
 import db from "./db";
 import { rolePermissions } from "./permissions";
-import { UserRole } from "@prisma/client";
+import { RoleType } from "@prisma/client";
 
 export class AuthError extends Error {
   constructor(public statusCode: number, message: string) {
@@ -16,7 +16,7 @@ export async function requireCurrentUser() {
     throw new AuthError(401, "Unauthorized: No valid session");
   }
 
-  const user = await db.users.findUnique({
+  const user = await db.user.findUnique({
     where: { id: session.user.id }
   });
 
@@ -32,10 +32,11 @@ export async function requireCurrentUser() {
     throw new AuthError(403, "Forbidden: Session revoked or stale");
   }
 
-  const permissions = rolePermissions[user.role as UserRole] || [];
+  const permissions = rolePermissions[user.role as RoleType] || [];
 
   return {
     id: user.id,
+    name: user.name,
     email: user.email,
     role: user.role,
     sessionVersion: user.sessionVersion,
@@ -51,7 +52,7 @@ export async function requirePermission(action: string) {
   return user;
 }
 
-export async function requireRole(allowedRoles: UserRole[]) {
+export async function requireRole(allowedRoles: RoleType[]) {
   const user = await requireCurrentUser();
   if (!allowedRoles.includes(user.role)) {
     throw new AuthError(403, "Forbidden: Insufficient role");

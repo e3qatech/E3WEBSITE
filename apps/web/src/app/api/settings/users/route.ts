@@ -8,7 +8,7 @@ export async function GET() {
   try {
     await requireRole(["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"])
 
-    const users = await db.users.findMany({
+    const users = await db.user.findMany({
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const rawPassword = crypto.randomBytes(16).toString('hex')
     const hashedPassword = await bcrypt.hash(rawPassword, 10)
 
-    const user = await db.users.create({
+    const user = await db.user.create({
       data: {
         name,
         email,

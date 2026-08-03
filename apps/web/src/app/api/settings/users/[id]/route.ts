@@ -12,7 +12,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const body = await request.json()
     const { role, isActive, password, revokeSessions } = body
 
-    const targetUser = await db.users.findUnique({
+    const targetUser = await db.user.findUnique({
       where: { id: targetUserId }
     })
 
@@ -22,7 +22,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     // Prevent self-role elevation or self-deactivation if last super admin
     if (targetUser.id === user.id && (role && role !== targetUser.role || isActive === false)) {
-      const superAdminsCount = await db.users.count({ where: { role: "SUPER_ADMIN", isActive: true } })
+      const superAdminsCount = await db.user.count({ where: { role: "SUPER_ADMIN", isActive: true } })
       if (superAdminsCount <= 1) {
         return NextResponse.json({ error: "Cannot modify last active SUPER_ADMIN" }, { status: 403 })
       }
@@ -54,7 +54,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       dataToUpdate.sessionVersion = { increment: 1 }
     }
 
-    const updatedUser = await db.users.update({
+    const updatedUser = await db.user.update({
       where: { id: targetUserId },
       data: dataToUpdate,
       select: {
