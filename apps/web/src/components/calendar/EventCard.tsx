@@ -30,8 +30,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ events, onSelectTickets }: EventCardProps) {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
+  const mounted = (React.useSyncExternalStore || useSyncExternalStore)(() => () => {}, () => true, () => false);
 
   const event = events[0]; // Base details on the first event
   const startDate = new Date(event.startTime);

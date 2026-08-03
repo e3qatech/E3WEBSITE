@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Loader2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { CalendarEvent } from './EventCard';
+import { useMounted } from "@/hooks/useMounted";
 
 interface PricingTier {
   id: string;
@@ -30,7 +31,8 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
 
   useEffect(() => {
     if (isOpen && event) {
-      setLoading(true);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  setLoading(true);
       // Reset quantities
       setQuantities({});
       

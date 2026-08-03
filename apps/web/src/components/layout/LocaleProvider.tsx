@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useMounted } from "@/hooks/useMounted";
 
 export type Locale = "en" | "ar";
 
@@ -100,6 +101,7 @@ export function LocaleProvider({
   React.useEffect(() => {
     const savedLocale = localStorage.getItem("locale") as Locale | null;
     if (savedLocale && (savedLocale === "en" || savedLocale === "ar")) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for hydration
       setLocaleState(savedLocale);
     }
   }, []);

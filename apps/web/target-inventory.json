@@ -1,0 +1,833 @@
+[
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\app\\[locale]\\b2b\\feedback\\page.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\app\\[locale]\\b2b\\feedback\\page.tsx:27:5\n  25 |   useEffect(() => {\n  26 |     // Determine locale from path since we can't await params in a client component easily without a wrapper\n> 27 |     setIsAr(window.location.pathname.startsWith('/ar'))\n     |     ^^^^^^^ Avoid calling setState() directly within an effect\n  28 |     \n  29 |     fetch('/api/cms/pages/b2b-feedback')\n  30 |       .then(res => res.json())",
+        "line": 27,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 27,
+        "endColumn": 12
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\app\\auth\\reset-password\\page.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\app\\auth\\reset-password\\page.tsx:23:7\n  21 |   useEffect(() => {\n  22 |     if (!token) {\n> 23 |       setError(\"Invalid or missing reset token. Please request a new password reset.\")\n     |       ^^^^^^^^ Avoid calling setState() directly within an effect\n  24 |     }\n  25 |   }, [token])\n  26 |",
+        "line": 23,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 23,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\app\\dashboard\\cms\\media\\page.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\app\\dashboard\\cms\\media\\page.tsx:52:5\n  50 |\n  51 |   useEffect(() => {\n> 52 |     fetchMedia()\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  53 |   }, [])\n  54 |\n  55 |   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {",
+        "line": 52,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 52,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\animations\\AnimationProvider.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\animations\\AnimationProvider.tsx:14:5\n  12 |\n  13 |   useEffect(() => {\n> 14 |     setMounted(true)\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  15 |     \n  16 |     // Refresh ScrollTrigger on resize or dynamic layout changes\n  17 |     const handleResize = () => {",
+        "line": 14,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 14,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\animations\\CountUp.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\animations\\CountUp.tsx:32:7\n  30 |   useEffect(() => {\n  31 |     if (shouldReduceMotion) {\n> 32 |       setDisplayValue(target.toFixed(decimals))\n     |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  33 |       return\n  34 |     }\n  35 |",
+        "line": 32,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 32,
+        "endColumn": 22
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\animations\\CursorFollower.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\animations\\CursorFollower.tsx:25:5\n  23 |     if (isTouchDevice || shouldReduceMotion) return\n  24 |\n> 25 |     setIsVisible(true)\n     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  26 |\n  27 |     const moveCursor = (e: MouseEvent) => {\n  28 |       cursorX.set(e.clientX - 16) // Center the cursor (32x32 size)",
+        "line": 25,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 25,
+        "endColumn": 17
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\AnimatedCounter.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/immutability",
+        "severity": 2,
+        "message": "Error: Cannot access variable before it is declared\n\n`animateValue` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\AnimatedCounter.tsx:34:11\n  32 |         if (entries[0].isIntersecting && !hasAnimated.current) {\n  33 |           hasAnimated.current = true\n> 34 |           animateValue(0, value, duration)\n     |           ^^^^^^^^^^^^ `animateValue` accessed before it is declared\n  35 |         }\n  36 |       },\n  37 |       { threshold: 0.1 }\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\AnimatedCounter.tsx:45:3\n  43 |   }, [value, duration])\n  44 |\n> 45 |   const animateValue = (start: number, end: number, durationMs: number) => {\n     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 46 |     let startTimestamp: number | null = null\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 47 |     const step = (timestamp: number) => {\n     …\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 61 |     window.requestAnimationFrame(step)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 62 |   }\n     | ^^^^ `animateValue` is declared here\n  63 |\n  64 |   const formatNumber = (num: number) => {\n  65 |     // If arabic, we might want to use eastern arabic numerals, ",
+        "line": 34,
+        "column": 11,
+        "nodeType": null,
+        "endLine": 34,
+        "endColumn": 23
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\BeforeAfterSlider.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\BeforeAfterSlider.tsx:93:18\n  91 |           alt=\"Before\" \n  92 |           className=\"absolute inset-0 w-full h-full object-cover min-w-full\"\n> 93 |           style={{ width: containerRef.current?.clientWidth || '100vw' }}\n     |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render\n  94 |         />\n  95 |         <div className=\"absolute top-4 start-4 bg-white/80 backdrop-blur-md text-zinc-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10\">\n  96 |           {beforeLabel}",
+        "line": 93,
+        "column": 18,
+        "nodeType": null,
+        "endLine": 93,
+        "endColumn": 73
+      },
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\BeforeAfterSlider.tsx:93:27\n  91 |           alt=\"Before\" \n  92 |           className=\"absolute inset-0 w-full h-full object-cover min-w-full\"\n> 93 |           style={{ width: containerRef.current?.clientWidth || '100vw' }}\n     |                           ^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render\n  94 |         />\n  95 |         <div className=\"absolute top-4 start-4 bg-white/80 backdrop-blur-md text-zinc-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10\">\n  96 |           {beforeLabel}",
+        "line": 93,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 93,
+        "endColumn": 47
+      },
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\BeforeAfterSlider.tsx:93:27\n  91 |           alt=\"Before\" \n  92 |           className=\"absolute inset-0 w-full h-full object-cover min-w-full\"\n> 93 |           style={{ width: containerRef.current?.clientWidth || '100vw' }}\n     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render\n  94 |         />\n  95 |         <div className=\"absolute top-4 start-4 bg-white/80 backdrop-blur-md text-zinc-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10\">\n  96 |           {beforeLabel}",
+        "line": 93,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 93,
+        "endColumn": 60
+      },
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\case-studies\\BeforeAfterSlider.tsx:93:27\n  91 |           alt=\"Before\" \n  92 |           className=\"absolute inset-0 w-full h-full object-cover min-w-full\"\n> 93 |           style={{ width: containerRef.current?.clientWidth || '100vw' }}\n     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render\n  94 |         />\n  95 |         <div className=\"absolute top-4 start-4 bg-white/80 backdrop-blur-md text-zinc-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10\">\n  96 |           {beforeLabel}",
+        "line": 93,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 93,
+        "endColumn": 71
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\contact\\MultiStepLeadForm.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\contact\\MultiStepLeadForm.tsx:42:9\n  40 |     if (saved) {\n  41 |       try {\n> 42 |         setFormData(JSON.parse(saved))\n     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  43 |       } catch (e) {\n  44 |         // ignore\n  45 |       }",
+        "line": 42,
+        "column": 9,
+        "nodeType": null,
+        "endLine": 42,
+        "endColumn": 20
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\detail\\ServiceHero.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\detail\\ServiceHero.tsx:38:5\n  36 |\n  37 |   useEffect(() => {\n> 38 |     setIsMounted(true)\n     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  39 |   }, [])\n  40 |\n  41 |   const renderMedia = () => {",
+        "line": 38,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 38,
+        "endColumn": 17
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\layout\\B2BLayout.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2b\\layout\\B2BLayout.tsx:19:5\n  17 |\n  18 |   useEffect(() => {\n> 19 |     setMounted(true)\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  20 |     // Here we would sync with Zustand theme store to set body classes\n  21 |   }, [])\n  22 |",
+        "line": 19,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 19,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2c\\ContactClient.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\b2c\\ContactClient.tsx:256:124\n  254 |         </div>\n  255 |         <h3 className=\"text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase\">Request Submitted</h3>\n> 256 |         <p className=\"text-sm text-[var(--text-secondary)] font-medium mb-8\">Your ticket number is <strong>#E3-{Math.floor(Math.random() * 10000)}</strong>. We will get back to you shortly.</p>\n      |                                                                                                                            ^^^^^^^^^^^^^ Cannot call impure function\n  257 |         <MagneticButton onClick={() => setSuccess(false)} variant=\"primary\" size=\"sm\">\n  258 |           Submit Another Request\n  259 |         </MagneticButton>",
+        "line": 256,
+        "column": 124,
+        "nodeType": null,
+        "endLine": 256,
+        "endColumn": 137
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\calendar\\BulkBookingModal.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\calendar\\BulkBookingModal.tsx:35:7\n  33 |   useEffect(() => {\n  34 |     if (isOpen) {\n> 35 |       setFormData(prev => ({\n     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  36 |         ...prev,\n  37 |         attractionName: prefilledAttraction || (attractions[0]?.nameEn || ''),\n  38 |         date: prefilledDate ? format(prefilledDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),",
+        "line": 35,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 35,
+        "endColumn": 18
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\calendar\\EventCard.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\calendar\\EventCard.tsx:34:25\n  32 | export function EventCard({ events, onSelectTickets }: EventCardProps) {\n  33 |   const [mounted, setMounted] = React.useState(false);\n> 34 |   React.useEffect(() => setMounted(true), []);\n     |                         ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  35 |\n  36 |   const event = events[0]; // Base details on the first event\n  37 |   const startDate = new Date(event.startTime);",
+        "line": 34,
+        "column": 25,
+        "nodeType": null,
+        "endLine": 34,
+        "endColumn": 35
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\calendar\\TicketSelectionModal.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\calendar\\TicketSelectionModal.tsx:33:7\n  31 |   useEffect(() => {\n  32 |     if (isOpen && event) {\n> 33 |       setLoading(true);\n     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  34 |       // Reset quantities\n  35 |       setQuantities({});\n  36 |       ",
+        "line": 33,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 33,
+        "endColumn": 17
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\KanbanBoard.tsx",
+    "messages": [
+      {
+        "ruleId": "@typescript-eslint/no-unused-expressions",
+        "severity": 1,
+        "message": "Expected an assignment or function call and instead saw an expression.",
+        "line": 73,
+        "column": 50,
+        "nodeType": "ExpressionStatement",
+        "messageId": "unusedExpression",
+        "endLine": 73,
+        "endColumn": 71
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\BeforeAfterSlider.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\BeforeAfterSlider.tsx:89:27\n  87 |           alt=\"Before\" \n  88 |           className=\"absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none\"\n> 89 |           style={{ width: containerRef.current?.getBoundingClientRect().width }}\n     |                           ^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render\n  90 |         />\n  91 |         <div className=\"absolute start-4 bottom-4 bg-accent text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10\">\n  92 |           {beforeLabel}",
+        "line": 89,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 89,
+        "endColumn": 47
+      },
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\BeforeAfterSlider.tsx:89:27\n  87 |           alt=\"Before\" \n  88 |           className=\"absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none\"\n> 89 |           style={{ width: containerRef.current?.getBoundingClientRect().width }}\n     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render\n  90 |         />\n  91 |         <div className=\"absolute start-4 bottom-4 bg-accent text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10\">\n  92 |           {beforeLabel}",
+        "line": 89,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 89,
+        "endColumn": 70
+      },
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\BeforeAfterSlider.tsx:89:27\n  87 |           alt=\"Before\" \n  88 |           className=\"absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none\"\n> 89 |           style={{ width: containerRef.current?.getBoundingClientRect().width }}\n     |                           ^^^^^^^^^^^^^^^^^^^^ Passing a ref to a function may read its value during render\n  90 |         />\n  91 |         <div className=\"absolute start-4 bottom-4 bg-accent text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10\">\n  92 |           {beforeLabel}",
+        "line": 89,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 89,
+        "endColumn": 47
+      },
+      {
+        "ruleId": "react-hooks/refs",
+        "severity": 2,
+        "message": "Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\BeforeAfterSlider.tsx:89:27\n  87 |           alt=\"Before\" \n  88 |           className=\"absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none\"\n> 89 |           style={{ width: containerRef.current?.getBoundingClientRect().width }}\n     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Passing a ref to a function may read its value during render\n  90 |         />\n  91 |         <div className=\"absolute start-4 bottom-4 bg-accent text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10\">\n  92 |           {beforeLabel}",
+        "line": 89,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 89,
+        "endColumn": 70
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\ServicesEditor.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\ServicesEditor.tsx:58:86\n  56 |\n  57 |   const [processSteps, setProcessSteps] = useState<any[]>(\n> 58 |     Array.isArray(initialData?.process) ? initialData.process.map((p: any) => ({ id: Math.random().toString(), ...p })) : []\n     |                                                                                      ^^^^^^^^^^^^^ Cannot call impure function\n  59 |   )\n  60 |\n  61 |   const [gallery, setGallery] = useState<any[]>(",
+        "line": 58,
+        "column": 86,
+        "nodeType": null,
+        "endLine": 58,
+        "endColumn": 99
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\ServicesEditor.tsx:62:86\n  60 |\n  61 |   const [gallery, setGallery] = useState<any[]>(\n> 62 |     Array.isArray(initialData?.gallery) ? initialData.gallery.map((g: any) => ({ id: Math.random().toString(), ...g })) : []\n     |                                                                                      ^^^^^^^^^^^^^ Cannot call impure function\n  63 |   )\n  64 |\n  65 |   const [projects, setProjects] = useState<any[]>(",
+        "line": 62,
+        "column": 86,
+        "nodeType": null,
+        "endLine": 62,
+        "endColumn": 99
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2b\\ServicesEditor.tsx:66:88\n  64 |\n  65 |   const [projects, setProjects] = useState<any[]>(\n> 66 |     Array.isArray(initialData?.projects) ? initialData.projects.map((p: any) => ({ id: Math.random().toString(), ...p })) : []\n     |                                                                                        ^^^^^^^^^^^^^ Cannot call impure function\n  67 |   )\n  68 |\n  69 |   // Warn on unsaved changes",
+        "line": 66,
+        "column": 88,
+        "nodeType": null,
+        "endLine": 66,
+        "endColumn": 101
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx:52:85\n  50 |   // Repeaters\n  51 |   const [gallery, setGallery] = useState<any[]>(\n> 52 |     Array.isArray(initialData.gallery) ? initialData.gallery.map((g: any) => ({ id: Math.random().toString(), ...g })) : []\n     |                                                                                     ^^^^^^^^^^^^^ Cannot call impure function\n  53 |   )\n  54 |   const [pricing, setPricing] = useState<any[]>(\n  55 |     Array.isArray(initialData.pricing) ? initialData.pricing.map((p: any) => ({ id: Math.random().toString(), ...p })) : []",
+        "line": 52,
+        "column": 85,
+        "nodeType": null,
+        "endLine": 52,
+        "endColumn": 98
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx:55:85\n  53 |   )\n  54 |   const [pricing, setPricing] = useState<any[]>(\n> 55 |     Array.isArray(initialData.pricing) ? initialData.pricing.map((p: any) => ({ id: Math.random().toString(), ...p })) : []\n     |                                                                                     ^^^^^^^^^^^^^ Cannot call impure function\n  56 |   )\n  57 |   const [offers, setOffers] = useState<any[]>(\n  58 |     Array.isArray(initialData.offers) ? initialData.offers.map((o: any) => ({ id: Math.random().toString(), ...o })) : []",
+        "line": 55,
+        "column": 85,
+        "nodeType": null,
+        "endLine": 55,
+        "endColumn": 98
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx:58:83\n  56 |   )\n  57 |   const [offers, setOffers] = useState<any[]>(\n> 58 |     Array.isArray(initialData.offers) ? initialData.offers.map((o: any) => ({ id: Math.random().toString(), ...o })) : []\n     |                                                                                   ^^^^^^^^^^^^^ Cannot call impure function\n  59 |   )\n  60 |   const [faqs, setFaqs] = useState<any[]>(\n  61 |     Array.isArray(initialData.faqs) ? initialData.faqs.map((f: any) => ({ id: Math.random().toString(), ...f })) : []",
+        "line": 58,
+        "column": 83,
+        "nodeType": null,
+        "endLine": 58,
+        "endColumn": 96
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx:61:79\n  59 |   )\n  60 |   const [faqs, setFaqs] = useState<any[]>(\n> 61 |     Array.isArray(initialData.faqs) ? initialData.faqs.map((f: any) => ({ id: Math.random().toString(), ...f })) : []\n     |                                                                               ^^^^^^^^^^^^^ Cannot call impure function\n  62 |   )\n  63 |   const [socialLinks, setSocialLinks] = useState<any[]>(\n  64 |     Array.isArray(initialData.socialLinks) ? initialData.socialLinks.map((s: any) => ({ id: Math.random().toString(), ...s })) : []",
+        "line": 61,
+        "column": 79,
+        "nodeType": null,
+        "endLine": 61,
+        "endColumn": 92
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx:64:93\n  62 |   )\n  63 |   const [socialLinks, setSocialLinks] = useState<any[]>(\n> 64 |     Array.isArray(initialData.socialLinks) ? initialData.socialLinks.map((s: any) => ({ id: Math.random().toString(), ...s })) : []\n     |                                                                                             ^^^^^^^^^^^^^ Cannot call impure function\n  65 |   )\n  66 |   const [temporalRules, setTemporalRules] = useState<any[]>(\n  67 |     Array.isArray(initialData.temporalRules) ? initialData.temporalRules.map((t: any) => ({ id: Math.random().toString(), ...t })) : []",
+        "line": 64,
+        "column": 93,
+        "nodeType": null,
+        "endLine": 64,
+        "endColumn": 106
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\b2c\\AttractionEditForm.tsx:67:97\n  65 |   )\n  66 |   const [temporalRules, setTemporalRules] = useState<any[]>(\n> 67 |     Array.isArray(initialData.temporalRules) ? initialData.temporalRules.map((t: any) => ({ id: Math.random().toString(), ...t })) : []\n     |                                                                                                 ^^^^^^^^^^^^^ Cannot call impure function\n  68 |   )\n  69 |\n  70 |   // Warn on unsaved changes",
+        "line": 67,
+        "column": 97,
+        "nodeType": null,
+        "endLine": 67,
+        "endColumn": 110
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\cms\\CMSPagesClient.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\cms\\CMSPagesClient.tsx:32:5\n  30 |\n  31 |   useEffect(() => {\n> 32 |     fetchPages()\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  33 |   }, [])\n  34 |\n  35 |   const handleSave = async () => {",
+        "line": 32,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 32,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\crm\\TalentTable.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/incompatible-library",
+        "severity": 1,
+        "message": "Compilation Skipped: Use of incompatible library\n\nThis API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\crm\\TalentTable.tsx:83:17\n  81 |   ]\n  82 |\n> 83 |   const table = useReactTable({\n     |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely\n  84 |     data,\n  85 |     columns,\n  86 |     state: { globalFilter, sorting },",
+        "line": 83,
+        "column": 17,
+        "nodeType": null,
+        "endLine": 83,
+        "endColumn": 30
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\operations\\CatalogGeneratorView.tsx",
+    "messages": [
+      {
+        "ruleId": "@typescript-eslint/ban-ts-comment",
+        "severity": 2,
+        "message": "Do not use \"@ts-nocheck\" because it alters compilation errors.",
+        "line": 1,
+        "column": 1,
+        "nodeType": "Line",
+        "messageId": "tsDirectiveComment",
+        "endLine": 1,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\operations\\CatalogPDFDocument.tsx",
+    "messages": [
+      {
+        "ruleId": "@typescript-eslint/ban-ts-comment",
+        "severity": 2,
+        "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+        "line": 35,
+        "column": 8,
+        "nodeType": "Block",
+        "messageId": "tsIgnoreInsteadOfExpectError",
+        "endLine": 35,
+        "endColumn": 24,
+        "suggestions": [
+          {
+            "messageId": "replaceTsIgnoreWithTsExpectError",
+            "fix": {
+              "range": [
+                1734,
+                1750
+              ],
+              "text": "/* @ts-expect-error */"
+            },
+            "desc": "Replace \"@ts-ignore\" with \"@ts-expect-error\"."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\operations\\RecapGeneratorView.tsx",
+    "messages": [
+      {
+        "ruleId": "@typescript-eslint/ban-ts-comment",
+        "severity": 2,
+        "message": "Do not use \"@ts-nocheck\" because it alters compilation errors.",
+        "line": 1,
+        "column": 1,
+        "nodeType": "Line",
+        "messageId": "tsDirectiveComment",
+        "endLine": 1,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\operations\\RecapPDFDocument.tsx",
+    "messages": [
+      {
+        "ruleId": "@typescript-eslint/ban-ts-comment",
+        "severity": 2,
+        "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+        "line": 214,
+        "column": 8,
+        "nodeType": "Block",
+        "messageId": "tsIgnoreInsteadOfExpectError",
+        "endLine": 214,
+        "endColumn": 24,
+        "suggestions": [
+          {
+            "messageId": "replaceTsIgnoreWithTsExpectError",
+            "fix": {
+              "range": [
+                5869,
+                5885
+              ],
+              "text": "/* @ts-expect-error */"
+            },
+            "desc": "Replace \"@ts-ignore\" with \"@ts-expect-error\"."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\team\\EmployeeFormModal.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\team\\EmployeeFormModal.tsx:46:7\n  44 |   useEffect(() => {\n  45 |     if (employee) {\n> 46 |       setFormData({\n     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  47 |         ...employee,\n  48 |         expertiseTags: JSON.stringify(employee.expertiseTags || []),\n  49 |         coreCompetencies: JSON.stringify(employee.coreCompetencies || []),",
+        "line": 46,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 46,
+        "endColumn": 18
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminMediaPicker.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminMediaPicker.tsx:45:7\n  43 |   useEffect(() => {\n  44 |     if (isOpen) {\n> 45 |       fetchMedia()\n     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  46 |     }\n  47 |   }, [isOpen])\n  48 |",
+        "line": 45,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 45,
+        "endColumn": 17
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminSidebar.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminSidebar.tsx:105:5\n  103 |\n  104 |   React.useEffect(() => {\n> 105 |     setIsClient(true);\n      |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  106 |   }, []);\n  107 |\n  108 |   const SidebarContent = () => (",
+        "line": 105,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 105,
+        "endColumn": 16
+      },
+      {
+        "ruleId": "react-hooks/static-components",
+        "severity": 2,
+        "message": "Error: Cannot create components during render\n\nComponents created during render will reset their state each time they are created. Declare components outside of render.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminSidebar.tsx:270:10\n  268 |         className=\"hidden md:flex flex-col h-full bg-surface-default border-e border-border-default z-40 overflow-hidden\"\n  269 |       >\n> 270 |         <SidebarContent />\n      |          ^^^^^^^^^^^^^^ This component is created during render\n  271 |       </motion.aside>\n  272 |\n  273 |       {/* Mobile Drawer */}\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminSidebar.tsx:108:26\n  106 |   }, []);\n  107 |\n> 108 |   const SidebarContent = () => (\n      |                          ^^^^^^^\n> 109 |     <>\n      | ^^^^^^\n> 110 |       <div className=\"p-4 flex items-center justify-between h-16 border-b border-border-default z-10 relative shrink-0\">\n      …\n      | ^^^^^^\n> 255 |     </>\n      | ^^^^^^\n> 256 |   );\n      | ^^^^ The component is created during render here\n  257 |\n  258 |   if (!isClient) return null;\n  259 |",
+        "line": 270,
+        "column": 10,
+        "nodeType": null,
+        "endLine": 270,
+        "endColumn": 24
+      },
+      {
+        "ruleId": "react-hooks/static-components",
+        "severity": 2,
+        "message": "Error: Cannot create components during render\n\nComponents created during render will reset their state each time they are created. Declare components outside of render.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminSidebar.tsx:291:16\n  289 |               className=\"fixed start-0 top-0 bottom-0 w-[260px] bg-surface-default z-50 flex flex-col md:hidden shadow-2xl border-e border-border-default\"\n  290 |             >\n> 291 |               <SidebarContent />\n      |                ^^^^^^^^^^^^^^ This component is created during render\n  292 |             </motion.aside>\n  293 |           </>\n  294 |         )}\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminSidebar.tsx:108:26\n  106 |   }, []);\n  107 |\n> 108 |   const SidebarContent = () => (\n      |                          ^^^^^^^\n> 109 |     <>\n      | ^^^^^^\n> 110 |       <div className=\"p-4 flex items-center justify-between h-16 border-b border-border-default z-10 relative shrink-0\">\n      …\n      | ^^^^^^\n> 255 |     </>\n      | ^^^^^^\n> 256 |   );\n      | ^^^^ The component is created during render here\n  257 |\n  258 |   if (!isClient) return null;\n  259 |",
+        "line": 291,
+        "column": 16,
+        "nodeType": null,
+        "endLine": 291,
+        "endColumn": 30
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminThemeProvider.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminThemeProvider.tsx:21:5\n  19 |\n  20 |   useEffect(() => {\n> 21 |     setMounted(true);\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  22 |     // Initialize theme from localStorage or default to system\n  23 |     const savedTheme = localStorage.getItem(\"e3-admin-theme\") as Theme | null;\n  24 |     if (savedTheme) {",
+        "line": 21,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 21,
+        "endColumn": 15
+      },
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\dashboard\\ui\\AdminThemeProvider.tsx:45:5\n  43 |     }\n  44 |     \n> 45 |     setResolvedTheme(effectiveTheme);\n     |     ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  46 |     localStorage.setItem(\"e3-admin-theme\", theme);\n  47 |   }, [theme, mounted]);\n  48 |",
+        "line": 45,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 45,
+        "endColumn": 21
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\home\\PortalGateway.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\home\\PortalGateway.tsx:32:5\n  30 |\n  31 |   useEffect(() => {\n> 32 |     setMounted(true)\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  33 |     const stored = localStorage.getItem('e3_preferred_portal')\n  34 |     if (stored === 'b2c' || stored === 'b2b') {\n  35 |       // Fast-route logic can go here, but for now we'll let them see the selector ",
+        "line": 32,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 32,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\LocaleProvider.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\LocaleProvider.tsx:103:7\n  101 |     const savedLocale = localStorage.getItem(\"locale\") as Locale | null;\n  102 |     if (savedLocale && (savedLocale === \"en\" || savedLocale === \"ar\")) {\n> 103 |       setLocaleState(savedLocale);\n      |       ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  104 |     }\n  105 |   }, []);\n  106 |",
+        "line": 103,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 103,
+        "endColumn": 21
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\Sidebar.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\Sidebar.tsx:72:5\n  70 |\n  71 |   React.useEffect(() => {\n> 72 |     setIsClient(true);\n     |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  73 |   }, []);\n  74 |\n  75 |   const SidebarContent = () => (",
+        "line": 72,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 72,
+        "endColumn": 16
+      },
+      {
+        "ruleId": "react-hooks/static-components",
+        "severity": 2,
+        "message": "Error: Cannot create components during render\n\nComponents created during render will reset their state each time they are created. Declare components outside of render.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\Sidebar.tsx:260:10\n  258 |         className=\"hidden md:flex flex-col fixed start-0 top-0 bottom-0 bg-[var(--bg-level-1)] noise-bg border-e border-[var(--border-level-2)] z-40 overflow-hidden shadow-[2px_0_20px_rgba(0,0,0,0.02)]\"\n  259 |       >\n> 260 |         <SidebarContent />\n      |          ^^^^^^^^^^^^^^ This component is created during render\n  261 |       </motion.aside>\n  262 |\n  263 |       {/* Mobile Drawer */}\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\Sidebar.tsx:75:26\n   73 |   }, []);\n   74 |\n>  75 |   const SidebarContent = () => (\n      |                          ^^^^^^^\n>  76 |     <>\n      | ^^^^^^\n>  77 |       <div className=\"p-4 flex items-center justify-between h-20 border-b border-[var(--border-level-2)] z-10 relative\">\n      …\n      | ^^^^^^\n> 225 |     </>\n      | ^^^^^^\n> 226 |   );\n      | ^^^^ The component is created during render here\n  227 |\n  228 |   if (!isClient) return null;\n  229 |",
+        "line": 260,
+        "column": 10,
+        "nodeType": null,
+        "endLine": 260,
+        "endColumn": 24
+      },
+      {
+        "ruleId": "react-hooks/static-components",
+        "severity": 2,
+        "message": "Error: Cannot create components during render\n\nComponents created during render will reset their state each time they are created. Declare components outside of render.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\Sidebar.tsx:281:16\n  279 |               className=\"fixed start-0 top-0 bottom-0 w-[280px] bg-[var(--bg-level-1)] noise-bg z-50 flex flex-col md:hidden shadow-2xl border-e border-[var(--border-level-2)]\"\n  280 |             >\n> 281 |               <SidebarContent />\n      |                ^^^^^^^^^^^^^^ This component is created during render\n  282 |             </motion.aside>\n  283 |           </>\n  284 |         )}\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\Sidebar.tsx:75:26\n   73 |   }, []);\n   74 |\n>  75 |   const SidebarContent = () => (\n      |                          ^^^^^^^\n>  76 |     <>\n      | ^^^^^^\n>  77 |       <div className=\"p-4 flex items-center justify-between h-20 border-b border-[var(--border-level-2)] z-10 relative\">\n      …\n      | ^^^^^^\n> 225 |     </>\n      | ^^^^^^\n> 226 |   );\n      | ^^^^ The component is created during render here\n  227 |\n  228 |   if (!isClient) return null;\n  229 |",
+        "line": 281,
+        "column": 16,
+        "nodeType": null,
+        "endLine": 281,
+        "endColumn": 30
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\ThemeProvider.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\layout\\ThemeProvider.tsx:35:7\n  33 |     const savedTheme = localStorage.getItem(\"theme\") as Theme | null;\n  34 |     if (savedTheme) {\n> 35 |       setTheme(savedTheme);\n     |       ^^^^^^^^ Avoid calling setState() directly within an effect\n  36 |     } else {\n  37 |       setTheme(defaultTheme);\n  38 |     }",
+        "line": 35,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 35,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\shared\\ARViewer.tsx",
+    "messages": [
+      {
+        "ruleId": "@typescript-eslint/ban-ts-comment",
+        "severity": 2,
+        "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+        "line": 80,
+        "column": 3,
+        "nodeType": "Line",
+        "messageId": "tsIgnoreInsteadOfExpectError",
+        "endLine": 80,
+        "endColumn": 66,
+        "suggestions": [
+          {
+            "messageId": "replaceTsIgnoreWithTsExpectError",
+            "fix": {
+              "range": [
+                3064,
+                3127
+              ],
+              "text": "// @ts-expect-error - Ignoring type error due to v6 signature changes"
+            },
+            "desc": "Replace \"@ts-ignore\" with \"@ts-expect-error\"."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\shared\\SpatialHub.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/immutability",
+        "severity": 2,
+        "message": "Error: This value cannot be modified\n\nModifying a value returned from a hook is not allowed. Consider moving the modification into the hook where the value is constructed.\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\shared\\SpatialHub.tsx:188:7\n  186 |       \n  187 |       // Interpolate camera position slightly based on mouse\n> 188 |       camera.position.x += (mouseX - camera.position.x) * 0.05 * delta * 10\n      |       ^^^^^^^^^^^^^^^ `camera` cannot be modified\n  189 |       camera.position.z += (mouseY + 8 - camera.position.z) * 0.05 * delta * 10\n  190 |       camera.lookAt(0, 0, 0)\n  191 |       return",
+        "line": 188,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 188,
+        "endColumn": 22
+      },
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\shared\\SpatialHub.tsx:232:7\n  230 |     const cores = navigator.hardwareConcurrency || 2\n  231 |     if (isMobile && cores <= 4) {\n> 232 |       setIsLowEnd(true)\n      |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  233 |     }\n  234 |\n  235 |     const observer = new IntersectionObserver(",
+        "line": 232,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 232,
+        "endColumn": 18
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\shared\\TipTapEditor.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\shared\\TipTapEditor.tsx:153:5\n  151 |\n  152 |   useEffect(() => {\n> 153 |     setMounted(true)\n      |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  154 |   }, [])\n  155 |\n  156 |   if (!mounted) {",
+        "line": 153,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 153,
+        "endColumn": 15
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\ui\\B2CThemeComponents.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\ui\\B2CThemeComponents.tsx:40:7\n  38 |     const currentTheme = root.getAttribute(\"data-theme\") as Theme | null;\n  39 |     if (currentTheme === \"light\" || currentTheme === \"dark\") {\n> 40 |       setThemeState(currentTheme);\n     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  41 |     }\n  42 |\n  43 |     // Set up observer to watch for theme changes on html attribute",
+        "line": 40,
+        "column": 7,
+        "nodeType": null,
+        "endLine": 40,
+        "endColumn": 20
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\ui\\Modal.tsx",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\components\\ui\\Modal.tsx:44:5\n  42 |\n  43 |   React.useEffect(() => {\n> 44 |     setMounted(true);\n     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  45 |   }, []);\n  46 |\n  47 |   // Body scroll lock",
+        "line": 44,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 44,
+        "endColumn": 15
+      },
+      {
+        "ruleId": "@typescript-eslint/no-unused-expressions",
+        "severity": 1,
+        "message": "Expected an assignment or function call and instead saw an expression.",
+        "line": 99,
+        "column": 11,
+        "nodeType": "ExpressionStatement",
+        "messageId": "unusedExpression",
+        "endLine": 99,
+        "endColumn": 63
+      }
+    ]
+  },
+  {
+    "filePath": "A:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\hooks\\useSocket.ts",
+    "messages": [
+      {
+        "ruleId": "react-hooks/set-state-in-effect",
+        "severity": 2,
+        "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nA:\\.gemini\\antigravity\\scratch\\E3 WEBSITE\\e3-qatar\\apps\\web\\src\\hooks\\useSocket.ts:31:5\n  29 |     })\n  30 |\n> 31 |     setSocket(socketInstance)\n     |     ^^^^^^^^^ Avoid calling setState() directly within an effect\n  32 |\n  33 |     return () => {\n  34 |       socketInstance.disconnect()",
+        "line": 31,
+        "column": 5,
+        "nodeType": null,
+        "endLine": 31,
+        "endColumn": 14
+      }
+    ]
+  }
+]

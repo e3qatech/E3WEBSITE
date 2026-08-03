@@ -77,7 +77,7 @@ function Model({ url, position, rotation, scale }: { url: string, position: THRE
 function HitTestReticle({ onPlace }: { onPlace: (pos: THREE.Vector3) => void }) {
   const reticleRef = useRef<THREE.Mesh>(null)
   
-  // @ts-ignore - Ignoring type error due to v6 signature changes
+  // @ts-expect-error - Ignoring type error due to v6 signature changes
   useXRHitTest((hitMatrix: THREE.Matrix4) => {
     if (reticleRef.current) {
       hitMatrix.decompose(

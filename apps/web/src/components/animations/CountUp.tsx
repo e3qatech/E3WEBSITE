@@ -21,15 +21,17 @@ export function CountUp({
   className = "" 
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null)
-  const [displayValue, setDisplayValue] = useState("0")
+  const shouldReduceMotion = useReducedMotion()
+  
+  const [displayValue, setDisplayValue] = useState(() => 
+    shouldReduceMotion ? target.toFixed(decimals) : "0"
+  )
   
   // Only trigger once when 10% visible
   const isInView = useInView(ref, { once: true, margin: "-10% 0px" })
-  const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
     if (shouldReduceMotion) {
-      setDisplayValue(target.toFixed(decimals))
       return
     }
 

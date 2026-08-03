@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react'
+import React, { useState, useEffect, useRef, useMemo, Suspense, useSyncExternalStore } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Html } from '@react-three/drei'
 import * as THREE from 'three'
@@ -185,8 +185,11 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
       const mouseY = (state.pointer.y * 2)
       
       // Interpolate camera position slightly based on mouse
-      camera.position.x += (mouseX - camera.position.x) * 0.05 * delta * 10
-      camera.position.z += (mouseY + 8 - camera.position.z) * 0.05 * delta * 10
+      camera.position.set(
+        camera.position.x + (mouseX - camera.position.x) * 0.05 * delta * 10,
+        camera.position.y,
+        camera.position.z + (mouseY + 8 - camera.position.z) * 0.05 * delta * 10
+      )
       camera.lookAt(0, 0, 0)
       return
     }
@@ -217,7 +220,14 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 export default function SpatialHub({ attractions, onAttractionClick }: SpatialHubProps) {
-  const [isLowEnd, setIsLowEnd] = useState(false)
+  const [isLowEnd, setIsLowEnd] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768
+      const cores = navigator.hardwareConcurrency || 2
+      return isMobile && cores <= 4
+    }
+    return false
+  })
   const [activeAttraction, setActiveAttraction] = useState<AttractionMarker | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [cameraTarget, setCameraTarget] = useState<THREE.Vector3 | null>(null)
@@ -226,11 +236,6 @@ export default function SpatialHub({ attractions, onAttractionClick }: SpatialHu
   
   // Hardware capabilities check & Intersection Observer
   useEffect(() => {
-    const isMobile = window.innerWidth < 768
-    const cores = navigator.hardwareConcurrency || 2
-    if (isMobile && cores <= 4) {
-      setIsLowEnd(true)
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

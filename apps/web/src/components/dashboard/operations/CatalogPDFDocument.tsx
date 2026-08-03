@@ -32,7 +32,7 @@ const CatalogPDF = ({ catalogData }: { catalogData: any }) => (
 export default function CatalogPDFDownload({ catalogData }: { catalogData: any }) {
   return (
     <PDFDownloadLink document={<CatalogPDF catalogData={catalogData} />} fileName={`E3_${catalogData.template.replace(/\s+/g, '_')}.pdf`}>
-      {/* @ts-ignore */}
+      {/* @ts-expect-error -- react-pdf types may not match React 19 currently */}
       {({ loading }) => (
         <span className="flex items-center gap-2">
           {loading ? 'Preparing PDF...' : 'Export PDF'}

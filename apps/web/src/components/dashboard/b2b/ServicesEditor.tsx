@@ -54,15 +54,15 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
     seo: initialData?.seo || { metaTitle: "", metaDescription: "", keywords: "" },
   })
 
-  const [processSteps, setProcessSteps] = useState<any[]>(
+  const [processSteps, setProcessSteps] = useState<any[]>(() =>
     Array.isArray(initialData?.process) ? initialData.process.map((p: any) => ({ id: Math.random().toString(), ...p })) : []
   )
 
-  const [gallery, setGallery] = useState<any[]>(
+  const [gallery, setGallery] = useState<any[]>(() =>
     Array.isArray(initialData?.gallery) ? initialData.gallery.map((g: any) => ({ id: Math.random().toString(), ...g })) : []
   )
 
-  const [projects, setProjects] = useState<any[]>(
+  const [projects, setProjects] = useState<any[]>(() =>
     Array.isArray(initialData?.projects) ? initialData.projects.map((p: any) => ({ id: Math.random().toString(), ...p })) : []
   )
 

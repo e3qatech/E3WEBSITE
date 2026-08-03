@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import { useMounted } from "@/hooks/useMounted";
 
 type Theme = "dark" | "light" | "system";
 
@@ -13,17 +14,21 @@ interface AdminThemeContextType {
 const AdminThemeContext = createContext<AdminThemeContextType | undefined>(undefined);
 
 export function AdminThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
+  const theme = React.useSyncExternalStore(
+    (callback) => {
+      window.addEventListener('storage', callback);
+      return () => window.removeEventListener('storage', callback);
+    },
+    () => (typeof window !== "undefined" ? window.localStorage.getItem("e3-admin-theme") as Theme | null : null) || "system",
+    () => "system"
+  );
+  
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
-  useEffect(() => {
-    setMounted(true);
-    // Initialize theme from localStorage or default to system
-    const savedTheme = localStorage.getItem("e3-admin-theme") as Theme | null;
-    if (savedTheme) {
-      setThemeState(savedTheme);
-    }
+  const setThemeState = React.useCallback((newTheme: Theme) => {
+    window.localStorage.setItem("e3-admin-theme", newTheme);
+    window.dispatchEvent(new Event('storage'));
   }, []);
 
   useEffect(() => {
@@ -42,6 +47,7 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
       root.setAttribute("data-theme", effectiveTheme);
     }
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for hydration
     setResolvedTheme(effectiveTheme);
     localStorage.setItem("e3-admin-theme", theme);
   }, [theme, mounted]);

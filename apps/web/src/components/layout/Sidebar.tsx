@@ -19,6 +19,7 @@ import {
   Bell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useMounted } from "@/hooks/useMounted";
 
 const sidebarConfig = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
@@ -62,17 +63,14 @@ export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [isClient, setIsClient] = React.useState(false);
+  const isClient = useMounted();
   const { data: session } = useSession();
   const userRole = (session?.user as any)?.role || "CLIENT";
   const userInitials = session?.user?.email?.substring(0, 2).toUpperCase() || "US";
   const userName = session?.user?.name || session?.user?.email?.split('@')[0] || "User";
 
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const SidebarContent = () => (
+  
+  const sidebarContent = (
     <>
       <div className="p-4 flex items-center justify-between h-20 border-b border-[var(--border-level-2)] z-10 relative">
         {(!collapsed || mobileOpen) && (
@@ -257,7 +255,7 @@ export function Sidebar() {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="hidden md:flex flex-col fixed start-0 top-0 bottom-0 bg-[var(--bg-level-1)] noise-bg border-e border-[var(--border-level-2)] z-40 overflow-hidden shadow-[2px_0_20px_rgba(0,0,0,0.02)]"
       >
-        <SidebarContent />
+        {sidebarContent}
       </motion.aside>
 
       {/* Mobile Drawer */}
@@ -278,7 +276,7 @@ export function Sidebar() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="fixed start-0 top-0 bottom-0 w-[280px] bg-[var(--bg-level-1)] noise-bg z-50 flex flex-col md:hidden shadow-2xl border-e border-[var(--border-level-2)]"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.aside>
           </>
         )}

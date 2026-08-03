@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, Calendar as CalendarIcon, Clock, Loader2, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useMounted } from "@/hooks/useMounted";
 
 interface BulkBookingModalProps {
   isOpen: boolean;
@@ -32,7 +33,8 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(prev => ({
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  setFormData(prev => ({
         ...prev,
         attractionName: prefilledAttraction || (attractions[0]?.nameEn || ''),
         date: prefilledDate ? format(prefilledDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),

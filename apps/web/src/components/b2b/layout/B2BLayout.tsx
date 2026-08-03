@@ -13,10 +13,9 @@ export function B2BLayout({
   settings?: Record<string, string>
 }) {
   // Simple mount state to avoid hydration mismatch with themes
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted();
 
   useEffect(() => {
-    setMounted(true)
     // Here we would sync with Zustand theme store to set body classes
   }, [])
 

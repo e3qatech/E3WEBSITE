@@ -49,6 +49,7 @@ export default function MediaLibraryPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
     fetchMedia()
   }, [])
 

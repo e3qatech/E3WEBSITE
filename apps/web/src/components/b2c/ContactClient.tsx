@@ -215,6 +215,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [ticketNumber, setTicketNumber] = useState(0);
   const { theme } = useB2CTheme();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -238,7 +239,10 @@ function SupportForm({ attractions }: { attractions: any[] }) {
           message: data.message,
         })
       });
-      if (res.ok) setSuccess(true);
+      if (res.ok) {
+        setTicketNumber(Math.floor(Math.random() * 10000));
+        setSuccess(true);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -253,7 +257,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Request Submitted</h3>
-        <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your ticket number is <strong>#E3-{Math.floor(Math.random() * 10000)}</strong>. We will get back to you shortly.</p>
+        <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your ticket number is <strong>#E3-{ticketNumber}</strong>. We will get back to you shortly.</p>
         <MagneticButton onClick={() => setSuccess(false)} variant="primary" size="sm">
           Submit Another Request
         </MagneticButton>

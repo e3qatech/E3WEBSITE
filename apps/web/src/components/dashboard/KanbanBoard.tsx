@@ -70,7 +70,7 @@ function KanbanCard({ lead, isOverlay, onClick }: { lead: Lead, isOverlay?: bool
         <h4 className="font-bold text-[var(--text-primary)] text-sm line-clamp-2 pe-6">{lead.name}</h4>
         <button 
           className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] absolute top-4 end-4"
-          onClick={(e) => { e.stopPropagation(); onClick && onClick(); }}
+          onClick={(e) => { e.stopPropagation(); onClick?.(); }}
         >
           <MoreHorizontal className="w-4 h-4" />
         </button>

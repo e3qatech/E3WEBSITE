@@ -58,10 +58,23 @@ export function BeforeAfterSlider({
     }
   }, [isDragging, handleMouseMove, handleTouchMove, stopDragging])
 
+  const [containerWidth, setContainerWidth] = useState<number | string>('100vw')
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setContainerWidth(entry.contentRect.width)
+      }
+    })
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div 
       ref={containerRef}
-      className="relative w-full aspect-video md:aspect-[21/9] rounded-2xl overflow-hidden cursor-ew-resize select-none border border-[var(--border-default)]"
+      className="relative w-full aspect-video md:aspect-[21/9] rounded-2xl overflow-hidden cursor-ew-resize select-none border border-[var(--border-default)] touch-none"
       onMouseDown={(e) => {
         setIsDragging(true)
         handleMove(e.clientX)
@@ -89,8 +102,8 @@ export function BeforeAfterSlider({
         <img 
           src={beforeImage} 
           alt="Before" 
-          className="absolute inset-0 w-full h-full object-cover min-w-full"
-          style={{ width: containerRef.current?.clientWidth || '100vw' }}
+          className="absolute inset-0 h-full object-cover"
+          style={{ width: containerWidth, maxWidth: 'none' }}
         />
         <div className="absolute top-4 start-4 bg-white/80 backdrop-blur-md text-zinc-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10">
           {beforeLabel}

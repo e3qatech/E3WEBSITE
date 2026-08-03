@@ -22,9 +22,8 @@ export function CursorFollower() {
     const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0
     if (isTouchDevice || shouldReduceMotion) return
 
-    setIsVisible(true)
-
     const moveCursor = (e: MouseEvent) => {
+      setIsVisible(true)
       cursorX.set(e.clientX - 16) // Center the cursor (32x32 size)
       cursorY.set(e.clientY - 16)
     }

@@ -16,25 +16,22 @@ function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errorState, setErrorState] = useState<string | null>(null)
+  
+  const error = !token ? "Invalid or missing reset token. Please request a new password reset." : errorState
 
-  useEffect(() => {
-    if (!token) {
-      setError("Invalid or missing reset token. Please request a new password reset.")
-    }
-  }, [token])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
+    setErrorState(null)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.")
+      setErrorState("Passwords do not match.")
       return
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.")
+      setErrorState("Password must be at least 8 characters long.")
       return
     }
 
@@ -51,7 +48,7 @@ function ResetPasswordForm() {
         router.push("/auth/login")
       }, 3000)
     } catch (err: any) {
-      setError(err.message || "Failed to reset password. The link may have expired.")
+      setErrorState(err.message || "Failed to reset password. The link may have expired.")
     } finally {
       setIsSubmitting(false)
     }

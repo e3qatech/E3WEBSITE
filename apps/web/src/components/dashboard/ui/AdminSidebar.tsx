@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
 import { AdminStatusBadge } from "./AdminStatusBadge";
+import { useMounted } from "@/hooks/useMounted";
 
 // Updated configuration mapping 17 domain modules into refined logical buckets
 const sidebarConfig = [
@@ -93,7 +94,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [isClient, setIsClient] = React.useState(false);
+  const isClient = useMounted();
   const { data: session } = useSession();
   const { resolvedTheme } = useAdminTheme();
   
@@ -101,11 +102,8 @@ export function AdminSidebar() {
   const userInitials = session?.user?.email?.substring(0, 2).toUpperCase() || "SU";
   const userName = session?.user?.name || session?.user?.email?.split('@')[0] || "System Admin";
 
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const SidebarContent = () => (
+  
+  const sidebarContent = (
     <>
       <div className="p-4 flex items-center justify-between h-16 border-b border-border-default z-10 relative shrink-0">
         {(!collapsed || mobileOpen) && (
@@ -267,7 +265,7 @@ export function AdminSidebar() {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="hidden md:flex flex-col h-full bg-surface-default border-e border-border-default z-40 overflow-hidden"
       >
-        <SidebarContent />
+        {sidebarContent}
       </motion.aside>
 
       {/* Mobile Drawer */}
@@ -286,9 +284,9 @@ export function AdminSidebar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed start-0 top-0 bottom-0 w-[260px] bg-surface-default z-50 flex flex-col md:hidden shadow-2xl border-e border-border-default"
+              className="fixed inset-y-0 start-0 w-[260px] bg-surface-default shadow-xl z-50 md:hidden flex flex-col"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.aside>
           </>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { MapPin, Calendar, Clock, Ticket, Users, AlertCircle, Search, HelpCircle, ArrowRight } from "lucide-react";
@@ -29,32 +29,25 @@ export function B2CThemeProvider({
   children: React.ReactNode;
   locale?: string;
 }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
-  const isAr = locale === "ar";
-
-  useEffect(() => {
-    // Sync with existing theme provider storage/attributes if present
-    const root = window.document.documentElement;
-    const currentTheme = root.getAttribute("data-theme") as Theme | null;
-    if (currentTheme === "light" || currentTheme === "dark") {
-      setThemeState(currentTheme);
-    }
-
-    // Set up observer to watch for theme changes on html attribute
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === "data-theme") {
-          const updated = root.getAttribute("data-theme") as Theme | null;
-          if (updated === "light" || updated === "dark") {
-            setThemeState(updated);
-          }
+  const theme = React.useSyncExternalStore(
+    (callback) => {
+      const root = window.document.documentElement;
+      const observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.attributeName === "data-theme") callback();
         }
       });
-    });
-
-    observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => observer.disconnect();
-  }, []);
+      observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+      return () => observer.disconnect();
+    },
+    () => {
+      if (typeof window === "undefined") return "dark";
+      const currentTheme = window.document.documentElement.getAttribute("data-theme");
+      return (currentTheme === "light" || currentTheme === "dark") ? currentTheme : "dark";
+    },
+    () => "dark"
+  );
+  const isAr = locale === "ar";
 
   const setTheme = (newTheme: Theme) => {
     const root = window.document.documentElement;

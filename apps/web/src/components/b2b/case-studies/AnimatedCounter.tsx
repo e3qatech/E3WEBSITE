@@ -21,26 +21,7 @@ export function AnimatedCounter({
 }: AnimatedCounterProps) {
   const [count, setCount] = useState(0)
   const counterRef = useRef<HTMLSpanElement>(null)
-  const hasAnimated = useRef(false)
-
-  useEffect(() => {
-    const element = counterRef.current
-    if (!element) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true
-          animateValue(0, value, duration)
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    observer.observe(element)
-
-    return () => observer.disconnect()
-  }, [value, duration])
+  const [hasAnimated, setHasAnimated] = useState(false)
 
   const animateValue = (start: number, end: number, durationMs: number) => {
     let startTimestamp: number | null = null
@@ -60,6 +41,26 @@ export function AnimatedCounter({
     }
     window.requestAnimationFrame(step)
   }
+
+  useEffect(() => {
+    const element = counterRef.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+          animateValue(0, value, duration)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [value, duration, hasAnimated])
+
 
   const formatNumber = (num: number) => {
     // If arabic, we might want to use eastern arabic numerals, 

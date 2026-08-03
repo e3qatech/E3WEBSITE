@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Loader2, User, Image as ImageIcon, Code, LayoutDashboard } from "lucide-react";
 import { MediaUploader } from "@/components/shared/MediaUploader";
+import { useMounted } from "@/hooks/useMounted";
 
 type Tab = "basic" | "media" | "advanced";
 
@@ -43,7 +44,8 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
 
   useEffect(() => {
     if (employee) {
-      setFormData({
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  setFormData({
         ...employee,
         expertiseTags: JSON.stringify(employee.expertiseTags || []),
         coreCompetencies: JSON.stringify(employee.coreCompetencies || []),

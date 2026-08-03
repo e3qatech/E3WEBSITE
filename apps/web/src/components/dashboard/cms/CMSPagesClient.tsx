@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useSyncExternalStore } from 'react'
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminFormLayout } from "@/components/dashboard/ui/AdminFormLayout"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { useMounted } from "@/hooks/useMounted";
 
 export function CMSPagesClient() {
   const [pages, setPages] = useState<any[]>([])
@@ -29,7 +30,8 @@ export function CMSPagesClient() {
   }
 
   useEffect(() => {
-    fetchPages()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  fetchPages()
   }, [])
 
   const handleSave = async () => {

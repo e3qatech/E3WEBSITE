@@ -26,10 +26,9 @@ export function PortalGateway({
   const router = useRouter()
   const [hoveredPortal, setHoveredPortal] = useState<'b2c' | 'b2b' | null>(null)
   const [selectedPortal, setSelectedPortal] = useState<'b2c' | 'b2b' | null>(null)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted()
 
   useEffect(() => {
-    setMounted(true)
     const stored = localStorage.getItem('e3_preferred_portal')
     if (stored === 'b2c' || stored === 'b2b') {
       // Fast-route logic can go here, but for now we'll let them see the selector 

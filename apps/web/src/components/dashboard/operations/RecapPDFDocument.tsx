@@ -211,7 +211,7 @@ export default function RecapPDFDownload({ recapData }: { recapData: any }) {
       fileName={`E3_Executive_Report_${recapData.dateRange.replace(/\s+/g, '_')}.pdf`}
       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-xl transition-colors shadow-sm"
     >
-      {/* @ts-ignore */}
+      {/* @ts-expect-error -- react-pdf types may not match React 19 currently */}
       {({ loading }) => (
         <>
           {loading ? (

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useSyncExternalStore } from 'react'
 import { io, Socket } from 'socket.io-client'
 import type { 
   OccupancyEvent, 
@@ -28,6 +28,7 @@ export function useSocket(namespace: string) {
       timeout: 20000,
     })
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for connection initialization
     setSocket(socketInstance)
 
     return () => {

@@ -48,22 +48,22 @@ export function AttractionEditForm({ initialData }: { initialData: any }) {
   })
 
   // Repeaters
-  const [gallery, setGallery] = useState<any[]>(
+  const [gallery, setGallery] = useState<any[]>(() =>
     Array.isArray(initialData.gallery) ? initialData.gallery.map((g: any) => ({ id: Math.random().toString(), ...g })) : []
   )
-  const [pricing, setPricing] = useState<any[]>(
+  const [pricing, setPricing] = useState<any[]>(() =>
     Array.isArray(initialData.pricing) ? initialData.pricing.map((p: any) => ({ id: Math.random().toString(), ...p })) : []
   )
-  const [offers, setOffers] = useState<any[]>(
+  const [offers, setOffers] = useState<any[]>(() =>
     Array.isArray(initialData.offers) ? initialData.offers.map((o: any) => ({ id: Math.random().toString(), ...o })) : []
   )
-  const [faqs, setFaqs] = useState<any[]>(
+  const [faqs, setFaqs] = useState<any[]>(() =>
     Array.isArray(initialData.faqs) ? initialData.faqs.map((f: any) => ({ id: Math.random().toString(), ...f })) : []
   )
-  const [socialLinks, setSocialLinks] = useState<any[]>(
+  const [socialLinks, setSocialLinks] = useState<any[]>(() =>
     Array.isArray(initialData.socialLinks) ? initialData.socialLinks.map((s: any) => ({ id: Math.random().toString(), ...s })) : []
   )
-  const [temporalRules, setTemporalRules] = useState<any[]>(
+  const [temporalRules, setTemporalRules] = useState<any[]>(() =>
     Array.isArray(initialData.temporalRules) ? initialData.temporalRules.map((t: any) => ({ id: Math.random().toString(), ...t })) : []
   )
 

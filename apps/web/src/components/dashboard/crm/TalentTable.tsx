@@ -80,6 +80,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
     }
   ]
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table useReactTable is known to conflict with React Compiler rules
   const table = useReactTable({
     data,
     columns,

@@ -27,16 +27,21 @@ export function ThemeProvider({
   defaultTheme = "system",
   enableSystem = true,
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(defaultTheme);
+  const theme = React.useSyncExternalStore(
+    (callback) => {
+      window.addEventListener('storage', callback);
+      return () => window.removeEventListener('storage', callback);
+    },
+    () => (typeof window !== "undefined" ? window.localStorage.getItem("theme") as Theme | null : null) || defaultTheme,
+    () => defaultTheme
+  );
 
-  React.useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      setTheme(defaultTheme);
-    }
-  }, [defaultTheme]);
+  const setThemeState = React.useCallback((newTheme: Theme) => {
+    window.localStorage.setItem("theme", newTheme);
+    window.dispatchEvent(new Event('storage'));
+  }, []);
+
+  const setTheme = setThemeState;
 
   React.useEffect(() => {
     const root = window.document.documentElement;
