@@ -225,7 +225,7 @@ async function main() {
   ];
 
   for (const item of attractionsData) {
-    const { startDate, endDate, status, pricing, ...attractionData } = item;
+    const { pricing, ...attractionData } = item;
     
     // Create Attraction
     const attraction = await prisma.attraction.upsert({
@@ -246,7 +246,6 @@ async function main() {
     }
 
     // Upsert Calendar Event
-    const eventId = `event-${item.slug}`;
     const existingEvent = await prisma.calendarEvent.findFirst({
         where: { attractionId: attraction.id }
     });

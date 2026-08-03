@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { AdminTable, AdminTableHeader, AdminTableBody, AdminTableRow, AdminTableHead, AdminTableCell } from "./AdminTable";
 
 interface DataTableColumn<T> {
   header: string;

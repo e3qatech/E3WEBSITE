@@ -8,12 +8,8 @@ import {
   Search, 
   LayoutGrid, 
   List,
-  MoreVertical,
   Building,
-  Mail,
-  Phone,
-  Calendar,
-  AlertCircle
+  Mail
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import {
@@ -22,10 +18,9 @@ import {
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors,
-  DragOverlay
+  useSensors
 } from "@dnd-kit/core"
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { format } from "date-fns"
 

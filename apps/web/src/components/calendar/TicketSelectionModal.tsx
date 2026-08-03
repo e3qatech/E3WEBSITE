@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Loader2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { CalendarEvent } from './EventCard';
-import { useMounted } from "@/hooks/useMounted";
 
 interface PricingTier {
   id: string;
@@ -78,7 +77,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
   const handleProceed = () => {
     // Construct BookingQube deep link
     const selectedTickets = Object.entries(quantities)
-      .filter(([_, qty]) => qty > 0)
+      .filter(([__, qty]) => qty > 0)
       .map(([id, qty]) => `${id}:${qty}`)
       .join(',');
 
@@ -131,20 +130,6 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
           {/* Content */}
           <div className="p-6 overflow-y-auto flex-1">
             {loading ? (
-              <div className="py-12 flex flex-col items-center justify-center text-zinc-500">
-                <Loader2 className="w-8 h-8 animate-spin mb-4 text-emerald-500" />
-                <p className="text-sm font-bold font-mono uppercase tracking-widest">Loading Tickets...</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {pricing.length === 0 ? (
-                  <div className="py-8 text-center text-zinc-500 font-medium">
-                    No tickets configured for this attraction.
-                  </div>
-                ) : (
-                  pricing.map(tier => (
-                    <div key={tier.id} className="flex items-center justify-between p-4 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 rounded-2xl">
-                      <div>
                         <h4 className="font-bold font-satoshi text-white text-lg">{tier.titleEn}</h4>
                         <p className="text-emerald-500 font-bold font-mono uppercase tracking-widest text-sm">{tier.currency} {tier.price}</p>
                       </div>

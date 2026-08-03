@@ -40,7 +40,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
     { key: "name", header: "Applicant Name", render: (item: any) => <span className="font-bold">{item.name}</span> },
     { key: "date", header: "Applied Date", render: (item: any) => item.date },
     { key: "status", header: "Status", render: (item: any) => item.status },
-    { key: "actions", header: "", render: (item: any) => <Button variant="ghost" size="sm">Review</Button> }
+    { key: "actions", header: "", render: (_item: any) => <Button variant="ghost" size="sm">Review</Button> }
   ]
 
   return (

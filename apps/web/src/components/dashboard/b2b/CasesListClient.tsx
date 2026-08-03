@@ -34,7 +34,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
       
       setCaseStudies(caseStudies.filter(c => c.id !== id))
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Failed to delete case study")
     }
   }

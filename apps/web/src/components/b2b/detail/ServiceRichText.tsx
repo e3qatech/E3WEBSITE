@@ -19,7 +19,7 @@ interface ServiceRichTextProps {
 }
 
 export function ServiceRichText({ blocks, locale }: ServiceRichTextProps) {
-  const isRTL = locale === 'ar'
+
 
   const renderBlock = (block: ContentBlock) => {
     switch (block.type) {

@@ -31,7 +31,7 @@ interface AttractionTicketCardProps {
 
 export function AttractionTicketCard({ attraction, locale }: AttractionTicketCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const isRTL = locale === 'ar'
+
   
   const bookingBaseUrl = process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'
   const displayName = attraction.name[locale] || attraction.name.en

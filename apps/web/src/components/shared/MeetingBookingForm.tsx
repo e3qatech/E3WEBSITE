@@ -14,8 +14,8 @@ interface MeetingBookingFormProps {
   onCancel?: () => void
 }
 
-export function MeetingBookingForm({ locale, serviceSlug, hostId, onSuccess, onCancel }: MeetingBookingFormProps) {
-  const isRTL = locale === 'ar'
+export function MeetingBookingForm({ locale,  onSuccess, onCancel }: MeetingBookingFormProps) {
+
   
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)

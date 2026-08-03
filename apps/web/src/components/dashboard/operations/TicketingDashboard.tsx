@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Users, Ticket, TrendingUp, Calendar as CalendarIcon, Activity, AlertCircle } from "lucide-react"
-import { Badge } from "@/components/ui/Badge"
-
+import { Users, Ticket, TrendingUp, Activity, AlertCircle } from "lucide-react"
 type EventSchedule = {
   id: string
   attractionId: string

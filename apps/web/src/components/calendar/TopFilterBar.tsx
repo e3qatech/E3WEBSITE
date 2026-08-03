@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, MapPin, Tag, Filter, Check, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Tag, Filter, Check, Users } from 'lucide-react';
 import { 
   format, 
   addMonths, 

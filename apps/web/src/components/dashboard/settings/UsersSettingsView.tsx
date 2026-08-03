@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Users, UserPlus, Shield, Check, X, ShieldAlert, Key } from "lucide-react"
+import { Users, UserPlus, Check, X, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { format } from "date-fns"
 

@@ -3,9 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, Mail, Phone } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 function Instagram({ className }: { className?: string }) {
   return (

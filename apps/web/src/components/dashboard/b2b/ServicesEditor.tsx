@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   FileText, Package, Shuffle, Image as ImageIcon, 
-  Grid, Link as LinkIcon, MousePointer2, Search, Plus, Save, Trash2, ChevronRight, ArrowLeft
+  Grid, Link as LinkIcon, MousePointer2, Search, Save, ChevronRight, ArrowLeft
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"

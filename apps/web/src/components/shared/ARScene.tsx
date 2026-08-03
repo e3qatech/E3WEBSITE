@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useRef, Suspense } from "react"
-import { useThree } from "@react-three/fiber"
+import { useRef, Suspense } from "react"
 import { OrbitControls, useGLTF, Grid, Html } from "@react-three/drei"
 import * as THREE from "three"
 
@@ -24,16 +23,13 @@ interface ARSceneProps {
   isARMode: boolean
 }
 
-export function ARScene({ modelUrl, name, dimensions, powerReq, isARMode }: ARSceneProps) {
+export function ARScene({ modelUrl, name, dimensions, powerReq, isARMode: _isARMode }: ARSceneProps) {
   const { scene } = useGLTF(modelUrl, true, true, (error) => {
     console.error("Failed to load GLTF model", error)
   }) // Add simple error boundary fallback in real app
 
   const modelGroupRef = useRef<THREE.Group>(null)
   
-  // Allow basic rotation of the placed model
-  const [rotation, setRotation] = useState(0)
-
   return (
     <>
       <ambientLight intensity={0.6} />

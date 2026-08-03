@@ -1,9 +1,9 @@
 import { Metadata } from "next"
 import db from "@/lib/db"
-import { Users, Plus, Globe, CheckCircle2, ToggleRight, ToggleLeft } from "lucide-react"
+import { Users, Plus, Globe, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import Link from "next/link"
-import Image from "next/image"
+import "next/link"
+import "next/image"
 
 export const metadata: Metadata = {
   title: "Partners | E3 Admin",

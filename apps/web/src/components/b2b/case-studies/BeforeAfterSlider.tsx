@@ -63,7 +63,7 @@ export function BeforeAfterSlider({
   useEffect(() => {
     if (!containerRef.current) return
     const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setContainerWidth(entry.contentRect.width)
       }
     })

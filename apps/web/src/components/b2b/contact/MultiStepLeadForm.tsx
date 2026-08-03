@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { CheckCircle2, ChevronRight, ChevronLeft, Upload, Paperclip } from "lucide-react"
+import { CheckCircle2, ChevronRight, ChevronLeft, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 
@@ -27,7 +27,7 @@ export function MultiStepLeadForm({ locale, services }: MultiStepLeadFormProps) 
       if (saved) {
         try {
           return JSON.parse(saved)
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
@@ -57,7 +57,7 @@ export function MultiStepLeadForm({ locale, services }: MultiStepLeadFormProps) 
     setFormData((prev: any) => ({
       ...prev,
       selectedServices: prev.selectedServices.includes(id)
-        ? prev.selectedServices.filter(s => s !== id)
+        ? prev.selectedServices.filter((s: string) => s !== id)
         : [...prev.selectedServices, id]
     }))
   }

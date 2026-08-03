@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { format, isPast, differenceInMinutes } from 'date-fns';
-import { MapPin, Clock, Tag, ChevronRight, ExternalLink } from 'lucide-react';
+import { MapPin, Clock, Tag, ExternalLink } from 'lucide-react';
 export type EventType = 'REGULAR' | 'SPECIAL' | 'FESTIVAL' | 'PRIVATE';
 
 export interface CalendarEvent {
@@ -29,7 +29,7 @@ interface EventCardProps {
   onSelectTickets: (event: CalendarEvent) => void;
 }
 
-export function EventCard({ events, onSelectTickets }: EventCardProps) {
+export function EventCard({ events }: EventCardProps) {
   const mounted = (React.useSyncExternalStore || useSyncExternalStore)(() => () => {}, () => true, () => false);
 
   const event = events[0]; // Base details on the first event

@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { B2BHeader } from './B2BHeader'
 import { B2BFooter } from './B2BFooter'
 import { cn } from '@/lib/utils'
+import { useMounted } from '@/hooks/useMounted'
 
 export function B2BLayout({
   children,
@@ -13,7 +14,7 @@ export function B2BLayout({
   settings?: Record<string, string>
 }) {
   // Simple mount state to avoid hydration mismatch with themes
-  const mounted = useMounted();
+  useMounted();
 
   useEffect(() => {
     // Here we would sync with Zustand theme store to set body classes

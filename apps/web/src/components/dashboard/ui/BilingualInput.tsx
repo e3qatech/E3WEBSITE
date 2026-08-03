@@ -1,7 +1,5 @@
 "use client"
 
-import { Input } from "@/components/ui/Input"
-
 interface BilingualInputProps {
   label: string
   valueEn: string

@@ -194,7 +194,6 @@ async function FeaturedAttractionsList({ locale, baseUrl }: { locale: string, ba
 export default async function B2CPage(props: { params: Promise<{ locale: string }> }) {
   const params = await props.params;
   const { locale } = params;
-  const isRTL = locale === 'ar'
   const baseUrl = getBaseUrl()
 
   return (

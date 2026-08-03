@@ -45,7 +45,7 @@ export async function PUT(
       clientName,
       category,
       year,
-      duration,
+     
       challenge,
       solution,
       testimonial,

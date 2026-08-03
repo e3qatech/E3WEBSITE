@@ -1,21 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
-import { toZonedTime } from 'date-fns-tz';
-
-const QATAR_TZ = 'Asia/Qatar';
-
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const month = searchParams.get('month');
-    const year = searchParams.get('year');
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
-    const attractionIds = searchParams.getAll('attractions');
-    const availableNow = searchParams.get('availableNow') === 'true';
-    const hasDiscount = searchParams.get('discount') === 'true';
-    const eventType = searchParams.get('eventType');
 
     // Caching based on query
     const cacheKey = `calendar:list:${month}:${year}:${startDate}:${endDate}:${attractionIds.join(',')}:${availableNow}:${eventType}:${hasDiscount}`;

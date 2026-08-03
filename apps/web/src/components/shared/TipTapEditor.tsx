@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useSyncExternalStore } from 'react'
+import React, { useEffect } from 'react'
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { 
@@ -118,7 +118,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   )
 }
 
-export function TipTapEditor({ value, onChange, placeholder, dir = "ltr" }: TipTapEditorProps) {
+export function TipTapEditor({ value, onChange, dir = "ltr" }: TipTapEditorProps) {
   // We need to manage mounting to avoid hydration mismatch
   const editor = useEditor({
     extensions: [

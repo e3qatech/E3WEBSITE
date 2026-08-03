@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useState, useEffect, useRef, Suspense } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Html, useProgress, ContactShadows, Grid } from '@react-three/drei'
 import * as THREE from 'three'
 import { XR, createXRStore, useXRHitTest } from '@react-three/xr'
-import { Maximize, Camera, RefreshCcw, X, Info } from 'lucide-react'
+import { Camera, RefreshCcw, X, Info } from 'lucide-react'
 
 // Create XR store outside the component
 const store = createXRStore()
@@ -24,7 +24,7 @@ interface ARViewerProps {
 // ----------------------------------------------------------------------
 // MODEL LOADER COMPONENT
 // ----------------------------------------------------------------------
-function Loader() {
+function _Loader() {
   const { progress } = useProgress()
   return (
     <Html center>
@@ -44,10 +44,10 @@ class ModelErrorBoundary extends React.Component<{ children: React.ReactNode }, 
     super(props)
     this.state = { hasError: false }
   }
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(_error: any) {
     return { hasError: true }
   }
-  componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(_error: any, _errorInfo: any) {
     console.error("Model load failed:", error)
   }
   render() {

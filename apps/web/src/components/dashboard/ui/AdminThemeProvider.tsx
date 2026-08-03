@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useMounted } from "@/hooks/useMounted";
 
 type Theme = "dark" | "light" | "system";
@@ -20,7 +20,7 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
       return () => window.removeEventListener('storage', callback);
     },
     () => (typeof window !== "undefined" ? window.localStorage.getItem("e3-admin-theme") as Theme | null : null) || "system",
-    () => "system"
+    () => "system" as Theme
   );
   
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
@@ -48,7 +48,7 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
     }
     
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for hydration
-    setResolvedTheme(effectiveTheme);
+    setResolvedTheme(effectiveTheme as "dark" | "light");
     localStorage.setItem("e3-admin-theme", theme);
   }, [theme, mounted]);
 

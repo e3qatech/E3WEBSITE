@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, Calendar as CalendarIcon, Clock, Loader2, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useMounted } from "@/hooks/useMounted";
 
 interface BulkBookingModalProps {
   isOpen: boolean;

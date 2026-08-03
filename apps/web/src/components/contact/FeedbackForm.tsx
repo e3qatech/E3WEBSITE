@@ -17,7 +17,7 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ locale, attractions }: FeedbackFormProps) {
-  const isRTL = locale === 'ar'
+
 
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)

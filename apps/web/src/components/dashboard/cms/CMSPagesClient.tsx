@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect, useSyncExternalStore } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminFormLayout } from "@/components/dashboard/ui/AdminFormLayout"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { useMounted } from "@/hooks/useMounted";
 
 export function CMSPagesClient() {
   const [pages, setPages] = useState<any[]>([])
@@ -67,7 +66,7 @@ export function CMSPagesClient() {
     try {
       const parsed = JSON.parse(val)
       setEditingPage({ ...editingPage, content: parsed })
-    } catch (e) {
+    } catch {
       // Allow invalid JSON while typing, maybe store as string in a separate state if needed,
       // but for simplicity, we just won't update the object until valid.
     }

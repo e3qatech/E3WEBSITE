@@ -66,7 +66,7 @@ export async function POST(request: Request) {
           const session = await auth();
           let context = null;
           if (clientPayload) {
-            try { context = JSON.parse(clientPayload).context; } catch (e) {}
+            try { context = JSON.parse(clientPayload).context; } catch {}
           }
           if (!session?.user && context !== 'public_resume') {
             throw new Error("Unauthorized");
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
             tokenPayload: JSON.stringify({ userId: session?.user?.id || 'anonymous' })
           };
         },
-        onUploadCompleted: async ({ blob, tokenPayload }) => {
+        onUploadCompleted: async ({ blob }) => {
           console.log("Blob upload completed", blob.url);
         },
       });

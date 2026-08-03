@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Loader2, User, Image as ImageIcon, Code, LayoutDashboard } from "lucide-react";
+import { Loader2, User, Image as ImageIcon, Code } from "lucide-react";
 import { MediaUploader } from "@/components/shared/MediaUploader";
-import { useMounted } from "@/hooks/useMounted";
-
 type Tab = "basic" | "media" | "advanced";
 
 export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { isOpen: boolean; onClose: () => void; employee: any; onSuccess: () => void }) {

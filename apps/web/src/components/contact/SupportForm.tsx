@@ -24,7 +24,7 @@ const CATEGORIES = [
 ]
 
 export function SupportForm({ locale, attractions }: SupportFormProps) {
-  const isRTL = locale === 'ar'
+
 
   const [category, setCategory] = useState("")
   const [attractionId, setAttractionId] = useState("")

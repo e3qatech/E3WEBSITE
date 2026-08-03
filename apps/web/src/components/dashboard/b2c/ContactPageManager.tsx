@@ -22,7 +22,7 @@ type GeneralFaq = {
 
 export function ContactPageManager() {
   const [activeTab, setActiveTab] = useState<"HERO" | "FAQS" | "SEO">("HERO")
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [uploading, setUploading] = useState(false)

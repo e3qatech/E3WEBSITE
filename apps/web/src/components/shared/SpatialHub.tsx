@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useMemo, Suspense, useSyncExternalStore } from 'react'
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Html } from '@react-three/drei'
 import * as THREE from 'three'
@@ -199,7 +199,7 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
     camera.position.lerp(targetCamPos, 0.05)
     
     // Look at target
-    const currentLookAt = new THREE.Vector3(0,0,0) // Assuming we started looking at center
+
     // We should ideally track the lookAt point, but for simplicity we'll interpolate the rotation
     // by using a dummy object or just lerping the position and looking at the target
     camera.lookAt(targetPosition)
@@ -220,7 +220,7 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 export default function SpatialHub({ attractions, onAttractionClick }: SpatialHubProps) {
-  const [isLowEnd, setIsLowEnd] = useState(() => {
+  const [isLowEnd] = useState(() => {
     if (typeof window !== 'undefined') {
       const isMobile = window.innerWidth < 768
       const cores = navigator.hardwareConcurrency || 2

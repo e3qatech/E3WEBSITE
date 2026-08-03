@@ -42,8 +42,8 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
   const [metrics, setMetrics] = useState<any[]>(Array.isArray(initialData?.metrics) ? initialData.metrics : [])
   const [testimonials, setTestimonials] = useState<any[]>(Array.isArray(initialData?.testimonials) ? initialData.testimonials : [])
   const [gallery, setGallery] = useState<any[]>(Array.isArray(initialData?.gallery) ? initialData.gallery : [])
-  const [technicalSpecs, setTechnicalSpecs] = useState<any[]>(Array.isArray(initialData?.technicalSpecs) ? initialData.technicalSpecs : [])
-  const [servicesUsed, setServicesUsed] = useState<any[]>(Array.isArray(initialData?.servicesUsed) ? initialData.servicesUsed : [])
+  const [technicalSpecs, ] = useState<any[]>(Array.isArray(initialData?.technicalSpecs) ? initialData.technicalSpecs : [])
+  const [servicesUsed] = useState<any[]>(Array.isArray(initialData?.servicesUsed) ? initialData.servicesUsed : [])
   const [caseTeamMembers, setCaseTeamMembers] = useState<any[]>(Array.isArray(initialData?.teamMembers) ? initialData.teamMembers : [])
   
   const [seo, setSeo] = useState<any>(initialData?.seo || {})

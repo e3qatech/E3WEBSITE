@@ -1,21 +1,20 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { Mail, ArrowUpRight, Award } from "lucide-react"
+import { Mail, Award } from "lucide-react"
 
 import { ExperienceTimeline, TimelineEntry } from "@/components/b2b/team/ExperienceTimeline"
 import { CaseStudyCard } from "@/components/b2b/case-studies/CaseStudyCard"
 import { MeetingBookingForm } from "@/components/shared/MeetingBookingForm"
 
 export async function generateMetadata(props: { params: Promise<{ locale: string, slug: string }> }): Promise<Metadata> {
-  const params = await props.params;
+  await props.params;
   return {
     title: `Team Member | E3 Qatar`,
   }
 }
 
 export default async function TeamMemberPage(props: { params: Promise<{ locale: string, slug: string }> }) {
-  const params = await props.params;
-  const { locale, slug } = params;
+  const { locale } = await props.params;
 
   // Mock Data Fetch for team member
   const member = {

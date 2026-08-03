@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from "framer-motion";
-import { TopFilterBar, EventType, AvailabilityType } from './TopFilterBar';
+import { TopFilterBar, EventType } from './TopFilterBar';
 import { EventList } from './EventList';
 import { SubscribeSection } from './SubscribeSection';
 import { TicketSelectionModal } from './TicketSelectionModal';
@@ -37,9 +37,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
     async function fetchEvents() {
       setLoading(true);
       try {
-        const { format, startOfMonth, endOfMonth } = await import('date-fns');
-        const month = format(currentDate, 'MM');
-        const year = format(currentDate, 'yyyy');
+        const { startOfMonth, endOfMonth } = await import('date-fns');
         
         const queryParams = new URLSearchParams();
         queryParams.append('startDate', startOfMonth(currentDate).toISOString());

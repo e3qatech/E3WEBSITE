@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       ],
       certifications: ["PMP", "Certified Meeting Professional (CMP)"]
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { Filter, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { Filter } from 'lucide-react'
 import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { MediaRenderer } from "@/components/ui/MediaRenderer"
@@ -112,7 +112,7 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
 
           {/* Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {caseStudies.map((project, i) => (
+            {caseStudies.map((project) => (
               <Link 
                 key={project.id} 
                 href={`/b2b/case-studies/${project.slug}`}

@@ -1,7 +1,5 @@
 import { B2BHomeEditor } from "@/components/dashboard/b2b/B2BHomeEditor"
 import db from "@/lib/db"
-import { notFound } from "next/navigation"
-
 export const metadata = {
   title: "B2B Homepage Editor | E3 Command Center"
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Save, Mail, Phone, Briefcase, FileText, Download, CheckCircle, XCircle } from "lucide-react"
+import { ArrowLeft, Save, Mail, Phone, Briefcase, Download, CheckCircle } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminInput } from "@/components/dashboard/ui/AdminInput"
 import { AdminSelect } from "@/components/dashboard/ui/AdminSelect"
@@ -30,7 +30,7 @@ export type Talent = {
 
 export function TalentDetail({ initialTalent, onClose }: { initialTalent: Talent; onClose?: () => void }) {
   const router = useRouter()
-  const [talent, setTalent] = useState(initialTalent)
+  const [talent] = useState(initialTalent)
   const [isSaving, setIsSaving] = useState(false)
   const [success, setSuccess] = useState(false)
 

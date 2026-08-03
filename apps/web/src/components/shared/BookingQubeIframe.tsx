@@ -29,7 +29,7 @@ export function BookingQubeIframe({ attractionId, ticketTypeId, className = "" }
         if (data.type === 'bookingqube:resize' && data.height) {
           setHeight(data.height)
         }
-      } catch (e) {
+      } catch {
         // Ignore parsing errors for unrelated messages
       }
     }

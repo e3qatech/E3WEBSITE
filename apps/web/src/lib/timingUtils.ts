@@ -37,7 +37,7 @@ function parseTimeSlot(timeSlot: string, referenceDate: Date): { start: Date, en
     }
     
     return { start, end };
-  } catch (e) {
+  } catch {
     return null;
   }
 }

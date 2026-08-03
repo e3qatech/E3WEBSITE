@@ -1,8 +1,6 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, ExternalLink } from "lucide-react"
-import { Button } from "@/components/ui/Button"
-
 const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { 
   Save, ArrowLeft, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
-  Users, CheckCircle2, List, Calendar
+  Users, List, Calendar
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -31,8 +31,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [descriptionEn, setDescriptionEn] = useState(initialData?.descriptionEn || "")
   const [descriptionAr, setDescriptionAr] = useState(initialData?.descriptionAr || "")
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? false)
-  const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
-  const [isHidden, setIsHidden] = useState(initialData?.isHidden ?? false)
+  const [isFeatured] = useState(initialData?.isFeatured ?? false)
+  const [isHidden] = useState(initialData?.isHidden ?? false)
 
   // 2. Hero Media
   const [heroMediaType, setHeroMediaType] = useState(initialData?.heroMediaType || "IMAGE")
@@ -149,7 +149,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
       
       router.push("/dashboard/b2c/attractions")
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Error saving attraction")
     } finally {
       setIsSaving(false)

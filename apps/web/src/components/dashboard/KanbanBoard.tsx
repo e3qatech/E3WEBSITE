@@ -55,7 +55,7 @@ function KanbanCard({ lead, isOverlay, onClick }: { lead: Lead, isOverlay?: bool
       style={style}
       {...attributes}
       {...listeners}
-      onClick={(e) => {
+      onClick={(_e) => {
         // Prevent click if we dragged
         if (!isDragging && onClick) onClick();
       }}
@@ -125,7 +125,7 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
-  const [isSyncing, setIsSyncing] = useState(false)
+  const [_isSyncing] = useState(false)
   const router = useRouter()
 
   const sensors = useSensors(
@@ -156,7 +156,6 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
     setLeads(leads.map(l => l.id === leadId ? { ...l, status: newStatus } : l))
     
     // Sync to backend
-    setIsSyncing(true)
     try {
       const res = await fetch(`/api/leads/${leadId}/status`, {
         method: 'PATCH',
@@ -172,8 +171,6 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
     } catch (error) {
       console.error(error)
       setLeads(previousLeads)
-    } finally {
-      setIsSyncing(false)
     }
   }
 

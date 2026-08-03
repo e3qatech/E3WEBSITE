@@ -5,7 +5,7 @@ import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import { AdminButton } from "../ui/AdminButton"
-import { Plus, Trash2, Box, MonitorPlay } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 
 export function B2CLandingCMSView({ initialData }: { initialData: any }) {

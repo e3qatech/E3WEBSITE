@@ -1,0 +1,106 @@
+{
+  "unusedCount": 119,
+  "requireCount": 0,
+  "unusedVars": [
+    {
+      "file": "apps/web/prisma/seed-events.ts",
+      "line": 228,
+      "msg": "'startDate' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/prisma/seed-events.ts",
+      "line": 228,
+      "msg": "'endDate' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/prisma/seed-events.ts",
+      "line": 228,
+      "msg": "'status' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/prisma/seed-events.ts",
+      "line": 249,
+      "msg": "'eventId' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/prisma/seed.ts",
+      "line": 28,
+      "msg": "'chairman' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/prisma/seed.ts",
+      "line": 58,
+      "msg": "'gm' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/server.js",
+      "line": 37,
+      "msg": "'e' is defined but never used."
+    },
+    {
+      "file": "apps/web/server.js",
+      "line": 46,
+      "msg": "'err' is defined but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2b/case-studies/page.tsx",
+      "line": 115,
+      "msg": "'i' is defined but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2b/feedback/page.tsx",
+      "line": 10,
+      "msg": "'params' is defined but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2b/team/[slug]/page.tsx",
+      "line": 10,
+      "msg": "'params' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2b/team/[slug]/page.tsx",
+      "line": 18,
+      "msg": "'slug' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2c/attractions/[slug]/page.tsx",
+      "line": 148,
+      "msg": "'isRTL' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2c/attractions/[slug]/page.tsx",
+      "line": 156,
+      "msg": "'operations' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2c/attractions/page.tsx",
+      "line": 197,
+      "msg": "'isRTL' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2c/contact/page.tsx",
+      "line": 12,
+      "msg": "'baseUrl' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/b2c/contact/page.tsx",
+      "line": 57,
+      "msg": "'e' is defined but never used."
+    },
+    {
+      "file": "apps/web/src/app/[locale]/layout.tsx",
+      "line": 10,
+      "msg": "'locale' is assigned a value but never used."
+    },
+    {
+      "file": "apps/web/src/app/api/b2c/attractions/bulk/route.ts",
+      "line": 17,
+      "msg": "'error' is defined but never used."
+    },
+    {
+      "file": "apps/web/src/app/api/b2c/attractions/bulk/route.ts",
+      "line": 36,
+      "msg": "'error' is defined but never used."
+    }
+  ]
+}

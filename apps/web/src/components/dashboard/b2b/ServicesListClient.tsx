@@ -33,7 +33,7 @@ export function ServicesListClient({ initialData }: { initialData: any[] }) {
       
       setServices(services.filter(s => s.id !== id))
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Failed to delete service")
     }
   }

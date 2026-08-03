@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
 import { 
-  Building2, Plus, Globe, ArrowUp, ArrowDown, Trash2, 
-  ToggleLeft, ToggleRight, Check, AlertCircle, RefreshCw 
+  Building2, Plus, ArrowUp, ArrowDown, Trash2, 
+  ToggleLeft, ToggleRight 
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"

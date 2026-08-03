@@ -68,7 +68,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
 
       setIsEditing(null)
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Failed to save partner")
     } finally {
       setIsSaving(false)
@@ -84,7 +84,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
       
       setPartners(partners.filter(p => p.id !== id))
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Failed to delete partner")
     }
   }

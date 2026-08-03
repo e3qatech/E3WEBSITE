@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { calculateDistance } from '@/lib/geoUtils';
+import { getLiveTimingStatus } from '@/lib/timingUtils';
 
 export type AttractionStatus = 'All' | 'Active Now' | 'Coming Soon' | 'Special Events' | 'Past';
 
@@ -119,12 +121,9 @@ export const useAttractionsStore = create<AttractionsState>((set, get) => ({
       let distanceKm = undefined;
       const state = get();
       if (state.userLocation && a.coordinates?.lat && a.coordinates?.lng) {
-        // Dynamic import to avoid breaking build if not available immediately
-        const { calculateDistance } = require('@/lib/geoUtils');
         distanceKm = calculateDistance(state.userLocation.lat, state.userLocation.lng, a.coordinates.lat, a.coordinates.lng);
       }
 
-      const { getLiveTimingStatus } = require('@/lib/timingUtils');
       const timingStatus = getLiveTimingStatus(a.operations?.schedules || []);
 
       return { 

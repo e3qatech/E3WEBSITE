@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest // eslint-disable-line @typescript-eslint/no-unused-vars) {
   try {
     const session = await auth()
     if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {

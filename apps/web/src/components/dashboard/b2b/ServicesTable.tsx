@@ -4,10 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { 
-  MoreHorizontal, 
   Edit, 
   Eye, 
-  Copy, 
   Trash2, 
   CheckCircle2, 
   XCircle,

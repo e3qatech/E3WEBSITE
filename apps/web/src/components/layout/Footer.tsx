@@ -61,7 +61,7 @@ export function Footer({ portal, settings = {} }: FooterProps) {
       } else {
         setSubscribeStatus('error');
       }
-    } catch (err) {
+    } catch {
       setSubscribeStatus('error');
     } finally {
       setSubscribing(false);

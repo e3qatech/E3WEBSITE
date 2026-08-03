@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, MapPin, Briefcase, Clock } from "lucide-react"
+import { ArrowRight, MapPin, Clock } from "lucide-react"
 import prisma from "@/lib/db"
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {

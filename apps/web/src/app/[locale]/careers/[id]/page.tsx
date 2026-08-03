@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import prisma from "@/lib/db"
-import { MapPin, Briefcase, Clock, ArrowLeft } from "lucide-react"
+import { MapPin, Clock, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { ApplicationForm } from "@/components/b2c/careers/ApplicationForm"
 

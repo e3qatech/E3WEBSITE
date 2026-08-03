@@ -1,8 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { E3Image as Image } from '@/lib/images'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
-import { ArrowRight, CheckCircle2, ChevronRight, Play } from 'lucide-react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
 

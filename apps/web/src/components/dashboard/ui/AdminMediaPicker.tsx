@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect, useSyncExternalStore } from 'react'
+import { useState, useEffect } from 'react'
 import { SlideOver } from "./SlideOver"
 import { AdminButton } from "./AdminButton"
-import { Image as ImageIcon, Video, FileText, UploadCloud, X, Check, Trash2 } from "lucide-react"
-import { useMounted } from "@/hooks/useMounted";
+import { Image as ImageIcon, Video, FileText, UploadCloud, Check, Trash2 } from "lucide-react"
 
 interface Media {
   id: string

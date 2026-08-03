@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Send, CheckCircle2 } from 'lucide-react'
 
-export default function B2BFeedbackPage({ params }: { params: any }) {
+export default function B2BFeedbackPage() {
   // We use "use client" because of the form interactivity and fetching
   const routeParams = useParams()
   const isAr = routeParams?.locale === 'ar'

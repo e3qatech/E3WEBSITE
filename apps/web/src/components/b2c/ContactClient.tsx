@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MessageSquare, HeadphonesIcon, HelpCircle, Phone, Mail, Clock, Search, ChevronDown, ChevronUp, FileUp, Quote, CheckCircle2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { 
   useB2CTheme, 
-  B2CInput, 
-  B2CBadge 
+  B2CInput 
 } from "@/components/ui/B2CThemeComponents";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
@@ -30,7 +29,7 @@ export function ContactClient({
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
   const [faqFilter, setFaqFilter] = useState("all");
-  const { theme, isAr } = useB2CTheme();
+  const {} = useB2CTheme();
 
   const toggleFaq = (id: string) => {
     setActiveFaq(prev => (prev === id ? null : id));
@@ -216,7 +215,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [ticketNumber, setTicketNumber] = useState(0);
-  const { theme } = useB2CTheme();
+  const {} = useB2CTheme();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

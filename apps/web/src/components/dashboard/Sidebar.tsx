@@ -11,7 +11,6 @@ import {
   X,
   Target
 } from "lucide-react"
-import { Button } from "@/components/ui/Button"
 
 interface SidebarProps {
   isOpen: boolean

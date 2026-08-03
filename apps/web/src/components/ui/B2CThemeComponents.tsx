@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { MapPin, Calendar, Clock, Ticket, Users, AlertCircle, Search, HelpCircle, ArrowRight } from "lucide-react";
+import { MapPin, Clock, Ticket, Users, AlertCircle, HelpCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 // ==========================================
@@ -45,7 +45,7 @@ export function B2CThemeProvider({
       const currentTheme = window.document.documentElement.getAttribute("data-theme");
       return (currentTheme === "light" || currentTheme === "dark") ? currentTheme : "dark";
     },
-    () => "dark"
+    () => "dark" as Theme
   );
   const isAr = locale === "ar";
 
@@ -53,7 +53,7 @@ export function B2CThemeProvider({
     const root = window.document.documentElement;
     root.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
-    setThemeState(newTheme);
+    // removed setThemeState
   };
 
   const toggleTheme = () => {
@@ -510,7 +510,7 @@ export function B2CModal({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { theme, isAr } = useB2CTheme();
+  const { theme } = useB2CTheme();
 
   return (
     <AnimatePresence>
@@ -618,7 +618,7 @@ export function B2CMediaCard({
   aspectRatio?: string;
   onClick?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
+  const [, setHovered] = useState(false);
 
   return (
     <B2CCard 
@@ -671,7 +671,7 @@ export function B2CMediaCard({
 
 export function B2CAttractionCard({
   attraction,
-  locale = "en",
+  _locale = "en",
 }: {
   attraction: any;
   locale?: string;
@@ -787,7 +787,7 @@ export function B2CEventCard({
   const description = isAr ? event.descriptionAr || event.descriptionEn : event.descriptionEn || event.descriptionAr;
   const venue = isAr ? event.venueAr || event.venueEn : event.venueEn || event.venueAr;
   
-  const startDateStr = new Date(event.startDate).toLocaleDateString(locale, {
+
     day: 'numeric', month: 'short', year: 'numeric'
   });
   

@@ -65,7 +65,7 @@ export function BeforeAfterSlider({
   useEffect(() => {
     if (!containerRef.current) return
     const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setContainerWidth(entry.contentRect.width)
       }
     })
@@ -78,7 +78,7 @@ export function BeforeAfterSlider({
       ref={containerRef}
       className="relative w-full overflow-hidden select-none touch-none rounded-xl border border-border-default shadow-inner"
       style={{ aspectRatio: '16/9' }}
-      onMouseMove={handleMouseMove}
+      onMouseMove={handleMouseMove as any}
       onTouchMove={(e) => handleMove(e.touches[0].clientX)}
       onMouseDown={() => setIsDragging(true)}
       onMouseUp={() => setIsDragging(false)}

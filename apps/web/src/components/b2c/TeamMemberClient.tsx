@@ -1,13 +1,12 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Download, Code, Terminal, Activity, ArrowUpRight } from "lucide-react";
-import React, { useRef, useEffect } from "react";
+import { ArrowLeft, Calendar, Download, ArrowUpRight } from "lucide-react";
+import React, { useEffect } from "react";
 import { 
   useB2CTheme, 
-  B2CCard, 
-  B2CBadge 
+  B2CCard 
 } from "@/components/ui/B2CThemeComponents";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
@@ -26,8 +25,8 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
   // Interactive Background tracking
   const bgX = useMotionValue(0);
   const bgY = useMotionValue(0);
-  const bgXSpring = useSpring(bgX, { stiffness: 50, damping: 30 });
-  const bgYSpring = useSpring(bgY, { stiffness: 50, damping: 30 });
+  useSpring(bgX, { stiffness: 50, damping: 30 });
+  useSpring(bgY, { stiffness: 50, damping: 30 });
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {

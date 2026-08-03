@@ -1,4 +1,4 @@
-import { PrismaClient, RoleType, LeadStatus } from '@prisma/client'
+import { PrismaClient, RoleType } from '@prisma/client'
 import * as bcrypt from 'bcryptjs'
 import { seedServices } from './seed-services'
 
@@ -25,7 +25,7 @@ async function main() {
   console.log('Created Super Admin:', superAdmin.email)
 
   // 2. Organizational Hierarchy (Team Members)
-  const chairman = await prisma.employeeProfile.create({
+  await prisma.employeeProfile.create({
     data: {
       slug: 'abdullah-al-kubaisi',
       firstName: 'Abdullah',
@@ -55,7 +55,7 @@ async function main() {
     }
   })
 
-  const gm = await prisma.employeeProfile.create({
+  await prisma.employeeProfile.create({
     data: {
       slug: 'mohammad-ali-awada',
       firstName: 'Mohammad Ali',

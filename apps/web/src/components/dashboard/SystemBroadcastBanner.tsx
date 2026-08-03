@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { AlertCircle, X, Megaphone } from "lucide-react"
+import { X, Megaphone } from "lucide-react"
 import { useSocket } from "@/hooks/useSocket"
 
 interface SystemBroadcastBannerProps {
@@ -18,14 +18,10 @@ export function SystemBroadcastBanner({ initialBroadcast }: SystemBroadcastBanne
   const [broadcast, setBroadcast] = useState(initialBroadcast)
   const [isVisible, setIsVisible] = useState(!!initialBroadcast)
   const socket = useSocket('/dashboard')
-  const [isConnected, setIsConnected] = useState(false)
 
   // Real-time broadcast updates
   useEffect(() => {
     if (!socket) return
-
-    const handleConnect = () => setIsConnected(true)
-    const handleDisconnect = () => setIsConnected(false)
 
     const handleBroadcast = (data: { id: string, message: string }) => {
       setBroadcast({

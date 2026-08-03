@@ -5,7 +5,7 @@ import Image, { ImageProps } from "next/image"
  * In a real production environment, this should hit an edge function or microservice
  * to prevent blocking the main thread, or be pre-generated at build time in the CMS.
  */
-export async function generateBlurDataURL(url: string) {
+export async function generateBlurDataURL() {
   // Mock logic: return a solid transparent/light gray base64 for now
   // Real implementation: fetch(url), resize to 20px, return base64 string
   return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="

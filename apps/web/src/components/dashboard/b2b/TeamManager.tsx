@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  Users, Calendar, Clock, Plus, Trash2, Edit2, Check, 
-  ChevronRight, CalendarDays, ShieldAlert, Sparkles, CheckCircle2 
+  Users, Calendar, Clock, Plus, Trash2, 
+  ChevronRight, CalendarDays, CheckCircle2 
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"

@@ -2,39 +2,27 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { UploadCloud, ChevronRight, FileText, CheckCircle2, Building, Target, Heart } from "lucide-react";
-import { Canvas } from "@react-three/fiber";
-import { useGLTF, Stage, PresentationControls } from "@react-three/drei";
-import { Suspense } from "react";
+import { UploadCloud, ChevronRight, CheckCircle2, Target, Heart } from "lucide-react";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { 
   useB2CTheme, 
   B2CCard, 
   B2CButton, 
-  B2CInput, 
-  B2CBadge 
+  B2CInput 
 } from "@/components/ui/B2CThemeComponents";
 import { ImmersiveCanvas } from "@/components/ui/ImmersiveCanvas";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
-import { B2CGrid, B2CBentoItem } from "@/components/ui/B2CGrid";
+import { B2CGrid } from "@/components/ui/B2CGrid";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 
-function ModelViewer({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
-  return (
-    <PresentationControls speed={1.5} global zoom={0.5} polar={[-0.1, Math.PI / 4]}>
-      <Stage environment="city" intensity={0.6} castShadow={false}>
-        <primitive object={scene} />
-      </Stage>
-    </PresentationControls>
-  );
-}
+
 
 export function DiscoverClient({ locale, initialSettings }: { locale: string; initialSettings: any }) {
   const [dragActive, setDragActive] = useState(false);
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "success">("idle");
-  const { theme } = useB2CTheme();
+  useB2CTheme();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -382,7 +370,7 @@ function BookingForm({ type, accentColor = "purple" }: { type: string, accentCol
   };
 
   const isRose = accentColor === "rose";
-  const accentHex = isRose ? "var(--e3-magenta)" : "var(--e3-royal-blue)";
+  const _accentHex = isRose ? "var(--e3-magenta)" : "var(--e3-royal-blue)";
   const alertBg = isRose ? "bg-[var(--e3-magenta)]/10 border-[var(--e3-magenta)]/30" : "bg-[var(--e3-royal-blue)]/10 border-[var(--e3-royal-blue)]/30";
   const textClass = isRose ? "text-[var(--e3-magenta)]" : "text-[var(--e3-royal-blue)]";
 

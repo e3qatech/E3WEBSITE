@@ -8,7 +8,7 @@ import { AdminTextarea } from "@/components/dashboard/ui/AdminTextarea"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminMediaPicker } from "@/components/dashboard/ui/AdminMediaPicker"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { Save, Image as ImageIcon } from "lucide-react"
+import { Save } from "lucide-react"
 
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
@@ -55,7 +55,7 @@ export function B2BHomeEditor({
       if (!res.ok) throw new Error("Failed to save")
       
       toast("Homepage content updated successfully", "success")
-    } catch (e) {
+    } catch {
       toast("Failed to update homepage content", "error")
     } finally {
       setIsSaving(false)

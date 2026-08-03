@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, ChevronDown, CheckCircle2, Zap, Settings, Shield, Award, Users, Globe } from "lucide-react";
+import { ArrowRight, ChevronDown, Zap, Settings, Shield, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface ServiceItem {

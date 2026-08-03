@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     // Parse dateRange
     const now = new Date()
-    let startDate = new Date()
+    const startDate = new Date()
     if (dateRange === "Today") {
       startDate.setHours(0, 0, 0, 0)
     } else if (dateRange === "Last 7 Days") {

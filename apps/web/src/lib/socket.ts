@@ -86,7 +86,7 @@ export const initSocket = (server: HttpServer) => {
   
   // Rate limiter per connection (very naive implementation)
   publicNamespace.use((socket, next) => {
-    let emits = 0
+    const _emits = 0
     const interval = setInterval(() => { emits = 0 }, 1000)
     socket.on('disconnect', () => clearInterval(interval))
     
@@ -127,7 +127,7 @@ export const initSocket = (server: HttpServer) => {
       // Optionally attach user info to socket
       socket.data.user = { authenticated: true }
       next()
-    } catch (e) {
+    } catch {
       next(new Error('Authentication error'))
     }
   })

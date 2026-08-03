@@ -83,7 +83,7 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
   ];
 
   // Fetch story image if it's a media URL
-  let finalMediaUrl = storyMediaUrl || legacyImageMediaId || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+  const finalMediaUrl = storyMediaUrl || legacyImageMediaId || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>

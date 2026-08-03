@@ -74,7 +74,7 @@ export function TemporalRulesManager({
       setDaysOfWeek([])
       
       router.refresh()
-    } catch (err) {
+    } catch {
       alert("Failed to add temporal rule.")
     } finally {
       setIsSubmitting(false)

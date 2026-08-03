@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Settings2, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 

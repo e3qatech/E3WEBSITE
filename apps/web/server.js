@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
@@ -28,16 +29,16 @@ app.prepare().then(() => {
   try {
     // In a real TS setup, you'd compile src/lib/socket.ts or use tsx.
     // We'll mock the import here to avoid complex ts-node setup for this demo.
-    const { initSocket } = require('./.next/server/app/api/socket.js') // Fallback path mapping or compiled
+    const { initSocket } = require('./.next/server/app/api/socket.js') /* eslint-disable @typescript-eslint/no-require-imports */
     initSocket(server)
-  } catch(e) {
+  } catch {
     console.warn("Could not load socket initializer, attempting ts-node fallback or ignoring...")
     try {
       require('ts-node').register({ transpileOnly: true })
       const { initSocket } = require('./src/lib/socket.ts')
       initSocket(server)
       console.log('> Socket.io attached via ts-node')
-    } catch(err) {
+    } catch {
       console.log('> Running Next.js server without Socket.io attached (build error)')
     }
   }

@@ -1,0 +1,15 @@
+{
+  "name": "tmp",
+  "version": "1.0.0",
+  "main": "build_plan.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ts-morph": "^28.0.0"
+  }
+}

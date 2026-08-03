@@ -11,14 +11,9 @@ import {
   Users, 
   Activity, 
   Database, 
-  Settings, 
-  Menu,
+  Settings,
   ChevronLeft,
-  ChevronRight,
   LogOut,
-  Bell,
-  Search,
-  CheckCircle,
   FileText,
   Star,
   Users2
@@ -96,7 +91,7 @@ export function AdminSidebar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const isClient = useMounted();
   const { data: session } = useSession();
-  const { resolvedTheme } = useAdminTheme();
+  const {} = useAdminTheme();
   
   const userRole = (session?.user as any)?.role || "SUPER_ADMIN"; // Default to Super Admin for command center view if no session
   const userInitials = session?.user?.email?.substring(0, 2).toUpperCase() || "SU";

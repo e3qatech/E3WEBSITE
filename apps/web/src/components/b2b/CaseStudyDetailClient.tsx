@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Quote, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -149,7 +149,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
   const metrics = parseJsonSafe(caseStudy.metrics) || [];
   const testimonial = parseJsonSafe(caseStudy.testimonial);
   const beforeAfter = parseJsonSafe(caseStudy.beforeAfter);
-  const gallery = parseJsonSafe(caseStudy.gallery) || [];
+
   const servicesUsed = parseJsonSafe(caseStudy.servicesUsed) || [];
   const technicalSpecs = parseJsonSafe(caseStudy.technicalSpecs) || [];
 

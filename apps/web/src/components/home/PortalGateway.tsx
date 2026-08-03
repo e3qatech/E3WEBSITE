@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useMounted } from "@/hooks/useMounted"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
@@ -26,7 +27,7 @@ export function PortalGateway({
   const router = useRouter()
   const [hoveredPortal, setHoveredPortal] = useState<'b2c' | 'b2b' | null>(null)
   const [selectedPortal, setSelectedPortal] = useState<'b2c' | 'b2b' | null>(null)
-  const mounted = useMounted()
+  useMounted()
 
   useEffect(() => {
     const stored = localStorage.getItem('e3_preferred_portal')

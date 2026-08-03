@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import { ArrowRight, Phone, Mail, MessageCircle } from "lucide-react"
+import { Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MeetingBookingModal } from "./MeetingBookingModal"
 
@@ -16,7 +15,7 @@ interface DynamicCTAProps {
 }
 
 export function DynamicCTA({ type, serviceSlug, locale }: DynamicCTAProps) {
-  const isRTL = locale === 'ar'
+
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const renderPrimaryAction = () => {

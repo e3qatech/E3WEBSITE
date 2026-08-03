@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Search, Plus, Phone, Mail, Building, MoreVertical, XCircle, ArrowRight } from "lucide-react"
+import { Search, Plus, Mail, Building, XCircle, ArrowRight } from "lucide-react"
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import Link from "next/link"
