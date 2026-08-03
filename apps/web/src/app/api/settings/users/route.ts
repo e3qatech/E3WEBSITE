@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requireApiRole } from "@/lib/auth-helpers"
 
 export async function GET() {
   try {
-    const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireApiRole(["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"])
+    if ("error" in authResult) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
 
     const users = await db.user.findMany({
@@ -30,9 +30,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireApiRole(["SUPER_ADMIN", "SUPPORT_ADMIN"])
+    if ("error" in authResult) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
 
     const body = await request.json()

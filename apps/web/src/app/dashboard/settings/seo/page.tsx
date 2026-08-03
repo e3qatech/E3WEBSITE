@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import db from "@/lib/db"
 import { SeoSettingsView } from "@/components/dashboard/settings/SeoSettingsView"
+import { requireRole } from "@/lib/auth-helpers"
 
 export const metadata: Metadata = {
   title: "SEO Settings | E3 Admin",
@@ -9,6 +10,9 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function SeoSettingsPage() {
+  // Validate that the user is authenticated, active, and has one of the allowed admin roles
+  await requireRole(["SUPER_ADMIN", "SALES_ADMIN"])
+
   const settingsRecords = await db.setting.findMany({
     where: { type: "SEO" }
   })

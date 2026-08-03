@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from '@/lib/auth';
+import { requireApiRole } from '@/lib/auth-helpers';
 import db from "@/lib/db"
 
 // Mock Redis client for invalidation
@@ -11,9 +11,9 @@ const redis = {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  const authResult = await requireApiRole(['SUPER_ADMIN', 'SALES_ADMIN']);
+  if ('error' in authResult) {
+    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
   }
 
   try {
@@ -43,9 +43,9 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  const authResult = await requireApiRole(['SUPER_ADMIN', 'SALES_ADMIN']);
+  if ('error' in authResult) {
+    return NextResponse.json({ error: authResult.error }, { status: authResult.status });
   }
 
   try {
