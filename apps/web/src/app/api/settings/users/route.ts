@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requireRole, AuthError } from "@/lib/server-auth"
+import bcrypt from "bcryptjs"
+import crypto from "crypto"
 
 export async function GET() {
   try {
-    const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    await requireRole(["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"])
 
-    const users = await db.user.findMany({
+    const users = await db.users.findMany({
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -22,18 +21,18 @@ export async function GET() {
     })
 
     return NextResponse.json(users)
-  } catch (error) {
+  } catch (error: any) {
     console.error("[USERS_GET_ERROR]", error)
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    await requireRole(["SUPER_ADMIN", "SUPPORT_ADMIN"])
 
     const body = await request.json()
     const { name, email, role } = body
@@ -42,10 +41,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // Use a placeholder or built-in crypto to avoid long dependency install
-    const hashedPassword = "TempPassword123!-hashed-mock"
+    const rawPassword = crypto.randomBytes(16).toString('hex')
+    const hashedPassword = await bcrypt.hash(rawPassword, 10)
 
-    const user = await db.user.create({
+    const user = await db.users.create({
       data: {
         name,
         email,
@@ -63,9 +62,12 @@ export async function POST(request: Request) {
       }
     })
 
-    return NextResponse.json(user)
-  } catch (error) {
+    return NextResponse.json({ ...user, tempPassword: rawPassword })
+  } catch (error: any) {
     console.error("[USERS_POST_ERROR]", error)
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

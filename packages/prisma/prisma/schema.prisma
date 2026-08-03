@@ -698,6 +698,7 @@ model Users {
   isActive         Boolean   @default(true)
   lastLogin        DateTime?
   emailVerified    DateTime?
+  sessionVersion   Int       @default(1)
   twoFactorEnabled Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
