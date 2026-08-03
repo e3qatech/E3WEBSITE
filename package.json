@@ -8,7 +8,12 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "db:generate": "turbo run db:generate",
     "db:push": "turbo run db:push",
-    "db:seed": "turbo run db:seed"
+    "db:seed": "turbo run db:seed",
+    "db:status:development": "pnpm --filter web run db:status:development",
+    "db:migrate:development": "pnpm --filter web run db:migrate:development",
+    "db:seed:team:development": "pnpm --filter web run db:seed:team:development",
+    "env:pull:development": "pnpm --filter web run env:pull:development",
+    "db:verify:development": "pnpm --filter web run db:verify:development"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -18,7 +23,8 @@
   },
   "packageManager": "pnpm@9.1.0",
   "engines": {
-    "node": ">=18"
+    "node": "22.x",
+    "pnpm": "9.1.0"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
