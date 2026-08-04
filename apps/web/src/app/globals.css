@@ -13,7 +13,9 @@
 
 @theme {
   --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--accent-primary-foreground);
   --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--accent-secondary-foreground);
   --color-accent: var(--color-accent);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
@@ -67,8 +69,12 @@
 
   --color-primary: #0E7A68;
   --color-primary-hover: #0A6658;
+  --accent-primary-foreground: #F5F1E8;
+  
   --color-secondary: #B88948;
   --color-secondary-hover: #9B7137;
+  --accent-secondary-foreground: #11171A;
+
   --color-accent: #812238;
 
   --color-success: #2F9D79;
@@ -113,8 +119,12 @@
 
   --color-primary: #0E7A68;
   --color-primary-hover: #0A6658;
+  --accent-primary-foreground: #F5F1E8; /* Contrast 4.65:1 */
+
   --color-secondary: #B88948;
   --color-secondary-hover: #9B7137;
+  --accent-secondary-foreground: #11171A; /* Contrast 5.78:1 */
+
   --color-accent: #812238;
 
   --btn-radius: 12px;
@@ -147,8 +157,12 @@
 
   --color-primary: #0B6B5D;
   --color-primary-hover: #085247;
+  --accent-primary-foreground: #FFFFFF;
+
   --color-secondary: #8B642D;
   --color-secondary-hover: #715022;
+  --accent-secondary-foreground: #FFFFFF;
+
   --color-accent: #7B2034;
 
   --btn-radius: 12px;
@@ -186,9 +200,16 @@
 
   --color-primary: #0E8588;
   --color-primary-hover: #0B6D70;
+  --accent-primary-foreground: #FFF8EC; /* Contrast 5.34:1 */
+
   --color-secondary: #E85056;
+  --accent-secondary-foreground: #07151B; /* Contrast 5.05:1 */
+
   --color-accent: #D88A00;
+  --accent-warm-foreground: #07151B; /* Contrast 6.67:1 */
+
   --color-fresh: #6F9F3E;
+  --accent-fresh-foreground: #FFFFFF; /* Contrast 4.84:1 */
 
   --btn-radius: 16px;
   --card-radius: 24px;
@@ -220,9 +241,16 @@
 
   --color-primary: #08777A;
   --color-primary-hover: #065F61;
+  --accent-primary-foreground: #FFFFFF;
+
   --color-secondary: #D84148;
+  --accent-secondary-foreground: #FFFFFF;
+
   --color-accent: #B96F00;
+  --accent-warm-foreground: #FFFFFF;
+
   --color-fresh: #537D2D;
+  --accent-fresh-foreground: #FFFFFF;
 
   --btn-radius: 16px;
   --card-radius: 24px;
@@ -257,6 +285,8 @@
 
   --color-primary: #17806D;
   --color-primary-hover: #126858;
+  --accent-primary-foreground: #EFF3F5;
+
   --color-secondary: #3B82F6;
   --color-accent: #F59E0B;
 
@@ -288,6 +318,8 @@
 
   --color-primary: #0B6E5D;
   --color-primary-hover: #085649;
+  --accent-primary-foreground: #FFFFFF;
+
   --color-secondary: #2563EB;
   --color-accent: #D97706;
 
@@ -322,7 +354,7 @@ body {
 
 ::selection {
   background-color: var(--color-primary);
-  color: #FFFFFF;
+  color: var(--accent-primary-foreground);
 }
 
 *:focus-visible {
@@ -446,12 +478,22 @@ html[dir="rtl"] .icon-flip {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Respect prefers-reduced-motion */
+/* --------------------------------------------------------------------------
+   8. TARGETED REDUCED MOTION RULES
+   Preserves essential loaders, progress bars, validation states, and open/close state transitions.
+   Stops continuous marquees, floating loops, and decorative parallax effects.
+   -------------------------------------------------------------------------- */
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .animate-marquee,
+  .animate-float,
+  .animate-spin-slow,
+  .decorative-motion {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  html {
     scroll-behavior: auto !important;
   }
 }
