@@ -5,6 +5,13 @@ import { seedServices } from './seed-services'
 const prisma = new PrismaClient()
 
 async function main() {
+  // Environment Guard — Prevent accidental execution in Production
+  const env = process.env.E3_DATABASE_ENV || process.env.VERCEL_ENV || process.env.NODE_ENV;
+  if (env === 'production' && process.env.ALLOW_PRODUCTION_SEED !== 'true') {
+    console.error('[SEED GUARD] Seeding is blocked in Production environment.');
+    process.exit(1);
+  }
+
   console.log('Seeding database...')
 
   // 1. Credentials & Access Controls
@@ -24,9 +31,11 @@ async function main() {
   })
   console.log('Created Super Admin:', superAdmin.email)
 
-  // 2. Organizational Hierarchy (Team Members)
-  await prisma.employeeProfile.create({
-    data: {
+  // 2. Organizational Hierarchy (Team Members - Idempotent Upsert)
+  await prisma.employeeProfile.upsert({
+    where: { slug: 'abdullah-al-kubaisi' },
+    update: {},
+    create: {
       slug: 'abdullah-al-kubaisi',
       firstName: 'Abdullah',
       lastName: 'Al Kubaisi',
@@ -55,8 +64,10 @@ async function main() {
     }
   })
 
-  await prisma.employeeProfile.create({
-    data: {
+  await prisma.employeeProfile.upsert({
+    where: { slug: 'mohammad-ali-awada' },
+    update: {},
+    create: {
       slug: 'mohammad-ali-awada',
       firstName: 'Mohammad Ali',
       lastName: 'Awada',

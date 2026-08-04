@@ -1,29 +1,26 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import ioredis from 'ioredis';
 
 // Mock ioredis constructor to count instantiations
 let redisConstructorCount = 0;
 
 vi.mock('ioredis', () => {
-  const MockRedis = vi.fn().mockImplementation(() => {
-    redisConstructorCount++;
-    return {
-      on: vi.fn(),
-      incr: vi.fn().mockResolvedValue(1),
-      expire: vi.fn().mockResolvedValue(true),
-      get: vi.fn().mockResolvedValue(null),
-      set: vi.fn().mockResolvedValue('OK'),
-      del: vi.fn().mockResolvedValue(1),
-      duplicate: vi.fn().mockImplementation(() => {
-        redisConstructorCount++;
-        return {
-          on: vi.fn(),
-          incr: vi.fn().mockResolvedValue(1),
-          expire: vi.fn().mockResolvedValue(true)
-        };
-      })
-    };
-  });
+  class MockRedis {
+    on = vi.fn();
+    incr = vi.fn().mockResolvedValue(1);
+    expire = vi.fn().mockResolvedValue(true);
+    get = vi.fn().mockResolvedValue(null);
+    set = vi.fn().mockResolvedValue('OK');
+    del = vi.fn().mockResolvedValue(1);
+
+    constructor() {
+      redisConstructorCount++;
+    }
+
+    duplicate() {
+      redisConstructorCount++;
+      return new MockRedis();
+    }
+  }
   return { default: MockRedis };
 });
 
@@ -32,6 +29,8 @@ describe('Gate 02: Redis Build & Runtime Isolation', () => {
 
   beforeEach(() => {
     redisConstructorCount = 0;
+    delete (globalThis as any).redisClient;
+    delete (globalThis as any).redisErrorLogged;
     process.env = { ...origEnv };
     vi.resetModules();
   });
@@ -43,13 +42,11 @@ describe('Gate 02: Redis Build & Runtime Isolation', () => {
   it('1. Importing redis.ts, socket.ts, emitter.ts, and rate-limit.ts creates ZERO Redis clients at import time', async () => {
     delete process.env.REDIS_URL;
 
-    // Dynamically import all 4 infrastructure files
     await import('../lib/redis');
     await import('../lib/socket');
     await import('../lib/emitter');
     await import('../lib/rate-limit');
 
-    // Constructor count must be exactly ZERO after importing
     expect(redisConstructorCount).toBe(0);
   });
 
@@ -143,6 +140,5 @@ describe('Gate 02: Redis Build & Runtime Isolation', () => {
     const client = getRedisClient({ mode: 'optional' });
 
     expect(client).not.toBeNull();
-    // Verify client initialization occurred without logging credentials
   });
 });

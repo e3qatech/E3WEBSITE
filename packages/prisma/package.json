@@ -6,15 +6,14 @@
   "types": "./src/index.ts",
   "scripts": {
     "lint": "eslint . --max-warnings=0",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:generate": "prisma generate --schema=../../apps/web/prisma/schema.prisma",
     "db:seed": "tsx src/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.14.0"
+    "@prisma/client": "^5.22.0"
   },
   "devDependencies": {
-    "prisma": "^5.14.0",
+    "prisma": "^5.22.0",
     "tsx": "^4.7.1",
     "typescript": "^5.4.5"
   }
