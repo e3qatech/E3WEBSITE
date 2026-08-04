@@ -77,6 +77,7 @@ const sidebarConfig = [
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Global", href: "/dashboard/settings/general" },
+    { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
     { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },
     { label: "SEO & Meta", href: "/dashboard/settings/seo" }

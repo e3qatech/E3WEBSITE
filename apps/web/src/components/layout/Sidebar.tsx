@@ -51,6 +51,7 @@ const sidebarConfig = [
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN"], subItems: [
     { label: "General", href: "/dashboard/settings/general" },
+    { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
     { label: "SEO", href: "/dashboard/settings/seo" },
     { label: "UI", href: "/dashboard/settings/ui" },
     { label: "Users", href: "/dashboard/settings/users" }
