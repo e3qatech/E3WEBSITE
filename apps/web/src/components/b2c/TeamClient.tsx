@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, useSpring, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import { useRef } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { 
-  useB2CTheme, 
-  B2CBadge 
+  useB2CTheme 
 } from "@/components/ui/B2CThemeComponents";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
@@ -49,7 +48,7 @@ export function TeamClient({ locale, initialMembers, initialSettings }: { locale
           </header>
 
           <B2CGrid columns={3} gap="md">
-            {initialMembers.map((member, i) => (
+            {initialMembers.map((member) => (
               <InteractiveCard key={member.slug} glowColor="rgba(26, 31, 214, 0.4)" tiltStrength={8}>
                 <Link href={`/${locale}/b2c/team/${member.slug}`} className="block h-full relative z-10">
                   <div className="p-4 flex flex-col relative overflow-hidden h-full">

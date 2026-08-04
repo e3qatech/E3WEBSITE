@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowRight, Play, X, Calendar, Clock, User, Building, Mail, Phone, MessageSquare } from "lucide-react";
+import { Play, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 // Dynamically import Three.js components to prevent bundle bloat on non-3D pages
@@ -19,7 +19,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
   const processRef = useRef<HTMLElement>(null);
   const galleryRef = useRef<HTMLElement>(null);
   
-  const { scrollYProgress } = useScroll({
+  useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
@@ -32,7 +32,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
   const heroY = useTransform(heroProgress, [0, 1], ["0%", "50%"]);
   const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0]);
 
-  const [activeSection, setActiveSection] = useState(0);
+  const [activeSection] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
@@ -57,7 +57,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
           return null;
         });
       }
-    } catch(e) {
+    } catch {
       // Fallback if it's plain text or HTML
       return <div className="prose prose-invert" dangerouslySetInnerHTML={{ __html: contentStr }} />;
     }
@@ -253,7 +253,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
         <div className="relative z-10 max-w-3xl mx-auto">
           <h2 className="text-5xl md:text-6xl font-black mb-8 text-[var(--text-primary)]">Ready to Build the Impossible?</h2>
           <p className="text-xl text-[var(--text-secondary)] mb-12">
-            Let's discuss how our technical expertise can elevate your next project.
+            Let&apos;s discuss how our technical expertise can elevate your next project.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Sparkles } from "lucide-react"
 
 interface BeforeAfterSliderProps {
@@ -20,7 +20,7 @@ export function BeforeAfterSlider({
   const [isDragging, setIsDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const handleMove = (clientX: number) => {
+  const handleMove = useCallback((clientX: number) => {
     if (!containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
     const x = clientX - rect.left
@@ -28,21 +28,21 @@ export function BeforeAfterSlider({
     if (position < 0) position = 0
     if (position > 100) position = 100
     setSliderPosition(position)
-  }
+  }, [])
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging) return
     handleMove(e.touches[0].clientX)
-  }
+  }, [isDragging, handleMove])
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return
     handleMove(e.clientX)
-  }
+  }, [isDragging, handleMove])
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-  }
+  }, [])
 
   useEffect(() => {
     if (isDragging) {
@@ -58,26 +58,47 @@ export function BeforeAfterSlider({
       window.removeEventListener("touchmove", handleTouchMove)
       window.removeEventListener("touchend", handleMouseUp)
     }
-  }, [isDragging])
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove])
+
+  const [containerWidth, setContainerWidth] = useState<number | string>('100%')
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width)
+      }
+    })
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full aspect-video rounded-xl overflow-hidden select-none cursor-ew-resize border border-border-default shadow-inner"
+      className="relative w-full overflow-hidden select-none touch-none rounded-xl border border-border-default shadow-inner"
+      style={{ aspectRatio: '16/9' }}
+      onMouseMove={handleMouseMove as any}
+      onTouchMove={(e) => handleMove(e.touches[0].clientX)}
       onMouseDown={() => setIsDragging(true)}
-      onTouchStart={() => setIsDragging(true)}
+      onMouseUp={() => setIsDragging(false)}
+      onMouseLeave={() => setIsDragging(false)}
+      onTouchStart={(e) => {
+        setIsDragging(true)
+        handleMove(e.touches[0].clientX)
+      }}
     >
-      {/* After (Base/Underneath Image) */}
+      {/* After Image (Background) */}
       <img 
         src={afterImage} 
         alt="After" 
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
       />
-      <div className="absolute end-4 bottom-4 bg-zinc-950/60 text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider backdrop-blur-sm z-10">
+      <div className="absolute top-4 end-4 bg-zinc-950/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10 pointer-events-none">
         {afterLabel}
       </div>
 
-      {/* Before (Overlay Image, Clipped) */}
+      {/* Before Image (Foreground, clipped) */}
       <div 
         className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ width: `${sliderPosition}%` }}
@@ -85,10 +106,10 @@ export function BeforeAfterSlider({
         <img 
           src={beforeImage} 
           alt="Before" 
-          className="absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none"
-          style={{ width: containerRef.current?.getBoundingClientRect().width }}
+          className="absolute inset-0 h-full object-cover"
+          style={{ width: containerWidth, maxWidth: 'none' }}
         />
-        <div className="absolute start-4 bottom-4 bg-accent text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-wider shadow z-10">
+        <div className="absolute top-4 start-4 bg-white/80 backdrop-blur-md text-zinc-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-10">
           {beforeLabel}
         </div>
       </div>

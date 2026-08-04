@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { OrbitControls, Html, Grid } from "@react-three/drei"
 import * as THREE from "three"
 import { AttractionData } from "./SpatialFallback"
-import Link from "next/link"
+import "next/link"
 import { Info, Ticket } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
@@ -24,7 +24,7 @@ const QATAR_POINTS = [
 ]
 
 export function SpatialScene({ attractions, onAttractionClick }: SpatialSceneProps) {
-  const { camera, size, gl } = useThree()
+  const { camera } = useThree()
   const instancedMeshRef = useRef<THREE.InstancedMesh>(null)
   
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -81,7 +81,7 @@ export function SpatialScene({ attractions, onAttractionClick }: SpatialScenePro
   }, [attractions, object, color])
 
   // Animation Loop
-  useFrame((state, delta) => {
+  useFrame((state) => {
     // Pulse animation for active markers
     if (instancedMeshRef.current) {
       const time = state.clock.getElapsedTime()

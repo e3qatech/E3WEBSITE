@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Noto_Sans_Arabic } from "next/font/google"
+import { Manrope, IBM_Plex_Sans_Arabic } from "next/font/google"
 import Script from "next/script"
 import { SEO } from "@/components/shared/SEO"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
@@ -9,17 +9,18 @@ import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import "./globals.css"
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-manrope",
   preload: true
 })
 
-const notoSansArabic = Noto_Sans_Arabic({
+const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["arabic"],
   display: "swap",
-  variable: "--font-noto-arabic",
+  variable: "--font-ibm-arabic",
   preload: true
 })
 
@@ -85,7 +86,7 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en" data-theme="dark" className={`${inter.variable} ${notoSansArabic.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className={`${manrope.variable} ${ibmPlexSansArabic.variable}`} suppressHydrationWarning>
       <body className="antialiased font-sans bg-[var(--surface-default)] text-[var(--text-primary)]" suppressHydrationWarning>
         <Script id="theme-script">
           {`

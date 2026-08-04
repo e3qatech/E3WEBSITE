@@ -6,12 +6,20 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "db:generate": "turbo run db:generate",
-    "db:push": "turbo run db:push",
-    "db:seed": "turbo run db:seed"
+    "db:generate": "pnpm --filter web exec prisma generate --schema=prisma/schema.prisma",
+    "db:push": "pnpm --filter web exec prisma db push --schema=prisma/schema.prisma",
+    "db:seed": "pnpm --filter web exec prisma db seed",
+    "verify:prisma": "pnpm --filter web exec prisma generate --schema=prisma/schema.prisma",
+    "verify:typecheck": "pnpm --filter web exec tsc --noEmit",
+    "verify:test": "pnpm --filter web test:all",
+    "verify:lint": "pnpm --filter web lint",
+    "verify:security": "pnpm --filter web test:gate05",
+    "verify:audit": "pnpm audit --prod",
+    "verify:build": "pnpm --filter web build"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "playwright": "^1.62.1",
     "prettier": "^3.2.5",
     "turbo": "latest",
     "typescript": "^5.4.5"

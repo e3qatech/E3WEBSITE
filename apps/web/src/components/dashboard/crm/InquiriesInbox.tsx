@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Search, MessageSquare, CheckCircle, UserPlus, X, Trash2, Clock, CheckCircle2, ChevronRight, XCircle, ArrowRight, Mail, Phone } from "lucide-react"
+import { Search, MessageSquare, CheckCircle, UserPlus, Trash2, Clock, CheckCircle2, XCircle, Mail, Phone } from "lucide-react"
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminStatusBadge } from "@/components/dashboard/ui/AdminStatusBadge"

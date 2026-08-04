@@ -19,7 +19,7 @@ interface ServiceRichTextProps {
 }
 
 export function ServiceRichText({ blocks, locale }: ServiceRichTextProps) {
-  const isRTL = locale === 'ar'
+
 
   const renderBlock = (block: ContentBlock) => {
     switch (block.type) {
@@ -53,7 +53,7 @@ export function ServiceRichText({ blocks, locale }: ServiceRichTextProps) {
       case 'quote':
         return (
           <blockquote key={block.id} className="ps-6 border-s-4 border-[var(--color-primary)] my-8 italic">
-            <p className="text-2xl text-[var(--text-primary)] mb-2 font-medium">"{block.content}"</p>
+            <p className="text-2xl text-[var(--text-primary)] mb-2 font-medium">&quot;{block.content}&quot;</p>
             {block.author && <footer className="text-sm text-[var(--text-tertiary)]">— {block.author}</footer>}
           </blockquote>
         )

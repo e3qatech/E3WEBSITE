@@ -94,7 +94,6 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
           </div>
         ) : (
           <div className="w-full h-48 bg-zinc-950/80 p-4 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={value} alt="Uploaded Media" className="max-w-full max-h-full object-contain" />
           </div>
         )}

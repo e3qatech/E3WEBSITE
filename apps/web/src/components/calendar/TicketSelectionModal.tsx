@@ -30,7 +30,8 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
 
   useEffect(() => {
     if (isOpen && event) {
-      setLoading(true);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  setLoading(true);
       // Reset quantities
       setQuantities({});
       

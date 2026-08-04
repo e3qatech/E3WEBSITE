@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import {} from "@/lib/db"
 import { auth } from "@/lib/auth"
 
 export async function POST(request: Request) {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    await request.json()
     // A robust parser would process the huge 8-tab payload here.
     // For now, we mock the success response to validate the UI logic.
     

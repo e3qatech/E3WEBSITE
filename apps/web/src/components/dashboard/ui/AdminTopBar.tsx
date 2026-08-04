@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Search, Bell, ChevronRight, Command, Sun, Moon, Laptop, Menu } from "lucide-react"
+import { Search, Bell, ChevronRight, Command, Sun, Moon, Laptop } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAdminTheme } from "./AdminThemeProvider"
 import { cn } from "@/lib/utils"

@@ -1,29 +1,25 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
+import { rateLimit } from "@/lib/rate-limit";
+import { enforceBodyLimit } from "@/lib/body-limit";
 import { z } from "zod";
 import crypto from "crypto";
 
 const subscribeSchema = z.object({
   email: z.string().email("Invalid email address"),
-});
+}).strict();
 
 export async function POST(req: Request) {
   try {
-    // 1. Rate Limiting
+    // 1. Body Limit (4KB)
+    const limitResp = enforceBodyLimit(req, 4 * 1024);
+    if (limitResp) return limitResp;
+
+    // 2. Rate Limiting
     const ip = req.headers.get("x-forwarded-for") || "unknown_ip";
-    const rateLimitKey = `rate_limit:subscribe:${ip}`;
-    
-    try {
-      const currentCount = await redis.incr(rateLimitKey);
-      if (currentCount === 1) {
-        await redis.expire(rateLimitKey, 60); 
-      }
-      if (currentCount > 5) {
-        return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-      }
-    } catch (redisError) {
-      console.warn("[CSO] Redis rate limit bypassed:", redisError);
+    const rl = await rateLimit(`rate_limit:subscribe:${ip}`, 5, 60, false);
+    if (!rl.success) {
+      return NextResponse.json({ error: rl.error }, { status: 429 });
     }
 
     // 2. Input Validation

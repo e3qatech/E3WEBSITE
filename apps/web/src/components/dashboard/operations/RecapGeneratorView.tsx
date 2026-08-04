@@ -1,8 +1,7 @@
-// @ts-nocheck
 "use client"
 
 import { useState } from "react"
-import { BarChart3, FileDown, Calendar, Search } from "lucide-react"
+import { BarChart3, Search } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import dynamic from "next/dynamic"
 

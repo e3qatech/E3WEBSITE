@@ -11,8 +11,7 @@ import {
   Edit3, 
   Eye, 
   EyeOff, 
-  Star, 
-  CalendarDays,
+  Star,
   Trash2
 } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"

@@ -110,13 +110,15 @@ export function WireframeBackground() {
     }
     animate()
 
+    const container = containerRef.current
+
     // Cleanup
     return () => {
       cancelAnimationFrame(frameId)
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('resize', onResize)
-      if (containerRef.current?.contains(renderer.domElement)) {
-        containerRef.current.removeChild(renderer.domElement)
+      if (container?.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement)
       }
       geo.dispose()
       edgesGeo.dispose()

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { CheckCircle2, ChevronRight, ChevronLeft, Upload, Paperclip } from "lucide-react"
+import { CheckCircle2, ChevronRight, ChevronLeft, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 
@@ -21,30 +21,30 @@ export function MultiStepLeadForm({ locale, services }: MultiStepLeadFormProps) 
   const [isSuccess, setIsSuccess] = useState(false)
 
   // Form State
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    industry: '',
-    selectedServices: [] as string[],
-    budget: '',
-    timeline: '',
-    description: '',
-    source: '',
-  })
-
-  // Load from LocalStorage
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved))
-      } catch (e) {
-        // ignore
+  const [formData, setFormData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch {
+          // ignore
+        }
       }
     }
-  }, [])
+    return {
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      industry: '',
+      selectedServices: [] as string[],
+      budget: '',
+      timeline: '',
+      description: '',
+      source: '',
+    }
+  })
 
   // Save to LocalStorage
   useEffect(() => {
@@ -54,10 +54,10 @@ export function MultiStepLeadForm({ locale, services }: MultiStepLeadFormProps) 
   }, [formData, isSuccess])
 
   const toggleService = (id: string) => {
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       selectedServices: prev.selectedServices.includes(id)
-        ? prev.selectedServices.filter(s => s !== id)
+        ? prev.selectedServices.filter((s: string) => s !== id)
         : [...prev.selectedServices, id]
     }))
   }

@@ -264,7 +264,7 @@ async function main() {
   console.log(`Created CMS Pages`)
 
   // 4. Sample Services (2 items)
-  const service1 = await prisma.services.upsert({
+  await prisma.services.upsert({
     where: { slug: 'corporate-events' },
     update: {},
     create: {
@@ -279,7 +279,7 @@ async function main() {
     }
   })
 
-  const service2 = await prisma.services.upsert({
+  await prisma.services.upsert({
     where: { slug: 'brand-activations' },
     update: {},
     create: {
@@ -295,7 +295,7 @@ async function main() {
   console.log(`Created 2 services`)
 
   // 5. Sample Attraction
-  const attraction = await prisma.attractions.upsert({
+  await prisma.attractions.upsert({
     where: { slug: 'e3-wonderland' },
     update: {},
     create: {

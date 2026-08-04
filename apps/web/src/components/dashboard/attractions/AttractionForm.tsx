@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { 
-  Save, Eye, ArrowLeft, Image as ImageIcon, Settings, LayoutTemplate, Layers, Link as LinkIcon, Search, HelpCircle, Map, DollarSign, Users, Clock, Share2, X
+  Save, Eye, ArrowLeft, Image as ImageIcon, Settings, LayoutTemplate, Layers, Link as LinkIcon, Search, HelpCircle, Map, DollarSign, Users, Clock, Share2
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Tabs, TabsContent } from "@/components/dashboard/ui/Tabs"
 import { BilingualInput } from "@/components/dashboard/ui/BilingualInput"
 import { RichTextEditor } from "@/components/dashboard/ui/RichTextEditor"
-import { MediaUploader } from "@/components/dashboard/ui/MediaUploader"
 import { Repeater } from "@/components/dashboard/ui/Repeater"
 
 interface AttractionFormProps {

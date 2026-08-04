@@ -3,7 +3,11 @@ import db from '@/lib/db';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 
+import { rateLimit } from '@/lib/rate-limit';
+import { enforceBodyLimit } from '@/lib/body-limit';
+
 const applicationSchema = z.object({
+  website_hp: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
@@ -14,7 +18,7 @@ const applicationSchema = z.object({
   cvUrl: z.string().url("Valid CV URL is required"),
   cvText: z.string().optional(),
   portal: z.enum(["B2B", "B2C", "SHARED"]).default("SHARED")
-});
+}).strict();
 
 // Simulated AI Parser Function
 function simulateAIParse(text: string) {
@@ -45,7 +49,21 @@ function simulateAIParse(text: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown_ip';
+
+    // Body limit: 32KB for application submissions
+    const limitResp = enforceBodyLimit(req, 32 * 1024);
+    if (limitResp) return limitResp;
+
+    const rl = await rateLimit(`rate_limit:careers:${ip}`, 5, 60, false);
+    if (!rl.success) {
+      return NextResponse.json({ error: rl.error }, { status: 429 });
+    }
+
     const body = await req.json();
+    if (body.website_hp) {
+      return NextResponse.json({ success: true, status: 'ignored' }, { status: 201 });
+    }
     const validatedData = applicationSchema.parse(body);
 
     // 1. Check if user exists or create them

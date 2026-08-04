@@ -185,8 +185,11 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
       const mouseY = (state.pointer.y * 2)
       
       // Interpolate camera position slightly based on mouse
-      camera.position.x += (mouseX - camera.position.x) * 0.05 * delta * 10
-      camera.position.z += (mouseY + 8 - camera.position.z) * 0.05 * delta * 10
+      camera.position.set(
+        camera.position.x + (mouseX - camera.position.x) * 0.05 * delta * 10,
+        camera.position.y,
+        camera.position.z + (mouseY + 8 - camera.position.z) * 0.05 * delta * 10
+      )
       camera.lookAt(0, 0, 0)
       return
     }
@@ -196,7 +199,7 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
     camera.position.lerp(targetCamPos, 0.05)
     
     // Look at target
-    const currentLookAt = new THREE.Vector3(0,0,0) // Assuming we started looking at center
+
     // We should ideally track the lookAt point, but for simplicity we'll interpolate the rotation
     // by using a dummy object or just lerping the position and looking at the target
     camera.lookAt(targetPosition)
@@ -217,7 +220,14 @@ function CameraController({ targetPosition }: { targetPosition: THREE.Vector3 | 
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 export default function SpatialHub({ attractions, onAttractionClick }: SpatialHubProps) {
-  const [isLowEnd, setIsLowEnd] = useState(false)
+  const [isLowEnd] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768
+      const cores = navigator.hardwareConcurrency || 2
+      return isMobile && cores <= 4
+    }
+    return false
+  })
   const [activeAttraction, setActiveAttraction] = useState<AttractionMarker | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [cameraTarget, setCameraTarget] = useState<THREE.Vector3 | null>(null)
@@ -226,11 +236,6 @@ export default function SpatialHub({ attractions, onAttractionClick }: SpatialHu
   
   // Hardware capabilities check & Intersection Observer
   useEffect(() => {
-    const isMobile = window.innerWidth < 768
-    const cores = navigator.hardwareConcurrency || 2
-    if (isMobile && cores <= 4) {
-      setIsLowEnd(true)
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

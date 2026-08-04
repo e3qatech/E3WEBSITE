@@ -131,7 +131,7 @@ export function SocialNewsSection({
               <div>
                 <Quote className="w-10 h-10 text-emerald-500 mb-6 opacity-50" />
                 <p className="text-lg md:text-xl font-medium leading-relaxed mb-6">
-                  "{testimonial.quote}"
+                  &quot;{testimonial.quote}&quot;
                 </p>
               </div>
               <div className="flex items-center gap-4">

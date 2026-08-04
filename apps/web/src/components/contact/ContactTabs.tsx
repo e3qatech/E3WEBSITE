@@ -17,7 +17,7 @@ interface ContactTabsProps {
 }
 
 export function ContactTabs({ locale, attractions, faqs }: ContactTabsProps) {
-  const isRTL = locale === 'ar'
+
   const [activeTab, setActiveTab] = useState<TabType>('FAQ')
 
   const tabs: { id: TabType, icon: any, labelEn: string, labelAr: string }[] = [

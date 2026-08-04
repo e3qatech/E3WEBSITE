@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
+import { rateLimit } from "@/lib/rate-limit";
+import { enforceBodyLimit } from "@/lib/body-limit";
 import { z } from "zod";
 
 const ingestSchema = z.object({
@@ -10,24 +11,19 @@ const ingestSchema = z.object({
   subject: z.string().max(200).optional(),
   message: z.string().min(5, "Message must be at least 5 characters").max(2000),
   type: z.string().default("GENERAL"), // PROJECT, GENERAL, SUPPORT
-});
+}).strict();
 
 export async function POST(req: Request) {
   try {
-    // 1. Rate Limiting (CSO Check)
+    // 1. Body Limit (16KB)
+    const limitResp = enforceBodyLimit(req, 16 * 1024);
+    if (limitResp) return limitResp;
+
+    // 2. Rate Limiting (CSO Check)
     const ip = req.headers.get("x-forwarded-for") || "unknown_ip";
-    const rateLimitKey = `rate_limit:inquiries_ingest:${ip}`;
-    
-    try {
-      const currentCount = await redis.incr(rateLimitKey);
-      if (currentCount === 1) {
-        await redis.expire(rateLimitKey, 60); // 1 minute window
-      }
-      if (currentCount > 5) {
-        return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
-      }
-    } catch (redisError) {
-      console.warn("[CSO] Redis rate limit bypassed due to connection error:", redisError);
+    const rl = await rateLimit(`rate_limit:inquiries_ingest:${ip}`, 5, 60, false);
+    if (!rl.success) {
+      return NextResponse.json({ error: rl.error }, { status: 429 });
     }
 
     // 2. Input Validation

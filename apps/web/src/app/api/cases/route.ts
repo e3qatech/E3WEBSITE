@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       clientName,
       category,
       year,
-      duration,
+     
       challenge,
       solution,
       testimonial,

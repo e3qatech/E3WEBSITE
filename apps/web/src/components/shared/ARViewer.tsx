@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useState, useEffect, useRef, Suspense } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Html, useProgress, ContactShadows, Grid } from '@react-three/drei'
 import * as THREE from 'three'
 import { XR, createXRStore, useXRHitTest } from '@react-three/xr'
-import { Maximize, Camera, RefreshCcw, X, Info } from 'lucide-react'
+import { Camera, RefreshCcw, X, Info } from 'lucide-react'
 
 // Create XR store outside the component
 const store = createXRStore()
@@ -15,7 +15,9 @@ const store = createXRStore()
 // ----------------------------------------------------------------------
 interface ARViewerProps {
   modelUrl: string
-  modelName: string
+  modelName?: string
+  posterUrl?: string
+  interactive?: boolean
   dimensions?: { w: number, h: number, d: number }
   powerReq?: string
   onClose?: () => void
@@ -24,7 +26,7 @@ interface ARViewerProps {
 // ----------------------------------------------------------------------
 // MODEL LOADER COMPONENT
 // ----------------------------------------------------------------------
-function Loader() {
+function ModelLoader() {
   const { progress } = useProgress()
   return (
     <Html center>
@@ -44,11 +46,11 @@ class ModelErrorBoundary extends React.Component<{ children: React.ReactNode }, 
     super(props)
     this.state = { hasError: false }
   }
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(_error: any) {
     return { hasError: true }
   }
-  componentDidCatch(error: any, errorInfo: any) {
-    console.error("Model load failed:", error)
+  componentDidCatch(_error: any, _errorInfo: any) {
+    console.error("Model load failed:", _error)
   }
   render() {
     if (this.state.hasError) {
@@ -77,7 +79,7 @@ function Model({ url, position, rotation, scale }: { url: string, position: THRE
 function HitTestReticle({ onPlace }: { onPlace: (pos: THREE.Vector3) => void }) {
   const reticleRef = useRef<THREE.Mesh>(null)
   
-  // @ts-ignore - Ignoring type error due to v6 signature changes
+  // @ts-expect-error - Ignoring type error due to v6 signature changes
   useXRHitTest((hitMatrix: THREE.Matrix4) => {
     if (reticleRef.current) {
       hitMatrix.decompose(
@@ -111,7 +113,7 @@ function HitTestReticle({ onPlace }: { onPlace: (pos: THREE.Vector3) => void }) 
 // ----------------------------------------------------------------------
 // MAIN VIEWER COMPONENT
 // ----------------------------------------------------------------------
-export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, onClose }: ARViewerProps) {
+export function ARViewer({ modelUrl, modelName = 'Model', posterUrl: _posterUrl, interactive: _interactive, dimensions, powerReq, onClose }: ARViewerProps) {
   const [xrSupported, setXrSupported] = useState(false)
   const [inAR, setInAR] = useState(false)
   const [modelPlaced, setModelPlaced] = useState(false)
@@ -181,6 +183,7 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
           </div>
         }>
           <Canvas ref={canvasRef} gl={{ preserveDrawingBuffer: true }}>
+            <ModelLoader />
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
             
@@ -267,3 +270,5 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
     </div>
   )
 }
+
+export default ARViewer;

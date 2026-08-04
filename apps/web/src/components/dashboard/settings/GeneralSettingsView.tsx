@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Save, CheckCircle2, Building, Mail, MapPin, Share2, Key, Image as ImageIcon, LayoutTemplate } from "lucide-react"
+import { Save, CheckCircle2, Building, Mail, Share2, Key, Image as ImageIcon, LayoutTemplate } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
 import { MediaUploader } from "@/components/shared/MediaUploader"

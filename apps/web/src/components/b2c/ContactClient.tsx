@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MessageSquare, HeadphonesIcon, HelpCircle, Phone, Mail, Clock, Search, ChevronDown, ChevronUp, FileUp, Quote, CheckCircle2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { 
   useB2CTheme, 
-  B2CInput, 
-  B2CBadge 
+  B2CInput 
 } from "@/components/ui/B2CThemeComponents";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
@@ -30,7 +29,7 @@ export function ContactClient({
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
   const [faqFilter, setFaqFilter] = useState("all");
-  const { theme, isAr } = useB2CTheme();
+  const {} = useB2CTheme();
 
   const toggleFaq = (id: string) => {
     setActiveFaq(prev => (prev === id ? null : id));
@@ -189,7 +188,7 @@ export function ContactClient({
                   {featuredFeedbacks.map((f: any, idx: number) => (
                     <InteractiveCard key={idx} className="p-6 border-[rgba(75,0,143,0.3)]">
                       <Quote className="w-8 h-8 text-[var(--e3-purple)] opacity-35 mb-2" />
-                      <p className="text-xs italic text-[var(--text-secondary)] font-medium mb-4 line-clamp-3">"{f.comment}"</p>
+                      <p className="text-xs italic text-[var(--text-secondary)] font-medium mb-4 line-clamp-3">&quot;{f.comment}&quot;</p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-[var(--text-primary)]">{f.visitorName || "Verified Guest"}</span>
                         <div className="flex items-center gap-0.5 text-[var(--e3-magenta)]">
@@ -215,7 +214,8 @@ function SupportForm({ attractions }: { attractions: any[] }) {
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const { theme } = useB2CTheme();
+  const [ticketNumber, setTicketNumber] = useState(0);
+  const {} = useB2CTheme();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -238,7 +238,10 @@ function SupportForm({ attractions }: { attractions: any[] }) {
           message: data.message,
         })
       });
-      if (res.ok) setSuccess(true);
+      if (res.ok) {
+        setTicketNumber(Math.floor(Math.random() * 10000));
+        setSuccess(true);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -253,7 +256,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Request Submitted</h3>
-        <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your ticket number is <strong>#E3-{Math.floor(Math.random() * 10000)}</strong>. We will get back to you shortly.</p>
+        <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your ticket number is <strong>#E3-{ticketNumber}</strong>. We will get back to you shortly.</p>
         <MagneticButton onClick={() => setSuccess(false)} variant="primary" size="sm">
           Submit Another Request
         </MagneticButton>

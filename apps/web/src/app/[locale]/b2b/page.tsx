@@ -1,8 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { E3Image as Image } from '@/lib/images'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
-import { ArrowRight, CheckCircle2, ChevronRight, Play } from 'lucide-react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
 
@@ -408,7 +407,6 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             {partnersList.map((p, idx) => (
               <div key={p.id || idx} className="flex items-center justify-center shrink-0 mx-6">
                 {p.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 
@@ -426,7 +424,6 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             {partnersList.map((p, idx) => (
               <div key={`clone-${p.id || idx}`} className="flex items-center justify-center shrink-0 mx-6">
                 {p.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 

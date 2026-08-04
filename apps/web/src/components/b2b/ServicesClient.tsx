@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, ChevronDown, CheckCircle2, Zap, Settings, Shield, Award, Users, Globe } from "lucide-react";
+import { ArrowRight, ChevronDown, Zap, Settings, Shield, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface ServiceItem {
@@ -105,7 +105,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
         <div className="max-w-4xl mx-auto text-center mb-20">
           <h2 className="text-sm font-bold tracking-widest uppercase text-[var(--color-primary)] mb-4">Our Philosophy</h2>
           <p className="text-3xl md:text-4xl font-light leading-relaxed text-[var(--text-primary)]">
-            We don't just provide equipment; we engineer holistic environments. From the initial spark of imagination to the final bolt tightened, our approach is defined by the intersection of creativity and robust technical execution.
+            We don&apos;t just provide equipment; we engineer holistic environments. From the initial spark of imagination to the final bolt tightened, our approach is defined by the intersection of creativity and robust technical execution.
           </p>
         </div>
 

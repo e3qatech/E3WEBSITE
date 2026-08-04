@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   FileText, Package, Shuffle, Image as ImageIcon, 
-  Grid, Link as LinkIcon, MousePointer2, Search, Plus, Save, Trash2, ChevronRight, ArrowLeft
+  Grid, Link as LinkIcon, MousePointer2, Search, Save, ChevronRight, ArrowLeft
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
@@ -14,7 +14,7 @@ import { RepeaterField } from "@/components/shared/RepeaterField"
 
 const TABS = [
   { id: "basic", label: "Basic Details", icon: FileText },
-  { id: "inside", label: "What's Inside", icon: Package },
+  { id: "inside", label: "What&apos;s Inside", icon: Package },
   { id: "process", label: "Process Stepper", icon: Shuffle },
   { id: "hero", label: "Hero Media", icon: ImageIcon },
   { id: "gallery", label: "Portfolio Gallery", icon: Grid },
@@ -54,15 +54,15 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
     seo: initialData?.seo || { metaTitle: "", metaDescription: "", keywords: "" },
   })
 
-  const [processSteps, setProcessSteps] = useState<any[]>(
+  const [processSteps, setProcessSteps] = useState<any[]>(() =>
     Array.isArray(initialData?.process) ? initialData.process.map((p: any) => ({ id: Math.random().toString(), ...p })) : []
   )
 
-  const [gallery, setGallery] = useState<any[]>(
+  const [gallery, setGallery] = useState<any[]>(() =>
     Array.isArray(initialData?.gallery) ? initialData.gallery.map((g: any) => ({ id: Math.random().toString(), ...g })) : []
   )
 
-  const [projects, setProjects] = useState<any[]>(
+  const [projects, setProjects] = useState<any[]>(() =>
     Array.isArray(initialData?.projects) ? initialData.projects.map((p: any) => ({ id: Math.random().toString(), ...p })) : []
   )
 
@@ -294,7 +294,7 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
             {activeTab === "inside" && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-xl font-black text-text-primary mb-2">What's Inside</h3>
+                  <h3 className="text-xl font-black text-text-primary mb-2">What&apos;s Inside</h3>
                   <p className="text-sm text-text-secondary">Compile the distinct deliverables and components of this service.</p>
                 </div>
                 
@@ -314,7 +314,7 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xl font-black text-text-primary mb-2">Process Stepper</h3>
-                  <p className="text-sm text-text-secondary">Map E3's execution phases (e.g. Discovery → Feasibility → Fabrication).</p>
+                  <p className="text-sm text-text-secondary">Map E3&apos;s execution phases (e.g. Discovery → Feasibility → Fabrication).</p>
                 </div>
                 
                 <div className="bg-surface-default border border-border-default rounded-2xl p-6 md:p-8">

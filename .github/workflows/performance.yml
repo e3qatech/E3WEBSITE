@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Authoritative Prisma Client
+        run: pnpm verify:prisma
+
       - name: Build Application
         run: pnpm --filter web build
         env:
@@ -33,7 +36,7 @@ jobs:
           NODE_ENV: production
 
       - name: Enforce Bundle Size Limit (JS/CSS)
-        run: pnpm dlx size-limit
+        run: pnpm --filter web exec size-limit
         # size-limit reads the configuration from package.json and will fail the build 
         # if the total JS/CSS payload breaches the 200KB (public) or 400KB (dashboard) limits.
 

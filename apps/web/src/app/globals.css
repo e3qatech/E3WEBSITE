@@ -1,17 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Righteous&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* --------------------------------------------------------------------------
-   E3 QATAR - LIVING DIGITAL ECOSYSTEM
-   Theme: "Cosmic Void" (Dark) & "Pristine Snow" (Light)
-   Philosophy: "Wow & How"
+   E3 QATAR - DUAL-PORTAL DESIGN SYSTEM
+   Brand Philosophy: "Precision Creates Wonder"
+   Expressions: 
+     - E3 ATELIER (B2B Public Portal)
+     - E3 PULSE (B2C Public Portal)
+     - E3 CONTROL (Internal Operational Dashboard)
    -------------------------------------------------------------------------- */
 
 @theme {
   --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--accent-primary-foreground);
   --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--accent-secondary-foreground);
   --color-accent: var(--color-accent);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
@@ -30,318 +34,301 @@
   --color-border-default: var(--border-level-2);
   --color-border-strong: var(--border-level-3);
   
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-arabic: 'Noto Sans Arabic', system-ui, sans-serif;
+  --font-sans: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-arabic: var(--font-ibm-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
 }
 
 /* --------------------------------------------------------------------------
-   1. DESIGN TOKENS (CSS Variables)
+   1. BASE DESIGN TOKENS
    -------------------------------------------------------------------------- */
 
 :root {
-  /* E3 B2C Design Tokens (Inspired by E3 Brand Identity) */
-  --e3-midnight: #080A2A;
-  --e3-deep-blue: #100F7A;
-  --e3-royal-blue: #1A1FD6;
-  --e3-purple: #4B008F;
-  --e3-magenta: #B013B8;
-  --e3-white: #FFFFFF;
-  --e3-soft-white: #F5F7FF;
+  --font-sans: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-arabic: var(--font-ibm-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
 
-  --e3-light-bg: #F7F8FF;
-  --e3-card-white: #FFFFFF;
-  --e3-ink: #111133;
-  --e3-blue-text: #17178A;
-  --e3-purple-accent: #4B008F;
-  --e3-soft-border: #DDE1FF;
+  /* Global Semantic Defaults (Fallback to B2B Atelier Dark) */
+  --bg-level-1: #0A0D0F;
+  --bg-level-2: #101519;
+  --bg-level-3: #151B1F;
+  --bg-level-4: #1B2328;
+  --bg-level-5: #2B3439;
 
-  --font-b2c-sans: 'Poppins', var(--font-sans);
-  --font-b2c-display: 'Righteous', var(--font-sans);
+  --surface-default: #151B1F;
+  --surface-hover: #1B2328;
+  --surface-active: #2B3439;
+  --surface-selected: rgba(14, 122, 104, 0.18);
 
-  /* Default to Light Mode */
-  --color-primary: #D97706; /* amber-600 */
-  --color-secondary: #52525B; /* zinc-600 */
-  --color-accent: #B45309; /* amber-700 */
+  --border-level-1: #2B3439;
+  --border-level-2: #3B484E;
+  --border-level-3: #4E5E66;
+
+  --text-primary: #F5F1E8;
+  --text-secondary: #BCC3C7;
+  --text-tertiary: #929DA3;
+  --text-disabled: #5A666D;
+
+  --color-primary: #0E7A68;
+  --color-primary-hover: #0A6658;
+  --accent-primary-foreground: #F5F1E8;
   
-  --gradient-start: #FAFAF9;
-  --gradient-end: #E7E5E4;
-  
-  /* Semantic Colors */
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: #3B82F6;
+  --color-secondary: #B88948;
+  --color-secondary-hover: #9B7137;
+  --accent-secondary-foreground: #11171A;
 
-  /* Default Theme (Light by default if undefined) */
-  --bg-level-1: #FAFAF9;
-  --bg-level-2: #F4F4F5;
-  --bg-level-3: #E4E4E7;
-  --bg-level-4: #D4D4D8;
-  --bg-level-5: #A1A1AA;
+  --color-accent: #812238;
 
-  --surface-default: #FFFFFF;
-  --surface-hover: #FAFAFA;
-  --surface-active: #F4F4F5;
-  --surface-selected: #FEF3C7;
+  --color-success: #2F9D79;
+  --color-warning: #C08B35;
+  --color-error: #D95C5C;
+  --color-info: #3A82F6;
 
-  --border-level-1: rgba(0, 0, 0, 0.05);
-  --border-level-2: #E7E5E4;
-  --border-level-3: #D6D3D1;
-
-  --text-primary: #27272A;
-  --text-secondary: #52525B;
-  --text-tertiary: #A1A1AA;
-  --text-disabled: #D4D4D8;
-
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-  
-  --glow-effect: none;
-}
-
-/* "Pristine Snow" - Explicit Light Theme */
-[data-theme="light"] {
-  --color-primary: #D97706;
-  --color-secondary: #52525B;
-  --color-accent: #B45309;
-
-  --gradient-start: #FAFAF9;
-  --gradient-end: #E7E5E4;
-
-  --bg-level-1: #FAFAF9;
-  --bg-level-2: #F4F4F5;
-  --bg-level-3: #E4E4E7;
-  --bg-level-4: #D4D4D8;
-  --bg-level-5: #A1A1AA;
-
-  --surface-default: #FFFFFF;
-  --surface-hover: #FAFAFA;
-  --surface-active: #F4F4F5;
-  --surface-selected: #FEF3C7;
-
-  --border-level-1: rgba(0, 0, 0, 0.05);
-  --border-level-2: #E7E5E4;
-  --border-level-3: #D6D3D1;
-
-  --text-primary: #27272A;
-  --text-secondary: #52525B;
-  --text-tertiary: #A1A1AA;
-  --text-disabled: #D4D4D8;
-
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-  
-  --glow-effect: none;
-}
-
-/* "Cosmic Void" - Explicit Dark Theme (Deep Charcoal / Zinc) */
-[data-theme="dark"] {
-  --color-primary: #F59E0B; /* amber-500 */
-  --color-secondary: #A1A1AA; /* zinc-400 */
-  --color-accent: #FBBF24; /* amber-400 */
-
-  --gradient-start: #0C0C0C;
-  --gradient-end: #141414;
-
-  --bg-level-1: #0C0C0C; /* Base background */
-  --bg-level-2: #141414; /* Slightly lighter layer */
-  --bg-level-3: #262626;
-  --bg-level-4: #3F3F46;
-  --bg-level-5: #52525B;
-
-  --surface-default: #141414; /* Cards / Modules */
-  --surface-hover: #262626; /* Hover state */
-  --surface-active: #3F3F46; /* Active/Pressed state */
-  --surface-selected: rgba(245, 158, 11, 0.15); /* Brand tinted */
-
-  --border-level-1: #18181B; /* Subtle borders */
-  --border-level-2: #262626; /* Default borders */
-  --border-level-3: #3F3F46; /* Strong borders */
-
-  --text-primary: #FAFAFA; /* zinc-50 */
-  --text-secondary: #A1A1AA; /* zinc-400 */
-  --text-tertiary: #71717A; /* Muted gray */
-  --text-disabled: #52525B; /* Disabled gray */
-
-  --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
-  --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
-  --shadow-3: 0 8px 16px rgba(0,0,0,0.3);
-  --shadow-4: 0 16px 32px rgba(0,0,0,0.4);
-  
-  /* Tinted Drop Shadows */
-  --glow-effect: none; 
-}
-
-/* Auto Dark Mode if user prefers it and no data-theme is set */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-primary: #F59E0B;
-    --color-secondary: #A1A1AA;
-    --color-accent: #FBBF24;
-
-    --gradient-start: #0C0C0C;
-    --gradient-end: #141414;
-
-    --bg-level-1: #0C0C0C;
-    --bg-level-2: #141414;
-    --bg-level-3: #262626;
-    --bg-level-4: #3F3F46;
-    --bg-level-5: #52525B;
-
-    --surface-default: #141414;
-    --surface-hover: #262626;
-    --surface-active: #3F3F46;
-    --surface-selected: rgba(245, 158, 11, 0.15);
-
-    --border-level-1: #18181B;
-    --border-level-2: #262626;
-    --border-level-3: #3F3F46;
-
-    --text-primary: #FAFAFA;
-    --text-secondary: #A1A1AA;
-    --text-tertiary: #71717A;
-    --text-disabled: #52525B;
-
-    --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
-    --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
-    --shadow-3: 0 8px 16px rgba(0,0,0,0.3);
-    --shadow-4: 0 16px 32px rgba(0,0,0,0.4);
-    
-    --glow-effect: none; 
-  }
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-3: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --shadow-4: 0 20px 40px rgba(0, 0, 0, 0.45);
 }
 
 /* --------------------------------------------------------------------------
-   1b. B2C THEME CLASS MAPPINGS
+   2. E3 ATELIER (B2B PORTAL)
+   Personality: Architectural, corporate, cinematic, editorial, refined
    -------------------------------------------------------------------------- */
 
-.b2c-theme {
-  --color-primary: var(--e3-royal-blue);
-  --color-secondary: var(--e3-purple);
-  --color-accent: var(--e3-magenta);
-  
-  --bg-level-1: var(--e3-light-bg);
-  --bg-level-2: var(--e3-soft-border);
-  --bg-level-3: #ECEFFF;
-  --bg-level-4: #DDE1FF;
-  --bg-level-5: var(--e3-blue-text);
-  
-  --surface-default: var(--e3-card-white);
-  --surface-hover: #F0F2FF;
-  --surface-active: #E5E8FF;
-  --surface-selected: #ECEFFF;
-  
-  --border-level-1: rgba(23, 23, 138, 0.05);
-  --border-level-2: var(--e3-soft-border);
-  --border-level-3: var(--e3-blue-text);
-  
-  --text-primary: var(--e3-ink);
-  --text-secondary: var(--e3-blue-text);
-  --text-tertiary: #52528C;
-  --text-disabled: #A1A1C2;
+:root[data-portal="b2b"][data-theme="dark"],
+[data-portal="b2b"][data-theme="dark"],
+.b2b-portal-root[data-theme="dark"],
+:root[data-theme="dark"] .b2b-portal-root {
+  --bg-level-1: #0A0D0F;
+  --bg-level-2: #101519;
+  --bg-level-3: #151B1F;
+  --bg-level-4: #1B2328;
+  --bg-level-5: #2B3439;
 
-  --font-sans: var(--font-b2c-sans);
-  --font-display: var(--font-b2c-display);
-  font-family: var(--font-b2c-sans);
+  --surface-default: #151B1F;
+  --surface-hover: #1B2328;
+  --surface-active: #2B3439;
+  --surface-selected: rgba(14, 122, 104, 0.18);
 
-  /* B2C Premium Light Tokens */
-  --background-primary: var(--e3-soft-white);
-  --background-secondary: var(--e3-light-bg);
-  --surface-primary: var(--e3-white);
-  --surface-secondary: #EBF0FF;
-  --text-primary: var(--e3-midnight);
-  --text-secondary: var(--e3-blue-text);
-  --border-primary: var(--e3-soft-border);
-  --accent-primary: var(--e3-royal-blue);
-  --accent-secondary: var(--e3-purple);
-  --accent-highlight: var(--e3-magenta);
+  --border-level-1: #2B3439;
+  --border-level-2: #3B484E;
+  --border-level-3: #4E5E66;
+
+  --text-primary: #F5F1E8;
+  --text-secondary: #BCC3C7;
+  --text-tertiary: #929DA3;
+  --text-disabled: #5A666D;
+
+  --color-primary: #0E7A68;
+  --color-primary-hover: #0A6658;
+  --accent-primary-foreground: #F5F1E8; /* Contrast 4.65:1 */
+
+  --color-secondary: #B88948;
+  --color-secondary-hover: #9B7137;
+  --accent-secondary-foreground: #11171A; /* Contrast 5.78:1 */
+
+  --color-accent: #812238;
+
+  --btn-radius: 12px;
+  --card-radius: 18px;
 }
 
-[data-theme="dark"] .b2c-theme,
-.b2c-theme[data-theme="dark"] {
-  --color-primary: var(--e3-royal-blue);
-  --color-secondary: var(--e3-purple);
-  --color-accent: var(--e3-magenta);
-  
-  --bg-level-1: var(--e3-midnight);
-  --bg-level-2: var(--e3-deep-blue);
-  --bg-level-3: #1A18AA;
-  --bg-level-4: var(--e3-purple);
-  --bg-level-5: var(--e3-royal-blue);
-  
-  --surface-default: #0C0E38;
-  --surface-hover: #121554;
-  --surface-active: var(--e3-deep-blue);
-  --surface-selected: rgba(26, 31, 214, 0.2);
-  
-  --border-level-1: rgba(75, 0, 143, 0.2);
-  --border-level-2: rgba(75, 0, 143, 0.4);
-  --border-level-3: var(--e3-purple);
-  
-  --text-primary: var(--e3-white);
-  --text-secondary: var(--e3-soft-white);
-  --text-tertiary: #A1A5D8;
-  --text-disabled: #616499;
+:root[data-portal="b2b"][data-theme="light"],
+[data-portal="b2b"][data-theme="light"],
+.b2b-portal-root[data-theme="light"],
+:root[data-theme="light"] .b2b-portal-root {
+  --bg-level-1: #F3EFE6;
+  --bg-level-2: #EAE4D8;
+  --bg-level-3: #FBF9F4;
+  --bg-level-4: #FFFFFF;
+  --bg-level-5: #D9D1C3;
 
-  /* B2C Premium Dark Tokens */
-  --background-primary: var(--e3-midnight);
-  --background-secondary: var(--e3-purple);
-  --surface-primary: rgba(16, 15, 122, 0.4);
-  --surface-secondary: var(--e3-deep-blue);
-  --text-primary: var(--e3-white);
-  --text-secondary: var(--e3-soft-white);
-  --border-primary: rgba(75, 0, 143, 0.5);
-  --accent-primary: var(--e3-royal-blue);
-  --accent-secondary: var(--e3-purple);
-  --accent-highlight: var(--e3-magenta);
-}
+  --surface-default: #FBF9F4;
+  --surface-hover: #F3EFE6;
+  --surface-active: #EAE4D8;
+  --surface-selected: rgba(11, 107, 93, 0.12);
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .b2c-theme {
-    --color-primary: var(--e3-royal-blue);
-    --color-secondary: var(--e3-purple);
-    --color-accent: var(--e3-magenta);
-    
-    --bg-level-1: var(--e3-midnight);
-    --bg-level-2: var(--e3-deep-blue);
-    --bg-level-3: #1A18AA;
-    --bg-level-4: var(--e3-purple);
-    --bg-level-5: var(--e3-royal-blue);
-    
-    --surface-default: #0C0E38;
-    --surface-hover: #121554;
-    --surface-active: var(--e3-deep-blue);
-    --surface-selected: rgba(26, 31, 214, 0.2);
-    
-    --border-level-1: rgba(75, 0, 143, 0.2);
-    --border-level-2: rgba(75, 0, 143, 0.4);
-    --border-level-3: var(--e3-purple);
-    
-    --text-primary: var(--e3-white);
-    --text-secondary: var(--e3-soft-white);
-    --text-tertiary: #A1A5D8;
-    --text-disabled: #616499;
+  --border-level-1: #D9D1C3;
+  --border-level-2: #BDB3A4;
+  --border-level-3: #A19787;
 
-    /* B2C Premium Dark Tokens */
-    --background-primary: var(--e3-midnight);
-    --background-secondary: var(--e3-purple);
-    --surface-primary: rgba(16, 15, 122, 0.4);
-    --surface-secondary: var(--e3-deep-blue);
-    --text-primary: var(--e3-white);
-    --text-secondary: var(--e3-soft-white);
-    --border-primary: rgba(75, 0, 143, 0.5);
-    --accent-primary: var(--e3-royal-blue);
-    --accent-secondary: var(--e3-purple);
-    --accent-highlight: var(--e3-magenta);
-  }
+  --text-primary: #11171A;
+  --text-secondary: #48545B;
+  --text-tertiary: #69747A;
+  --text-disabled: #98A4AA;
+
+  --color-primary: #0B6B5D;
+  --color-primary-hover: #085247;
+  --accent-primary-foreground: #FFFFFF;
+
+  --color-secondary: #8B642D;
+  --color-secondary-hover: #715022;
+  --accent-secondary-foreground: #FFFFFF;
+
+  --color-accent: #7B2034;
+
+  --btn-radius: 12px;
+  --card-radius: 18px;
 }
 
 /* --------------------------------------------------------------------------
-   2. BASE STYLES & RESET
+   3. E3 PULSE (B2C PORTAL)
+   Personality: Immersive, energetic, experience-led, welcoming
+   -------------------------------------------------------------------------- */
+
+:root[data-portal="b2c"][data-theme="dark"],
+[data-portal="b2c"][data-theme="dark"],
+.b2c-theme[data-theme="dark"],
+:root[data-theme="dark"] .b2c-theme {
+  --bg-level-1: #07151B;
+  --bg-level-2: #0C2028;
+  --bg-level-3: #112A33;
+  --bg-level-4: #173641;
+  --bg-level-5: #28444D;
+
+  --surface-default: #112A33;
+  --surface-hover: #173641;
+  --surface-active: #204552;
+  --surface-selected: rgba(14, 133, 136, 0.2);
+
+  --border-level-1: #1B3B47;
+  --border-level-2: #28444D;
+  --border-level-3: #3A5B66;
+
+  --text-primary: #FFF8EC;
+  --text-secondary: #C2D0D4;
+  --text-tertiary: #91A6AD;
+  --text-disabled: #5B7077;
+
+  --color-primary: #0E8588;
+  --color-primary-hover: #0B6D70;
+  --accent-primary-foreground: #FFF8EC; /* Contrast 5.34:1 */
+
+  --color-secondary: #E85056;
+  --accent-secondary-foreground: #07151B; /* Contrast 5.05:1 */
+
+  --color-accent: #D88A00;
+  --accent-warm-foreground: #07151B; /* Contrast 6.67:1 */
+
+  --color-fresh: #6F9F3E;
+  --accent-fresh-foreground: #FFFFFF; /* Contrast 4.84:1 */
+
+  --btn-radius: 16px;
+  --card-radius: 24px;
+}
+
+:root[data-portal="b2c"][data-theme="light"],
+[data-portal="b2c"][data-theme="light"],
+.b2c-theme[data-theme="light"],
+:root[data-theme="light"] .b2c-theme {
+  --bg-level-1: #FFF8EC;
+  --bg-level-2: #F6EEDC;
+  --bg-level-3: #FFFFFF;
+  --bg-level-4: #FFFCF5;
+  --bg-level-5: #E7DCC7;
+
+  --surface-default: #FFFFFF;
+  --surface-hover: #FFF8EC;
+  --surface-active: #F6EEDC;
+  --surface-selected: rgba(8, 119, 122, 0.12);
+
+  --border-level-1: #E7DCC7;
+  --border-level-2: #D5C7AF;
+  --border-level-3: #C0B097;
+
+  --text-primary: #102128;
+  --text-secondary: #4E626A;
+  --text-tertiary: #6B7D84;
+  --text-disabled: #A0B0B7;
+
+  --color-primary: #08777A;
+  --color-primary-hover: #065F61;
+  --accent-primary-foreground: #FFFFFF;
+
+  --color-secondary: #D84148;
+  --accent-secondary-foreground: #FFFFFF;
+
+  --color-accent: #B96F00;
+  --accent-warm-foreground: #FFFFFF;
+
+  --color-fresh: #537D2D;
+  --accent-fresh-foreground: #FFFFFF;
+
+  --btn-radius: 16px;
+  --card-radius: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   4. E3 CONTROL (INTERNAL DASHBOARD)
+   Personality: Neutral, efficient, operational, calm, high legibility
+   -------------------------------------------------------------------------- */
+
+:root[data-portal="dashboard"][data-theme="dark"],
+[data-portal="dashboard"][data-theme="dark"] {
+  --bg-level-1: #0B0F13;
+  --bg-level-2: #12181E;
+  --bg-level-3: #192129;
+  --bg-level-4: #212B35;
+  --bg-level-5: #29343D;
+
+  --surface-default: #12181E;
+  --surface-hover: #192129;
+  --surface-active: #212B35;
+  --surface-selected: rgba(23, 128, 109, 0.18);
+
+  --border-level-1: #1E2730;
+  --border-level-2: #29343D;
+  --border-level-3: #374552;
+
+  --text-primary: #EFF3F5;
+  --text-secondary: #9BA8B1;
+  --text-tertiary: #6E7D87;
+  --text-disabled: #47545E;
+
+  --color-primary: #17806D;
+  --color-primary-hover: #126858;
+  --accent-primary-foreground: #EFF3F5;
+
+  --color-secondary: #3B82F6;
+  --color-accent: #F59E0B;
+
+  --btn-radius: 10px;
+  --card-radius: 12px;
+}
+
+:root[data-portal="dashboard"][data-theme="light"],
+[data-portal="dashboard"][data-theme="light"] {
+  --bg-level-1: #F3F5F6;
+  --bg-level-2: #FFFFFF;
+  --bg-level-3: #FAFBFC;
+  --bg-level-4: #EAEFF2;
+  --bg-level-5: #DCE2E6;
+
+  --surface-default: #FFFFFF;
+  --surface-hover: #FAFBFC;
+  --surface-active: #F0F4F6;
+  --surface-selected: rgba(11, 110, 93, 0.12);
+
+  --border-level-1: #EAEFF2;
+  --border-level-2: #DCE2E6;
+  --border-level-3: #C2CBD0;
+
+  --text-primary: #172027;
+  --text-secondary: #5F6E78;
+  --text-tertiary: #84939E;
+  --text-disabled: #B0BAC0;
+
+  --color-primary: #0B6E5D;
+  --color-primary-hover: #085649;
+  --accent-primary-foreground: #FFFFFF;
+
+  --color-secondary: #2563EB;
+  --color-accent: #D97706;
+
+  --btn-radius: 10px;
+  --card-radius: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   5. BASE STYLES & TYPOGRAPHY RESET
    -------------------------------------------------------------------------- */
 
 *, *::before, *::after {
@@ -350,8 +337,7 @@
 
 html {
   scroll-behavior: smooth;
-  /* Transitions for smooth theme switching */
-  transition: background-color 300ms ease, color 300ms ease;
+  transition: background-color 250ms ease, color 250ms ease;
   font-family: var(--font-sans);
 }
 
@@ -368,10 +354,9 @@ body {
 
 ::selection {
   background-color: var(--color-primary);
-  color: #FFFFFF;
+  color: var(--accent-primary-foreground);
 }
 
-/* Focus Outlines */
 *:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -386,7 +371,7 @@ body {
   background: var(--bg-level-1);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-level-3);
+  background: var(--border-level-2);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -394,15 +379,16 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   3. RTL SUPPORT (Arabic)
+   6. BILINGUAL & ARABIC RTL RULES
    -------------------------------------------------------------------------- */
 
-html[dir="rtl"] {
+html[dir="rtl"],
+body[dir="rtl"],
+[dir="rtl"] {
   font-family: var(--font-arabic);
+  letter-spacing: 0 !important;
 }
 
-/* Logical properties are preferred via Tailwind v4/CSS naturally,
-   but we add base resets for typography directional flow */
 html[dir="rtl"] p,
 html[dir="rtl"] h1,
 html[dir="rtl"] h2,
@@ -415,54 +401,70 @@ html[dir="rtl"] ol {
   text-align: start;
 }
 
-/* Reverse directional icons automatically */
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4 {
+  line-height: 1.22;
+}
+
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] li {
+  line-height: 1.85;
+}
+
+/* Flip directional icons only */
 html[dir="rtl"] .icon-directional,
 html[dir="rtl"] .icon-flip {
   transform: scaleX(-1);
 }
 
 /* --------------------------------------------------------------------------
-   4. UTILITY CLASSES (Design System Macros)
+   7. FLUID TYPOGRAPHY UTILITIES
    -------------------------------------------------------------------------- */
 
-.text-gradient {
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+.hero-heading-en {
+  font-size: clamp(2.8rem, 5.5vw, 5.2rem);
+  line-height: 1.0;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
-.glass {
+.hero-heading-ar {
+  font-size: clamp(2.4rem, 4.8vw, 4.4rem);
+  line-height: 1.18;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.section-heading-en {
+  font-size: clamp(2.0rem, 3.8vw, 3.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.section-heading-ar {
+  font-size: clamp(1.85rem, 3.4vw, 3.0rem);
+  line-height: 1.24;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.body-pretty {
+  text-wrap: pretty;
+}
+
+/* Restrained Glassmorphism Macro */
+.glass-header {
   background: var(--surface-default);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-level-2);
-  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-level-1);
 }
 
-.glow {
-  box-shadow: var(--glow-effect);
-}
-
-.border-gradient {
-  position: relative;
-  background-clip: padding-box;
-  border: 1px solid transparent;
-}
-.border-gradient::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: -1;
-  margin: -1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-/* Subtle noise texture */
+/* Noise overlay */
 .noise-bg {
   position: relative;
 }
@@ -475,111 +477,23 @@ html[dir="rtl"] .icon-flip {
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
-[data-theme="dark"] .noise-bg::after {
-  opacity: 0.03;
-}
-
-/* Dot grid pattern */
-.grid-pattern {
-  background-size: 24px 24px;
-  background-image: radial-gradient(var(--border-level-3) 1px, transparent 1px);
-}
 
 /* --------------------------------------------------------------------------
-   5. ANIMATIONS & KEYFRAMES
+   8. TARGETED REDUCED MOTION RULES
+   Preserves essential loaders, progress bars, validation states, and open/close state transitions.
+   Stops continuous marquees, floating loops, and decorative parallax effects.
    -------------------------------------------------------------------------- */
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes slideDown {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 10px rgba(0, 102, 255, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(0, 102, 255, 0.3); }
-  100% { box-shadow: 0 0 10px rgba(0, 102, 255, 0.1); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* Map utilities for animations */
-.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-.animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
-.animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
-.animate-fade-in-left { animation: fadeInLeft 0.5s ease-out forwards; }
-.animate-fade-in-right { animation: fadeInRight 0.5s ease-out forwards; }
-.animate-scale-in { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-float { animation: float 6s ease-in-out infinite; }
-.animate-pulse-glow { animation: pulseGlow 3s infinite; }
-.animate-shimmer {
-  background: linear-gradient(90deg, var(--bg-level-2) 25%, var(--bg-level-3) 50%, var(--bg-level-2) 75%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-}
-.animate-spin-slow { animation: spinSlow 8s linear infinite; }
-.animate-marquee { animation: marquee 20s linear infinite; }
-
-/* Respect prefers-reduced-motion for all animations */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .animate-marquee,
+  .animate-float,
+  .animate-spin-slow,
+  .decorative-motion {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  html {
     scroll-behavior: auto !important;
   }
 }
-[dir="rtl"] body { font-family: 'Noto Sans Arabic', sans-serif !important; }

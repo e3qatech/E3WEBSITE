@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import db from "@/lib/db"
-import { Briefcase, Users, Plus, Edit, ToggleRight, ToggleLeft } from "lucide-react"
+import { Briefcase, Users, Plus, Edit } from "lucide-react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"

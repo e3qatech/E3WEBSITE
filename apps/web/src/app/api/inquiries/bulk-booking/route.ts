@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
 
+import { rateLimit } from '@/lib/rate-limit';
+import { enforceBodyLimit } from '@/lib/body-limit';
+
 const BulkBookingSchema = z.object({
+  website_hp: z.string().optional(),
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(5),
@@ -13,12 +17,26 @@ const BulkBookingSchema = z.object({
     time: z.string(),
     quantity: z.number().min(10),
     notes: z.string().optional(),
-  })
-});
+  }).strict()
+}).strict();
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown_ip';
+
+    // Body limit: 16KB for booking submissions
+    const limitResp = enforceBodyLimit(req, 16 * 1024);
+    if (limitResp) return limitResp;
+
+    const rl = await rateLimit(`rate_limit:bulkbooking:${ip}`, 5, 60, false);
+    if (!rl.success) {
+      return NextResponse.json({ error: rl.error }, { status: 429 });
+    }
+
     const body = await req.json();
+    if (body.website_hp) {
+      return NextResponse.json({ success: true, status: 'ignored' }, { status: 201 });
+    }
     
     // Validate payload
     const result = BulkBookingSchema.safeParse(body);

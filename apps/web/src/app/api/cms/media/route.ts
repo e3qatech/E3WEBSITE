@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { auth } from '@/lib/auth';
 import fs from 'fs/promises';
 import path from 'path';
+import { isValidMagicBytes } from '@/lib/security';
 
 export async function GET(request: Request) {
   try {
@@ -61,9 +62,7 @@ const ALLOWED_TYPES = [
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
 
-async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Promise<string> {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+async function saveFileOrDataUrl(buffer: Buffer, fileType: string, fileName: string, ext?: string): Promise<string> {
 
   // Try saving to public/uploads directory first (local dev / writable disk)
   try {
@@ -75,7 +74,7 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Pr
   } catch (fsErr) {
     console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), converting to Data URL fallback:", fsErr);
     
-    let mime = file.type;
+    let mime = fileType;
     if (ext === 'svg' || !mime || mime === 'application/octet-stream') {
       if (ext === 'svg') mime = 'image/svg+xml';
       else if (ext === 'png') mime = 'image/png';
@@ -96,6 +95,14 @@ export async function POST(request: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
+    const user = await db.user.findUnique({ where: { id: (session.user as any).id } });
+    if (!user || !user.isActive) {
+      return NextResponse.json({ error: 'Account inactive or unauthorized' }, { status: 401 });
+    }
+    if (user.role !== 'SUPER_ADMIN' && user.role !== 'STAFF') {
+      return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
+    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -115,23 +122,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
+    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!isValidMagicBytes(buffer, ext || '')) {
+      return NextResponse.json({ error: 'Invalid file signature' }, { status: 400 });
+    }
+
     const filename = `${randomUUID()}.${ext || 'bin'}`
     let fileUrl = "";
     
     // Upload to Vercel Blob if token exists, fallback to local storage / Data URL
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
-        const blob = await put(`uploads/${filename}`, file, {
+        const blob = await put(`uploads/${filename}`, buffer, {
           access: 'public',
           contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
         })
         fileUrl = blob.url;
       } catch (blobError) {
         console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to disk/DataURL:", blobError);
-        fileUrl = await saveFileOrDataUrl(file, filename, ext);
+        fileUrl = await saveFileOrDataUrl(buffer, file.type, filename, ext);
       }
     } else {
-      fileUrl = await saveFileOrDataUrl(file, filename, ext);
+      fileUrl = await saveFileOrDataUrl(buffer, file.type, filename, ext);
     }
     
     // Determine MediaType based on mimeType

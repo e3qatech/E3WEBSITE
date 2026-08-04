@@ -99,6 +99,7 @@ model User {
   image         String?
   role          RoleType  @default(CLIENT)
   isActive      Boolean   @default(true)
+  sessionVersion Int      @default(1)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

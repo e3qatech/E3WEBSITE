@@ -4,8 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Ticket, ShieldCheck, Zap, Smartphone, ChevronDown, ChevronUp } from "lucide-react";
 import { 
-  useB2CTheme, 
-  B2CBadge 
+  useB2CTheme 
 } from "@/components/ui/B2CThemeComponents";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";

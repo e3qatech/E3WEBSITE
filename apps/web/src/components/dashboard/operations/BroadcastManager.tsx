@@ -53,7 +53,7 @@ export function BroadcastManager({ initialBroadcasts }: { initialBroadcasts: any
       setIsActive(true)
 
       router.refresh()
-    } catch (err) {
+    } catch {
       alert("Failed to add broadcast.")
     } finally {
       setIsSubmitting(false)

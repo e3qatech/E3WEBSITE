@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Upload, X, File, Image as ImageIcon } from "lucide-react"
+import { Upload, File } from "lucide-react"
 
 interface MediaUploaderProps {
   onUploadComplete: (urls: string[]) => void

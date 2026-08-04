@@ -1,15 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
+import "next/link"
 import { useRouter } from "next/navigation"
 import { 
   Search,
   Upload,
-  MoreVertical,
-  Briefcase,
-  Star,
-  FileText
+  Star
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { format } from "date-fns"
@@ -24,7 +21,7 @@ import {
 
 export function TalentTable({ initialData }: { initialData: any[] }) {
   const router = useRouter()
-  const [data, setData] = useState(initialData)
+  const [data] = useState(initialData)
   const [globalFilter, setGlobalFilter] = useState("")
   const [isParsing, setIsParsing] = useState(false)
   const [sorting, setSorting] = useState([])
@@ -80,6 +77,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
     }
   ]
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table useReactTable is known to conflict with React Compiler rules
   const table = useReactTable({
     data,
     columns,

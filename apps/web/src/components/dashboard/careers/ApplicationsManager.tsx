@@ -4,8 +4,7 @@ import React, { useState } from "react"
 import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { FileText, Download, Cpu, CheckCircle2, Search, Filter } from "lucide-react"
-import { Card } from "@/components/ui/Card"
+import { FileText, Download, Cpu, Search, Filter } from "lucide-react"
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {
   const [applications, setApplications] = useState(initialApplications)

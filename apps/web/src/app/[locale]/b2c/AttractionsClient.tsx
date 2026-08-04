@@ -3,17 +3,15 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useAttractionsStore, AttractionStatus, Attraction } from '@/store/useAttractionsStore';
+import { useAttractionsStore, Attraction } from '@/store/useAttractionsStore';
 import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
-import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock, ChevronLeft, ChevronRight, Users, HelpCircle } from 'lucide-react';
+import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { 
   useB2CTheme, 
   B2CCard, 
   B2CButton, 
   B2CStatusBadge, 
   B2CBadge, 
-  B2CTabs, 
-  B2CInput, 
   B2CEmptyState 
 } from '@/components/ui/B2CThemeComponents';
 

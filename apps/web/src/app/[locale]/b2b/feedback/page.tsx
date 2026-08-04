@@ -1,15 +1,17 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+import { useParams } from 'next/navigation'
+
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Send, CheckCircle2 } from 'lucide-react'
 
-export default function B2BFeedbackPage({ params }: { params: any }) {
+export default function B2BFeedbackPage() {
   // We use "use client" because of the form interactivity and fetching
-  const [isAr, setIsAr] = useState(false)
+  const routeParams = useParams()
+  const isAr = routeParams?.locale === 'ar'
   const [cmsData, setCmsData] = useState<any>({})
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -23,9 +25,7 @@ export default function B2BFeedbackPage({ params }: { params: any }) {
   })
 
   useEffect(() => {
-    // Determine locale from path since we can't await params in a client component easily without a wrapper
-    setIsAr(window.location.pathname.startsWith('/ar'))
-    
+
     fetch('/api/cms/pages/b2b-feedback')
       .then(res => res.json())
       .then(json => {

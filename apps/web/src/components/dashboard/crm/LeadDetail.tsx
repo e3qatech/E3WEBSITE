@@ -2,10 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Save, Mail, Phone, Building, Briefcase, Plus, MessageSquare } from "lucide-react"
+import { ArrowLeft, Save, Plus } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
-
 type Lead = {
   id: string
   name: string

@@ -1,10 +1,9 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), {

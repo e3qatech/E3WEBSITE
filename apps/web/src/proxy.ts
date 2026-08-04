@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { nextUrl } = req;
 
   // Check for NextAuth session token cookie
@@ -38,7 +38,8 @@ export function middleware(req: NextRequest) {
 
 
   // 2. Dashboard Protection
-  const isDashboardRoute = nextUrl.pathname.startsWith('/dashboard');
+  const normalizedPath = decodeURIComponent(nextUrl.pathname);
+  const isDashboardRoute = normalizedPath.startsWith('/dashboard');
 
   if (isDashboardRoute) {
     if (!isLoggedIn) {

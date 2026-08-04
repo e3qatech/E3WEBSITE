@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
 export interface ProjectCard {
@@ -20,7 +19,7 @@ interface SimilarProjectsProps {
 }
 
 export function SimilarProjects({ projects, locale }: SimilarProjectsProps) {
-  const isRTL = locale === 'ar'
+
 
   if (!projects || projects.length === 0) return null
 

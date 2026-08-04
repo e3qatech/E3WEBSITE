@@ -3,9 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon, Globe, LogIn } from "lucide-react";
+import { Menu, X, Sun, Moon, LogIn } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { useLocale } from "./LocaleProvider";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -32,7 +33,7 @@ const navConfig = {
 
 export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
   const { theme, setTheme } = useTheme();
-  const { locale, setLocale, t, dir } = useLocale();
+  const { t, dir } = useLocale();
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -128,23 +129,7 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             
-            <button
-              onClick={() => {
-                const newLocale = locale === "en" ? "ar" : "en";
-                setLocale(newLocale);
-                // Also update the URL to reflect the new locale
-                if (typeof window !== "undefined") {
-                  const path = window.location.pathname;
-                  const newPath = path.replace(`/${locale}`, `/${newLocale}`);
-                  window.location.href = newPath;
-                }
-              }}
-              className="flex items-center gap-1 p-2 rounded-full text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors font-medium text-sm"
-              aria-label="Toggle language"
-            >
-              <Globe size={18} />
-              <span className="hidden sm:block">{locale === "en" ? "العربية" : "EN"}</span>
-            </button>
+            <LanguageSwitcher variant="full" />
 
             <Link
               href={`/auth/login?portal=${portal}`}

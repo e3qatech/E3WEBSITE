@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
 import { SlideOver } from "./SlideOver"
 import { AdminButton } from "./AdminButton"
-import { Image as ImageIcon, Video, FileText, UploadCloud, X, Check, Trash2 } from "lucide-react"
+import { Image as ImageIcon, Video, FileText, UploadCloud, Check, Trash2 } from "lucide-react"
 
 interface Media {
   id: string
@@ -42,7 +42,8 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
 
   useEffect(() => {
     if (isOpen) {
-      fetchMedia()
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  fetchMedia()
     }
   }, [isOpen])
 

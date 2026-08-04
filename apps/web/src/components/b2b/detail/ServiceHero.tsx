@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import dynamic from "next/dynamic"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { ChevronDown, Play, Pause, Volume2, VolumeX } from "lucide-react"
+import { ChevronDown, Volume2, VolumeX } from "lucide-react"
 
 // Dynamically import Three.js viewer so it ONLY loads if heroMediaType === 'MODEL_3D'
 const ThreeViewer = dynamic(() => import("./ThreeViewer"), {
@@ -28,14 +28,14 @@ export function ServiceHero({ locale, name, tagline, heroMediaType, heroMediaUrl
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 1000], [0, 300])
   const opacity = useTransform(scrollY, [0, 500], [1, 0])
+  const scale = useTransform(scrollY, [0, 1000], [1, 1.15])
 
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   const renderMedia = () => {
     switch (heroMediaType) {
@@ -83,7 +83,7 @@ export function ServiceHero({ locale, name, tagline, heroMediaType, heroMediaUrl
       default:
         return (
           <motion.div
-            style={{ y, scale: useTransform(scrollY, [0, 1000], [1, 1.15]) }}
+            style={{ y, scale }}
             className="absolute inset-0 w-full h-[120%] -top-[10%]"
           >
             <div 

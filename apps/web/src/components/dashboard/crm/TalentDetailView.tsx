@@ -3,10 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Mail, Phone, Briefcase, GraduationCap, Award, Globe, Star } from "lucide-react"
+import { ArrowLeft, Mail, Phone, Briefcase, GraduationCap, Award, Globe } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { format } from "date-fns"
-
 const STATUS_OPTIONS = [
   "NEW", "SCREENING", "INTERVIEW", "OFFERED", "HIRED", "REJECTED"
 ]

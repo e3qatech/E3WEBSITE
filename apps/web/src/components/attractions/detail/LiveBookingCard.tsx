@@ -28,7 +28,7 @@ export function LiveBookingCard({
   latitude,
   longitude,
   locationAddress,
-  schedule,
+ 
   operations,
   mapImageFallback,
 }: LiveBookingCardProps) {

@@ -145,7 +145,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string, 
 export default async function AttractionDetailPage(props: { params: Promise<{ slug: string, locale: string }> }) {
   const params = await props.params;
   const { slug, locale } = params;
-  const isRTL = locale === 'ar'
+
   
   const data = await getAttractionData(slug)
 
@@ -153,7 +153,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     notFound()
   }
 
-  const { attraction, pricing, gallery, faq, schedule, operations, projects } = data
+  const { attraction, pricing, gallery, faq, schedule, projects } = data
   const displayName = locale === 'ar' ? attraction.nameAr : attraction.nameEn
   const displayDesc = locale === 'ar' ? attraction.descriptionAr : attraction.descriptionEn
 

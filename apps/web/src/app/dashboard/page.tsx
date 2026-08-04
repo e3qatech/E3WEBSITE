@@ -1,4 +1,4 @@
-import { Plus, Calendar, ArrowRight, Settings2, Activity, CheckCircle2 } from "lucide-react"
+import { Plus, Calendar, ArrowRight, Activity, CheckCircle2 } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { StatsGrid, StatItem } from "@/components/dashboard/StatsGrid"
 import { KanbanBoard, Lead } from "@/components/dashboard/KanbanBoard"

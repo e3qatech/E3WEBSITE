@@ -1,5 +1,5 @@
 import React from 'react'
-import Link from 'next/link'
+import 'next/link'
 import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { CareerListings } from '@/components/careers/CareerListings'

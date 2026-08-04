@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { 
   Save, ArrowLeft, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
-  Users, CheckCircle2, List, Calendar
+  Users, List, Calendar
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -31,8 +31,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [descriptionEn, setDescriptionEn] = useState(initialData?.descriptionEn || "")
   const [descriptionAr, setDescriptionAr] = useState(initialData?.descriptionAr || "")
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? false)
-  const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
-  const [isHidden, setIsHidden] = useState(initialData?.isHidden ?? false)
+  const [isFeatured] = useState(initialData?.isFeatured ?? false)
+  const [isHidden] = useState(initialData?.isHidden ?? false)
 
   // 2. Hero Media
   const [heroMediaType, setHeroMediaType] = useState(initialData?.heroMediaType || "IMAGE")
@@ -41,7 +41,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [heroThumbnailUrl, setHeroThumbnailUrl] = useState(initialData?.heroThumbnailUrl || "")
   const [logoUrl, setLogoUrl] = useState(initialData?.logoUrl || "")
 
-  // 3. What's Inside (Features)
+  // 3. What&apos;s Inside (Features)
   const [features, setFeatures] = useState<any[]>(
     Array.isArray(initialData?.features) ? initialData.features : []
   )
@@ -149,7 +149,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
       
       router.push("/dashboard/b2c/attractions")
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Error saving attraction")
     } finally {
       setIsSaving(false)
@@ -159,7 +159,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const tabs = [
     { id: "general", label: "Core Details", icon: Settings },
     { id: "hero", label: "Hero Media", icon: ImageIcon },
-    { id: "features", label: "What's Inside", icon: List },
+    { id: "features", label: "What&apos;s Inside", icon: List },
     { id: "pricing", label: "Pricing & Tickets", icon: DollarSign },
     { id: "partners", label: "Partners", icon: Users },
     { id: "social", label: "Social & News", icon: Share2 },
@@ -394,7 +394,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
           {activeTab === "features" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-black">What's Inside</h2>
+                <h2 className="text-lg font-black">What&apos;s Inside</h2>
                 <Button type="button" onClick={() => setFeatures([...features, { id: Date.now(), title: "", description: "", imageUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
                   <Plus className="w-4 h-4" /> Add Item
                 </Button>
@@ -1031,7 +1031,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                 <div>
                   <h2 className="text-xl font-bold text-[var(--text-primary)]">Media Gallery</h2>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    Upload images and videos for the attraction's lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
+                    Upload images and videos for the attraction&apos;s lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -1123,7 +1123,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                   <div className="text-center py-12 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-secondary)]">
                     <ImageIcon className="w-12 h-12 mx-auto mb-4 opacity-20" />
                     <p>No gallery items yet</p>
-                    <p className="text-sm mt-1">Click "Add Media" to upload images or videos</p>
+                    <p className="text-sm mt-1">Click &quot;Add Media&quot; to upload images or videos</p>
                   </div>
                 )}
               </div>

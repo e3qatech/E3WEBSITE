@@ -105,7 +105,7 @@ export function SubscribeSection() {
               <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">You're on the list!</h3>
+              <h3 className="text-xl font-bold text-white mb-2">You&apos;re on the list!</h3>
               <p className="text-zinc-400 font-medium">{message}</p>
               <button 
                 onClick={() => setStatus('IDLE')}

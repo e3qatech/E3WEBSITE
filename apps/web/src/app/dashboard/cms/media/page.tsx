@@ -49,6 +49,7 @@ export default function MediaLibraryPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
     fetchMedia()
   }, [])
 
@@ -207,7 +208,6 @@ export default function MediaLibraryPage() {
                     className="group relative aspect-square bg-surface-default border border-border-default rounded-xl overflow-hidden hover:border-accent/50 cursor-pointer transition-all hover:shadow-lg"
                   >
                     {media.type === 'IMAGE' ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={media.url} alt="media" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     ) : media.type === 'VIDEO' ? (
                       <video src={media.url} className="w-full h-full object-cover opacity-80" />
@@ -246,7 +246,6 @@ export default function MediaLibraryPage() {
                         <td className="px-6 py-3 w-20">
                           <div className="w-12 h-12 rounded-lg bg-surface-active overflow-hidden border border-border-default flex items-center justify-center">
                             {media.type === 'IMAGE' ? (
-                              // eslint-disable-next-line @next/next/no-img-element
                               <img src={media.url} alt="media" className="w-full h-full object-cover" />
                             ) : (
                               <Icon className="w-5 h-5 text-text-tertiary" />
@@ -280,7 +279,6 @@ export default function MediaLibraryPage() {
           <div className="space-y-8 pb-12">
             <div className="w-full bg-bg-base border border-border-default rounded-xl overflow-hidden flex items-center justify-center p-4">
               {selectedMedia.type === 'IMAGE' ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img src={selectedMedia.url} alt="preview" className="max-w-full max-h-[40vh] object-contain rounded-lg" />
               ) : selectedMedia.type === 'VIDEO' ? (
                 <video src={selectedMedia.url} controls className="max-w-full max-h-[40vh] rounded-lg" />

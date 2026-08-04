@@ -54,7 +54,6 @@ export function MarqueeLogos({ locale, partners }: MarqueeLogosProps) {
             className="w-1/2 flex items-center justify-center shrink-0 basis-[auto] px-8"
           >
             {partner.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img 
                 src={partner.logoUrl} 
                 alt={partner.name} 

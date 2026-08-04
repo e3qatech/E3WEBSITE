@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,11 +39,7 @@ export const Modal: React.FC<ModalProps> = ({
   hideCloseButton = false,
 }) => {
   const modalRef = React.useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = (React.useSyncExternalStore || useSyncExternalStore)(() => () => {}, () => true, () => false);
 
   // Body scroll lock
   React.useEffect(() => {
@@ -96,7 +93,11 @@ export const Modal: React.FC<ModalProps> = ({
           const firstFocusable = modalRef.current.querySelector(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
           ) as HTMLElement | null;
-          firstFocusable?.focus() || modalRef.current.focus();
+          if (firstFocusable) {
+            firstFocusable.focus();
+          } else {
+            modalRef.current.focus();
+          }
         }
       }, 50);
     }

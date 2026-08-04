@@ -9,7 +9,6 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 async function getContactData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   
   // Fetch active attractions for the dropdowns
   let attractions: any[] = [];
@@ -54,7 +53,7 @@ async function getContactData() {
   const settings = settingsRecords.reduce((acc, curr) => {
     try {
       acc[curr.key] = typeof curr.value === 'string' ? JSON.parse(curr.value) : curr.value;
-    } catch(e) {
+    } catch {
       acc[curr.key] = curr.value;
     }
     return acc;

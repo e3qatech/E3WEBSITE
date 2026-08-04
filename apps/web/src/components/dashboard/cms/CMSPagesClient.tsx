@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
 import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminFormLayout } from "@/components/dashboard/ui/AdminFormLayout"
@@ -29,7 +29,8 @@ export function CMSPagesClient() {
   }
 
   useEffect(() => {
-    fetchPages()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
+  fetchPages()
   }, [])
 
   const handleSave = async () => {
@@ -65,7 +66,7 @@ export function CMSPagesClient() {
     try {
       const parsed = JSON.parse(val)
       setEditingPage({ ...editingPage, content: parsed })
-    } catch (e) {
+    } catch {
       // Allow invalid JSON while typing, maybe store as string in a separate state if needed,
       // but for simplicity, we just won't update the object until valid.
     }

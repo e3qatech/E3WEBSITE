@@ -1,17 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useSyncExternalStore } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 // Register ScrollTrigger globally
 gsap.registerPlugin(ScrollTrigger)
 
+const emptySubscribe = () => () => {}
+
 export function AnimationProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  )
 
   useEffect(() => {
-    setMounted(true)
     
     // Refresh ScrollTrigger on resize or dynamic layout changes
     const handleResize = () => {

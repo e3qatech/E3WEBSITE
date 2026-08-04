@@ -84,7 +84,6 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             
             {project.clientLogoUrl && (
               <div className="shrink-0 bg-zinc-900/50 backdrop-blur-md p-6 rounded-2xl border border-zinc-800/50 hidden md:block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={project.clientLogoUrl} alt={project.clientName || "Client Logo"} className="h-16 w-auto object-contain" />
               </div>
             )}
@@ -190,7 +189,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                     <div key={i} className="bg-gradient-to-br from-zinc-900 to-zinc-900/50 border border-zinc-800 rounded-3xl p-8 relative overflow-hidden flex-1 flex flex-col">
                       <Quote className="w-12 h-12 text-zinc-800 absolute top-6 end-6 -rotate-6" />
                       <div className="text-lg md:text-xl text-zinc-300 italic mb-8 relative z-10 flex-1">
-                        "{t.quoteEn}"
+                        &quot;{t.quoteEn}&quot;
                       </div>
                       <div className="text-zinc-500 font-bold uppercase tracking-widest text-sm relative z-10">
                         {t.authorName}
@@ -218,7 +217,6 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                           {/* Hover Image Reveal */}
                           {tm.employeeProfile?.profileImage && (
                             <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full overflow-hidden opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-0 shadow-2xl">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img src={tm.employeeProfile.profileImage} alt={tm.employeeProfile.firstName} className="w-full h-full object-cover" />
                             </div>
                           )}

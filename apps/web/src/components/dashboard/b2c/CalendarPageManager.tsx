@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Edit2, Trash2, Save, Image as ImageIcon, CheckCircle2, Loader2, X, Upload } from "lucide-react"
+import { Plus, Trash2, Save, CheckCircle2, Loader2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 import { uploadFile } from "@/lib/upload"
@@ -23,7 +23,7 @@ type DiscountOffer = {
 
 export function CalendarPageManager() {
   const [activeTab, setActiveTab] = useState<"HERO" | "DISCOUNTS" | "SEO">("HERO")
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -264,7 +264,7 @@ export function CalendarPageManager() {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click "Save Changes" after editing to apply the settings to the frontend.</p>
+              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click &quot;Save Changes&quot; after editing to apply the settings to the frontend.</p>
             </div>
         </div>
       )}

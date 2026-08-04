@@ -68,7 +68,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
 
       setIsEditing(null)
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Failed to save partner")
     } finally {
       setIsSaving(false)
@@ -84,7 +84,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
       
       setPartners(partners.filter(p => p.id !== id))
       router.refresh()
-    } catch (error) {
+    } catch {
       alert("Failed to delete partner")
     }
   }
@@ -117,7 +117,6 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
           <div key={partner.id} className="bg-surface-default border border-border-default rounded-2xl overflow-hidden hover:border-primary/30 transition-colors flex flex-col group relative">
             <div className="aspect-[3/2] bg-surface-hover flex items-center justify-center p-6 relative border-b border-border-default">
               {partner.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img src={partner.logoUrl} alt={partner.name} className="max-w-full max-h-full object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
               ) : (
                 <div className="text-text-tertiary font-bold flex flex-col items-center gap-2">
@@ -168,7 +167,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
 
         {filteredPartners.length === 0 && (
           <div className="col-span-full py-12 text-center text-text-tertiary border-2 border-dashed border-border-default rounded-2xl font-medium">
-            No partners found. Click "Add Client" to get started.
+            No partners found. Click &quot;Add Client&quot; to get started.
           </div>
         )}
       </div>

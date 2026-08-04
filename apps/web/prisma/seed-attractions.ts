@@ -57,10 +57,10 @@ async function main() {
 
     const upsertedAttraction = await prisma.attraction.upsert({
       where: { slug },
-      update: attractionData,
+      update: attractionData as any,
       create: {
         slug,
-        ...attractionData,
+        ...(attractionData as any),
       },
     });
 

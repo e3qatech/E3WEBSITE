@@ -1,9 +1,9 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { motion, useSpring, useTransform, animate } from 'framer-motion'
+import { motion, animate } from 'framer-motion'
 import { useAttractionOccupancy } from '@/hooks/useSocket'
-import { Wifi, WifiOff } from 'lucide-react'
+import { WifiOff } from 'lucide-react'
 
 interface LiveOccupancyProps {
   attractionId: string
@@ -25,7 +25,7 @@ export function LiveOccupancy({ attractionId, initialCurrent = 0, initialMax = 1
       ease: "easeOut"
     })
     return controls.stop
-  }, [current])
+  }, [current, displayCurrent])
 
   // Color logic
   const getStatusColor = (percent: number) => {

@@ -8,11 +8,8 @@ import {
   Building, 
   Mail, 
   Phone, 
-  Calendar, 
   Plus, 
   MessageSquare,
-  PhoneCall,
-  Mail as MailIcon,
   Video,
   FileText
 } from "lucide-react"

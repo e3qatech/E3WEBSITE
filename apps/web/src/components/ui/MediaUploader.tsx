@@ -17,8 +17,8 @@ interface MediaUploaderProps {
 
 export function MediaUploader({ value, onChange, placeholder = "https://...", className, accept = "image/*,video/*,audio/*", context }: MediaUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [_progress, setProgress] = useState(0)
+  const [, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

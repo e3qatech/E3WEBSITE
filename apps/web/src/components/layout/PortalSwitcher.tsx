@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Briefcase, Check, ArrowRight } from "lucide-react";
 import { useLocale } from "./LocaleProvider";
-import { cn } from "@/lib/utils";
 
 export function PortalSwitcher() {
   const router = useRouter();
-  const { t } = useLocale();
+  const {} = useLocale();
   const [isVisible, setIsVisible] = React.useState(false);
   const [rememberChoice, setRememberChoice] = React.useState(true);
 

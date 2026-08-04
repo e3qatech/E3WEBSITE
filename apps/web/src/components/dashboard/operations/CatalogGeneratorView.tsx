@@ -1,8 +1,7 @@
-// @ts-nocheck
 "use client"
 
 import { useState } from "react"
-import { BookOpen, FileDown, Search, CheckSquare, Square } from "lucide-react"
+import { BookOpen, Search, CheckSquare, Square } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import dynamic from "next/dynamic"
 
