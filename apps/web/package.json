@@ -20,7 +20,8 @@
     "test:gate08": "vitest run src/tests/gate08.b2b.test.ts",
     "test:gate09": "vitest run src/tests/gate09.b2c.test.ts",
     "test:gate10": "vitest run src/tests/gate10.accessibility.test.ts",
-    "test:gate11": "vitest run src/tests/gate11.launch.test.ts"
+    "test:gate11": "vitest run src/tests/gate11.launch.test.ts",
+    "test:gate12": "vitest run src/tests/gate12.gateway_cms.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

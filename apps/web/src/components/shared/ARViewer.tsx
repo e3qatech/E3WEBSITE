@@ -15,7 +15,9 @@ const store = createXRStore()
 // ----------------------------------------------------------------------
 interface ARViewerProps {
   modelUrl: string
-  modelName: string
+  modelName?: string
+  posterUrl?: string
+  interactive?: boolean
   dimensions?: { w: number, h: number, d: number }
   powerReq?: string
   onClose?: () => void
@@ -111,7 +113,7 @@ function HitTestReticle({ onPlace }: { onPlace: (pos: THREE.Vector3) => void }) 
 // ----------------------------------------------------------------------
 // MAIN VIEWER COMPONENT
 // ----------------------------------------------------------------------
-export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, onClose }: ARViewerProps) {
+export function ARViewer({ modelUrl, modelName = 'Model', posterUrl: _posterUrl, interactive: _interactive, dimensions, powerReq, onClose }: ARViewerProps) {
   const [xrSupported, setXrSupported] = useState(false)
   const [inAR, setInAR] = useState(false)
   const [modelPlaced, setModelPlaced] = useState(false)
@@ -268,3 +270,5 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
     </div>
   )
 }
+
+export default ARViewer;

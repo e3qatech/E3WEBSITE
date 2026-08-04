@@ -1,14 +1,31 @@
-import { Metadata } from "next"
-import { PortalGateway } from "@/components/home/PortalGateway"
-import { SEO } from "@/components/shared/SEO"
-import db from "@/lib/db"
+import { Metadata } from "next";
+import { PortalGateway } from "@/components/home/PortalGateway";
+import { SEO } from "@/components/shared/SEO";
+import db from "@/lib/db";
+import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
   
+  let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
+  try {
+    const record = await db.setting.findUnique({
+      where: { key: 'gateway_customization_published' },
+    });
+    if (record?.value) {
+      cmsData = record.value as unknown as GatewayCustomizationPayload;
+    }
+  } catch (_e) {
+    // Fallback to default payload
+  }
+
+  const title = cmsData.seoAccess?.seoTitleEn || "E3 - We Build Experiences | Event Engineering Experts";
+  const description = cmsData.seoAccess?.seoDescEn || "Qatar's premier event engineering and entertainment agency.";
+  const ogImage = cmsData.seoAccess?.ogImage || `${baseUrl}/og-image-default.jpg`;
+
   return {
-    title: "E3 - We Build Experiences | Event Engineering Experts",
-    description: "Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B and B2C clients.",
+    title,
+    description,
     alternates: {
       canonical: baseUrl,
       languages: {
@@ -17,34 +34,35 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: "E3 - We Build Experiences | Event Engineering Experts",
-      description: "Qatar's premier event engineering and entertainment agency.",
+      title,
+      description,
       url: baseUrl,
       images: [
         {
-          url: `${baseUrl}/og-image-default.jpg`,
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: "E3 Event Engineering",
         },
       ],
     },
-  }
+  };
 }
 
 export default async function Home() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
 
-  const settings = await db.setting.findMany({
-    where: {
-      key: { in: ['gatewayB2CTitle', 'gatewayB2CDesc', 'gatewayB2BTitle', 'gatewayB2BDesc'] }
+  let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
+  try {
+    const record = await db.setting.findUnique({
+      where: { key: 'gateway_customization_published' },
+    });
+    if (record?.value) {
+      cmsData = record.value as unknown as GatewayCustomizationPayload;
     }
-  });
-
-  const b2cTitle = settings.find(s => s.key === 'gatewayB2CTitle')?.value as string | undefined;
-  const b2cDesc = settings.find(s => s.key === 'gatewayB2CDesc')?.value as string | undefined;
-  const b2bTitle = settings.find(s => s.key === 'gatewayB2BTitle')?.value as string | undefined;
-  const b2bDesc = settings.find(s => s.key === 'gatewayB2BDesc')?.value as string | undefined;
+  } catch (_e) {
+    // Fallback
+  }
 
   return (
     <>
@@ -60,12 +78,7 @@ export default async function Home() {
           }
         }}
       />
-      <PortalGateway 
-        b2cTitle={b2cTitle}
-        b2cDesc={b2cDesc}
-        b2bTitle={b2bTitle}
-        b2bDesc={b2bDesc}
-      />
+      <PortalGateway cmsData={cmsData} />
     </>
-  )
+  );
 }
