@@ -89,10 +89,12 @@
   },
   "size-limit": [
     {
-      "path": ".next/static/chunks/*.js",
-      "limit": "400 kB"
+      "name": "Turbopack Runtime",
+      "path": ".next/static/chunks/turbopack-*.js",
+      "limit": "50 kB"
     },
     {
+      "name": "Global CSS",
       "path": ".next/static/chunks/*.css",
       "limit": "50 kB"
     }
