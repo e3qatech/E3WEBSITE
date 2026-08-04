@@ -32,12 +32,14 @@ describe('Gate 10: UX, Accessibility, RTL & Theme Verification', () => {
     expect(content).toContain('rtl');
   });
 
-  it('4. Global CSS defines prefers-reduced-motion media query to control animation duration', () => {
+  it('4. Global CSS defines targeted prefers-reduced-motion rules and accessible contrast tokens', () => {
     const cssPath = path.join(webDir, 'src/app/globals.css');
     expect(fs.existsSync(cssPath)).toBe(true);
     const content = fs.readFileSync(cssPath, 'utf-8');
     expect(content).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(content).toContain('animation-duration: 0.01ms !important');
+    expect(content).toContain('.animate-marquee');
+    expect(content).toContain('[role="progressbar"]');
+    expect(content).toContain('--text-tertiary: #94a3b8');
     expect(content).toContain('[dir="rtl"] body');
   });
 

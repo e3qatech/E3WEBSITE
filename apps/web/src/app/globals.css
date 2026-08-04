@@ -164,8 +164,8 @@
 
   --text-primary: #FAFAFA; /* zinc-50 */
   --text-secondary: #A1A1AA; /* zinc-400 */
-  --text-tertiary: #71717A; /* Muted gray */
-  --text-disabled: #52525B; /* Disabled gray */
+  --text-tertiary: #94a3b8; /* slate-400 (7.79:1 contrast on dark background) */
+  --text-disabled: #64748b; /* slate-500 */
 
   --shadow-1: 0 2px 4px rgba(0,0,0,0.2);
   --shadow-2: 0 4px 8px rgba(0,0,0,0.25);
@@ -573,13 +573,34 @@ html[dir="rtl"] .icon-flip {
 .animate-spin-slow { animation: spinSlow 8s linear infinite; }
 .animate-marquee { animation: marquee 20s linear infinite; }
 
-/* Respect prefers-reduced-motion for all animations */
+/* Respect prefers-reduced-motion with targeted behavior */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+  /* Stop decorative animations, marquees, parallax, continuous rotation, and floating */
+  .animate-marquee,
+  .animate-float,
+  .animate-spin-slow,
+  .animate-pulse-glow,
+  .animate-shimmer,
+  .parallax-layer,
+  .continuous-rotation,
+  .decorative-motion {
+    animation: none !important;
+    transform: none !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* Disable smooth scrolling */
+  html {
     scroll-behavior: auto !important;
+  }
+
+  /* Preserve essential loaders, progress bars, status spinners, and functional state changes */
+  [role="progressbar"],
+  [role="status"],
+  .animate-spin,
+  .loading-spinner {
+    animation-duration: 1.5s !important;
+    animation-iteration-count: infinite !important;
   }
 }
 [dir="rtl"] body { font-family: 'Noto Sans Arabic', sans-serif !important; }
