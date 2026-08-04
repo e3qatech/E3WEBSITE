@@ -1,6 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { RoleType, PrismaClient } = require('@prisma/client');
+import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
+import { createRequire } from 'node:module';
+import { RoleType, PrismaClient } from '@prisma/client';
+
+const require = createRequire(import.meta.url);
 
 console.log('--- Verifying Authoritative Prisma Client Primitives ---');
 

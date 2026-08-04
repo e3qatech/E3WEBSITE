@@ -89,15 +89,11 @@
   },
   "size-limit": [
     {
-      "path": ".next/static/chunks/pages/index-*.js",
-      "limit": "200 kB"
-    },
-    {
-      "path": ".next/static/chunks/pages/dashboard-*.js",
+      "path": ".next/static/chunks/*.js",
       "limit": "400 kB"
     },
     {
-      "path": ".next/static/css/*.css",
+      "path": ".next/static/chunks/*.css",
       "limit": "50 kB"
     }
   ],

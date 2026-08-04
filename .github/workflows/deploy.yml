@@ -32,7 +32,7 @@ jobs:
         run: pnpm verify:prisma
 
       - name: Verify Generated Prisma Schema Primitives
-        run: pnpm --filter web exec node scripts/verify-prisma-primitives.js
+        run: pnpm --filter web exec node scripts/verify-prisma-primitives.mjs
 
       - name: Lint
         run: pnpm verify:lint
