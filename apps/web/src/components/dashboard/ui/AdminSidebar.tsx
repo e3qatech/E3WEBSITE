@@ -75,7 +75,7 @@ const sidebarConfig = [
     { label: "Rules & Sync", href: "/dashboard/operations/temporal-rules" },
     { label: "Broadcasts", href: "/dashboard/operations/broadcast" }
   ] },
-  { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN"], subItems: [
+  { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Global", href: "/dashboard/settings/general" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
     { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },

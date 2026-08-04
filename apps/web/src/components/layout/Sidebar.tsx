@@ -49,7 +49,7 @@ const sidebarConfig = [
     { label: "Talent AI", href: "/dashboard/crm/talent" },
     { label: "Subscribers", href: "/dashboard/crm/subscribers" }
   ] },
-  { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN"], subItems: [
+  { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "General", href: "/dashboard/settings/general" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
     { label: "SEO", href: "/dashboard/settings/seo" },
