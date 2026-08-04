@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requireRole, AppAuthError } from "@/lib/server-auth"
 
 export async function GET() {
   try {
-    const session = await auth()
-    const role = (session?.user as any)?.role
-    const userId = session?.user?.id
-
-    if (!session || !["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF"].includes(role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const user = await requireRole(["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF"])
+    const role = user.role
+    const userId = user.id
 
     const leads = await db.lead.findMany({
       orderBy: { updatedAt: "desc" },
@@ -45,18 +41,16 @@ export async function GET() {
     return NextResponse.json(processedLeads)
   } catch (error: any) {
     console.error("[LEADS_GET_ERROR]", error)
+    if (error instanceof AppAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const session = await auth()
-    const role = (session?.user as any)?.role
-
-    if (!session || !["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"].includes(role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const user = await requireRole(["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"])
 
     const body = await request.json()
     const { name, company, email, phone, status, value, probability, assignedToId, interestServices } = body
@@ -79,7 +73,7 @@ export async function POST(request: Request) {
       data: {
         type: "NOTE",
         description: "Lead created manually.",
-        author: (session.user as any)?.name || "System",
+        author: user.name || "System",
         leadId: lead.id
       }
     })
@@ -90,9 +84,9 @@ export async function POST(request: Request) {
         action: "LEAD_CREATED_MANUAL",
         entity: "Lead",
         entityId: lead.id,
-        userId: session.user?.id,
+        userId: user.id,
         metadata: {
-          author: (session.user as any)?.name || "System"
+          author: user.name || "System"
         }
       }
     });
@@ -100,6 +94,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ...lead, activities: [activity] })
   } catch (error: any) {
     console.error("[LEADS_POST_ERROR]", error)
+    if (error instanceof AppAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

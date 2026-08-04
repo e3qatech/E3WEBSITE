@@ -76,6 +76,21 @@ export async function DELETE(
 
     const { id } = await params;
 
+    const talent = await db.talent.findUnique({
+      where: { id }
+    });
+
+    if (talent?.resumeUrl) {
+      try {
+        if (process.env.RESUME_BLOB_READ_WRITE_TOKEN) {
+          const { del } = await import('@vercel/blob');
+          await del(talent.resumeUrl, { token: process.env.RESUME_BLOB_READ_WRITE_TOKEN });
+        }
+      } catch (err) {
+        console.warn('Failed to delete talent resume blob:', err);
+      }
+    }
+
     await db.talent.delete({
       where: { id }
     });

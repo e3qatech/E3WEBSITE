@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
+import { rateLimit } from "@/lib/rate-limit";
+import { enforceBodyLimit } from "@/lib/body-limit";
 import { z } from "zod";
 
 const ingestSchema = z.object({
@@ -10,7 +11,7 @@ const ingestSchema = z.object({
   position: z.string().max(100).optional(),
   department: z.string().max(100).optional(),
   cvText: z.string().max(10000).optional(), // Simulating raw text from CV upload
-});
+}).strict();
 
 // Simulated AI Parser Function
 function simulateAIParse(text: string) {
@@ -41,20 +42,15 @@ function simulateAIParse(text: string) {
 
 export async function POST(req: Request) {
   try {
-    // 1. Rate Limiting
+    // 1. Body Limit (32KB)
+    const limitResp = enforceBodyLimit(req, 32 * 1024);
+    if (limitResp) return limitResp;
+
+    // 2. Rate Limiting
     const ip = req.headers.get("x-forwarded-for") || "unknown_ip";
-    const rateLimitKey = `rate_limit:talent_ingest:${ip}`;
-    
-    try {
-      const currentCount = await redis.incr(rateLimitKey);
-      if (currentCount === 1) {
-        await redis.expire(rateLimitKey, 60); 
-      }
-      if (currentCount > 5) {
-        return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-      }
-    } catch (redisError) {
-      console.warn("[CSO] Redis rate limit bypassed:", redisError);
+    const rl = await rateLimit(`rate_limit:talent_ingest:${ip}`, 5, 60, false);
+    if (!rl.success) {
+      return NextResponse.json({ error: rl.error }, { status: 429 });
     }
 
     // 2. Input Validation

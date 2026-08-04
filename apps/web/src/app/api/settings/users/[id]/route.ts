@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { requireRole, requireCurrentUser, AuthError } from "@/lib/server-auth"
+import { requireRole, requireCurrentUser, AppAuthError } from "@/lib/server-auth"
 import bcrypt from "bcryptjs"
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -71,7 +71,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json(updatedUser)
   } catch (error: any) {
     console.error("[USER_PATCH_ERROR]", error)
-    if (error instanceof AuthError) {
+    if (error instanceof AppAuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode })
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })

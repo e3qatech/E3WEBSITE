@@ -5,14 +5,19 @@ import { randomUUID } from "crypto"
 import { auth } from "@/lib/auth"
 import fs from "fs/promises"
 import path from "path"
+import { isValidMagicBytes } from "@/lib/security"
+import { rateLimit } from "@/lib/rate-limit"
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const CMS_MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const RESUME_MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 const ALLOWED_EXTENSIONS = [
   'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'avif',
   'mp4', 'webm', 'mov',
   'pdf', 'doc', 'docx',
   'glb', 'gltf'
 ];
+const RESUME_EXTENSIONS = ['pdf', 'doc', 'docx'];
 
 const ALLOWED_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/svg',
@@ -22,20 +27,28 @@ const ALLOWED_TYPES = [
   'model/gltf-binary', 'model/gltf+json',
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
+const RESUME_TYPES = [
+  'application/pdf', 'application/x-pdf',
+  'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/octet-stream'
+];
 
-async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Promise<string> {
+async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isPrivate: boolean = false): Promise<string> {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
   // Try saving to public/uploads directory first (local dev / writable disk)
   try {
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const uploadDir = path.join(process.cwd(), isPrivate ? "private" : "public", "uploads");
     await fs.mkdir(uploadDir, { recursive: true });
     const filePath = path.join(uploadDir, fileName);
     await fs.writeFile(filePath, buffer);
-    return `/uploads/${fileName}`;
+    return isPrivate ? `/private/uploads/${fileName}` : `/uploads/${fileName}`;
   } catch (fsErr) {
     console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), converting to Data URL fallback:", fsErr);
+    if (isPrivate) {
+        throw new Error("Private storage unavailable on read-only system without valid blob setup.");
+    }
     
     let mime = file.type;
     if (ext === 'svg' || !mime || mime === 'application/octet-stream') {
@@ -53,6 +66,7 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string): Pr
 }
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "unknown_ip";
   const contentType = request.headers.get("content-type") || "";
 
   // 1. Handle Vercel Blob client token generation (JSON request)
@@ -71,9 +85,18 @@ export async function POST(request: Request) {
           if (!session?.user && context !== 'public_resume') {
             throw new Error("Unauthorized");
           }
+          
+          if (context === 'public_resume') {
+             const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
+             if (!rl.success) throw new Error(rl.error);
+          }
+
+          const maxSize = context === 'public_resume' ? RESUME_MAX_FILE_SIZE : CMS_MAX_FILE_SIZE;
+          const allowedTypes = context === 'public_resume' ? RESUME_TYPES : ALLOWED_TYPES;
+
           return {
-            allowedContentTypes: ALLOWED_TYPES,
-            maximumSizeInBytes: MAX_FILE_SIZE,
+            allowedContentTypes: allowedTypes,
+            maximumSizeInBytes: maxSize,
             tokenPayload: JSON.stringify({ userId: session?.user?.id || 'anonymous' })
           };
         },
@@ -94,50 +117,90 @@ export async function POST(request: Request) {
     const context = data.get('context') as string | null;
 
     const session = await auth();
+    const isPublicResume = context === 'public_resume';
 
-    if (!session?.user && context !== 'public_resume') {
+    if (!session?.user && !isPublicResume) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
+    
+    if (isPublicResume) {
+       const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
+       if (!rl.success) return NextResponse.json({ success: false, error: rl.error }, { status: 429 });
+    }
+
     const file: File | null = data.get('file') as unknown as File;
 
     if (!file) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ success: false, error: 'File size exceeds 50MB limit' }, { status: 400 });
+    const maxSize = isPublicResume ? RESUME_MAX_FILE_SIZE : CMS_MAX_FILE_SIZE;
+    if (file.size > maxSize) {
+      return NextResponse.json({ success: false, error: `File size exceeds limit` }, { status: 400 });
     }
 
-    const ext = file.name.split('.').pop()?.toLowerCase();
-    const isAllowedExt = ext && ALLOWED_EXTENSIONS.includes(ext);
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const validExtensions = isPublicResume ? RESUME_EXTENSIONS : ALLOWED_EXTENSIONS;
+    const isAllowedExt = validExtensions.includes(ext);
 
-    if (!isAllowedExt && !ALLOWED_TYPES.includes(file.type) && !file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      return NextResponse.json({ success: false, error: 'Invalid file type' }, { status: 400 });
+    if (!isAllowedExt) {
+      return NextResponse.json({ success: false, error: 'Invalid file extension' }, { status: 400 });
     }
 
+    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!isValidMagicBytes(buffer, ext)) {
+      return NextResponse.json({ success: false, error: 'Invalid file signature' }, { status: 400 });
+    }
+
+    // Force unique naming
     const fileName = `${randomUUID()}.${ext || 'bin'}`;
     let fileUrl = "";
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const hasResumeToken = !!process.env.RESUME_BLOB_READ_WRITE_TOKEN;
+    const hasPublicToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+    if (isPublicResume && !hasResumeToken) {
+      return NextResponse.json({ success: false, error: 'Resume storage is unconfigured' }, { status: 503 });
+    }
+
+    if (isPublicResume ? hasResumeToken : hasPublicToken) {
       try {
-        const blob = await put(`uploads/${fileName}`, file, {
-          access: 'public',
+        const prefix = isPublicResume ? 'private_resumes' : 'uploads';
+        const blobAccess = isPublicResume ? 'private' : 'public';
+        const uploadToken = isPublicResume ? process.env.RESUME_BLOB_READ_WRITE_TOKEN : process.env.BLOB_READ_WRITE_TOKEN;
+        
+        const blob = await put(`${prefix}/${fileName}`, file, {
+          access: blobAccess as any,
           contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
+          token: uploadToken
         });
-        fileUrl = blob.url;
+        // Private blobs: return pathname for download proxy, not public URL
+        fileUrl = isPublicResume ? blob.pathname : blob.url;
       } catch (blobError) {
         console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to disk/DataURL:", blobError);
-        fileUrl = await saveFileOrDataUrl(file, fileName, ext);
+        fileUrl = await saveFileOrDataUrl(file, fileName, ext, isPublicResume);
       }
     } else {
-      fileUrl = await saveFileOrDataUrl(file, fileName, ext);
+      fileUrl = await saveFileOrDataUrl(file, fileName, ext, isPublicResume);
     }
+
+    // Sanitize original filename — strip path components and null bytes
+    const safeOriginalName = (file.name || 'upload')
+      .replace(/\0/g, '')
+      .split(/[/\\]/).pop()
+      ?.replace(/[^a-zA-Z0-9._-]/g, '_')
+      .substring(0, 255) || 'upload';
+
+    const headers: Record<string, string> = {
+      'X-Upload-Status': 'unscanned', // No malware scanner — see Gate 05 malware policy
+    };
 
     return NextResponse.json({ 
       success: true, 
       url: fileUrl,
-      fileName: file.name
-    });
+      fileName: safeOriginalName,
+      ...(isPublicResume ? { downloadUrl: `/api/upload/download?pathname=${encodeURIComponent(fileUrl)}` } : {}),
+    }, { headers });
   } catch (error: any) {
     console.error('Error uploading file:', error);
     return NextResponse.json({ success: false, error: error?.message || 'Internal Server Error' }, { status: 500 });

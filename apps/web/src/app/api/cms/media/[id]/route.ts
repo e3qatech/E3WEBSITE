@@ -12,6 +12,14 @@ export async function DELETE(
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
+    const user = await db.user.findUnique({ where: { id: (session.user as any).id } });
+    if (!user || !user.isActive) {
+      return NextResponse.json({ error: 'Account inactive or unauthorized' }, { status: 401 });
+    }
+    if (user.role !== 'SUPER_ADMIN' && user.role !== 'STAFF') {
+      return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
+    }
 
     const { id } = await params;
     const media = await db.media.findUnique({ where: { id } });

@@ -3,12 +3,12 @@ import db from "./db";
 import { rolePermissions } from "./permissions";
 import type { RoleType } from "@prisma/client";
 
-export class AuthError extends Error {
+export class AppAuthError extends Error {
   statusCode: number;
 
   constructor(statusCode: number, message: string) {
     super(message);
-    this.name = "AuthError";
+    this.name = "AppAuthError";
     this.statusCode = statusCode;
   }
 }
@@ -16,7 +16,7 @@ export class AuthError extends Error {
 export async function requireCurrentUser() {
   const session = await auth();
   if (!session || !session.user) {
-    throw new AuthError(401, "Unauthorized: No valid session");
+    throw new AppAuthError(401, "Unauthorized: No valid session");
   }
 
   const user = await db.user.findUnique({
@@ -24,15 +24,15 @@ export async function requireCurrentUser() {
   });
 
   if (!user) {
-    throw new AuthError(401, "Unauthorized: User not found");
+    throw new AppAuthError(401, "Unauthorized: User not found");
   }
 
   if (!user.isActive) {
-    throw new AuthError(403, "Forbidden: Account is inactive");
+    throw new AppAuthError(403, "Forbidden: Account is inactive");
   }
 
   if (user.sessionVersion !== session.user.sessionVersion) {
-    throw new AuthError(403, "Forbidden: Session revoked or stale");
+    throw new AppAuthError(403, "Forbidden: Session revoked or stale");
   }
 
   const permissions = rolePermissions[user.role as RoleType] || [];
@@ -50,7 +50,7 @@ export async function requireCurrentUser() {
 export async function requirePermission(action: string) {
   const user = await requireCurrentUser();
   if (!user.permissions.includes('*') && !user.permissions.includes(action)) {
-    throw new AuthError(403, "Forbidden: Insufficient permissions");
+    throw new AppAuthError(403, "Forbidden: Insufficient permissions");
   }
   return user;
 }
@@ -58,7 +58,7 @@ export async function requirePermission(action: string) {
 export async function requireRole(allowedRoles: RoleType[]) {
   const user = await requireCurrentUser();
   if (!allowedRoles.includes(user.role)) {
-    throw new AuthError(403, "Forbidden: Insufficient role");
+    throw new AppAuthError(403, "Forbidden: Insufficient role");
   }
   return user;
 }

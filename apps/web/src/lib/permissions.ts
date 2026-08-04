@@ -1,7 +1,7 @@
 export type Role = 'SUPER_ADMIN' | 'SALES_ADMIN' | 'SUPPORT_ADMIN' | 'STAFF' | 'CLIENT';
 
 // Hardcoded permission matrix until DB-seeded permissions are fully integrated
-const rolePermissions: Record<Role, string[]> = {
+export const rolePermissions: Record<Role, string[]> = {
   SUPER_ADMIN: ['*'],
   SALES_ADMIN: [
     'view:b2b', 'manage:b2b',
