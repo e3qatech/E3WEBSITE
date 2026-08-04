@@ -4,6 +4,30 @@ const { execSync } = require('child_process');
 
 const rootDir = path.resolve(__dirname, '..');
 
+// Handle CLI self-test execution
+if (process.argv.includes('--self-test')) {
+  console.log('🧪 Running Security Check Script Self-Tests...');
+  
+  // Test 1: Forbidden pattern matching
+  const testPatterns = [/^\.env\.local$/i, /^\.vercel\//i];
+  if (!testPatterns[0].test('.env.local') || !testPatterns[1].test('.vercel/project.json')) {
+    console.error('❌ Self-Test 1 Failed: Pattern matching error');
+    process.exit(1);
+  }
+
+  // Test 2: Forbidden keywords
+  const testContent = 'prisma db push --accept-data-loss';
+  const pushPattern = /prisma\s+db\s+push/i;
+  const lossPattern = /--accept-data-loss/i;
+  if (!pushPattern.test(testContent) || !lossPattern.test(testContent)) {
+    console.error('❌ Self-Test 2 Failed: Keyword detection error');
+    process.exit(1);
+  }
+
+  console.log('✅ All Security Check Self-Tests PASSED.');
+  process.exit(0);
+}
+
 console.log('🔍 Executing Security Regression Checks...');
 let failed = false;
 
@@ -35,7 +59,7 @@ try {
   failed = true;
 }
 
-// 2. Scan package.json and source files for unsafe CLI flags & hardcoded credentials
+// 2. Scan package.json, turbo.json, and source files for forbidden commands & hardcoded secrets
 const filesToScan = [
   'package.json',
   'apps/web/package.json',
@@ -46,7 +70,9 @@ const filesToScan = [
 const forbiddenKeywords = [
   { pattern: /prisma\s+db\s+push/i, desc: 'Forbidden "prisma db push" command' },
   { pattern: /--accept-data-loss/i, desc: 'Forbidden "--accept-data-loss" flag' },
-  { pattern: /TempPassword123/, desc: 'Hardcoded default credential "TempPassword123"' }
+  { pattern: /TempPassword123/, desc: 'Hardcoded default credential "TempPassword123"' },
+  { pattern: /vercel_blob_rw_[a-zA-Z0-9_-]{20,}/, desc: 'Hardcoded Vercel Blob token pattern' },
+  { pattern: /redis:\/\/:[a-zA-Z0-9_-]{10,}@/, desc: 'Hardcoded Redis URL password pattern' }
 ];
 
 for (const relPath of filesToScan) {

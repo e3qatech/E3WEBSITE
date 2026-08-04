@@ -6,6 +6,29 @@ const rootDir = path.resolve(__dirname, '..');
 const webDir = path.resolve(rootDir, 'apps/web');
 const baselinePath = path.resolve(__dirname, 'lint-baseline.json');
 
+// Handle CLI self-test execution
+if (process.argv.includes('--self-test')) {
+  console.log('🧪 Running Lint Budget Checker Self-Tests...');
+  
+  if (!fs.existsSync(baselinePath)) {
+    console.error('❌ Self-Test Failed: Baseline file missing');
+    process.exit(1);
+  }
+
+  const baselineData = JSON.parse(fs.readFileSync(baselinePath, 'utf-8'));
+  const requiredZeroRules = ['react-hooks/exhaustive-deps', 'react-hooks/rules-of-hooks', 'unused-eslint-disable-directive'];
+  
+  for (const rule of requiredZeroRules) {
+    if (baselineData[rule] !== 0) {
+      console.error(`❌ Self-Test Failed: Required rule ${rule} budget is not 0`);
+      process.exit(1);
+    }
+  }
+
+  console.log('✅ All Lint Budget Checker Self-Tests PASSED.');
+  process.exit(0);
+}
+
 if (!fs.existsSync(baselinePath)) {
   console.error(`❌ Error: Baseline file not found at ${baselinePath}`);
   process.exit(1);

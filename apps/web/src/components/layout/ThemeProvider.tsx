@@ -71,7 +71,7 @@ export function ThemeProvider({
         setTheme(theme);
       },
     }),
-    [theme]
+    [theme, setTheme]
   );
 
   return (

@@ -24,7 +24,7 @@ interface ARViewerProps {
 // ----------------------------------------------------------------------
 // MODEL LOADER COMPONENT
 // ----------------------------------------------------------------------
-function _Loader() {
+function ModelProgressLoader() {
   const { progress } = useProgress()
   return (
     <Html center>
