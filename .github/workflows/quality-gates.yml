@@ -1,0 +1,115 @@
+name: Quality Gates Pipeline
+
+on:
+  push:
+    branches: [ "main", "repair/*" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  install-and-static:
+    name: 1. Typecheck, Security & Lint Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client (Authoritative Schema)
+        run: pnpm verify:prisma
+
+      - name: Workspace TypeScript Check
+        run: pnpm verify:typecheck
+
+      - name: Security Regression Check
+        run: pnpm verify:security
+
+      - name: Lint Baseline Budget Check
+        run: pnpm verify:lint
+
+      - name: Dependency Audit Report
+        run: pnpm verify:audit
+
+  tests:
+    name: 2. Gate Unit & Integration Tests (95+ Tests)
+    needs: install-and-static
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm verify:prisma
+
+      - name: Run All Quality Gate Tests (02, 03, 04, 05, 06)
+        run: pnpm verify:test
+        env:
+          NODE_ENV: test
+          AUTH_SECRET: synthetic_ci_auth_secret_32_bytes_long_key_12345
+          BOOKINGQUBE_WEBHOOK_SECRET: synthetic_ci_webhook_secret_key_12345
+
+  build:
+    name: 3. Production Build Validation
+    needs: install-and-static
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm verify:prisma
+
+      - name: Execute Production Build
+        run: pnpm verify:build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
