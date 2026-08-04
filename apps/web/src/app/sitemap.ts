@@ -4,66 +4,43 @@ import db from '@/lib/db';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
 
-  // 1. Static Routes
-  const routes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-      alternates: {
-        languages: {
-          en: `${baseUrl}/en`,
-          ar: `${baseUrl}/ar`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/b2b`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-      alternates: {
-        languages: {
-          en: `${baseUrl}/en/b2b`,
-          ar: `${baseUrl}/ar/b2b`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/b2c`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-      alternates: {
-        languages: {
-          en: `${baseUrl}/en/b2c`,
-          ar: `${baseUrl}/ar/b2c`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/auth/login`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-      alternates: {
-        languages: {
-          en: `${baseUrl}/en/auth/login`,
-          ar: `${baseUrl}/ar/auth/login`,
-        },
-      },
-    },
+  // 1. Published Public Static Routes
+  const staticPathList = [
+    { path: '', priority: 1.0, changeFrequency: 'daily' as const },
+    { path: '/b2b', priority: 0.9, changeFrequency: 'weekly' as const },
+    { path: '/b2b/services', priority: 0.8, changeFrequency: 'weekly' as const },
+    { path: '/b2b/case-studies', priority: 0.8, changeFrequency: 'weekly' as const },
+    { path: '/b2b/about', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/b2b/careers', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/b2b/contact', priority: 0.8, changeFrequency: 'monthly' as const },
+    { path: '/b2c', priority: 0.9, changeFrequency: 'weekly' as const },
+    { path: '/b2c/attractions', priority: 0.9, changeFrequency: 'daily' as const },
+    { path: '/b2c/calendar', priority: 0.8, changeFrequency: 'daily' as const },
+    { path: '/b2c/tickets', priority: 0.8, changeFrequency: 'daily' as const },
+    { path: '/b2c/contact', priority: 0.8, changeFrequency: 'monthly' as const },
+    { path: '/careers', priority: 0.7, changeFrequency: 'weekly' as const },
   ];
 
+  const routes: MetadataRoute.Sitemap = staticPathList.map((item) => ({
+    url: `${baseUrl}${item.path}`,
+    lastModified: new Date(),
+    changeFrequency: item.changeFrequency,
+    priority: item.priority,
+    alternates: {
+      languages: {
+        en: `${baseUrl}/en${item.path}`,
+        ar: `${baseUrl}/ar${item.path}`,
+      },
+    },
+  }));
+
   try {
-    // 2. Fetch Dynamic Routes
-    const [attractions, services, caseStudies, teamMembers, events] = await Promise.all([
+    // 2. Fetch Published Dynamic Routes
+    const [attractions, services, caseStudies, teamMembers] = await Promise.all([
       db.attraction.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.service.findMany({ where: { isVisible: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.caseStudy.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.employeeProfile.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
-      db.calendarEvent.findMany({ where: { status: 'PUBLISHED' }, select: { id: true, updatedAt: true } }).catch(() => []),
     ]);
 
     // 3. Map Dynamic Routes to Sitemap
@@ -116,24 +93,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         },
       })),
-      ...events.map((item: any) => ({
-        url: `${baseUrl}/b2c/events/${item.id}`,
-        lastModified: item.updatedAt,
-        changeFrequency: 'daily' as const,
-        priority: 0.7,
-        alternates: {
-          languages: {
-            en: `${baseUrl}/en/b2c/events/${item.id}`,
-            ar: `${baseUrl}/ar/b2c/events/${item.id}`,
-          },
-        },
-      })),
     ];
 
     return [...routes, ...dynamicRoutes];
   } catch (error) {
     console.error('Error generating sitemap:', error);
-    // Graceful degradation: return just static routes if DB fails
     return routes;
   }
 }
