@@ -50,18 +50,20 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
   const darkLogoUrl = settings.darkLogoUrl;
 
   return (
-    <footer className="bg-zinc-950 text-zinc-400 border-t border-zinc-900 pt-20 pb-10" dir={isAr ? 'rtl' : 'ltr'}>
+    <footer 
+      data-portal="b2b"
+      className="bg-[var(--bg-level-2)] text-[var(--text-secondary)] border-t border-[var(--border-level-1)] pt-20 pb-10 transition-colors duration-300" 
+      dir={isAr ? 'rtl' : 'ltr'}
+    >
       <div className="container mx-auto px-4 md:px-8">
         
         {/* Connect / Inquiry Strip */}
-        <div className="mb-20 p-10 md:p-16 rounded-lg bg-zinc-900 border border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
-          
+        <div className="mb-20 p-10 md:p-16 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-sm">
           <div className="relative z-10 max-w-xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] mb-4 tracking-tight">
               {isAr ? "هل لديك مشروع في ذهنك؟" : "Have a project in mind?"}
             </h2>
-            <p className="text-lg text-zinc-400">
+            <p className="text-lg text-[var(--text-secondary)]">
               {isAr ? "شاركنا موجز مشروعك وسيتواصل معك فريقنا لصياغة المفهوم المكتمل وخطة التنفيذ." : "Share your brief and our team will connect with you to shape the right concept and delivery plan."}
             </p>
           </div>
@@ -69,7 +71,7 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
           <div className="relative z-10 shrink-0">
             <Link 
               href={`/${currentLocale}/b2b/contact`} 
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--color-primary)] text-white font-bold text-base rounded-xl hover:bg-[var(--color-primary-hover)] transition-colors shadow-md"
             >
               {isAr ? "ابدأ الاستفسار" : "Start Inquiry"} <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
             </Link>
@@ -79,7 +81,7 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
         {/* Footer Links */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
-            <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-2">
+            <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-3">
               {(lightLogoUrl || darkLogoUrl) ? (
                 <img 
                   src={(darkLogoUrl || lightLogoUrl)} 
@@ -87,76 +89,76 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
                   className="h-10 w-auto object-contain"
                 />
               ) : (
-                <div className="w-10 h-10 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-white tracking-tighter">
+                <div className="w-10 h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center font-black text-white tracking-tighter shadow-sm">
                   E3
                 </div>
               )}
-              <span className="font-bold text-xl tracking-tight text-zinc-100">
+              <span className="font-bold text-xl tracking-tight text-[var(--text-primary)]">
                 {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
               </span>
             </Link>
-            <p className="text-sm leading-relaxed max-w-xs">
+            <p className="text-sm leading-relaxed max-w-xs text-[var(--text-secondary)]">
               {desc}
             </p>
           </div>
 
           <div>
-            <h4 className="text-zinc-100 font-bold mb-6 tracking-wide uppercase text-sm">{isAr ? "الخدمات" : "Services"}</h4>
-            <ul className="space-y-4 text-sm">
-              <li><Link href={`/${currentLocale}/b2b/services/mega-events`} className="hover:text-emerald-400 transition-colors">{isAr ? "الفعاليات الكبرى" : "Mega Events"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/services/family-entertainment-centers`} className="hover:text-emerald-400 transition-colors">{isAr ? "مراكز الترفيه العائلي" : "Family Entertainment Centers"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/services/experiential-activations`} className="hover:text-emerald-400 transition-colors">{isAr ? "التجارب والتفعيلات" : "Experiential Activations"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/services/shows-performances`} className="hover:text-emerald-400 transition-colors">{isAr ? "العروض والأداء المباشر" : "Shows & Performances"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/services`} className="text-emerald-500 hover:text-emerald-400 transition-colors font-medium">{isAr ? "عرض جميع الخدمات ←" : "View All Services &rarr;"}</Link></li>
+            <h4 className="text-[var(--text-primary)] font-bold mb-6 tracking-wider uppercase text-xs">{isAr ? "الخدمات" : "Services"}</h4>
+            <ul className="space-y-3.5 text-sm">
+              <li><Link href={`/${currentLocale}/b2b/services/mega-events`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "الفعاليات الكبرى" : "Mega Events"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/services/family-entertainment-centers`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "مراكز الترفيه العائلي" : "Family Entertainment Centers"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/services/experiential-activations`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "التجارب والتفعيلات" : "Experiential Activations"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/services/shows-performances`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "العروض والأداء المباشر" : "Shows & Performances"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/services`} className="text-[var(--color-primary)] hover:underline transition-all font-semibold">{isAr ? "عرض جميع الخدمات ←" : "View All Services &rarr;"}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-zinc-100 font-bold mb-6 tracking-wide uppercase text-sm">{isAr ? "الشركة" : "Company"}</h4>
-            <ul className="space-y-4 text-sm">
-              <li><Link href={`/${currentLocale}/b2b/case-studies`} className="hover:text-emerald-400 transition-colors">{isAr ? "دراسات الحالة وأعمالنا" : "Case Studies"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/clients`} className="hover:text-emerald-400 transition-colors">{isAr ? "العملاء والشركاء" : "Clients & Partners"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/about`} className="hover:text-emerald-400 transition-colors">{isAr ? "من نحن" : "About Us"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/contact`} className="hover:text-emerald-400 transition-colors">{isAr ? "تواصل معنا" : "Contact / RFP"}</Link></li>
+            <h4 className="text-[var(--text-primary)] font-bold mb-6 tracking-wider uppercase text-xs">{isAr ? "الشركة" : "Company"}</h4>
+            <ul className="space-y-3.5 text-sm">
+              <li><Link href={`/${currentLocale}/b2b/case-studies`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "دراسات الحالة وأعمالنا" : "Case Studies"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/clients`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "العملاء والشركاء" : "Clients & Partners"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/about`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "من نحن" : "About Us"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/contact`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "تواصل معنا" : "Contact / RFP"}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-zinc-100 font-bold mb-6 tracking-wide uppercase text-sm">{isAr ? "التواصل" : "Connect"}</h4>
-            <ul className="space-y-4 text-sm">
+            <h4 className="text-[var(--text-primary)] font-bold mb-6 tracking-wider uppercase text-xs">{isAr ? "التواصل" : "Connect"}</h4>
+            <ul className="space-y-3.5 text-sm">
               {address && (
                 <li className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-zinc-500 mt-0.5 shrink-0" />
+                  <MapPin className="w-4 h-4 text-[var(--color-primary)] mt-0.5 shrink-0" />
                   <span>{address}</span>
                 </li>
               )}
               {emailAddr && (
                 <li className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-zinc-500 shrink-0" />
-                  <a href={`mailto:${emailAddr}`} className="hover:text-emerald-400 transition-colors">{emailAddr}</a>
+                  <Mail className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
+                  <a href={`mailto:${emailAddr}`} className="hover:text-[var(--color-primary)] transition-colors">{emailAddr}</a>
                 </li>
               )}
               {phone && (
                 <li className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-zinc-500 shrink-0" />
-                  <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-emerald-400 transition-colors">{phone}</a>
+                  <Phone className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
+                  <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-[var(--color-primary)] transition-colors">{phone}</a>
                 </li>
               )}
             </ul>
             
-            <div className="flex items-center gap-4 mt-6">
+            <div className="flex items-center gap-3 mt-6">
               {settings.socialInstagram && (
-                <a href={settings.socialInstagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 hover:text-emerald-400 transition-colors">
+                <a href={settings.socialInstagram} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
                   <Instagram className="w-4 h-4" />
                 </a>
               )}
               {settings.socialFacebook && (
-                <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 hover:text-emerald-400 transition-colors">
+                <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
                   <Facebook className="w-4 h-4" />
                 </a>
               )}
               {settings.socialLinkedin && (
-                <a href={settings.socialLinkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 hover:text-emerald-400 transition-colors">
+                <a href={settings.socialLinkedin} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
                   <Linkedin className="w-4 h-4" />
                 </a>
               )}
@@ -165,11 +167,11 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+        <div className="pt-8 border-t border-[var(--border-level-1)] flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium">
           <p>© {new Date().getFullYear()} {siteName}. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-emerald-400 transition-colors">{isAr ? "سياسة الخصوصية" : "Privacy Policy"}</Link>
-            <Link href="/terms" className="hover:text-emerald-400 transition-colors">{isAr ? "شروط الخدمة" : "Terms of Service"}</Link>
+            <Link href="/privacy" className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "سياسة الخصوصية" : "Privacy Policy"}</Link>
+            <Link href="/terms" className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "شروط الخدمة" : "Terms of Service"}</Link>
           </div>
         </div>
       </div>

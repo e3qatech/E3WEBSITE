@@ -35,6 +35,7 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
     if (!mounted) return;
 
     const root = window.document.documentElement;
+    root.setAttribute("data-portal", "dashboard");
     root.removeAttribute("data-theme");
 
     const getSystemTheme = () =>

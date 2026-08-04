@@ -59,9 +59,20 @@ export function B2CThemeProvider({
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  React.useEffect(() => {
+    document.documentElement.setAttribute("data-portal", "b2c");
+    return () => {
+      document.documentElement.removeAttribute("data-portal");
+    };
+  }, []);
+
   return (
     <B2CThemeContext.Provider value={{ theme, setTheme, toggleTheme, locale, isAr }}>
-      <div className={cn("b2c-theme w-full min-h-screen text-[var(--text-primary)] bg-[var(--bg-level-1)] transition-colors duration-300", isAr ? "rtl" : "ltr")} dir={isAr ? "rtl" : "ltr"}>
+      <div 
+        data-portal="b2c"
+        className={cn("b2c-theme w-full min-h-screen text-[var(--text-primary)] bg-[var(--bg-level-1)] transition-colors duration-300", isAr ? "rtl" : "ltr")} 
+        dir={isAr ? "rtl" : "ltr"}
+      >
         {children}
       </div>
     </B2CThemeContext.Provider>
