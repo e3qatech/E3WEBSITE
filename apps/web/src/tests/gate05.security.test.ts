@@ -81,6 +81,9 @@ vi.mock('@/lib/db', () => {
 
 vi.mock('@/lib/redis', () => ({
   redis: mockRedis,
+  getRedisClient: () => mockRedis,
+  isBuildMode: () => false,
+  RedisUnavailableError: class RedisUnavailableError extends Error {},
 }));
 
 vi.mock('@/lib/auth', () => ({

@@ -11,6 +11,7 @@
     "seed:attractions": "tsx prisma/seed-attractions.ts",
     "seed:team": "tsx prisma/seed-team.ts",
     "test": "vitest run",
+    "test:gate02": "vitest run src/tests/gate02.redis.test.ts",
     "test:gate03": "vitest run src/tests/gate03.proxy.test.ts",
     "test:gate04": "vitest run src/tests/gate04.auth.test.ts",
     "test:gate05": "vitest run src/tests/gate05.security.test.ts"

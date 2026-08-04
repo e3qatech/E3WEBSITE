@@ -1,11 +1,8 @@
 import { Server as HttpServer } from 'http'
 import { Server as SocketIOServer } from 'socket.io'
 import { createAdapter } from '@socket.io/redis-adapter'
-import Redis from 'ioredis'
+import { getRedisClient } from './redis'
 import { parse } from 'cookie'
-// Assuming next-auth sets a cookie, but we can't easily decrypt it without the secret.
-// For now, we will perform a basic check. In production, we'd use `getToken({ req, secret })`
-// from next-auth/jwt if we passed a mock req object.
 
 // Event Types
 export interface OccupancyEvent {
@@ -51,10 +48,7 @@ export interface DashboardStatsEvent {
   avgRating: number
 }
 
-// Global IO instance so API routes can emit if they run in the same process
-// Note: In serverless, this won't work, which is why Redis adapter is crucial.
-// Serverless API routes would need to publish directly to Redis, and this custom server
-// would subscribe.
+// Global IO instance
 let io: SocketIOServer | null = null
 
 export const initSocket = (server: HttpServer) => {
@@ -66,18 +60,19 @@ export const initSocket = (server: HttpServer) => {
     transports: ['websocket', 'polling']
   })
 
-  // Setup Redis Adapter for horizontal scaling
-  let redisUrl = (process.env.REDIS_URL || 'redis://localhost:6379')
-    .replace(/^REDIS_URL=/i, '')
-    .replace(/^"|"$/g, '')
-    .replace(/^'|'$/g, '');
-  if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
-    redisUrl = redisUrl.startsWith('//') ? 'rediss:' + redisUrl : 'rediss://' + redisUrl;
+  // Setup Redis Adapter for horizontal scaling if Redis is available
+  const isProd = process.env.NODE_ENV === 'production'
+  const pubClient = getRedisClient({ mode: isProd ? 'required' : 'optional' })
+  if (pubClient) {
+    try {
+      const subClient = pubClient.duplicate()
+      io.adapter(createAdapter(pubClient, subClient))
+    } catch (err) {
+      console.warn('[Socket] Failed to attach Redis adapter, running with in-memory adapter:', err)
+    }
+  } else {
+    console.warn('[Socket] Running with in-memory adapter (single-node mode)')
   }
-  const redisOptions = { maxRetriesPerRequest: 3, retryStrategy: (times: number) => times > 3 ? null : 1000 }
-  const pubClient = new Redis(redisUrl, redisOptions)
-  const subClient = pubClient.duplicate()
-  io.adapter(createAdapter(pubClient, subClient))
 
   // ---------------------------------------------------------
   // NAMESPACE: /public
@@ -115,16 +110,12 @@ export const initSocket = (server: HttpServer) => {
   dashboardNamespace.use(async (socket, next) => {
     try {
       const cookies = parse(socket.handshake.headers.cookie || '')
-      // The session token might be next-auth.session-token or __Secure-next-auth.session-token
       const sessionToken = cookies['next-auth.session-token'] || cookies['__Secure-next-auth.session-token']
       
-      // We could use `getToken` from next-auth/jwt here if we construct a pseudo-request.
-      // For this implementation, we just ensure a token exists.
       if (!sessionToken && process.env.NODE_ENV === 'production') {
         return next(new Error('Authentication error'))
       }
       
-      // Optionally attach user info to socket
       socket.data.user = { authenticated: true }
       next()
     } catch {
