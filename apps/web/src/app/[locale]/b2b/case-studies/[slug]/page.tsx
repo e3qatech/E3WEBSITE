@@ -5,8 +5,9 @@ import { notFound } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { db } from "@/lib/db"
 
-export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string; locale: string }> }) {
+  const { slug, locale } = await params
+  const isAr = locale === 'ar'
 
   const project = await db.caseStudy.findUnique({
     where: { slug },
@@ -45,7 +46,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const testimonials = Array.isArray(project.testimonials) ? (project.testimonials as any[]).filter(t => t.isVisible !== false) : []
 
   return (
-    <div className="flex flex-col w-full bg-zinc-950 min-h-screen">
+    <div className="flex flex-col w-full bg-zinc-950 min-h-screen" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* 1. Immersive Hero */}
       <section className="relative min-h-[85vh] flex flex-col justify-end pb-16 pt-32 overflow-hidden">
@@ -65,19 +66,19 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
         <div className="container relative z-10 mx-auto px-4 md:px-8">
           <div className="mb-8">
-            <Link href="/b2b/case-studies" className="inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-emerald-400 uppercase tracking-wider transition-colors">
-              <ArrowRight className="w-4 h-4 rotate-180" /> All Case Studies
+            <Link href={`/${locale}/b2b/case-studies`} className="inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-emerald-400 uppercase tracking-wider transition-colors">
+              <ArrowRight className="w-4 h-4 rotate-180 rtl:rotate-0" /> {isAr ? 'جميع دراسات الحالة' : 'All Case Studies'}
             </Link>
           </div>
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div className="max-w-5xl">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-100 tracking-tight mb-6 leading-[1.1]">
-                {project.titleEn}
+                {isAr ? (project.titleAr || project.titleEn) : project.titleEn}
               </h1>
               {project.attraction && (
                 <div className="inline-block px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold rounded-full text-sm uppercase tracking-widest backdrop-blur-sm">
-                  Powered by {project.attraction.nameEn}
+                  {isAr ? 'مشغل بواسطة ' : 'Powered by '}{isAr ? (project.attraction.nameAr || project.attraction.nameEn) : project.attraction.nameEn}
                 </div>
               )}
             </div>
@@ -122,27 +123,27 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         <div className="container mx-auto px-4 md:px-8">
           <div className="max-w-5xl mx-auto space-y-24">
             
-            {project.challengeEn && (
+            {(project.challengeEn || project.challengeAr) && (
               <div className="grid md:grid-cols-12 gap-8 md:gap-16">
                 <div className="md:col-span-5">
-                  <h3 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight sticky top-32 leading-tight">The<br/>Challenge</h3>
+                  <h3 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight sticky top-32 leading-tight">{isAr ? 'التحدي' : 'The Challenge'}</h3>
                 </div>
                 <div className="md:col-span-7">
                   <div className="text-xl md:text-2xl text-zinc-400 leading-relaxed whitespace-pre-wrap font-medium">
-                    {project.challengeEn}
+                    {isAr ? (project.challengeAr || project.challengeEn) : project.challengeEn}
                   </div>
                 </div>
               </div>
             )}
             
-            {project.solutionEn && (
+            {(project.solutionEn || project.solutionAr) && (
               <div className="grid md:grid-cols-12 gap-8 md:gap-16">
                 <div className="md:col-span-5">
-                  <h3 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight sticky top-32 leading-tight">The<br/>Solution</h3>
+                  <h3 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight sticky top-32 leading-tight">{isAr ? 'الحل' : 'The Solution'}</h3>
                 </div>
                 <div className="md:col-span-7">
                   <div className="text-xl md:text-2xl text-zinc-300 leading-relaxed font-medium whitespace-pre-wrap">
-                    {project.solutionEn}
+                    {isAr ? (project.solutionAr || project.solutionEn) : project.solutionEn}
                   </div>
                 </div>
               </div>
@@ -156,7 +157,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       {metrics.length > 0 && (
         <section className="py-24 bg-zinc-900/30 border-y border-zinc-800">
           <div className="container mx-auto px-4 md:px-8">
-            <h3 className="text-3xl md:text-4xl font-black text-zinc-100 tracking-tight mb-12 text-center">Impact & Metrics</h3>
+            <h3 className="text-3xl md:text-4xl font-black text-zinc-100 tracking-tight mb-12 text-center">{isAr ? 'التأثير والمؤشرات' : 'Impact & Metrics'}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {metrics.map((m: any, i: number) => {
                 // Determine span based on index to create a bento look
@@ -164,9 +165,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                 return (
                   <div key={i} className={`bg-zinc-900 border border-zinc-800 rounded-3xl p-8 md:p-12 flex flex-col justify-center items-center text-center group hover:border-emerald-500/50 transition-colors ${isLarge ? 'md:col-span-2 lg:col-span-3' : ''}`}>
                     <div className={`font-black text-zinc-100 tracking-tight mb-4 ${isLarge ? 'text-6xl md:text-8xl' : 'text-5xl md:text-6xl'} group-hover:scale-105 transition-transform duration-500`}>
-                      {m.valueEn}
+                      {isAr ? (m.valueAr || m.valueEn || m.value) : (m.valueEn || m.value)}
                     </div>
-                    <div className="text-sm md:text-base text-zinc-500 font-bold uppercase tracking-widest">{m.labelEn}</div>
+                    <div className="text-sm md:text-base text-zinc-500 font-bold uppercase tracking-widest">{isAr ? (m.labelAr || m.labelEn || m.label) : (m.labelEn || m.label)}</div>
                   </div>
                 )
               })}
