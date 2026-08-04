@@ -28,6 +28,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Authoritative Prisma Client
+        run: pnpm verify:prisma
+
+      - name: Verify Generated Prisma Schema Primitives
+        run: pnpm --filter web exec node scripts/verify-prisma-primitives.js
+
       - name: Lint
         run: pnpm verify:lint
 

@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Authoritative Prisma Client
+        run: pnpm verify:prisma
+
       - name: Build Application
         run: pnpm --filter web build
         env:
