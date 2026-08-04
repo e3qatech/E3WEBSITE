@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
-import { toZonedTime } from 'date-fns-tz';
 
-const QATAR_TZ = 'Asia/Qatar';
+const _QATAR_TZ = 'Asia/Qatar';
 
 export async function GET(req: NextRequest) {
   try {
@@ -75,8 +74,8 @@ export async function GET(req: NextRequest) {
       // Filter by requested dates if not "availableNow"
       if (!availableNow && startDate && endDate) {
          // simple overlap check: event starts before requested end AND ends after requested start
-         const reqStart = new Date(startDate);
-         const reqEnd = new Date(endDate);
+         const _reqStart = new Date(startDate);
+         const _reqEnd = new Date(endDate);
          // If it doesn't overlap, we could skip it, but for B2C calendar we'll let the frontend filter if needed,
          // or we can just return it if it's a permanent attraction.
       }

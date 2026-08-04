@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { GET as getUsers, POST as createUser } from '../app/api/settings/users/route';
 import { GET as downloadResume } from '../app/api/upload/download/route';
 

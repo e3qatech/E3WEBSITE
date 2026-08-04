@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { requireRole, requireCurrentUser, AppAuthError } from "@/lib/server-auth"
+import { requireRole, AppAuthError } from "@/lib/server-auth"
 import bcrypt from "bcryptjs"
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {

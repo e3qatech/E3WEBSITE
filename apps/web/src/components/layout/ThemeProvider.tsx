@@ -41,8 +41,6 @@ export function ThemeProvider({
     window.dispatchEvent(new Event('storage'));
   }, []);
 
-  const setTheme = setThemeState;
-
   React.useEffect(() => {
     const root = window.document.documentElement;
     
@@ -66,12 +64,12 @@ export function ThemeProvider({
   const value = React.useMemo(
     () => ({
       theme,
-      setTheme: (theme: Theme) => {
-        localStorage.setItem("theme", theme);
-        setTheme(theme);
+      setTheme: (t: Theme) => {
+        localStorage.setItem("theme", t);
+        setThemeState(t);
       },
     }),
-    [theme]
+    [theme, setThemeState]
   );
 
   return (

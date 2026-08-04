@@ -24,7 +24,7 @@ interface ARViewerProps {
 // ----------------------------------------------------------------------
 // MODEL LOADER COMPONENT
 // ----------------------------------------------------------------------
-function _Loader() {
+function ModelLoader() {
   const { progress } = useProgress()
   return (
     <Html center>
@@ -181,6 +181,7 @@ export default function ARViewer({ modelUrl, modelName, dimensions, powerReq, on
           </div>
         }>
           <Canvas ref={canvasRef} gl={{ preserveDrawingBuffer: true }}>
+            <ModelLoader />
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
             

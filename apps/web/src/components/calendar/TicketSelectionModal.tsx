@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Loader2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { CalendarEvent } from './EventCard';
-import { useMounted } from "@/hooks/useMounted";
 
 interface PricingTier {
   id: string;

@@ -29,13 +29,16 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm verify:lint
 
       - name: Type Check
-        run: pnpm type-check
+        run: pnpm verify:typecheck
 
-      # - name: Run Tests
-      #   run: pnpm test
+      - name: Run Quality Gate Regression Tests
+        run: pnpm verify:test
+
+      - name: Build Application
+        run: pnpm verify:build
 
   build-and-deploy:
     name: Build & Deploy

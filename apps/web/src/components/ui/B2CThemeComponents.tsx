@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { MapPin, Calendar, Clock, Ticket, Users, AlertCircle, Search, HelpCircle, ArrowRight } from "lucide-react";
+import { MapPin, Clock, Ticket, Users, AlertCircle, HelpCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 // ==========================================
@@ -509,7 +509,7 @@ export function B2CModal({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { theme, isAr } = useB2CTheme();
+  const { theme } = useB2CTheme();
 
   return (
     <AnimatePresence>
@@ -617,7 +617,7 @@ export function B2CMediaCard({
   aspectRatio?: string;
   onClick?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
+  const [_hovered, _setHovered] = useState(false);
 
   return (
     <B2CCard 
@@ -627,8 +627,6 @@ export function B2CMediaCard({
     >
       <div 
         className="relative w-full h-full"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
       >
         {/* Media */}
         {mediaType === "VIDEO" ? (
@@ -670,7 +668,7 @@ export function B2CMediaCard({
 
 export function B2CAttractionCard({
   attraction,
-  locale = "en",
+  locale: _locale = "en",
 }: {
   attraction: any;
   locale?: string;
@@ -786,7 +784,7 @@ export function B2CEventCard({
   const description = isAr ? event.descriptionAr || event.descriptionEn : event.descriptionEn || event.descriptionAr;
   const venue = isAr ? event.venueAr || event.venueEn : event.venueEn || event.venueAr;
   
-  const startDateStr = new Date(event.startDate).toLocaleDateString(locale, {
+  const _startDateStr = new Date(event.startDate).toLocaleDateString(locale, {
     day: 'numeric', month: 'short', year: 'numeric'
   });
   

@@ -11,9 +11,16 @@
     "seed:attractions": "tsx prisma/seed-attractions.ts",
     "seed:team": "tsx prisma/seed-team.ts",
     "test": "vitest run",
+    "test:all": "vitest run",
+    "test:gate02": "vitest run src/tests/gate02.redis.test.ts",
     "test:gate03": "vitest run src/tests/gate03.proxy.test.ts",
     "test:gate04": "vitest run src/tests/gate04.auth.test.ts",
-    "test:gate05": "vitest run src/tests/gate05.security.test.ts"
+    "test:gate05": "vitest run src/tests/gate05.security.test.ts",
+    "test:gate06": "vitest run src/tests/gate06.database.test.ts",
+    "test:gate08": "vitest run src/tests/gate08.b2b.test.ts",
+    "test:gate09": "vitest run src/tests/gate09.b2c.test.ts",
+    "test:gate10": "vitest run src/tests/gate10.accessibility.test.ts",
+    "test:gate11": "vitest run src/tests/gate11.launch.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

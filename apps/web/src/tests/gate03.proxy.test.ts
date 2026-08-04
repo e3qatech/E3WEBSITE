@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
-import { proxy, config } from '../proxy';
+import { proxy } from '../proxy';
 
 describe('Gate 03: proxy.ts Routing Boundary', () => {
   beforeEach(() => {

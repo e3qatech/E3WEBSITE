@@ -45,7 +45,7 @@ vi.mock('@/lib/db', () => {
             get(_t: any, model: string) {
               return new Proxy({}, {
                 get(_m: any, method: string) {
-                  return vi.fn(async (...args: any[]) => {
+                  return vi.fn(async (..._args: any[]) => {
                     mockDbCalls.push(`${model}.${method}`);
                     if (model === 'availabilitySlot' && method === 'updateMany') {
                       return { count: mockState.updateManySlotCount };
@@ -62,7 +62,7 @@ vi.mock('@/lib/db', () => {
       // Return a proxy for any model access
       return new Proxy({}, {
         get(_m: any, method: string) {
-          return vi.fn(async (...args: any[]) => {
+          return vi.fn(async (..._args: any[]) => {
             mockDbCalls.push(`${prop}.${method}`);
             if (prop === 'user' && method === 'findUnique') {
               return mockState.findUniqueUser;

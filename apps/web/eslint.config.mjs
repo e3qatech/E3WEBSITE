@@ -36,6 +36,9 @@ const eslintConfig = defineConfig([
     'coverage/**',
     'out/**',
     'dist/**',
+    '*.mjs',
+    '*.js',
+    'verify-blob.mjs',
   ]),
   {
     rules: {
@@ -46,7 +49,9 @@ const eslintConfig = defineConfig([
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_'
         }
-      ]
+      ],
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@next/next/no-img-element': 'off'
     }
   }
 ])

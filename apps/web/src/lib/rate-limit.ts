@@ -18,7 +18,7 @@ export async function rateLimit(
       return { success: false, error: 'Too many requests. Please try again later.', retryAfter: windowSec };
     }
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     console.warn(`[CSO] Redis rate limit error for key: ${key}`);
 
     // Only allow memory fallback in Development
