@@ -583,3 +583,4 @@ html[dir="rtl"] .icon-flip {
   }
 }
 [dir="rtl"] body { font-family: 'Noto Sans Arabic', sans-serif !important; }
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6, [dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] button, [dir="rtl"] a, [dir="rtl"] label, [dir="rtl"] input { letter-spacing: normal !important; }

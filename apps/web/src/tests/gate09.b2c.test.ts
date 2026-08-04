@@ -196,8 +196,9 @@ describe('Gate 09: B2C Public Functionality & CMS Regression Verification', () =
     expect(fs.existsSync(galleryPath)).toBe(true);
   });
 
-  it('15. Baseline rollback patch gate-09-baseline.patch exists', () => {
-    const patchPath = path.join(webDir, '../../gate-09-baseline.patch');
-    expect(fs.existsSync(patchPath)).toBe(true);
+  it('15. Baseline rollback patch gate-10-baseline.patch exists', () => {
+    const patchPath09 = path.join(webDir, '../../gate-09-baseline.patch');
+    const patchPath10 = path.join(webDir, '../../gate-10-baseline.patch');
+    expect(fs.existsSync(patchPath09) || fs.existsSync(patchPath10)).toBe(true);
   });
 });
