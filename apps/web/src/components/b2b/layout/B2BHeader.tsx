@@ -12,18 +12,25 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname() || ""
   
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [theme, setThemeState] = useState<'dark' | 'light'>('dark')
 
   const isAr = pathname.startsWith('/ar') || (typeof document !== 'undefined' && document.cookie.includes('NEXT_LOCALE=ar'))
   const currentLocale = isAr ? 'ar' : 'en'
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+      setIsScrolled(window.scrollY > 30)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setThemeState(nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('theme', nextTheme);
+  };
 
   const toggleLanguage = () => {
     const targetLocale = isAr ? 'en' : 'ar'
@@ -61,28 +68,29 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
 
   return (
     <header
+      data-portal="b2b"
       className={cn(
-        "fixed top-0 start-0 end-0 z-50 transition-all duration-300 border-b",
+        "fixed top-0 start-0 end-0 z-50 transition-all duration-300 border-b h-20 flex items-center",
         isScrolled
-          ? "bg-zinc-950/80 backdrop-blur-md border-zinc-800/50 py-4 shadow-sm"
-          : "bg-transparent border-transparent py-6"
+          ? "bg-[var(--surface-default)]/90 backdrop-blur-md border-[var(--border-level-1)] shadow-sm"
+          : "bg-transparent border-transparent"
       )}
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo */}
-        <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-2 z-50">
+        <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-3 z-50">
           {(lightLogoUrl || darkLogoUrl) ? (
             <img 
               src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)} 
               alt={`${siteName} Logo`}
-              className="h-10 w-auto object-contain"
+              className="h-9 w-auto object-contain"
             />
           ) : (
-            <div className="w-10 h-10 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-white tracking-tighter">
+            <div className="w-10 h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center font-black text-white tracking-tighter shadow-sm">
               E3
             </div>
           )}
-          <span className="font-bold text-xl tracking-tight hidden sm:block text-zinc-100">
+          <span className="font-bold text-lg tracking-tight hidden sm:block text-[var(--text-primary)]">
             {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
           </span>
         </Link>
@@ -96,15 +104,15 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-emerald-400 relative",
-                  isActive ? "text-emerald-500 font-bold" : "text-zinc-400"
+                  "text-sm font-semibold transition-colors relative py-1",
+                  isActive ? "text-[var(--color-primary)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 )}
               >
                 {link.label}
                 {isActive && (
                   <motion.div
                     layoutId="b2b-nav-indicator"
-                    className="absolute -bottom-2 start-0 end-0 h-0.5 bg-emerald-500"
+                    className="absolute -bottom-1 start-0 end-0 h-0.5 bg-[var(--color-primary)] rounded-full"
                     initial={false}
                   />
                 )}
@@ -115,36 +123,36 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
 
         {/* Actions */}
         <div className="hidden lg:flex items-center gap-4">
-          <button className="p-2 text-zinc-400 hover:text-zinc-100 transition-colors" aria-label="Search">
-            <Search className="w-5 h-5" />
+          <button className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer" aria-label="Search">
+            <Search className="w-4 h-4" />
           </button>
           
           <button 
-            className="p-2 text-zinc-400 hover:text-zinc-100 transition-colors"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+            onClick={toggleTheme}
             aria-label="Toggle Theme"
           >
-            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
           
           <button 
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-emerald-400 hover:border-emerald-500/50 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--color-primary)] transition-all cursor-pointer"
             title={isAr ? "Switch to English" : "التغيير إلى العربية"}
           >
-            <Globe className="w-4 h-4 text-emerald-500" />
+            <Globe className="w-3.5 h-3.5 text-[var(--color-primary)]" />
             <span className="text-xs font-bold uppercase">{isAr ? "English" : "العربية"}</span>
           </button>
           
-          <div className="w-px h-6 bg-zinc-800 mx-2" />
+          <div className="w-px h-5 bg-[var(--border-level-1)] mx-1" />
           
-          <Link href="/b2b/client-login" className="text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors">
+          <Link href="/b2b/client-login" className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             {isAr ? "دخول العملاء" : "Client Login"}
           </Link>
           
           <Link
             href={`/${currentLocale}/b2b/contact`}
-            className="px-5 py-2.5 bg-zinc-100 text-zinc-950 text-sm font-bold rounded-sm hover:bg-emerald-500 hover:text-zinc-950 transition-colors"
+            className="px-5 py-2.5 bg-[var(--color-primary)] text-white text-xs font-bold tracking-wider uppercase rounded-xl hover:bg-[var(--color-primary-hover)] transition-colors shadow-sm"
           >
             {isAr ? "ابدأ مشروعك" : "Start a Project"}
           </Link>
@@ -152,7 +160,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
 
         {/* Mobile Toggle */}
         <button
-          className="lg:hidden p-2 text-zinc-100 z-50"
+          className="lg:hidden p-2 text-[var(--text-primary)] z-50 cursor-pointer"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -167,7 +175,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="fixed inset-0 z-40 bg-zinc-950 pt-24 px-6 pb-6 overflow-y-auto lg:hidden flex flex-col"
+            className="fixed inset-0 z-40 bg-[var(--bg-level-1)] pt-24 px-6 pb-6 overflow-y-auto lg:hidden flex flex-col"
           >
             <nav className="flex flex-col gap-6 mb-8">
               {b2bNavLinks.map((link) => (
@@ -175,27 +183,27 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-2xl font-bold text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="text-2xl font-bold text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors"
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
             
-            <div className="mt-auto pt-8 border-t border-zinc-800 flex flex-col gap-6">
+            <div className="mt-auto pt-8 border-t border-[var(--border-level-1)] flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <button 
                   onClick={toggleLanguage}
-                  className="flex items-center gap-2 text-zinc-300 hover:text-emerald-400"
+                  className="flex items-center gap-2 text-[var(--text-primary)]"
                 >
-                  <Globe className="w-6 h-6 text-emerald-500" />
+                  <Globe className="w-5 h-5 text-[var(--color-primary)]" />
                   <span className="font-bold">{isAr ? "English" : "العربية"}</span>
                 </button>
                 <button 
-                  className="flex items-center gap-2 text-zinc-400 hover:text-zinc-100"
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  onClick={toggleTheme}
                 >
-                  {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   <span className="font-bold">Theme</span>
                 </button>
               </div>
@@ -203,7 +211,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
               <Link
                 href="/b2b/client-login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-center py-3 border border-zinc-800 text-zinc-400 font-bold rounded-sm"
+                className="text-center py-3 border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold rounded-xl"
               >
                 {isAr ? "دخول العملاء" : "Client Login"}
               </Link>
@@ -211,7 +219,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
               <Link
                 href={`/${currentLocale}/b2b/contact`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-center py-3 bg-emerald-500 text-zinc-950 font-bold rounded-sm"
+                className="text-center py-3 bg-[var(--color-primary)] text-white font-bold rounded-xl"
               >
                 {isAr ? "ابدأ مشروعك" : "Start a Project"}
               </Link>

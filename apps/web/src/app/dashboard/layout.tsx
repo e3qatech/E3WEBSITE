@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <AdminThemeProvider>
       <ToastProvider>
-        <div className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden transition-colors duration-300 selection:bg-[var(--color-accent)] selection:text-white">
+        <div data-portal="dashboard" className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden transition-colors duration-300 selection:bg-[var(--color-accent)] selection:text-white">
           
           {/* Layer 1: Sidebar (Clean, unblurred solid surface) */}
           <div className="relative z-20 flex-shrink-0 bg-[var(--bg-level-2)] border-e border-[var(--border-level-1)] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
