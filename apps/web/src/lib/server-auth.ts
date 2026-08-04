@@ -4,9 +4,12 @@ import { rolePermissions } from "./permissions";
 import type { RoleType } from "@prisma/client";
 
 export class AuthError extends Error {
-  constructor(public statusCode: number, message: string) {
+  statusCode: number;
+
+  constructor(statusCode: number, message: string) {
     super(message);
     this.name = "AuthError";
+    this.statusCode = statusCode;
   }
 }
 
