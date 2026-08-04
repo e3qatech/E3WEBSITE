@@ -28,7 +28,7 @@ async function getAttractionData(slug: string) {
     }
   });
 
-  if (!attraction) return null;
+  if (!attraction || attraction.isPublished === false || attraction.isHidden === true) return null;
 
   // Calculate live operations status
   const now = new Date();

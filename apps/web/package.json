@@ -17,7 +17,8 @@
     "test:gate05": "vitest run src/tests/gate05.security.test.ts",
     "test:gate06": "vitest run src/tests/gate06.database.test.ts",
     "test:gate08": "vitest run src/tests/gate08.b2b-cms.test.ts",
-    "test:all": "vitest run src/tests/gate02.redis.test.ts src/tests/gate03.proxy.test.ts src/tests/gate04.auth.test.ts src/tests/gate05.security.test.ts src/tests/gate06.database.test.ts src/tests/gate08.b2b-cms.test.ts"
+    "test:gate09": "vitest run src/tests/gate09.b2c.test.ts",
+    "test:all": "vitest run src/tests/gate02.redis.test.ts src/tests/gate03.proxy.test.ts src/tests/gate04.auth.test.ts src/tests/gate05.security.test.ts src/tests/gate06.database.test.ts src/tests/gate08.b2b-cms.test.ts src/tests/gate09.b2c.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
