@@ -1,7 +1,7 @@
 import { auth } from "./auth";
 import db from "./db";
 import { rolePermissions } from "./permissions";
-import { RoleType } from "@prisma/client";
+import type { RoleType } from "@prisma/client";
 
 export class AuthError extends Error {
   constructor(public statusCode: number, message: string) {

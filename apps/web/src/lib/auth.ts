@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import db from "@/lib/db"
+import type { RoleType } from "@prisma/client"
 import bcrypt from "bcryptjs"
 import { authConfig } from "./auth.config"
 
@@ -52,8 +53,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return {
           id: user.id,
           email: user.email,
-          role: user.role,
+          role: user.role as RoleType,
           sessionVersion: user.sessionVersion,
+          isActive: user.isActive
         }
       }
     })
@@ -64,6 +66,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id
         token.role = user.role
         token.sessionVersion = user.sessionVersion
+        token.isActive = user.isActive
       }
       return token
     },
@@ -72,6 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as any;
         session.user.sessionVersion = token.sessionVersion as number;
+        session.user.isActive = token.isActive as boolean;
       }
       return session
     }
