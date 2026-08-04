@@ -1,7 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
+  const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public'
   return new PrismaClient({
+    datasources: {
+      db: {
+        url: dbUrl,
+      },
+    },
     log: [
       { emit: 'event', level: 'query' },
       { emit: 'stdout', level: 'error' },
@@ -30,7 +36,14 @@ const prismaClientSingleton = () => {
             }
 
             return result
-          } catch (error) {
+          } catch (error: any) {
+            // Handle build-time static generation when DB is unreachable or missing
+            if (!process.env.DATABASE_URL || error?.code === 'P1001' || error?.name === 'PrismaClientInitializationError') {
+              console.warn(`[DB WARN] Database unavailable for ${model}.${operation} during build/prerender.`)
+              if (operation === 'findMany') return []
+              if (operation === 'findFirst' || operation === 'findUnique') return null
+              if (operation === 'count') return 0
+            }
             console.error(`[DB ERROR] ${model}.${operation} failed:`, error)
             throw error
           }
