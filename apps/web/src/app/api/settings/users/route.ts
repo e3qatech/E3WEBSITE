@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
-import { requireRole, AppAuthError } from "@/lib/server-auth"
-import bcrypt from "bcryptjs"
-import crypto from "crypto"
+import { NextResponse } from "next/server";
+import db from "@/lib/db";
+import { requireAdmin, AppAuthError } from "@/lib/server-auth";
+import { normalizeRole } from "@/lib/auth-roles";
+import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
-    await requireRole(["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"])
+    await requireAdmin();
 
     const users = await db.user.findMany({
       orderBy: { createdAt: "desc" },
@@ -16,41 +16,55 @@ export async function GET() {
         email: true,
         role: true,
         isActive: true,
-        createdAt: true
+        sessionVersion: true,
+        createdAt: true,
+        employeeProfile: {
+          select: { id: true, firstName: true, lastName: true, designation: true }
+        },
+        clientMemberships: {
+          select: { id: true, clientId: true, role: true, client: { select: { company: true } } }
+        },
+        talentProfile: {
+          select: { id: true, position: true, status: true }
+        }
       }
-    })
+    });
 
-    return NextResponse.json(users)
+    return NextResponse.json(users);
   } catch (error: any) {
-    console.error("[USERS_GET_ERROR]", error)
     if (error instanceof AppAuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("[USERS_GET_ERROR]", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    await requireRole(["SUPER_ADMIN", "SUPPORT_ADMIN"])
-
-    const body = await request.json()
-    const { name, email, role } = body
-
-    if (!name || !email || !role) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    const adminUser = await requireAdmin();
+    if (adminUser.role !== 'SUPER_ADMIN') {
+      return NextResponse.json({ error: "Forbidden: Only Super Admin can create/invite users" }, { status: 403 });
     }
 
-    const rawPassword = crypto.randomBytes(16).toString('hex')
-    const hashedPassword = await bcrypt.hash(rawPassword, 10)
+    const body = await request.json();
+    const { name, email, role, password, employeeProfileId, clientId, clientRole } = body;
+
+    if (!name || !email || !role) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const normRole = normalizeRole(role);
+    const hashedPassword = await bcrypt.hash(password || "E3DefaultTemp2026!", 10);
 
     const user = await db.user.create({
       data: {
         name,
         email,
-        role,
+        role: normRole,
         password: hashedPassword,
-        isActive: true
+        isActive: true,
+        sessionVersion: 1
       },
       select: {
         id: true,
@@ -58,16 +72,35 @@ export async function POST(request: Request) {
         email: true,
         role: true,
         isActive: true,
+        sessionVersion: true,
         createdAt: true
       }
-    })
+    });
 
-    return NextResponse.json({ ...user, tempPassword: rawPassword })
-  } catch (error: any) {
-    console.error("[USERS_POST_ERROR]", error)
-    if (error instanceof AppAuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    if (employeeProfileId && normRole === 'STAFF') {
+      await (db as any).employeeProfile.update({
+        where: { id: employeeProfileId },
+        data: { userId: user.id }
+      });
     }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+
+    if (clientId && normRole === 'CLIENT') {
+      await (db as any).clientMembership.create({
+        data: {
+          userId: user.id,
+          clientId: clientId,
+          role: clientRole || 'MEMBER',
+          isActive: true
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, data: user });
+  } catch (error: any) {
+    if (error instanceof AppAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
+    console.error("[USERS_POST_ERROR]", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
