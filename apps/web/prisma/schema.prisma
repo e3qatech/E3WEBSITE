@@ -17,6 +17,14 @@ enum RoleType {
   SUPPORT_ADMIN
   STAFF
   CLIENT
+  CANDIDATE
+}
+
+enum ClientMembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 enum PageStatus {
@@ -103,10 +111,76 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts        Account[]
-  sessions        Session[]
-  systemLogs      SystemLog[]
-  jobApplications JobApplication[]
+  accounts          Account[]
+  sessions          Session[]
+  systemLogs        SystemLog[]
+  jobApplications   JobApplication[]
+  employeeProfile   EmployeeProfile?
+  talentProfile     Talent?
+  clientMemberships ClientMembership[]
+  sentInvitations   InvitationToken[]  @relation("InvitationCreator")
+}
+
+model ClientMembership {
+  id        String               @id @default(cuid())
+  userId    String
+  clientId  String
+  role      ClientMembershipRole @default(MEMBER)
+  isActive  Boolean              @default(true)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clientId])
+  @@index([userId, isActive])
+  @@index([clientId, isActive])
+}
+
+model InvitationToken {
+  id                String                @id @default(cuid())
+  token             String                @unique
+  email             String
+  role              RoleType
+  clientId          String?
+  clientRole        ClientMembershipRole?
+  employeeProfileId String?
+  createdById       String
+  expiresAt         DateTime
+  usedAt            DateTime?
+  createdAt         DateTime              @default(now())
+
+  createdBy User @relation("InvitationCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([email])
+}
+
+model AccountClaimToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  email     String
+  talentId  String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  email     String
+  portal    String    @default("admin")
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([email])
 }
 
 // ---------------------------------------------------------
@@ -560,6 +634,8 @@ model Meeting {
 
 model Talent {
   id              String   @id @default(cuid())
+  userId          String?  @unique
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   name            String
   email           String
   phone           String?
@@ -706,6 +782,8 @@ model Client {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  memberships ClientMembership[]
+
   @@index([type])
 }
 
@@ -767,6 +845,8 @@ model Subscriber {
 
 model EmployeeProfile {
   id                String  @id @default(cuid())
+  userId            String? @unique
+  user              User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   slug              String  @unique
   firstName         String
   lastName          String

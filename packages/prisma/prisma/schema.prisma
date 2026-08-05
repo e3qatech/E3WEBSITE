@@ -113,6 +113,14 @@ enum UserRole {
   SUPPORT_ADMIN
   STAFF
   CLIENT
+  CANDIDATE
+}
+
+enum ClientMembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 enum Language {
