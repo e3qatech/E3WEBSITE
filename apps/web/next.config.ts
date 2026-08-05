@@ -1,44 +1,57 @@
-import type { NextConfig } from 'next';
-import createBundleAnalyzer from '@next/bundle-analyzer';
+import type { NextConfig } from "next";
+import createBundleAnalyzer from "@next/bundle-analyzer";
 
 const withBundleAnalyzer = createBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
+  enabled: process.env.ANALYZE === "true",
 });
+
+const isVercelLiveAllowed =
+  process.env.VERCEL_ENV === "preview" ||
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview" ||
+  process.env.ENABLE_VERCEL_LIVE === "true";
+
+const vercelLiveOrigin = isVercelLiveAllowed ? " https://vercel.live" : "";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  output: "standalone",
   poweredByHeader: false,
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'booking.e3.qa' },
-      { protocol: 'https', hostname: 'cdn.e3.qa' },
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
+      { protocol: "https", hostname: "booking.e3.qa" },
+      { protocol: "https", hostname: "cdn.e3.qa" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
-          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://prod.spline.design https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://booking.e3.qa https://cdn.e3.qa https://images.unsplash.com https://*.public.blob.vercel-storage.com; font-src 'self' data:; connect-src 'self' https: wss: https://vercel.live; frame-src 'self' https://booking.e3.qa https://my.spline.design https://www.youtube.com https://player.vimeo.com https://vercel.live; object-src 'none'; base-uri 'self';",
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(self)",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://prod.spline.design${vercelLiveOrigin}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://booking.e3.qa https://cdn.e3.qa https://images.unsplash.com https://*.public.blob.vercel-storage.com; font-src 'self' data:; connect-src 'self' https: wss:${vercelLiveOrigin}; frame-src 'self' https://booking.e3.qa https://my.spline.design https://www.youtube.com https://player.vimeo.com${vercelLiveOrigin}; object-src 'none'; base-uri 'self';`,
           },
         ],
       },
-    ]
+    ];
   },
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-icons"],
   },
-  serverExternalPackages: ['@prisma/client', 'bcryptjs'],
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
 };
 
 export default withBundleAnalyzer(nextConfig);
