@@ -7,7 +7,6 @@ export function proxy(req: NextRequest) {
   const { nextUrl } = req;
 
   // Check for NextAuth session token cookie
-  // NextAuth v5 uses authjs.session-token (or __Secure-authjs.session-token on HTTPS)
   const sessionToken =
     req.cookies.get('authjs.session-token')?.value ||
     req.cookies.get('__Secure-authjs.session-token')?.value ||
@@ -36,22 +35,44 @@ export function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
   }
 
+  // Extract locale if present in pathname
+  const pathSegments = nextUrl.pathname.split('/').filter(Boolean);
+  const pathLocale = pathSegments[0] === 'ar' || pathSegments[0] === 'en' ? pathSegments[0] : localeCookie;
 
-  // 2. Dashboard Protection
-  const normalizedPath = decodeURIComponent(nextUrl.pathname);
-  const isDashboardRoute = normalizedPath.startsWith('/dashboard');
-
-  if (isDashboardRoute) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL('/auth/login', nextUrl));
-    }
-    // Note: Role-based access control is enforced at the page/API level via auth() calls,
-    // not in the middleware, since we cannot decode the JWT here without importing Node.js modules.
+  // 2. Protected Portal Route Edge Guards
+  let normalizedPath = nextUrl.pathname;
+  try {
+    normalizedPath = decodeURIComponent(nextUrl.pathname);
+  } catch (_e) {
+    // Keep raw path on decode error
   }
 
-  // Prevent logged-in users from seeing the login page
-  if (isLoggedIn && nextUrl.pathname.startsWith('/auth/login')) {
-    return NextResponse.redirect(new URL('/dashboard', nextUrl));
+  // Check dashboard protection
+  if (normalizedPath.includes('/dashboard')) {
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL(`/${pathLocale}/login/admin`, nextUrl));
+    }
+  }
+
+  // Check staff portal protection
+  if (normalizedPath.includes('/staff') && !normalizedPath.includes('/staff-login')) {
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL(`/${pathLocale}/login/staff`, nextUrl));
+    }
+  }
+
+  // Check business portal protection
+  if (normalizedPath.includes('/business')) {
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL(`/${pathLocale}/login/business`, nextUrl));
+    }
+  }
+
+  // Check candidate portal protection
+  if (normalizedPath.includes('/candidate')) {
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL(`/${pathLocale}/login/careers`, nextUrl));
+    }
   }
 
   return NextResponse.next({ request: { headers: requestHeaders } });
