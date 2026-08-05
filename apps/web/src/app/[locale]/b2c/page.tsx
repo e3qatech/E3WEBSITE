@@ -12,28 +12,35 @@ export const dynamic = 'force-dynamic';
 export default async function AttractionsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   
-  // Fetch CMS settings
-  const cmsPage = await db.pages.findUnique({
-    where: { slug: "b2c-landing" }
-  });
-  
-  const cmsData = cmsPage?.content || {};
+  let cmsPage: any = null;
+  let attractions: any[] = [];
 
-  // Fetch published attractions to seed the client store (better SEO and initial load)
-  // Include gallery and pricing for the cards
-  const attractions = await db.attraction.findMany({
-    where: { isPublished: true },
-    include: {
-      gallery: {
-        orderBy: { orderIndex: 'asc' },
-        take: 1
+  try {
+    // Fetch CMS settings
+    cmsPage = await db.pages.findUnique({
+      where: { slug: "b2c-landing" }
+    });
+
+    // Fetch published attractions to seed the client store (better SEO and initial load)
+    // Include gallery and pricing for the cards
+    attractions = await db.attraction.findMany({
+      where: { isPublished: true },
+      include: {
+        gallery: {
+          orderBy: { orderIndex: 'asc' },
+          take: 1
+        },
+        pricing: {
+          take: 1
+        }
       },
-      pricing: {
-        take: 1
-      }
-    },
-    take: 50
-  });
+      take: 50
+    });
+  } catch (error) {
+    console.error("[DB ERROR] AttractionsPage query failed:", error);
+  }
+
+  const cmsData = cmsPage?.content || {};
 
   return (
     <AttractionsClient 
