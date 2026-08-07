@@ -35,6 +35,7 @@ import {
   Wind,
   Compass,
   RefreshCw,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,7 +57,8 @@ type TabKey =
   | 'reduced_motion'
   | 'performance'
   | 'simulator'
-  | 'versions';
+  | 'versions'
+  | 'focus_protection';
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'overview', label: '1. Overview', icon: Activity },
@@ -77,6 +79,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'performance', label: '16. Performance', icon: Sliders },
   { key: 'simulator', label: '17. Preview Simulator', icon: Play },
   { key: 'versions', label: '18. Versions & Publishing', icon: History },
+  { key: 'focus_protection', label: '19. Focus Protection', icon: ShieldCheck },
 ];
 
 const DEFAULT_SIMULATION_STATE: PreviewSimulationState = {
@@ -276,6 +279,17 @@ export default function GatewayCustomizationPage() {
         } as any,
       };
     });
+  };
+
+  const updateFocusProtection = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      focusProtection: {
+        ...DEFAULT_GATEWAY_CMS_PAYLOAD.focusProtection!,
+        ...(prev.focusProtection || {}),
+        [field]: value,
+      } as any,
+    }));
   };
 
   const updateSimState = (field: keyof PreviewSimulationState, value: any) => {
@@ -1062,8 +1076,118 @@ export default function GatewayCustomizationPage() {
           </div>
         )}
 
+        {/* TAB 19: FOCUS PROTECTION CONTROLS */}
+        {activeTab === 'focus_protection' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Selection Focus & Protection Controls</h2>
+                <p className="text-xs text-slate-400">Guarantees that B2B & B2C portal selection remains the primary visual focus.</p>
+              </div>
+              <span className="rounded-full bg-emerald-950/80 px-3 py-1 text-xs font-extrabold text-emerald-300 border border-emerald-500/30">
+                PROTECTION ALWAYS ON
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs">
+                <h3 className="font-semibold text-emerald-400">Card & Readability Controls</h3>
+
+                <div>
+                  <label className="text-slate-400">Atmosphere Around Portal Cards</label>
+                  <select
+                    value={formData.focusProtection?.atmosphereAroundCards || 'low'}
+                    onChange={(e) => updateFocusProtection('atmosphereAroundCards', e.target.value)}
+                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
+                  >
+                    <option value="off">Off (Clean Slate Behind Cards)</option>
+                    <option value="low">Low (Subtle Background Glow Only)</option>
+                    <option value="medium">Medium (Moderate Atmospheric Blend)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-slate-400">Content Reaction Mode</label>
+                  <select
+                    value={formData.focusProtection?.contentReaction || 'ambient'}
+                    onChange={(e) => updateFocusProtection('contentReaction', e.target.value)}
+                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
+                  >
+                    <option value="off">Off (Static Text & CTAs)</option>
+                    <option value="ambient">Ambient (Subtle Depth & Background Shift)</option>
+                    <option value="expressive">Expressive (Controlled Badge Motion)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-slate-400">Campaign Dominance Ceiling</label>
+                  <select
+                    value={formData.focusProtection?.campaignDominance || 'strong_protected'}
+                    onChange={(e) => updateFocusProtection('campaignDominance', e.target.value)}
+                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
+                  >
+                    <option value="background_only">Background Only</option>
+                    <option value="balanced">Balanced Theme Accent</option>
+                    <option value="strong_protected">Strong, but Portal Selection Protected</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-slate-400">Allow Accumulation Near Cards</label>
+                  <select
+                    value={formData.focusProtection?.allowAccumulationNearCards || 'outer_edges_only'}
+                    onChange={(e) => updateFocusProtection('allowAccumulationNearCards', e.target.value)}
+                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
+                  >
+                    <option value="never">Never (Keep Bottom Free)</option>
+                    <option value="outer_edges_only">Outer Edges Only (Safe Capped Heights)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs">
+                <h3 className="font-semibold text-sky-400">Interaction Protection Rules</h3>
+
+                <div className="flex items-center justify-between py-1 border-b border-slate-800">
+                  <span>Interaction Focus Mode</span>
+                  <input
+                    type="checkbox"
+                    checked={formData.focusProtection?.focusModeEnabled ?? true}
+                    onChange={(e) => updateFocusProtection('focusModeEnabled', e.target.checked)}
+                    className="h-4 w-4 accent-emerald-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-b border-slate-800">
+                  <span>Reduce Effects on Hover / Focus</span>
+                  <input
+                    type="checkbox"
+                    checked={formData.focusProtection?.reduceEffectsOnHover ?? true}
+                    onChange={(e) => updateFocusProtection('reduceEffectsOnHover', e.target.checked)}
+                    className="h-4 w-4 accent-emerald-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-b border-slate-800">
+                  <span>WCAG AA Contrast Card Protection</span>
+                  <input
+                    type="checkbox"
+                    checked={formData.focusProtection?.cardContrastProtection ?? true}
+                    onChange={(e) => updateFocusProtection('cardContrastProtection', e.target.checked)}
+                    className="h-4 w-4 accent-emerald-500"
+                  />
+                </div>
+
+                <div className="rounded border border-emerald-800/40 bg-emerald-950/20 p-3 text-[11px] text-emerald-300">
+                  <span>Enforced Safety: Rain droplets, water accumulation, sand dunes, and weather effects render strictly behind portal text and CTAs at all times.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Fallback rendering for additional tabs */}
-        {!['overview', 'content', 'weather', 'atmosphere', 'rain_water', 'dust_sand', 'campaigns', 'simulator', 'versions'].includes(activeTab) && (
+        {!['overview', 'content', 'weather', 'atmosphere', 'rain_water', 'dust_sand', 'campaigns', 'simulator', 'versions', 'focus_protection'].includes(activeTab) && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-white capitalize">{activeTab.replace('_', ' ')} Settings</h2>
             <p className="text-xs text-slate-400">Manage configuration attributes for {activeTab}.</p>
