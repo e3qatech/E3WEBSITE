@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import {
   GatewayCustomizationPayload,
@@ -61,13 +61,25 @@ export async function GET(req: NextRequest) {
     });
 
     if (record && record.value) {
+      const payload = record.value as unknown as GatewayCustomizationPayload;
+      // Merge safe defaults for new living threshold features
+      const mergedPayload: GatewayCustomizationPayload = {
+        ...DEFAULT_GATEWAY_CMS_PAYLOAD,
+        ...payload,
+        experienceConfig: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.experienceConfig, ...(payload.experienceConfig || {}) } as any,
+        waterAndSandPhysics: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.waterAndSandPhysics, ...(payload.waterAndSandPhysics || {}) } as any,
+        atmospherePresets: payload.atmospherePresets || DEFAULT_GATEWAY_CMS_PAYLOAD.atmospherePresets,
+        weatherRules: payload.weatherRules || DEFAULT_GATEWAY_CMS_PAYLOAD.weatherRules,
+        campaigns: payload.campaigns || DEFAULT_GATEWAY_CMS_PAYLOAD.campaigns,
+        announcements: payload.announcements || DEFAULT_GATEWAY_CMS_PAYLOAD.announcements,
+      };
+
       return NextResponse.json({
         success: true,
-        data: record.value as unknown as GatewayCustomizationPayload,
+        data: mergedPayload,
       });
     }
 
-    // Return default if no customized setting found yet
     return NextResponse.json({
       success: true,
       data: DEFAULT_GATEWAY_CMS_PAYLOAD,
@@ -97,7 +109,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid payload: missing English or Arabic content' }, { status: 400 });
     }
 
-    // Validate media holders for mandatory fallbacks & iframe security
+    // Validate media holders
     const b2cDeskErr = validateMediaHolder(payload.b2cDesktopMedia, 'B2C Desktop Media');
     if (b2cDeskErr) return NextResponse.json({ error: b2cDeskErr }, { status: 400 });
 
@@ -109,6 +121,18 @@ export async function POST(req: NextRequest) {
 
     const b2bMobErr = validateMediaHolder(payload.b2bMobileMedia, 'B2B Mobile Media');
     if (b2bMobErr) return NextResponse.json({ error: b2bMobErr }, { status: 400 });
+
+    // Enforce safety limits in code
+    if (payload.waterAndSandPhysics) {
+      payload.waterAndSandPhysics.waterMaxHeightPercent = Math.min(
+        payload.waterAndSandPhysics.waterMaxHeightPercent || 15,
+        40
+      );
+      payload.waterAndSandPhysics.sandMaxHeightPercent = Math.min(
+        payload.waterAndSandPhysics.sandMaxHeightPercent || 10,
+        30
+      );
+    }
 
     const updatedAt = new Date().toISOString();
     const updatedPayload: GatewayCustomizationPayload = {
@@ -143,6 +167,31 @@ export async function POST(req: NextRequest) {
           type: 'UI',
         },
       });
+
+      // Append version snapshot to gateway_experience_versions
+      try {
+        const versionRecord = await db.setting.findUnique({ where: { key: 'gateway_experience_versions' } });
+        const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
+        const nextVersionNumber = existingVersions.length + 1;
+
+        const newVersionSnapshot = {
+          version: nextVersionNumber,
+          publishedAt: updatedAt,
+          publishedBy: session.user.email || 'Admin',
+          releaseNotes: `Published version ${nextVersionNumber} via Gateway Experience Composer CMS`,
+          snapshot: updatedPayload,
+        };
+
+        const updatedVersions = [newVersionSnapshot, ...existingVersions].slice(0, 20); // Keep last 20
+
+        await db.setting.upsert({
+          where: { key: 'gateway_experience_versions' },
+          update: { value: updatedVersions as any, type: 'UI' },
+          create: { key: 'gateway_experience_versions', value: updatedVersions as any, type: 'UI' },
+        });
+      } catch (_e) {
+        console.warn('[GATEWAY_VERSION_SNAPSHOT_NOTICE]', _e);
+      }
     }
 
     return NextResponse.json({
