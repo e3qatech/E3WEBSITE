@@ -7,11 +7,11 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
 
   switch (role) {
     case 'SUPER_ADMIN':
-      return `/dashboard`;
+      return `/${validLocale}/dashboard`;
     case 'SALES_ADMIN':
-      return `/dashboard/b2b`;
+      return `/${validLocale}/dashboard/b2b`;
     case 'SUPPORT_ADMIN':
-      return `/dashboard/b2c`;
+      return `/${validLocale}/dashboard/b2c`;
     case 'STAFF':
       return `/${validLocale}/staff`;
     case 'CLIENT':
@@ -19,7 +19,7 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
     case 'CANDIDATE':
       return `/${validLocale}/candidate`;
     default:
-      return `/dashboard`;
+      return `/${validLocale}/dashboard`;
   }
 }
 
@@ -100,10 +100,10 @@ export function sanitizeCallbackUrl(
       return `/${locale}/staff`;
     }
     if (role === 'SALES_ADMIN' && decoded.includes('/dashboard/b2c')) {
-      return `/dashboard/b2b`;
+      return `/${locale}/dashboard/b2b`;
     }
     if (role === 'SUPPORT_ADMIN' && decoded.includes('/dashboard/b2b')) {
-      return `/dashboard/b2c`;
+      return `/${locale}/dashboard/b2c`;
     }
   }
 

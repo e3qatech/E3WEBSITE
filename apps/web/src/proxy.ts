@@ -29,15 +29,14 @@ export function proxy(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // Handle missing locale prefix for B2B and B2C public routes
-  if (nextUrl.pathname.startsWith('/b2b') || nextUrl.pathname.startsWith('/b2c')) {
+  // Handle missing locale prefix for dashboard, B2B, and B2C routes
+  if (
+    nextUrl.pathname === '/dashboard' ||
+    nextUrl.pathname.startsWith('/dashboard/') ||
+    nextUrl.pathname.startsWith('/b2b') ||
+    nextUrl.pathname.startsWith('/b2c')
+  ) {
     return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
-  }
-
-  // Redirect localized dashboard routes (/en/dashboard or /ar/dashboard) to unlocalized /dashboard
-  if (nextUrl.pathname.match(/^\/(en|ar)\/dashboard(\/.*)?$/)) {
-    const cleanPath = nextUrl.pathname.replace(/^\/(en|ar)/, '');
-    return NextResponse.redirect(new URL(cleanPath, req.url));
   }
 
   // Extract locale if present in pathname
