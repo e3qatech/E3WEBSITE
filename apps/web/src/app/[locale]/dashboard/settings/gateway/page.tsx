@@ -26,6 +26,8 @@ import {
   ChevronUp,
   Check,
   Zap,
+  Image as ImageIcon,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -68,8 +70,9 @@ export default function GatewayCustomizationPage() {
   // Active language & preview theme
   const [contentLang, setContentLang] = useState<'en' | 'ar'>('en');
 
-  // Accordion for Advanced Technical Settings
+  // Accordion for Advanced Technical Settings & Media Holders
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [activeMediaTab, setActiveMediaTab] = useState<'logos' | 'backgrounds' | 'cards'>('logos');
 
   // Preview simulation state
   const [simState, setSimState] = useState<PreviewSimulationState>(DEFAULT_SIMULATION_STATE);
@@ -210,6 +213,19 @@ export default function GatewayCustomizationPage() {
     setFormData((prev) => ({ ...prev, globalMode: mode }));
   };
 
+  const updateLogoUrl = (logoKey: 'mainLogo' | 'lightLogo' | 'darkLogo' | 'mobileLogo', url: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      logos: {
+        ...prev.logos!,
+        [logoKey]: {
+          ...prev.logos![logoKey],
+          url,
+        },
+      },
+    }));
+  };
+
   const applyPreset = (name: string) => {
     switch (name) {
       case 'clear-day':
@@ -287,7 +303,7 @@ export default function GatewayCustomizationPage() {
             </span>
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">E3 Gateway Manager</h1>
-          <p className="text-xs text-slate-400">Manage branding, mode, and atmosphere for the E3 Qatar portal gateway.</p>
+          <p className="text-xs text-slate-400">Manage branding, media uploads, mode, and atmosphere for the E3 Qatar portal gateway.</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -448,17 +464,154 @@ export default function GatewayCustomizationPage() {
             )}
           </div>
 
-          {/* CARD 3: PUBLISHING & REVISIONS */}
+          {/* CARD 3: GATEWAY MEDIA & LOGO UPLOADS */}
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4 shadow-lg">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-amber-400" />
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">3. Media & Logos</h2>
+              </div>
+
+              <div className="flex items-center rounded-lg border border-slate-800 bg-slate-950 p-1 text-[10px]">
+                <button
+                  onClick={() => setActiveMediaTab('logos')}
+                  className={cn('rounded px-2 py-0.5 font-bold transition-all', activeMediaTab === 'logos' ? 'bg-amber-600 text-white' : 'text-slate-400')}
+                >
+                  Logos
+                </button>
+                <button
+                  onClick={() => setActiveMediaTab('backgrounds')}
+                  className={cn('rounded px-2 py-0.5 font-bold transition-all', activeMediaTab === 'backgrounds' ? 'bg-amber-600 text-white' : 'text-slate-400')}
+                >
+                  Backgrounds
+                </button>
+                <button
+                  onClick={() => setActiveMediaTab('cards')}
+                  className={cn('rounded px-2 py-0.5 font-bold transition-all', activeMediaTab === 'cards' ? 'bg-amber-600 text-white' : 'text-slate-400')}
+                >
+                  Cards
+                </button>
+              </div>
+            </div>
+
+            {activeMediaTab === 'logos' && (
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                {[
+                  { key: 'mainLogo' as const, label: 'Main Logo' },
+                  { key: 'lightLogo' as const, label: 'Light Logo' },
+                  { key: 'darkLogo' as const, label: 'Dark Logo' },
+                  { key: 'mobileLogo' as const, label: 'Mobile Logo' },
+                ].map((item) => (
+                  <div key={item.key} className="rounded-xl border border-slate-800 bg-slate-950 p-3 space-y-2">
+                    <div className="font-bold text-slate-300">{item.label}</div>
+                    <input
+                      type="text"
+                      placeholder="Logo Image / SVG URL"
+                      value={formData.logos?.[item.key]?.url || ''}
+                      onChange={(e) => updateLogoUrl(item.key, e.target.value)}
+                      className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-[11px] text-white"
+                    />
+                    <div className="flex gap-1.5">
+                      <label className="flex-1 cursor-pointer rounded bg-slate-800 py-1 text-center text-[10px] font-semibold text-slate-300 hover:bg-slate-700">
+                        <Upload className="h-3 w-3 inline mr-1" /> Upload
+                        <input
+                          type="file"
+                          accept="image/*,.svg"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              updateLogoUrl(item.key, `/images/${file.name}`);
+                              showToast(`Uploaded ${file.name}!`, 'success');
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeMediaTab === 'backgrounds' && (
+              <div className="space-y-3 text-xs">
+                <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 space-y-2">
+                  <div className="font-bold text-slate-300">Gateway Desktop Background (Image / Video / 3D)</div>
+                  <input
+                    type="text"
+                    placeholder="Background Media URL"
+                    value={formData.b2cDesktopMedia?.mediaUrl || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        b2cDesktopMedia: { ...prev.b2cDesktopMedia, mediaUrl: e.target.value },
+                      }))
+                    }
+                    className="w-full rounded border border-slate-800 bg-slate-900 px-2.5 py-1.5 text-white"
+                  />
+                  <div className="flex items-center gap-2">
+                    <label className="flex-1 cursor-pointer rounded bg-slate-800 py-1 text-center text-[10px] font-semibold text-slate-300 hover:bg-slate-700">
+                      <Upload className="h-3 w-3 inline mr-1" /> Choose File
+                      <input
+                        type="file"
+                        accept="image/*,video/*,.glb"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) showToast(`Background media selected: ${file.name}`, 'success');
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeMediaTab === 'cards' && (
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 space-y-2">
+                  <div className="font-bold text-sky-400">B2C Public Card Media</div>
+                  <input
+                    type="text"
+                    value={formData.b2cDesktopMedia?.mediaUrl || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        b2cDesktopMedia: { ...prev.b2cDesktopMedia, mediaUrl: e.target.value },
+                      }))
+                    }
+                    className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-[11px] text-white"
+                  />
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 space-y-2">
+                  <div className="font-bold text-purple-400">B2B Enterprise Card Media</div>
+                  <input
+                    type="text"
+                    value={formData.b2bDesktopMedia?.mediaUrl || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        b2bDesktopMedia: { ...prev.b2bDesktopMedia, mediaUrl: e.target.value },
+                      }))
+                    }
+                    className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-[11px] text-white"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* CARD 4: PUBLISHING & REVISIONS */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-3 shadow-lg">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
               <div className="flex items-center gap-2">
                 <History className="h-4 w-4 text-purple-400" />
-                <h2 className="text-sm font-bold text-white uppercase tracking-wider">3. Revisions & Rollback</h2>
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">4. Revisions & Rollback</h2>
               </div>
               <span className="text-[11px] font-mono text-slate-400">{versions.length} Versions</span>
             </div>
 
-            <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
               {versions.slice(0, 3).map((ver) => (
                 <div key={ver.version} className="flex items-center justify-between rounded-lg border border-slate-800/60 bg-slate-950 p-2.5 text-xs">
                   <div>
