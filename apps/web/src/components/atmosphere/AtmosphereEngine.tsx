@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { WeatherState, WeatherData } from "./WeatherResolver";
+import { WeatherData } from "./WeatherResolver";
 
 interface AtmosphereEngineProps {
   weather: WeatherData;

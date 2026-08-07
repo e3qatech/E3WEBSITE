@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { fetchLiveWeather, DEFAULT_WEATHER_DATA } from "../components/atmosphere/WeatherResolver";
+import { fetchLiveWeather } from "../components/atmosphere/WeatherResolver";
 import { DEFAULT_GATEWAY_CMS_PAYLOAD } from "../types/gateway-cms";
-import { trackExperienceEvent, sanitizeTelemetryPayload } from "../lib/experience-telemetry";
+import { sanitizeTelemetryPayload } from "../lib/experience-telemetry";
 
 describe("Gate 14: E3 Living Worlds Immersive System Tests", () => {
   it("Test 1: Weather Resolver returns valid Doha weather data with dust inference capabilities", async () => {

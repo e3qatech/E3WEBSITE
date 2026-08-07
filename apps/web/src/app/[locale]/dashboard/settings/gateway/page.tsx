@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import {
   GatewayCustomizationPayload,
   DEFAULT_GATEWAY_CMS_PAYLOAD,
-  MediaHolderConfig,
-  MediaType,
   AtmosphereRendererType,
 } from '@/types/gateway-cms';
 import { PortalGateway } from '@/components/home/PortalGateway';
@@ -24,14 +22,8 @@ import {
   Box,
   CloudRain,
   Sun,
-  Flame,
-  Wind,
   Layers,
   Megaphone,
-  History,
-  Activity,
-  Play,
-  RotateCcw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -61,32 +53,33 @@ export default function GatewayCustomizationPage() {
   const [previewLocale, setPreviewLocale] = useState<'en' | 'ar'>('en');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [simulatedWeatherState, setSimulatedWeatherState] = useState<AtmosphereRendererType>('clear-day');
-  const [simulatedTemp, setSimulatedTemp] = useState<number>(32);
 
   const showToast = React.useCallback((message: string, type: 'success' | 'error') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   }, []);
 
-  const fetchSettings = React.useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/settings/gateway?mode=draft');
-      const json = await res.json();
-      if (json.success && json.data) {
-        setFormData(json.data);
-      }
-    } catch (e) {
-      console.error('Failed to load gateway settings:', e);
-      showToast('Failed to load settings', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
-
   useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+    let isMounted = true;
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings/gateway?mode=draft');
+        const json = await res.json();
+        if (isMounted && json.success && json.data) {
+          setFormData(json.data);
+        }
+      } catch (e) {
+        console.error('Failed to load gateway settings:', e);
+        if (isMounted) showToast('Failed to load settings', 'error');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadSettings();
+    return () => {
+      isMounted = false;
+    };
+  }, [showToast]);
 
   const handleSave = async (action: 'save_draft' | 'publish') => {
     try {

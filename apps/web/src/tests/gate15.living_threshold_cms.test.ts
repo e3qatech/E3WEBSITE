@@ -42,7 +42,6 @@ describe("Gate 15: E3 Living Threshold & Experience Composer Full Production Tes
   });
 
   it("5. Cached weather response age check within fresh TTL (30 mins)", () => {
-    const now = Date.now();
     const cacheAge = 15 * 60 * 1000;
     expect(cacheAge).toBeLessThan(30 * 60 * 1000);
   });

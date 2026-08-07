@@ -5,8 +5,6 @@ import { NormalizedWeatherData } from "./normalize";
 import { unstable_cache } from "next/cache";
 
 const MEMORY_CACHE: { data?: NormalizedWeatherData; cachedAt?: number } = {};
-const DEFAULT_FRESH_TTL_MS = 30 * 60 * 1000; // 30 mins default fallback
-const DEFAULT_STALE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours default fallback
 
 /**
  * Shared Weather Cache Architecture & Effective CMS TTL Policy:
@@ -23,7 +21,7 @@ const DEFAULT_STALE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours default fallback
  *    - Distributed Next.js Data Cache handles revalidation across worker instances on Vercel.
  */
 export async function getCachedWeather(
-  cacheKey: string = "e3_weather_key",
+  _cacheKey: string = "e3_weather_key",
   cmsFreshTtlMin?: number,
   cmsStaleTtlHours?: number
 ): Promise<{ data: NormalizedWeatherData | null; isStale: boolean }> {
@@ -62,7 +60,7 @@ export async function getCachedWeather(
 
 export async function setCachedWeather(
   data: NormalizedWeatherData,
-  cacheKey: string = "e3_weather_key"
+  _cacheKey: string = "e3_weather_key"
 ): Promise<void> {
   MEMORY_CACHE.data = data;
   MEMORY_CACHE.cachedAt = Date.now();
