@@ -6,14 +6,13 @@ const PUBLIC_FILE = /\.(.*)$/;
 export function proxy(req: NextRequest) {
   const { nextUrl } = req;
 
-  // Check for NextAuth session token cookie
-  const sessionToken =
-    req.cookies.get('authjs.session-token')?.value ||
-    req.cookies.get('__Secure-authjs.session-token')?.value ||
-    req.cookies.get('next-auth.session-token')?.value ||
-    req.cookies.get('__Secure-next-auth.session-token')?.value;
-
-  const isLoggedIn = !!sessionToken;
+  // Check for any NextAuth / Auth.js session token cookie variant (HTTPS, Host, Secure, Chunked)
+  const allCookies = req.cookies.getAll();
+  const isLoggedIn = allCookies.some(c => 
+    c.name.includes('session-token') || 
+    c.name.includes('authjs') || 
+    c.name.includes('next-auth')
+  );
 
   // 1. Locale & Theme Detection
   const requestHeaders = new Headers(req.headers);
