@@ -11,8 +11,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
+    console.error("[GLOBAL_ERROR_BOUNDARY]", error);
   }, [error]);
 
   return (
@@ -23,9 +22,16 @@ export default function GlobalError({
       <h2 className="mb-2 font-display text-2xl font-bold text-[var(--text-primary)]">
         System Error Detected
       </h2>
-      <p className="mb-8 max-w-md text-[var(--text-secondary)]">
-        We encountered an unexpected error while processing your request. The issue has been logged.
+      <p className="mb-4 max-w-md text-[var(--text-secondary)]">
+        We encountered an unexpected error while processing your request.
       </p>
+      {error?.message && (
+        <div className="mb-6 max-w-xl w-full rounded-lg bg-black/50 p-4 text-left font-mono text-xs text-red-400 border border-red-500/20 overflow-auto max-h-48">
+          <p className="font-bold text-red-300 mb-1">Error Details:</p>
+          <p className="break-words">{error.message}</p>
+          {error.digest && <p className="mt-2 text-gray-400 text-[10px]">Digest: {error.digest}</p>}
+        </div>
+      )}
       <button
         onClick={() => reset()}
         className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-mono text-sm font-bold text-[var(--surface-default)] transition-all hover:brightness-110"
