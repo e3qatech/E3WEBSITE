@@ -163,8 +163,8 @@ describe('Gate 13: E3 Auth Portals, Multi-Tenant RBAC & Ownership Security', () 
   });
 
   it('27. Arabic RTL locale preserved across landing routes', () => {
-    expect(getAuthorizedLandingRoute({ role: 'SUPER_ADMIN' }, 'ar')).toBe('/ar/dashboard');
-    expect(getAuthorizedLandingRoute({ role: 'SALES_ADMIN' }, 'ar')).toBe('/ar/dashboard/b2b');
+    expect(getAuthorizedLandingRoute({ role: 'SUPER_ADMIN' }, 'ar')).toBe('/dashboard');
+    expect(getAuthorizedLandingRoute({ role: 'SALES_ADMIN' }, 'ar')).toBe('/dashboard/b2b');
     expect(getAuthorizedLandingRoute({ role: 'STAFF' }, 'ar')).toBe('/ar/staff');
     expect(getAuthorizedLandingRoute({ role: 'CLIENT' }, 'ar')).toBe('/ar/business');
     expect(getAuthorizedLandingRoute({ role: 'CANDIDATE' }, 'ar')).toBe('/ar/candidate');

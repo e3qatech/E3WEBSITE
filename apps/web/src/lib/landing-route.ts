@@ -7,11 +7,11 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
 
   switch (role) {
     case 'SUPER_ADMIN':
-      return `/${validLocale}/dashboard`;
+      return `/dashboard`;
     case 'SALES_ADMIN':
-      return `/${validLocale}/dashboard/b2b`;
+      return `/dashboard/b2b`;
     case 'SUPPORT_ADMIN':
-      return `/${validLocale}/dashboard/b2c`;
+      return `/dashboard/b2c`;
     case 'STAFF':
       return `/${validLocale}/staff`;
     case 'CLIENT':
@@ -19,7 +19,7 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
     case 'CANDIDATE':
       return `/${validLocale}/candidate`;
     default:
-      return `/${validLocale}/dashboard`;
+      return `/dashboard`;
   }
 }
 

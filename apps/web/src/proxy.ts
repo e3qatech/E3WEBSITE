@@ -35,6 +35,12 @@ export function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
   }
 
+  // Redirect localized dashboard routes (/en/dashboard or /ar/dashboard) to unlocalized /dashboard
+  if (nextUrl.pathname.match(/^\/(en|ar)\/dashboard(\/.*)?$/)) {
+    const cleanPath = nextUrl.pathname.replace(/^\/(en|ar)/, '');
+    return NextResponse.redirect(new URL(cleanPath, req.url));
+  }
+
   // Extract locale if present in pathname
   const pathSegments = nextUrl.pathname.split('/').filter(Boolean);
   const pathLocale = pathSegments[0] === 'ar' || pathSegments[0] === 'en' ? pathSegments[0] : localeCookie;
