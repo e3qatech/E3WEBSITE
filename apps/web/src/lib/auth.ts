@@ -33,10 +33,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Invalid credentials")
         }
 
-        if (!user.emailVerified) {
-          throw new Error("Invalid credentials")
-        }
-
         if (!user.password) {
           throw new Error("Invalid credentials")
         }
