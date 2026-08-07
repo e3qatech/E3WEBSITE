@@ -8,6 +8,19 @@ const MEMORY_CACHE: { data?: NormalizedWeatherData; cachedAt?: number } = {};
 const FRESH_TTL_MS = 30 * 60 * 1000; // 30 mins
 const STALE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+/**
+ * Shared Weather Cache Architecture & Deployment Specification:
+ *
+ * Vercel Deployment:
+ * - Distributed Data Cache (`unstable_cache` with tag `e3-weather` and revalidate: 1800).
+ * - Multi-region serverless worker instances share normalized weather state across requests.
+ *
+ * Self-Hosted Deployment:
+ * - Requires Redis distributed cache handler or Next.js custom cache adapter.
+ *
+ * Development / Local Fallback:
+ * - Uses process-memory cache when persistent cache is uninitialized.
+ */
 export async function getCachedWeather(
   cacheKey: string = "e3_weather_key"
 ): Promise<{ data: NormalizedWeatherData | null; isStale: boolean }> {

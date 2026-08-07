@@ -171,12 +171,14 @@ export async function POST(req: NextRequest) {
         create: { key: 'gateway_customization_published', value: rollbackPayload as any, type: 'UI' },
       });
 
-      // Rollback creates a new version entry rather than overwriting history
+      // Monotonic versioning for rollback
+      const maxExistingVersion = existingVersions.reduce((max, v) => Math.max(max, v.version || 0), 0);
       const newRollbackVersion = {
-        version: existingVersions.length + 1,
+        version: maxExistingVersion + 1,
         publishedAt: new Date().toISOString(),
         publishedBy: session.user.email || 'SUPER_ADMIN',
         releaseNotes: `Rolled back to snapshot version #${targetVersion}`,
+        checksum: `chk_${Date.now()}_v${maxExistingVersion + 1}`,
         snapshot: rollbackPayload,
       };
 
@@ -268,13 +270,15 @@ export async function POST(req: NextRequest) {
       try {
         const versionRecord = await db.setting.findUnique({ where: { key: 'gateway_experience_versions' } });
         const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
-        const nextVersionNumber = existingVersions.length + 1;
+        const maxExistingVersion = existingVersions.reduce((max, v) => Math.max(max, v.version || 0), 0);
+        const nextVersionNumber = maxExistingVersion + 1;
 
         const newVersionSnapshot = {
           version: nextVersionNumber,
           publishedAt: updatedAt,
           publishedBy: session.user.email || 'Admin',
           releaseNotes: `Published version ${nextVersionNumber} via Gateway Experience Composer CMS`,
+          checksum: `chk_${Date.now()}_v${nextVersionNumber}`,
           snapshot: updatedPayload,
         };
 
