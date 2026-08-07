@@ -233,6 +233,17 @@ export interface PreviewSimulationState {
   emergencyDisable: boolean;
 }
 
+export interface GatewayFocusProtectionSettings {
+  selectionFocusProtection: 'always_on';
+  atmosphereAroundCards: 'off' | 'low' | 'medium';
+  contentReaction: 'off' | 'ambient' | 'expressive';
+  focusModeEnabled: boolean;
+  reduceEffectsOnHover: boolean;
+  campaignDominance: 'background_only' | 'balanced' | 'strong_protected';
+  cardContrastProtection: boolean;
+  allowAccumulationNearCards: 'never' | 'outer_edges_only';
+}
+
 export interface GatewayCustomizationPayload {
   english: GatewayContentEn;
   arabic: GatewayContentAr;
@@ -253,6 +264,7 @@ export interface GatewayCustomizationPayload {
   campaigns?: GatewayCampaignItem[];
   announcements?: GatewayAnnouncementItem[];
   versions?: GatewayExperienceVersion[];
+  focusProtection?: GatewayFocusProtectionSettings;
 }
 
 export const DEFAULT_GATEWAY_CMS_PAYLOAD: GatewayCustomizationPayload = {
@@ -451,4 +463,14 @@ export const DEFAULT_GATEWAY_CMS_PAYLOAD: GatewayCustomizationPayload = {
       priority: 1,
     },
   ],
+  focusProtection: {
+    selectionFocusProtection: 'always_on',
+    atmosphereAroundCards: 'low',
+    contentReaction: 'ambient',
+    focusModeEnabled: true,
+    reduceEffectsOnHover: true,
+    campaignDominance: 'strong_protected',
+    cardContrastProtection: true,
+    allowAccumulationNearCards: 'outer_edges_only',
+  },
 };

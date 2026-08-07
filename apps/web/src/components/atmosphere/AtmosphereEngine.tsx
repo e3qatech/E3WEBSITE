@@ -15,6 +15,8 @@ export interface AtmosphereEngineProps {
   isNight?: boolean;
   isReducedMotion?: boolean;
   isWebGlAvailable?: boolean;
+  isFocusActive?: boolean;
+  atmosphereAttenuation?: 'off' | 'low' | 'medium';
   className?: string;
 }
 
@@ -30,6 +32,8 @@ export function AtmosphereEngine({
   isNight = false,
   isReducedMotion = false,
   isWebGlAvailable = true,
+  isFocusActive = false,
+  atmosphereAttenuation = 'low',
   className,
 }: AtmosphereEngineProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,8 +62,8 @@ export function AtmosphereEngine({
 
       if (rendererType === 'heat') {
         const heatGrad = ctx.createLinearGradient(0, 0, 0, height);
-        heatGrad.addColorStop(0, "rgba(245, 158, 11, 0.1)");
-        heatGrad.addColorStop(1, "rgba(180, 83, 9, 0.25)");
+        heatGrad.addColorStop(0, "rgba(245, 158, 11, 0.05)");
+        heatGrad.addColorStop(1, "rgba(180, 83, 9, 0.15)");
         ctx.fillStyle = heatGrad;
         ctx.fillRect(0, 0, width, height);
       } else if (rendererType === 'night' || isNight) {
@@ -71,13 +75,17 @@ export function AtmosphereEngine({
       };
     }
 
-    const effectiveCount = Math.max(10, Math.min(particleCount, 300));
+    // Apply Focus Protection & Attenuation Factor
+    const focusMultiplier = isFocusActive ? 0.3 : atmosphereAttenuation === 'off' ? 0.4 : atmosphereAttenuation === 'medium' ? 0.7 : 1.0;
+    const baseCount = Math.max(10, Math.min(particleCount, 300));
+    const effectiveCount = Math.max(8, Math.floor(baseCount * focusMultiplier));
+    const effectiveSpeed = (particleSpeed * focusMultiplier);
     const angleRad = (windDirectionDeg || 45) * (Math.PI / 180);
 
     const particles = Array.from({ length: effectiveCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      speed: (Math.random() * particleSpeed + 2) * (windSpeedKmh > 30 ? 1.5 : 1.0),
+      speed: (Math.random() * effectiveSpeed + 2) * (windSpeedKmh > 30 ? 1.4 : 1.0),
       length: Math.random() * 25 + 10,
       opacity: Math.random() * particleOpacity + 0.1,
       size: Math.random() * 3.5 + 1,
@@ -248,6 +256,8 @@ export function AtmosphereEngine({
     isNight,
     isReducedMotion,
     isWebGlAvailable,
+    isFocusActive,
+    atmosphereAttenuation,
   ]);
 
   return (
