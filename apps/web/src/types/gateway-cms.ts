@@ -206,6 +206,33 @@ export interface GatewayExperienceVersion {
   snapshot: any;
 }
 
+export interface PreviewSimulationState {
+  temperature: number;
+  apparentTemperature: number;
+  precipitation: number;
+  rain: number;
+  windSpeed: number;
+  windGusts: number;
+  windDirection: number;
+  visibility: number;
+  pm10: number;
+  pm25: number;
+  cloudCover: number;
+  isDay: boolean;
+  weatherCode: number;
+  heavyRainOverride: boolean;
+  selectedCampaignId?: string;
+  selectedAnnouncementId?: string;
+  locale: 'en' | 'ar';
+  theme: 'dark' | 'light';
+  viewport: 'desktop-1440' | 'laptop-1280' | 'tablet-768' | 'mobile-390' | 'small-mobile-320';
+  capabilityTier: 'cinematic' | 'balanced' | 'lightweight';
+  reducedMotion: boolean;
+  webglAvailable: boolean;
+  weatherApiAvailable: boolean;
+  emergencyDisable: boolean;
+}
+
 export interface GatewayCustomizationPayload {
   english: GatewayContentEn;
   arabic: GatewayContentAr;

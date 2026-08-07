@@ -1,16 +1,23 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useMounted } from "@/hooks/useMounted";
-import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Sun, Moon, ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, Bug } from "lucide-react";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { useTheme } from "@/components/layout/ThemeProvider";
-import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { UniversalMediaHolder } from "@/components/shared/UniversalMediaHolder";
-import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
+import {
+  GatewayCustomizationPayload,
+  DEFAULT_GATEWAY_CMS_PAYLOAD,
+  PreviewSimulationState,
+  AtmosphereRendererType,
+  GatewayAtmospherePreset,
+  GatewayWeatherRule,
+} from "@/types/gateway-cms";
+import { AtmosphereEngine } from "@/components/atmosphere/AtmosphereEngine";
+import { E3Logo } from "@/components/shared/E3Logo";
 import { cn } from "@/lib/utils";
 
 const WireframeBackground = dynamic(
@@ -18,31 +25,129 @@ const WireframeBackground = dynamic(
   { ssr: false }
 );
 
-import { E3Logo } from "@/components/shared/E3Logo";
-
-interface PortalGatewayProps {
+export interface PortalGatewayProps {
   cmsData?: GatewayCustomizationPayload;
+  previewMode?: boolean;
+  previewConfig?: GatewayCustomizationPayload;
+  simulation?: PreviewSimulationState;
 }
 
-export function PortalGateway({ cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD }: PortalGatewayProps) {
+export function PortalGateway({
+  cmsData: initialCmsData = DEFAULT_GATEWAY_CMS_PAYLOAD,
+  previewMode = false,
+  previewConfig,
+  simulation,
+}: PortalGatewayProps) {
   const router = useRouter();
-  const { locale, dir } = useLocale();
-  const { theme, setTheme } = useTheme();
-  const isAr = locale === 'ar';
-  
+  const { locale: contextLocale } = useLocale();
+  const { theme: contextTheme } = useTheme();
+
   const [hoveredPortal, setHoveredPortal] = useState<'b2c' | 'b2b' | null>(null);
-  const [selectedPortal, setSelectedPortal] = useState<'b2c' | 'b2b' | null>(null);
-  const [focusedPortal, setFocusedPortal] = useState<'b2c' | 'b2b' | null>(null);
+  const [, setSelectedPortal] = useState<'b2c' | 'b2b' | null>(null);
+  const [, setFocusedPortal] = useState<'b2c' | 'b2b' | null>(null);
+  const [showDebugPanel, setShowDebugPanel] = useState<boolean>(true);
   const isMounted = useMounted();
 
-  // Resolve theme synchronously based on mount status and theme preference
-  const systemTheme = isMounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  const resolvedTheme = theme === 'system' ? systemTheme : ((theme as 'light' | 'dark') || 'dark');
+  // In Preview Mode, prefer supplied draft config
+  const activeCmsData = previewMode && previewConfig ? previewConfig : initialCmsData;
 
-  const en = cmsData.english;
-  const ar = cmsData.arabic;
+  // Resolve active locale and theme
+  const activeLocale = simulation?.locale || contextLocale || 'en';
+  const isAr = activeLocale === 'ar';
+  const activeDir = isAr ? 'rtl' : 'ltr';
 
-  // Bilingual fields with fallback
+  const resolvedTheme = simulation?.theme || contextTheme || 'dark';
+  const isLight = resolvedTheme === 'light';
+
+  // LIVE WEATHER & RULE RESOLUTION ENGINE FOR PREVIEW
+  const resolvedWeatherState = useMemo(() => {
+    if (!simulation) {
+      return {
+        presetType: (activeCmsData.experienceConfig?.defaultScenePreset || 'clear-day') as AtmosphereRendererType,
+        matchedRule: null as GatewayWeatherRule | null,
+        matchedPreset: null as GatewayAtmospherePreset | null,
+        waterHeight: activeCmsData.waterAndSandPhysics?.waterEnabled ? activeCmsData.waterAndSandPhysics.waterMaxHeightPercent : 0,
+        sandHeight: activeCmsData.waterAndSandPhysics?.sandEnabled ? activeCmsData.waterAndSandPhysics.sandMaxHeightPercent : 0,
+      };
+    }
+
+    if (!simulation.webglAvailable || !simulation.weatherApiAvailable || simulation.reducedMotion) {
+      return {
+        presetType: 'static-fallback' as AtmosphereRendererType,
+        matchedRule: null,
+        matchedPreset: null,
+        waterHeight: 0,
+        sandHeight: 0,
+      };
+    }
+
+    const rules = activeCmsData.weatherRules || DEFAULT_GATEWAY_CMS_PAYLOAD.weatherRules || [];
+    const presets = activeCmsData.atmospherePresets || DEFAULT_GATEWAY_CMS_PAYLOAD.atmospherePresets || [];
+
+    let matchedRule: GatewayWeatherRule | null = null;
+
+    // Check rules ordered by priority (1 is highest)
+    const sortedRules = [...rules].sort((a, b) => a.priority - b.priority);
+
+    for (const rule of sortedRules) {
+      if (!rule.enabled) continue;
+
+      let matches = false;
+
+      if (simulation.heavyRainOverride && rule.presetId === 'heavy-rain') {
+        matches = true;
+      } else if (rule.rainMinMm !== undefined && simulation.rain >= rule.rainMinMm) {
+        matches = true;
+      } else if (rule.pm10Min !== undefined && simulation.pm10 >= rule.pm10Min) {
+        matches = true;
+      } else if (rule.apparentTempMinC !== undefined && simulation.apparentTemperature >= rule.apparentTempMinC) {
+        matches = true;
+      } else if (rule.tempMinC !== undefined && simulation.temperature >= rule.tempMinC) {
+        matches = true;
+      } else if (rule.windMinKmh !== undefined && simulation.windSpeed >= rule.windMinKmh) {
+        matches = true;
+      }
+
+      if (matches) {
+        matchedRule = rule;
+        break;
+      }
+    }
+
+    let presetType: AtmosphereRendererType = matchedRule ? matchedRule.presetId : 'clear-day';
+    if (!matchedRule) {
+      if (!simulation.isDay) presetType = 'night';
+      else if (simulation.temperature >= 38) presetType = 'heat';
+      else if (simulation.rain > 0.5) presetType = 'rain';
+    }
+
+    const matchedPreset = presets.find((p) => p.rendererType === presetType) || null;
+
+    // Calculate water and sand heights (capped by safety ceilings: water <= 40%, sand <= 30%)
+    let waterHeight = 0;
+    if (presetType === 'rain' || presetType === 'heavy-rain') {
+      const baseMax = activeCmsData.waterAndSandPhysics?.waterMaxHeightPercent || 15;
+      waterHeight = Math.min(baseMax, simulation.viewport.includes('mobile') ? 20 : 40);
+    }
+
+    let sandHeight = 0;
+    if (presetType === 'sandstorm' || presetType === 'dust') {
+      const baseMax = activeCmsData.waterAndSandPhysics?.sandMaxHeightPercent || 10;
+      sandHeight = Math.min(baseMax, simulation.viewport.includes('mobile') ? 15 : 30);
+    }
+
+    return {
+      presetType,
+      matchedRule,
+      matchedPreset,
+      waterHeight,
+      sandHeight,
+    };
+  }, [simulation, activeCmsData]);
+
+  const en = activeCmsData.english;
+  const ar = activeCmsData.arabic;
+
   const eyebrow = isAr ? ar.eyebrowAr || en.eyebrowEn : en.eyebrowEn || ar.eyebrowAr;
   const headline = isAr ? ar.headlineAr || en.headlineEn : en.headlineEn || ar.headlineAr;
 
@@ -58,43 +163,67 @@ export function PortalGateway({ cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD }: PortalG
   const b2bCta = isAr ? ar.b2bCtaLabelAr || en.b2bCtaLabelEn : en.b2bCtaLabelEn || ar.b2bCtaLabelAr;
   const b2bStat = isAr ? ar.b2bStatLabelAr || en.b2bStatLabelEn : en.b2bStatLabelEn || ar.b2bStatLabelAr;
 
-  const ariaLabel = isAr ? cmsData.seoAccess.ariaGatewayLabelAr : cmsData.seoAccess.ariaGatewayLabelEn;
+  const ariaLabel = isAr ? activeCmsData.seoAccess.ariaGatewayLabelAr : activeCmsData.seoAccess.ariaGatewayLabelEn;
 
-  const handleSelect = useCallback((portal: 'b2c' | 'b2b') => {
-    setSelectedPortal(portal);
-    localStorage.setItem('e3_preferred_portal', portal);
+  const handleSelect = useCallback(
+    (portal: 'b2c' | 'b2b') => {
+      setSelectedPortal(portal);
+      if (!previewMode) {
+        localStorage.setItem('e3_preferred_portal', portal);
+        setTimeout(() => {
+          router.push(`/${activeLocale}/${portal}`);
+        }, 600);
+      }
+    },
+    [router, activeLocale, previewMode]
+  );
 
-    setTimeout(() => {
-      router.push(`/${locale}/${portal}`);
-    }, 600);
-  }, [router, locale]);
-
-  // Handle Keyboard Selection
-  const handleKeyDown = (e: React.KeyboardEvent, portal: 'b2c' | 'b2b') => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleSelect(portal);
+  // Viewport Container Dimensions for Frame Resizing
+  const viewportWidthClass = useMemo(() => {
+    if (!simulation) return 'w-full h-full min-h-screen';
+    switch (simulation.viewport) {
+      case 'small-mobile-320':
+        return 'w-[320px] h-[568px] mx-auto rounded-2xl border-4 border-slate-700 shadow-2xl overflow-hidden';
+      case 'mobile-390':
+        return 'w-[390px] h-[720px] mx-auto rounded-2xl border-4 border-slate-700 shadow-2xl overflow-hidden';
+      case 'tablet-768':
+        return 'w-[768px] h-[780px] mx-auto rounded-xl border-2 border-slate-700 shadow-2xl overflow-hidden';
+      case 'laptop-1280':
+        return 'w-[1280px] h-[720px] mx-auto rounded-lg border border-slate-700 shadow-2xl overflow-hidden';
+      case 'desktop-1440':
+      default:
+        return 'w-full h-full min-h-screen';
     }
-  };
-
-  const isLight = resolvedTheme === 'light';
-  const reducedMotion = cmsData.visual.reducedMotionDefault;
-
-  // Animation values based on hover/focus state
-  const activePortal = hoveredPortal || focusedPortal;
+  }, [simulation]);
 
   return (
     <div
       className={cn(
-        "relative min-h-screen w-full overflow-hidden transition-colors duration-500",
+        "relative overflow-hidden transition-all duration-500",
+        viewportWidthClass,
         isLight ? "bg-[#f8f9fa]" : "bg-[#09090b]"
       )}
-      dir={dir}
+      dir={activeDir}
       role="region"
       aria-label={ariaLabel || 'E3 Qatar Portal Gateway'}
     >
-      {/* 3D Background */}
-      {isMounted && cmsData.visual.backgroundStyle === 'wireframe' && (
+      {/* ATMOSPHERE ENGINE CANVAS LAYER */}
+      <AtmosphereEngine
+        rendererType={resolvedWeatherState.presetType}
+        particleCount={resolvedWeatherState.matchedPreset?.particleCount || 60}
+        particleSpeed={resolvedWeatherState.matchedPreset?.particleSpeed || 5}
+        particleOpacity={resolvedWeatherState.matchedPreset?.particleOpacity || 0.5}
+        waterHeightPercent={resolvedWeatherState.waterHeight}
+        sandHeightPercent={resolvedWeatherState.sandHeight}
+        windSpeedKmh={simulation?.windSpeed || 15}
+        windDirectionDeg={simulation?.windDirection || 45}
+        isNight={simulation ? !simulation.isDay : false}
+        isReducedMotion={simulation?.reducedMotion || activeCmsData.visual.reducedMotionDefault}
+        isWebGlAvailable={simulation ? simulation.webglAvailable : true}
+      />
+
+      {/* Wireframe Background Layer */}
+      {isMounted && activeCmsData.visual.backgroundStyle === 'wireframe' && (
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-40">
           <WireframeBackground />
         </div>
@@ -105,322 +234,156 @@ export function PortalGateway({ cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD }: PortalG
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pointer-events-auto">
           <E3Logo isLight={isLight} size="md" />
           <div className="flex items-center gap-2">
-            <span className={cn(
-              "px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest rounded-full border transition-all",
-              isLight 
-                ? "bg-zinc-100 text-zinc-800 border-zinc-200" 
-                : "bg-white/5 text-white/80 border-white/10"
-            )}>
+            <span
+              className={cn(
+                "px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest rounded-full border transition-all",
+                isLight ? "bg-zinc-100 text-zinc-800 border-zinc-200" : "bg-white/5 text-white/80 border-white/10"
+              )}
+            >
               {eyebrow}
             </span>
-            <span className={cn(
-              "hidden lg:inline-block text-xs font-bold border-s ps-3 transition-colors",
-              isLight ? "text-zinc-500 border-zinc-200" : "text-zinc-400 border-white/10"
-            )}>
+            <span
+              className={cn(
+                "hidden lg:inline-block text-xs font-bold border-s ps-3 transition-colors",
+                isLight ? "text-zinc-500 border-zinc-200" : "text-zinc-400 border-white/10"
+              )}
+            >
               {headline}
             </span>
           </div>
         </div>
-
-        <div className="flex items-center gap-3 pointer-events-auto">
-          {/* Theme Control */}
-          <button
-            onClick={() => setTheme(isLight ? 'dark' : 'light')}
-            className={cn(
-              "p-2.5 rounded-full border transition-all hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] outline-none",
-              isLight 
-                ? "bg-white text-zinc-800 border-zinc-200 shadow-sm" 
-                : "bg-zinc-900/80 text-white border-white/10 backdrop-blur"
-            )}
-            aria-label={isLight ? "Switch to Dark Mode" : "Switch to Light Mode"}
-          >
-            {isLight ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-          </button>
-
-          {/* Language Switcher */}
-          <LanguageSwitcher variant="pill" />
-        </div>
       </header>
 
-      {/* PORTAL WORLDS (SPLIT ENGINE) */}
-      <div className="relative z-10 min-h-screen flex flex-col md:flex-row items-stretch">
-        
-        {/* B2C World */}
-        <motion.div
-          className={cn(
-            "relative flex-1 flex flex-col justify-end md:justify-center p-8 md:p-16 overflow-hidden outline-none transition-colors duration-500 group",
-            isLight 
-              ? (activePortal === 'b2c' ? "bg-[#fdfaf6]" : "bg-[#f9f6f0]") 
-              : (activePortal === 'b2c' ? "bg-[#140b1e]" : "bg-[#09090b]")
-          )}
-          tabIndex={0}
+      {/* PORTALS DUAL HERO CARDS GRID */}
+      <div className="relative z-30 min-h-screen w-full flex flex-col md:flex-row">
+        {/* B2C PORTAL HERO */}
+        <div
           onMouseEnter={() => setHoveredPortal('b2c')}
           onMouseLeave={() => setHoveredPortal(null)}
           onFocus={() => setFocusedPortal('b2c')}
           onBlur={() => setFocusedPortal(null)}
-          onKeyDown={(e) => handleKeyDown(e, 'b2c')}
           onClick={() => handleSelect('b2c')}
-          animate={{
-            flex: activePortal === 'b2c' ? 1.6 : (activePortal === 'b2b' ? 0.95 : 1),
-            opacity: selectedPortal === 'b2b' ? 0 : 1
-          }}
-          transition={reducedMotion ? { duration: 0.1 } : { duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          tabIndex={0}
           role="button"
-          aria-label={b2cLabel + " " + b2cTitle}
+          aria-label={b2cTitle}
+          className={cn(
+            "relative flex-1 flex flex-col justify-end p-8 md:p-14 cursor-pointer transition-all duration-700 ease-out border-b md:border-b-0 md:border-r border-white/10",
+            hoveredPortal === 'b2c' ? "flex-[1.3] bg-sky-950/20" : "opacity-90"
+          )}
         >
-          {/* Cinematic Background Media */}
-          <div className={cn(
-            "absolute inset-0 z-0 transition-all duration-700 pointer-events-none",
-            activePortal === 'b2c' ? "scale-100 opacity-30 md:opacity-40" : "scale-105 opacity-15 md:opacity-20"
-          )} style={reducedMotion ? { transform: 'none' } : undefined}>
-            {/* Desktop */}
-            <div className="hidden md:block w-full h-full">
-              <UniversalMediaHolder
-                config={cmsData.b2cDesktopMedia}
-                locale={locale}
-                forceReducedMotion={reducedMotion}
-              />
-            </div>
-            {/* Mobile */}
-            <div className="block md:hidden w-full h-full">
-              <UniversalMediaHolder
-                config={cmsData.b2cMobileMedia}
-                locale={locale}
-                forceReducedMotion={reducedMotion}
-              />
-            </div>
+          <div className="absolute inset-0 z-0">
+            <UniversalMediaHolder
+              config={activeCmsData.b2cDesktopMedia}
+              locale={activeLocale}
+              className="h-full w-full object-cover opacity-40 transition-transform duration-700 hover:scale-105"
+            />
           </div>
 
-          {/* Protective Gradient Overlay */}
-          <div className={cn(
-            "absolute inset-0 z-0 pointer-events-none transition-opacity duration-500",
-            isLight 
-              ? "bg-gradient-to-t from-[#fdfaf6] via-[#fdfaf6]/90 to-transparent opacity-95" 
-              : "bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-transparent opacity-90"
-          )} />
-
-          {/* Content Area */}
-          <div className="relative z-10 max-w-lg w-full md:mx-auto select-none">
-            {/* Tag / Category */}
-            <div className="flex items-center gap-3 mb-3">
-              <span className={cn(
-                "text-[10px] font-black tracking-[0.2em] uppercase transition-colors px-2 py-0.5 rounded",
-                isLight ? "text-violet-700 bg-violet-50" : "text-violet-400 bg-violet-950/40"
-              )}>
+          <div className="relative z-10 space-y-4 max-w-md">
+            <div className="flex items-center gap-2">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/30">
                 {b2cLabel}
               </span>
               {b2cStat && (
-                <span className={cn(
-                  "text-[9px] font-extrabold px-2 py-0.5 rounded border transition-all",
-                  isLight 
-                    ? "bg-amber-50/50 text-amber-800 border-amber-200" 
-                    : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                )}>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-white/90 border border-white/15">
                   {b2cStat}
                 </span>
               )}
             </div>
-
-            {/* Title */}
-            <h2 
-              className={cn(
-                "text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-4 leading-[1.08] font-display transition-colors",
-                isLight ? "text-violet-950" : "text-zinc-50"
-              )}
-              dangerouslySetInnerHTML={{ __html: b2cTitle.replace(/\\n/g, '<br/>') }}
-            />
-
-            {/* Description (Slide / Fade Reveal) */}
-            <motion.div
-              initial={false}
-              animate={{
-                height: (activePortal === 'b2c' || !isMounted) ? 'auto' : 0,
-                opacity: (activePortal === 'b2c' || !isMounted) ? 1 : 0,
-                marginBottom: (activePortal === 'b2c' || !isMounted) ? 24 : 0
-              }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <p className={cn(
-                "text-sm md:text-base max-w-md font-normal leading-relaxed",
-                isLight ? "text-zinc-600" : "text-zinc-300"
-              )}>
-                {b2cDesc}
-              </p>
-            </motion.div>
-
-            {/* CTA Button */}
-            <div className="mt-2">
-              <span className={cn(
-                "inline-flex items-center gap-2 text-xs font-extrabold tracking-widest uppercase transition-all duration-300 px-6 py-3 rounded-full border",
-                isLight
-                  ? "bg-violet-950 text-white border-transparent hover:bg-violet-900 shadow-sm"
-                  : "bg-white/5 text-violet-300 border-violet-500/30 group-hover:border-violet-500/60 group-hover:bg-violet-500/10 group-focus:border-violet-500/60"
-              )}>
-                <span>{b2cCta}</span>
-                <span className="transition-transform group-hover:translate-x-1.5 duration-300">
-                  {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-                </span>
-              </span>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">{b2cTitle}</h2>
+            <p className="text-sm text-slate-300 line-clamp-3">{b2cDesc}</p>
+            <div className="pt-2 flex items-center gap-3 text-sky-400 font-bold text-sm group">
+              <span>{b2cCta}</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* B2B World */}
-        <motion.div
-          className={cn(
-            "relative flex-1 flex flex-col justify-end md:justify-center p-8 md:p-16 overflow-hidden outline-none transition-colors duration-500 group",
-            isLight 
-              ? (activePortal === 'b2b' ? "bg-[#f1f3f6]" : "bg-[#f9fafb]") 
-              : (activePortal === 'b2b' ? "bg-[#0b0f19]" : "bg-[#09090b]")
-          )}
-          tabIndex={0}
+        {/* B2B PORTAL HERO */}
+        <div
           onMouseEnter={() => setHoveredPortal('b2b')}
           onMouseLeave={() => setHoveredPortal(null)}
           onFocus={() => setFocusedPortal('b2b')}
           onBlur={() => setFocusedPortal(null)}
-          onKeyDown={(e) => handleKeyDown(e, 'b2b')}
           onClick={() => handleSelect('b2b')}
-          animate={{
-            flex: activePortal === 'b2b' ? 1.6 : (activePortal === 'b2c' ? 0.95 : 1),
-            opacity: selectedPortal === 'b2c' ? 0 : 1
-          }}
-          transition={reducedMotion ? { duration: 0.1 } : { duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          tabIndex={0}
           role="button"
-          aria-label={b2bLabel + " " + b2bTitle}
+          aria-label={b2bTitle}
+          className={cn(
+            "relative flex-1 flex flex-col justify-end p-8 md:p-14 cursor-pointer transition-all duration-700 ease-out",
+            hoveredPortal === 'b2b' ? "flex-[1.3] bg-purple-950/20" : "opacity-90"
+          )}
         >
-          {/* Cinematic Background Media */}
-          <div className={cn(
-            "absolute inset-0 z-0 transition-all duration-700 pointer-events-none",
-            activePortal === 'b2b' ? "scale-100 opacity-30 md:opacity-45" : "scale-105 opacity-15 md:opacity-20"
-          )} style={reducedMotion ? { transform: 'none' } : undefined}>
-            {/* Desktop */}
-            <div className="hidden md:block w-full h-full">
-              <UniversalMediaHolder
-                config={cmsData.b2bDesktopMedia}
-                locale={locale}
-                forceReducedMotion={reducedMotion}
-              />
-            </div>
-            {/* Mobile */}
-            <div className="block md:hidden w-full h-full">
-              <UniversalMediaHolder
-                config={cmsData.b2bMobileMedia}
-                locale={locale}
-                forceReducedMotion={reducedMotion}
-              />
-            </div>
+          <div className="absolute inset-0 z-0">
+            <UniversalMediaHolder
+              config={activeCmsData.b2bDesktopMedia}
+              locale={activeLocale}
+              className="h-full w-full object-cover opacity-40 transition-transform duration-700 hover:scale-105"
+            />
           </div>
 
-          {/* Protective Gradient Overlay */}
-          <div className={cn(
-            "absolute inset-0 z-0 pointer-events-none transition-opacity duration-500",
-            isLight 
-              ? "bg-gradient-to-t from-[#f1f3f6] via-[#f1f3f6]/90 to-transparent opacity-95" 
-              : "bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-transparent opacity-90"
-          )} />
-
-          {/* Content Area */}
-          <div className="relative z-10 max-w-lg w-full md:mx-auto select-none">
-            {/* Tag / Category */}
-            <div className="flex items-center gap-3 mb-3">
-              <span className={cn(
-                "text-[10px] font-black tracking-[0.2em] uppercase transition-colors px-2 py-0.5 rounded",
-                isLight ? "text-indigo-700 bg-indigo-50" : "text-indigo-400 bg-indigo-950/40"
-              )}>
+          <div className="relative z-10 space-y-4 max-w-md">
+            <div className="flex items-center gap-2">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
                 {b2bLabel}
               </span>
               {b2bStat && (
-                <span className={cn(
-                  "text-[9px] font-extrabold px-2 py-0.5 rounded border transition-all",
-                  isLight 
-                    ? "bg-emerald-50/50 text-emerald-850 border-emerald-200" 
-                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                )}>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-white/90 border border-white/15">
                   {b2bStat}
                 </span>
               )}
             </div>
-
-            {/* Title */}
-            <h2 
-              className={cn(
-                "text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-4 leading-[1.08] font-display transition-colors",
-                isLight ? "text-indigo-950" : "text-zinc-50"
-              )}
-              dangerouslySetInnerHTML={{ __html: b2bTitle.replace(/\\n/g, '<br/>') }}
-            />
-
-            {/* Description (Slide / Fade Reveal) */}
-            <motion.div
-              initial={false}
-              animate={{
-                height: (activePortal === 'b2b' || !isMounted) ? 'auto' : 0,
-                opacity: (activePortal === 'b2b' || !isMounted) ? 1 : 0,
-                marginBottom: (activePortal === 'b2b' || !isMounted) ? 24 : 0
-              }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <p className={cn(
-                "text-sm md:text-base max-w-md font-normal leading-relaxed",
-                isLight ? "text-zinc-600" : "text-zinc-300"
-              )}>
-                {b2bDesc}
-              </p>
-            </motion.div>
-
-            {/* CTA Button */}
-            <div className="mt-2">
-              <span className={cn(
-                "inline-flex items-center gap-2 text-xs font-extrabold tracking-widest uppercase transition-all duration-300 px-6 py-3 rounded-full border",
-                isLight
-                  ? "bg-indigo-950 text-white border-transparent hover:bg-indigo-900 shadow-sm"
-                  : "bg-white/5 text-emerald-400 border-emerald-500/30 group-hover:border-emerald-500/60 group-hover:bg-emerald-500/10 group-focus:border-emerald-500/60"
-              )}>
-                <span>{b2bCta}</span>
-                <span className="transition-transform group-hover:translate-x-1.5 duration-300">
-                  {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-                </span>
-              </span>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">{b2bTitle}</h2>
+            <p className="text-sm text-slate-300 line-clamp-3">{b2bDesc}</p>
+            <div className="pt-2 flex items-center gap-3 text-purple-400 font-bold text-sm group">
+              <span>{b2bCta}</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
-        </motion.div>
-
+        </div>
       </div>
 
-      {/* Visual Divider (Angled Skew Line between B2C and B2B) */}
-      <div 
-        className={cn(
-          "absolute top-0 bottom-0 z-20 pointer-events-none hidden md:block w-[1px] transition-all duration-500",
-          activePortal === 'b2c' ? "left-[61.5%]" : (activePortal === 'b2b' ? "left-[36.5%]" : "left-[50%]")
-        )}
-        style={{
-          transform: 'translateX(-50%) skewX(-5deg)',
-          backgroundColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.12)'
-        }}
-      >
-        <div className={cn(
-          "w-[3px] h-32 absolute top-1/2 -translate-y-1/2 -left-[1px] transition-all duration-500 rounded-full",
-          activePortal === 'b2c' 
-            ? "bg-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.6)]" 
-            : (activePortal === 'b2b' ? "bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.6)]" : "bg-zinc-500/30")
-        )} />
-      </div>
+      {/* ADMIN PREVIEW DEBUG OVERLAY PANEL */}
+      {previewMode && (
+        <div className="absolute bottom-4 right-4 z-50 rounded-xl border border-slate-700/80 bg-slate-950/90 p-3.5 shadow-2xl backdrop-blur-md text-[11px] font-mono text-slate-200 max-w-sm">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+              <Bug className="h-3.5 w-3.5" /> Gateway Debug Telemetry
+            </div>
+            <button
+              onClick={() => setShowDebugPanel(!showDebugPanel)}
+              className="text-slate-400 hover:text-white"
+            >
+              {showDebugPanel ? 'Hide' : 'Show'}
+            </button>
+          </div>
 
-      {/* Entry Transition Overlay */}
-      <AnimatePresence>
-        {selectedPortal && (
-          <motion.div 
-            className="absolute inset-0 z-50 pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.55 }}
-            style={{ backgroundColor: selectedPortal === 'b2c' ? (isLight ? '#fafafa' : '#140b1e') : (isLight ? '#f1f3f6' : '#0b0f19') }}
-          />
-        )}
-      </AnimatePresence>
+          {showDebugPanel && (
+            <div className="space-y-1.5 text-[10px]">
+              <div>
+                <span className="text-slate-500">Input Weather:</span> {simulation?.temperature || 34}°C / Apparent {simulation?.apparentTemperature || 38}°C | Rain: {simulation?.rain || 0}mm | PM10: {simulation?.pm10 || 45} | Wind: {simulation?.windSpeed || 15} km/h
+              </div>
+              <div>
+                <span className="text-slate-500">Matched Rule:</span>{' '}
+                <span className="text-amber-300 font-semibold">{resolvedWeatherState.matchedRule ? resolvedWeatherState.matchedRule.name : 'Default Rule'}</span>
+                {resolvedWeatherState.matchedRule && (
+                  <span> (Priority #{resolvedWeatherState.matchedRule.priority} / Blend {resolvedWeatherState.matchedRule.blendIntensity})</span>
+                )}
+              </div>
+              <div>
+                <span className="text-slate-500">Atmosphere Preset:</span>{' '}
+                <span className="text-emerald-300 font-bold">{resolvedWeatherState.presetType.toUpperCase()}</span>
+              </div>
+              <div>
+                <span className="text-slate-500">Physics Targets:</span> Water {resolvedWeatherState.waterHeight}% (Max 40%) | Sand {resolvedWeatherState.sandHeight}% (Max 30%)
+              </div>
+              <div>
+                <span className="text-slate-500">Capabilities:</span> Tier {simulation?.capabilityTier || 'cinematic'} | WebGL {simulation?.webglAvailable ? 'ON' : 'OFF'} | Reduced Motion {simulation?.reducedMotion ? 'ON' : 'OFF'}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
