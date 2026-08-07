@@ -89,8 +89,85 @@ export type AtmosphereRendererType =
   | 'fog'
   | 'dust'
   | 'sandstorm'
+  | 'snow'
   | 'static-fallback'
   | 'lego-modular';
+
+export type GatewayGlobalMode = 'LIVE_DOHA' | 'MANUAL_OVERRIDE' | 'CUSTOM_CAMPAIGN';
+
+export type CampaignAnimationBehavior =
+  | 'fall_like_rain'
+  | 'fall_like_snow'
+  | 'drift_in_wind'
+  | 'float'
+  | 'orbit'
+  | 'assemble'
+  | 'build'
+  | 'scatter'
+  | 'burst'
+  | 'bounce'
+  | 'slide'
+  | 'swirl'
+  | 'accumulate_at_bottom'
+  | 'follow_cursor'
+  | 'scroll_reactive'
+  | 'pulse'
+  | 'slow_rotate'
+  | 'static';
+
+export interface GatewayLogoItem {
+  url: string;
+  altEn: string;
+  altAr: string;
+  type: 'image' | 'svg';
+  width?: number;
+  height?: number;
+}
+
+export interface GatewayLogos {
+  mainLogo: GatewayLogoItem;
+  lightLogo: GatewayLogoItem;
+  darkLogo: GatewayLogoItem;
+  mobileLogo: GatewayLogoItem;
+  campaignLogo: GatewayLogoItem;
+  favicon?: GatewayLogoItem;
+}
+
+export interface CampaignElement {
+  id: string;
+  name: string;
+  assetUrl: string;
+  assetType: 'image' | 'video' | 'transparent_png' | 'svg' | 'glb' | 'spline' | 'particle' | 'audio';
+  animationBehavior: CampaignAnimationBehavior;
+  density: 'low' | 'medium' | 'high';
+  speed: number;
+  scale: number;
+  rotation: number;
+  opacity: number;
+  depthLayer: 'background' | 'behind_content' | 'foreground_overlay';
+  mobileMultiplier: number;
+  accumulationEnabled: boolean;
+  maxAccumulation: number;
+  interactionEnabled: boolean;
+  weatherResponse: 'blend' | 'replace' | 'override' | 'ignore';
+  startDelay: number;
+  loop: boolean;
+}
+
+export interface CampaignAssetPlaceholders {
+  logo?: MediaHolderConfig;
+  backgroundImage?: MediaHolderConfig;
+  backgroundVideo?: MediaHolderConfig;
+  foregroundTransparentImage?: MediaHolderConfig;
+  svgElement?: MediaHolderConfig;
+  glbObject?: MediaHolderConfig;
+  splineScene?: MediaHolderConfig;
+  particleElement?: MediaHolderConfig;
+  audio?: MediaHolderConfig;
+  poster?: MediaHolderConfig;
+  mobileFallback?: MediaHolderConfig;
+  reducedMotionFallback?: MediaHolderConfig;
+}
 
 export interface GatewayExperienceConfig {
   systemEnabled: boolean;
@@ -174,10 +251,13 @@ export interface GatewayCampaignItem {
   ctaTextAr?: string;
   ctaUrl?: string;
   weatherBlendMode: 'OVERRIDE' | 'BLEND' | 'DISABLE_WEATHER';
+  weatherBlendChoice?: 'campaign_only' | 'weather_only' | 'blend_with_weather' | 'weather_as_background' | 'replace_weather_particles' | 'campaign_foreground_only';
   animationIntensity: number;
   emergencyDisable: boolean;
   bannerUrl?: string;
   media3dUrl?: string;
+  elements?: CampaignElement[];
+  assetHolders?: CampaignAssetPlaceholders;
 }
 
 export interface GatewayAnnouncementItem {
@@ -251,6 +331,19 @@ export interface GatewayCustomizationPayload {
   b2cMobileMedia: MediaHolderConfig;
   b2bDesktopMedia: MediaHolderConfig;
   b2bMobileMedia: MediaHolderConfig;
+  gatewayDesktopBackgroundMedia?: MediaHolderConfig;
+  gatewayMobileBackgroundMedia?: MediaHolderConfig;
+  staticFallbackMedia?: MediaHolderConfig;
+  reducedMotionFallbackMedia?: MediaHolderConfig;
+  logos?: GatewayLogos;
+  globalMode?: GatewayGlobalMode;
+  manualOverride?: {
+    scenePreset: AtmosphereRendererType;
+    intensity: 'low' | 'medium' | 'high';
+    startAt?: string;
+    endAt?: string;
+    portalScope?: 'BOTH' | 'B2B' | 'B2C';
+  };
   visual: GatewayVisualSettings;
   seoAccess: GatewaySeoAccess;
   status: 'DRAFT' | 'PUBLISHED';
@@ -268,6 +361,19 @@ export interface GatewayCustomizationPayload {
 }
 
 export const DEFAULT_GATEWAY_CMS_PAYLOAD: GatewayCustomizationPayload = {
+  globalMode: 'LIVE_DOHA',
+  logos: {
+    mainLogo: { url: '/images/logo.svg', altEn: 'E3 Qatar Logo', altAr: 'شعار إي ثري قطر', type: 'svg' },
+    lightLogo: { url: '/images/logo-light.svg', altEn: 'E3 Qatar Light Logo', altAr: 'شعار إi ثري قطر - فاتح', type: 'svg' },
+    darkLogo: { url: '/images/logo-dark.svg', altEn: 'E3 Qatar Dark Logo', altAr: 'شعار إي ثري قطر - داكن', type: 'svg' },
+    mobileLogo: { url: '/images/logo-mobile.svg', altEn: 'E3 Mobile Logo', altAr: 'شعار الجوال', type: 'svg' },
+    campaignLogo: { url: '/images/campaign-logo.png', altEn: 'Campaign World Logo', altAr: 'شعار العالم التفاعلي', type: 'image' },
+  },
+  manualOverride: {
+    scenePreset: 'rain',
+    intensity: 'medium',
+    portalScope: 'BOTH',
+  },
   english: {
     eyebrowEn: 'E3 QATAR PLATFORM GATEWAY',
     headlineEn: 'WE BUILD EXPERIENCES',

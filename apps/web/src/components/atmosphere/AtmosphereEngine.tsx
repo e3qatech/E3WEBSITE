@@ -174,6 +174,33 @@ export function AtmosphereEngine({
             p.y = Math.random() * height;
           }
         });
+      } else if (rendererType === 'snow') {
+        ctx.fillStyle = "rgba(240, 249, 255, 0.85)";
+        particles.forEach((p) => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 1.2, 0, Math.PI * 2);
+          ctx.fill();
+          p.y += p.speed * 0.4;
+          p.x += Math.sin(frameCount * 0.03 + p.waveOffset) * 1.5;
+          if (p.y > height) {
+            p.y = -10;
+            p.x = Math.random() * width;
+          }
+        });
+      } else if (rendererType === 'wind') {
+        ctx.strokeStyle = "rgba(226, 232, 240, 0.25)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        particles.forEach((p) => {
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x + 35, p.y + Math.sin(frameCount * 0.05 + p.waveOffset) * 4);
+          p.x += p.speed * 1.8;
+          if (p.x > width) {
+            p.x = -40;
+            p.y = Math.random() * height;
+          }
+        });
+        ctx.stroke();
       }
 
       // 5. WATER ACCUMULATION LEVEL (CAPPED <= 40%)

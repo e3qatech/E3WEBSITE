@@ -120,9 +120,11 @@ export function PortalGateway({
 
     let presetType: AtmosphereRendererType = matchedRule ? matchedRule.presetId : 'clear-day';
     if (!matchedRule) {
-      if (!simulation.isDay) presetType = 'night';
+      if (simulation.temperature <= 0) presetType = 'snow';
+      else if (!simulation.isDay) presetType = 'night';
       else if (simulation.temperature >= 38) presetType = 'heat';
       else if (simulation.rain > 0.5) presetType = 'rain';
+      else if (simulation.windSpeed >= 35) presetType = 'wind';
     }
 
     const matchedPreset = presets.find((p) => p.rendererType === presetType) || null;
