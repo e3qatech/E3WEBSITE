@@ -11,6 +11,8 @@ const ModelViewer = dynamic(() => import('./ModelViewer'), {
   loading: () => <div className="absolute inset-0 flex items-center justify-center bg-zinc-950"><span className="text-white/50">Loading 3D Experience...</span></div>
 });
 
+import { B2CSceneHost } from '@/components/b2c/runtime/B2CExperienceRuntime';
+
 interface HeroViewerProps {
   title: string;
   tagline?: string;
@@ -21,6 +23,7 @@ interface HeroViewerProps {
   logoUrl?: string | null;
   ctaText?: string;
   ctaLink?: string;
+  motionPreset?: string;
 }
 
 const extractUrl = (raw: string | null | undefined) => {
@@ -32,7 +35,7 @@ const extractUrl = (raw: string | null | undefined) => {
   return raw;
 };
 
-export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl, ctaText, ctaLink }: HeroViewerProps) {
+export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl, ctaText, ctaLink, motionPreset = 'MEDIA_CINEMATIC' }: HeroViewerProps) {
   const [mediaError, setMediaError] = React.useState(false);
   
   const currentMediaUrl = mediaError && fallbackUrl ? fallbackUrl : mediaUrl;
@@ -40,6 +43,9 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
 
   return (
     <section className="relative w-full h-[100vh] overflow-hidden bg-zinc-950 flex items-center justify-center">
+      {/* Ambient B2C Motion Preset Signature Layer */}
+      <B2CSceneHost preset={motionPreset} colorAccent="#10b981" />
+
       {/* Background Media */}
       <div className="absolute inset-0 z-0">
         {currentMediaType === 'IMAGE' && currentMediaUrl && (

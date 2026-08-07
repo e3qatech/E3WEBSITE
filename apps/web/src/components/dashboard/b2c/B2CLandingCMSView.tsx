@@ -45,6 +45,14 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
       buttonTextAr: initialData?.careersCta?.buttonTextAr || "",
       buttonUrl: initialData?.careersCta?.buttonUrl || ""
     },
+    motion: {
+      motionEnabled: initialData?.motion?.motionEnabled ?? true,
+      motionPreset: initialData?.motion?.motionPreset || "MEDIA_CINEMATIC",
+      motionIntensity: initialData?.motion?.motionIntensity || "MEDIUM",
+      heroSceneType: initialData?.motion?.heroSceneType || "CINEMATIC_MEDIA",
+      particleDensity: initialData?.motion?.particleDensity || 50,
+      ctaEmphasisStyle: initialData?.motion?.ctaEmphasisStyle || "SHIMMER",
+    },
     faqs: initialData?.faqs || [],
     footer: {
       mediaType: initialData?.footer?.mediaType || "IMAGE",
@@ -393,6 +401,43 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                   accept={data.footer.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
                 />
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Motion & Experience Controls */}
+        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-bold text-text-primary">Motion & Experience Settings</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Motion Preset</label>
+              <select
+                value={data.motion.motionPreset}
+                onChange={(e) => setData({ ...data, motion: { ...data.motion, motionPreset: e.target.value } })}
+                className="w-full bg-surface-hover border border-border-default text-text-primary rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              >
+                <option value="MEDIA_CINEMATIC">MEDIA_CINEMATIC</option>
+                <option value="SOFT_BODY">SOFT_BODY</option>
+                <option value="KINETIC_GRID">KINETIC_GRID</option>
+                <option value="ROAD_NETWORK">ROAD_NETWORK</option>
+                <option value="SPATIAL_PORTAL">SPATIAL_PORTAL</option>
+                <option value="PARTICLE_WORLD">PARTICLE_WORLD</option>
+                <option value="LIGHT_TRAILS">LIGHT_TRAILS</option>
+                <option value="STATIC_PREMIUM">STATIC_PREMIUM</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Motion Intensity</label>
+              <select
+                value={data.motion.motionIntensity}
+                onChange={(e) => setData({ ...data, motion: { ...data.motion, motionIntensity: e.target.value } })}
+                className="w-full bg-surface-hover border border-border-default text-text-primary rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              >
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+              </select>
             </div>
           </div>
         </div>
