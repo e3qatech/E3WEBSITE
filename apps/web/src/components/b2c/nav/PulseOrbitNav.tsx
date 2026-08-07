@@ -88,10 +88,27 @@ const DESTINATIONS: NavDestination[] = [
   },
 ];
 
-export function PulseOrbitNav({ locale = 'en' }: { locale?: string }) {
+export function PulseOrbitNav({
+  locale = 'en',
+  customerLabelEn = 'Customer',
+  customerLabelAr = 'الزائر',
+  organizerLabelEn = 'Organizer',
+  organizerLabelAr = 'المنظّم',
+  customerUrl = '/b2c',
+  organizerUrl = '/b2b',
+}: {
+  locale?: string;
+  customerLabelEn?: string;
+  customerLabelAr?: string;
+  organizerLabelEn?: string;
+  organizerLabelAr?: string;
+  customerUrl?: string;
+  organizerUrl?: string;
+}) {
   const pathname = usePathname();
   const { trackTelemetry } = useB2CExperience();
   const isAr = locale === 'ar';
+  const isB2C = pathname?.includes('/b2c') || !pathname?.includes('/b2b');
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -137,25 +154,55 @@ export function PulseOrbitNav({ locale = 'en' }: { locale?: string }) {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
           {/* Logo & Portal Branding */}
-          <Link
-            href={`/${locale}`}
-            className="flex items-center gap-3 group"
-            onClick={() => setMenuOpen(false)}
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 p-0.5 shadow-lg shadow-emerald-950 group-hover:scale-105 transition-transform">
-              <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-950">
-                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 text-lg">E3</span>
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/${locale}`}
+              className="flex items-center gap-3 group"
+              onClick={() => setMenuOpen(false)}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 p-0.5 shadow-lg shadow-emerald-950 group-hover:scale-105 transition-transform">
+                <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-950">
+                  <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 text-lg">E3</span>
+                </div>
               </div>
-            </div>
-            <div>
-              <span className="font-extrabold tracking-tight text-white text-base block leading-none">
-                E3 PULSE
-              </span>
-              <span className="text-[10px] font-mono text-emerald-400 tracking-wider uppercase">
-                {isAr ? 'قطر للتجارب' : 'QATAR PORTAL'}
-              </span>
-            </div>
-          </Link>
+              <div>
+                <span className="font-extrabold tracking-tight text-white text-base block leading-none">
+                  {isB2C ? 'E3 PULSE' : 'E3 ATELIER'}
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 tracking-wider uppercase">
+                  {isAr ? (isB2C ? 'قطر للتجارب' : 'قطر للفعاليات') : (isB2C ? 'QATAR PORTAL' : 'ORGANIZER PORTAL')}
+                </span>
+              </div>
+            </Link>
+
+            {/* CUSTOMER / ORGANIZER PORTAL MODE SWITCHER */}
+            <nav className="flex items-center gap-1 p-1 rounded-full border border-slate-800 bg-slate-900/90 backdrop-blur-md min-h-[44px]">
+              <Link
+                href={`/${locale}${customerUrl}`}
+                aria-current={isB2C ? 'page' : undefined}
+                className={cn(
+                  'flex items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-extrabold transition-all min-h-[44px] cursor-pointer select-none',
+                  isB2C
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-rose-500/20 text-cyan-400 border border-cyan-500/30 shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                )}
+              >
+                {isAr ? customerLabelAr : customerLabelEn}
+              </Link>
+              <Link
+                href={`/${locale}${organizerUrl}`}
+                aria-current={!isB2C ? 'page' : undefined}
+                className={cn(
+                  'flex items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-extrabold transition-all min-h-[44px] cursor-pointer select-none',
+                  !isB2C
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-amber-500/20 text-emerald-400 border border-emerald-500/30 shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                )}
+              >
+                {isAr ? organizerLabelAr : organizerLabelEn}
+              </Link>
+            </nav>
+          </div>
 
           {/* Desktop Links (Resting State) */}
           <nav className="hidden md:flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/60 p-1.5 backdrop-blur-md">
@@ -180,22 +227,33 @@ export function PulseOrbitNav({ locale = 'en' }: { locale?: string }) {
 
           {/* Action CTAs & Orbit Menu Trigger */}
           <div className="flex items-center gap-3">
+            {!isB2C && (
+              <Link
+                href={`/${locale}/login/business`}
+                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-extrabold text-amber-400 hover:bg-amber-500/20 transition-all min-h-[44px]"
+              >
+                <span>{isAr ? 'تسجيل دخول المنظم' : 'Organizer Login'}</span>
+              </Link>
+            )}
+
             {/* Quick Ticket CTA */}
-            <Link
-              href={`/${locale}/b2c/tickets`}
-              className="hidden sm:flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-lg shadow-emerald-950 hover:opacity-95 transition-opacity"
-              onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header' })}
-            >
-              <Ticket className="h-4 w-4" />
-              <span>{isAr ? 'احجز التذاكر' : 'BOOK TICKETS'}</span>
-            </Link>
+            {isB2C && (
+              <Link
+                href={`/${locale}/b2c/tickets`}
+                className="hidden sm:flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-lg shadow-emerald-950 hover:opacity-95 transition-opacity min-h-[44px]"
+                onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header' })}
+              >
+                <Ticket className="h-4 w-4" />
+                <span>{isAr ? 'احجز التذاكر' : 'BOOK TICKETS'}</span>
+              </Link>
+            )}
 
             {/* Menu Trigger Button */}
             <button
               onClick={toggleMenu}
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
-              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px]"
             >
               {menuOpen ? <X className="h-4 w-4 text-rose-400" /> : <MenuIcon className="h-4 w-4 text-emerald-400" />}
               <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? 'القائمة' : 'PULSE ORBIT')}</span>

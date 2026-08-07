@@ -41,6 +41,12 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [heroThumbnailUrl, setHeroThumbnailUrl] = useState(initialData?.heroThumbnailUrl || "")
   const [logoUrl, setLogoUrl] = useState(initialData?.logoUrl || "")
 
+  // Motion & Experience Settings
+  const [motionPreset, setMotionPreset] = useState(initialData?.motionPreset || "MEDIA_CINEMATIC")
+  const [motionIntensity, setMotionIntensity] = useState(initialData?.motionIntensity || "MEDIUM")
+  const [heroSceneType, setHeroSceneType] = useState(initialData?.heroSceneType || "CINEMATIC_MEDIA")
+  const [particleDensity, setParticleDensity] = useState(initialData?.particleDensity || 50)
+
   // 3. What&apos;s Inside (Features)
   const [features, setFeatures] = useState<any[]>(
     Array.isArray(initialData?.features) ? initialData.features : []
@@ -127,6 +133,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
         nameEn, nameAr, slug, taglineEn, taglineAr, descriptionEn, descriptionAr,
         isPublished, isFeatured, isHidden,
         heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl, logoUrl,
+        motionPreset, motionIntensity, heroSceneType, particleDensity,
         features,
         pricing,
         partnerOffers, partners,
@@ -159,6 +166,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const tabs = [
     { id: "general", label: "Core Details", icon: Settings },
     { id: "hero", label: "Hero Media", icon: ImageIcon },
+    { id: "motion", label: "Motion & Experience", icon: Settings },
     { id: "features", label: "What&apos;s Inside", icon: List },
     { id: "pricing", label: "Pricing & Tickets", icon: DollarSign },
     { id: "partners", label: "Partners", icon: Users },
@@ -385,6 +393,73 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                     <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Attraction Logo URL</label>
                     <MediaUploader value={logoUrl} onChange={setLogoUrl} />
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* 3. MOTION & EXPERIENCE */}
+          {activeTab === "motion" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <h2 className="text-lg font-black mb-6">Motion & Experience Settings</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Motion Preset</label>
+                  <select
+                    value={motionPreset}
+                    onChange={e => setMotionPreset(e.target.value)}
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                  >
+                    <option value="MEDIA_CINEMATIC">MEDIA_CINEMATIC</option>
+                    <option value="SOFT_BODY">SOFT_BODY</option>
+                    <option value="KINETIC_GRID">KINETIC_GRID</option>
+                    <option value="ROAD_NETWORK">ROAD_NETWORK</option>
+                    <option value="SPATIAL_PORTAL">SPATIAL_PORTAL</option>
+                    <option value="PARTICLE_WORLD">PARTICLE_WORLD</option>
+                    <option value="LIGHT_TRAILS">LIGHT_TRAILS</option>
+                    <option value="STATIC_PREMIUM">STATIC_PREMIUM</option>
+                    <option value="OBJECT_REVEAL">OBJECT_REVEAL</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Motion Intensity</label>
+                  <select
+                    value={motionIntensity}
+                    onChange={e => setMotionIntensity(e.target.value)}
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                  >
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HIGH">HIGH</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hero Scene Type</label>
+                  <select
+                    value={heroSceneType}
+                    onChange={e => setHeroSceneType(e.target.value)}
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                  >
+                    <option value="CINEMATIC_MEDIA">CINEMATIC_MEDIA</option>
+                    <option value="DEPTH_WORLD">DEPTH_WORLD</option>
+                    <option value="PARTICLE_WORLD">PARTICLE_WORLD</option>
+                    <option value="OBJECT_REVEAL">OBJECT_REVEAL</option>
+                    <option value="SPATIAL_PORTAL">SPATIAL_PORTAL</option>
+                    <option value="STATIC_PREMIUM">STATIC_PREMIUM</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Particle Density ({particleDensity})</label>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    value={particleDensity}
+                    onChange={e => setParticleDensity(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
                 </div>
               </div>
             </div>
