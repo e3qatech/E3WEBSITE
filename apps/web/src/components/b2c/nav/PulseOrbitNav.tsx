@@ -89,6 +89,7 @@ const DESTINATIONS: NavDestination[] = [
 ];
 
 import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
+import { E3Logo } from '@/components/shared/E3Logo';
 
 export function PulseOrbitNav({
   locale = 'en',
@@ -143,6 +144,31 @@ export function PulseOrbitNav({
     }
   };
 
+  const toggleLanguage = () => {
+    const targetLocale = isAr ? 'en' : 'ar';
+    document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    let newPath = pathname || `/${locale}`;
+    if (newPath.startsWith('/ar/')) {
+      newPath = newPath.replace('/ar/', `/${targetLocale}/`);
+    } else if (newPath.startsWith('/en/')) {
+      newPath = newPath.replace('/en/', `/${targetLocale}/`);
+    } else if (newPath === '/ar' || newPath === '/en') {
+      newPath = `/${targetLocale}/b2c`;
+    } else {
+      newPath = `/${targetLocale}${newPath}`;
+    }
+    window.location.href = newPath;
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setCurrentTheme(nextTheme);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem('theme', nextTheme);
+    }
+  };
+
   return (
     <>
       {/* DESKTOP & MOBILE HEADER BAR */}
@@ -155,26 +181,14 @@ export function PulseOrbitNav({
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-          {/* Logo & Portal Branding */}
+          {/* Company Logo & Portal Mode Switcher */}
           <div className="flex items-center gap-4">
             <Link
               href={`/${locale}`}
-              className="flex items-center gap-3 group"
+              className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 p-0.5 shadow-lg shadow-emerald-950 group-hover:scale-105 transition-transform">
-                <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-950">
-                  <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 text-lg">E3</span>
-                </div>
-              </div>
-              <div>
-                <span className="font-extrabold tracking-tight text-white text-base block leading-none">
-                  {isB2C ? 'E3 PULSE' : 'E3 ATELIER'}
-                </span>
-                <span className="text-[10px] font-mono text-emerald-400 tracking-wider uppercase">
-                  {isAr ? (isB2C ? 'قطر للتجارب' : 'قطر للفعاليات') : (isB2C ? 'QATAR PORTAL' : 'ORGANIZER PORTAL')}
-                </span>
-              </div>
+              <E3Logo isLight={currentTheme === 'light'} showText={true} size="md" />
             </Link>
 
             {/* SHARED PORTAL MODE SWITCHER */}
@@ -211,7 +225,27 @@ export function PulseOrbitNav({
           </nav>
 
           {/* Action CTAs & Orbit Menu Trigger */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Language Section Tab in Main Menu Bar */}
+            <button
+              onClick={toggleLanguage}
+              className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px] cursor-pointer"
+              title={isAr ? 'Switch to English' : 'التغيير إلى العربية'}
+            >
+              <Globe className="h-3.5 w-3.5 text-sky-400" />
+              <span className="font-extrabold uppercase">{isAr ? 'English' : 'العربية'}</span>
+            </button>
+
+            {/* Theme Toggle Button in Main Menu Bar */}
+            <button
+              onClick={toggleTheme}
+              className="hidden sm:flex items-center justify-center p-2.5 rounded-full border border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px] w-[44px] cursor-pointer"
+              aria-label="Toggle Theme"
+              title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
+            </button>
+
             {!isB2C && (
               <Link
                 href={`/${locale}/login/business`}
@@ -238,7 +272,7 @@ export function PulseOrbitNav({
               onClick={toggleMenu}
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
-              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px]"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px] cursor-pointer"
             >
               {menuOpen ? <X className="h-4 w-4 text-rose-400" /> : <MenuIcon className="h-4 w-4 text-emerald-400" />}
               <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? 'القائمة' : 'PULSE ORBIT')}</span>
