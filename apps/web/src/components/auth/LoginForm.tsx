@@ -81,9 +81,9 @@ export function LoginForm({ config, locale }: LoginFormProps) {
       // 4. Calculate authorized landing route
       let destination = getAuthorizedLandingRoute(sessionData.user, locale);
       if (userRole === 'SUPER_ADMIN' && config.portalKey === 'admin') {
-        if (activeWorkspace === 'b2b') destination = `/dashboard/b2b`;
-        else if (activeWorkspace === 'b2c') destination = `/dashboard/b2c`;
-        else destination = `/dashboard`;
+        if (activeWorkspace === 'b2b') destination = `/${locale}/dashboard/b2b`;
+        else if (activeWorkspace === 'b2c') destination = `/${locale}/dashboard/b2c`;
+        else destination = `/${locale}/dashboard`;
       }
 
       // 5. Sanitize callbackUrl if provided
