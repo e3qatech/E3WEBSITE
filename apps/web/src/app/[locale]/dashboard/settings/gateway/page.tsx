@@ -8,6 +8,7 @@ import {
   GatewayWeatherRule,
   GatewayContentEn,
   GatewayContentAr,
+  PreviewSimulationState,
 } from '@/types/gateway-cms';
 import { PortalGateway } from '@/components/home/PortalGateway';
 import {
@@ -33,6 +34,7 @@ import {
   Trash2,
   Wind,
   Compass,
+  RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -77,34 +79,45 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'versions', label: '18. Versions & Publishing', icon: History },
 ];
 
+const DEFAULT_SIMULATION_STATE: PreviewSimulationState = {
+  temperature: 34,
+  apparentTemperature: 38,
+  precipitation: 0,
+  rain: 0,
+  windSpeed: 18,
+  windGusts: 24,
+  windDirection: 45,
+  visibility: 10,
+  pm10: 45,
+  pm25: 20,
+  cloudCover: 10,
+  isDay: true,
+  weatherCode: 0,
+  heavyRainOverride: false,
+  selectedCampaignId: 'c-1',
+  selectedAnnouncementId: 'a-1',
+  locale: 'en',
+  theme: 'dark',
+  viewport: 'desktop-1440',
+  capabilityTier: 'cinematic',
+  reducedMotion: false,
+  webglAvailable: true,
+  weatherApiAvailable: true,
+  emergencyDisable: false,
+};
+
 export default function GatewayCustomizationPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [formData, setFormData] = useState<GatewayCustomizationPayload>(DEFAULT_GATEWAY_CMS_PAYLOAD);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [fetchingLiveWeather, setFetchingLiveWeather] = useState(false);
   const [versions, setVersions] = useState<any[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Simulator Controls State
-  const [simTemp, setSimTemp] = useState<number>(34);
-  const [simApparentTemp, setSimApparentTemp] = useState<number>(38);
-  const [simRain, setSimRain] = useState<number>(0);
-  const [simHeavyRain, setSimHeavyRain] = useState<boolean>(false);
-  const [simWind, setSimWind] = useState<number>(18);
-  const [simGust, setSimGust] = useState<number>(24);
-  const [simPm10, setSimPm10] = useState<number>(45);
-  const [simPm25, setSimPm25] = useState<number>(20);
-  const [simVisibility, setSimVisibility] = useState<number>(10);
-  const [simIsDay, setSimIsDay] = useState<boolean>(true);
-  const [simDevice, setSimDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const [simLocale, setSimLocale] = useState<'en' | 'ar'>('en');
-  const [simTheme, setSimTheme] = useState<'dark' | 'light'>('dark');
-  const [simTier, setSimTier] = useState<'cinematic' | 'balanced' | 'lightweight'>('cinematic');
-  const [simReducedMotion, setSimReducedMotion] = useState<boolean>(false);
-  const [simWebGlUnavailable, setSimWebGlUnavailable] = useState<boolean>(false);
-  const [simApiUnavailable, setSimApiUnavailable] = useState<boolean>(false);
-  const [simActiveCampaignId, setSimActiveCampaignId] = useState<string>('c-1');
+  // TYPED PREVIEW SIMULATION STATE
+  const [simState, setSimState] = useState<PreviewSimulationState>(DEFAULT_SIMULATION_STATE);
 
   const showToast = React.useCallback((message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -201,6 +214,29 @@ export default function GatewayCustomizationPage() {
     }
   };
 
+  const handleFetchCurrentLiveWeather = async () => {
+    try {
+      setFetchingLiveWeather(true);
+      const res = await fetch('/api/weather');
+      const json = await res.json();
+      if (json && json.temperature !== undefined) {
+        setSimState((prev) => ({
+          ...prev,
+          temperature: json.temperature || 32,
+          apparentTemperature: (json.temperature || 32) + 4,
+          rain: json.precipitation || 0,
+          isDay: json.isDay ?? true,
+          weatherApiAvailable: true,
+        }));
+        showToast('Fetched real live Doha weather data!', 'success');
+      }
+    } catch (_e) {
+      showToast('Failed to fetch live weather, falling back to simulated values.', 'error');
+    } finally {
+      setFetchingLiveWeather(false);
+    }
+  };
+
   const updateEnglishState = (field: keyof GatewayContentEn, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -242,16 +278,65 @@ export default function GatewayCustomizationPage() {
     });
   };
 
-  // Helper for dynamic preset computed in simulator
-  const activePresetType: AtmosphereRendererType = React.useMemo(() => {
-    if (simWebGlUnavailable || simApiUnavailable || simReducedMotion) return 'static-fallback';
-    if (simRain >= 5 || simHeavyRain) return 'heavy-rain';
-    if (simRain > 0.5) return 'rain';
-    if (simPm10 >= 100 || simGust >= 38) return 'sandstorm';
-    if (simApparentTemp >= 38) return 'heat';
-    if (!simIsDay) return 'night';
-    return 'clear-day';
-  }, [simWebGlUnavailable, simApiUnavailable, simReducedMotion, simRain, simHeavyRain, simPm10, simGust, simApparentTemp, simIsDay]);
+  const updateSimState = (field: keyof PreviewSimulationState, value: any) => {
+    setSimState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Quick preset loader function for simulator buttons
+  const applyPreset = (name: string) => {
+    switch (name) {
+      case 'clear-day':
+        setSimState((prev) => ({ ...prev, temperature: 28, apparentTemperature: 30, rain: 0, pm10: 20, isDay: true, heavyRainOverride: false, webglAvailable: true }));
+        break;
+      case 'extreme-heat':
+        setSimState((prev) => ({ ...prev, temperature: 45, apparentTemperature: 49, rain: 0, pm10: 40, isDay: true, heavyRainOverride: false }));
+        break;
+      case 'rain':
+        setSimState((prev) => ({ ...prev, temperature: 22, apparentTemperature: 22, rain: 2.5, pm10: 15, isDay: true, heavyRainOverride: false }));
+        break;
+      case 'heavy-rain':
+        setSimState((prev) => ({ ...prev, temperature: 20, apparentTemperature: 20, rain: 8.0, pm10: 10, isDay: false, heavyRainOverride: true }));
+        break;
+      case 'dust-storm':
+        setSimState((prev) => ({ ...prev, temperature: 32, apparentTemperature: 34, rain: 0, pm10: 120, windSpeed: 30, isDay: true }));
+        break;
+      case 'sandstorm':
+        setSimState((prev) => ({ ...prev, temperature: 36, apparentTemperature: 38, rain: 0, pm10: 210, windGusts: 52, windSpeed: 38, isDay: true }));
+        break;
+      case 'high-wind':
+        setSimState((prev) => ({ ...prev, windSpeed: 45, windGusts: 65 }));
+        break;
+      case 'fog':
+        setSimState((prev) => ({ ...prev, visibility: 0.8, temperature: 18, rain: 0 }));
+        break;
+      case 'night':
+        setSimState((prev) => ({ ...prev, isDay: false, temperature: 24, apparentTemperature: 25 }));
+        break;
+      case 'campaign':
+        setSimState((prev) => ({ ...prev, selectedCampaignId: 'c-1' }));
+        break;
+      case 'campaign-rain':
+        setSimState((prev) => ({ ...prev, selectedCampaignId: 'c-1', rain: 6.0 }));
+        break;
+      case 'campaign-sandstorm':
+        setSimState((prev) => ({ ...prev, selectedCampaignId: 'c-1', pm10: 180, windGusts: 48 }));
+        break;
+      case 'api-failure':
+        setSimState((prev) => ({ ...prev, weatherApiAvailable: false }));
+        break;
+      case 'webgl-failure':
+        setSimState((prev) => ({ ...prev, webglAvailable: false }));
+        break;
+      case 'reduced-motion':
+        setSimState((prev) => ({ ...prev, reducedMotion: true }));
+        break;
+      case 'mobile-lightweight':
+        setSimState((prev) => ({ ...prev, viewport: 'mobile-390', capabilityTier: 'lightweight' }));
+        break;
+      default:
+        break;
+    }
+  };
 
   if (loading) {
     return (
@@ -603,53 +688,6 @@ export default function GatewayCustomizationPage() {
           </div>
         )}
 
-        {/* TAB 4: ATMOSPHERE PRESETS */}
-        {activeTab === 'atmosphere' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Atmosphere Preset Configurator</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {formData.atmospherePresets?.map((preset, idx) => (
-                <div key={preset.id} className="space-y-3 rounded-lg border border-slate-800 bg-slate-950 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-emerald-400">{preset.labelEn}</span>
-                    <span className="text-xs text-slate-500">[{preset.rendererType}]</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <label className="text-slate-500">Particle Count</label>
-                      <input
-                        type="number"
-                        value={preset.particleCount}
-                        onChange={(e) => {
-                          const updated = [...(formData.atmospherePresets || [])];
-                          updated[idx].particleCount = parseInt(e.target.value);
-                          setFormData((prev) => ({ ...prev, atmospherePresets: updated }));
-                        }}
-                        className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-slate-500">Speed</label>
-                      <input
-                        type="number"
-                        step="0.5"
-                        value={preset.particleSpeed}
-                        onChange={(e) => {
-                          const updated = [...(formData.atmospherePresets || [])];
-                          updated[idx].particleSpeed = parseFloat(e.target.value);
-                          setFormData((prev) => ({ ...prev, atmospherePresets: updated }));
-                        }}
-                        className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* TAB 6: RAIN & WATER */}
         {activeTab === 'rain_water' && (
           <div className="space-y-6">
@@ -726,61 +764,97 @@ export default function GatewayCustomizationPage() {
           </div>
         )}
 
-        {/* TAB 10: CAMPAIGNS */}
-        {activeTab === 'campaigns' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Campaign & World Takeover Manager</h2>
-
-            <div className="space-y-4">
-              {formData.campaigns?.map((camp) => (
-                <div key={camp.id} className="space-y-3 rounded-lg border border-slate-800 bg-slate-950 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-amber-400">{camp.titleEn}</span>
-                    <span className="rounded bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300">{camp.priority}</span>
-                  </div>
-
-                  <p className="text-xs text-slate-400">{camp.descriptionEn}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* TAB 17: PREVIEW SIMULATOR */}
         {activeTab === 'simulator' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Interactive Living Threshold Preview Simulator</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Interactive Gateway Preview Simulator</h2>
+                <p className="text-xs text-slate-400">Live isolated environment rendering draft CMS state without publishing.</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSimState(DEFAULT_SIMULATION_STATE)}
+                  className="flex items-center gap-1.5 rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 text-amber-400" /> Reset Defaults
+                </button>
+
+                <button
+                  onClick={handleFetchCurrentLiveWeather}
+                  disabled={fetchingLiveWeather}
+                  className="flex items-center gap-1.5 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-1.5 text-xs text-sky-300 hover:bg-sky-900/60 disabled:opacity-50"
+                >
+                  <RefreshCw className={cn("h-3.5 w-3.5 text-sky-400", fetchingLiveWeather && "animate-spin")} />
+                  {fetchingLiveWeather ? 'Fetching...' : 'Use Live Doha Weather'}
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Simulator Preset Buttons */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Simulation Presets:</span>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: 'Clear Day', key: 'clear-day', color: 'bg-sky-950/60 text-sky-300 border-sky-800/50' },
+                  { label: 'Extreme Heat', key: 'extreme-heat', color: 'bg-amber-950/60 text-amber-300 border-amber-800/50' },
+                  { label: 'Rain', key: 'rain', color: 'bg-blue-950/60 text-blue-300 border-blue-800/50' },
+                  { label: 'Heavy Rain', key: 'heavy-rain', color: 'bg-indigo-950/60 text-indigo-300 border-indigo-800/50' },
+                  { label: 'Dust Storm', key: 'dust-storm', color: 'bg-yellow-950/60 text-yellow-300 border-yellow-800/50' },
+                  { label: 'Sandstorm', key: 'sandstorm', color: 'bg-orange-950/60 text-orange-300 border-orange-800/50' },
+                  { label: 'High Wind', key: 'high-wind', color: 'bg-teal-950/60 text-teal-300 border-teal-800/50' },
+                  { label: 'Fog', key: 'fog', color: 'bg-slate-800 text-slate-200 border-slate-700' },
+                  { label: 'Night Sky', key: 'night', color: 'bg-purple-950/60 text-purple-300 border-purple-800/50' },
+                  { label: 'LEGO® Campaign', key: 'campaign', color: 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50' },
+                  { label: 'Campaign + Rain', key: 'campaign-rain', color: 'bg-cyan-950/60 text-cyan-300 border-cyan-800/50' },
+                  { label: 'Campaign + Sandstorm', key: 'campaign-sandstorm', color: 'bg-orange-950/80 text-orange-200 border-orange-700' },
+                  { label: 'API Failure', key: 'api-failure', color: 'bg-rose-950/50 text-rose-300 border-rose-800' },
+                  { label: 'WebGL Failure', key: 'webgl-failure', color: 'bg-slate-900 text-slate-400 border-slate-800' },
+                  { label: 'Reduced Motion', key: 'reduced-motion', color: 'bg-zinc-800 text-zinc-300 border-zinc-700' },
+                  { label: 'Mobile Lightweight', key: 'mobile-lightweight', color: 'bg-emerald-900/40 text-emerald-200 border-emerald-700' },
+                ].map((presetBtn) => (
+                  <button
+                    key={presetBtn.key}
+                    onClick={() => applyPreset(presetBtn.key)}
+                    className={cn('rounded border px-2.5 py-1 text-xs font-medium transition-all hover:scale-105', presetBtn.color)}
+                  >
+                    {presetBtn.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Controls Column */}
               <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs">
-                <h3 className="font-semibold text-emerald-400">Weather & Condition Controls</h3>
+                <h3 className="font-semibold text-emerald-400">Weather & Physics Controls</h3>
 
                 <div>
-                  <label className="text-slate-400">Temperature ({simTemp}°C) / Apparent ({simApparentTemp}°C)</label>
+                  <label className="text-slate-400">Temperature ({simState.temperature}°C) / Apparent ({simState.apparentTemperature}°C)</label>
                   <input
                     type="range"
                     min="10"
                     max="50"
-                    value={simTemp}
+                    value={simState.temperature}
                     onChange={(e) => {
                       const t = parseInt(e.target.value);
-                      setSimTemp(t);
-                      setSimApparentTemp(t + 4);
+                      updateSimState('temperature', t);
+                      updateSimState('apparentTemperature', t + 4);
                     }}
                     className="mt-1 w-full accent-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-400">Rainfall ({simRain} mm)</label>
+                  <label className="text-slate-400">Rainfall ({simState.rain} mm)</label>
                   <input
                     type="range"
                     min="0"
                     max="20"
                     step="0.5"
-                    value={simRain}
-                    onChange={(e) => setSimRain(parseFloat(e.target.value))}
+                    value={simState.rain}
+                    onChange={(e) => updateSimState('rain', parseFloat(e.target.value))}
                     className="mt-1 w-full accent-sky-500"
                   />
                 </div>
@@ -789,52 +863,53 @@ export default function GatewayCustomizationPage() {
                   <span className="text-slate-400">Heavy Rain Override</span>
                   <input
                     type="checkbox"
-                    checked={simHeavyRain}
-                    onChange={(e) => setSimHeavyRain(e.target.checked)}
+                    checked={simState.heavyRainOverride}
+                    onChange={(e) => updateSimState('heavyRainOverride', e.target.checked)}
                     className="h-4 w-4 accent-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-400">Wind Speed ({simWind} km/h) / Gusts ({simGust} km/h)</label>
+                  <label className="text-slate-400">Wind Speed ({simState.windSpeed} km/h) / Gusts ({simState.windGusts} km/h)</label>
                   <input
                     type="range"
                     min="0"
                     max="60"
-                    value={simWind}
+                    value={simState.windSpeed}
                     onChange={(e) => {
                       const w = parseInt(e.target.value);
-                      setSimWind(w);
-                      setSimGust(w + 10);
+                      updateSimState('windSpeed', w);
+                      updateSimState('windGusts', w + 10);
                     }}
                     className="mt-1 w-full accent-cyan-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-400">PM10 Dust Level ({simPm10} µg/m³) / PM2.5 ({simPm25} µg/m³)</label>
+                  <label className="text-slate-400">PM10 Dust Level ({simState.pm10} µg/m³) / PM2.5 ({simState.pm25} µg/m³)</label>
                   <input
                     type="range"
                     min="10"
                     max="300"
-                    value={simPm10}
+                    value={simState.pm10}
                     onChange={(e) => {
                       const p = parseInt(e.target.value);
-                      setSimPm10(p);
-                      setSimPm25(Math.floor(p / 2));
+                      updateSimState('pm10', p);
+                      updateSimState('pm25', Math.floor(p / 2));
                     }}
                     className="mt-1 w-full accent-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-400">Visibility ({simVisibility} km)</label>
+                  <label className="text-slate-400">Visibility ({simState.visibility} km)</label>
                   <input
                     type="range"
-                    min="1"
+                    min="0.5"
                     max="20"
-                    value={simVisibility}
-                    onChange={(e) => setSimVisibility(parseInt(e.target.value))}
+                    step="0.5"
+                    value={simState.visibility}
+                    onChange={(e) => updateSimState('visibility', parseFloat(e.target.value))}
                     className="mt-1 w-full accent-purple-500"
                   />
                 </div>
@@ -842,10 +917,10 @@ export default function GatewayCustomizationPage() {
                 <div className="flex items-center justify-between pt-2 border-t border-slate-800">
                   <span className="text-slate-400">Time of Day</span>
                   <button
-                    onClick={() => setSimIsDay(!simIsDay)}
+                    onClick={() => updateSimState('isDay', !simState.isDay)}
                     className="rounded bg-slate-800 px-3 py-1 text-slate-200"
                   >
-                    {simIsDay ? '☀️ DAYTIME' : '🌙 NIGHTTIME'}
+                    {simState.isDay ? '☀️ DAYTIME' : '🌙 NIGHTTIME'}
                   </button>
                 </div>
 
@@ -855,8 +930,8 @@ export default function GatewayCustomizationPage() {
                     <div>
                       <label className="text-slate-500">Active Campaign</label>
                       <select
-                        value={simActiveCampaignId}
-                        onChange={(e) => setSimActiveCampaignId(e.target.value)}
+                        value={simState.selectedCampaignId || 'none'}
+                        onChange={(e) => updateSimState('selectedCampaignId', e.target.value)}
                         className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
                       >
                         <option value="none">None (Default)</option>
@@ -865,50 +940,43 @@ export default function GatewayCustomizationPage() {
                         ))}
                       </select>
                     </div>
+
                     <div>
-                      <label className="text-slate-500">Device</label>
+                      <label className="text-slate-500">Device Frame</label>
                       <select
-                        value={simDevice}
-                        onChange={(e) => setSimDevice(e.target.value as any)}
+                        value={simState.viewport}
+                        onChange={(e) => updateSimState('viewport', e.target.value as any)}
                         className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
                       >
-                        <option value="desktop">Desktop</option>
-                        <option value="tablet">Tablet</option>
-                        <option value="mobile">Mobile</option>
+                        <option value="desktop-1440">Desktop (1440px)</option>
+                        <option value="laptop-1280">Laptop (1280px)</option>
+                        <option value="tablet-768">Tablet (768px)</option>
+                        <option value="mobile-390">Mobile (390px)</option>
+                        <option value="small-mobile-320">Small Mobile (320px)</option>
                       </select>
                     </div>
+
                     <div>
                       <label className="text-slate-500">Locale</label>
                       <select
-                        value={simLocale}
-                        onChange={(e) => setSimLocale(e.target.value as any)}
+                        value={simState.locale}
+                        onChange={(e) => updateSimState('locale', e.target.value as any)}
                         className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
                       >
                         <option value="en">English</option>
                         <option value="ar">العربية</option>
                       </select>
                     </div>
+
                     <div>
-                      <label className="text-slate-500">Theme</label>
+                      <label className="text-slate-500">Theme Mode</label>
                       <select
-                        value={simTheme}
-                        onChange={(e) => setSimTheme(e.target.value as any)}
+                        value={simState.theme}
+                        onChange={(e) => updateSimState('theme', e.target.value as any)}
                         className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
                       >
                         <option value="dark">Dark</option>
                         <option value="light">Light</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-slate-500">Tier</label>
-                      <select
-                        value={simTier}
-                        onChange={(e) => setSimTier(e.target.value as any)}
-                        className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      >
-                        <option value="cinematic">Cinematic</option>
-                        <option value="balanced">Balanced</option>
-                        <option value="lightweight">Lightweight</option>
                       </select>
                     </div>
                   </div>
@@ -919,8 +987,8 @@ export default function GatewayCustomizationPage() {
                     <span className="text-slate-400">Reduced Motion</span>
                     <input
                       type="checkbox"
-                      checked={simReducedMotion}
-                      onChange={(e) => setSimReducedMotion(e.target.checked)}
+                      checked={simState.reducedMotion}
+                      onChange={(e) => updateSimState('reducedMotion', e.target.checked)}
                       className="h-4 w-4 accent-emerald-500"
                     />
                   </div>
@@ -928,8 +996,8 @@ export default function GatewayCustomizationPage() {
                     <span className="text-slate-400">Simulate WebGL Failure</span>
                     <input
                       type="checkbox"
-                      checked={simWebGlUnavailable}
-                      onChange={(e) => setSimWebGlUnavailable(e.target.checked)}
+                      checked={!simState.webglAvailable}
+                      onChange={(e) => updateSimState('webglAvailable', !e.target.checked)}
                       className="h-4 w-4 accent-rose-500"
                     />
                   </div>
@@ -937,8 +1005,8 @@ export default function GatewayCustomizationPage() {
                     <span className="text-slate-400">Simulate API Failure</span>
                     <input
                       type="checkbox"
-                      checked={simApiUnavailable}
-                      onChange={(e) => setSimApiUnavailable(e.target.checked)}
+                      checked={!simState.weatherApiAvailable}
+                      onChange={(e) => updateSimState('weatherApiAvailable', !e.target.checked)}
                       className="h-4 w-4 accent-amber-500"
                     />
                   </div>
@@ -948,12 +1016,17 @@ export default function GatewayCustomizationPage() {
               {/* Real-time Gateway Preview Canvas Column */}
               <div className="lg:col-span-2 space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>Live Rendered Gateway Target ({simDevice.toUpperCase()} View / {simLocale.toUpperCase()} / {simTheme.toUpperCase()})</span>
-                  <span className="font-mono text-emerald-400">Active Preset: {activePresetType}</span>
+                  <span>Live Rendered Gateway Target ({simState.viewport.toUpperCase()} / {simState.locale.toUpperCase()} / {simState.theme.toUpperCase()})</span>
+                  <span className="font-mono text-emerald-400">Live Draft Preview Mode Active</span>
                 </div>
 
-                <div className="relative h-[520px] w-full overflow-hidden rounded-xl border border-slate-800 shadow-2xl">
-                  <PortalGateway cmsData={formData} />
+                <div className="relative min-h-[520px] w-full overflow-hidden rounded-xl border border-slate-800 shadow-2xl bg-black">
+                  <PortalGateway
+                    cmsData={formData}
+                    previewMode={true}
+                    previewConfig={formData}
+                    simulation={simState}
+                  />
                 </div>
               </div>
             </div>
