@@ -89,7 +89,6 @@ export async function GET(req: NextRequest) {
         announcements: payload.announcements || DEFAULT_GATEWAY_CMS_PAYLOAD.announcements,
       };
 
-      // Strip sensitive internal administrative data for public response
       if (mode === 'published') {
         delete (mergedPayload as any).updatedBy;
       }
@@ -120,16 +119,29 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { action, payload, targetVersion } = body as {
+    const { action, payload, targetVersion, targetPortalScope } = body as {
       action: 'save_draft' | 'publish' | 'rollback';
       payload?: GatewayCustomizationPayload;
       targetVersion?: number;
+      targetPortalScope?: 'B2B' | 'B2C' | 'GLOBAL';
     };
 
-    // Strict RBAC Enforcement for publishing and version rollback: SUPER_ADMIN required
+    // Strict Portal-Scoped RBAC Enforcement
     if (['publish', 'rollback'].includes(action) && role !== 'SUPER_ADMIN') {
       return NextResponse.json({
         error: 'Forbidden: Super Admin privileges required for publish and rollback actions',
+      }, { status: 403 });
+    }
+
+    if (role === 'SALES_ADMIN' && targetPortalScope === 'B2C') {
+      return NextResponse.json({
+        error: 'Forbidden: Sales Admin is restricted to B2B portal scope only',
+      }, { status: 403 });
+    }
+
+    if (role === 'SUPPORT_ADMIN' && targetPortalScope === 'B2B') {
+      return NextResponse.json({
+        error: 'Forbidden: Support Admin is restricted to B2C portal scope only',
       }, { status: 403 });
     }
 
@@ -159,10 +171,27 @@ export async function POST(req: NextRequest) {
         create: { key: 'gateway_customization_published', value: rollbackPayload as any, type: 'UI' },
       });
 
+      // Rollback creates a new version entry rather than overwriting history
+      const newRollbackVersion = {
+        version: existingVersions.length + 1,
+        publishedAt: new Date().toISOString(),
+        publishedBy: session.user.email || 'SUPER_ADMIN',
+        releaseNotes: `Rolled back to snapshot version #${targetVersion}`,
+        snapshot: rollbackPayload,
+      };
+
+      const updatedVersions = [newRollbackVersion, ...existingVersions].slice(0, 20);
+      await db.setting.upsert({
+        where: { key: 'gateway_experience_versions' },
+        update: { value: updatedVersions as any, type: 'UI' },
+        create: { key: 'gateway_experience_versions', value: updatedVersions as any, type: 'UI' },
+      });
+
       return NextResponse.json({
         success: true,
         action: 'rollback',
         version: targetVersion,
+        newVersion: newRollbackVersion.version,
         data: rollbackPayload,
       });
     }
@@ -172,17 +201,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate media holders
-    const b2cDeskErr = validateMediaHolder(payload.b2cDesktopMedia, 'B2C Desktop Media');
-    if (b2cDeskErr) return NextResponse.json({ error: b2cDeskErr }, { status: 400 });
-
-    const b2cMobErr = validateMediaHolder(payload.b2cMobileMedia, 'B2C Mobile Media');
-    if (b2cMobErr) return NextResponse.json({ error: b2cMobErr }, { status: 400 });
-
-    const b2bDeskErr = validateMediaHolder(payload.b2bDesktopMedia, 'B2B Desktop Media');
-    if (b2bDeskErr) return NextResponse.json({ error: b2bDeskErr }, { status: 400 });
-
-    const b2bMobErr = validateMediaHolder(payload.b2bMobileMedia, 'B2B Mobile Media');
-    if (b2bMobErr) return NextResponse.json({ error: b2bMobErr }, { status: 400 });
+    if (payload.b2cDesktopMedia) {
+      const err = validateMediaHolder(payload.b2cDesktopMedia, 'B2C Desktop Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
+    if (payload.b2cMobileMedia) {
+      const err = validateMediaHolder(payload.b2cMobileMedia, 'B2C Mobile Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
+    if (payload.b2bDesktopMedia) {
+      const err = validateMediaHolder(payload.b2bDesktopMedia, 'B2B Desktop Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
+    if (payload.b2bMobileMedia) {
+      const err = validateMediaHolder(payload.b2bMobileMedia, 'B2B Mobile Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
 
     // Enforce safety limits in code
     if (payload.waterAndSandPhysics) {
@@ -202,7 +236,7 @@ export async function POST(req: NextRequest) {
       updatedAt,
     };
 
-    // Save Draft (Allowed for SUPER_ADMIN, SALES_ADMIN, SUPPORT_ADMIN)
+    // Save Draft
     await db.setting.upsert({
       where: { key: 'gateway_customization_draft' },
       update: {
@@ -216,7 +250,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Publish (Strictly SUPER_ADMIN)
+    // Publish (SUPER_ADMIN)
     if (action === 'publish') {
       await db.setting.upsert({
         where: { key: 'gateway_customization_published' },
@@ -231,7 +265,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Append version snapshot to gateway_experience_versions
       try {
         const versionRecord = await db.setting.findUnique({ where: { key: 'gateway_experience_versions' } });
         const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
