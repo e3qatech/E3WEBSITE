@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Search, Globe, Moon, Sun } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
+
 export function B2BHeader({ settings = {} }: { settings?: Record<string, string> }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -77,23 +79,28 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
       )}
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
-        {/* Logo */}
-        <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-3 z-50">
-          {(lightLogoUrl || darkLogoUrl) ? (
-            <img 
-              src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)} 
-              alt={`${siteName} Logo`}
-              className="h-9 w-auto object-contain"
-            />
-          ) : (
-            <div className="w-10 h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center font-black text-white tracking-tighter shadow-sm">
-              E3
-            </div>
-          )}
-          <span className="font-bold text-lg tracking-tight hidden sm:block text-[var(--text-primary)]">
-            {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
-          </span>
-        </Link>
+        {/* Logo & Portal Switcher */}
+        <div className="flex items-center gap-4">
+          <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-3 z-50">
+            {(lightLogoUrl || darkLogoUrl) ? (
+              <img
+                src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)}
+                alt={`${siteName} Logo`}
+                className="h-9 w-auto object-contain"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center font-black text-white tracking-tighter shadow-sm">
+                E3
+              </div>
+            )}
+            <span className="font-bold text-lg tracking-tight hidden sm:block text-[var(--text-primary)]">
+              {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
+            </span>
+          </Link>
+
+          {/* Shared Portal Mode Switcher */}
+          <PortalModeSwitcher locale={currentLocale} showOrganizerLogin={true} />
+        </div>
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8">
@@ -146,8 +153,8 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
           
           <div className="w-px h-5 bg-[var(--border-level-1)] mx-1" />
           
-          <Link href="/b2b/client-login" className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-            {isAr ? "دخول العملاء" : "Client Login"}
+          <Link href={`/${currentLocale}/login/business`} className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+            {isAr ? "دخول المنظم" : "Organizer Login"}
           </Link>
           
           <Link
@@ -177,6 +184,10 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="fixed inset-0 z-40 bg-[var(--bg-level-1)] pt-24 px-6 pb-6 overflow-y-auto lg:hidden flex flex-col"
           >
+            {/* Mobile Portal Mode Switcher */}
+            <div className="mb-6">
+              <PortalModeSwitcher locale={currentLocale} showOrganizerLogin={true} onNavigate={() => setMobileMenuOpen(false)} />
+            </div>
             <nav className="flex flex-col gap-6 mb-8">
               {b2bNavLinks.map((link) => (
                 <Link

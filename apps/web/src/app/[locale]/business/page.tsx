@@ -1,7 +1,7 @@
 import React from 'react';
+import Link from 'next/link';
 import { requirePortalAccess } from '@/lib/server-auth';
-import { Building2, FolderKanban, Calendar } from 'lucide-react';
-import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
+import { Building2, FolderKanban, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default async function BusinessDashboardPage({
   params,
@@ -27,7 +27,13 @@ export default async function BusinessDashboardPage({
               {isAr ? `مرحباً بعودتك، ${user.name || user.email}. إدارة المشاريع والطلبات الاجتماعات.` : `Welcome back, ${user.name || user.email}. Manage company projects, files, and consultation meetings.`}
             </p>
           </div>
-          <PortalModeSwitcher locale={locale} showOrganizerLogin={true} />
+          <Link
+            href={`/${locale}/b2b`}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:text-white hover:border-zinc-700 transition-all min-h-[44px]"
+          >
+            {isAr ? <ArrowRight className="w-4 h-4 text-emerald-400" /> : <ArrowLeft className="w-4 h-4 text-emerald-400" />}
+            <span>{isAr ? 'العودة للموقع الرئيسي' : 'Back to Public Portal'}</span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
