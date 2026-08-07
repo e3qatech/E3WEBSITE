@@ -88,6 +88,8 @@ const DESTINATIONS: NavDestination[] = [
   },
 ];
 
+import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
+
 export function PulseOrbitNav({
   locale = 'en',
   customerLabelEn = 'Customer',
@@ -175,33 +177,16 @@ export function PulseOrbitNav({
               </div>
             </Link>
 
-            {/* CUSTOMER / ORGANIZER PORTAL MODE SWITCHER */}
-            <nav className="flex items-center gap-1 p-1 rounded-full border border-slate-800 bg-slate-900/90 backdrop-blur-md min-h-[44px]">
-              <Link
-                href={`/${locale}${customerUrl}`}
-                aria-current={isB2C ? 'page' : undefined}
-                className={cn(
-                  'flex items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-extrabold transition-all min-h-[44px] cursor-pointer select-none',
-                  isB2C
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-rose-500/20 text-cyan-400 border border-cyan-500/30 shadow-md'
-                    : 'text-slate-400 hover:text-white'
-                )}
-              >
-                {isAr ? customerLabelAr : customerLabelEn}
-              </Link>
-              <Link
-                href={`/${locale}${organizerUrl}`}
-                aria-current={!isB2C ? 'page' : undefined}
-                className={cn(
-                  'flex items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-extrabold transition-all min-h-[44px] cursor-pointer select-none',
-                  !isB2C
-                    ? 'bg-gradient-to-r from-emerald-500/20 to-amber-500/20 text-emerald-400 border border-emerald-500/30 shadow-md'
-                    : 'text-slate-400 hover:text-white'
-                )}
-              >
-                {isAr ? organizerLabelAr : organizerLabelEn}
-              </Link>
-            </nav>
+            {/* SHARED PORTAL MODE SWITCHER */}
+            <PortalModeSwitcher
+              locale={locale}
+              customerLabelEn={customerLabelEn}
+              customerLabelAr={customerLabelAr}
+              organizerLabelEn={organizerLabelEn}
+              organizerLabelAr={organizerLabelAr}
+              customerUrl={customerUrl}
+              organizerUrl={organizerUrl}
+            />
           </div>
 
           {/* Desktop Links (Resting State) */}

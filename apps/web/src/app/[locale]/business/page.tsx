@@ -1,6 +1,7 @@
 import React from 'react';
 import { requirePortalAccess } from '@/lib/server-auth';
 import { Building2, FolderKanban, Calendar } from 'lucide-react';
+import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
 
 export default async function BusinessDashboardPage({
   params,
@@ -14,7 +15,7 @@ export default async function BusinessDashboardPage({
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6 md:p-10 font-sans" dir={isAr ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex items-center justify-between border-b border-white/10 pb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full text-xs font-bold uppercase tracking-wider">
               {isAr ? 'بوابة اتيليه للشركات' : 'E3 Atelier Business Hub'}
@@ -26,6 +27,7 @@ export default async function BusinessDashboardPage({
               {isAr ? `مرحباً بعودتك، ${user.name || user.email}. إدارة المشاريع والطلبات الاجتماعات.` : `Welcome back, ${user.name || user.email}. Manage company projects, files, and consultation meetings.`}
             </p>
           </div>
+          <PortalModeSwitcher locale={locale} showOrganizerLogin={true} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
