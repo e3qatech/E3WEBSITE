@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon, LogIn } from "lucide-react";
+import { Sun, Moon, LogIn, Compass, Layers } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { useLocale } from "./LocaleProvider";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { E3Logo } from "@/components/shared/E3Logo";
+import { AtelierRail } from "@/components/navigation/AtelierRail";
+import { PulseOrbit } from "@/components/navigation/PulseOrbit";
+import { WorldStackMobile } from "@/components/navigation/WorldStackMobile";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -28,33 +30,25 @@ const navConfig = {
     { label: "nav.home", href: "/b2b" },
     { label: "nav.services", href: "/b2b/services" },
     { label: "nav.partners", href: "/b2b/partners" },
-    { label: "nav.contact", href: "/contact" },
+    { label: "nav.contact", href: "/b2b/contact" },
   ],
 };
 
 export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
   const { theme, setTheme } = useTheme();
-  const { t, dir } = useLocale();
+  const { t, locale } = useLocale();
+  const isAr = locale === "ar";
   const [scrolled, setScrolled] = React.useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  const [atelierOpen, setAtelierOpen] = React.useState(false);
+  const [pulseOpen, setPulseOpen] = React.useState(false);
+  const [mobileStackOpen, setMobileStackOpen] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Lock body scroll when mobile menu is open
-  React.useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [mobileMenuOpen]);
 
   const navItems = navConfig[portal] || navConfig.b2c;
 
@@ -71,7 +65,7 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
           {/* Logo & Portal Badge */}
           <div className="flex items-center gap-4">
-            <Link href={`/${portal}`} className="relative z-50 flex items-center gap-2">
+            <Link href={`/${locale}/${portal}`} className="relative z-50 flex items-center gap-2">
               <E3Logo
                 isLight={theme === "light"}
                 lightLogoUrl={lightLogoUrl}
@@ -79,17 +73,19 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
                 size="md"
               />
             </Link>
-            <Link 
-              href={`/${portal === 'b2c' ? 'b2b' : 'b2c'}`}
+
+            <button
+              onClick={() => (portal === "b2b" ? setAtelierOpen(true) : setPulseOpen(true))}
               className={cn(
-                "px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider relative z-50 transition-colors border",
-                portal === "b2c" 
-                  ? "bg-transparent border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white" 
-                  : "bg-transparent border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white"
+                "hidden sm:flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider relative z-50 transition-colors border",
+                portal === "b2c"
+                  ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-black"
+                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-black"
               )}
             >
-              Switch to {portal === 'b2c' ? 'Organizers' : 'Visitors'}
-            </Link>
+              <Compass className="w-3.5 h-3.5" />
+              <span>{portal === "b2b" ? (isAr ? "دليل القائمة المعمارية" : "Atelier Spatial Menu") : (isAr ? "دليل الفعاليات والاستكشاف" : "Pulse Orbit Menu")}</span>
+            </button>
           </div>
 
           {/* Desktop Nav */}
@@ -97,7 +93,7 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
             {navItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={`/${locale}${item.href}`}
                 className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors"
               >
                 {t(item.label)}
@@ -118,66 +114,34 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
             <LanguageSwitcher variant="full" />
 
             <Link
-              href={`/auth/login?portal=${portal}`}
+              href={`/${locale}/login/admin`}
               className="hidden sm:flex items-center gap-2 bg-[var(--color-primary)] text-white px-4 py-2 rounded-full text-sm font-medium hover:brightness-110 transition-all"
             >
               <LogIn size={16} />
               {t("nav.login")}
             </Link>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu Button with Visible 'Menu' Label */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-full text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+              onClick={() => setMobileStackOpen(true)}
+              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white font-bold text-xs uppercase tracking-wider hover:bg-white/20 transition-colors"
+              aria-label="Open Mobile Menu"
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              <Layers className="w-4 h-4 text-emerald-400" />
+              <span>{isAr ? "القائمة" : "Menu"}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 z-30 bg-[var(--bg-level-1)] pt-24 pb-8 px-6 flex flex-col md:hidden overflow-y-auto"
-          >
-            <nav className="flex flex-col gap-6 mt-8">
-              {navItems.map((item, i) => (
-                <motion.div
-                  key={item.href}
-                  initial={{ opacity: 0, x: dir === 'rtl' ? 20 : -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1, duration: 0.3 }}
-                >
-                  <Link
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-2xl font-bold text-[var(--text-primary)] hover:text-[var(--color-primary)] transition-colors"
-                  >
-                    {t(item.label)}
-                  </Link>
-                </motion.div>
-              ))}
-            </nav>
-            
-            <div className="mt-auto pt-8 border-t border-[var(--border-level-2)] flex flex-col gap-4">
-              <Link
-                href={`/auth/login?portal=${portal}`}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 bg-[var(--color-primary)] text-white px-4 py-3 rounded-xl text-base font-medium hover:brightness-110 transition-all w-full"
-              >
-                <LogIn size={18} />
-                {t("nav.login")}
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Atelier Rail (B2B Full-Screen Navigation) */}
+      <AtelierRail isOpen={atelierOpen} onClose={() => setAtelierOpen(false)} />
+
+      {/* Pulse Orbit (B2C Discovery Ring) */}
+      <PulseOrbit isOpen={pulseOpen} onClose={() => setPulseOpen(false)} />
+
+      {/* World Stack Mobile Navigation */}
+      <WorldStackMobile isOpen={mobileStackOpen} onClose={() => setMobileStackOpen(false)} />
     </>
   );
 }

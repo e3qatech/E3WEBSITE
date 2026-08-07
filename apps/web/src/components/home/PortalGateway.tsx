@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useMounted } from "@/hooks/useMounted";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,8 @@ const WireframeBackground = dynamic(
 );
 
 import { E3Logo } from "@/components/shared/E3Logo";
+import { AtmosphereEngine } from "@/components/atmosphere/AtmosphereEngine";
+import { fetchLiveWeather, WeatherData, DEFAULT_WEATHER_DATA } from "@/components/atmosphere/WeatherResolver";
 
 interface PortalGatewayProps {
   cmsData?: GatewayCustomizationPayload;
@@ -33,7 +35,12 @@ export function PortalGateway({ cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD }: PortalG
   const [hoveredPortal, setHoveredPortal] = useState<'b2c' | 'b2b' | null>(null);
   const [selectedPortal, setSelectedPortal] = useState<'b2c' | 'b2b' | null>(null);
   const [focusedPortal, setFocusedPortal] = useState<'b2c' | 'b2b' | null>(null);
+  const [weatherData, setWeatherData] = useState<WeatherData>(DEFAULT_WEATHER_DATA);
   const isMounted = useMounted();
+
+  useEffect(() => {
+    fetchLiveWeather().then(setWeatherData).catch(() => {});
+  }, []);
 
   // Resolve theme synchronously based on mount status and theme preference
   const systemTheme = isMounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -99,6 +106,9 @@ export function PortalGateway({ cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD }: PortalG
           <WireframeBackground />
         </div>
       )}
+
+      {/* Atmospheric Engine Canvas */}
+      <AtmosphereEngine weather={weatherData} />
 
       {/* HEADER LAYER */}
       <header className="absolute top-0 inset-x-0 z-40 px-6 py-6 md:px-12 flex items-center justify-between pointer-events-none">

@@ -4,6 +4,9 @@ import Script from "next/script"
 import { SEO } from "@/components/shared/SEO"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
+import { CapabilityProvider } from "@/components/experience/CapabilityProvider"
+import { ExperienceRuntime } from "@/components/experience/ExperienceRuntime"
+import { SmoothScrollProvider } from "@/components/experience/SmoothScrollProvider"
 import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import "./globals.css"
@@ -103,27 +106,33 @@ export default async function RootLayout({
         </Script>
         <AuthProvider session={session}>
           <ThemeProvider>
-            {/* Global Organization JSON-LD Schema */}
-            <SEO 
-              type="Organization" 
-              data={{
-                name: "Event Engineering Experts (E3)",
-                url: "https://e3.qa",
-                logo: "https://e3.qa/logo.png",
-                contactPoint: {
-                  "@type": "ContactPoint",
-                  telephone: "+974-4400-0000",
-                  contactType: "customer service",
-                  availableLanguage: ["English", "Arabic"]
-                },
-                sameAs: [
-                  "https://www.linkedin.com/company/e3qatar",
-                  "https://twitter.com/e3qatar"
-                ]
-              }} 
-            />
-            
-            {children}
+            <CapabilityProvider>
+              <ExperienceRuntime>
+                <SmoothScrollProvider>
+                  {/* Global Organization JSON-LD Schema */}
+                  <SEO 
+                    type="Organization" 
+                    data={{
+                      name: "Event Engineering Experts (E3)",
+                      url: "https://e3.qa",
+                      logo: "https://e3.qa/logo.png",
+                      contactPoint: {
+                        "@type": "ContactPoint",
+                        telephone: "+974-4400-0000",
+                        contactType: "customer service",
+                        availableLanguage: ["English", "Arabic"]
+                      },
+                      sameAs: [
+                        "https://www.linkedin.com/company/e3qatar",
+                        "https://twitter.com/e3qatar"
+                      ]
+                    }} 
+                  />
+                  
+                  {children}
+                </SmoothScrollProvider>
+              </ExperienceRuntime>
+            </CapabilityProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>
