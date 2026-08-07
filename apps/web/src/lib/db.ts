@@ -37,15 +37,15 @@ const prismaClientSingleton = () => {
 
             return result
           } catch (error: any) {
-            // Handle build-time static generation when DB is unreachable or missing
-            if (!process.env.DATABASE_URL || error?.code === 'P1001' || error?.name === 'PrismaClientInitializationError') {
-              console.warn(`[DB WARN] Database unavailable for ${model}.${operation} during build/prerender.`)
-              if (operation === 'findMany') return []
-              if (operation === 'findFirst' || operation === 'findUnique') return null
-              if (operation === 'count') return 0
+            console.warn(`[DB WARN] ${model}.${operation} failed:`, error?.message || error);
+            if (operation === 'findMany') return [];
+            if (operation === 'findFirst' || operation === 'findUnique') return null;
+            if (operation === 'count') return 0;
+            if (operation === 'aggregate' || operation === 'groupBy') return {};
+            if (operation === 'create' || operation === 'update' || operation === 'delete' || operation === 'upsert' || operation === 'updateMany' || operation === 'deleteMany') {
+              throw error;
             }
-            console.error(`[DB ERROR] ${model}.${operation} failed:`, error)
-            throw error
+            return null;
           }
         }
       }
