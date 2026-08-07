@@ -29,20 +29,6 @@ export function proxy(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // Handle missing locale prefix for dashboard, B2B, and B2C routes
-  if (
-    nextUrl.pathname === '/dashboard' ||
-    nextUrl.pathname.startsWith('/dashboard/') ||
-    nextUrl.pathname.startsWith('/b2b') ||
-    nextUrl.pathname.startsWith('/b2c')
-  ) {
-    return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
-  }
-
-  // Extract locale if present in pathname
-  const pathSegments = nextUrl.pathname.split('/').filter(Boolean);
-  const pathLocale = pathSegments[0] === 'ar' || pathSegments[0] === 'en' ? pathSegments[0] : localeCookie;
-
   // 2. Protected Portal Route Edge Guards
   let normalizedPath = nextUrl.pathname;
   try {
@@ -54,29 +40,39 @@ export function proxy(req: NextRequest) {
   // Check dashboard protection
   if (normalizedPath.includes('/dashboard')) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${pathLocale}/login/admin`, nextUrl));
+      return NextResponse.redirect(new URL(`/${localeCookie}/login/admin`, nextUrl));
     }
   }
 
   // Check staff portal protection
   if (normalizedPath.includes('/staff') && !normalizedPath.includes('/staff-login')) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${pathLocale}/login/staff`, nextUrl));
+      return NextResponse.redirect(new URL(`/${localeCookie}/login/staff`, nextUrl));
     }
   }
 
   // Check business portal protection
   if (normalizedPath.includes('/business')) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${pathLocale}/login/business`, nextUrl));
+      return NextResponse.redirect(new URL(`/${localeCookie}/login/business`, nextUrl));
     }
   }
 
   // Check candidate portal protection
   if (normalizedPath.includes('/candidate')) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${pathLocale}/login/careers`, nextUrl));
+      return NextResponse.redirect(new URL(`/${localeCookie}/login/careers`, nextUrl));
     }
+  }
+
+  // Handle missing locale prefix for dashboard, B2B, and B2C routes
+  if (
+    nextUrl.pathname === '/dashboard' ||
+    nextUrl.pathname.startsWith('/dashboard/') ||
+    nextUrl.pathname.startsWith('/b2b') ||
+    nextUrl.pathname.startsWith('/b2c')
+  ) {
+    return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
   }
 
   return NextResponse.next({ request: { headers: requestHeaders } });

@@ -52,7 +52,23 @@ function validateMediaHolder(media: MediaHolderConfig, name: string): string | n
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const mode = searchParams.get('mode') || 'published'; // 'published' | 'draft'
+    const mode = searchParams.get('mode') || 'published'; // 'published' | 'draft' | 'versions'
+
+    if (mode === 'versions') {
+      const session = await auth();
+      const role = (session?.user as any)?.role;
+      if (!session?.user || !['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN'].includes(role)) {
+        return NextResponse.json({ error: 'Unauthorized: Admin role required' }, { status: 403 });
+      }
+
+      const versionRecord = await db.setting.findUnique({
+        where: { key: 'gateway_experience_versions' },
+      });
+      return NextResponse.json({
+        success: true,
+        versions: versionRecord?.value || [],
+      });
+    }
 
     const key = mode === 'draft' ? 'gateway_customization_draft' : 'gateway_customization_published';
 
@@ -62,7 +78,6 @@ export async function GET(req: NextRequest) {
 
     if (record && record.value) {
       const payload = record.value as unknown as GatewayCustomizationPayload;
-      // Merge safe defaults for new living threshold features
       const mergedPayload: GatewayCustomizationPayload = {
         ...DEFAULT_GATEWAY_CMS_PAYLOAD,
         ...payload,
@@ -73,6 +88,11 @@ export async function GET(req: NextRequest) {
         campaigns: payload.campaigns || DEFAULT_GATEWAY_CMS_PAYLOAD.campaigns,
         announcements: payload.announcements || DEFAULT_GATEWAY_CMS_PAYLOAD.announcements,
       };
+
+      // Strip sensitive internal administrative data for public response
+      if (mode === 'published') {
+        delete (mergedPayload as any).updatedBy;
+      }
 
       return NextResponse.json({
         success: true,
@@ -100,10 +120,52 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { action, payload } = body as {
-      action: 'save_draft' | 'publish';
-      payload: GatewayCustomizationPayload;
+    const { action, payload, targetVersion } = body as {
+      action: 'save_draft' | 'publish' | 'rollback';
+      payload?: GatewayCustomizationPayload;
+      targetVersion?: number;
     };
+
+    // Strict RBAC Enforcement for publishing and version rollback: SUPER_ADMIN required
+    if (['publish', 'rollback'].includes(action) && role !== 'SUPER_ADMIN') {
+      return NextResponse.json({
+        error: 'Forbidden: Super Admin privileges required for publish and rollback actions',
+      }, { status: 403 });
+    }
+
+    // Handle Version Rollback Action
+    if (action === 'rollback') {
+      if (!targetVersion) {
+        return NextResponse.json({ error: 'Target version number required for rollback' }, { status: 400 });
+      }
+
+      const versionRecord = await db.setting.findUnique({ where: { key: 'gateway_experience_versions' } });
+      const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
+      const matched = existingVersions.find((v) => v.version === targetVersion);
+
+      if (!matched || !matched.snapshot) {
+        return NextResponse.json({ error: `Version snapshot #${targetVersion} not found` }, { status: 404 });
+      }
+
+      const rollbackPayload: GatewayCustomizationPayload = {
+        ...matched.snapshot,
+        status: 'PUBLISHED',
+        updatedAt: new Date().toISOString(),
+      };
+
+      await db.setting.upsert({
+        where: { key: 'gateway_customization_published' },
+        update: { value: rollbackPayload as any, type: 'UI' },
+        create: { key: 'gateway_customization_published', value: rollbackPayload as any, type: 'UI' },
+      });
+
+      return NextResponse.json({
+        success: true,
+        action: 'rollback',
+        version: targetVersion,
+        data: rollbackPayload,
+      });
+    }
 
     if (!payload || !payload.english || !payload.arabic) {
       return NextResponse.json({ error: 'Invalid payload: missing English or Arabic content' }, { status: 400 });
@@ -140,7 +202,7 @@ export async function POST(req: NextRequest) {
       updatedAt,
     };
 
-    // Save Draft
+    // Save Draft (Allowed for SUPER_ADMIN, SALES_ADMIN, SUPPORT_ADMIN)
     await db.setting.upsert({
       where: { key: 'gateway_customization_draft' },
       update: {
@@ -154,6 +216,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Publish (Strictly SUPER_ADMIN)
     if (action === 'publish') {
       await db.setting.upsert({
         where: { key: 'gateway_customization_published' },
@@ -182,7 +245,7 @@ export async function POST(req: NextRequest) {
           snapshot: updatedPayload,
         };
 
-        const updatedVersions = [newVersionSnapshot, ...existingVersions].slice(0, 20); // Keep last 20
+        const updatedVersions = [newVersionSnapshot, ...existingVersions].slice(0, 20);
 
         await db.setting.upsert({
           where: { key: 'gateway_experience_versions' },

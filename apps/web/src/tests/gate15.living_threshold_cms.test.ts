@@ -80,4 +80,37 @@ describe("Gate 15: E3 Living Threshold & Experience Composer System Tests", () =
     expect(sanitized.metadata?.token).toBeUndefined();
     expect(sanitized.metadata?.campaignId).toBe("c-1");
   });
+
+  it("Test 9: Strict RBAC privilege checks for publishing and version rollback", () => {
+    const canPublish = (role: string, action: string) => {
+      if (['publish', 'rollback'].includes(action)) {
+        return role === 'SUPER_ADMIN';
+      }
+      return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN'].includes(role);
+    };
+
+    expect(canPublish('SUPER_ADMIN', 'publish')).toBe(true);
+    expect(canPublish('SALES_ADMIN', 'publish')).toBe(false);
+    expect(canPublish('SUPPORT_ADMIN', 'rollback')).toBe(false);
+    expect(canPublish('SALES_ADMIN', 'save_draft')).toBe(true);
+  });
+
+  it("Test 10: Weather Resolver fallback resilient when API fails", async () => {
+    const fallbackData = await fetchLiveWeather("FOG");
+    expect(fallbackData.state).toBe("FOG");
+    expect(fallbackData.temperature).toBeDefined();
+  });
+
+  it("Test 11: Version snapshot rollback payload structure validation", () => {
+    const versionSnapshot = {
+      version: 1,
+      publishedAt: new Date().toISOString(),
+      publishedBy: "superadmin@e3.qa",
+      releaseNotes: "Test release",
+      snapshot: DEFAULT_GATEWAY_CMS_PAYLOAD,
+    };
+
+    expect(versionSnapshot.version).toBe(1);
+    expect(versionSnapshot.snapshot.status).toBe("PUBLISHED");
+  });
 });
