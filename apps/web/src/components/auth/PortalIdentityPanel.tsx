@@ -3,6 +3,7 @@
 import React from 'react';
 import { PortalConfig } from './PortalConfigs';
 import { ShieldCheck, Users, Building2, UserCheck, Lock } from 'lucide-react';
+import { E3Logo } from '@/components/shared/E3Logo';
 import { cn } from '@/lib/utils';
 
 interface PortalIdentityPanelProps {
@@ -35,14 +36,7 @@ export function PortalIdentityPanel({ config, isAr }: PortalIdentityPanelProps) 
 
       {/* Header Logo & Badge */}
       <div className="relative z-10 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-auto flex items-center">
-            <img src="/e3-logo.svg" alt="E3 Qatar Logo" className="h-9 w-auto object-contain" />
-          </div>
-          <span className="font-extrabold text-white text-lg tracking-tight font-display">
-            E3 <span style={{ color: config.accentColor }}>QATAR</span>
-          </span>
-        </div>
+        <E3Logo isLight={false} size="md" />
 
         <span
           className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border backdrop-blur-md"

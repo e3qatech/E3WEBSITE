@@ -7,6 +7,7 @@ import { Menu, X, Sun, Moon, LogIn } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { useLocale } from "./LocaleProvider";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { E3Logo } from "@/components/shared/E3Logo";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -71,27 +72,12 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
           {/* Logo & Portal Badge */}
           <div className="flex items-center gap-4">
             <Link href={`/${portal}`} className="relative z-50 flex items-center gap-2">
-              <div className="h-10 flex items-center">
-                {(lightLogoUrl || darkLogoUrl) ? (
-                  <>
-                    <img 
-                      src={darkLogoUrl || lightLogoUrl} 
-                      alt="E3 Qatar Logo" 
-                      className="h-10 w-auto object-contain hidden dark:block"
-                    />
-                    <img 
-                      src={lightLogoUrl || darkLogoUrl} 
-                      alt="E3 Qatar Logo" 
-                      className="h-10 w-auto object-contain block dark:hidden"
-                    />
-                  </>
-                ) : (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="40" height="40" rx="8" fill="var(--color-primary)"/>
-                    <path d="M12 20H28M12 14H28M12 26H20" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                )}
-              </div>
+              <E3Logo
+                isLight={theme === "light"}
+                lightLogoUrl={lightLogoUrl}
+                darkLogoUrl={darkLogoUrl}
+                size="md"
+              />
             </Link>
             <Link 
               href={`/${portal === 'b2c' ? 'b2b' : 'b2c'}`}

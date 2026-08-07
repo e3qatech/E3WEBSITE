@@ -18,6 +18,8 @@ const WireframeBackground = dynamic(
   { ssr: false }
 );
 
+import { E3Logo } from "@/components/shared/E3Logo";
+
 interface PortalGatewayProps {
   cmsData?: GatewayCustomizationPayload;
 }
@@ -101,12 +103,7 @@ export function PortalGateway({ cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD }: PortalG
       {/* HEADER LAYER */}
       <header className="absolute top-0 inset-x-0 z-40 px-6 py-6 md:px-12 flex items-center justify-between pointer-events-none">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pointer-events-auto">
-          <div className={cn(
-            "font-black text-2xl tracking-tighter font-display transition-colors",
-            isLight ? "text-zinc-950" : "text-white"
-          )}>
-            E3 <span className="text-[var(--color-primary)]">QATAR</span>
-          </div>
+          <E3Logo isLight={isLight} size="md" />
           <div className="flex items-center gap-2">
             <span className={cn(
               "px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest rounded-full border transition-all",

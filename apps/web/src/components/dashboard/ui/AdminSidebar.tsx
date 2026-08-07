@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
 import { AdminStatusBadge } from "./AdminStatusBadge";
 import { useMounted } from "@/hooks/useMounted";
+import { E3Logo } from "@/components/shared/E3Logo";
 
 // Updated configuration mapping 17 domain modules into refined logical buckets
 const sidebarConfig = [
@@ -122,10 +123,7 @@ export function AdminSidebar() {
             exit={{ opacity: 0 }}
             className="flex items-center gap-3 w-full"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-white font-black text-sm tracking-tighter">E3</span>
-            </div>
-            <span className="font-bold text-text-primary tracking-tight text-sm flex-1 truncate">Command Center</span>
+            <E3Logo isLight={false} size="sm" showText={true} />
             
             <button 
               onClick={() => setCollapsed(!collapsed)}
