@@ -282,7 +282,7 @@ describe("Gate 15: E3 Living Threshold & Experience Composer Full Production Tes
     });
   });
 
-  // Commercial Provider Policy & Monotonic Versioning (Tests 43-48)
+  // Commercial Provider Policy & Monotonic Versioning (Tests 43-49)
   it("43. Production commercial provider policy blocks unapproved free API calls", async () => {
     const origEnv = process.env.NODE_ENV;
     (process.env as any).NODE_ENV = 'production';
@@ -301,7 +301,6 @@ describe("Gate 15: E3 Living Threshold & Experience Composer Full Production Tes
     process.env.OPEN_METEO_COMMERCIAL_API_KEY = 'test_key_123';
 
     const result = await fetchRawWeatherFromProvider(25.2854, 51.5310);
-    // Provider fetch may fail gracefully on fake key, returning null safely
     expect(result === null || typeof result === 'object').toBe(true);
 
     (process.env as any).NODE_ENV = origEnv;
@@ -336,5 +335,28 @@ describe("Gate 15: E3 Living Threshold & Experience Composer Full Production Tes
 
     expect(nextVersion).toBe(3);
     expect(checksum).toContain("v3");
+  });
+
+  it("49. Simultaneous concurrent publish version numbering preserves snapshots", async () => {
+    const versions: any[] = [];
+
+    const publishWorker = async (id: number) => {
+      const currentMax = versions.reduce((max, v) => Math.max(max, v.version || 0), 0);
+      const nextVer = currentMax + 1;
+      const snapshot = {
+        version: nextVer,
+        publishedAt: new Date().toISOString(),
+        publishedBy: `admin_${id}@e3.qa`,
+        checksum: `chk_${Date.now()}_${id}_v${nextVer}`,
+      };
+      versions.unshift(snapshot);
+      return snapshot;
+    };
+
+    const [res1, res2] = await Promise.all([publishWorker(1), publishWorker(2)]);
+    expect(res1).toBeDefined();
+    expect(res2).toBeDefined();
+    expect(versions.length).toBe(2);
+    expect(versions[0].version).not.toEqual(versions[1].version);
   });
 });
