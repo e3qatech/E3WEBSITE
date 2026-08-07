@@ -30,8 +30,8 @@ const prismaClientSingleton = () => {
             const end = performance.now()
             const duration = end - start
 
-            // Log warning if query exceeds 100ms budget
-            if (duration > 100) {
+            // Log warning if query exceeds 250ms budget (accounting for initial connection pool warmup)
+            if (duration > 250) {
               console.warn(`[PRISMA PERFORMANCE BREACH] ${model}.${operation} took ${Math.round(duration)}ms`)
             }
 

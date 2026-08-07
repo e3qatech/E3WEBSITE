@@ -37,7 +37,7 @@ describe('Gate 03: proxy.ts Routing Boundary', () => {
   });
 
   it('3. Dashboard loads with authorized session', () => {
-    const req = createMockRequest('/dashboard', { 'authjs.session-token': 'valid-token' });
+    const req = createMockRequest('/en/dashboard', { 'authjs.session-token': 'valid-token' });
     const res = proxy(req) as NextResponse;
     expect(res.status).toBe(200);
   });
@@ -45,7 +45,7 @@ describe('Gate 03: proxy.ts Routing Boundary', () => {
   it('4. Wrong role is denied / 5. Inactive user is denied', () => {
     // Since proxy only checks presence of session token (RBAC is done later),
     // it simply passes the request through if token exists.
-    const req = createMockRequest('/dashboard', { 'authjs.session-token': 'wrong-role-token' });
+    const req = createMockRequest('/en/dashboard', { 'authjs.session-token': 'wrong-role-token' });
     const res = proxy(req) as NextResponse;
     expect(res.status).toBe(200);
   });

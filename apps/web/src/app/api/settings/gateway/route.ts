@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import {
   GatewayCustomizationPayload,
@@ -52,7 +52,23 @@ function validateMediaHolder(media: MediaHolderConfig, name: string): string | n
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const mode = searchParams.get('mode') || 'published'; // 'published' | 'draft'
+    const mode = searchParams.get('mode') || 'published'; // 'published' | 'draft' | 'versions'
+
+    if (mode === 'versions') {
+      const session = await auth();
+      const role = (session?.user as any)?.role;
+      if (!session?.user || !['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN'].includes(role)) {
+        return NextResponse.json({ error: 'Unauthorized: Admin role required' }, { status: 403 });
+      }
+
+      const versionRecord = await db.setting.findUnique({
+        where: { key: 'gateway_experience_versions' },
+      });
+      return NextResponse.json({
+        success: true,
+        versions: versionRecord?.value || [],
+      });
+    }
 
     const key = mode === 'draft' ? 'gateway_customization_draft' : 'gateway_customization_published';
 
@@ -61,13 +77,28 @@ export async function GET(req: NextRequest) {
     });
 
     if (record && record.value) {
+      const payload = record.value as unknown as GatewayCustomizationPayload;
+      const mergedPayload: GatewayCustomizationPayload = {
+        ...DEFAULT_GATEWAY_CMS_PAYLOAD,
+        ...payload,
+        experienceConfig: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.experienceConfig, ...(payload.experienceConfig || {}) } as any,
+        waterAndSandPhysics: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.waterAndSandPhysics, ...(payload.waterAndSandPhysics || {}) } as any,
+        atmospherePresets: payload.atmospherePresets || DEFAULT_GATEWAY_CMS_PAYLOAD.atmospherePresets,
+        weatherRules: payload.weatherRules || DEFAULT_GATEWAY_CMS_PAYLOAD.weatherRules,
+        campaigns: payload.campaigns || DEFAULT_GATEWAY_CMS_PAYLOAD.campaigns,
+        announcements: payload.announcements || DEFAULT_GATEWAY_CMS_PAYLOAD.announcements,
+      };
+
+      if (mode === 'published') {
+        delete (mergedPayload as any).updatedBy;
+      }
+
       return NextResponse.json({
         success: true,
-        data: record.value as unknown as GatewayCustomizationPayload,
+        data: mergedPayload,
       });
     }
 
-    // Return default if no customized setting found yet
     return NextResponse.json({
       success: true,
       data: DEFAULT_GATEWAY_CMS_PAYLOAD,
@@ -88,27 +119,118 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { action, payload } = body as {
-      action: 'save_draft' | 'publish';
-      payload: GatewayCustomizationPayload;
+    const { action, payload, targetVersion, targetPortalScope } = body as {
+      action: 'save_draft' | 'publish' | 'rollback';
+      payload?: GatewayCustomizationPayload;
+      targetVersion?: number;
+      targetPortalScope?: 'B2B' | 'B2C' | 'GLOBAL';
     };
+
+    // Strict Portal-Scoped RBAC Enforcement
+    if (['publish', 'rollback'].includes(action) && role !== 'SUPER_ADMIN') {
+      return NextResponse.json({
+        error: 'Forbidden: Super Admin privileges required for publish and rollback actions',
+      }, { status: 403 });
+    }
+
+    if (role === 'SALES_ADMIN' && targetPortalScope === 'B2C') {
+      return NextResponse.json({
+        error: 'Forbidden: Sales Admin is restricted to B2B portal scope only',
+      }, { status: 403 });
+    }
+
+    if (role === 'SUPPORT_ADMIN' && targetPortalScope === 'B2B') {
+      return NextResponse.json({
+        error: 'Forbidden: Support Admin is restricted to B2C portal scope only',
+      }, { status: 403 });
+    }
+
+    // Handle Version Rollback Action
+    if (action === 'rollback') {
+      if (!targetVersion) {
+        return NextResponse.json({ error: 'Target version number required for rollback' }, { status: 400 });
+      }
+
+      const versionRecord = await db.setting.findUnique({ where: { key: 'gateway_experience_versions' } });
+      const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
+      const matched = existingVersions.find((v) => v.version === targetVersion);
+
+      if (!matched || !matched.snapshot) {
+        return NextResponse.json({ error: `Version snapshot #${targetVersion} not found` }, { status: 404 });
+      }
+
+      const rollbackPayload: GatewayCustomizationPayload = {
+        ...matched.snapshot,
+        status: 'PUBLISHED',
+        updatedAt: new Date().toISOString(),
+      };
+
+      await db.setting.upsert({
+        where: { key: 'gateway_customization_published' },
+        update: { value: rollbackPayload as any, type: 'UI' },
+        create: { key: 'gateway_customization_published', value: rollbackPayload as any, type: 'UI' },
+      });
+
+      // Monotonic versioning for rollback
+      const maxExistingVersion = existingVersions.reduce((max, v) => Math.max(max, v.version || 0), 0);
+      const newRollbackVersion = {
+        version: maxExistingVersion + 1,
+        publishedAt: new Date().toISOString(),
+        publishedBy: session.user.email || 'SUPER_ADMIN',
+        releaseNotes: `Rolled back to snapshot version #${targetVersion}`,
+        checksum: `chk_${Date.now()}_v${maxExistingVersion + 1}`,
+        snapshot: rollbackPayload,
+      };
+
+      const updatedVersions = [newRollbackVersion, ...existingVersions].slice(0, 20);
+      await db.setting.upsert({
+        where: { key: 'gateway_experience_versions' },
+        update: { value: updatedVersions as any, type: 'UI' },
+        create: { key: 'gateway_experience_versions', value: updatedVersions as any, type: 'UI' },
+      });
+
+      return NextResponse.json({
+        success: true,
+        action: 'rollback',
+        version: targetVersion,
+        newVersion: newRollbackVersion.version,
+        data: rollbackPayload,
+      });
+    }
 
     if (!payload || !payload.english || !payload.arabic) {
       return NextResponse.json({ error: 'Invalid payload: missing English or Arabic content' }, { status: 400 });
     }
 
-    // Validate media holders for mandatory fallbacks & iframe security
-    const b2cDeskErr = validateMediaHolder(payload.b2cDesktopMedia, 'B2C Desktop Media');
-    if (b2cDeskErr) return NextResponse.json({ error: b2cDeskErr }, { status: 400 });
+    // Validate media holders
+    if (payload.b2cDesktopMedia) {
+      const err = validateMediaHolder(payload.b2cDesktopMedia, 'B2C Desktop Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
+    if (payload.b2cMobileMedia) {
+      const err = validateMediaHolder(payload.b2cMobileMedia, 'B2C Mobile Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
+    if (payload.b2bDesktopMedia) {
+      const err = validateMediaHolder(payload.b2bDesktopMedia, 'B2B Desktop Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
+    if (payload.b2bMobileMedia) {
+      const err = validateMediaHolder(payload.b2bMobileMedia, 'B2B Mobile Media');
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+    }
 
-    const b2cMobErr = validateMediaHolder(payload.b2cMobileMedia, 'B2C Mobile Media');
-    if (b2cMobErr) return NextResponse.json({ error: b2cMobErr }, { status: 400 });
-
-    const b2bDeskErr = validateMediaHolder(payload.b2bDesktopMedia, 'B2B Desktop Media');
-    if (b2bDeskErr) return NextResponse.json({ error: b2bDeskErr }, { status: 400 });
-
-    const b2bMobErr = validateMediaHolder(payload.b2bMobileMedia, 'B2B Mobile Media');
-    if (b2bMobErr) return NextResponse.json({ error: b2bMobErr }, { status: 400 });
+    // Enforce safety limits in code
+    if (payload.waterAndSandPhysics) {
+      payload.waterAndSandPhysics.waterMaxHeightPercent = Math.min(
+        payload.waterAndSandPhysics.waterMaxHeightPercent || 15,
+        40
+      );
+      payload.waterAndSandPhysics.sandMaxHeightPercent = Math.min(
+        payload.waterAndSandPhysics.sandMaxHeightPercent || 10,
+        30
+      );
+    }
 
     const updatedAt = new Date().toISOString();
     const updatedPayload: GatewayCustomizationPayload = {
@@ -130,6 +252,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Publish (SUPER_ADMIN)
     if (action === 'publish') {
       await db.setting.upsert({
         where: { key: 'gateway_customization_published' },
@@ -143,6 +266,32 @@ export async function POST(req: NextRequest) {
           type: 'UI',
         },
       });
+
+      try {
+        const versionRecord = await db.setting.findUnique({ where: { key: 'gateway_experience_versions' } });
+        const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
+        const maxExistingVersion = existingVersions.reduce((max, v) => Math.max(max, v.version || 0), 0);
+        const nextVersionNumber = maxExistingVersion + 1;
+
+        const newVersionSnapshot = {
+          version: nextVersionNumber,
+          publishedAt: updatedAt,
+          publishedBy: session.user.email || 'Admin',
+          releaseNotes: `Published version ${nextVersionNumber} via Gateway Experience Composer CMS`,
+          checksum: `chk_${Date.now()}_v${nextVersionNumber}`,
+          snapshot: updatedPayload,
+        };
+
+        const updatedVersions = [newVersionSnapshot, ...existingVersions].slice(0, 20);
+
+        await db.setting.upsert({
+          where: { key: 'gateway_experience_versions' },
+          update: { value: updatedVersions as any, type: 'UI' },
+          create: { key: 'gateway_experience_versions', value: updatedVersions as any, type: 'UI' },
+        });
+      } catch (_e) {
+        console.warn('[GATEWAY_VERSION_SNAPSHOT_NOTICE]', _e);
+      }
     }
 
     return NextResponse.json({

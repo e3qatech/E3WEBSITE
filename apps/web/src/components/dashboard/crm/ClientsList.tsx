@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Globe, Building2, Plus, Trash2, Users, UserPlus, ShieldCheck } from "lucide-react"
+import { Search, Globe, Building2, Plus, Trash2, Users, UserPlus } from "lucide-react"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 

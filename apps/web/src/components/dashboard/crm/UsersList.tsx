@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus, Shield, UserCheck, UserX, KeyRound, Building, Edit, Lock, Snowflake } from "lucide-react";
+import { Search, Plus, Shield, UserCheck, KeyRound, Building, Edit, Lock, Snowflake } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
