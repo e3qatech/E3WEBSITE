@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus, Shield, UserCheck, UserX, RefreshCw, KeyRound, Building } from "lucide-react";
+import { Search, Plus, Shield, UserCheck, UserX, KeyRound, Building, Edit, Lock, Snowflake } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
@@ -39,6 +39,9 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserItem | null>(null);
+  const [passwordUser, setPasswordUser] = useState<UserItem | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
@@ -74,29 +77,71 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    setUpdatingId(userId);
+  const handleEditUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      role: formData.get("role"),
+    };
+
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify(data),
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to update role");
+      if (!res.ok) throw new Error(result.error || "Failed to update user");
 
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+        prev.map((u) => (u.id === editingUser.id ? { ...u, ...result } : u))
       );
+      setEditingUser(null);
+      alert("User credentials updated successfully.");
     } catch (err: any) {
-      alert(err.message || "Failed to update role");
+      alert(err.message || "Failed to update user");
     } finally {
-      setUpdatingId(null);
+      setIsSubmitting(false);
     }
   };
 
-  const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
+  const handleAdminChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordUser || !newPassword) return;
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/admin/users/${passwordUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to update password");
+
+      setUsers((prev) =>
+        prev.map((u) => (u.id === passwordUser.id ? { ...u, sessionVersion: result.sessionVersion } : u))
+      );
+      setPasswordUser(null);
+      setNewPassword("");
+      alert("User password updated successfully. Active sessions revoked.");
+    } catch (err: any) {
+      alert(err.message || "Failed to update password");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleFreezeStatus = async (userId: string, currentStatus: boolean) => {
+    const actionName = currentStatus ? "Freeze" : "Unfreeze";
+    if (!confirm(`${actionName} this user account? ${currentStatus ? "Their active login sessions will be immediately terminated." : ""}`)) return;
     setUpdatingId(userId);
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
@@ -106,13 +151,13 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to toggle user status");
+      if (!res.ok) throw new Error(result.error || `Failed to ${actionName.toLowerCase()} account`);
 
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, isActive: !currentStatus } : u))
+        prev.map((u) => (u.id === userId ? { ...u, isActive: !currentStatus, sessionVersion: result.sessionVersion || u.sessionVersion } : u))
       );
     } catch (err: any) {
-      alert(err.message || "Failed to update user status");
+      alert(err.message || "Failed to update account status");
     } finally {
       setUpdatingId(null);
     }
@@ -174,7 +219,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-text-primary">User & Role Management</h1>
-          <p className="text-sm text-text-secondary">Manage platform accounts, canonical RBAC roles, and access status.</p>
+          <p className="text-sm text-text-secondary">Manage platform accounts, canonical RBAC roles, credential freezes, and session revocation.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
@@ -207,8 +252,9 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
         </div>
       </div>
 
+      {/* CREATE USER MODAL */}
       {isAdding && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <form
             onSubmit={handleCreateUser}
             className="bg-surface-default rounded-2xl w-full max-w-lg p-6 border border-border-default shadow-xl animate-in fade-in zoom-in duration-200 space-y-4"
@@ -258,6 +304,98 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
         </div>
       )}
 
+      {/* EDIT USER CREDENTIALS MODAL */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <form
+            onSubmit={handleEditUser}
+            className="bg-surface-default rounded-2xl w-full max-w-lg p-6 border border-border-default shadow-xl animate-in fade-in zoom-in duration-200 space-y-4"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-xl font-bold text-text-primary">Edit User Credentials</h2>
+              <button type="button" onClick={() => setEditingUser(null)} className="text-text-tertiary hover:text-text-primary">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-text-secondary">Full Name</label>
+              <input name="name" defaultValue={editingUser.name || ""} placeholder="John Doe" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-text-secondary">Email Address *</label>
+              <input required type="email" name="email" defaultValue={editingUser.email} placeholder="user@e3.qa" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-text-secondary">Canonical RBAC Role *</label>
+              <select required name="role" defaultValue={editingUser.role} className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm">
+                {ROLES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="pt-4 flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Updating..." : "Update Credentials"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* CHANGE USER PASSWORD MODAL */}
+      {passwordUser && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <form
+            onSubmit={handleAdminChangePassword}
+            className="bg-surface-default rounded-2xl w-full max-w-md p-6 border border-border-default shadow-xl animate-in fade-in zoom-in duration-200 space-y-4"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-accent" />
+                <h2 className="text-xl font-bold text-text-primary">Set User Password</h2>
+              </div>
+              <button type="button" onClick={() => setPasswordUser(null)} className="text-text-tertiary hover:text-text-primary">
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-text-secondary">
+              Set a new password for <strong className="text-text-primary">{passwordUser.email}</strong>. This will automatically invalidate all existing login sessions for this account.
+            </p>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-text-secondary">New Password *</label>
+              <input
+                required
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+              />
+            </div>
+
+            <div className="pt-4 flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setPasswordUser(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || !newPassword}>
+                {isSubmitting ? "Saving..." : "Set Password"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
       <div className="bg-surface-default border border-border-default rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
@@ -266,7 +404,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Canonical Role</th>
                 <th className="px-6 py-4 font-medium">Tenant Memberships</th>
-                <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-6 py-4 font-medium">Account Status</th>
                 <th className="px-6 py-4 font-medium">Session Version</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
@@ -289,18 +427,6 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {getRoleBadge(u.role)}
-                        <select
-                          value={u.role}
-                          disabled={updatingId === u.id}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          className="text-xs bg-transparent border border-border-default rounded px-1.5 py-1 text-text-secondary"
-                        >
-                          {ROLES.map((r) => (
-                            <option key={r.value} value={r.value}>
-                              {r.label}
-                            </option>
-                          ))}
-                        </select>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -319,37 +445,69 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                     </td>
                     <td className="px-6 py-4">
                       {u.isActive ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-green-400 font-medium">
-                          <UserCheck className="w-3.5 h-3.5" /> Active
+                        <span className="inline-flex items-center gap-1 text-xs text-green-400 font-medium bg-green-500/10 px-2 py-1 rounded border border-green-500/20">
+                          <UserCheck className="w-3.5 h-3.5" /> ACTIVE
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-red-400 font-medium">
-                          <UserX className="w-3.5 h-3.5" /> Suspended
+                        <span className="inline-flex items-center gap-1 text-xs text-rose-400 font-bold bg-rose-500/15 px-2 py-1 rounded border border-rose-500/30 animate-pulse">
+                          <Snowflake className="w-3.5 h-3.5" /> FROZEN
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-xs font-mono text-text-secondary">
                       v{u.sessionVersion || 1}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-2">
+                    <td className="px-6 py-4 text-right space-x-1.5">
                       <Button
                         variant="ghost"
                         size="sm"
                         disabled={updatingId === u.id}
-                        onClick={() => handleToggleStatus(u.id, u.isActive)}
-                        className={u.isActive ? "text-amber-400 hover:bg-amber-400/10" : "text-green-400 hover:bg-green-400/10"}
+                        onClick={() => setEditingUser(u)}
+                        className="text-text-secondary hover:text-text-primary"
+                        title="Edit credentials (name, email, role)"
                       >
-                        {u.isActive ? "Suspend" : "Activate"}
+                        <Edit className="w-3.5 h-3.5 me-1" /> Edit
                       </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={updatingId === u.id}
+                        onClick={() => setPasswordUser(u)}
+                        className="text-accent hover:bg-accent/10"
+                        title="Set new password"
+                      >
+                        <Lock className="w-3.5 h-3.5 me-1" /> Password
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={updatingId === u.id}
+                        onClick={() => handleToggleFreezeStatus(u.id, u.isActive)}
+                        className={u.isActive ? "text-rose-400 hover:bg-rose-400/10" : "text-emerald-400 hover:bg-emerald-400/10"}
+                        title={u.isActive ? "Freeze account and revoke sessions" : "Unfreeze account"}
+                      >
+                        {u.isActive ? (
+                          <>
+                            <Snowflake className="w-3.5 h-3.5 me-1" /> Freeze
+                          </>
+                        ) : (
+                          <>
+                            <UserCheck className="w-3.5 h-3.5 me-1" /> Unfreeze
+                          </>
+                        )}
+                      </Button>
+
                       <Button
                         variant="ghost"
                         size="sm"
                         disabled={updatingId === u.id}
                         onClick={() => handleRevokeSessions(u.id)}
-                        className="text-red-400 hover:bg-red-400/10"
+                        className="text-amber-400 hover:bg-amber-400/10"
                         title="Revoke active sessions"
                       >
-                        <KeyRound className="w-3.5 h-3.5" /> Revoke
+                        <KeyRound className="w-3.5 h-3.5" />
                       </Button>
                     </td>
                   </tr>

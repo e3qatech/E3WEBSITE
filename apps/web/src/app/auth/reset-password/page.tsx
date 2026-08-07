@@ -38,15 +38,21 @@ function ResetPasswordForm() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call for password reset using token
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
+      const res = await fetch('/api/auth/password-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset', token, password }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to reset password");
+
       setIsSuccess(true)
       
-      // Auto redirect to login after success
+      const dest = result.redirectUrl || "/en/login/admin";
       setTimeout(() => {
-        router.push("/auth/login")
-      }, 3000)
+        window.location.href = dest;
+      }, 2500)
     } catch (err: any) {
       setErrorState(err.message || "Failed to reset password. The link may have expired.")
     } finally {

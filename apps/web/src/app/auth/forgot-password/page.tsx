@@ -18,14 +18,20 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call for password reset email
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      if (!email.includes("@")) {
-        throw new Error("Please enter a valid email address.")
+      const res = await fetch('/api/auth/password-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'request', email, portal: 'admin' }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to process request");
+
+      if (result.resetToken && process.env.NODE_ENV !== 'production') {
+        console.log('[DEV_RESET_TOKEN]', result.resetToken);
       }
-      
-      setIsSuccess(true)
+
+      setIsSuccess(true);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.")
     } finally {

@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import db from "@/lib/db";
 import { UsersList } from "@/components/dashboard/crm/UsersList";
+import { ChangePasswordForm } from "@/components/dashboard/settings/ChangePasswordForm";
 
 export const metadata: Metadata = {
   title: "User Management & RBAC | E3 Admin",
@@ -41,14 +42,19 @@ export default async function UsersSettingsPage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">User & Access Control (RBAC)</h1>
         <p className="text-sm text-[var(--text-secondary)]">
-          Manage administrative accounts, role-based access controls, session revocations, and client company memberships.
+          Manage administrative accounts, role-based access controls, account freezes, and session revocation.
         </p>
       </div>
+
       <UsersList initialUsers={formattedUsers} />
+
+      <div className="pt-4 border-t border-[var(--border-default)]">
+        <ChangePasswordForm />
+      </div>
     </div>
   );
 }
