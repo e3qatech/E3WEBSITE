@@ -200,6 +200,27 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               {isAr ? hero.subHeaderAr : hero.subHeaderEn}
             </motion.p>
 
+            {/* Primary Action CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-wrap items-center justify-center gap-4 z-20"
+            >
+              <Link
+                href={`/${locale}/b2c/attractions`}
+                className="px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-magenta)] text-white font-bold text-base shadow-[0_10px_30px_rgba(26,31,214,0.3)] hover:scale-105 transition-all duration-300 uppercase tracking-wider min-h-[48px] flex items-center justify-center"
+              >
+                {isAr ? "استكشف التجارب" : "Explore Attractions"}
+              </Link>
+              <Link
+                href={`/${locale}/b2c/tickets`}
+                className="px-8 py-4 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] font-bold text-base shadow-lg hover:scale-105 transition-all duration-300 uppercase tracking-wider min-h-[48px] flex items-center justify-center"
+              >
+                {isAr ? "احجز التذاكر" : "Book Tickets"}
+              </Link>
+            </motion.div>
+
             {(hero.showSearch ?? true) && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
