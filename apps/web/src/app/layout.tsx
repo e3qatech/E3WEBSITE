@@ -4,7 +4,6 @@ import Script from "next/script"
 import { SEO } from "@/components/shared/SEO"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
-import { PortalSwitcher } from "@/components/layout/PortalSwitcher"
 import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import "./globals.css"
@@ -123,8 +122,6 @@ export default async function RootLayout({
                 ]
               }} 
             />
-            
-            <PortalSwitcher />
             
             {children}
           </ThemeProvider>
