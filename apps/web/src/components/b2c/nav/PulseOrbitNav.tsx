@@ -252,11 +252,11 @@ export function PulseOrbitNav({
           </nav>
 
           {/* Action CTAs & Orbit Menu Trigger */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {/* Language Section Tab in Main Menu Bar */}
             <button
               onClick={toggleLanguage}
-              className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px] cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
               title={isAr ? 'Switch to English' : 'التغيير إلى العربية'}
             >
               <Globe className="h-3.5 w-3.5 text-sky-400" />
@@ -266,7 +266,7 @@ export function PulseOrbitNav({
             {/* Theme Toggle Button in Main Menu Bar */}
             <button
               onClick={toggleTheme}
-              className="hidden sm:flex items-center justify-center p-2.5 rounded-full border border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px] w-[44px] cursor-pointer"
+              className="hidden sm:inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
               aria-label="Toggle Theme"
               title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
@@ -276,7 +276,7 @@ export function PulseOrbitNav({
             {!isB2C && (
               <Link
                 href={`/${locale}/login/business`}
-                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-extrabold text-amber-400 hover:bg-amber-500/20 transition-all min-h-[44px]"
+                className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 text-xs font-extrabold text-amber-400 hover:bg-amber-500/20 transition-all select-none cursor-pointer"
               >
                 <span>{isAr ? 'تسجيل دخول المنظم' : 'Organizer Login'}</span>
               </Link>
@@ -286,7 +286,7 @@ export function PulseOrbitNav({
             {isB2C && (
               <Link
                 href={`/${locale}/b2c/tickets`}
-                className="hidden sm:flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-lg shadow-emerald-950 hover:opacity-95 transition-opacity min-h-[44px]"
+                className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
                 onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header' })}
               >
                 <Ticket className="h-4 w-4" />
@@ -299,7 +299,7 @@ export function PulseOrbitNav({
               onClick={toggleMenu}
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
-              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all min-h-[44px] cursor-pointer"
+              className="inline-flex items-center gap-2 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
             >
               {menuOpen ? <X className="h-4 w-4 text-rose-400" /> : <MenuIcon className="h-4 w-4 text-emerald-400" />}
               <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? 'القائمة' : 'PULSE ORBIT')}</span>

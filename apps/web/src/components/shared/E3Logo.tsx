@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface E3LogoProps {
@@ -12,20 +12,58 @@ interface E3LogoProps {
   showText?: boolean;
 }
 
+// Global in-memory cache to prevent multiple /api/settings fetches across components
+let globalSettingsLogoCache: { lightLogoUrl?: string; darkLogoUrl?: string } | null = null;
+let globalSettingsFetchPromise: Promise<{ lightLogoUrl?: string; darkLogoUrl?: string }> | null = null;
+
+async function fetchGeneralLogos() {
+  if (globalSettingsLogoCache) return globalSettingsLogoCache;
+  if (!globalSettingsFetchPromise) {
+    globalSettingsFetchPromise = fetch("/api/settings")
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((json) => {
+        const data = (json as any)?.data || json || {};
+        const logos = {
+          lightLogoUrl: data.lightLogoUrl || undefined,
+          darkLogoUrl: data.darkLogoUrl || undefined,
+        };
+        globalSettingsLogoCache = logos;
+        return logos;
+      })
+      .catch(() => ({}));
+  }
+  return globalSettingsFetchPromise;
+}
+
 export function E3Logo({
   isLight = false,
-  lightLogoUrl,
-  darkLogoUrl,
+  lightLogoUrl: propLightUrl,
+  darkLogoUrl: propDarkUrl,
   className,
   size = "md",
   showText = false,
 }: E3LogoProps) {
-  // If explicit image URLs are provided via CMS or props
+  const [fetchedLogos, setFetchedLogos] = useState<{ lightLogoUrl?: string; darkLogoUrl?: string }>(
+    globalSettingsLogoCache || {}
+  );
+
+  useEffect(() => {
+    if (!propLightUrl && !propDarkUrl && !globalSettingsLogoCache) {
+      fetchGeneralLogos().then((logos) => {
+        setFetchedLogos(logos);
+      });
+    }
+  }, [propLightUrl, propDarkUrl]);
+
+  const lightLogoUrl = propLightUrl || fetchedLogos.lightLogoUrl;
+  const darkLogoUrl = propDarkUrl || fetchedLogos.darkLogoUrl;
+
+  // If explicit image URLs are provided via CMS, props, or settings
   const activeLogoUrl = isLight ? (lightLogoUrl || darkLogoUrl) : (darkLogoUrl || lightLogoUrl);
 
   if (activeLogoUrl) {
     return (
-      <div className={cn("flex items-center gap-2.5", className)}>
+      <div className={cn("inline-flex items-center gap-2.5 shrink-0", className)}>
         <img
           src={activeLogoUrl}
           alt="E3 Qatar Logo"
@@ -37,6 +75,24 @@ export function E3Logo({
             size === "xl" && "h-14"
           )}
         />
+        {showText && (
+          <div className="flex flex-col select-none">
+            <span
+              className={cn(
+                "font-black tracking-tight leading-none text-transparent bg-clip-text",
+                size === "sm" && "text-sm",
+                size === "md" && "text-base",
+                size === "lg" && "text-xl",
+                size === "xl" && "text-2xl",
+                isLight
+                  ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900"
+                  : "bg-gradient-to-r from-white via-slate-200 to-slate-400"
+              )}
+            >
+              E3 QATAR
+            </span>
+          </div>
+        )}
       </div>
     );
   }

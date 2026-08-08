@@ -79,12 +79,12 @@ const sidebarConfig = [
     { label: "Broadcasts", href: "/dashboard/operations/broadcast" }
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Global General", href: "/dashboard/settings/general" },
-    { label: "Pulse Orbit Settings", href: "/dashboard/settings/pulse-orbit" },
     { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
-    { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },
+    { label: "Pulse Hub", href: "/dashboard/settings/pulse-orbit" },
+    { label: "Global General", href: "/dashboard/settings/general" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },
+    { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },
     { label: "SEO & Meta Settings", href: "/dashboard/settings/seo" }
   ] },
 ];
