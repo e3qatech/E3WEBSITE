@@ -529,7 +529,11 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out opacity-75 group-hover:opacity-90"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-purple)]" />
+              <img 
+                src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop" 
+                alt={isNameAr ? attraction.nameAr : attraction.nameEn}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out opacity-75 group-hover:opacity-90"
+              />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(8,10,42,0.95)] via-[rgba(8,10,42,0.4)] to-transparent" />
           </div>
