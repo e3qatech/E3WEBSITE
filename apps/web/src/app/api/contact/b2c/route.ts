@@ -106,6 +106,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(inquiry, { status: 201 });
     }
 
+    if (actionType === 'PACKAGE_INQUIRY' || actionType === 'INQUIRY' || body.subject?.includes('Package')) {
+      const inquiry = await db.inquiry.create({
+        data: {
+          type: 'PACKAGE_BOOKING',
+          name: body.name || body.fullName || 'Guest',
+          email: body.email || 'guest@e3.qa',
+          phone: body.phone || null,
+          message: body.message || `Subject: ${body.subject || 'Package Booking Inquiry'}`,
+        }
+      });
+      return NextResponse.json(inquiry, { status: 201 });
+    }
+
     return NextResponse.json({ error: 'Invalid actionType' }, { status: 400 });
   } catch (error: any) {
     if (error instanceof z.ZodError) {

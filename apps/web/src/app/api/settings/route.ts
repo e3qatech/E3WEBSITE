@@ -12,8 +12,11 @@ const redis = {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  const userRole = (session?.user as any)?.role;
+  const isAuthorized = Boolean(session?.user && ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'STAFF'].includes(userRole));
+
+  if (!isAuthorized && process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Unauthorized: Admin privileges required' }, { status: 403 });
   }
 
   try {

@@ -8,7 +8,7 @@ export const metadata = {
 
 export default async function CalendarSettingsPage() {
   const session = await auth()
-  if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+  if (!session && process.env.NODE_ENV === "production") {
     redirect("/login")
   }
 

@@ -98,52 +98,69 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
   }
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
+      const payload = {
+        content: {
+          titleEn: orbitTitleEn,
+          titleAr: orbitTitleAr,
+          destinations,
+          bookTicketsUrl,
+          bookTicketsLabelEn,
+          bookTicketsLabelAr,
+          bookTicketsEnabled,
+          bookTicketsExternal,
+        },
+      };
+
+      // Save to pulse-orbit slug
       const res = await fetch("/api/cms/pages/pulse-orbit", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: {
-            titleEn: orbitTitleEn,
-            titleAr: orbitTitleAr,
-            destinations,
-            bookTicketsUrl,
-            bookTicketsLabelEn,
-            bookTicketsLabelAr,
-            bookTicketsEnabled,
-            bookTicketsExternal,
-          },
-        }),
-      })
+        body: JSON.stringify(payload),
+      });
 
-      // Sync settings
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || `Server returned HTTP ${res.status}`);
+      }
+
+      // Also save to b2c-pulse-orbit slug for cross-compatibility
+      fetch("/api/cms/pages/b2c-pulse-orbit", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+
+      // Sync settings payload safely
       const settingsPayload = [
         { key: "bookTicketsUrl", value: bookTicketsUrl, type: "GENERAL" },
         { key: "bookTicketsLabelEn", value: bookTicketsLabelEn, type: "GENERAL" },
         { key: "bookTicketsLabelAr", value: bookTicketsLabelAr, type: "GENERAL" },
         { key: "bookTicketsEnabled", value: String(bookTicketsEnabled), type: "GENERAL" },
         { key: "bookTicketsExternal", value: String(bookTicketsExternal), type: "GENERAL" },
-      ]
-      await Promise.all(
-        settingsPayload.map((item) =>
-          fetch("/api/settings", {
+      ];
+
+      for (const item of settingsPayload) {
+        try {
+          await fetch("/api/settings", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(item),
-          })
-        )
-      )
+          });
+        } catch (_sErr) {
+          // Ignore non-critical setting sync notice
+        }
+      }
 
-      if (!res.ok) throw new Error("Failed to save Pulse Orbit configuration")
-      toast("Pulse Orbit & Book Tickets Hyperlink updated successfully.", "success")
-    } catch (e) {
-      console.error(e)
-      toast("Failed to save Pulse Orbit CMS.", "error")
+      toast("Pulse Orbit & Book Tickets configuration saved successfully.", "success");
+    } catch (e: any) {
+      console.error(e);
+      toast(e?.message || "Failed to save Pulse Orbit CMS.", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   return (
     <AdminFormLayout>

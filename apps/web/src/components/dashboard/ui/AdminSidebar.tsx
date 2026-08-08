@@ -56,16 +56,14 @@ const sidebarConfig = [
     { label: "FAQs Editor", href: "/dashboard/b2b/faqs" },
     { label: "Feedback Form", href: "/dashboard/b2b/feedback" }
   ] },
-  { label: "B2C Content", icon: Users2, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Attractions", href: "/dashboard/b2c/attractions" },
-    { label: "Calendar", href: "/dashboard/b2c/calendar" },
-    { label: "Contact", href: "/dashboard/b2c/contact" }
-  ] },
-  { label: "B2C Pages", icon: Star, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+  { label: "B2C Experience CMS", icon: Star, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Editor", href: "/dashboard/b2c/landing" },
     { label: "Pulse Orbit CMS", href: "/dashboard/b2c/pulse-orbit" },
-    { label: "Packages CMS", href: "/dashboard/b2c/packages" },
-    { label: "Discover Editor", href: "/dashboard/b2c/discover" }
+    { label: "Attractions Manager", href: "/dashboard/b2c/attractions" },
+    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
+    { label: "Events & Calendar", href: "/dashboard/b2c/calendar" },
+    { label: "Discover Editor", href: "/dashboard/b2c/discover" },
+    { label: "Contact Editor", href: "/dashboard/b2c/contact" }
   ] },
   { label: "Global Media", icon: Database, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
     { label: "Media Library", href: "/dashboard/cms/media" },
@@ -80,7 +78,7 @@ const sidebarConfig = [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },
     { label: "Client Directory", href: "/dashboard/crm/clients" },
     { label: "Users & Roles", href: "/dashboard/crm/users" },
-    { label: "Inquiries", href: "/dashboard/crm/inquiries" },
+    { label: "Inquiries & Bookings", href: "/dashboard/crm/inquiries" },
     { label: "Talent AI Parser", href: "/dashboard/crm/talent" },
     { label: "Subscribers", href: "/dashboard/crm/subscribers" }
   ] },
@@ -94,7 +92,6 @@ const sidebarConfig = [
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
-    { label: "Pulse Hub", href: "/dashboard/settings/pulse-orbit" },
     { label: "Global General", href: "/dashboard/settings/general" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },
     { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },

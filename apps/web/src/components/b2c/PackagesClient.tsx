@@ -178,6 +178,7 @@ export function PackagesClient({ initialSettings }: { initialSettings?: any }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          actionType: 'PACKAGE_INQUIRY',
           name: formData.name,
           email: formData.email,
           phone: formData.phone,

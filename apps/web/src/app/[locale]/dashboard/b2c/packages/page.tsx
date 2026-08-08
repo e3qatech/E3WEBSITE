@@ -13,9 +13,14 @@ export default async function AdminPackagesPage() {
   let content: any = null;
 
   try {
-    const page = await db.pages.findUnique({
+    let page = await db.pages.findUnique({
       where: { slug: "b2c-packages" },
     });
+    if (!page) {
+      page = await db.pages.findUnique({
+        where: { slug: "packages" },
+      });
+    }
     if (page?.content) {
       content = page.content;
     }

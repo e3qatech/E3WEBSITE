@@ -7,11 +7,21 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   hero: {
     mediaType: "VIDEO",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
+    posterUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
     headerEn: "E3 PULSE ENTERTAINMENT WORLDS",
     headerAr: "استكشف عالم إي ثري الترفيهي",
     subHeaderEn: "Qatar premier immersive attractions and kinetic entertainment.",
     subHeaderAr: "تجارب ترفيهية غامرة ومدن ألعاب فضائية في قطر",
     showSearch: true,
+    streamMediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+    streamPosterUrl: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop",
+    streamBadgeEn: "LIVE STREAM",
+    streamBadgeAr: "مباشر الآن",
+    streamTitleEn: "E3 KINETIC EXPERIENCE",
+    streamTitleAr: "عالم إي ثري الترفيهي",
+    streamSubtitleEn: "Doha Flagship Attractions & Events",
+    streamSubtitleAr: "تجارب تفاعلية فريدة في الدوحة",
+    streamButtonUrl: "/b2c/attractions",
   },
   maskedVideo: {
     enabled: true,
@@ -108,6 +118,50 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     mediaType: "IMAGE",
     mediaUrl: "",
   }
+};
+
+export const DEFAULT_PULSE_ORBIT_CONTENT = {
+  titleEn: "Explore E3 Kinetic Destinations",
+  titleAr: "استكشف وجهات إي ثري التفاعلية",
+  bookTicketsUrl: "/b2c/attractions",
+  bookTicketsLabelEn: "Book Tickets",
+  bookTicketsLabelAr: "حجز التذاكر",
+  bookTicketsEnabled: true,
+  bookTicketsExternal: false,
+  destinations: [
+    {
+      id: "dest-1",
+      slug: "kinetic-dome",
+      titleEn: "E3 Kinetic Dome",
+      titleAr: "قبة إي ثري الحركية",
+      descriptionEn: "360-degree immersive projection dome featuring real-time motion control.",
+      descriptionAr: "قبة عروض تفاعلية 360 درجة مع التحكم بالحركة في الوقت الفعلي.",
+      mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-futuristic-hologram-interface-animation-42861-large.mp4",
+      mediaType: "VIDEO",
+      badgeEn: "LIVE EXPERIENCE",
+      badgeAr: "تجربة حية",
+      accentColor: "#10b981",
+      ctaTextEn: "Discover Dome",
+      ctaTextAr: "استكشف القبة",
+      ctaUrl: "/b2c/attractions/kinetic-dome"
+    },
+    {
+      id: "dest-2",
+      slug: "cyber-arena",
+      titleEn: "Cyber VR Arena",
+      titleAr: "ساحة الفضاء الإلكتروني",
+      descriptionEn: "Multi-player haptic virtual reality arena with esports integration.",
+      descriptionAr: "ساحة واقع افتراضي متعددة اللاعبين مع نظام المحاكاة اللمسية.",
+      mediaUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
+      mediaType: "IMAGE",
+      badgeEn: "VR ESPORTS",
+      badgeAr: "رياضات إلكترونية",
+      accentColor: "#b013b8",
+      ctaTextEn: "Enter Arena",
+      ctaTextAr: "ادخل الساحة",
+      ctaUrl: "/b2c/attractions/cyber-arena"
+    }
+  ]
 };
 
 export const DEFAULT_B2C_PACKAGES_CONTENT = {
@@ -267,6 +321,16 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
         ...defaults.inquiryForm,
         ...(raw.inquiryForm || {}),
       }
+    };
+  }
+
+  if (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit') {
+    const defaults = DEFAULT_PULSE_ORBIT_CONTENT;
+    const raw = rawContent || {};
+    return {
+      ...defaults,
+      ...raw,
+      destinations: (raw.destinations && raw.destinations.length > 0) ? raw.destinations : defaults.destinations,
     };
   }
 

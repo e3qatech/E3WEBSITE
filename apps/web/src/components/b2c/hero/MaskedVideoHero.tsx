@@ -46,6 +46,13 @@ export function MaskedVideoHero({
   const mediaUrl = heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4';
   const posterUrl = heroConfig?.posterUrl || maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop';
   
+  const streamMediaUrl = heroConfig?.streamMediaUrl || mediaUrl;
+  const streamPosterUrl = heroConfig?.streamPosterUrl || posterUrl;
+  const streamBadge = isAr ? (heroConfig?.streamBadgeAr || 'مباشر الآن') : (heroConfig?.streamBadgeEn || 'LIVE STREAM');
+  const streamTitle = isAr ? (heroConfig?.streamTitleAr || 'عالم إي ثري الترفيهي') : (heroConfig?.streamTitleEn || 'E3 KINETIC EXPERIENCE');
+  const streamSubtitle = isAr ? (heroConfig?.streamSubtitleAr || 'تجارب تفاعلية فريدة في الدوحة') : (heroConfig?.streamSubtitleEn || 'Doha Flagship Attractions & Events');
+  const streamButtonUrl = heroConfig?.streamButtonUrl || `/${locale}/b2c/attractions`;
+  
   // Determine media type dynamically if not explicitly specified
   let mediaType = (heroConfig?.mediaType || 'VIDEO').toUpperCase();
   if (mediaUrl.includes('spline.design') || mediaUrl.includes('sketchfab') || mediaUrl.includes('/3d/')) {
@@ -207,10 +214,10 @@ export function MaskedVideoHero({
           >
             {/* Card Preview Media */}
             <div className="w-full h-72 md:h-80 rounded-2xl overflow-hidden relative bg-slate-950">
-              {mediaType === 'VIDEO' && mediaUrl ? (
+              {(/\.(mp4|webm|mov|m4v|mkv)$/i.test(streamMediaUrl) || streamMediaUrl.includes('/api/media/') || streamMediaUrl.includes('mixkit') || streamMediaUrl.includes('video')) ? (
                 <video
-                  src={mediaUrl}
-                  poster={posterUrl}
+                  src={streamMediaUrl}
+                  poster={streamPosterUrl}
                   autoPlay
                   loop
                   muted={isMuted}
@@ -219,15 +226,15 @@ export function MaskedVideoHero({
                 />
               ) : (
                 <img
-                  src={posterUrl || mediaUrl}
-                  alt="Featured Experience"
+                  src={streamPosterUrl || streamMediaUrl}
+                  alt={streamTitle}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
 
               {/* Sound Toggle Button if Video */}
-              {mediaType === 'VIDEO' && (
+              {(/\.(mp4|webm|mov|m4v|mkv)$/i.test(streamMediaUrl) || streamMediaUrl.includes('/api/media/') || streamMediaUrl.includes('mixkit') || streamMediaUrl.includes('video')) && (
                 <button
                   type="button"
                   onClick={() => setIsMuted(!isMuted)}
@@ -241,7 +248,7 @@ export function MaskedVideoHero({
               <div className="absolute top-3 start-3 flex items-center gap-2">
                 <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
                 <span className="px-3 py-1 rounded-full bg-slate-950/80 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md">
-                  LIVE STREAM
+                  {streamBadge}
                 </span>
               </div>
             </div>
@@ -250,15 +257,15 @@ export function MaskedVideoHero({
             <div className="p-4 pt-4 flex items-center justify-between text-start">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider font-display">
-                  {isAr ? 'عالم إي ثري الترفيهي' : 'E3 Kinetic Experience'}
+                  {streamTitle}
                 </h3>
                 <p className="text-xs text-slate-400 font-medium">
-                  {isAr ? 'تجارب تفاعلية فريدة في الدوحة' : 'Doha Flagship Attractions & Events'}
+                  {streamSubtitle}
                 </p>
               </div>
 
               <Link
-                href={`/${locale}/b2c/attractions`}
+                href={streamButtonUrl}
                 className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 transition-all cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-current ms-0.5" />

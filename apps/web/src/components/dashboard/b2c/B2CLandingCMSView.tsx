@@ -5,7 +5,7 @@ import { AdminFormLayout } from "../ui/AdminFormLayout";
 import { AdminPageHeader } from "../ui/AdminPageHeader";
 import { AdminMediaPicker } from "../ui/AdminMediaPicker";
 import { AdminButton } from "../ui/AdminButton";
-import { Plus, Trash2, Video, Eye, Sparkles, Layers, Shield, ChevronDown, ChevronUp, Layout, HelpCircle, Mail, Type, CheckCircle } from "lucide-react";
+import { Plus, Trash2, Video, Eye, Sparkles, Layers, Shield, ChevronDown, ChevronUp, Layout, HelpCircle, Mail, Type, CheckCircle, Play } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { MaskedMediaEngine } from "@/components/b2c/hero/MaskedMediaEngine";
 import { MaskPresetType } from "@/components/b2c/hero/MaskPresets";
@@ -340,6 +340,107 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               </div>
             </div>
 
+            {/* Live Stream Card Content Manager */}
+            <div className="bg-surface-default border border-border-default rounded-2xl p-6 space-y-6 shadow-sm">
+              <div className="flex items-center gap-3 border-b border-border-default pb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <Play className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-text-primary">Featured Live Stream Card</h2>
+                  <p className="text-xs text-text-secondary">Configure the interactive right-side Live Stream card media, badge, titles, and target CTA link.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <AdminMediaPicker
+                  label="Live Stream Media File (Video / Image)"
+                  value={data.hero.streamMediaUrl || data.hero.mediaUrl}
+                  onChange={(url) => handleChange("hero", "streamMediaUrl", url)}
+                  accept="video/*,image/*"
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Badge Label (English)</label>
+                    <input
+                      type="text"
+                      value={data.hero.streamBadgeEn || "LIVE STREAM"}
+                      onChange={e => handleChange("hero", "streamBadgeEn", e.target.value)}
+                      placeholder="LIVE STREAM"
+                      className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Badge Label (Arabic)</label>
+                    <input
+                      type="text"
+                      value={data.hero.streamBadgeAr || "مباشر الآن"}
+                      onChange={e => handleChange("hero", "streamBadgeAr", e.target.value)}
+                      placeholder="مباشر الآن"
+                      className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Card Title (English)</label>
+                    <input
+                      type="text"
+                      value={data.hero.streamTitleEn || "E3 KINETIC EXPERIENCE"}
+                      onChange={e => handleChange("hero", "streamTitleEn", e.target.value)}
+                      placeholder="E3 KINETIC EXPERIENCE"
+                      className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Card Title (Arabic)</label>
+                    <input
+                      type="text"
+                      value={data.hero.streamTitleAr || "عالم إي ثري الترفيهي"}
+                      onChange={e => handleChange("hero", "streamTitleAr", e.target.value)}
+                      placeholder="عالم إي ثري الترفيهي"
+                      className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Subtitle / Location (English)</label>
+                    <input
+                      type="text"
+                      value={data.hero.streamSubtitleEn || "Doha Flagship Attractions & Events"}
+                      onChange={e => handleChange("hero", "streamSubtitleEn", e.target.value)}
+                      placeholder="Doha Flagship Attractions & Events"
+                      className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Subtitle / Location (Arabic)</label>
+                    <input
+                      type="text"
+                      value={data.hero.streamSubtitleAr || "تجارب تفاعلية فريدة في الدوحة"}
+                      onChange={e => handleChange("hero", "streamSubtitleAr", e.target.value)}
+                      placeholder="تجارب تفاعلية فريدة في الدوحة"
+                      className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Play Button Target Route URL</label>
+                  <input
+                    type="text"
+                    value={data.hero.streamButtonUrl || "/b2c/attractions"}
+                    onChange={e => handleChange("hero", "streamButtonUrl", e.target.value)}
+                    placeholder="/b2c/attractions"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-xs font-mono text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
             {/* Collapsible Advanced Masking & Shader Settings (Hidden by default to avoid clutter) */}
             <div className="bg-surface-default border border-border-default rounded-2xl overflow-hidden shadow-sm">
               <button
@@ -494,12 +595,12 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                   accentColor={currentMaskedMedia.accent}
                   altTextEn={currentMaskedMedia.altEn}
                   altTextAr={currentMaskedMedia.altAr}
-                  isRtl={previewLocale === "ar"}
                 />
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* TAB 2: SECTION TITLES */}
         {activeTab === "sections" && (
@@ -556,9 +657,10 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* TAB 3: NEWSLETTER & CTAs */}
+        {/* TAB 3: NEWSLETTER & CTAs & FOOTER MEDIA */}
         {activeTab === "cta" && (
           <div className="space-y-6">
+            {/* Newsletter Subscription Banner */}
             <div className="bg-surface-default border border-border-default rounded-2xl p-6 space-y-6 shadow-sm">
               <div className="flex items-center gap-3 border-b border-border-default pb-4">
                 <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
@@ -566,7 +668,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-text-primary">Newsletter Subscription Banner</h2>
-                  <p className="text-xs text-text-secondary">Customize the newsletter opt-in banner titles.</p>
+                  <p className="text-xs text-text-secondary">Customize the newsletter opt-in banner titles and description.</p>
                 </div>
               </div>
 
@@ -577,6 +679,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                     type="text"
                     value={data.subscribe?.titleEn || ''}
                     onChange={e => handleChange("subscribe", "titleEn", e.target.value)}
+                    placeholder="JOIN THE E3 PULSE INSIDERS"
                     className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
@@ -586,10 +689,268 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                     type="text"
                     value={data.subscribe?.titleAr || ''}
                     onChange={e => handleChange("subscribe", "titleAr", e.target.value)}
+                    placeholder="انضم إلى النشرة البريدية لـ إي ثري"
                     className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Subscribe Subtitle (English)</label>
+                  <input
+                    type="text"
+                    value={data.subscribe?.subtitleEn || ''}
+                    onChange={e => handleChange("subscribe", "subtitleEn", e.target.value)}
+                    placeholder="Get exclusive access to VIP attraction launches, secret pop-ups, and early ticket drops."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Subscribe Subtitle (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.subscribe?.subtitleAr || ''}
+                    onChange={e => handleChange("subscribe", "subtitleAr", e.target.value)}
+                    placeholder="احصل على وصول حصري لإطلاق الوجهات الجديدة وتذاكر الفعاليات القادمة."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Birthday Party & Corporate Packages Banner */}
+            <div className="bg-surface-default border border-border-default rounded-2xl p-6 space-y-6 shadow-sm">
+              <div className="flex items-center gap-3 border-b border-border-default pb-4">
+                <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-text-primary">Birthday & Corporate Packages Banner</h2>
+                  <p className="text-xs text-text-secondary">Customize the packages banner callout visible above the footer.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Banner Headline (English)</label>
+                  <input
+                    type="text"
+                    value={data.careersCta?.titleEn || ''}
+                    onChange={e => handleChange("careersCta", "titleEn", e.target.value)}
+                    placeholder="HOST YOUR BIRTHDAY PARTY OR CORPORATE EVENT"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Banner Headline (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.careersCta?.titleAr || ''}
+                    onChange={e => handleChange("careersCta", "titleAr", e.target.value)}
+                    placeholder="احجز حفل عيد ميلادك أو فعاليتك الخاصة"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Banner Description (English)</label>
+                  <textarea
+                    value={data.careersCta?.subtitleEn || ''}
+                    onChange={e => handleChange("careersCta", "subtitleEn", e.target.value)}
+                    rows={2}
+                    placeholder="Discover all-inclusive VIP birthday packages, corporate team-building outings, and exclusive venue buyouts across Qatar."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Banner Description (Arabic)</label>
+                  <textarea
+                    value={data.careersCta?.subtitleAr || ''}
+                    onChange={e => handleChange("careersCta", "subtitleAr", e.target.value)}
+                    rows={2}
+                    placeholder="وفرنا لك أفضل الباقات الشاملة للأطفال والشركات مع غرف حفلات خاصة، صالات VIP، وتجارب استثنائية."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl p-3 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Button Text (English)</label>
+                  <input
+                    type="text"
+                    value={data.careersCta?.buttonTextEn || ''}
+                    onChange={e => handleChange("careersCta", "buttonTextEn", e.target.value)}
+                    placeholder="EXPLORE PACKAGES & PRICING"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Button Text (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.careersCta?.buttonTextAr || ''}
+                    onChange={e => handleChange("careersCta", "buttonTextAr", e.target.value)}
+                    placeholder="استكشف الباقات والحجوزات"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Target Route URL</label>
+                  <input
+                    type="text"
+                    value={data.careersCta?.buttonUrl || '/b2c/packages'}
+                    onChange={e => handleChange("careersCta", "buttonUrl", e.target.value)}
+                    placeholder="/b2c/packages"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-xs font-mono text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Main Bottom Call To Action (CTA) Section */}
+            <div className="bg-surface-default border border-border-default rounded-2xl p-6 space-y-6 shadow-sm">
+              <div className="flex items-center gap-3 border-b border-border-default pb-4">
+                <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400">
+                  <Layout className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-text-primary">Main Bottom Call To Action (CTA)</h2>
+                  <p className="text-xs text-text-secondary">Customize headline and main navigation CTA button.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">CTA Title (English)</label>
+                  <input
+                    type="text"
+                    value={data.cta?.titleEn || ''}
+                    onChange={e => handleChange("cta", "titleEn", e.target.value)}
+                    placeholder="READY TO EXPERIENCE E3 QATAR?"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">CTA Title (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.cta?.titleAr || ''}
+                    onChange={e => handleChange("cta", "titleAr", e.target.value)}
+                    placeholder="هل أنت مستعد لخوض تجربة إي ثري؟"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Button Label (English)</label>
+                  <input
+                    type="text"
+                    value={data.cta?.buttonTextEn || ''}
+                    onChange={e => handleChange("cta", "buttonTextEn", e.target.value)}
+                    placeholder="EXPLORE ALL ATTRACTIONS"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Button Label (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.cta?.buttonTextAr || ''}
+                    onChange={e => handleChange("cta", "buttonTextAr", e.target.value)}
+                    placeholder="استكشف كافة الوجهات"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Button Target Route</label>
+                  <input
+                    type="text"
+                    value={data.cta?.buttonUrl || '/b2c/attractions'}
+                    onChange={e => handleChange("cta", "buttonUrl", e.target.value)}
+                    placeholder="/b2c/attractions"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-xs font-mono text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Cinematic Footer Background Media */}
+            <div className="bg-surface-default border border-border-default rounded-2xl p-6 space-y-6 shadow-sm">
+              <div className="flex items-center gap-3 border-b border-border-default pb-4">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400">
+                  <Video className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-text-primary">Cinematic Footer Media & Tagline</h2>
+                  <p className="text-xs text-text-secondary">Configure background media (video, image, 3D model, iframe) and tagline at the very bottom of the page.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Footer Tagline (English)</label>
+                  <input
+                    type="text"
+                    value={data.footer?.titleEn || ''}
+                    onChange={e => handleChange("footer", "titleEn", e.target.value)}
+                    placeholder="Live the Moment."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Footer Tagline (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.footer?.titleAr || ''}
+                    onChange={e => handleChange("footer", "titleAr", e.target.value)}
+                    placeholder="عش اللحظة."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Footer Subtitle (English)</label>
+                  <input
+                    type="text"
+                    value={data.footer?.subtitleEn || ''}
+                    onChange={e => handleChange("footer", "subtitleEn", e.target.value)}
+                    placeholder="Creating unforgettable memories in Qatar."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Footer Subtitle (Arabic)</label>
+                  <input
+                    type="text"
+                    value={data.footer?.subtitleAr || ''}
+                    onChange={e => handleChange("footer", "subtitleAr", e.target.value)}
+                    placeholder="نصنع ذكريات لا تُنسى في قطر"
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none dir-rtl"
+                  />
+                </div>
+              </div>
+
+              <AdminMediaPicker
+                label="Footer Background Media (Video, Image, 3D Model, iframe)"
+                value={data.footer?.mediaUrl || ''}
+                onChange={(url) => {
+                  const isVid = /\.(mp4|webm|mov|m4v|mkv)$/i.test(url) || url.includes('video') || url.includes('/api/media/');
+                  const is3D = url.includes('.glb') || url.includes('.gltf') || url.includes('spline') || url.includes('3d');
+                  const isIframe = url.includes('<iframe') || url.includes('http');
+                  const type = isVid ? 'VIDEO' : is3D ? 'MODEL_3D' : isIframe ? 'IFRAME' : 'IMAGE';
+                  handleChange("footer", "mediaUrl", url);
+                  handleChange("footer", "mediaType", type);
+                }}
+                accept="video/*,image/*"
+              />
             </div>
           </div>
         )}
