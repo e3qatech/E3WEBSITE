@@ -97,70 +97,45 @@ export function E3Logo({
     );
   }
 
-  // Built-in Dynamic Light & Dark Mode SVG Vector Logos
-  const iconSize = size === "sm" ? 26 : size === "md" ? 34 : size === "lg" ? 42 : 52;
+  // Built-in Dynamic Box-Free Vector Logo
+  const svgWidth = size === "sm" ? 42 : size === "md" ? 54 : size === "lg" ? 68 : 84;
+  const svgHeight = size === "sm" ? 20 : size === "md" ? 24 : size === "lg" ? 30 : 36;
 
   return (
-    <div className={cn("inline-flex items-center gap-2.5 select-none transition-colors duration-300", className)}>
-      {/* Emblem SVG */}
+    <div className={cn("inline-flex items-center gap-2.5 select-none transition-colors duration-300 shrink-0", className)}>
+      {/* Box-Free Stylized E3 Vector Mark */}
       <div className="relative flex items-center justify-center shrink-0">
         <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 44 44"
+          width={svgWidth}
+          height={svgHeight}
+          viewBox="0 0 76 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="transition-transform duration-300 hover:scale-105"
         >
           <defs>
-            {/* Light Mode Gradient */}
-            <linearGradient id="e3LogoLightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="e3BrandGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#0f172a" />
-              <stop offset="100%" stopColor="#1e293b" />
+              <stop offset="50%" stopColor="#0284c7" />
+              <stop offset="100%" stopColor="#0d9488" />
             </linearGradient>
-            <linearGradient id="e3LogoLightAccent" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#059669" />
-              <stop offset="100%" stopColor="#10b981" />
-            </linearGradient>
-
-            {/* Dark Mode Gradient */}
-            <linearGradient id="e3LogoDarkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="e3BrandGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#10b981" />
               <stop offset="50%" stopColor="#06b6d4" />
               <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
-            <linearGradient id="e3LogoDarkBg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#18181b" />
-              <stop offset="100%" stopColor="#09090b" />
-            </linearGradient>
           </defs>
 
-          {isLight ? (
-            /* LIGHT MODE SVG MARK */
-            <g>
-              {/* Outer Shield Frame */}
-              <rect x="2" y="2" width="40" height="40" rx="10" fill="url(#e3LogoLightGradient)" />
-              
-              {/* Stylized 'E' bars */}
-              <path d="M12 13H31C32.1046 13 33 13.8954 33 15V16C33 17.1046 32.1046 18 31 18H17V20H27C28.1046 20 29 20.8954 29 22V23C29 24.1046 28.1046 25 27 25H17V27H31C32.1046 27 33 27.8954 33 29V30C33 31.1046 32.1046 32 31 32H12C10.8954 32 10 31.1046 10 30V15C10 13.8954 10.8954 13 12 13Z" fill="#ffffff" />
-              
-              {/* Vibrant Accent Edge '3' indicator */}
-              <path d="M28 13L34 19V21L29 26L34 31V32L28 32" stroke="url(#e3LogoLightAccent)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-            </g>
-          ) : (
-            /* DARK MODE SVG MARK WITH GLOW */
-            <g>
-              {/* Glowing Ambient Backdrop */}
-              <rect x="2" y="2" width="40" height="40" rx="10" fill="url(#e3LogoDarkBg)" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              
-              {/* Neon Glow Contour */}
-              <rect x="3" y="3" width="38" height="38" rx="9" fill="none" stroke="url(#e3LogoDarkGradient)" strokeWidth="1.5" strokeDasharray="60 30" opacity="0.8" />
-
-              {/* Stylized Geometric E3 Emblem */}
-              <path d="M12 13H31C32.1046 13 33 13.8954 33 15V16C33 17.1046 32.1046 18 31 18H17V20H27C28.1046 20 29 20.8954 29 22V23C29 24.1046 28.1046 25 27 25H17V27H31C32.1046 27 33 27.8954 33 29V30C33 31.1046 32.1046 32 31 32H12C10.8954 32 10 31.1046 10 30V15C10 13.8954 10.8954 13 12 13Z" fill="#ffffff" />
-              <path d="M27 13H33V18H29V25H33V32H27" fill="url(#e3LogoDarkGradient)" opacity="0.95" />
-            </g>
-          )}
+          {/* E Lettermark */}
+          <path
+            d="M4 2H30C31.6569 2 33 3.34315 33 5V6.5C33 8.15685 31.6569 9.5 30 9.5H12.5V13.5H27C28.6569 13.5 30 14.8431 30 16.5V18C30 19.6569 28.6569 21 27 21H12.5V25H30C31.6569 25 33 26.3431 33 28V29.5C33 31.1569 31.6569 32.5 30 32.5H4C2.34315 32.5 1 31.1569 1 29.5V5C1 3.34315 2.34315 2 4 2Z"
+            fill={isLight ? "url(#e3BrandGradientLight)" : "url(#e3BrandGradientDark)"}
+          />
+          {/* 3 Lettermark */}
+          <path
+            d="M38 2H64C66.7614 2 69 4.23858 69 7V8.5C69 11.2614 66.7614 13.5 64 13.5H50.5V16.5H64C66.7614 16.5 69 18.7386 69 21.5V23.5C69 26.2614 66.7614 28.5 64 28.5H38C36.3431 28.5 35 27.1569 35 25.5V24C35 22.3431 36.3431 21 38 21H60.5V19.5H47C45.3431 19.5 44 18.1569 44 16.5V13.5C44 11.8431 45.3431 10.5 47 10.5H60.5V9H38C36.3431 9 35 7.65685 35 6V4.5C35 2.84315 36.3431 2 38 2Z"
+            fill={isLight ? "url(#e3BrandGradientLight)" : "url(#e3BrandGradientDark)"}
+          />
         </svg>
       </div>
 
@@ -169,22 +144,20 @@ export function E3Logo({
         <div className="flex flex-col leading-none">
           <span
             className={cn(
-              "font-black tracking-tighter font-display uppercase",
-              size === "sm" && "text-base",
-              size === "md" && "text-xl",
-              size === "lg" && "text-2xl",
-              size === "xl" && "text-3xl"
+              "font-black tracking-tight text-transparent bg-clip-text",
+              size === "sm" && "text-sm",
+              size === "md" && "text-base",
+              size === "lg" && "text-xl",
+              size === "xl" && "text-2xl",
+              isLight
+                ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900"
+                : "bg-gradient-to-r from-white via-slate-200 to-slate-400"
             )}
           >
-            <span className={isLight ? "text-zinc-950" : "text-white"}>E3</span>{" "}
-            <span
-              className={cn(
-                "font-extrabold tracking-tight ms-0.5",
-                isLight ? "text-emerald-600" : "text-emerald-400"
-              )}
-            >
-              QATAR
-            </span>
+            E3 QATAR
+          </span>
+          <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">
+            EVENTS & ENTERTAINMENT
           </span>
         </div>
       )}

@@ -95,6 +95,10 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [openSubMenus, setOpenSubMenus] = React.useState<Record<string, boolean>>({
+    Settings: true, // Default Settings dropdown to open so Auth Control, Gateway & Pulse Hub are visible
+  });
+
   const isClient = useMounted();
   const { data: session } = useSession();
   const {} = useAdminTheme();
@@ -103,6 +107,12 @@ export function AdminSidebar() {
   const userInitials = session?.user?.email?.substring(0, 2).toUpperCase() || "SU";
   const userName = session?.user?.name || session?.user?.email?.split('@')[0] || "System Admin";
 
+  const toggleSubMenu = (label: string) => {
+    setOpenSubMenus((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }));
+  };
   
   const sidebarContent = (
     <>
@@ -118,7 +128,7 @@ export function AdminSidebar() {
             
             <button 
               onClick={() => setCollapsed(!collapsed)}
-              className="hidden md:flex p-1 rounded-md hover:bg-surface-active text-text-secondary transition-all shrink-0"
+              className="hidden md:flex p-1 rounded-md hover:bg-surface-active text-text-secondary transition-all shrink-0 ms-auto"
             >
               <ChevronLeft size={16} className="icon-directional" />
             </button>
@@ -139,53 +149,71 @@ export function AdminSidebar() {
           const isBaseActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const isSubItemActive = item.subItems ? item.subItems.some(sub => pathname === sub.href || pathname.startsWith(`${sub.href}/`)) : false;
           const isActive = isBaseActive || isSubItemActive;
+          const hasSubItems = Boolean(item.subItems && item.subItems.length > 0);
+          const isExpanded = openSubMenus[item.label] ?? isActive;
+
           return (
             <div key={item.href} className="flex flex-col relative z-10">
-              <MotionLink
-                href={item.href}
-                whileHover={!isActive ? { x: 2 } : {}}
-                className={cn(
-                  "relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
-                  isActive 
-                    ? "bg-surface-selected text-accent font-semibold shadow-sm" 
-                    : "text-text-secondary hover:bg-surface-hover hover:text-text-primary font-medium",
-                  collapsed && !mobileOpen ? "justify-center px-0" : ""
-                )}
-                title={collapsed && !mobileOpen ? item.label : undefined}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="active-sidebar-tab"
-                    className="absolute start-0 top-1.5 bottom-1.5 w-[3px] bg-accent rounded-r-md"
-                  />
-                )}
-                
-                <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} className={cn("shrink-0 relative z-10 transition-colors", isActive ? "text-accent" : "")} />
-                
-                {(!collapsed || mobileOpen) && (
-                  <span className="whitespace-nowrap flex-1 relative z-10 truncate text-sm">
-                    {item.label}
-                  </span>
-                )}
+              <div className="flex items-center justify-between">
+                <MotionLink
+                  href={item.href}
+                  whileHover={!isActive ? { x: 2 } : {}}
+                  className={cn(
+                    "relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group flex-1",
+                    isActive 
+                      ? "bg-surface-selected text-accent font-semibold shadow-sm" 
+                      : "text-text-secondary hover:bg-surface-hover hover:text-text-primary font-medium",
+                    collapsed && !mobileOpen ? "justify-center px-0" : ""
+                  )}
+                  title={collapsed && !mobileOpen ? item.label : undefined}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-sidebar-tab"
+                      className="absolute start-0 top-1.5 bottom-1.5 w-[3px] bg-accent rounded-r-md"
+                    />
+                  )}
+                  
+                  <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} className={cn("shrink-0 relative z-10 transition-colors", isActive ? "text-accent" : "")} />
+                  
+                  {(!collapsed || mobileOpen) && (
+                    <span className="whitespace-nowrap flex-1 relative z-10 truncate text-sm">
+                      {item.label}
+                    </span>
+                  )}
 
-                {(!collapsed || mobileOpen) && item.badge && (
-                  <AdminStatusBadge variant="info" size="sm" dot={false} className="h-5 px-1.5 rounded text-[10px]">
-                    {item.badge}
-                  </AdminStatusBadge>
+                  {(!collapsed || mobileOpen) && item.badge && (
+                    <AdminStatusBadge variant="info" size="sm" dot={false} className="h-5 px-1.5 rounded text-[10px]">
+                      {item.badge}
+                    </AdminStatusBadge>
+                  )}
+                </MotionLink>
+
+                {hasSubItems && (!collapsed || mobileOpen) && (
+                  <button
+                    type="button"
+                    onClick={() => toggleSubMenu(item.label)}
+                    className="p-2 text-slate-400 hover:text-white transition-transform cursor-pointer"
+                    aria-label={`Toggle ${item.label} sub-items`}
+                  >
+                    <ChevronLeft
+                      size={14}
+                      className={cn(
+                        "transition-transform duration-200",
+                        isExpanded ? "-rotate-90" : "rotate-0"
+                      )}
+                    />
+                  </button>
                 )}
-                
-                {collapsed && !mobileOpen && item.badge && (
-                  <span className="absolute top-1.5 end-1.5 w-2 h-2 rounded-full bg-info" />
-                )}
-              </MotionLink>
+              </div>
               
               <AnimatePresence>
-                {isActive && (!collapsed || mobileOpen) && (item as any).subItems && (
+                {hasSubItems && isExpanded && (!collapsed || mobileOpen) && (
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="flex flex-col mt-1 ps-9 pe-2 overflow-hidden border-s border-border-default/50 ms-5"
+                    className="flex flex-col mt-1 ps-8 pe-2 overflow-hidden border-s border-border-default/50 ms-5 gap-0.5"
                   >
                     {(item as any).subItems.map((sub: any) => {
                       const isSubActive = pathname === sub.href;
@@ -200,8 +228,8 @@ export function AdminSidebar() {
                               : "text-text-secondary hover:text-text-primary hover:bg-surface-hover"
                           )}
                         >
-                          {isSubActive && <span className="absolute -start-3 w-1 h-1 rounded-full bg-accent" />}
-                          {!isSubActive && <span className="absolute -start-3 w-1 h-1 rounded-full bg-border-strong opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
+                          {isSubActive && <span className="absolute -start-3 w-1.5 h-1.5 rounded-full bg-accent" />}
+                          {!isSubActive && <span className="absolute -start-3 w-1.5 h-1.5 rounded-full bg-border-strong opacity-0 group-hover/sub:opacity-100 transition-opacity" />}
                           <span className="truncate">{sub.label}</span>
                         </MotionLink>
                       )
