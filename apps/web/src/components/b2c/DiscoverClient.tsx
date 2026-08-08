@@ -51,13 +51,50 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
     }, 2000);
   };
 
-  const team = initialSettings?.team || [];
+  const isAr = locale === 'ar';
+
+  const defaultTeam = [
+    {
+      nameEn: "Fahad Al-Kuwari",
+      nameAr: "فهد الكواري",
+      roleEn: "Managing Director & Founder",
+      roleAr: "الرئيس التنفيذي والمؤسس",
+      descEn: "Pioneering spatial entertainment and kinetic attractions across Qatar.",
+      descAr: "قيادة قطاع الفعاليات والترفيه والتكنولوجيا التفاعلية في قطر."
+    },
+    {
+      nameEn: "Sarah Jenkins",
+      nameAr: "سارة جينكينز",
+      roleEn: "VP of Event Engineering",
+      roleAr: "نائب الرئيس لهندسة الفعاليات",
+      descEn: "Over 15 years leading large-scale stage production and arena buyouts.",
+      descAr: "أكثر من 15 عاماً في قيادة إنتاج المسارح والفعاليات الكبرى."
+    },
+    {
+      nameEn: "Tariq Mansour",
+      nameAr: "طارق منصور",
+      roleEn: "Head of Guest Experience",
+      roleAr: "مدير تجربة الزوار",
+      descEn: "Crafting flawless VIP birthday packages and corporate hospitality.",
+      descAr: "تصميم باقات أعياد الميلاد الفاخرة وضيافة الشركات."
+    },
+    {
+      nameEn: "Elena Rostova",
+      nameAr: "إيلينا روستوفا",
+      roleEn: "Creative Lighting & Spatial Director",
+      roleAr: "مديرة الإضاءة الفنية والتصميم",
+      descEn: "Specialist in immersive 3D lightscapes and interactive installations.",
+      descAr: "متخصصة في العروض الضوئية التفاعلية والتصاميم ثلاثية الأبعاد."
+    }
+  ];
+
+  const team = (initialSettings?.team && initialSettings.team.length > 0) ? initialSettings.team : defaultTeam;
 
   const hero = {
-    titleEn: "",
-    titleAr: "",
-    subtitleEn: "",
-    subtitleAr: "",
+    titleEn: initialSettings?.hero?.titleEn || "DISCOVER THE E3 WORLD",
+    titleAr: initialSettings?.hero?.titleAr || "استكشف عالم إي ثري الترفيهي",
+    subtitleEn: initialSettings?.hero?.subtitleEn || "Pioneering landmark entertainment, kinetic staging, and bespoke celebration packages in Qatar.",
+    subtitleAr: initialSettings?.hero?.subtitleAr || "نصنع تجارب ترفيهية استثنائية، عروض حية، وباقات مناسبات مخصصة في قطر.",
     mediaType: "ORBS",
     mediaUrl: "",
     ...(initialSettings?.hero || {})
@@ -65,33 +102,31 @@ export function DiscoverClient({ locale, initialSettings }: { locale: string; in
 
   const rawHeritage = initialSettings?.heritage || {};
   const heritage = {
-    titleEn: rawHeritage.titleEn || rawHeritage.title || "",
-    titleAr: rawHeritage.titleAr || rawHeritage.title || "",
-    descriptionEn: rawHeritage.descriptionEn || rawHeritage.description || "",
-    descriptionAr: rawHeritage.descriptionAr || rawHeritage.description || "",
-    visionEn: rawHeritage.visionEn || rawHeritage.vision || "",
-    visionAr: rawHeritage.visionAr || rawHeritage.vision || "",
-    missionEn: rawHeritage.missionEn || rawHeritage.mission || "",
-    missionAr: rawHeritage.missionAr || rawHeritage.mission || "",
-    valuesEn: rawHeritage.valuesEn || rawHeritage.values || "",
-    valuesAr: rawHeritage.valuesAr || rawHeritage.values || "",
+    titleEn: rawHeritage.titleEn || rawHeritage.title || "E3 Story & Heritage",
+    titleAr: rawHeritage.titleAr || rawHeritage.title || "قصة وإرث إي ثري",
+    descriptionEn: rawHeritage.descriptionEn || rawHeritage.description || "Founded in Doha, E3 Qatar transforms ideas into landmark physical experiences. From record-breaking InflataRun tracks to Doha Balloon Parades and futuristic family entertainment centers, we pioneer kinetic production and spatial design.",
+    descriptionAr: rawHeritage.descriptionAr || rawHeritage.description || "تأسست إي ثري في الدوحة لكي تحول الأفكار إلى تجارب ترفيهية واقعية مبهرة. من أكبر مضامير الألعاب إلى المهرجانات الوطنية والمدن الفضائية للأطفال.",
+    visionEn: rawHeritage.visionEn || rawHeritage.vision || "To be the premier spatial technology and event engineering company in the MENA region.",
+    visionAr: rawHeritage.visionAr || rawHeritage.vision || "أن نكون الشركة الرائدة في تقنيات الفعاليات وتصاميم الترفيه التفاعلي في المنطقة.",
+    missionEn: rawHeritage.missionEn || rawHeritage.mission || "Delivering safe, world-class immersive attractions and flawless celebration packages.",
+    missionAr: rawHeritage.missionAr || rawHeritage.mission || "تقديم وجهات ترفيهية آمنة عالمية المستوى وباقات حفلات متكاملة.",
+    valuesEn: rawHeritage.valuesEn || rawHeritage.values || "Innovation, Uncompromising Safety, Spatial Excellence, and Guest Delight.",
+    valuesAr: rawHeritage.valuesAr || rawHeritage.values || "الابتكار، السلامة المطلقة، التميز الهندسي، وإسعاد الزوار.",
   };
 
   const careers = {
-    title: "",
-    description: "",
-    nlpText: "",
+    title: initialSettings?.careers?.title || (isAr ? "انضم لشبكة مواهب وخبراء إي ثري" : "Join the E3 Talent & Event Crew"),
+    description: initialSettings?.careers?.description || (isAr ? "نرحب دائماً بالخبرات والكفاءات الشابة للانضمام لفريق الفعاليات والإنتاج في قطر." : "We welcome passionate event crew staffing, stage engineers, and creative producers to join our Qatar database."),
+    nlpText: initialSettings?.careers?.nlpText || (isAr ? "يتم تصنيف ومعالجة السير الذاتية تلقائياً لإرسال الفرص المناسبة فور توفرها." : "CVs are processed and tagged automatically to match you with upcoming event deployments."),
     ...(initialSettings?.careers || {})
   };
 
   const corporate = {
-    titleEn: initialSettings?.corporate?.titleEn || initialSettings?.corporateRosterTitle || "Corporate Roster",
-    titleAr: initialSettings?.corporate?.titleAr || "",
-    subtitleEn: initialSettings?.corporate?.subtitleEn || initialSettings?.corporateRosterSubtitle || "Leadership & Engineering Core",
-    subtitleAr: initialSettings?.corporate?.subtitleAr || "",
+    titleEn: initialSettings?.corporate?.titleEn || initialSettings?.corporateRosterTitle || "E3 Leadership & Engineering Team",
+    titleAr: initialSettings?.corporate?.titleAr || "فريق القيادة والهندسة لـ إي ثري",
+    subtitleEn: initialSettings?.corporate?.subtitleEn || initialSettings?.corporateRosterSubtitle || "Pioneers in Event Staging & Spatial Experience",
+    subtitleAr: initialSettings?.corporate?.subtitleAr || "رواد هندسة الفعاليات والتجارب الفضائية",
   };
-
-  const isAr = locale === 'ar';
 
   return (
     <div className="min-h-screen text-[var(--text-primary)] font-poppins selection:bg-[rgba(26,31,214,0.3)] overflow-x-hidden relative" dir={isAr ? 'rtl' : 'ltr'}>
