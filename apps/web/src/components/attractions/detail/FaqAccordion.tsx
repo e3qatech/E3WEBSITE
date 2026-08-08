@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface FAQ {
   id: string;
@@ -48,7 +49,7 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
                   className="w-full flex items-center justify-between py-8 text-left focus:outline-none"
                 >
                   <span className={`text-xl md:text-2xl font-bold pe-8 transition-colors duration-300 ${isOpen ? 'text-emerald-400' : 'text-white group-hover:text-zinc-300'}`}>
-                    {faq.questionEn}
+                    {formatLocalizedText(faq.questionEn)}
                   </span>
                   <div className={`shrink-0 ms-4 transition-transform duration-500 ease-[0.22,1,0.36,1] ${isOpen ? 'rotate-180 text-emerald-400' : 'text-zinc-500 group-hover:text-white'}`}>
                     {isOpen ? <Minus className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
@@ -64,7 +65,7 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
                       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <div className="pb-8 text-lg text-zinc-400 font-light leading-relaxed prose prose-invert max-w-none pe-12">
-                        <div dangerouslySetInnerHTML={{ __html: faq.answerEn }} />
+                        <div dangerouslySetInnerHTML={{ __html: formatLocalizedText(faq.answerEn) }} />
                       </div>
                     </motion.div>
                   )}

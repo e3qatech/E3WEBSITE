@@ -6,6 +6,7 @@ import { Clock, MapPin, Users, Navigation } from 'lucide-react';
 import Link from 'next/link';
 import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
 import { useAttractionsStore } from '@/store/useAttractionsStore';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface LiveBookingCardProps {
   attractionId: string;
@@ -76,7 +77,7 @@ export function LiveBookingCard({
                 Mission Control
               </h2>
               <p className="text-zinc-400 text-lg mb-12 font-light">
-                Monitor live occupancy and secure your spot at {name}.
+                Monitor live occupancy and secure your spot at {formatLocalizedText(name)}.
               </p>
 
               {/* Live Operations Panel */}

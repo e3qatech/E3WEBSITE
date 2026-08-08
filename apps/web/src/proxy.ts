@@ -6,14 +6,13 @@ const PUBLIC_FILE = /\.(.*)$/;
 export function proxy(req: NextRequest) {
   const { nextUrl } = req;
 
-  // Check for NextAuth session token cookie
-  const sessionToken =
-    req.cookies.get('authjs.session-token')?.value ||
-    req.cookies.get('__Secure-authjs.session-token')?.value ||
-    req.cookies.get('next-auth.session-token')?.value ||
-    req.cookies.get('__Secure-next-auth.session-token')?.value;
-
-  const isLoggedIn = !!sessionToken;
+  // Check for any NextAuth / Auth.js session token cookie variant (HTTPS, Host, Secure, Chunked)
+  const allCookies = req.cookies.getAll();
+  const isLoggedIn = allCookies.some(c => 
+    c.name.includes('session-token') || 
+    c.name.includes('authjs') || 
+    c.name.includes('next-auth')
+  );
 
   // 1. Locale & Theme Detection
   const requestHeaders = new Headers(req.headers);
@@ -30,8 +29,13 @@ export function proxy(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // Handle missing locale prefix for B2B and B2C public routes
-  if (nextUrl.pathname.startsWith('/b2b') || nextUrl.pathname.startsWith('/b2c')) {
+  // Handle missing locale prefix for dashboard, B2B, and B2C routes
+  if (
+    nextUrl.pathname === '/dashboard' ||
+    nextUrl.pathname.startsWith('/dashboard/') ||
+    nextUrl.pathname.startsWith('/b2b') ||
+    nextUrl.pathname.startsWith('/b2c')
+  ) {
     return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
   }
 

@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SlideOver } from "./SlideOver"
 import { AdminButton } from "./AdminButton"
 import { Image as ImageIcon, Video, FileText, UploadCloud, Check, Trash2 } from "lucide-react"
+import { uploadFile } from "@/lib/upload"
+import { useToast } from "@/components/dashboard/ui/ToastProvider"
 
 interface Media {
   id: string
@@ -24,6 +26,13 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { toast } = useToast()
+
+  const isVideoUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false
+    return !!url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i) || url.startsWith('data:video/') || url.includes('/video')
+  }
 
   const fetchMedia = async () => {
     setLoading(true)
@@ -43,7 +52,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
-  fetchMedia()
+      fetchMedia()
     }
   }, [isOpen])
 
@@ -52,22 +61,46 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     if (!file) return
 
     setUploading(true)
-    const formData = new FormData()
-    formData.append("file", file)
-
     try {
+      // 1. Upload via smart upload utility (uses Vercel Blob client upload for large files like videos)
+      const { url, fileName } = await uploadFile(file, "cms_media")
+      
+      let mediaType = "IMAGE"
+      if (file.type.startsWith("video/") || file.name.match(/\.(mp4|webm|mov|m4v|mkv)$/i)) mediaType = "VIDEO"
+      else if (file.type.includes("pdf") || file.name.match(/\.(pdf|doc|docx)$/i)) mediaType = "DOCUMENT"
+      else if (file.name.match(/\.(glb|gltf)$/i)) mediaType = "MODEL_3D"
+
+      // 2. Register media item in CMS database
       const res = await fetch("/api/cms/media", {
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          type: mediaType,
+          mimeType: file.type || "application/octet-stream",
+          size: file.size,
+          name: fileName
+        })
       })
+
       const data = await res.json()
-      if (data.url) {
+      if (res.ok && data) {
         setMediaList(prev => [data, ...prev])
+        onChange(data.url || url)
+        toast("Media uploaded successfully", "success")
+      } else {
+        // Fallback: use url directly even if CMS registration returned an error
+        onChange(url)
+        toast("Media uploaded successfully", "success")
       }
-    } catch (e) {
-      console.error(e)
+    } catch (err: any) {
+      console.error("Upload error:", err)
+      toast(err?.message || "Failed to upload file. Please try again.", "error")
     } finally {
       setUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
     }
   }
 
@@ -87,9 +120,10 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         onChange("")
       }
       await fetch(`/api/cms/media/${id}`, { method: "DELETE" })
+      toast("Media deleted", "info")
     } catch (err) {
       console.error(err)
-      // Refresh on error
+      toast("Failed to delete media", "error")
       fetchMedia()
     }
   }
@@ -100,8 +134,8 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
       
       {value ? (
         <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center">
-          {value.match(/\.(mp4|webm|mov)$/i) ? (
-            <video src={value} className="w-full h-full object-cover" controls />
+          {isVideoUrl(value) ? (
+            <video src={value} className="w-full h-full object-cover" controls autoPlay loop muted playsInline />
           ) : value.match(/\.(pdf|doc)$/i) ? (
             <FileText className="w-10 h-10 text-[var(--text-tertiary)]" />
           ) : (
@@ -134,8 +168,8 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
             <p className="text-sm text-[var(--text-secondary)]">Select a file from your library or upload a new one.</p>
             <div className="relative">
               <input 
+                ref={fileInputRef}
                 type="file" 
-                id="media-upload" 
                 className="hidden" 
                 onChange={handleUpload}
                 accept={accept}
@@ -143,7 +177,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
               />
               <AdminButton 
                 variant="primary" 
-                onClick={() => document.getElementById("media-upload")?.click()}
+                onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
               >
                 {uploading ? "Uploading..." : "Upload New File"}
@@ -164,10 +198,12 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                   className={`group relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${value === media.url ? 'border-[var(--color-primary)]' : 'border-transparent hover:border-[var(--border-strong)]'}`}
                 >
                   <div className="w-full h-full bg-[var(--surface-default)] flex items-center justify-center p-2">
-                    {media.type === 'VIDEO' ? (
-                      <div className="relative w-full h-full flex flex-col items-center justify-center">
+                    {media.type === 'VIDEO' || isVideoUrl(media.url) ? (
+                      <div className="relative w-full h-full flex flex-col items-center justify-center bg-zinc-900 rounded-lg overflow-hidden">
                         <Video className="w-8 h-8 text-[var(--text-tertiary)] mb-2" />
-                        <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center">{media.url.split('/').pop()}</span>
+                        <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center px-1">
+                          {media.url.split('/').pop()}
+                        </span>
                       </div>
                     ) : media.type === 'DOCUMENT' ? (
                       <div className="relative w-full h-full flex flex-col items-center justify-center">
@@ -179,13 +215,13 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                     )}
                   </div>
                   {value === media.url && (
-                    <div className="absolute top-2 end-2 w-6 h-6 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center shadow-md">
+                    <div className="absolute top-2 end-2 w-6 h-6 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center shadow-md z-10">
                       <Check className="w-4 h-4" />
                     </div>
                   )}
                   <button
                     onClick={(e) => handleDelete(e, media.id)}
-                    className="absolute top-2 start-2 w-7 h-7 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                    className="absolute top-2 start-2 w-7 h-7 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"
                     title="Delete Media"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -206,3 +242,4 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     </div>
   )
 }
+

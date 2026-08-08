@@ -91,8 +91,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         destination = sanitizeCallbackUrl(rawCallback, sessionData.user, locale);
       }
 
-      router.push(destination);
-      router.refresh();
+      window.location.href = destination;
     } catch (_err) {
       setError(
         isAr

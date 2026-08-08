@@ -14,6 +14,7 @@ import {
   B2CBadge, 
   B2CEmptyState 
 } from '@/components/ui/B2CThemeComponents';
+import { formatLocalizedText } from '@/lib/utils';
 
 const extractUrl = (raw: string | null | undefined) => {
   if (!raw) return '';
@@ -188,7 +189,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="text-balance text-4xl sm:text-6xl lg:text-7.5xl font-black tracking-tight uppercase leading-[1.05] text-[var(--text-primary)] font-righteous bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)]"
             >
-              {isAr ? hero.headerAr || "" : hero.headerEn || ""}
+              {isAr ? (hero.headerAr || "تجارب لا تُنسى في قطر") : (hero.headerEn || "UNFORGETTABLE EXPERIENCES IN QATAR")}
             </motion.h1>
             
             <motion.p 
@@ -197,7 +198,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
               transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl font-medium leading-relaxed"
             >
-              {isAr ? hero.subHeaderAr : hero.subHeaderEn}
+              {isAr ? (hero.subHeaderAr || "اكتشف أفضل الوجهات والأنشطة الترفيهية والمعالم الثقافية في قطر.") : (hero.subHeaderEn || "Discover top attractions, entertainment, and cultural landmarks across Qatar.")}
             </motion.p>
 
             {(hero.showSearch ?? true) && (
@@ -335,7 +336,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                   <div className="flex items-center gap-3 mb-8">
                     <div className="w-1.5 h-8 bg-[var(--e3-magenta)] rounded-full shadow-[0_0_10px_rgba(176,19,184,0.5)]" />
                     <h2 className="text-3xl md:text-4xl font-black font-righteous uppercase tracking-wide">
-                      {isAr ? cmsData?.featuredTitleAr || "" : cmsData?.featuredTitleEn || ""}
+                      {isAr ? (cmsData?.featuredTitleAr || "أبرز التجارب") : (cmsData?.featuredTitleEn || "Featured Attractions")}
                     </h2>
                   </div>
                   
@@ -368,10 +369,10 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                         </div>
 
                         <h3 className="text-3xl md:text-4xl font-black mb-4 font-display uppercase leading-tight">
-                          {isAr ? featuredAttraction.nameAr : featuredAttraction.nameEn}
+                          {formatLocalizedText(isAr ? (featuredAttraction.nameAr || featuredAttraction.nameEn) : (featuredAttraction.nameEn || featuredAttraction.nameAr), locale)}
                         </h3>
                         <p className="text-[var(--text-secondary)] mb-8 line-clamp-3 font-medium text-sm md:text-base leading-relaxed">
-                          {isAr ? featuredAttraction.descriptionAr : featuredAttraction.descriptionEn}
+                          {formatLocalizedText(isAr ? (featuredAttraction.descriptionAr || featuredAttraction.descriptionEn) : (featuredAttraction.descriptionEn || featuredAttraction.descriptionAr), locale)}
                         </p>
 
                         <div className="mt-auto">
@@ -391,7 +392,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-1.5 h-8 bg-[var(--e3-royal-blue)] rounded-full shadow-[0_0_10px_rgba(26,31,214,0.5)]" />
                   <h2 className="text-3xl md:text-4xl font-black font-righteous uppercase tracking-wide">
-                    {isAr ? cmsData?.gridTitleAr || "" : cmsData?.gridTitleEn || ""}
+                    {isAr ? (cmsData?.gridTitleAr || "استكشف جميع التجارب") : (cmsData?.gridTitleEn || "Explore All Attractions")}
                   </h2>
                 </div>
 
@@ -685,11 +686,11 @@ function AttractionBrick({ attraction, index, locale, isLarge }: { attraction: A
               
             <div className="mt-auto text-start">
               <h3 className={`font-black mb-2 text-white group-hover:text-[var(--e3-royal-blue)] transition-colors line-clamp-1 font-display uppercase ${isLarge ? 'text-3xl' : 'text-xl'}`}>
-                {isNameAr ? attraction.nameAr : attraction.nameEn}
+                {formatLocalizedText(isNameAr ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr), locale)}
               </h3>
               
               <p className="text-zinc-300 text-sm mb-4 line-clamp-2 font-medium">
-                {isNameAr ? attraction.descriptionAr : attraction.descriptionEn}
+                {formatLocalizedText(isNameAr ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr), locale)}
               </p>
 
               <div className="flex items-center justify-between pt-4 border-t border-white/10">

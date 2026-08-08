@@ -48,14 +48,14 @@ export async function GET(request: Request) {
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_EXTENSIONS = [
   'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'avif',
-  'mp4', 'webm', 'mov',
+  'mp4', 'webm', 'mov', 'm4v', 'avi', 'mkv',
   'pdf', 'doc', 'docx',
   'glb', 'gltf'
 ];
 
 const ALLOWED_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/svg',
-  'video/mp4', 'video/webm', 'video/quicktime',
+  'video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska', 'video/avi', 'video/x-msvideo',
   'application/pdf', 'application/x-pdf',
   'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'model/gltf-binary', 'model/gltf+json',
@@ -102,6 +102,37 @@ export async function POST(request: Request) {
     }
     if (user.role !== 'SUPER_ADMIN' && user.role !== 'STAFF') {
       return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
+    }
+
+    const contentType = request.headers.get('content-type') || '';
+
+    // Handle JSON body for client-uploaded files (e.g. via @vercel/blob/client)
+    if (contentType.includes('application/json')) {
+      const body = await request.json();
+      const { url, type, mimeType, size, name } = body;
+      
+      if (!url) {
+        return NextResponse.json({ error: 'Media URL is required' }, { status: 400 });
+      }
+
+      let mediaType = type || 'IMAGE';
+      if (!type) {
+        if (mimeType?.startsWith('video/') || url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i)) mediaType = 'VIDEO';
+        else if (mimeType?.includes('pdf') || url.match(/\.(pdf|doc|docx)(\?.*)?$/i)) mediaType = 'DOCUMENT';
+        else if (url.match(/\.(glb|gltf)(\?.*)?$/i)) mediaType = 'MODEL_3D';
+      }
+
+      const media = await db.media.create({
+        data: {
+          url,
+          type: mediaType as any,
+          mimeType: mimeType || 'application/octet-stream',
+          size: size || 0,
+          alt: JSON.stringify({ en: name || 'Media', ar: name || 'Media' }),
+        },
+      });
+
+      return NextResponse.json(media, { status: 201 });
     }
 
     const formData = await request.formData();

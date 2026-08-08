@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface Feature {
   icon: string;
@@ -53,7 +54,7 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
           >
             <h2 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-[0.9]">The Experience</h2>
             <p className="text-xl md:text-2xl text-zinc-400 font-light leading-relaxed">
-              {description}
+              {formatLocalizedText(description)}
             </p>
           </motion.div>
 
@@ -94,7 +95,7 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
                 >
                   {feature.imageUrl ? (
                     <div className="absolute inset-0">
-                      <img src={feature.imageUrl} alt={feature.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-70 group-hover:scale-105 transition-all duration-1000 ease-out" />
+                      <img src={feature.imageUrl} alt={formatLocalizedText(feature.title)} className="w-full h-full object-cover opacity-40 group-hover:opacity-70 group-hover:scale-105 transition-all duration-1000 ease-out" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
                     </div>
                   ) : null}
@@ -105,9 +106,9 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
                     </div>
                     
                     <div className="mt-20 transform group-hover:-translate-y-2 transition-transform duration-500 ease-out">
-                      <h3 className="text-2xl font-bold mb-4 tracking-tight">{feature.title}</h3>
+                      <h3 className="text-2xl font-bold mb-4 tracking-tight">{formatLocalizedText(feature.title)}</h3>
                       <p className="text-zinc-400 text-base leading-relaxed group-hover:text-zinc-300 transition-colors duration-500">
-                        {feature.description}
+                        {formatLocalizedText(feature.description)}
                       </p>
                     </div>
                   </div>

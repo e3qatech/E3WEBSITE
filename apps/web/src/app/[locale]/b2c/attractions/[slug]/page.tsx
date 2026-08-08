@@ -16,6 +16,8 @@ import { db } from "@/lib/db"
 import { toZonedTime, format } from 'date-fns-tz';
 import { getDay, isWithinInterval } from 'date-fns';
 
+import { formatLocalizedText } from "@/lib/utils"
+
 async function getAttractionData(slug: string) {
   const attraction = await db.attraction.findFirst({
     where: { slug },
@@ -154,8 +156,8 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
   }
 
   const { attraction, pricing, gallery, faq, schedule, projects } = data
-  const displayName = locale === 'ar' ? attraction.nameAr : attraction.nameEn
-  const displayDesc = locale === 'ar' ? attraction.descriptionAr : attraction.descriptionEn
+  const displayName = formatLocalizedText(locale === 'ar' ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr), locale)
+  const displayDesc = formatLocalizedText(locale === 'ar' ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr), locale)
 
   // Generate JSON-LD Schema
   const jsonLd = {

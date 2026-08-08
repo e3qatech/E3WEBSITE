@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, Quote, Newspaper, ExternalLink } from 'lucide-react';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface SocialPreview {
   platform?: string;
@@ -107,11 +108,11 @@ export function SocialNewsSection({
                 </div>
               )}
               <div className="p-6">
-                <h3 className="font-bold text-lg mb-2 line-clamp-2">{social.title || 'Check this out'}</h3>
-                {social.snippet && <p className="text-zinc-400 text-sm line-clamp-3 mb-4">{social.snippet}</p>}
+                <h3 className="font-bold text-lg mb-2 line-clamp-2">{formatLocalizedText(social.title, locale) || 'Check this out'}</h3>
+                {social.snippet && <p className="text-zinc-400 text-sm line-clamp-3 mb-4">{formatLocalizedText(social.snippet, locale)}</p>}
                 {social.platform && (
                   <span className="inline-block px-3 py-1 bg-zinc-800 text-xs font-bold uppercase tracking-wider rounded-md text-zinc-300">
-                    {social.platform}
+                    {formatLocalizedText(social.platform, locale)}
                   </span>
                 )}
               </div>
@@ -131,16 +132,16 @@ export function SocialNewsSection({
               <div>
                 <Quote className="w-10 h-10 text-emerald-500 mb-6 opacity-50" />
                 <p className="text-lg md:text-xl font-medium leading-relaxed mb-6">
-                  &quot;{testimonial.quote}&quot;
+                  &quot;{formatLocalizedText(testimonial.quote, locale)}&quot;
                 </p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                  <span className="font-bold text-lg">{testimonial.author?.charAt(0) || 'U'}</span>
+                  <span className="font-bold text-lg">{formatLocalizedText(testimonial.author, locale)?.charAt(0) || 'U'}</span>
                 </div>
                 <div>
-                  <h4 className="font-bold">{testimonial.author || 'Visitor'}</h4>
-                  {testimonial.source && <p className="text-sm text-zinc-500">{testimonial.source}</p>}
+                  <h4 className="font-bold">{formatLocalizedText(testimonial.author, locale) || 'Visitor'}</h4>
+                  {testimonial.source && <p className="text-sm text-zinc-500">{formatLocalizedText(testimonial.source, locale)}</p>}
                 </div>
               </div>
             </motion.div>
@@ -163,12 +164,12 @@ export function SocialNewsSection({
                 <ExternalLink className="w-5 h-5 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
               </div>
               <Newspaper className="w-10 h-10 text-emerald-500 mb-6" />
-              {news.date && <p className="text-emerald-500/80 text-sm font-mono mb-4">{news.date}</p>}
-              <h3 className="font-bold text-xl md:text-2xl mb-4 leading-tight">{news.title}</h3>
+              {news.date && <p className="text-emerald-500/80 text-sm font-mono mb-4">{formatLocalizedText(news.date, locale)}</p>}
+              <h3 className="font-bold text-xl md:text-2xl mb-4 leading-tight">{formatLocalizedText(news.title, locale)}</h3>
               {news.publisher && (
                 <div className="inline-flex items-center gap-2 mt-auto">
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-sm font-bold tracking-wider text-emerald-100">{news.publisher}</span>
+                  <span className="text-sm font-bold tracking-wider text-emerald-100">{formatLocalizedText(news.publisher, locale)}</span>
                 </div>
               )}
             </motion.a>
