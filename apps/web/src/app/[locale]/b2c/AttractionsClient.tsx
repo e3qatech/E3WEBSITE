@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useAttractionsStore, Attraction } from '@/store/useAttractionsStore';
 import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
-import { Search, Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Activity, ChevronDown, ChevronUp, Ticket, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { 
   useB2CTheme, 
   B2CCard, 
@@ -14,6 +14,7 @@ import {
   B2CBadge, 
   B2CEmptyState 
 } from '@/components/ui/B2CThemeComponents';
+import { MaskedVideoHero } from '@/components/b2c/hero/MaskedVideoHero';
 
 const extractUrl = (raw: string | null | undefined) => {
   if (!raw) return '';
@@ -46,17 +47,8 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
   const [localSearch, setLocalSearch] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [_, setIsSearchFocused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  
-  const dropdownResults = useMemo(() => {
-    if (!localSearch.trim()) return [];
-    const lowerSearch = localSearch.toLowerCase();
-    return attractions.filter(a => {
-      return (a.nameEn?.toLowerCase() || '').includes(lowerSearch) || 
-             (a.nameAr?.toLowerCase() || '').includes(lowerSearch);
-    }).slice(0, 5);
-  }, [attractions, localSearch]);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -129,7 +121,7 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
 
   const filterChips = ['All', 'Active Now', 'Coming Soon', 'Special Events'];
   
-  const hero = cmsData?.hero || {};
+  const _hero = cmsData?.hero || {};
   const cta = cmsData?.cta || {};
   const subscribe = cmsData?.subscribe || {};
   const faqs = cmsData?.faqs || [];
@@ -144,148 +136,17 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
       `}} />
       <div className="w-full relative text-[var(--text-primary)] font-poppins selection:bg-[rgba(26,31,214,0.3)]" dir={isAr ? 'rtl' : 'ltr'}>
 
-        {/* Hero Section */}
-        <section className="relative w-full min-h-[70vh] flex flex-col items-center justify-center px-4 overflow-hidden border-b border-[var(--border-level-1)]">
-          {/* Dynamic Background Media */}
-          <div className="absolute inset-0 z-0">
-            {hero.mediaType === 'IMAGE' && hero.mediaUrl && (
-              <img src={hero.mediaUrl} alt="Hero" className="w-full h-full object-cover opacity-30 dark:opacity-40" />
-            )}
-            {hero.mediaType === 'VIDEO' && hero.mediaUrl && (
-              <video src={hero.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40 dark:opacity-50" />
-            )}
-            {hero.mediaType === 'IFRAME' && hero.mediaUrl && (
-              <iframe 
-                src={extractUrl(hero.mediaUrl)} 
-                className="w-full h-full border-none opacity-40 dark:opacity-50 pointer-events-none" 
-                allow="autoplay; fullscreen; xr-spatial-tracking"
-                sandbox="allow-scripts allow-same-origin allow-popups"
-              />
-            )}
-            {hero.mediaType === 'MODEL_3D' && hero.mediaUrl && (
-              <iframe 
-                src={extractUrl(hero.mediaUrl)} 
-                className="w-full h-full border-none opacity-50 dark:opacity-60" 
-                allow="autoplay; fullscreen; xr-spatial-tracking"
-                sandbox="allow-scripts allow-same-origin allow-popups"
-              />
-            )}
-            
-            {/* Default ambient brand gradient */}
-            {(!hero.mediaUrl || !hero.mediaType) && (
-               <div className="w-full h-full bg-gradient-to-br from-[var(--e3-deep-blue)]/10 via-[var(--e3-midnight)] to-[var(--e3-purple)]/10" />
-            )}
+        {/* E3 Pulse Masked Worlds Hero Section */}
+        <MaskedVideoHero
+          locale={locale}
+          cmsData={cmsData}
+          localSearch={localSearch}
+          onSearchChange={setLocalSearch}
+          onSearchFocus={() => setIsSearchFocused(true)}
+          onSearchBlur={() => setTimeout(() => setIsSearchFocused(false), 250)}
+        />
 
-            {/* E3 logo inspired gradient theme overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)] via-transparent to-[var(--bg-level-1)]/40" />
-          </div>
-
-          <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center space-y-8 mt-12 px-4">
-            <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-balance text-4xl sm:text-6xl lg:text-7.5xl font-black tracking-tight uppercase leading-[1.05] text-[var(--text-primary)] font-righteous bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)]"
-            >
-              {isAr ? hero.headerAr || "" : hero.headerEn || ""}
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl font-medium leading-relaxed"
-            >
-              {isAr ? hero.subHeaderAr : hero.subHeaderEn}
-            </motion.p>
-
-            {/* Primary Action CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-wrap items-center justify-center gap-4 z-20"
-            >
-              <Link
-                href={`/${locale}/b2c/attractions`}
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-magenta)] text-white font-bold text-base shadow-[0_10px_30px_rgba(26,31,214,0.3)] hover:scale-105 transition-all duration-300 uppercase tracking-wider min-h-[48px] flex items-center justify-center"
-              >
-                {isAr ? "استكشف التجارب" : "Explore Attractions"}
-              </Link>
-              <Link
-                href={`/${locale}/b2c/tickets`}
-                className="px-8 py-4 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] font-bold text-base shadow-lg hover:scale-105 transition-all duration-300 uppercase tracking-wider min-h-[48px] flex items-center justify-center"
-              >
-                {isAr ? "احجز التذاكر" : "Book Tickets"}
-              </Link>
-            </motion.div>
-
-            {(hero.showSearch ?? true) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-xl relative"
-              >
-                <div className="relative flex items-center w-full">
-                  <Search className={`absolute ${isAr ? 'end-4' : 'start-4'} w-5 h-5 text-[var(--text-tertiary)] z-20`} />
-                  <input
-                    type="search"
-                    value={localSearch}
-                    onChange={(e) => setLocalSearch(e.target.value)}
-                    onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => setTimeout(() => setIsSearchFocused(false), 250)}
-                    placeholder={isAr ? "ابحث عن التجارب..." : "Search attractions..."}
-                    className={`w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] rounded-xl py-4 ${isAr ? 'pe-12 ps-4' : 'ps-12 pe-4'} text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] focus:ring-2 focus:ring-[var(--e3-royal-blue)]/20 transition-all shadow-[0_4px_20px_rgba(26,31,214,0.06)] relative z-10`}
-                    dir="auto"
-                  />
-
-                  {/* Search Autocomplete Dropdown */}
-                  <AnimatePresence>
-                    {isSearchFocused && localSearch.trim() && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full start-0 end-0 mt-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl shadow-[0_10px_30px_rgba(26,31,214,0.12)] z-50 overflow-hidden text-start"
-                      >
-                        {dropdownResults.length > 0 ? (
-                          <ul className="flex flex-col divide-y divide-[var(--border-level-1)]">
-                            {dropdownResults.map(attr => (
-                              <li key={attr.id}>
-                                <Link 
-                                  href={`/${locale}/b2c/attractions/${attr.slug}`}
-                                  className={`flex items-center gap-4 px-4 py-3 hover:bg-[var(--surface-hover)] transition-colors ${isAr ? 'text-right' : ''}`}
-                                >
-                                  {attr.heroThumbnailUrl || attr.gallery?.[0]?.url ? (
-                                    <img src={attr.heroThumbnailUrl || attr.gallery?.[0]?.url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-                                  ) : (
-                                    <div className="w-10 h-10 rounded-lg bg-[var(--bg-level-2)] flex items-center justify-center flex-shrink-0">
-                                      <MapPin className="w-4 h-4 text-[var(--text-tertiary)]" />
-                                    </div>
-                                  )}
-                                  <div className="flex flex-col">
-                                    <span className="text-[var(--text-primary)] font-bold text-sm">
-                                      {isAr ? attr.nameAr : attr.nameEn}
-                                    </span>
-                                    {attr.computedStatus === 'ACTIVE' && (
-                                      <span className="text-emerald-500 text-[10px] uppercase font-black tracking-wider mt-0.5">Live Now</span>
-                                    )}
-                                  </div>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <div className="px-4 py-6 text-center text-[var(--text-tertiary)] text-sm font-semibold">
-                            {isAr ? "لا توجد نتائج" : "No results found"}
-                          </div>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+        {/* Main Content Area */}
                 
                 {/* Custom Filters Wrapper */}
                 <div className="flex flex-wrap justify-center gap-2 mt-6">
@@ -329,13 +190,8 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                       <option value="PriceLowToHigh">{isAr ? 'السعر: من الأقل للأعلى' : 'Price: Low to High'}</option>
                       <option value="PriceHighToLow">{isAr ? 'السعر: من الأعلى للأقل' : 'Price: High to Low'}</option>
                     </select>
-                    <ChevronDown className={`absolute ${isAr ? 'left-3' : 'right-3'} w-4 h-4 text-[var(--text-tertiary)] pointer-events-none`} />
-                  </div>
                 </div>
-              </motion.div>
-            )}
-          </div>
-        </section>
+              </div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24 space-y-24">
           
