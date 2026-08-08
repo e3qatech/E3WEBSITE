@@ -34,6 +34,22 @@ export default async function B2CLayout({
     console.warn("[B2C LAYOUT NOTICE] Failed to query pulse-orbit page:", e);
   }
 
+  if (!orbitPage || !orbitPage.content) {
+    try {
+      const settingModel = (db as any).siteSettings || (db as any).setting;
+      if (settingModel) {
+        const setting = await settingModel.findUnique({
+          where: { key: "cms_page_pulse-orbit" }
+        });
+        if (setting && setting.value) {
+          orbitPage = { content: setting.value };
+        }
+      }
+    } catch (e) {
+      console.warn("[B2C LAYOUT NOTICE] Failed to query siteSettings for pulse-orbit:", e);
+    }
+  }
+
   return (
     <B2CExperienceProvider>
       <B2CThemeProvider locale={locale}>

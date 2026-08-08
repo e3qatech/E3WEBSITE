@@ -23,11 +23,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const setting = await db.setting.upsert({
-      where: { key },
-      update: { value, type: type || "GENERAL" },
-      create: { key, value, type: type || "GENERAL" }
-    })
+    const settingModel = (db as any).siteSettings || (db as any).setting;
+    let setting: any = null;
+    if (settingModel) {
+      setting = await settingModel.upsert({
+        where: { key },
+        update: { value, type: type || "GENERAL" },
+        create: { key, value, type: type || "GENERAL" }
+      });
+    }
 
     // Mock Redis cache clear based on the type or key
     await redis.del(`settings:${key}`)
@@ -55,11 +59,14 @@ export async function GET(req: Request) {
       }
     }
 
-    let settings
-    if (type) {
-      settings = await db.setting.findMany({ where: { type: type as any } })
-    } else {
-      settings = await db.setting.findMany()
+    let settings: any[] = []
+    const settingModel = (db as any).siteSettings || (db as any).setting;
+    if (settingModel) {
+      if (type) {
+        settings = await settingModel.findMany({ where: { type: type as any } })
+      } else {
+        settings = await settingModel.findMany()
+      }
     }
 
     const dataMap = (settings || []).reduce((acc: Record<string, string>, item: any) => {
