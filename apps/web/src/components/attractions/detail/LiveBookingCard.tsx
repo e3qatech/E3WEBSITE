@@ -10,15 +10,16 @@ import { formatLocalizedText } from '@/lib/utils';
 
 interface LiveBookingCardProps {
   attractionId: string;
-  name: string;
+  name: any;
   bookingUrl?: string | null;
   mapUrl?: string | null;
   latitude?: number | null;
   longitude?: number | null;
-  locationAddress?: string | null;
-  schedule?: any; // You can type this properly based on TemporalRules
-  operations?: any; // JSON field with operational data
+  locationAddress?: any;
+  schedule?: any;
+  operations?: any;
   mapImageFallback?: string | null;
+  locale?: string;
 }
 
 export function LiveBookingCard({
@@ -29,9 +30,9 @@ export function LiveBookingCard({
   latitude,
   longitude,
   locationAddress,
- 
   operations,
   mapImageFallback,
+  locale = 'en'
 }: LiveBookingCardProps) {
   // Start the socket subscription
   useLiveOccupancy();
@@ -52,6 +53,9 @@ export function LiveBookingCard({
   let capacityColor = 'bg-emerald-500';
   if (occupancyPercentage > 60) capacityColor = 'bg-yellow-500';
   if (occupancyPercentage > 90) capacityColor = 'bg-red-500';
+
+  const formattedAddress = formatLocalizedText(locationAddress, locale) || "Doha, Qatar";
+  const formattedName = formatLocalizedText(name, locale);
 
   return (
     <section className="py-32 bg-zinc-950 text-white relative border-t border-white/5">
@@ -77,7 +81,7 @@ export function LiveBookingCard({
                 Mission Control
               </h2>
               <p className="text-zinc-400 text-lg mb-12 font-light">
-                Monitor live occupancy and secure your spot at {formatLocalizedText(name)}.
+                Monitor live occupancy and secure your spot at {formattedName}.
               </p>
 
               {/* Live Operations Panel */}
@@ -197,7 +201,7 @@ export function LiveBookingCard({
             <div className="absolute bottom-6 start-6 end-6 p-6 bg-zinc-950/80 backdrop-blur-md rounded-2xl border border-white/10 pointer-events-none">
               <h3 className="font-bold text-lg mb-2">Location</h3>
               <p className="text-zinc-400 text-sm leading-relaxed mb-4">
-                {locationAddress || "Doha, Qatar"}
+                {formattedAddress}
               </p>
               
               <a 

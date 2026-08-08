@@ -1,8 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { formatLocalizedText } from '@/lib/utils'
 
-export function RelatedProjects({ projects, locale }: { projects: any[], locale: string }) {
+export function RelatedProjects({ projects, locale = 'en' }: { projects: any[], locale?: string }) {
   if (!projects || projects.length === 0) return null
 
   return (
@@ -15,8 +16,10 @@ export function RelatedProjects({ projects, locale }: { projects: any[], locale:
         <div className="grid md:grid-cols-2 gap-8">
           {projects.map((proj: any, i) => {
             const linkHref = `/b2b/case-studies/${proj.slug}`;
-            const targetName = locale === 'ar' && proj.titleAr ? proj.titleAr : proj.titleEn;
-            const targetDesc = locale === 'ar' && proj.challengeAr ? proj.challengeAr : proj.challengeEn;
+            const rawName = locale === 'ar' && proj.titleAr ? proj.titleAr : (proj.titleEn || proj.titleAr);
+            const rawDesc = locale === 'ar' && proj.challengeAr ? proj.challengeAr : (proj.challengeEn || proj.challengeAr);
+            const targetName = formatLocalizedText(rawName, locale);
+            const targetDesc = formatLocalizedText(rawDesc, locale);
             const targetImage = proj.thumbnailUrl || proj.heroImageUrl;
             
             return (

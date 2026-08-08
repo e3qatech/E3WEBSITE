@@ -4,14 +4,15 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface GalleryItem {
   id: string;
   url: string;
-  captionEn?: string | null;
+  captionEn?: any;
 }
 
-export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
+export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]; locale?: string }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (!items || items.length === 0) return null;
@@ -74,7 +75,7 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
               ) : (
                 <img
                   src={item.url}
-                  alt={item.captionEn || `Gallery Image ${idx + 1}`}
+                  alt={formatLocalizedText(item.captionEn, locale) || `Gallery Image ${idx + 1}`}
                   className="w-full h-auto object-cover transform transition-transform duration-1000 group-hover:scale-105"
                   loading="lazy"
                 />
@@ -144,7 +145,7 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
                 <div className="relative w-full h-full bg-zinc-950">
                   <Image
                     src={items[selectedIndex].url}
-                    alt={items[selectedIndex].captionEn || `Gallery Image ${selectedIndex + 1}`}
+                    alt={formatLocalizedText(items[selectedIndex].captionEn, locale) || `Gallery Image ${selectedIndex + 1}`}
                     fill
                     className="object-contain"
                     sizes="100vw"
@@ -155,7 +156,7 @@ export function GalleryLightbox({ items }: { items: GalleryItem[] }) {
               {items[selectedIndex].captionEn && (
                 <div className="absolute bottom-0 start-0 end-0 p-8 bg-gradient-to-t from-black via-black/80 to-transparent">
                   <p className="text-white text-xl text-center font-light tracking-wide">
-                    {items[selectedIndex].captionEn}
+                    {formatLocalizedText(items[selectedIndex].captionEn, locale)}
                   </p>
                 </div>
               )}
