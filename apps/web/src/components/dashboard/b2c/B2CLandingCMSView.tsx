@@ -105,21 +105,30 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
     }));
   };
 
-  // Unified Media Picker Handler: Syncs hero.mediaUrl and customerDesktopVideo automatically!
+  // Unified Media Picker Handler: Syncs hero.mediaUrl across all portal views automatically!
   const handleHeroMediaChange = (url: string) => {
+    const isVideo = !url ? false : (
+      /\.(mp4|webm|mov|m4v|mkv)$/i.test(url) ||
+      url.includes('video') ||
+      url.includes('/api/media/') ||
+      url.includes('/api/upload/') ||
+      url.startsWith('blob:')
+    );
+
     setData((prev: any) => ({
       ...prev,
       hero: {
         ...prev.hero,
         mediaUrl: url,
-        mediaType: (url.match(/\.(mp4|webm|mov|m4v|mkv)$/i) || url.includes('video')) ? 'VIDEO' : 'IMAGE'
+        mediaType: isVideo ? 'VIDEO' : 'IMAGE'
       },
       maskedVideo: {
         ...prev.maskedVideo,
-        customerDesktopVideo: url
+        customerDesktopVideo: url,
+        organizerDesktopVideo: prev.maskedVideo?.organizerDesktopVideo || url
       }
     }));
-    toast("Hero media updated across all views.", "success");
+    toast("Hero background media updated successfully.", "success");
   };
 
   const handleSimpleChange = (field: keyof typeof data, value: any) => {

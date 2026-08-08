@@ -53,6 +53,11 @@ export function StandardMaskEngine({
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Reset videoFailed when videoUrl changes
+  useEffect(() => {
+    setVideoFailed(false);
+  }, [videoUrl]);
+
   // Handle cursor interaction (limited maximum displacement)
   useEffect(() => {
     if (!cursorResponse) return;
