@@ -14,11 +14,8 @@ import {
   B2CBadge, 
   B2CEmptyState 
 } from '@/components/ui/B2CThemeComponents';
-<<<<<<< HEAD
 import { MaskedVideoHero } from '@/components/b2c/hero/MaskedVideoHero';
-=======
 import { formatLocalizedText } from '@/lib/utils';
->>>>>>> feature/auth-portals-rbac
 
 const extractUrl = (raw: string | null | undefined) => {
   if (!raw) return '';
