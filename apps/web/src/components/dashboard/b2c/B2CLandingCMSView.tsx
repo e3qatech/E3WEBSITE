@@ -207,14 +207,19 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               <Sparkles className="w-4 h-4" /> Customer B2C Media Footage
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">Customer Desktop Video URL</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-text-secondary">Customer Desktop Video URL / File</label>
                 <input
                   type="text"
                   value={data.maskedVideo.customerDesktopVideo}
                   onChange={e => handleChange("maskedVideo", "customerDesktopVideo", e.target.value)}
                   placeholder="https://.../customer-hero.mp4"
                   className="w-full bg-surface-default border border-border-default rounded-xl px-3 py-2 text-xs font-mono text-text-primary focus:outline-none"
+                />
+                <AdminMediaPicker
+                  value={data.maskedVideo.customerDesktopVideo}
+                  onChange={val => handleChange("maskedVideo", "customerDesktopVideo", val)}
+                  accept="video/*"
                 />
               </div>
               <div>
@@ -233,14 +238,19 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               <Layers className="w-4 h-4" /> Organizer B2B Media Footage
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">Organizer Desktop Video URL</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-text-secondary">Organizer Desktop Video URL / File</label>
                 <input
                   type="text"
                   value={data.maskedVideo.organizerDesktopVideo}
                   onChange={e => handleChange("maskedVideo", "organizerDesktopVideo", e.target.value)}
                   placeholder="https://.../organizer-hero.mp4"
                   className="w-full bg-surface-default border border-border-default rounded-xl px-3 py-2 text-xs font-mono text-text-primary focus:outline-none"
+                />
+                <AdminMediaPicker
+                  value={data.maskedVideo.organizerDesktopVideo}
+                  onChange={val => handleChange("maskedVideo", "organizerDesktopVideo", val)}
+                  accept="video/*"
                 />
               </div>
               <div>

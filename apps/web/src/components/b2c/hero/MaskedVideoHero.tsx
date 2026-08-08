@@ -37,7 +37,7 @@ export function MaskedVideoHero({
 
   const activeMediaConfig = currentPortalMode === 'customer'
     ? {
-        videoUrl: maskedConfig?.customerDesktopVideo || heroConfig?.mediaUrl || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4',
+        videoUrl: heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4',
         posterUrl: maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
         preset: (maskedConfig?.customerMaskPreset || maskedConfig?.preset || 'ORGANIC_WINDOW') as MaskPresetType,
         accent: maskedConfig?.customerAccent || '#10b981',
@@ -45,7 +45,7 @@ export function MaskedVideoHero({
         altAr: maskedConfig?.customerAltAr || 'عالم تجارب زوار إي ثري',
       }
     : {
-        videoUrl: maskedConfig?.organizerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
+        videoUrl: heroConfig?.mediaUrl || maskedConfig?.organizerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
         posterUrl: maskedConfig?.organizerPoster || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop',
         preset: (maskedConfig?.organizerMaskPreset || maskedConfig?.preset || 'PORTAL_ARCH') as MaskPresetType,
         accent: maskedConfig?.organizerAccent || '#3b82f6',
