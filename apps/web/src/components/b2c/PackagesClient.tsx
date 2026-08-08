@@ -2,31 +2,14 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { PartyPopper, Users, Building2, Gift, Check, ShieldCheck, Sparkles, Send, Calendar, Clock, MapPin, Phone, Mail, Award } from "lucide-react";
+import { PartyPopper, Users, Building2, Gift, Check, ShieldCheck, Sparkles, Send, Award } from "lucide-react";
 import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
 import { B2CGrid } from "@/components/ui/B2CGrid";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 
-interface PackageCategory {
-  id: string;
-  titleEn: string;
-  titleAr: string;
-  badgeEn: string;
-  badgeAr: string;
-  icon: any;
-  descriptionEn: string;
-  descriptionAr: string;
-  priceEn: string;
-  priceAr: string;
-  perksEn: string[];
-  perksAr: string[];
-  popular?: boolean;
-  accentColor: string;
-}
-
-const PACKAGES: PackageCategory[] = [
+const DEFAULT_PACKAGES = [
   {
     id: "birthday-silver",
     titleEn: "Silver Birthday Party",
@@ -148,9 +131,32 @@ const PACKAGES: PackageCategory[] = [
   }
 ];
 
-export function PackagesClient() {
+export function PackagesClient({ initialSettings }: { initialSettings?: any }) {
   const { isAr } = useB2CTheme();
-  const [selectedPackage, setSelectedPackage] = useState<string>("birthday-gold-vip");
+  
+  const hero = {
+    titleEn: initialSettings?.hero?.titleEn || "Group & Birthday Packages",
+    titleAr: initialSettings?.hero?.titleAr || "باقات الحفلات والشركات وأعياد الميلاد",
+    subtitleEn: initialSettings?.hero?.subtitleEn || "Host unforgettable milestone birthday celebrations, team-building outings, and exclusive venue buyouts across Qatar.",
+    subtitleAr: initialSettings?.hero?.subtitleAr || "احتفل بأجمل اللحظات وحفلات أعياد الميلاد والفعاليات الخاصة بشركتك في أفضل الوجهات الترفيهية في قطر.",
+    badgeEn: initialSettings?.hero?.badgeEn || "VIP PACKAGES & EVENTS",
+    badgeAr: initialSettings?.hero?.badgeAr || "باقات الفعاليات والاحتفالات",
+  };
+
+  const rawPackages = (initialSettings?.packages && initialSettings.packages.length > 0) ? initialSettings.packages : DEFAULT_PACKAGES;
+  const packagesList = rawPackages.map((pkg: any, idx: number) => ({
+    ...pkg,
+    icon: DEFAULT_PACKAGES[idx % DEFAULT_PACKAGES.length]?.icon || PartyPopper,
+  }));
+
+  const inquiryForm = {
+    titleEn: initialSettings?.inquiryForm?.titleEn || "Plan Your Event With E3 Experts",
+    titleAr: initialSettings?.inquiryForm?.titleAr || "احجز حفلهم أو فعاليتك القادمة",
+    subtitleEn: initialSettings?.inquiryForm?.subtitleEn || "Our VIP event planners will contact you within 24 hours to confirm dates, themes, and arrangements.",
+    subtitleAr: initialSettings?.inquiryForm?.subtitleAr || "سيعاود فريق تنظيم الحفلات والشركات التواصل معك خلال 24 ساعة لتأكيد التفاصيل.",
+  };
+
+  const [selectedPackage, setSelectedPackage] = useState<string>(packagesList[0]?.id || "birthday-gold-vip");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -158,7 +164,7 @@ export function PackagesClient() {
     name: "",
     email: "",
     phone: "",
-    packageType: "Gold VIP Birthday World",
+    packageType: isAr ? (packagesList[0]?.titleAr || "Gold VIP Birthday World") : (packagesList[0]?.titleEn || "Gold VIP Birthday World"),
     estimatedGuests: "20",
     eventDate: "",
     notes: ""
@@ -211,22 +217,20 @@ export function PackagesClient() {
           
           <AnimatedText 
             as="h1" 
-            text={isAr ? "باقات الحفلات والشركات وأعياد الميلاد" : "Group & Birthday Packages"}
+            text={isAr ? hero.titleAr : hero.titleEn}
             className="text-4xl md:text-5xl font-black mb-4 font-display uppercase tracking-wide justify-center"
           />
           
           <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto font-medium leading-relaxed">
-            {isAr 
-              ? "احتفل بأجمل اللحظات وحفلات أعياد الميلاد والفعاليات الخاصة بشركتك في أفضل الوجهات الترفيهية في قطر."
-              : "Host unforgettable milestone birthday celebrations, team-building outings, and exclusive venue buyouts across Qatar."}
+            {isAr ? hero.subtitleAr : hero.subtitleEn}
           </p>
         </div>
 
         {/* 2. PACKAGES GRID */}
         <div className="mb-20">
           <B2CGrid columns={2} gap="lg">
-            {PACKAGES.map((pkg) => {
-              const Icon = pkg.icon;
+            {packagesList.map((pkg: any) => {
+              const Icon = pkg.icon || PartyPopper;
               const isSelected = selectedPackage === pkg.id;
 
               return (
@@ -235,7 +239,7 @@ export function PackagesClient() {
                   className={`flex flex-col h-full border-[rgba(75,0,143,0.3)] transition-all duration-300 ${
                     pkg.popular ? 'ring-2 ring-[var(--e3-magenta)] shadow-[0_10px_35px_rgba(176,19,184,0.25)]' : ''
                   }`}
-                  glowColor={pkg.accentColor}
+                  glowColor={pkg.accentColor || "#b013b8"}
                   tiltStrength={5}
                 >
                   <div className="p-6 md:p-8 flex flex-col h-full justify-between">
@@ -244,7 +248,7 @@ export function PackagesClient() {
                       <div className="flex items-center justify-between mb-4">
                         <span 
                           className="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider text-white backdrop-blur-md"
-                          style={{ backgroundColor: `${pkg.accentColor}dd` }}
+                          style={{ backgroundColor: `${pkg.accentColor || "#b013b8"}dd` }}
                         >
                           {isAr ? pkg.badgeAr : pkg.badgeEn}
                         </span>
@@ -272,7 +276,7 @@ export function PackagesClient() {
                         <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-3">
                           {isAr ? "مميزات الباقة التشمل:" : "Package Inclusions:"}
                         </p>
-                        {(isAr ? pkg.perksAr : pkg.perksEn).map((perk, i) => (
+                        {(isAr ? (pkg.perksAr || []) : (pkg.perksEn || [])).map((perk: string, i: number) => (
                           <div key={i} className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)]">
                             <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                               <Check className="w-3 h-3" />
@@ -314,10 +318,10 @@ export function PackagesClient() {
                 {isAr ? "استمارة الحجز المباشر" : "Instant Booking & Custom Inquiry"}
               </span>
               <h2 className="text-3xl font-black font-display uppercase tracking-wide mb-2">
-                {isAr ? "احجز حفلهم أو فعاليتك القادمة" : "Plan Your Event With E3 Experts"}
+                {isAr ? inquiryForm.titleAr : inquiryForm.titleEn}
               </h2>
               <p className="text-sm text-[var(--text-secondary)] font-medium">
-                {isAr ? "سيعاود فريق تنظيم الحفلات والشركات التواصل معك خلال 24 ساعة لتأكيد التفاصيل." : "Our VIP event planners will contact you within 24 hours to confirm dates, themes, and arrangements."}
+                {isAr ? inquiryForm.subtitleAr : inquiryForm.subtitleEn}
               </p>
             </div>
 
@@ -399,10 +403,11 @@ export function PackagesClient() {
                       onChange={e => setFormData({ ...formData, packageType: e.target.value })}
                       className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors text-[var(--text-primary)] cursor-pointer"
                     >
-                      <option value="Silver Birthday Party">Silver Birthday Party</option>
-                      <option value="Gold VIP Birthday World">Gold VIP Birthday World</option>
-                      <option value="Corporate Team Building & Outing">Corporate Team Building & Outing</option>
-                      <option value="Exclusive 100% Venue Buyout">Exclusive 100% Venue Buyout</option>
+                      {packagesList.map((p: any) => (
+                        <option key={p.id} value={isAr ? p.titleAr : p.titleEn}>
+                          {isAr ? p.titleAr : p.titleEn}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

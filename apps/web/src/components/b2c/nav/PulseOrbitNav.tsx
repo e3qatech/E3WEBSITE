@@ -143,6 +143,12 @@ export function PulseOrbitNav({
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
+    if (destinationList && destinationList.length > 0) {
+      setActiveDestination(destinationList[0]);
+    }
+  }, [orbitData]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
     };
@@ -429,11 +435,46 @@ export function PulseOrbitNav({
 
             {/* INTERACTIVE MEDIA WORLD PREVIEW (5 COLS - DESKTOP ONLY) */}
             <div className="hidden lg:flex lg:col-span-5 flex-col justify-between rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl relative overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-30 transition-all duration-700 scale-105"
-                style={{ backgroundImage: `url(${activeDestination.mediaUrl})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+              {(() => {
+                const mediaUrl = activeDestination?.mediaUrl || '';
+                const isVideo = /\.(mp4|webm|mov|m4v|mkv)$/i.test(mediaUrl) || mediaUrl.includes('video') || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.startsWith('blob:');
+                const isIframe = mediaUrl.includes('iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo') || mediaUrl.includes('spline') || mediaUrl.includes('sketchfab');
+                const iframeSrc = (isIframe && mediaUrl.includes('src=')) ? (mediaUrl.match(/src=["'](.*?)["']/)?.[1] || mediaUrl) : mediaUrl;
+
+                if (isVideo) {
+                  return (
+                    <video
+                      key={mediaUrl}
+                      src={mediaUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-40 transition-all duration-700 scale-105"
+                    />
+                  );
+                }
+
+                if (isIframe) {
+                  return (
+                    <iframe
+                      key={mediaUrl}
+                      src={iframeSrc}
+                      className="absolute inset-0 w-full h-full border-none opacity-40 pointer-events-none transition-all duration-700 scale-105"
+                      allow="autoplay; fullscreen; xr-spatial-tracking"
+                    />
+                  );
+                }
+
+                return (
+                  <div
+                    key={mediaUrl}
+                    className="absolute inset-0 bg-cover bg-center opacity-40 transition-all duration-700 scale-105"
+                    style={{ backgroundImage: `url(${mediaUrl})` }}
+                  />
+                );
+              })()}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent pointer-events-none" />
 
               <div className="relative z-10">
                 <span className="inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-mono font-bold text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-3">

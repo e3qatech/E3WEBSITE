@@ -288,12 +288,12 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Media Picker */}
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-[var(--text-secondary)]">Destination Media Cover</label>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)]">Destination Media Cover (Video, Image, 3D Iframe)</label>
                 <AdminMediaPicker
                   value={dest.mediaUrl}
                   onChange={(url) => handleDestinationChange(idx, "mediaUrl", url)}
                   label="Destination Media"
-                  accept="image/*"
+                  accept="video/*,image/*"
                 />
               </div>
 

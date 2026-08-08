@@ -64,6 +64,7 @@ const sidebarConfig = [
   { label: "B2C Pages", icon: Star, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Editor", href: "/dashboard/b2c/landing" },
     { label: "Pulse Orbit CMS", href: "/dashboard/b2c/pulse-orbit" },
+    { label: "Packages CMS", href: "/dashboard/b2c/packages" },
     { label: "Discover Editor", href: "/dashboard/b2c/discover" }
   ] },
   { label: "Global Media", icon: Database, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [

@@ -7,7 +7,7 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   hero: {
     mediaType: "VIDEO",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
-    headerEn: "E3 PULSE MASKED WORLDS",
+    headerEn: "E3 PULSE ENTERTAINMENT WORLDS",
     headerAr: "استكشف عالم إي ثري الترفيهي",
     subHeaderEn: "Qatar premier immersive attractions and kinetic entertainment.",
     subHeaderAr: "تجارب ترفيهية غامرة ومدن ألعاب فضائية في قطر",
@@ -61,13 +61,13 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     buttonUrl: "/b2c/attractions",
   },
   careersCta: {
-    titleEn: "SHAPE THE FUTURE OF ENTERTAINMENT",
-    titleAr: "صمّم مستقبل الترفيه والفعاليات معنا",
-    subtitleEn: "Join the E3 creative, technology, and production engineering team in Qatar.",
-    subtitleAr: "انضم لفريق الهندسة والإنتاج والتكنولوجيا في قطر.",
-    buttonTextEn: "EXPLORE CAREERS",
-    buttonTextAr: "استكشف الوظائف المتاحة",
-    buttonUrl: "/careers",
+    titleEn: "HOST YOUR BIRTHDAY PARTY OR CORPORATE EVENT",
+    titleAr: "احجز حفل عيد ميلادك أو فعاليتك الخاصة",
+    subtitleEn: "Discover all-inclusive VIP birthday packages, corporate team-building outings, and exclusive venue buyouts across Qatar.",
+    subtitleAr: "وفرنا لك أفضل الباقات الشاملة للأطفال والشركات مع غرف حفلات خاصة، صالات VIP، وتجارب استثنائية.",
+    buttonTextEn: "EXPLORE PACKAGES & PRICING",
+    buttonTextAr: "استكشف الباقات والحجوزات",
+    buttonUrl: "/b2c/packages",
   },
   motion: {
     motionEnabled: true,
@@ -110,11 +110,166 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   }
 };
 
+export const DEFAULT_B2C_PACKAGES_CONTENT = {
+  hero: {
+    titleEn: "Group & Birthday Packages",
+    titleAr: "باقات الحفلات والشركات وأعياد الميلاد",
+    subtitleEn: "Host unforgettable milestone birthday celebrations, team-building outings, and exclusive venue buyouts across Qatar.",
+    subtitleAr: "احتفل بأجمل اللحظات وحفلات أعياد الميلاد والفعاليات الخاصة بشركتك في أفضل الوجهات الترفيهية في قطر.",
+    badgeEn: "VIP PACKAGES & EVENTS",
+    badgeAr: "باقات الفعاليات والاحتفالات",
+  },
+  packages: [
+    {
+      id: "birthday-silver",
+      titleEn: "Silver Birthday Party",
+      titleAr: "باقة أعياد الميلاد الفضية",
+      badgeEn: "Kids & Teens",
+      badgeAr: "الأطفال واليافعين",
+      descriptionEn: "Perfect choice for intimate celebrations. Includes 2 hours of park access, private party room, and dedicated host.",
+      descriptionAr: "الخيار الأمثل للاحتفالات الخاصة. يشمل ساعتين من الألعاب، غرفة حفلات خاصة، ومضيف مخصص.",
+      priceEn: "From QAR 1,800",
+      priceAr: "ابتداءً من 1,800 ر.ق",
+      accentColor: "#10b981",
+      popular: false,
+      perksEn: [
+        "Up to 10 Participating Guests",
+        "2 Hours Full Attraction Access",
+        "Private Decorated Party Room (1 Hr)",
+        "Dedicated Event Host",
+        "Custom Digital Invitations",
+        "Signature Birthday Cake"
+      ],
+      perksAr: [
+        "حتى 10 ضيوف مشاركين",
+        "ساعتان دخول شامل لجميع الألعاب",
+        "غرفة حفلات خاصة ومزينة (ساعة واحدة)",
+        "مضيف فعاليات مخصص للحفلة",
+        "دعوات إلكترونية مخصصة",
+        "كعكة عيد ميلاد خاصة"
+      ]
+    },
+    {
+      id: "birthday-gold-vip",
+      titleEn: "Gold VIP Birthday World",
+      titleAr: "باقة أعياد الميلاد الذهبية الـ VIP",
+      badgeEn: "Most Popular",
+      badgeAr: "الأكثر طلباً",
+      descriptionEn: "The ultimate birthday extravaganza with full park access, VIP lounge, gourmet catering, and arcade credits for everyone.",
+      descriptionAr: "التجربة المتكاملة الأكثر روعة لأعياد الميلاد مع صالة VIP، وجبات فاخرة، ورصيد ألعاب إضافي للجميع.",
+      priceEn: "From QAR 3,500",
+      priceAr: "ابتداءً من 3,500 ر.ق",
+      accentColor: "#b013b8",
+      popular: true,
+      perksEn: [
+        "Up to 20 Participating Guests",
+        "3 Hours Unlimited Attraction Access",
+        "VIP Private Lounge & Party Zone",
+        "Gourmet Meal & Drinks Package",
+        "QAR 100 Arcade Credit per Guest",
+        "Professional Photographer (1 Hr)",
+        "Custom Theme Styling & Balloon Arch"
+      ],
+      perksAr: [
+        "حتى 20 ضيفاً مشاركاً",
+        "3 ساعات دخول غير محدود للألعاب",
+        "صالة VIP خاصة وحصرية",
+        "وجبات ومشروبات فاخرة للجميع",
+        "رصيد ألعاب بقيمة 100 ر.ق لكل ضيف",
+        "مصور محترف (ساعة واحدة)",
+        "تنسيق بالونات وديكور حسب الثيمة"
+      ]
+    },
+    {
+      id: "corporate-outing",
+      titleEn: "Corporate Team Building & Outing",
+      titleAr: "باقة الشركات وبناء فرق العمل",
+      badgeEn: "Corporate B2B",
+      badgeAr: "مخصص للشركات",
+      descriptionEn: "Energize your team with tailored competitions, privatized arenas, customized leaderboards, and executive catering.",
+      descriptionAr: "حفّز فريق عملك بمسابقات حصرية، حلبات خاصة، لوحة نتائج تفاعلية، وخدمات ضيافة رفيعة المستوى.",
+      priceEn: "From QAR 6,000",
+      priceAr: "ابتداءً من 6,000 ر.ق",
+      accentColor: "#3b82f6",
+      popular: false,
+      perksEn: [
+        "Up to 50 Team Members (Expandable)",
+        "Exclusive Arena Competition Access",
+        "Custom Team Leaderboard & Trophies",
+        "Executive Buffet Catering & Coffee Station",
+        "Dedicated Corporate Event Planner",
+        "Branded Digital Welcome Screen"
+      ],
+      perksAr: [
+        "حتى 50 موظفاً (قابل للزيادة)",
+        "دخول حصري لحلبات التنافس",
+        "لوحة نتائج مخصصة للشركة وكؤوس",
+        "بوفيه فاخر ومحطة قهوة مختصة",
+        "منسق فعاليات شركات مخصص",
+        "شاشات ترحيبية بهوية الشركة"
+      ]
+    },
+    {
+      id: "private-buyout",
+      titleEn: "Exclusive 100% Venue Buyout",
+      titleAr: "حجز المرفق بالكامل (Exclusive Buyout)",
+      badgeEn: "VIP Privatization",
+      badgeAr: "خصوصية تامة 100%",
+      descriptionEn: "Complete privatization of our flagship entertainment centers for product launches, VIP galas, and large family days.",
+      descriptionAr: "إغلاق حصير للمرفق بالكامل لصالح مبيعاتك، إطلاق المنتجات، أو اليوم العائلي الخاص لشركتك.",
+      priceEn: "Custom Quote",
+      priceAr: "حسب الطلب والعدد",
+      accentColor: "#f59e0b",
+      popular: false,
+      perksEn: [
+        "Unlimited Guests (Up to Venue Capacity)",
+        "100% Private Venue Access (Closed to Public)",
+        "Full Stage, Audio & Kinetic Light Systems",
+        "Bespoke Catering & VIP Red Carpet Service",
+        "Full Security, Technical & Operations Staff",
+        "Complete Custom Branding Integration"
+      ],
+      perksAr: [
+        "عدد غير محدود من الضيوف (حسب الطاقة الاستيعابية)",
+        "دخول خاص 100% (مغلق أمام الجمهور)",
+        "أنظمة صوت وإضاءة ومسرح كاملة",
+        "ضيافة مخصصة وسجاد أحمر كبار الشخصيات",
+        "طاقم أمني وفني وتشغيلي كامل",
+        "دمج كامل لهوية فعاليتك في المرفق"
+      ]
+    }
+  ],
+  inquiryForm: {
+    titleEn: "Plan Your Event With E3 Experts",
+    titleAr: "احجز حفلهم أو فعاليتك القادمة",
+    subtitleEn: "Our VIP event planners will contact you within 24 hours to confirm dates, themes, and arrangements.",
+    subtitleAr: "سيعاود فريق تنظيم الحفلات والشركات التواصل معك خلال 24 ساعة لتأكيد التفاصيل.",
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
  */
 export function getMergedCMSPageContent(slug: string, rawContent?: any) {
+  if (slug === 'b2c-packages') {
+    const defaults = DEFAULT_B2C_PACKAGES_CONTENT;
+    const raw = rawContent || {};
+    return {
+      ...defaults,
+      ...raw,
+      hero: {
+        ...defaults.hero,
+        ...(raw.hero || {}),
+      },
+      packages: (raw.packages && raw.packages.length > 0) ? raw.packages : defaults.packages,
+      inquiryForm: {
+        ...defaults.inquiryForm,
+        ...(raw.inquiryForm || {}),
+      }
+    };
+  }
+
   if (slug !== 'b2c-landing') return rawContent || {};
 
   const defaults = DEFAULT_B2C_LANDING_CONTENT;
