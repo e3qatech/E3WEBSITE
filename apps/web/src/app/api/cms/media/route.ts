@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     if (!user || !user.isActive) {
       return NextResponse.json({ error: 'Account inactive or unauthorized' }, { status: 401 });
     }
-    if (user.role !== 'SUPER_ADMIN' && user.role !== 'STAFF') {
+    if (!['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'STAFF'].includes(user.role)) {
       return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
     }
 
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
           type: mediaType as any,
           mimeType: mimeType || 'application/octet-stream',
           size: size || 0,
-          alt: JSON.stringify({ en: name || 'Media', ar: name || 'Media' }),
+          alt: { en: name || 'Media', ar: name || 'Media' },
         },
       });
 
@@ -189,7 +189,7 @@ export async function POST(request: Request) {
         type: mediaType as any,
         mimeType: ext === 'svg' ? 'image/svg+xml' : (file.type || 'application/octet-stream'),
         size: file.size,
-        alt: JSON.stringify({ en: file.name, ar: file.name }),
+        alt: { en: file.name, ar: file.name },
       },
     });
 
