@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface Partner {
   name?: string;
@@ -61,12 +62,12 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
                   {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
                       src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
-                      alt={partner.name || 'Partner logo'} 
+                      alt={formatLocalizedText(partner.name, locale) || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center font-bold text-xl text-zinc-500">
-                      {partner.name}
+                      {formatLocalizedText(partner.name, locale)}
                     </div>
                   )}
                 </a>
@@ -75,12 +76,12 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
                   {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
                       src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
-                      alt={partner.name || 'Partner logo'} 
+                      alt={formatLocalizedText(partner.name, locale) || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center font-bold text-xl text-zinc-500">
-                      {partner.name}
+                      {formatLocalizedText(partner.name, locale)}
                     </div>
                   )}
                 </div>
@@ -90,7 +91,7 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
           {/* Duplicate for seamless loop */}
           {displayPartners.map((partner, idx) => (
             <div 
-              key={`dup-${partner.name}-${idx}`} 
+              key={`dup-${idx}`} 
               className="relative w-40 h-24 flex-shrink-0 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-300 opacity-60 hover:opacity-100"
             >
               {partner.websiteUrl ? (
@@ -98,12 +99,12 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
                   {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
                       src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
-                      alt={partner.name || 'Partner logo'} 
+                      alt={formatLocalizedText(partner.name, locale) || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center font-bold text-xl text-zinc-500">
-                      {partner.name}
+                      {formatLocalizedText(partner.name, locale)}
                     </div>
                   )}
                 </a>
@@ -112,12 +113,12 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
                   {(partner.logoUrl || (partner as any).logo || (partner as any).image) ? (
                     <img 
                       src={partner.logoUrl || (partner as any).logo || (partner as any).image} 
-                      alt={partner.name || 'Partner logo'} 
+                      alt={formatLocalizedText(partner.name, locale) || 'Partner logo'} 
                       className="object-contain w-full h-full"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center font-bold text-xl text-zinc-500">
-                      {partner.name}
+                      {formatLocalizedText(partner.name, locale)}
                     </div>
                   )}
                 </div>

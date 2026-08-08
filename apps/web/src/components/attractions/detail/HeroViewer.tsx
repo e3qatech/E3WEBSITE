@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
+import { formatLocalizedText } from '@/lib/utils';
+
 const ModelViewer = dynamic(() => import('./ModelViewer'), {
   ssr: false,
   loading: () => <div className="absolute inset-0 flex items-center justify-center bg-zinc-950"><span className="text-white/50">Loading 3D Experience...</span></div>
@@ -139,7 +141,7 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
           transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
           className="text-balance text-5xl md:text-7xl lg:text-[clamp(3rem,8vw,6rem)] font-black text-white tracking-tighter uppercase leading-[0.9] drop-shadow-2xl max-w-6xl break-words"
         >
-          {title}
+          {formatLocalizedText(title)}
         </motion.h1>
 
         {tagline && (
@@ -149,7 +151,7 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
             transition={{ delay: 0.5, duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className="mt-8 text-xl md:text-3xl text-zinc-300 max-w-3xl font-light leading-relaxed drop-shadow-lg"
           >
-            {tagline}
+            {formatLocalizedText(tagline)}
           </motion.p>
         )}
 

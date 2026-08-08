@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Ticket, Tag, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface PricingTier {
   id: string;
@@ -83,12 +84,12 @@ export function PricingCards({ pricing, offers, bookingUrl }: PricingCardsProps)
                 <div className="mb-10 relative z-10">
                   <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-6 ${isFeatured ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-white/70 border border-white/10'}`}>
                     <Ticket className="w-3.5 h-3.5 me-2" />
-                    {tier.type}
+                    {formatLocalizedText(tier.type)}
                   </span>
-                  <h3 className="text-3xl font-black mb-4 tracking-tight">{tier.titleEn}</h3>
+                  <h3 className="text-3xl font-black mb-4 tracking-tight">{formatLocalizedText(tier.titleEn)}</h3>
                   {tier.descriptionEn && (
                     <p className="text-zinc-400 text-sm leading-relaxed min-h-[3rem]">
-                      {tier.descriptionEn}
+                      {formatLocalizedText(tier.descriptionEn)}
                     </p>
                   )}
                 </div>
