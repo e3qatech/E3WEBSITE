@@ -35,9 +35,15 @@ export function MaskedVideoHero({
   const heroConfig = cmsData?.hero || {};
   const maskedConfig = cmsData?.maskedVideo || {};
 
+  const isValidVideoUrl = (url?: string | null) => {
+    if (!url) return false;
+    if (url.startsWith('data:') && url.length > 50000) return false;
+    return true;
+  };
+
   const activeMediaConfig = currentPortalMode === 'customer'
     ? {
-        videoUrl: heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4',
+        videoUrl: (isValidVideoUrl(heroConfig?.mediaUrl) && heroConfig?.mediaUrl) || (isValidVideoUrl(maskedConfig?.customerDesktopVideo) && maskedConfig?.customerDesktopVideo) || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4',
         posterUrl: maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
         preset: (maskedConfig?.customerMaskPreset || maskedConfig?.preset || 'ORGANIC_WINDOW') as MaskPresetType,
         accent: maskedConfig?.customerAccent || '#10b981',
@@ -45,7 +51,7 @@ export function MaskedVideoHero({
         altAr: maskedConfig?.customerAltAr || 'عالم تجارب زوار إي ثري',
       }
     : {
-        videoUrl: heroConfig?.mediaUrl || maskedConfig?.organizerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
+        videoUrl: (isValidVideoUrl(heroConfig?.mediaUrl) && heroConfig?.mediaUrl) || (isValidVideoUrl(maskedConfig?.organizerDesktopVideo) && maskedConfig?.organizerDesktopVideo) || 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
         posterUrl: maskedConfig?.organizerPoster || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop',
         preset: (maskedConfig?.organizerMaskPreset || maskedConfig?.preset || 'PORTAL_ARCH') as MaskPresetType,
         accent: maskedConfig?.organizerAccent || '#3b82f6',
@@ -54,12 +60,12 @@ export function MaskedVideoHero({
       };
 
   const headerTitle = isAr
-    ? (currentPortalMode === 'customer' ? heroConfig.headerAr || 'استكشف عالم إي ثري الترفيهي' : 'هندسة الفعاليات والإنتاج الضخم')
-    : (currentPortalMode === 'customer' ? heroConfig.headerEn || 'E3 PULSE MASKED WORLDS' : 'E3 ATELIER EVENT ENGINEERING');
+    ? (heroConfig.headerAr || (currentPortalMode === 'customer' ? 'استكشف عالم إي ثري الترفيهي' : 'هندسة الفعاليات والإنتاج الضخم'))
+    : (heroConfig.headerEn || (currentPortalMode === 'customer' ? 'E3 PULSE MASKED WORLDS' : 'E3 ATELIER EVENT ENGINEERING'));
 
   const subHeader = isAr
-    ? (currentPortalMode === 'customer' ? heroConfig.subHeaderAr || 'تجارب ترفيهية غامرة ومدن ألعاب فضائية في قطر' : 'حلول متكاملة لهندسة وتصنيع الفعاليات الضخمة')
-    : (currentPortalMode === 'customer' ? heroConfig.subHeaderEn || ' Qatar premier immersive attractions and kinetic entertainment.' : 'End-to-end event engineering, stage fabrication, and B2B spatial technologies.');
+    ? (heroConfig.subHeaderAr || (currentPortalMode === 'customer' ? 'تجارب ترفيهية غامرة ومدن ألعاب فضائية في قطر' : 'حلول متكاملة لهندسة وتصنيع الفعاليات الضخمة'))
+    : (heroConfig.subHeaderEn || (currentPortalMode === 'customer' ? 'Qatar premier immersive attractions and kinetic entertainment.' : 'End-to-end event engineering, stage fabrication, and B2B spatial technologies.'));
 
   return (
     <section

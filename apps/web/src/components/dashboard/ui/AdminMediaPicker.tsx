@@ -85,15 +85,21 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         })
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => null);
+      const finalUrl = data?.url || url;
+      if (typeof finalUrl === 'string' && finalUrl.startsWith('data:') && finalUrl.length > 50000) {
+        toast("Video file is too large for embedded base64 storage. Please enter a direct Video URL (e.g. https://.../video.mp4).", "error");
+        return;
+      }
+
       if (res.ok && data) {
         setMediaList(prev => [data, ...prev])
-        onChange(data.url || url)
+        onChange(finalUrl)
         toast("Media uploaded successfully", "success")
         setIsOpen(false)
       } else {
         // Fallback: use url directly even if CMS registration returned an error
-        onChange(url)
+        onChange(finalUrl)
         toast("Media uploaded successfully", "success")
         setIsOpen(false)
       }

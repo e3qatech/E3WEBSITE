@@ -40,13 +40,41 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
     }
   };
 
+  const sanitizeCMSData = (raw: any) => {
+    const clone = JSON.parse(JSON.stringify(raw));
+    let dataUrlStripped = false;
+
+    const checkAndClean = (obj: any, key: string) => {
+      if (obj && typeof obj[key] === 'string' && obj[key].startsWith('data:') && obj[key].length > 50000) {
+        obj[key] = '';
+        dataUrlStripped = true;
+      }
+    };
+
+    if (clone.hero) checkAndClean(clone.hero, 'mediaUrl');
+    if (clone.maskedVideo) {
+      checkAndClean(clone.maskedVideo, 'customerDesktopVideo');
+      checkAndClean(clone.maskedVideo, 'customerPoster');
+      checkAndClean(clone.maskedVideo, 'organizerDesktopVideo');
+      checkAndClean(clone.maskedVideo, 'organizerPoster');
+    }
+
+    return { cleaned: clone, dataUrlStripped };
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
+      const { cleaned, dataUrlStripped } = sanitizeCMSData(data);
+
+      if (dataUrlStripped) {
+        toast("Raw base64 video data URL stripped to prevent server payload error. Please enter a direct Video URL (e.g. https://.../video.mp4).", "info");
+      }
+
       const res = await fetch('/api/cms/pages/b2c-landing', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data })
+        body: JSON.stringify({ content: cleaned })
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));

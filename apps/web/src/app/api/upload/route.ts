@@ -45,7 +45,7 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isP
     await fs.writeFile(filePath, buffer);
     return isPrivate ? `/private/uploads/${fileName}` : `/uploads/${fileName}`;
   } catch (fsErr) {
-    console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), converting to Data URL fallback:", fsErr);
+    console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), checking Data URL fallback feasibility:", fsErr);
     if (isPrivate) {
         throw new Error("Private storage unavailable on read-only system without valid blob setup.");
     }
@@ -58,6 +58,10 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isP
       else if (ext === 'webp') mime = 'image/webp';
       else if (ext === 'gif') mime = 'image/gif';
       else if (ext === 'pdf') mime = 'application/pdf';
+    }
+
+    if (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext || '')) {
+      throw new Error("Direct video file upload failed: Server filesystem is read-only and Vercel Blob storage is unconfigured. Please paste a direct Video URL (e.g. https://.../video.mp4).");
     }
 
     const base64 = buffer.toString('base64');
