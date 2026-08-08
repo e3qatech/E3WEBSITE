@@ -144,7 +144,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
       <span className="text-sm font-bold text-[var(--text-primary)]">{label}</span>
       
       {value ? (
-        <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center">
+        <div className="relative w-full max-w-md rounded-2xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center shadow-sm">
           {isVideoUrl(value) ? (
             <video src={value} className="w-full h-full object-cover" controls autoPlay loop muted playsInline />
           ) : value.match(/\.(pdf|doc)$/i) ? (
@@ -152,9 +152,9 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           ) : (
             <img src={value} alt="Selected Media" className="w-full h-full object-cover" />
           )}
-          <div className="absolute inset-0 bg-zinc-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+          <div className="absolute inset-0 bg-zinc-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 p-4">
             <AdminButton variant="outline" size="sm" onClick={() => setIsOpen(true)}>
-              Change Media
+              Choose / Upload Media
             </AdminButton>
             <AdminButton variant="danger" size="sm" onClick={() => onChange("")}>
               Remove
@@ -162,14 +162,43 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           </div>
         </div>
       ) : (
-        <div 
-          onClick={() => setIsOpen(true)}
-          className="w-full max-w-sm aspect-video border-2 border-dashed border-[var(--border-default)] rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition-colors group"
-        >
-          <div className="w-12 h-12 rounded-full bg-[var(--surface-default)] flex items-center justify-center group-hover:bg-[var(--color-primary)]/10">
-            <UploadCloud className="w-6 h-6 text-[var(--text-tertiary)] group-hover:text-[var(--color-primary)] transition-colors" />
+        <div className="flex flex-col gap-3 w-full max-w-md">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleUpload}
+            accept={accept}
+            disabled={uploading}
+          />
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full aspect-video border-2 border-dashed border-emerald-500/40 rounded-2xl flex flex-col items-center justify-center p-6 gap-3 cursor-pointer hover:border-emerald-500 hover:bg-emerald-500/5 transition-all group bg-[var(--surface-hover)]/30"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <UploadCloud className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <span className="text-sm font-bold text-[var(--text-primary)] block">
+                {uploading ? "Uploading file..." : "Click to Upload Video or Image File"}
+              </span>
+              <span className="text-xs text-[var(--text-tertiary)] block">
+                Drag & drop or select file from your computer
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(true);
+                }}
+                className="text-xs font-semibold text-emerald-400 hover:underline"
+              >
+                Or choose from Media Library / Paste Link →
+              </button>
+            </div>
           </div>
-          <span className="text-sm font-bold text-[var(--text-secondary)]">Click to browse media</span>
         </div>
       )}
 
