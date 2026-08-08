@@ -345,6 +345,9 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     hero: {
       ...defaults.hero,
       ...(raw.hero || {}),
+      mediaUrl: (raw.hero?.mediaUrl && raw.hero.mediaUrl.trim() !== '') ? raw.hero.mediaUrl : defaults.hero.mediaUrl,
+      streamMediaUrl: (raw.hero?.streamMediaUrl && raw.hero.streamMediaUrl.trim() !== '') ? raw.hero.streamMediaUrl : defaults.hero.streamMediaUrl,
+      posterUrl: (raw.hero?.posterUrl && raw.hero.posterUrl.trim() !== '') ? raw.hero.posterUrl : defaults.hero.posterUrl,
     },
     maskedVideo: {
       ...defaults.maskedVideo,

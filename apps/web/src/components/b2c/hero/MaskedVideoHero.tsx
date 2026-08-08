@@ -43,7 +43,10 @@ export function MaskedVideoHero({
   const heroConfig = cmsData?.hero || {};
   const maskedConfig = cmsData?.maskedVideo || {};
 
-  const mediaUrl = heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4';
+  const rawMediaUrl = heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo;
+  const mediaUrl = (rawMediaUrl && typeof rawMediaUrl === 'string' && rawMediaUrl.trim() !== '') 
+    ? rawMediaUrl 
+    : 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4';
   const posterUrl = heroConfig?.posterUrl || maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop';
   
   const streamMediaUrl = heroConfig?.streamMediaUrl || mediaUrl;
@@ -59,9 +62,9 @@ export function MaskedVideoHero({
     mediaType = 'MODEL_3D';
   } else if (mediaUrl.includes('<iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo')) {
     mediaType = 'IFRAME';
-  } else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(mediaUrl)) {
+  } else if (/\.(jpg|jpeg|png|webp|gif|svg|avif)($|\?)/i.test(mediaUrl) || mediaUrl.startsWith('data:image/')) {
     mediaType = 'IMAGE';
-  } else if (/\.(mp4|webm|mov|m4v|mkv)$/i.test(mediaUrl) || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.includes('mixkit')) {
+  } else if (/\.(mp4|webm|mov|m4v|mkv)($|\?)/i.test(mediaUrl) || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.includes('/uploads/') || mediaUrl.includes('mixkit') || mediaUrl.startsWith('data:video/')) {
     mediaType = 'VIDEO';
   }
 

@@ -46,19 +46,20 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
     const clone = JSON.parse(JSON.stringify(raw));
     let dataUrlStripped = false;
 
-    const checkAndClean = (obj: any, key: string) => {
-      if (obj && typeof obj[key] === 'string' && obj[key].startsWith('data:') && obj[key].length > 50000) {
-        obj[key] = '';
+    const checkAndClean = (obj: any, key: string, fallbackUrl: string) => {
+      if (obj && typeof obj[key] === 'string' && obj[key].startsWith('data:') && obj[key].length > 500000) {
+        obj[key] = fallbackUrl;
         dataUrlStripped = true;
       }
     };
 
-    if (clone.hero) checkAndClean(clone.hero, 'mediaUrl');
+    if (clone.hero) checkAndClean(clone.hero, 'mediaUrl', 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4');
+    if (clone.hero) checkAndClean(clone.hero, 'streamMediaUrl', 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4');
     if (clone.maskedVideo) {
-      checkAndClean(clone.maskedVideo, 'customerDesktopVideo');
-      checkAndClean(clone.maskedVideo, 'customerPoster');
-      checkAndClean(clone.maskedVideo, 'organizerDesktopVideo');
-      checkAndClean(clone.maskedVideo, 'organizerPoster');
+      checkAndClean(clone.maskedVideo, 'customerDesktopVideo', 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4');
+      checkAndClean(clone.maskedVideo, 'customerPoster', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop');
+      checkAndClean(clone.maskedVideo, 'organizerDesktopVideo', 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4');
+      checkAndClean(clone.maskedVideo, 'organizerPoster', 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop');
     }
 
     return { cleaned: clone, dataUrlStripped };
