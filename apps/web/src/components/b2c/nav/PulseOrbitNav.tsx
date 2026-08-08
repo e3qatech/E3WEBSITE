@@ -93,6 +93,8 @@ import { E3Logo } from '@/components/shared/E3Logo';
 
 export function PulseOrbitNav({
   locale = 'en',
+  settings,
+  orbitData,
   customerLabelEn = 'Customer',
   customerLabelAr = 'الزائر',
   organizerLabelEn = 'Organizer',
@@ -101,6 +103,8 @@ export function PulseOrbitNav({
   organizerUrl = '/b2b',
 }: {
   locale?: string;
+  settings?: Record<string, string>;
+  orbitData?: { titleEn?: string; titleAr?: string; destinations?: any[] };
   customerLabelEn?: string;
   customerLabelAr?: string;
   organizerLabelEn?: string;
@@ -113,9 +117,26 @@ export function PulseOrbitNav({
   const isAr = locale === 'ar';
   const isB2C = pathname?.includes('/b2c') || !pathname?.includes('/b2b');
 
+  const lightLogoUrl = settings?.lightLogoUrl;
+  const darkLogoUrl = settings?.darkLogoUrl;
+
+  const destinationList: NavDestination[] = (orbitData?.destinations && orbitData.destinations.length > 0)
+    ? orbitData.destinations
+        .filter((d: any) => d.enabled !== false)
+        .map((d: any, idx: number) => ({
+          labelEn: d.labelEn,
+          labelAr: d.labelAr,
+          href: d.href,
+          icon: DESTINATIONS[idx % DESTINATIONS.length]?.icon || Sparkles,
+          descEn: d.descEn,
+          descAr: d.descAr,
+          mediaUrl: d.mediaUrl,
+        }))
+    : DESTINATIONS;
+
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeDestination, setActiveDestination] = useState<NavDestination>(DESTINATIONS[0]);
+  const [activeDestination, setActiveDestination] = useState<NavDestination>(destinationList[0] || DESTINATIONS[0]);
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
@@ -188,7 +209,13 @@ export function PulseOrbitNav({
               className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
             >
-              <E3Logo isLight={currentTheme === 'light'} showText={true} size="md" />
+              <E3Logo
+                lightLogoUrl={lightLogoUrl}
+                darkLogoUrl={darkLogoUrl}
+                isLight={currentTheme === 'light'}
+                showText={false}
+                size="md"
+              />
             </Link>
 
             {/* SHARED PORTAL MODE SWITCHER */}
@@ -205,7 +232,7 @@ export function PulseOrbitNav({
 
           {/* Desktop Links (Resting State) */}
           <nav className="hidden md:flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/60 p-1.5 backdrop-blur-md">
-            {DESTINATIONS.slice(0, 4).map((dest) => {
+            {destinationList.slice(0, 4).map((dest) => {
               const isActive = pathname?.includes(dest.href);
               return (
                 <Link
@@ -331,7 +358,7 @@ export function PulseOrbitNav({
           <div className="my-auto grid grid-cols-1 gap-8 lg:grid-cols-12 max-w-7xl mx-auto w-full py-6">
             {/* DESTINATION WORLDS LIST (7 COLS) */}
             <div className="lg:col-span-7 space-y-2">
-              {DESTINATIONS.map((dest) => {
+              {destinationList.map((dest) => {
                 const Icon = dest.icon;
                 const isSelected = activeDestination.href === dest.href;
                 return (

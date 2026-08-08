@@ -18,32 +18,16 @@ export function E3Logo({
   darkLogoUrl,
   className,
   size = "md",
-  showText = true,
+  showText = false,
 }: E3LogoProps) {
   // If explicit image URLs are provided via CMS or props
-  if (isLight && lightLogoUrl) {
-    return (
-      <div className={cn("flex items-center gap-2.5", className)}>
-        <img
-          src={lightLogoUrl}
-          alt="E3 Qatar Logo"
-          className={cn(
-            "object-contain w-auto",
-            size === "sm" && "h-7",
-            size === "md" && "h-9",
-            size === "lg" && "h-11",
-            size === "xl" && "h-14"
-          )}
-        />
-      </div>
-    );
-  }
+  const activeLogoUrl = isLight ? (lightLogoUrl || darkLogoUrl) : (darkLogoUrl || lightLogoUrl);
 
-  if (!isLight && darkLogoUrl) {
+  if (activeLogoUrl) {
     return (
       <div className={cn("flex items-center gap-2.5", className)}>
         <img
-          src={darkLogoUrl}
+          src={activeLogoUrl}
           alt="E3 Qatar Logo"
           className={cn(
             "object-contain w-auto",
