@@ -16,9 +16,7 @@ import {
   LogOut,
   FileText,
   Star,
-  Users2,
-  ShieldCheck,
-  Sliders
+  Users2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
@@ -29,16 +27,6 @@ import { E3Logo } from "@/components/shared/E3Logo";
 // Updated configuration mapping 17 domain modules into refined logical buckets
 const sidebarConfig = [
   { label: "Command Center", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
-  { label: "Auth Control & RBAC", icon: ShieldCheck, href: "/dashboard/crm/users", badge: "RBAC", roles: ["SUPER_ADMIN"], subItems: [
-    { label: "Users & Permissions", href: "/dashboard/crm/users" },
-    { label: "Client Memberships", href: "/dashboard/crm/clients" },
-    { label: "Security & Sessions", href: "/dashboard/settings/users" }
-  ] },
-  { label: "Gateway Customization", icon: Sliders, href: "/dashboard/settings/gateway", badge: "CMS", roles: ["SUPER_ADMIN"], subItems: [
-    { label: "Gateway Editor (EN/AR)", href: "/dashboard/settings/gateway" },
-    { label: "Global Settings", href: "/dashboard/settings/general" },
-    { label: "SEO & Meta Settings", href: "/dashboard/settings/seo" }
-  ] },
   { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
@@ -91,11 +79,13 @@ const sidebarConfig = [
     { label: "Broadcasts", href: "/dashboard/operations/broadcast" }
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Global", href: "/dashboard/settings/general" },
+    { label: "Global General", href: "/dashboard/settings/general" },
+    { label: "Pulse Orbit Settings", href: "/dashboard/settings/pulse-orbit" },
+    { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
     { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },
-    { label: "SEO & Meta", href: "/dashboard/settings/seo" }
+    { label: "SEO & Meta Settings", href: "/dashboard/settings/seo" }
   ] },
 ];
 

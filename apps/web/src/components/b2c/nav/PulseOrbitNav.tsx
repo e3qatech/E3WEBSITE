@@ -205,7 +205,7 @@ export function PulseOrbitNav({
           {/* Company Logo & Portal Mode Switcher */}
           <div className="flex items-center gap-4">
             <Link
-              href={`/${locale}`}
+              href={`/${locale}/b2c`}
               className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
             >
@@ -231,7 +231,7 @@ export function PulseOrbitNav({
           </div>
 
           {/* Desktop Links (Resting State) */}
-          <nav className="hidden md:flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/60 p-1.5 backdrop-blur-md">
+          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full border border-slate-800/80 bg-slate-900/60 backdrop-blur-md">
             {destinationList.slice(0, 4).map((dest) => {
               const isActive = pathname?.includes(dest.href);
               return (
@@ -239,9 +239,9 @@ export function PulseOrbitNav({
                   key={dest.href}
                   href={`/${locale}${dest.href}`}
                   className={cn(
-                    'rounded-full px-4 py-1.5 text-xs font-semibold transition-all',
+                    'flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold transition-all select-none cursor-pointer',
                     isActive
-                      ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   )}
                 >
