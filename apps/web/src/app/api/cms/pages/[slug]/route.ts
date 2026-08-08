@@ -21,29 +21,51 @@ export async function GET(
 ) {
   const { slug } = await params;
   try {
-    const page = await db.pages.findUnique({
-      where: { slug },
+    let rawContent: any = null;
+    let title: any = { en: slug, ar: slug };
+    let seo: any = {};
+
+    try {
+      const page = await db.pages.findUnique({
+        where: { slug },
+      });
+      if (page) {
+        rawContent = page.content;
+        title = page.title;
+        seo = page.seo;
+      }
+    } catch (_dbErr) {
+      // Ignore Pages table query failure
+    }
+
+    if (!rawContent) {
+      try {
+        const setting = await (db as any).siteSettings.findUnique({
+          where: { key: `cms_page_${slug}` },
+        });
+        if (setting && setting.value) {
+          rawContent = setting.value;
+        }
+      } catch (_settingErr) {
+        // Ignore SiteSettings table query failure
+      }
+    }
+
+    if (!rawContent && globalCMSPagesStore[slug]) {
+      rawContent = globalCMSPagesStore[slug].content;
+      title = globalCMSPagesStore[slug].title || title;
+      seo = globalCMSPagesStore[slug].seo || seo;
+    }
+
+    const mergedContent = getMergedCMSPageContent(slug, rawContent);
+    return NextResponse.json({
+      data: {
+        slug,
+        title,
+        content: mergedContent,
+        seo,
+      },
     });
-
-    if (page) {
-      const mergedContent = getMergedCMSPageContent(slug, page.content);
-      return NextResponse.json({ data: { ...page, content: mergedContent } });
-    }
-
-    if (globalCMSPagesStore[slug]) {
-      const mergedContent = getMergedCMSPageContent(slug, globalCMSPagesStore[slug].content);
-      return NextResponse.json({ data: { ...globalCMSPagesStore[slug], content: mergedContent } });
-    }
-
-    // Default fallback if page is unseeded
-    const defaultContent = getMergedCMSPageContent(slug);
-    const fallbackPage = {
-      slug,
-      title: { en: slug, ar: slug },
-      content: defaultContent,
-      seo: {},
-    };
-    return NextResponse.json({ data: fallbackPage });
   } catch (error) {
     console.error(`[GET /api/cms/pages/${slug}] error:`, error);
     const defaultContent = getMergedCMSPageContent(slug, globalCMSPagesStore[slug]?.content);
@@ -53,7 +75,7 @@ export async function GET(
         title: { en: slug, ar: slug },
         content: defaultContent,
         seo: {},
-      }
+      },
     });
   }
 }
@@ -65,9 +87,9 @@ export async function PUT(
   const { slug } = await params;
   try {
     const session = await auth();
-    // Allow local development mode saves or authenticated sessions
+    // Allow authenticated sessions or development mode
     if (!session?.user && process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
     }
 
     const body = await req.json();
@@ -76,6 +98,7 @@ export async function PUT(
 
     let updatedPage: any = null;
 
+    // 1. Persist to primary Pages model in PostgreSQL
     try {
       updatedPage = await db.pages.upsert({
         where: { slug },
@@ -89,10 +112,28 @@ export async function PUT(
           title: validatedData.title || { en: slug, ar: slug },
           content: mergedContent,
           seo: validatedData.seo || {},
-        }
+        },
       });
     } catch (dbError) {
-      console.warn(`[DB WARN /api/cms/pages/${slug}] Failed to persist to PostgreSQL, falling back to memory cache:`, dbError);
+      console.warn(`[DB WARN /api/cms/pages/${slug}] Pages table upsert failed, attempting SiteSettings fallback:`, dbError);
+    }
+
+    // 2. Persist to secondary SiteSettings model in PostgreSQL (guarantees cross-lambda persistence)
+    try {
+      await (db as any).siteSettings.upsert({
+        where: { key: `cms_page_${slug}` },
+        update: {
+          value: mergedContent as any,
+          group: 'UI',
+        },
+        create: {
+          key: `cms_page_${slug}`,
+          value: mergedContent as any,
+          group: 'UI',
+        },
+      });
+    } catch (settingError) {
+      console.warn(`[DB WARN /api/cms/pages/${slug}] SiteSettings table upsert notice:`, settingError);
     }
 
     if (!updatedPage) {
@@ -101,7 +142,7 @@ export async function PUT(
         title: validatedData.title || globalCMSPagesStore[slug]?.title || { en: slug, ar: slug },
         content: mergedContent,
         seo: validatedData.seo || globalCMSPagesStore[slug]?.seo || {},
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
     }
 
@@ -118,7 +159,7 @@ export async function PUT(
       revalidatePath('/en/dashboard/b2c/landing', 'page');
       revalidatePath('/ar/dashboard/b2c/landing', 'page');
     } catch (_e) {
-      // Ignore revalidate errors in dev
+      // Ignore revalidate errors
     }
 
     return NextResponse.json({ success: true, data: updatedPage });

@@ -21,8 +21,18 @@ export default async function AttractionsPage({ params }: { params: Promise<{ lo
     });
     rawContent = cmsPage?.content;
   } catch (_e) {
-    const globalStore = (globalThis as any).__globalCMSPagesStore;
-    rawContent = globalStore?.["b2c-landing"]?.content;
+    rawContent = null;
+  }
+
+  if (!rawContent) {
+    try {
+      const settingRecord = await (db as any).siteSettings.findUnique({
+        where: { key: "cms_page_b2c-landing" }
+      });
+      rawContent = settingRecord?.value;
+    } catch (_e) {
+      rawContent = null;
+    }
   }
 
   if (!rawContent) {

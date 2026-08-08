@@ -48,15 +48,18 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: data })
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || `Server returned HTTP ${res.status}`);
+      }
       const resJson = await res.json();
       if (resJson.data?.content) {
         setData(resJson.data.content);
       }
       toast("B2C Landing Page & Masked Video Experience updated successfully.", "success");
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast("Failed to save B2C Landing Page.", "error");
+      toast(e?.message || "Failed to save B2C Landing Page.", "error");
     } finally {
       setSaving(false);
     }
