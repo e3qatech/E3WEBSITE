@@ -19,10 +19,10 @@ let globalSettingsFetchPromise: Promise<{ lightLogoUrl?: string; darkLogoUrl?: s
 async function fetchGeneralLogos() {
   if (globalSettingsLogoCache) return globalSettingsLogoCache;
   if (!globalSettingsFetchPromise) {
-    globalSettingsFetchPromise = fetch("/api/settings")
+    globalSettingsFetchPromise = fetch("/api/settings?type=GENERAL")
       .then((res) => (res.ok ? res.json() : {}))
       .then((json) => {
-        const data = (json as any)?.data || json || {};
+        const data = (json as any)?.data || {};
         const logos = {
           lightLogoUrl: data.lightLogoUrl || undefined,
           darkLogoUrl: data.darkLogoUrl || undefined,

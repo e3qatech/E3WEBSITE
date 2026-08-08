@@ -43,23 +43,37 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-  }
-
   try {
     const { searchParams } = new URL(req.url)
     const type = searchParams.get('type')
     
+    // Auth check only for sensitive/non-GENERAL setting types
+    if (type && type !== 'GENERAL') {
+      const session = await auth();
+      if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+    }
+
     let settings
     if (type) {
-      settings = await db.setting.findMany({ where: { type } })
+      settings = await db.setting.findMany({ where: { type: type as any } })
     } else {
       settings = await db.setting.findMany()
     }
+
+    const dataMap = (settings || []).reduce((acc: Record<string, string>, item: any) => {
+      if (item?.key) {
+        acc[item.key] = item.value || '';
+      }
+      return acc;
+    }, {});
     
-    return NextResponse.json(settings)
+    return NextResponse.json({
+      success: true,
+      data: dataMap,
+      settings: settings || []
+    })
   } catch (error) {
     console.error("Error fetching settings:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
