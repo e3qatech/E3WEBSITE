@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth"
 
 export const authConfig = {
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "e3-qatar-super-secret-key-development-2026!",
   trustHost: true,
   providers: [], // Providers (like Credentials which uses Node APIs) are injected in auth.ts
   session: {
