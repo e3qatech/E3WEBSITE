@@ -33,6 +33,8 @@ const RESUME_TYPES = [
   'application/octet-stream'
 ];
 
+import db from "@/lib/db";
+
 async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isPrivate: boolean = false): Promise<string> {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
@@ -45,7 +47,7 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isP
     await fs.writeFile(filePath, buffer);
     return isPrivate ? `/private/uploads/${fileName}` : `/uploads/${fileName}`;
   } catch (fsErr) {
-    console.warn("[UPLOAD WARNING] Disk storage failed (read-only filesystem), checking Data URL fallback feasibility:", fsErr);
+    console.warn("[UPLOAD NOTICE] Disk storage is read-only. Persisting media binary in PostgreSQL database:", fsErr);
     if (isPrivate) {
         throw new Error("Private storage unavailable on read-only system without valid blob setup.");
     }
@@ -58,14 +60,38 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isP
       else if (ext === 'webp') mime = 'image/webp';
       else if (ext === 'gif') mime = 'image/gif';
       else if (ext === 'pdf') mime = 'application/pdf';
+      else if (ext === 'mp4') mime = 'video/mp4';
+      else if (ext === 'webm') mime = 'video/webm';
     }
 
-    if (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext || '')) {
-      throw new Error("Direct video file upload failed: Server filesystem is read-only and Vercel Blob storage is unconfigured. Please paste a direct Video URL (e.g. https://.../video.mp4).");
-    }
+    let mediaType: any = 'IMAGE';
+    if (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext || '')) mediaType = 'VIDEO';
+    else if (mime.includes('pdf') || ['pdf', 'doc', 'docx'].includes(ext || '')) mediaType = 'DOCUMENT';
+    else if (['glb', 'gltf'].includes(ext || '')) mediaType = 'MODEL_3D';
 
-    const base64 = buffer.toString('base64');
-    return `data:${mime || 'application/octet-stream'};base64,${base64}`;
+    const base64Data = buffer.toString('base64');
+
+    // Create database record with binary payload stored in metadata
+    const mediaRecord = await db.media.create({
+      data: {
+        url: '',
+        type: mediaType,
+        mimeType: mime || 'application/octet-stream',
+        size: file.size,
+        metadata: {
+          data: base64Data,
+          fileName,
+        }
+      }
+    });
+
+    const streamableUrl = `/api/media/${mediaRecord.id}`;
+    await db.media.update({
+      where: { id: mediaRecord.id },
+      data: { url: streamableUrl }
+    });
+
+    return streamableUrl;
   }
 }
 
