@@ -37,29 +37,76 @@ async function main() {
     }
   })
 
-  // 2. Super Admin User
-  const hashedPassword = await bcrypt.hash('admin123', 10)
-  const adminUser = await prisma.users.upsert({
-    where: { email: 'admin@e3qatar.com' },
-    update: {},
-    create: {
+  // 2. Seed Users for Each Role & Portal
+  const defaultPassword = 'Password123!'
+  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+
+  const seedUsersData = [
+    {
       email: 'admin@e3qatar.com',
-      password: hashedPassword,
       role: 'SUPER_ADMIN',
-      isActive: true,
-      emailVerified: new Date(),
-      profile: {
-        create: {
-          firstName: 'System',
-          lastName: 'Admin',
-          preferredLanguage: 'EN',
-          preferredTheme: 'DARK',
-          timezone: 'Asia/Qatar',
-        }
-      }
+      firstName: 'System',
+      lastName: 'SuperAdmin',
     },
-  })
-  console.log(`Created admin user: ${adminUser.email}`)
+    {
+      email: 'sales@e3qatar.com',
+      role: 'SALES_ADMIN',
+      firstName: 'Sales',
+      lastName: 'Director',
+    },
+    {
+      email: 'support@e3qatar.com',
+      role: 'SUPPORT_ADMIN',
+      firstName: 'Support',
+      lastName: 'Manager',
+    },
+    {
+      email: 'staff@e3qatar.com',
+      role: 'STAFF',
+      firstName: 'Field',
+      lastName: 'Operations',
+    },
+    {
+      email: 'client@e3qatar.com',
+      role: 'CLIENT',
+      firstName: 'Corporate',
+      lastName: 'Client',
+    },
+    {
+      email: 'candidate@e3qatar.com',
+      role: 'CANDIDATE',
+      firstName: 'Talent',
+      lastName: 'Applicant',
+    },
+  ]
+
+  for (const u of seedUsersData) {
+    const user = await prisma.users.upsert({
+      where: { email: u.email },
+      update: {
+        password: hashedPassword,
+        role: u.role as any,
+        isActive: true,
+      },
+      create: {
+        email: u.email,
+        password: hashedPassword,
+        role: u.role as any,
+        isActive: true,
+        emailVerified: new Date(),
+        profile: {
+          create: {
+            firstName: u.firstName,
+            lastName: u.lastName,
+            preferredLanguage: 'EN',
+            preferredTheme: 'DARK',
+            timezone: 'Asia/Qatar',
+          }
+        }
+      },
+    })
+    console.log(`Seeded user (${u.role}): ${user.email} / ${defaultPassword}`)
+  }
 
   // 3. Site Settings
   await prisma.siteSettings.upsert({
