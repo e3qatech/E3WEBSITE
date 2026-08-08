@@ -71,27 +71,33 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isP
 
     const base64Data = buffer.toString('base64');
 
-    // Create database record with binary payload stored in metadata
-    const mediaRecord = await db.media.create({
-      data: {
-        url: '',
-        type: mediaType,
-        mimeType: mime || 'application/octet-stream',
-        size: file.size,
-        metadata: {
-          data: base64Data,
-          fileName,
+    try {
+      // Create database record with binary payload stored in metadata
+      const mediaRecord = await db.media.create({
+        data: {
+          url: '',
+          type: mediaType,
+          mimeType: mime || 'application/octet-stream',
+          size: file.size,
+          alt: { en: fileName || 'Media', ar: fileName || 'Media' },
+          metadata: {
+            data: base64Data,
+            fileName,
+          }
         }
-      }
-    });
+      });
 
-    const streamableUrl = `/api/media/${mediaRecord.id}`;
-    await db.media.update({
-      where: { id: mediaRecord.id },
-      data: { url: streamableUrl }
-    });
+      const streamableUrl = `/api/media/${mediaRecord.id}`;
+      await db.media.update({
+        where: { id: mediaRecord.id },
+        data: { url: streamableUrl }
+      });
 
-    return streamableUrl;
+      return streamableUrl;
+    } catch (dbErr) {
+      console.warn("[UPLOAD NOTICE] db.media.create skipped (Media table not found in production DB), using Data URL fallback:", dbErr);
+      return `data:${mime || 'application/octet-stream'};base64,${base64Data}`;
+    }
   }
 }
 
