@@ -356,7 +356,10 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 uppercase tracking-wider">Media</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider">Media URL / File</label>
+                <span className="text-[11px] text-text-tertiary">Select from library, upload, or paste direct URL</span>
+              </div>
               {(data.hero.mediaType === 'IFRAME' || data.hero.mediaType === 'MODEL_3D') ? (
                 <input
                   type="text"
@@ -366,10 +369,19 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
                 />
               ) : (
-                <AdminMediaPicker
-                  value={data.hero.mediaUrl}
-                  onChange={url => handleChange("hero", "mediaUrl", url)}
-                />
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={data.hero.mediaUrl || ''}
+                    onChange={e => handleChange("hero", "mediaUrl", e.target.value)}
+                    placeholder="Paste direct media URL (e.g. https://.../video.mp4) or pick file below..."
+                    className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-xs font-mono text-text-primary focus:border-primary focus:outline-none"
+                  />
+                  <AdminMediaPicker
+                    value={data.hero.mediaUrl}
+                    onChange={url => handleChange("hero", "mediaUrl", url)}
+                  />
+                </div>
               )}
             </div>
 

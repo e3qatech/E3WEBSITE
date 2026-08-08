@@ -5,7 +5,9 @@
  * automatically falls back to direct FormData server upload (/api/upload).
  */
 export async function uploadFile(file: File, context?: string): Promise<{ url: string; fileName: string }> {
-  // 1. Try Vercel Blob client upload first
+  const VERCEL_SERVERLESS_MAX_SIZE = 4.5 * 1024 * 1024; // 4.5MB serverless limit
+
+  // 1. Try Vercel Blob client upload first (bypasses serverless limit via direct client-to-blob upload)
   try {
     const { upload } = await import('@vercel/blob/client');
     const blob = await upload(file.name, file, {
@@ -18,10 +20,17 @@ export async function uploadFile(file: File, context?: string): Promise<{ url: s
       return { url: blob.url, fileName: file.name };
     }
   } catch (blobError: any) {
-    console.warn('[Upload Utility] Vercel Blob client upload failed or unconfigured, attempting direct server upload:', blobError?.message || blobError);
+    console.warn('[Upload Utility] Vercel Blob client upload failed or unconfigured, attempting direct server upload fallback:', blobError?.message || blobError);
   }
 
-  // 2. Direct server upload fallback via FormData
+  // 2. Client-side payload limit check before direct server upload fallback
+  if (file.size > VERCEL_SERVERLESS_MAX_SIZE) {
+    throw new Error(
+      `File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 4.5MB serverless request limit. Please use a direct Video URL or configure BLOB_READ_WRITE_TOKEN.`
+    );
+  }
+
+  // 3. Direct server upload fallback via FormData
   const formData = new FormData();
   formData.append('file', file);
   if (context) {
@@ -32,6 +41,10 @@ export async function uploadFile(file: File, context?: string): Promise<{ url: s
     method: 'POST',
     body: formData,
   });
+
+  if (response.status === 413) {
+    throw new Error('Upload failed (413 Payload Too Large). File size exceeds the 4.5MB server limit. Please enter a direct URL instead.');
+  }
 
   if (!response.ok) {
     const errJson = await response.json().catch(() => ({}));

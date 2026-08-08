@@ -26,6 +26,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [directUrl, setDirectUrl] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -53,8 +54,9 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
       fetchMedia()
+      setDirectUrl(value || "")
     }
-  }, [isOpen])
+  }, [isOpen, value])
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -88,14 +90,17 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         setMediaList(prev => [data, ...prev])
         onChange(data.url || url)
         toast("Media uploaded successfully", "success")
+        setIsOpen(false)
       } else {
         // Fallback: use url directly even if CMS registration returned an error
         onChange(url)
         toast("Media uploaded successfully", "success")
+        setIsOpen(false)
       }
     } catch (err: any) {
       console.error("Upload error:", err)
-      toast(err?.message || "Failed to upload file. Please try again.", "error")
+      const msg = err?.message || "Failed to upload file."
+      toast(msg, "error")
     } finally {
       setUploading(false)
       if (fileInputRef.current) {
@@ -164,6 +169,32 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
 
       <SlideOver isOpen={isOpen} onClose={() => setIsOpen(false)} title="Media Library">
         <div className="flex flex-col gap-6">
+          {/* Direct URL Input Bar */}
+          <div className="p-4 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl flex flex-col gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Direct Media URL Input</span>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Paste video/image URL (e.g. https://.../video.mp4)"
+                value={directUrl}
+                onChange={(e) => setDirectUrl(e.target.value)}
+                className="flex-1 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+              <AdminButton
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (!directUrl.trim()) return
+                  onChange(directUrl.trim())
+                  toast("Applied direct media URL", "success")
+                  setIsOpen(false)
+                }}
+              >
+                Apply URL
+              </AdminButton>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between">
             <p className="text-sm text-[var(--text-secondary)]">Select a file from your library or upload a new one.</p>
             <div className="relative">
