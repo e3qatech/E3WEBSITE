@@ -444,16 +444,18 @@ export function AttractionsClient({ locale, cmsData, initialAttractions = [] }: 
                 </B2CButton>
               </section>
 
-              {/* Careers CTA Section */}
+              {/* Group & Birthday Packages CTA Section */}
               <B2CCard hoverable className="w-full p-8 md:p-16 flex flex-col items-center justify-center text-center border-[rgba(75,0,143,0.3)]">
                 <h2 className="text-3xl md:text-4xl font-black mb-4 font-display uppercase tracking-wide">
-                  {isAr ? careersCta.titleAr || "" : careersCta.titleEn || ""}
+                  {isAr ? "احجز حفل عيد ميلادك أو فعاليتك الخاصة" : "Host Your Birthday Party or Corporate Event"}
                 </h2>
                 <p className="text-[var(--text-secondary)] text-lg mb-8 max-w-xl font-medium">
-                  {isAr ? careersCta.subtitleAr || "" : careersCta.subtitleEn || ""}
+                  {isAr 
+                    ? "وفرنا لك أفضل الباقات الشاملة للأطفال والشركات مع غرف حفلات خاصة، صالات VIP، وتجارب استثنائية."
+                    : "Discover all-inclusive VIP birthday packages, corporate team-building outings, and exclusive venue buyouts across Qatar."}
                 </p>
-                <B2CButton href={careersCta.buttonUrl || "/careers"} variant="secondary" size="md">
-                  {isAr ? careersCta.buttonTextAr || "" : careersCta.buttonTextEn || ""}
+                <B2CButton href={`/${locale}/b2c/packages`} variant="secondary" size="md" className="uppercase font-black">
+                  {isAr ? "استكشف الباقات والحجوزات" : "Explore Packages & Pricing"}
                 </B2CButton>
               </B2CCard>
 
