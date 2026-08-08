@@ -10,105 +10,11 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { MaskedMediaEngine } from "@/components/b2c/hero/MaskedMediaEngine";
 import { MaskPresetType } from "@/components/b2c/hero/MaskPresets";
 import { validateAndSanitizeSvg } from "@/lib/svgSanitizer";
+import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 
 export function B2CLandingCMSView({ initialData }: { initialData: any }) {
-  const [data, setData] = useState({
-    hero: {
-      mediaType: initialData?.hero?.mediaType || "IMAGE",
-      mediaUrl: initialData?.hero?.mediaUrl || "",
-      headerEn: initialData?.hero?.headerEn || "",
-      headerAr: initialData?.hero?.headerAr || "",
-      subHeaderEn: initialData?.hero?.subHeaderEn || "",
-      subHeaderAr: initialData?.hero?.subHeaderAr || "",
-      showSearch: initialData?.hero?.showSearch ?? true
-    },
-    maskedVideo: {
-      enabled: initialData?.maskedVideo?.enabled ?? true,
-      defaultPortal: initialData?.maskedVideo?.defaultPortal || "customer",
-      preset: initialData?.maskedVideo?.preset || "ORGANIC_WINDOW",
-      rendererMode: initialData?.maskedVideo?.rendererMode || "STANDARD",
-      scale: initialData?.maskedVideo?.scale || 1,
-      positionX: initialData?.maskedVideo?.positionX || 0,
-      positionY: initialData?.maskedVideo?.positionY || 0,
-      edgeSoftness: initialData?.maskedVideo?.edgeSoftness || 12,
-      distortionAmount: initialData?.maskedVideo?.distortionAmount || 0,
-      idleBreathe: initialData?.maskedVideo?.idleBreathe ?? true,
-      cursorResponse: initialData?.maskedVideo?.cursorResponse ?? true,
-      customSvgMask: initialData?.maskedVideo?.customSvgMask || "",
-
-      // Customer media
-      customerDesktopVideo: initialData?.maskedVideo?.customerDesktopVideo || "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
-      customerMobileVideo: initialData?.maskedVideo?.customerMobileVideo || "",
-      customerPoster: initialData?.maskedVideo?.customerPoster || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
-      customerFallbackImage: initialData?.maskedVideo?.customerFallbackImage || "",
-      customerMaskPreset: initialData?.maskedVideo?.customerMaskPreset || "ORGANIC_WINDOW",
-      customerAccent: initialData?.maskedVideo?.customerAccent || "#10b981",
-      customerAltEn: initialData?.maskedVideo?.customerAltEn || "E3 Pulse Customer Attractions Video",
-      customerAltAr: initialData?.maskedVideo?.customerAltAr || "فيديو تجارب زوار إي ثري الترفيهية",
-
-      // Organizer media
-      organizerDesktopVideo: initialData?.maskedVideo?.organizerDesktopVideo || "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
-      organizerMobileVideo: initialData?.maskedVideo?.organizerMobileVideo || "",
-      organizerPoster: initialData?.maskedVideo?.organizerPoster || "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop",
-      organizerFallbackImage: initialData?.maskedVideo?.organizerFallbackImage || "",
-      organizerMaskPreset: initialData?.maskedVideo?.organizerMaskPreset || "PORTAL_ARCH",
-      organizerAccent: initialData?.maskedVideo?.organizerAccent || "#3b82f6",
-      organizerAltEn: initialData?.maskedVideo?.organizerAltEn || "E3 Atelier Event Engineering Video",
-      organizerAltAr: initialData?.maskedVideo?.organizerAltAr || "فيديو هندسة وإنتاج الفعاليات",
-    },
-    featuredTitleEn: initialData?.featuredTitleEn || "",
-    featuredTitleAr: initialData?.featuredTitleAr || "",
-    gridTitleEn: initialData?.gridTitleEn || "",
-    gridTitleAr: initialData?.gridTitleAr || "",
-    subscribe: {
-      titleEn: initialData?.subscribe?.titleEn || "",
-      titleAr: initialData?.subscribe?.titleAr || "",
-      subtitleEn: initialData?.subscribe?.subtitleEn || "",
-      subtitleAr: initialData?.subscribe?.subtitleAr || "",
-    },
-    cta: {
-      titleEn: initialData?.cta?.titleEn || "",
-      titleAr: initialData?.cta?.titleAr || "",
-      buttonTextEn: initialData?.cta?.buttonTextEn || "",
-      buttonTextAr: initialData?.cta?.buttonTextAr || "",
-      buttonUrl: initialData?.cta?.buttonUrl || ""
-    },
-    careersCta: {
-      titleEn: initialData?.careersCta?.titleEn || "",
-      titleAr: initialData?.careersCta?.titleAr || "",
-      subtitleEn: initialData?.careersCta?.subtitleEn || "",
-      subtitleAr: initialData?.careersCta?.subtitleAr || "",
-      buttonTextEn: initialData?.careersCta?.buttonTextEn || "",
-      buttonTextAr: initialData?.careersCta?.buttonTextAr || "",
-      buttonUrl: initialData?.careersCta?.buttonUrl || ""
-    },
-    motion: {
-      motionEnabled: initialData?.motion?.motionEnabled ?? true,
-      motionPreset: initialData?.motion?.motionPreset || "MEDIA_CINEMATIC",
-      motionIntensity: initialData?.motion?.motionIntensity || "MEDIUM",
-      heroSceneType: initialData?.motion?.heroSceneType || "CINEMATIC_MEDIA",
-      particleDensity: initialData?.motion?.particleDensity || 50,
-      ctaEmphasisStyle: initialData?.motion?.ctaEmphasisStyle || "SHIMMER",
-    },
-    portalSwitcher: {
-      customerLabelEn: initialData?.portalSwitcher?.customerLabelEn || "Customer",
-      customerLabelAr: initialData?.portalSwitcher?.customerLabelAr || "الزائر",
-      organizerLabelEn: initialData?.portalSwitcher?.organizerLabelEn || "Organizer",
-      organizerLabelAr: initialData?.portalSwitcher?.organizerLabelAr || "المنظّم",
-      customerUrl: initialData?.portalSwitcher?.customerUrl || "/b2c",
-      organizerUrl: initialData?.portalSwitcher?.organizerUrl || "/b2b",
-      organizerLoginLabelEn: initialData?.portalSwitcher?.organizerLoginLabelEn || "Organizer Login",
-      organizerLoginLabelAr: initialData?.portalSwitcher?.organizerLoginLabelAr || "تسجيل دخول المنظم",
-      organizerLoginUrl: initialData?.portalSwitcher?.organizerLoginUrl || "/login/business",
-      switcherVisible: initialData?.portalSwitcher?.switcherVisible ?? true,
-      organizerLoginVisible: initialData?.portalSwitcher?.organizerLoginVisible ?? true,
-    },
-    faqs: initialData?.faqs || [],
-    footer: {
-      mediaType: initialData?.footer?.mediaType || "IMAGE",
-      mediaUrl: initialData?.footer?.mediaUrl || ""
-    }
-  });
+  const merged = getMergedCMSPageContent("b2c-landing", initialData);
+  const [data, setData] = useState(merged);
 
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
@@ -143,6 +49,10 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
         body: JSON.stringify({ content: data })
       });
       if (!res.ok) throw new Error("Failed to save");
+      const resJson = await res.json();
+      if (resJson.data?.content) {
+        setData(resJson.data.content);
+      }
       toast("B2C Landing Page & Masked Video Experience updated successfully.", "success");
     } catch (e) {
       console.error(e);
@@ -153,7 +63,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
   };
 
   const handleChange = (section: keyof typeof data, field: string, value: any) => {
-    setData(prev => ({
+    setData((prev: any) => ({
       ...prev,
       [section]: {
         ...(prev[section] as any),
@@ -163,11 +73,11 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
   };
 
   const handleSimpleChange = (field: keyof typeof data, value: any) => {
-    setData(prev => ({ ...prev, [field]: value }));
+    setData((prev: any) => ({ ...prev, [field]: value }));
   };
 
   const handleFaqChange = (index: number, field: string, value: string) => {
-    setData(prev => {
+    setData((prev: any) => {
       const newFaqs = [...prev.faqs];
       newFaqs[index] = { ...newFaqs[index], [field]: value };
       return { ...prev, faqs: newFaqs };
@@ -175,14 +85,14 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
   };
 
   const addFaq = () => {
-    setData(prev => ({
+    setData((prev: any) => ({
       ...prev,
       faqs: [...prev.faqs, { questionEn: "", questionAr: "", answerEn: "", answerAr: "" }]
     }));
   };
 
   const removeFaq = (index: number) => {
-    setData(prev => {
+    setData((prev: any) => {
       const newFaqs = [...prev.faqs];
       newFaqs.splice(index, 1);
       return { ...prev, faqs: newFaqs };

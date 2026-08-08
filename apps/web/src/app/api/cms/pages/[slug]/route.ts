@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
+import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
 
 const pageUpdateSchema = z.object({
   title: z.any().optional(),
@@ -25,20 +26,35 @@ export async function GET(
     });
 
     if (page) {
-      return NextResponse.json({ data: page });
+      const mergedContent = getMergedCMSPageContent(slug, page.content);
+      return NextResponse.json({ data: { ...page, content: mergedContent } });
     }
 
     if (globalCMSPagesStore[slug]) {
-      return NextResponse.json({ data: globalCMSPagesStore[slug] });
+      const mergedContent = getMergedCMSPageContent(slug, globalCMSPagesStore[slug].content);
+      return NextResponse.json({ data: { ...globalCMSPagesStore[slug], content: mergedContent } });
     }
 
-    return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+    // Default fallback if page is unseeded
+    const defaultContent = getMergedCMSPageContent(slug);
+    const fallbackPage = {
+      slug,
+      title: { en: slug, ar: slug },
+      content: defaultContent,
+      seo: {},
+    };
+    return NextResponse.json({ data: fallbackPage });
   } catch (error) {
     console.error(`[GET /api/cms/pages/${slug}] error:`, error);
-    if (globalCMSPagesStore[slug]) {
-      return NextResponse.json({ data: globalCMSPagesStore[slug] });
-    }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const defaultContent = getMergedCMSPageContent(slug, globalCMSPagesStore[slug]?.content);
+    return NextResponse.json({
+      data: {
+        slug,
+        title: { en: slug, ar: slug },
+        content: defaultContent,
+        seo: {},
+      }
+    });
   }
 }
 
@@ -56,6 +72,7 @@ export async function PUT(
 
     const body = await req.json();
     const validatedData = pageUpdateSchema.parse(body);
+    const mergedContent = getMergedCMSPageContent(slug, validatedData.content);
 
     let updatedPage: any = null;
 
@@ -64,13 +81,13 @@ export async function PUT(
         where: { slug },
         update: {
           ...(validatedData.title !== undefined && { title: validatedData.title }),
-          ...(validatedData.content !== undefined && { content: validatedData.content }),
+          content: mergedContent,
           ...(validatedData.seo !== undefined && { seo: validatedData.seo }),
         },
         create: {
           slug,
           title: validatedData.title || { en: slug, ar: slug },
-          content: validatedData.content || {},
+          content: mergedContent,
           seo: validatedData.seo || {},
         }
       });
@@ -82,7 +99,7 @@ export async function PUT(
       updatedPage = {
         slug,
         title: validatedData.title || globalCMSPagesStore[slug]?.title || { en: slug, ar: slug },
-        content: validatedData.content || globalCMSPagesStore[slug]?.content || {},
+        content: mergedContent,
         seo: validatedData.seo || globalCMSPagesStore[slug]?.seo || {},
         updatedAt: new Date().toISOString()
       };
@@ -90,17 +107,22 @@ export async function PUT(
 
     globalCMSPagesStore[slug] = updatedPage;
 
+    // Purge Next.js App Router cache so public & admin pages update immediately
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/[locale]/b2c', 'page');
+      revalidatePath('/en/b2c', 'page');
+      revalidatePath('/ar/b2c', 'page');
+      revalidatePath('/b2c', 'page');
+      revalidatePath('/[locale]/dashboard/b2c/landing', 'page');
+      revalidatePath('/en/dashboard/b2c/landing', 'page');
+      revalidatePath('/ar/dashboard/b2c/landing', 'page');
     } catch (_e) {
       // Ignore revalidate errors in dev
     }
 
     return NextResponse.json({ success: true, data: updatedPage });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation error', details: error.issues }, { status: 400 });
-    }
     console.error(`[PUT /api/cms/pages/${slug}] error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
