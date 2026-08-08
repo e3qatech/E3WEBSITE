@@ -51,15 +51,6 @@ const DESTINATIONS: NavDestination[] = [
     mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop',
   },
   {
-    labelEn: 'Tickets',
-    labelAr: 'التذاكر والحجز',
-    href: '/b2c/tickets',
-    icon: Ticket,
-    descEn: 'Day passes, VIP experiences, family packages, and group booking.',
-    descAr: 'التذاكر اليومية، التجارب الفاخرة، والباقات العائلية.',
-    mediaUrl: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop',
-  },
-  {
     labelEn: 'Discover',
     labelAr: 'استكشف قطر',
     href: '/b2c/discover',
@@ -129,9 +120,9 @@ export function PulseOrbitNav({
   const lightLogoUrl = settings?.lightLogoUrl;
   const darkLogoUrl = settings?.darkLogoUrl;
 
-  const destinationList: NavDestination[] = (orbitData?.destinations && orbitData.destinations.length > 0)
+  const rawDestinations = (orbitData?.destinations && orbitData.destinations.length > 0)
     ? orbitData.destinations
-        .filter((d: any) => d.enabled !== false)
+        .filter((d: any) => d.enabled !== false && d.id !== 'tickets' && !d.href?.includes('/tickets'))
         .map((d: any, idx: number) => ({
           labelEn: d.labelEn,
           labelAr: d.labelAr,
@@ -142,6 +133,8 @@ export function PulseOrbitNav({
           mediaUrl: d.mediaUrl,
         }))
     : DESTINATIONS;
+
+  const destinationList = rawDestinations.filter((d: any) => !d.href?.includes('/tickets'));
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

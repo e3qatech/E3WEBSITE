@@ -33,21 +33,11 @@ const DEFAULT_DESTINATIONS: OrbitDestinationItem[] = [
   {
     id: "calendar",
     labelEn: "Calendar",
-    labelAr: "جدول الفعاليات",
+    labelAr: "جدول الفعاليات والتذاكر",
     href: "/b2c/calendar",
-    descEn: "Live concerts, seasonal festivals, and exclusive entertainment shows.",
-    descAr: "الحفلات الحية والمهرجانات الموسمية والعروض الترفيهية.",
+    descEn: "Live concerts, seasonal festivals, passes, and exclusive entertainment shows.",
+    descAr: "الحفلات الحية والمهرجانات الموسمية والتذاكر والعروض الترفيهية.",
     mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
-    enabled: true,
-  },
-  {
-    id: "tickets",
-    labelEn: "Tickets",
-    labelAr: "التذاكر والحجز",
-    href: "/b2c/tickets",
-    descEn: "Day passes, VIP experiences, family packages, and group booking.",
-    descAr: "التذاكر اليومية، التجارب الفاخرة، والباقات العائلية.",
-    mediaUrl: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop",
     enabled: true,
   },
   {
@@ -85,8 +75,10 @@ const DEFAULT_DESTINATIONS: OrbitDestinationItem[] = [
 export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
+  const rawInitialDestinations = initialData?.destinations || DEFAULT_DESTINATIONS
+  const filteredDestinations = rawInitialDestinations.filter((d: any) => d.id !== 'tickets' && !d.href?.includes('/tickets'))
   const [destinations, setDestinations] = useState<OrbitDestinationItem[]>(
-    initialData?.destinations || DEFAULT_DESTINATIONS
+    filteredDestinations.length > 0 ? filteredDestinations : DEFAULT_DESTINATIONS
   )
   const [orbitTitleEn, setOrbitTitleEn] = useState(initialData?.titleEn || "PULSE ORBIT DESTINATIONS")
   const [orbitTitleAr, setOrbitTitleAr] = useState(initialData?.titleAr || "وجهات مدار إي ثري")
