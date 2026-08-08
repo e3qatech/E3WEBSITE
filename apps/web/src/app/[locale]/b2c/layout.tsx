@@ -12,14 +12,27 @@ export default async function B2CLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const settings = await db.setting.findMany({
-    where: { type: "GENERAL" }
-  });
-  const settingsMap = settings.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
+  let settingsMap: Record<string, any> = {};
+  try {
+    const settingModel = (db as any).siteSettings || (db as any).setting;
+    if (settingModel) {
+      const settings = await settingModel.findMany({
+        where: { type: "GENERAL" }
+      });
+      settingsMap = settings.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
+    }
+  } catch (e) {
+    console.warn("[B2C LAYOUT NOTICE] Failed to query siteSettings:", e);
+  }
 
-  const orbitPage = await db.pages.findUnique({
-    where: { slug: "pulse-orbit" }
-  });
+  let orbitPage: any = null;
+  try {
+    orbitPage = await db.pages.findUnique({
+      where: { slug: "pulse-orbit" }
+    });
+  } catch (e) {
+    console.warn("[B2C LAYOUT NOTICE] Failed to query pulse-orbit page:", e);
+  }
 
   return (
     <B2CExperienceProvider>

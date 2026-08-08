@@ -43,12 +43,19 @@ async function getContactData() {
     console.error("Failed to fetch attraction FAQs directly from DB:", e);
   }
 
-  // Fetch Settings and Featured Feedback from DB directly since this is a Server Component
-  const settingsRecords = await db.setting.findMany({
-    where: { 
-      key: { in: ["B2C_CONTACT_PAGE_SETTINGS", "B2C_CONTACT_FAQS"] }
+  let settingsRecords: any[] = [];
+  try {
+    const settingModel = (db as any).siteSettings || (db as any).setting;
+    if (settingModel) {
+      settingsRecords = await settingModel.findMany({
+        where: { 
+          key: { in: ["B2C_CONTACT_PAGE_SETTINGS", "B2C_CONTACT_FAQS"] }
+        }
+      });
     }
-  });
+  } catch (e) {
+    console.warn("[CONTACT PAGE DB NOTICE] Failed to query siteSettings:", e);
+  }
 
   const settings = settingsRecords.reduce((acc, curr) => {
     try {

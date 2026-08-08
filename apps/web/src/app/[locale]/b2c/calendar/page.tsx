@@ -26,10 +26,17 @@ export default async function CalendarPage() {
     },
   });
 
-  // Fetch UI settings for Hero Background
-  const settingsRecords = await db.setting.findMany({
-    where: { type: "UI" }
-  });
+  let settingsRecords: any[] = [];
+  try {
+    const settingModel = (db as any).siteSettings || (db as any).setting;
+    if (settingModel) {
+      settingsRecords = await settingModel.findMany({
+        where: { type: "UI" }
+      });
+    }
+  } catch (e) {
+    console.warn("[CALENDAR PAGE DB NOTICE] Failed to query siteSettings:", e);
+  }
   const uiSettings = settingsRecords.reduce((acc, curr) => {
     acc[curr.key] = curr.value;
     return acc;

@@ -15,14 +15,16 @@ export default async function RootB2BLayout({
   let settings: Record<string, string> = {}
   
   try {
-    const settingsRecords = await db.setting.findMany({
-      where: { type: "GENERAL" }
-    })
-    
-    settings = settingsRecords.reduce((acc, curr) => {
-      acc[curr.key] = curr.value as string
-      return acc
-    }, {} as Record<string, string>)
+    const settingModel = (db as any).siteSettings || (db as any).setting;
+    if (settingModel) {
+      const settingsRecords = await settingModel.findMany({
+        where: { type: "GENERAL" }
+      })
+      settings = settingsRecords.reduce((acc: any, curr: any) => {
+        acc[curr.key] = curr.value as string
+        return acc
+      }, {} as Record<string, string>)
+    }
   } catch (error) {
     console.error("Error loading B2B layout settings:", error)
   }
