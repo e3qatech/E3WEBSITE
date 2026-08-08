@@ -134,11 +134,41 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-sm font-bold text-[var(--text-primary)]">{label}</span>
+    <div className="flex flex-col gap-2.5 w-full max-w-md">
+      <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{label}</span>
       
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleUpload}
+        accept={accept}
+        disabled={uploading}
+      />
+
+      {/* Prominent Always-Visible System File Upload Action Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all shadow-sm disabled:opacity-50"
+        >
+          <UploadCloud className="w-4 h-4" />
+          {uploading ? "Uploading System File..." : "📁 Upload Local File from Computer"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="text-xs font-semibold text-slate-400 hover:text-emerald-400 underline px-2 py-1 transition-colors"
+        >
+          Paste Link / Library →
+        </button>
+      </div>
+
       {value ? (
-        <div className="relative w-full max-w-md rounded-2xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center shadow-sm">
+        <div className="relative w-full rounded-2xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center shadow-sm">
           {isVideoUrl(value) ? (
             <video src={value} className="w-full h-full object-cover" controls autoPlay loop muted playsInline />
           ) : value.match(/\.(pdf|doc)$/i) ? (
@@ -146,9 +176,9 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           ) : (
             <img src={value} alt="Selected Media" className="w-full h-full object-cover" />
           )}
-          <div className="absolute inset-0 bg-zinc-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 p-4">
-            <AdminButton variant="outline" size="sm" onClick={() => setIsOpen(true)}>
-              Choose / Upload Media
+          <div className="absolute inset-0 bg-zinc-950/75 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 p-4">
+            <AdminButton variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+              Upload Different File
             </AdminButton>
             <AdminButton variant="danger" size="sm" onClick={() => onChange("")}>
               Remove
@@ -156,48 +186,26 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 w-full max-w-md">
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleUpload}
-            accept={accept}
-            disabled={uploading}
-          />
-          <div 
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full aspect-video border-2 border-dashed border-emerald-500/40 rounded-2xl flex flex-col items-center justify-center p-6 gap-3 cursor-pointer hover:border-emerald-500 hover:bg-emerald-500/5 transition-all group bg-[var(--surface-hover)]/30"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <UploadCloud className="w-6 h-6" />
-            </div>
-            <div className="text-center space-y-1">
-              <span className="text-sm font-bold text-[var(--text-primary)] block">
-                {uploading 
-                  ? "Uploading file..." 
-                  : accept.includes("image") && !accept.includes("video") 
-                    ? "Click to Upload Image File" 
-                    : accept.includes("video") && !accept.includes("image") 
-                      ? "Click to Upload Video File" 
-                      : "Click to Upload Image or Video File"}
-              </span>
-              <span className="text-xs text-[var(--text-tertiary)] block">
-                Drag & drop or select file from your computer
-              </span>
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsOpen(true);
-                }}
-                className="text-xs font-semibold text-emerald-400 hover:underline"
-              >
-                Or choose from Media Library / Paste Link →
-              </button>
-            </div>
+        <div 
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full aspect-video border-2 border-dashed border-emerald-500/40 rounded-2xl flex flex-col items-center justify-center p-6 gap-3 cursor-pointer hover:border-emerald-500 hover:bg-emerald-500/5 transition-all group bg-[var(--surface-hover)]/30"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <UploadCloud className="w-6 h-6" />
+          </div>
+          <div className="text-center space-y-1">
+            <span className="text-sm font-bold text-[var(--text-primary)] block">
+              {uploading 
+                ? "Uploading file..." 
+                : accept.includes("image") && !accept.includes("video") 
+                  ? "Click to Upload Local Image File" 
+                  : accept.includes("video") && !accept.includes("image") 
+                    ? "Click to Upload Local Video File" 
+                    : "Click to Upload Local File from System"}
+            </span>
+            <span className="text-xs text-[var(--text-tertiary)] block">
+              Select any image or video directly from your computer folders
+            </span>
           </div>
         </div>
       )}
