@@ -31,9 +31,10 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   const { toast } = useToast()
 
   const isVideoUrl = (url: string | null | undefined): boolean => {
-    if (!url) return false
-    return !!url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i) || url.startsWith('data:video/') || url.includes('/video')
-  }
+    if (!url) return false;
+    if (url.match(/\.(jpg|jpeg|png|webp|gif|svg|avif)(\?.*)?$/i) || url.startsWith('data:image/')) return false;
+    return !!url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i) || url.startsWith('data:video/');
+  };
 
   const fetchMedia = async () => {
     setLoading(true)
@@ -173,7 +174,13 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
             </div>
             <div className="text-center space-y-1">
               <span className="text-sm font-bold text-[var(--text-primary)] block">
-                {uploading ? "Uploading file..." : "Click to Upload Video or Image File"}
+                {uploading 
+                  ? "Uploading file..." 
+                  : accept.includes("image") && !accept.includes("video") 
+                    ? "Click to Upload Image File" 
+                    : accept.includes("video") && !accept.includes("image") 
+                      ? "Click to Upload Video File" 
+                      : "Click to Upload Image or Video File"}
               </span>
               <span className="text-xs text-[var(--text-tertiary)] block">
                 Drag & drop or select file from your computer
