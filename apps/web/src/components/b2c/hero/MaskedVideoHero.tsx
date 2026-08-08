@@ -3,9 +3,7 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { MaskedMediaEngine } from './MaskedMediaEngine';
-import { MaskPresetType } from './MaskPresets';
-import { Search, Sparkles, Ticket } from 'lucide-react';
+import { Search, Sparkles, Calendar, ArrowRight, Play, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface MaskedVideoHeroProps {
@@ -19,6 +17,15 @@ export interface MaskedVideoHeroProps {
   onSearchBlur?: () => void;
 }
 
+const extractIframeUrl = (raw: string | null | undefined) => {
+  if (!raw) return '';
+  if (raw.includes('iframe') && raw.includes('src=')) {
+    const match = raw.match(/src=["'](.*?)["']/);
+    if (match) return match[1];
+  }
+  return raw;
+};
+
 export function MaskedVideoHero({
   locale,
   cmsData,
@@ -30,38 +37,30 @@ export function MaskedVideoHero({
 }: MaskedVideoHeroProps) {
   const isAr = locale === 'ar';
   const heroRef = useRef<HTMLDivElement>(null);
+  const [isMuted, setIsMuted] = React.useState(true);
 
-  // Extract CMS configurations with fallback
+  // Extract CMS hero configurations
   const heroConfig = cmsData?.hero || {};
   const maskedConfig = cmsData?.maskedVideo || {};
 
-  const isValidVideoUrl = (url?: string | null) => {
-    if (!url) return false;
-    if (url.startsWith('data:') && url.length > 50000) return false;
-    return true;
-  };
-
-  const activeMediaConfig = currentPortalMode === 'customer'
-    ? {
-        videoUrl: (isValidVideoUrl(heroConfig?.mediaUrl) && heroConfig?.mediaUrl) || (isValidVideoUrl(maskedConfig?.customerDesktopVideo) && maskedConfig?.customerDesktopVideo) || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4',
-        posterUrl: maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
-        preset: (maskedConfig?.customerMaskPreset || maskedConfig?.preset || 'ORGANIC_WINDOW') as MaskPresetType,
-        accent: maskedConfig?.customerAccent || '#10b981',
-        altEn: maskedConfig?.customerAltEn || 'E3 Pulse Customer Attractions',
-        altAr: maskedConfig?.customerAltAr || 'عالم تجارب زوار إي ثري',
-      }
-    : {
-        videoUrl: (isValidVideoUrl(heroConfig?.mediaUrl) && heroConfig?.mediaUrl) || (isValidVideoUrl(maskedConfig?.organizerDesktopVideo) && maskedConfig?.organizerDesktopVideo) || 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
-        posterUrl: maskedConfig?.organizerPoster || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop',
-        preset: (maskedConfig?.organizerMaskPreset || maskedConfig?.preset || 'PORTAL_ARCH') as MaskPresetType,
-        accent: maskedConfig?.organizerAccent || '#3b82f6',
-        altEn: maskedConfig?.organizerAltEn || 'E3 Atelier Event Engineering',
-        altAr: maskedConfig?.organizerAltAr || 'هندسة الفعاليات والإنتاج',
-      };
+  const mediaUrl = heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo || 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4';
+  const posterUrl = heroConfig?.posterUrl || maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop';
+  
+  // Determine media type dynamically if not explicitly specified
+  let mediaType = (heroConfig?.mediaType || 'VIDEO').toUpperCase();
+  if (mediaUrl.includes('spline.design') || mediaUrl.includes('sketchfab') || mediaUrl.includes('/3d/')) {
+    mediaType = 'MODEL_3D';
+  } else if (mediaUrl.includes('<iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo')) {
+    mediaType = 'IFRAME';
+  } else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(mediaUrl)) {
+    mediaType = 'IMAGE';
+  } else if (/\.(mp4|webm|mov|m4v|mkv)$/i.test(mediaUrl) || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.includes('mixkit')) {
+    mediaType = 'VIDEO';
+  }
 
   const headerTitle = isAr
     ? (heroConfig.headerAr || (currentPortalMode === 'customer' ? 'استكشف عالم إي ثري الترفيهي' : 'هندسة الفعاليات والإنتاج الضخم'))
-    : (heroConfig.headerEn || (currentPortalMode === 'customer' ? 'E3 PULSE MASKED WORLDS' : 'E3 ATELIER EVENT ENGINEERING'));
+    : (heroConfig.headerEn || (currentPortalMode === 'customer' ? 'E3 PULSE ENTERTAINMENT WORLDS' : 'E3 ATELIER EVENT ENGINEERING'));
 
   const subHeader = isAr
     ? (heroConfig.subHeaderAr || (currentPortalMode === 'customer' ? 'تجارب ترفيهية غامرة ومدن ألعاب فضائية في قطر' : 'حلول متكاملة لهندسة وتصنيع الفعاليات الضخمة'))
@@ -71,16 +70,49 @@ export function MaskedVideoHero({
     <section
       ref={heroRef}
       aria-label="E3 Homepage Hero Section"
-      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center px-4 overflow-hidden border-b border-[var(--border-level-1)] pt-20 pb-12"
+      className="relative w-full min-h-[90vh] flex flex-col items-center justify-center px-4 overflow-hidden border-b border-[var(--border-level-1)] pt-20 pb-16"
       dir={isAr ? 'rtl' : 'ltr'}
     >
-      {/* Background Ambient Canvas Grid */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-90 pointer-events-none" />
+      {/* 1. FULL-BLEED CINEMATIC MEDIA BACKGROUND LAYER */}
+      <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950">
+        {mediaType === 'VIDEO' && mediaUrl && (
+          <video
+            src={mediaUrl}
+            poster={posterUrl}
+            autoPlay
+            loop
+            muted={isMuted}
+            playsInline
+            className="w-full h-full object-cover scale-105 opacity-40 transition-opacity duration-1000"
+          />
+        )}
 
-      {/* Main Grid Layout: Protected Content Zone on Left, Masked Video Engine on Right */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {mediaType === 'IMAGE' && (
+          <img
+            src={mediaUrl || posterUrl}
+            alt="Hero Background"
+            className="w-full h-full object-cover scale-105 opacity-40 transition-opacity duration-1000"
+          />
+        )}
+
+        {(mediaType === 'MODEL_3D' || mediaType === 'IFRAME' || mediaType === 'SPLINE') && (
+          <iframe
+            src={extractIframeUrl(mediaUrl)}
+            className="w-full h-full border-none opacity-50 pointer-events-auto"
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            sandbox="allow-scripts allow-same-origin allow-popups"
+          />
+        )}
+
+        {/* Ambient Dark Overlay Gradients for Pristine Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-slate-950/70 to-slate-950/90 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-transparent pointer-events-none" />
+      </div>
+
+      {/* 2. HERO CONTENT GRID */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         
-        {/* Left Column: Protected Text & CTA Zone */}
+        {/* Left Column: Headline, Subtitle, CTAs & Live Search */}
         <div className="lg:col-span-7 flex flex-col items-start text-start space-y-6 z-20">
           
           {/* Section Badge */}
@@ -88,18 +120,18 @@ export function MaskedVideoHero({
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-extrabold uppercase tracking-wider select-none"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-wider backdrop-blur-md select-none"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{currentPortalMode === 'customer' ? (isAr ? 'عالم الزوار' : 'CUSTOMER EXPERIENCE') : (isAr ? 'عالم المنظمين' : 'ORGANIZER B2B ATELIER')}</span>
+            <span>{currentPortalMode === 'customer' ? (isAr ? 'عالم الزوار والفعاليات' : 'CUSTOMER EXPERIENCE') : (isAr ? 'عالم المنظمين والشركات' : 'ORGANIZER B2B ATELIER')}</span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Main Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-balance text-4xl sm:text-5xl lg:text-6.5xl font-black tracking-tight uppercase leading-[1.08] text-white bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-300"
+            className="text-balance text-4xl sm:text-5xl lg:text-6.5xl font-black tracking-tight uppercase leading-[1.08] text-white font-display"
           >
             {headerTitle}
           </motion.h1>
@@ -109,12 +141,12 @@ export function MaskedVideoHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base sm:text-lg text-slate-300 max-w-xl font-medium leading-relaxed"
+            className="text-base sm:text-lg text-slate-200 max-w-xl font-medium leading-relaxed drop-shadow"
           >
             {subHeader}
           </motion.p>
 
-          {/* Primary Action CTAs - Protected Touch Targets */}
+          {/* Primary Action CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -123,20 +155,22 @@ export function MaskedVideoHero({
           >
             <Link
               href={`/${locale}/b2c/attractions`}
-              className="px-7 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-slate-950 font-extrabold text-sm shadow-lg hover:opacity-95 transition-all uppercase tracking-wider min-h-[44px] flex items-center justify-center cursor-pointer select-none"
+              className="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-slate-950 font-black text-xs shadow-xl hover:opacity-95 transition-all uppercase tracking-wider min-h-[48px] flex items-center justify-center cursor-pointer select-none gap-2"
             >
-              {isAr ? 'استكشف التجارب' : 'EXPLORE ATTRACTIONS'}
+              <span>{isAr ? 'استكشف كافة التجارب' : 'EXPLORE ATTRACTIONS'}</span>
+              <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
             </Link>
+
             <Link
-              href={`/${locale}/b2c/tickets`}
-              className="px-7 py-3.5 rounded-full border border-slate-700 bg-slate-900/80 text-white hover:border-slate-500 font-bold text-sm shadow-md transition-all uppercase tracking-wider min-h-[44px] flex items-center justify-center cursor-pointer select-none gap-2"
+              href={`/${locale}/b2c/calendar`}
+              className="px-8 py-4 rounded-full border border-slate-700 bg-slate-900/80 text-white hover:border-slate-500 font-bold text-xs shadow-md transition-all uppercase tracking-wider min-h-[48px] flex items-center justify-center cursor-pointer select-none gap-2 backdrop-blur-md"
             >
-              <Ticket className="w-4 h-4 text-emerald-400" />
-              <span>{isAr ? 'احجز التذاكر' : 'BOOK TICKETS'}</span>
+              <Calendar className="w-4 h-4 text-emerald-400" />
+              <span>{isAr ? 'جدول الفعاليات والباقات' : 'EVENTS & PACKAGES'}</span>
             </Link>
           </motion.div>
 
-          {/* Search Bar */}
+          {/* Live Search Input Bar */}
           {(heroConfig.showSearch ?? true) && onSearchChange && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -152,9 +186,9 @@ export function MaskedVideoHero({
                   onChange={(e) => onSearchChange(e.target.value)}
                   onFocus={onSearchFocus}
                   onBlur={onSearchBlur}
-                  placeholder={isAr ? 'ابحث عن الوجهات والفعاليات...' : 'Search attractions & events...'}
+                  placeholder={isAr ? 'ابحث عن الوجهات، الفعاليات، أو الباقات...' : 'Search attractions, events, or packages...'}
                   className={cn(
-                    'w-full bg-slate-900/90 border border-slate-800 text-white placeholder-slate-400 rounded-full py-3 text-xs focus:outline-none focus:border-emerald-500 transition-all shadow-inner',
+                    'w-full bg-slate-900/90 border border-slate-800 text-white placeholder-slate-400 rounded-full py-3.5 text-xs focus:outline-none focus:border-emerald-500 transition-all shadow-inner backdrop-blur-md',
                     isAr ? 'pe-10 ps-4' : 'ps-10 pe-4'
                   )}
                 />
@@ -163,27 +197,74 @@ export function MaskedVideoHero({
           )}
         </div>
 
-        {/* Right Column: Masked Video Engine (E3 Pulse Masked Worlds) */}
-        <div className="lg:col-span-5 flex items-center justify-center relative z-10">
-          <MaskedMediaEngine
-            portalMode={currentPortalMode}
-            videoUrl={activeMediaConfig.videoUrl}
-            posterUrl={activeMediaConfig.posterUrl}
-            preset={activeMediaConfig.preset}
-            customSvgMask={maskedConfig?.customSvgMask}
-            scale={maskedConfig?.scale || 1}
-            positionX={maskedConfig?.positionX || 0}
-            positionY={maskedConfig?.positionY || 0}
-            edgeSoftness={maskedConfig?.edgeSoftness || 12}
-            distortionAmount={maskedConfig?.distortionAmount || 0}
-            idleBreathe={maskedConfig?.idleBreathe ?? true}
-            cursorResponse={maskedConfig?.cursorResponse ?? true}
-            rendererMode={maskedConfig?.rendererMode || 'STANDARD'}
-            accentColor={activeMediaConfig.accent}
-            altTextEn={activeMediaConfig.altEn}
-            altTextAr={activeMediaConfig.altAr}
-            isRtl={isAr}
-          />
+        {/* Right Column: Sleek 3D Glassmorphic Media Experience Card */}
+        <div className="lg:col-span-5 flex items-center justify-center relative z-20">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="w-full max-w-md rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl p-4 relative group"
+          >
+            {/* Card Preview Media */}
+            <div className="w-full h-72 md:h-80 rounded-2xl overflow-hidden relative bg-slate-950">
+              {mediaType === 'VIDEO' && mediaUrl ? (
+                <video
+                  src={mediaUrl}
+                  poster={posterUrl}
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+              ) : (
+                <img
+                  src={posterUrl || mediaUrl}
+                  alt="Featured Experience"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+
+              {/* Sound Toggle Button if Video */}
+              {mediaType === 'VIDEO' && (
+                <button
+                  type="button"
+                  onClick={() => setIsMuted(!isMuted)}
+                  className="absolute bottom-3 end-3 p-2.5 rounded-full bg-slate-900/80 text-white hover:bg-slate-800 transition-colors backdrop-blur-md border border-slate-700"
+                  title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                </button>
+              )}
+
+              <div className="absolute top-3 start-3 flex items-center gap-2">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="px-3 py-1 rounded-full bg-slate-950/80 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md">
+                  LIVE STREAM
+                </span>
+              </div>
+            </div>
+
+            {/* Card Description Footer */}
+            <div className="p-4 pt-4 flex items-center justify-between text-start">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-display">
+                  {isAr ? 'عالم إي ثري الترفيهي' : 'E3 Kinetic Experience'}
+                </h3>
+                <p className="text-xs text-slate-400 font-medium">
+                  {isAr ? 'تجارب تفاعلية فريدة في الدوحة' : 'Doha Flagship Attractions & Events'}
+                </p>
+              </div>
+
+              <Link
+                href={`/${locale}/b2c/attractions`}
+                className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 transition-all cursor-pointer"
+              >
+                <Play className="w-4 h-4 fill-current ms-0.5" />
+              </Link>
+            </div>
+          </motion.div>
         </div>
 
       </div>
