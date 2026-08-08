@@ -91,6 +91,12 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
   const [orbitTitleEn, setOrbitTitleEn] = useState(initialData?.titleEn || "PULSE ORBIT DESTINATIONS")
   const [orbitTitleAr, setOrbitTitleAr] = useState(initialData?.titleAr || "وجهات مدار إي ثري")
 
+  const [bookTicketsUrl, setBookTicketsUrl] = useState(initialData?.bookTicketsUrl || "/b2c/tickets")
+  const [bookTicketsLabelEn, setBookTicketsLabelEn] = useState(initialData?.bookTicketsLabelEn || "BOOK TICKETS")
+  const [bookTicketsLabelAr, setBookTicketsLabelAr] = useState(initialData?.bookTicketsLabelAr || "احجز التذاكر")
+  const [bookTicketsEnabled, setBookTicketsEnabled] = useState(initialData?.bookTicketsEnabled ?? true)
+  const [bookTicketsExternal, setBookTicketsExternal] = useState(Boolean(initialData?.bookTicketsExternal))
+
   const handleDestinationChange = (index: number, field: keyof OrbitDestinationItem, value: any) => {
     setDestinations((prev) => {
       const copy = [...prev]
@@ -110,11 +116,35 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
             titleEn: orbitTitleEn,
             titleAr: orbitTitleAr,
             destinations,
+            bookTicketsUrl,
+            bookTicketsLabelEn,
+            bookTicketsLabelAr,
+            bookTicketsEnabled,
+            bookTicketsExternal,
           },
         }),
       })
+
+      // Sync settings
+      const settingsPayload = [
+        { key: "bookTicketsUrl", value: bookTicketsUrl, type: "GENERAL" },
+        { key: "bookTicketsLabelEn", value: bookTicketsLabelEn, type: "GENERAL" },
+        { key: "bookTicketsLabelAr", value: bookTicketsLabelAr, type: "GENERAL" },
+        { key: "bookTicketsEnabled", value: String(bookTicketsEnabled), type: "GENERAL" },
+        { key: "bookTicketsExternal", value: String(bookTicketsExternal), type: "GENERAL" },
+      ]
+      await Promise.all(
+        settingsPayload.map((item) =>
+          fetch("/api/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(item),
+          })
+        )
+      )
+
       if (!res.ok) throw new Error("Failed to save Pulse Orbit configuration")
-      toast("Pulse Orbit CMS updated successfully.", "success")
+      toast("Pulse Orbit & Book Tickets Hyperlink updated successfully.", "success")
     } catch (e) {
       console.error(e)
       toast("Failed to save Pulse Orbit CMS.", "error")
@@ -135,6 +165,73 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
           </AdminButton>
         }
       />
+
+      {/* Book Tickets CTA Hyperlink Config */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
+        <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+          <span>Header &quot;Book Tickets&quot; CTA Hyperlink Manager</span>
+        </h3>
+        <p className="text-xs text-slate-400">
+          Configure the hyperlink destination URL and button labels for the header &quot;Book Tickets&quot; tab across all public pages.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Target Hyperlink URL</label>
+            <input
+              type="text"
+              value={bookTicketsUrl}
+              onChange={(e) => setBookTicketsUrl(e.target.value)}
+              placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
+              className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Button Label (English)</label>
+              <input
+                type="text"
+                value={bookTicketsLabelEn}
+                onChange={(e) => setBookTicketsLabelEn(e.target.value)}
+                className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Button Label (Arabic)</label>
+              <input
+                type="text"
+                value={bookTicketsLabelAr}
+                onChange={(e) => setBookTicketsLabelAr(e.target.value)}
+                className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                dir="rtl"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6 pt-2">
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={bookTicketsEnabled}
+                onChange={(e) => setBookTicketsEnabled(e.target.checked)}
+                className="rounded border-[var(--border-level-2)] text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer"
+              />
+              Show CTA Button in Header
+            </label>
+
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={bookTicketsExternal}
+                onChange={(e) => setBookTicketsExternal(e.target.checked)}
+                className="rounded border-[var(--border-level-2)] text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer"
+              />
+              Open in New Tab (_blank)
+            </label>
+          </div>
+        </div>
+      </div>
 
       {/* Global Title Settings */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">

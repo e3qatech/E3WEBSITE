@@ -104,7 +104,16 @@ export function PulseOrbitNav({
 }: {
   locale?: string;
   settings?: Record<string, string>;
-  orbitData?: { titleEn?: string; titleAr?: string; destinations?: any[] };
+  orbitData?: {
+    titleEn?: string;
+    titleAr?: string;
+    destinations?: any[];
+    bookTicketsUrl?: string;
+    bookTicketsLabelEn?: string;
+    bookTicketsLabelAr?: string;
+    bookTicketsEnabled?: boolean | string;
+    bookTicketsExternal?: boolean | string;
+  };
   customerLabelEn?: string;
   customerLabelAr?: string;
   organizerLabelEn?: string;
@@ -189,6 +198,19 @@ export function PulseOrbitNav({
       localStorage.setItem('theme', nextTheme);
     }
   };
+
+  const bookTicketsRawUrl = settings?.bookTicketsUrl || orbitData?.bookTicketsUrl || '/b2c/tickets';
+  const isExternalBookUrl = bookTicketsRawUrl.startsWith('http://') || bookTicketsRawUrl.startsWith('https://');
+  const bookTicketsHref = isExternalBookUrl
+    ? bookTicketsRawUrl
+    : bookTicketsRawUrl.startsWith('/')
+      ? `/${locale}${bookTicketsRawUrl.startsWith('/b2c') ? bookTicketsRawUrl : '/b2c' + bookTicketsRawUrl}`
+      : `/${locale}/b2c/${bookTicketsRawUrl}`;
+
+  const bookTicketsLabelEn = settings?.bookTicketsLabelEn || orbitData?.bookTicketsLabelEn || 'BOOK TICKETS';
+  const bookTicketsLabelAr = settings?.bookTicketsLabelAr || orbitData?.bookTicketsLabelAr || 'احجز التذاكر';
+  const isBookTicketsEnabled = settings?.bookTicketsEnabled !== 'false' && orbitData?.bookTicketsEnabled !== false;
+  const openInNewTab = settings?.bookTicketsExternal === 'true' || orbitData?.bookTicketsExternal === true || isExternalBookUrl;
 
   return (
     <>
@@ -283,15 +305,29 @@ export function PulseOrbitNav({
             )}
 
             {/* Quick Ticket CTA */}
-            {isB2C && (
-              <Link
-                href={`/${locale}/b2c/tickets`}
-                className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header' })}
-              >
-                <Ticket className="h-4 w-4" />
-                <span>{isAr ? 'احجز التذاكر' : 'BOOK TICKETS'}</span>
-              </Link>
+            {isB2C && isBookTicketsEnabled && (
+              isExternalBookUrl ? (
+                <a
+                  href={bookTicketsHref}
+                  target={openInNewTab ? "_blank" : "_self"}
+                  rel={openInNewTab ? "noopener noreferrer" : undefined}
+                  className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
+                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref })}
+                >
+                  <Ticket className="h-4 w-4" />
+                  <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
+                </a>
+              ) : (
+                <Link
+                  href={bookTicketsHref}
+                  target={openInNewTab ? "_blank" : undefined}
+                  className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
+                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref })}
+                >
+                  <Ticket className="h-4 w-4" />
+                  <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
+                </Link>
+              )
             )}
 
             {/* Menu Trigger Button */}

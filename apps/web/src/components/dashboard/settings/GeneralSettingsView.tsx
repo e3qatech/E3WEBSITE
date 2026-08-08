@@ -33,6 +33,11 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     lightLogoUrl: initialSettings.lightLogoUrl || "",
     darkLogoUrl: initialSettings.darkLogoUrl || "",
     faviconUrl: initialSettings.faviconUrl || "",
+    bookTicketsUrl: initialSettings.bookTicketsUrl || "/b2c/tickets",
+    bookTicketsLabelEn: initialSettings.bookTicketsLabelEn || "BOOK TICKETS",
+    bookTicketsLabelAr: initialSettings.bookTicketsLabelAr || "احجز التذاكر",
+    bookTicketsEnabled: initialSettings.bookTicketsEnabled ?? "true",
+    bookTicketsExternal: initialSettings.bookTicketsExternal ?? "false",
     gatewayB2CTitle: initialSettings.gatewayB2CTitle || "PRISTINE\\nSNOW",
     gatewayB2CDesc: initialSettings.gatewayB2CDesc || "Discover Qatar's premier live events, permanent attractions, and immersive experiences.",
     gatewayB2BTitle: initialSettings.gatewayB2BTitle || "COSMIC\\nVOID",
@@ -208,6 +213,75 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                 <p className="text-xs text-[var(--text-tertiary)] mt-1">Recommended: 32x32px or 64x64px ICO/PNG</p>
               </div>
             </div>
+            </div>
+          </div>
+
+          {/* Book Tickets CTA Hyperlink Configuration */}
+          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 className="font-bold text-[var(--text-primary)] flex items-center text-base">
+              <LayoutTemplate className="w-5 h-5 me-2 text-emerald-400" /> Header &quot;Book Tickets&quot; CTA Hyperlink
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)]">
+              Configure the target hyperlink URL, custom button label, and window target for the top header &quot;Book Tickets&quot; CTA tab.
+            </p>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Target Hyperlink URL</label>
+                <input 
+                  type="text"
+                  value={data.bookTicketsUrl} 
+                  onChange={e => handleChange("bookTicketsUrl", e.target.value)}
+                  placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                />
+                <p className="text-[11px] text-[var(--text-tertiary)] mt-1">Accepts internal routes (e.g. /b2c/tickets) or full external URLs (https://...)</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Label (English)</label>
+                  <input 
+                    type="text" 
+                    value={data.bookTicketsLabelEn} 
+                    onChange={e => handleChange("bookTicketsLabelEn", e.target.value)}
+                    placeholder="BOOK TICKETS"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Label (Arabic)</label>
+                  <input 
+                    type="text" 
+                    value={data.bookTicketsLabelAr} 
+                    onChange={e => handleChange("bookTicketsLabelAr", e.target.value)}
+                    placeholder="احجز التذاكر"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] dir-rtl"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 pt-2">
+                <label className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)] cursor-pointer select-none">
+                  <input 
+                    type="checkbox"
+                    checked={data.bookTicketsEnabled === "true"}
+                    onChange={e => handleChange("bookTicketsEnabled", e.target.checked ? "true" : "false")}
+                    className="rounded border-[var(--border-default)] text-[var(--color-primary)] focus:ring-0 w-4 h-4 cursor-pointer"
+                  />
+                  Show CTA Button in Header
+                </label>
+
+                <label className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)] cursor-pointer select-none">
+                  <input 
+                    type="checkbox"
+                    checked={data.bookTicketsExternal === "true"}
+                    onChange={e => handleChange("bookTicketsExternal", e.target.checked ? "true" : "false")}
+                    className="rounded border-[var(--border-default)] text-[var(--color-primary)] focus:ring-0 w-4 h-4 cursor-pointer"
+                  />
+                  Open in New Tab (_blank)
+                </label>
+              </div>
             </div>
           </div>
 
