@@ -9,6 +9,7 @@ import {
   MediaHolderConfig,
 } from '@/types/gateway-cms';
 import { PortalGateway } from '@/components/home/PortalGateway';
+import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker';
 import {
   Save,
   Globe,
@@ -737,43 +738,39 @@ export default function GatewayCustomizationPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Default Logo URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Default Logo Asset (File / Library / URL)</label>
+                  <AdminMediaPicker
                     value={formData.logo?.defaultLogoUrl || ''}
-                    onChange={(e) => updateLogo('defaultLogoUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="https://cdn.e3.qa/logo-default.png"
+                    onChange={(url) => updateLogo('defaultLogoUrl', url)}
+                    label="Default Logo Asset"
+                    accept="image/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Light Theme Logo URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Light Theme Logo Asset</label>
+                  <AdminMediaPicker
                     value={formData.logo?.lightLogoUrl || ''}
-                    onChange={(e) => updateLogo('lightLogoUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="https://cdn.e3.qa/logo-light.png"
+                    onChange={(url) => updateLogo('lightLogoUrl', url)}
+                    label="Light Theme Logo"
+                    accept="image/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Dark Theme Logo URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Dark Theme Logo Asset</label>
+                  <AdminMediaPicker
                     value={formData.logo?.darkLogoUrl || ''}
-                    onChange={(e) => updateLogo('darkLogoUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="https://cdn.e3.qa/logo-dark.png"
+                    onChange={(url) => updateLogo('darkLogoUrl', url)}
+                    label="Dark Theme Logo"
+                    accept="image/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Logo URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Devices Logo Asset</label>
+                  <AdminMediaPicker
                     value={formData.logo?.mobileLogoUrl || ''}
-                    onChange={(e) => updateLogo('mobileLogoUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="https://cdn.e3.qa/logo-mobile.png"
+                    onChange={(url) => updateLogo('mobileLogoUrl', url)}
+                    label="Mobile Logo"
+                    accept="image/*"
                   />
                 </div>
                 <div>
@@ -824,30 +821,30 @@ export default function GatewayCustomizationPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Media URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Desktop Media Asset (File / Library / URL)</label>
+                  <AdminMediaPicker
                     value={formData.b2cDesktopMedia.mediaUrl}
-                    onChange={(e) => updateMedia('b2cDesktopMedia', 'mediaUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2cDesktopMedia', 'mediaUrl', url)}
+                    label="B2C Desktop Media"
+                    accept="image/*,video/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mandatory Fallback Image URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mandatory Fallback Image Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2cDesktopMedia.fallbackImageUrl}
-                    onChange={(e) => updateMedia('b2cDesktopMedia', 'fallbackImageUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2cDesktopMedia', 'fallbackImageUrl', url)}
+                    label="B2C Desktop Fallback Image"
+                    accept="image/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Poster Image URL (Video)</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Poster Image Asset (Video)</label>
+                  <AdminMediaPicker
                     value={formData.b2cDesktopMedia.posterImageUrl || ''}
-                    onChange={(e) => updateMedia('b2cDesktopMedia', 'posterImageUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2cDesktopMedia', 'posterImageUrl', url)}
+                    label="B2C Poster Image"
+                    accept="image/*"
                   />
                 </div>
                 <div>
@@ -894,21 +891,21 @@ export default function GatewayCustomizationPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Media URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Media Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2cMobileMedia.mediaUrl}
-                    onChange={(e) => updateMedia('b2cMobileMedia', 'mediaUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2cMobileMedia', 'mediaUrl', url)}
+                    label="B2C Mobile Media"
+                    accept="image/*,video/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Fallback Image URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Fallback Image Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2cMobileMedia.fallbackImageUrl}
-                    onChange={(e) => updateMedia('b2cMobileMedia', 'fallbackImageUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2cMobileMedia', 'fallbackImageUrl', url)}
+                    label="B2C Mobile Fallback Image"
+                    accept="image/*"
                   />
                 </div>
               </div>
@@ -939,30 +936,30 @@ export default function GatewayCustomizationPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Media URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Desktop Media Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2bDesktopMedia.mediaUrl}
-                    onChange={(e) => updateMedia('b2bDesktopMedia', 'mediaUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2bDesktopMedia', 'mediaUrl', url)}
+                    label="B2B Desktop Media"
+                    accept="image/*,video/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mandatory Fallback Image URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mandatory Fallback Image Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2bDesktopMedia.fallbackImageUrl}
-                    onChange={(e) => updateMedia('b2bDesktopMedia', 'fallbackImageUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2bDesktopMedia', 'fallbackImageUrl', url)}
+                    label="B2B Fallback Image"
+                    accept="image/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Poster Image URL (Video)</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Poster Image Asset (Video)</label>
+                  <AdminMediaPicker
                     value={formData.b2bDesktopMedia.posterImageUrl || ''}
-                    onChange={(e) => updateMedia('b2bDesktopMedia', 'posterImageUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2bDesktopMedia', 'posterImageUrl', url)}
+                    label="B2B Poster Image"
+                    accept="image/*"
                   />
                 </div>
                 <div>
@@ -1009,21 +1006,21 @@ export default function GatewayCustomizationPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Media URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Media Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2bMobileMedia.mediaUrl}
-                    onChange={(e) => updateMedia('b2bMobileMedia', 'mediaUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2bMobileMedia', 'mediaUrl', url)}
+                    label="B2B Mobile Media"
+                    accept="image/*,video/*"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Fallback Image URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Fallback Image Asset</label>
+                  <AdminMediaPicker
                     value={formData.b2bMobileMedia.fallbackImageUrl}
-                    onChange={(e) => updateMedia('b2bMobileMedia', 'fallbackImageUrl', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateMedia('b2bMobileMedia', 'fallbackImageUrl', url)}
+                    label="B2B Mobile Fallback Image"
+                    accept="image/*"
                   />
                 </div>
               </div>
@@ -1204,12 +1201,12 @@ export default function GatewayCustomizationPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">OpenGraph Image URL</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">OpenGraph Social Image Asset</label>
+                  <AdminMediaPicker
                     value={formData.seoAccess.ogImage || ''}
-                    onChange={(e) => updateSeo('ogImage', e.target.value)}
-                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    onChange={(url) => updateSeo('ogImage', url)}
+                    label="OpenGraph Social Image"
+                    accept="image/*"
                   />
                 </div>
                 <div>

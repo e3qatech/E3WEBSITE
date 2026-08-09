@@ -1,17 +1,27 @@
 "use client"
 
 import * as React from "react"
-import { Search, Bell, ChevronRight, Command, Sun, Moon, Laptop } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { Search, Bell, ChevronRight, Command, Sun, Moon, Laptop, Globe } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
 import { useAdminTheme } from "./AdminThemeProvider"
+import { useLocale } from "@/components/layout/LocaleProvider"
 import { cn } from "@/lib/utils"
 
 export function AdminTopBar() {
   const pathname = usePathname();
-  const paths = pathname.split('/').filter(Boolean);
+  const router = useRouter();
+  const { locale, setLocale } = useLocale();
   const { theme, setTheme } = useAdminTheme();
+  
   const [themeMenuOpen, setThemeMenuOpen] = React.useState(false);
   const themeMenuRef = React.useRef<HTMLDivElement>(null);
+
+  // Determine current active locale from pathname or context
+  const currentLocale = pathname.startsWith('/ar') ? 'ar' : (locale || 'en');
+
+  // Strip locale prefix for breadcrumbs
+  const rawPaths = pathname.split('/').filter(Boolean);
+  const paths = rawPaths.filter((p) => p !== 'en' && p !== 'ar');
 
   // Close theme menu when clicking outside
   React.useEffect(() => {
@@ -23,17 +33,34 @@ export function AdminTopBar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleToggleLanguage = () => {
+    const nextLocale = currentLocale === 'en' ? 'ar' : 'en';
+    if (setLocale) setLocale(nextLocale);
+    
+    // Replace locale in current URL
+    let newPathname = pathname;
+    if (pathname.startsWith('/en') || pathname.startsWith('/ar')) {
+      newPathname = pathname.replace(`/${currentLocale}`, `/${nextLocale}`);
+    } else {
+      newPathname = `/${nextLocale}${pathname}`;
+    }
+    router.push(newPathname);
+  };
   
   return (
     <header className="flex h-16 bg-transparent items-center justify-between px-4 sm:px-6 shrink-0 z-20 sticky top-0 transition-colors">
       
-      {/* Mobile Menu Toggle */}
+      {/* Mobile Menu Toggle Placeholder */}
       <div className="md:hidden flex items-center gap-3">
-         {/* Placeholder for mobile layout consistency */}
       </div>
 
       {/* Breadcrumbs - Hidden on small screens */}
       <div className="hidden md:flex items-center gap-2 text-[13px] text-text-secondary font-medium tracking-wide">
+        <span className="text-text-secondary hover:text-accent cursor-pointer" onClick={() => router.push(`/${currentLocale}/dashboard`)}>
+          {currentLocale === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
+        </span>
+        {paths.length > 0 && <ChevronRight className="w-3.5 h-3.5 text-text-disabled icon-directional rtl:-scale-x-100" />}
         {paths.map((path, index) => {
           const isLast = index === paths.length - 1;
           const formattedPath = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
@@ -52,7 +79,7 @@ export function AdminTopBar() {
         })}
       </div>
 
-      {/* Right Actions: Search, Theme Toggle & Bell */}
+      {/* Right Actions: Search, Language Switcher, Theme Toggle & Bell */}
       <div className="flex items-center gap-3 sm:gap-4 ms-auto md:ms-0">
         
         {/* Search */}
@@ -60,7 +87,7 @@ export function AdminTopBar() {
           <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent transition-colors" />
           <input 
             type="text" 
-            placeholder="Search Command Center..."
+            placeholder={currentLocale === 'ar' ? 'البحث في لوحة التحكم...' : 'Search Command Center...'}
             className="w-full ps-9 pe-12 h-9 bg-bg-level-2 border border-border-default rounded-md text-[13px] font-medium text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-tertiary shadow-sm"
           />
           <div className="absolute end-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-text-tertiary bg-surface-default px-1.5 py-0.5 rounded border border-border-default pointer-events-none">
@@ -72,6 +99,16 @@ export function AdminTopBar() {
         {/* Mobile Search Button */}
         <button className="sm:hidden p-2 rounded-md text-text-secondary hover:bg-surface-active hover:text-text-primary transition-colors">
           <Search className="w-5 h-5" />
+        </button>
+
+        {/* Dashboard Language Switcher (EN / AR) */}
+        <button
+          onClick={handleToggleLanguage}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold bg-surface-default border border-border-default text-text-primary hover:bg-surface-active hover:border-accent transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          title={currentLocale === 'en' ? 'التحويل إلى العربية' : 'Switch to English'}
+        >
+          <Globe className="w-3.5 h-3.5 text-accent" />
+          <span>{currentLocale === 'en' ? 'العربية' : 'EN'}</span>
         </button>
 
         {/* Theme Toggle */}

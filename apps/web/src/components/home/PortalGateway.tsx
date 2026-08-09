@@ -134,6 +134,22 @@ export function PortalGateway({
 
   // Viewport Container Dimensions for CMS Live Preview Frame Resizing
   const viewportWidthClass = useMemo(() => {
+    if (previewMode) {
+      switch (simulation?.viewport) {
+        case "small-mobile-320":
+          return "w-[320px] h-[568px] mx-auto rounded-2xl border-4 border-slate-700 shadow-2xl overflow-hidden";
+        case "mobile-390":
+          return "w-[390px] h-[640px] mx-auto rounded-2xl border-4 border-slate-700 shadow-2xl overflow-hidden";
+        case "tablet-768":
+          return "w-[768px] h-[640px] mx-auto rounded-xl border-2 border-slate-700 shadow-2xl overflow-hidden";
+        case "laptop-1280":
+          return "w-full max-w-[1280px] h-[640px] mx-auto rounded-lg border border-slate-700 shadow-2xl overflow-hidden";
+        case "desktop-1440":
+        default:
+          return "w-full h-[640px] rounded-xl overflow-hidden";
+      }
+    }
+
     if (!simulation) return "w-full min-h-screen h-screen overflow-hidden";
     switch (simulation.viewport) {
       case "small-mobile-320":
@@ -148,7 +164,7 @@ export function PortalGateway({
       default:
         return "w-full min-h-screen h-screen overflow-hidden";
     }
-  }, [simulation]);
+  }, [simulation, previewMode]);
 
   const isReducedMotion = simulation?.reducedMotion || visual.reducedMotionDefault;
 
