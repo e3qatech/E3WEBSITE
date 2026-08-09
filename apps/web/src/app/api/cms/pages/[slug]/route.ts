@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
@@ -151,13 +151,13 @@ export async function PUT(
     // Purge Next.js App Router cache so public & admin pages update immediately
     try {
       revalidatePath('/', 'layout');
-      revalidatePath('/[locale]/b2c', 'page');
-      revalidatePath('/en/b2c', 'page');
-      revalidatePath('/ar/b2c', 'page');
-      revalidatePath('/b2c', 'page');
-      revalidatePath('/[locale]/dashboard/b2c/landing', 'page');
-      revalidatePath('/en/dashboard/b2c/landing', 'page');
-      revalidatePath('/ar/dashboard/b2c/landing', 'page');
+      revalidatePath('/[locale]/b2c', 'layout');
+      revalidatePath('/en/b2c', 'layout');
+      revalidatePath('/ar/b2c', 'layout');
+      revalidatePath('/b2c', 'layout');
+      revalidatePath('/[locale]/b2c/attractions', 'layout');
+      revalidatePath('/[locale]/dashboard/b2c/pulse-orbit', 'page');
+      revalidatePath('/[locale]/dashboard/settings/pulse-orbit', 'page');
     } catch (_e) {
       // Ignore revalidate errors
     }

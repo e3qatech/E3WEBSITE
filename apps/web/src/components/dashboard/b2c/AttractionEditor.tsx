@@ -152,14 +152,18 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
         body: JSON.stringify(payload)
       })
       
-      if (!res.ok) throw new Error("Failed to save")
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || `Server returned error ${res.status}`);
+      }
       
       router.push("/dashboard/b2c/attractions")
       router.refresh()
-    } catch {
-      alert("Error saving attraction")
+    } catch (err: any) {
+      console.error("[SAVE_ATTRACTION_ERROR]", err);
+      alert(err.message || "Error saving attraction");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
   }
 
@@ -469,39 +473,116 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
           {activeTab === "features" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-black">What&apos;s Inside</h2>
-                <Button type="button" onClick={() => setFeatures([...features, { id: Date.now(), title: "", description: "", imageUrl: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
-                  <Plus className="w-4 h-4" /> Add Item
+                <div>
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">What&apos;s Inside (Experience & Highlights)</h2>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">Configure bilingual titles, Arabic descriptions, and media covers for attraction highlights.</p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => setFeatures([...features, { id: Date.now(), titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", imageUrl: "" }])}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 rounded-xl"
+                >
+                  <Plus className="w-4 h-4" /> Add Highlight Item
                 </Button>
               </div>
               
               <div className="space-y-4">
                 {features.map((item, index) => (
-                  <div key={item.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                    <button type="button" onClick={() => setFeatures(features.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                  <div key={item.id || index} className="p-5 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => setFeatures(features.filter((_, i) => i !== index))}
+                      className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Remove Item"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pe-10">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Item Title</label>
-                        <input type="text" value={item.title} onChange={e => updateArrayItem(setFeatures, features, index, "title", e.target.value)}
-                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                      {/* English Title */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Highlight Title (English)</label>
+                        <input
+                          type="text"
+                          value={item.titleEn ?? item.title ?? ""}
+                          onChange={e => {
+                            const updated = [...features];
+                            updated[index] = { ...updated[index], titleEn: e.target.value, title: e.target.value };
+                            setFeatures(updated);
+                          }}
+                          placeholder="e.g. 360-Degree Dome Theater"
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Media URL</label>
-                        <MediaUploader value={item.imageUrl} onChange={val => updateArrayItem(setFeatures, features, index, "imageUrl", val)} />
+
+                      {/* Arabic Title */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">العنوان (بالعربية)</label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={item.titleAr ?? ""}
+                          onChange={e => {
+                            const updated = [...features];
+                            updated[index] = { ...updated[index], titleAr: e.target.value };
+                            setFeatures(updated);
+                          }}
+                          placeholder="مثال: مسرح القبة التفاعلية 360 درجة"
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none text-right"
+                        />
                       </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Short Description</label>
-                        <textarea value={item.description} onChange={e => updateArrayItem(setFeatures, features, index, "description", e.target.value)} rows={2}
-                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none resize-none"
+
+                      {/* Media URL */}
+                      <div className="space-y-1.5 md:col-span-2">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Highlight Cover Media (Image / Video URL)</label>
+                        <MediaUploader
+                          value={item.imageUrl}
+                          onChange={val => {
+                            const updated = [...features];
+                            updated[index] = { ...updated[index], imageUrl: val };
+                            setFeatures(updated);
+                          }}
+                        />
+                      </div>
+
+                      {/* English Description */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Short Description (English)</label>
+                        <textarea
+                          rows={2}
+                          value={item.descriptionEn ?? item.description ?? ""}
+                          onChange={e => {
+                            const updated = [...features];
+                            updated[index] = { ...updated[index], descriptionEn: e.target.value, description: e.target.value };
+                            setFeatures(updated);
+                          }}
+                          placeholder="Describe what visitors experience..."
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none resize-none"
+                        />
+                      </div>
+
+                      {/* Arabic Description */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">الوصف (بالعربية)</label>
+                        <textarea
+                          rows={2}
+                          dir="rtl"
+                          value={item.descriptionAr ?? ""}
+                          onChange={e => {
+                            const updated = [...features];
+                            updated[index] = { ...updated[index], descriptionAr: e.target.value };
+                            setFeatures(updated);
+                          }}
+                          placeholder="صف تجربة الزوار وتفاصيل الجذب..."
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none resize-none text-right"
                         />
                       </div>
                     </div>
                   </div>
                 ))}
-                {features.length === 0 && <div className="text-center py-12 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-tertiary)] font-medium">No items added.</div>}
+                {features.length === 0 && <div className="text-center py-12 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-tertiary)] font-medium">No highlight items added yet. Click &quot;Add Highlight Item&quot; to begin.</div>}
               </div>
             </div>
           )}

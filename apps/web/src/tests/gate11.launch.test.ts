@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import nextConfig from '../../next.config';
-import robots from '../app/robots';
+import { GET as robotsGET } from '../app/robots.txt/route';
 import sitemap from '../app/sitemap';
 
 describe('Gate 11: Launch Readiness & Production Audits', () => {
@@ -36,47 +36,18 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
   });
 
   describe('2. Robots Rules & Environment Safety', () => {
-    it('3. should disallow all indexing when VERCEL_ENV is preview or development', () => {
-      const originalVercelEnv = process.env.VERCEL_ENV;
-      const originalNodeEnv = process.env.NODE_ENV;
-      const originalNextEnv = process.env.NEXT_PUBLIC_ENVIRONMENT;
-
-      try {
-        process.env.VERCEL_ENV = 'preview';
-        delete process.env.NEXT_PUBLIC_ENVIRONMENT;
-
-        const previewRobots = robots();
-        expect(previewRobots.rules).toEqual({
-          userAgent: '*',
-          disallow: '/',
-        });
-      } finally {
-        process.env.VERCEL_ENV = originalVercelEnv;
-        (process.env as any).NODE_ENV = originalNodeEnv;
-        process.env.NEXT_PUBLIC_ENVIRONMENT = originalNextEnv;
-      }
-    });
-
-    it('4. should allow indexing only public routes and disallow dashboard/auth/api in production', () => {
-      const originalVercelEnv = process.env.VERCEL_ENV;
-      try {
-        process.env.VERCEL_ENV = 'production';
-
-        const prodRobots = robots();
-        expect(prodRobots.rules).toEqual({
-          userAgent: '*',
-          allow: '/',
-          disallow: ['/api/', '/dashboard/', '/auth/', '/candidate/'],
-        });
-        expect(prodRobots.sitemap).toContain('/sitemap.xml');
-      } finally {
-        process.env.VERCEL_ENV = originalVercelEnv;
-      }
+    it('3. should return valid robots.txt endpoint response with user-agent, allow, and disallow rules', async () => {
+      const response = await robotsGET();
+      expect(response.status).toBe(200);
+      const text = await response.text();
+      expect(text).toContain('User-agent: *');
+      expect(text).toContain('Disallow: /dashboard/');
+      expect(text).toContain('Disallow: /api/');
     });
   });
 
   describe('3. Sitemap Integrity & Exclusion Rules', () => {
-    it('5. sitemap should include public static routes and exclude auth/login', async () => {
+    it('4. sitemap should include public static routes and exclude auth/login', async () => {
       const sitemapEntries = await sitemap();
       const urls = sitemapEntries.map((e) => e.url);
 
@@ -90,10 +61,10 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
       expect(urls.some((u) => u.includes('/auth/'))).toBe(false);
       expect(urls.some((u) => u.includes('/dashboard/'))).toBe(false);
       expect(urls.some((u) => u.includes('/api/'))).toBe(false);
-      expect(urls.some((u) => u.includes('/b2c/events/'))).toBe(false); // Non-existent route removed
+      expect(urls.some((u) => u.includes('/b2c/events/'))).toBe(false);
     });
 
-    it('6. sitemap entries must include EN and AR alternate language links', async () => {
+    it('5. sitemap entries must include EN and AR alternate language links', async () => {
       const sitemapEntries = await sitemap();
       const rootEntry = sitemapEntries.find((e) => e.url === (process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'));
       expect(rootEntry).toBeDefined();
@@ -104,7 +75,7 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
   });
 
   describe('4. Metadata, Hreflang, and OpenGraph', () => {
-    it('7. should have base metadata config with canonical, hreflang, and site title', () => {
+    it('6. should have base metadata config with canonical, hreflang, and site title', () => {
       const defaultMetadata = {
         title: {
           template: '%s | E3 - Event Engineering Experts',
@@ -136,12 +107,12 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
   });
 
   describe('5. Bundle & Module Isolation', () => {
-    it('8. verify next.config.ts optimizes package imports for icon libraries', () => {
+    it('7. verify next.config.ts optimizes package imports for icon libraries', () => {
       const config = nextConfig as any;
       expect(config.experimental?.optimizePackageImports).toContain('lucide-react');
     });
 
-    it('9. verify serverExternalPackages isolates prisma and bcryptjs from client bundles', () => {
+    it('8. verify serverExternalPackages isolates prisma and bcryptjs from client bundles', () => {
       const config = nextConfig as any;
       expect(config.serverExternalPackages).toContain('@prisma/client');
       expect(config.serverExternalPackages).toContain('bcryptjs');

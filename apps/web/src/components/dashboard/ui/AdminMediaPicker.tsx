@@ -19,9 +19,10 @@ interface AdminMediaPickerProps {
   onChange: (url: string) => void
   label?: string
   accept?: string
+  onUploadStatusChange?: (uploading: boolean) => void
 }
 
-export function AdminMediaPicker({ value, onChange, label = "Media", accept = "image/*" }: AdminMediaPickerProps) {
+export function AdminMediaPicker({ value, onChange, label = "Media", accept = "image/*", onUploadStatusChange }: AdminMediaPickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [loading, setLoading] = useState(false)
@@ -64,6 +65,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     if (!file) return
 
     setUploading(true)
+    onUploadStatusChange?.(true)
     try {
       // 1. Upload via smart upload utility (uses Vercel Blob client upload for large files like videos)
       const { url, fileName } = await uploadFile(file, "cms_media")
@@ -103,6 +105,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
       toast(msg, "error")
     } finally {
       setUploading(false)
+      onUploadStatusChange?.(false)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }

@@ -121,46 +121,64 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
 };
 
 export const DEFAULT_PULSE_ORBIT_CONTENT = {
-  titleEn: "Explore E3 Kinetic Destinations",
-  titleAr: "استكشف وجهات إي ثري التفاعلية",
-  bookTicketsUrl: "/b2c/attractions",
-  bookTicketsLabelEn: "Book Tickets",
-  bookTicketsLabelAr: "حجز التذاكر",
+  titleEn: "PULSE ORBIT DESTINATIONS",
+  titleAr: "وجهات مدار إي ثري",
+  bookTicketsUrl: "/b2c/tickets",
+  bookTicketsLabelEn: "BOOK TICKETS",
+  bookTicketsLabelAr: "احجز التذاكر",
   bookTicketsEnabled: true,
   bookTicketsExternal: false,
   destinations: [
     {
-      id: "dest-1",
-      slug: "kinetic-dome",
-      titleEn: "E3 Kinetic Dome",
-      titleAr: "قبة إي ثري الحركية",
-      descriptionEn: "360-degree immersive projection dome featuring real-time motion control.",
-      descriptionAr: "قبة عروض تفاعلية 360 درجة مع التحكم بالحركة في الوقت الفعلي.",
-      mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-futuristic-hologram-interface-animation-42861-large.mp4",
-      mediaType: "VIDEO",
-      badgeEn: "LIVE EXPERIENCE",
-      badgeAr: "تجربة حية",
-      accentColor: "#10b981",
-      ctaTextEn: "Discover Dome",
-      ctaTextAr: "استكشف القبة",
-      ctaUrl: "/b2c/attractions/kinetic-dome"
+      id: "attractions",
+      labelEn: "Attractions",
+      labelAr: "المرافق والوجهات",
+      href: "/b2c/attractions",
+      descEn: "Pristine Snow Park, Urban Arena, Kids City, and kinetic entertainment.",
+      descAr: "حديقة الثلج النقي، والساحة التفاعلية، وعالم الأطفال.",
+      mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
     },
     {
-      id: "dest-2",
-      slug: "cyber-arena",
-      titleEn: "Cyber VR Arena",
-      titleAr: "ساحة الفضاء الإلكتروني",
-      descriptionEn: "Multi-player haptic virtual reality arena with esports integration.",
-      descriptionAr: "ساحة واقع افتراضي متعددة اللاعبين مع نظام المحاكاة اللمسية.",
-      mediaUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
-      mediaType: "IMAGE",
-      badgeEn: "VR ESPORTS",
-      badgeAr: "رياضات إلكترونية",
-      accentColor: "#b013b8",
-      ctaTextEn: "Enter Arena",
-      ctaTextAr: "ادخل الساحة",
-      ctaUrl: "/b2c/attractions/cyber-arena"
-    }
+      id: "calendar",
+      labelEn: "Calendar",
+      labelAr: "جدول الفعاليات والتذاكر",
+      href: "/b2c/calendar",
+      descEn: "Live concerts, seasonal festivals, passes, and exclusive entertainment shows.",
+      descAr: "الحفلات الحية والمهرجانات الموسمية والتذاكر والعروض الترفيهية.",
+      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "discover",
+      labelEn: "Discover",
+      labelAr: "استكشف قطر",
+      href: "/b2c/discover",
+      descEn: "Curated visitor guides, dining, and spatial technology showcases.",
+      descAr: "دليل الزوار، المطاعم، والتكنولوجيا التفاعلية.",
+      mediaUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "packages",
+      labelEn: "Packages & Events",
+      labelAr: "الباقات والفعاليات",
+      href: "/b2c/packages",
+      descEn: "VIP Birthday parties, corporate team outings, and private venue buyouts.",
+      descAr: "حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.",
+      mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "contact",
+      labelEn: "Contact",
+      labelAr: "تواصل معنا",
+      href: "/b2c/contact",
+      descEn: "24/7 guest support, venue location, and concierge services.",
+      descAr: "خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.",
+      mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
   ]
 };
 
@@ -327,10 +345,23 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
   if (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit') {
     const defaults = DEFAULT_PULSE_ORBIT_CONTENT;
     const raw = rawContent || {};
+    const rawDestinations = Array.isArray(raw.destinations) && raw.destinations.length > 0
+      ? raw.destinations
+      : defaults.destinations;
+
+    const mergedDestinations = rawDestinations.map((rawDest: any, idx: number) => {
+      const match = defaults.destinations.find((d: any) => d.id === rawDest.id) || defaults.destinations[idx] || {};
+      return {
+        ...match,
+        ...rawDest,
+        mediaUrl: (rawDest.mediaUrl && String(rawDest.mediaUrl).trim() !== '') ? rawDest.mediaUrl : match.mediaUrl,
+      };
+    });
+
     return {
       ...defaults,
       ...raw,
-      destinations: (raw.destinations && raw.destinations.length > 0) ? raw.destinations : defaults.destinations,
+      destinations: mergedDestinations,
     };
   }
 

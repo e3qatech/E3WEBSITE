@@ -6,9 +6,13 @@ import * as LucideIcons from 'lucide-react';
 import { formatLocalizedText } from '@/lib/utils';
 
 interface Feature {
-  icon: string;
-  title: string;
-  description: string;
+  icon?: string;
+  title?: string;
+  titleEn?: string;
+  titleAr?: string;
+  description?: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
   imageUrl?: string;
 }
 
@@ -16,9 +20,10 @@ interface WhatsInsideProps {
   description: string;
   features?: Feature[] | null;
   imageUrl?: string | null;
+  locale?: string;
 }
 
-export function WhatsInside({ description, features, imageUrl }: WhatsInsideProps) {
+export function WhatsInside({ description, features, imageUrl, locale = 'en' }: WhatsInsideProps) {
   // Container variants for staggered children
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -37,8 +42,10 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
     }
   };
 
+  const isAr = locale === 'ar';
+
   return (
-    <section className="py-32 md:py-48 bg-zinc-950 text-white relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-zinc-950 text-white relative overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Subtle Glow */}
       <div className="absolute top-0 start-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-emerald-900/10 blur-[120px] pointer-events-none" />
 
@@ -52,9 +59,11 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className={`max-w-3xl ${imageUrl ? '' : 'mx-auto text-center'}`}
           >
-            <h2 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-[0.9]">The Experience</h2>
+            <h2 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-[0.9]">
+              {isAr ? 'التجربة والمعالم' : 'The Experience'}
+            </h2>
             <p className="text-xl md:text-2xl text-zinc-400 font-light leading-relaxed">
-              {formatLocalizedText(description)}
+              {formatLocalizedText(description, locale)}
             </p>
           </motion.div>
 
@@ -66,7 +75,7 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-white/10 group"
             >
-              <img src={imageUrl} alt="What's inside" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000 ease-out" />
+              <img src={imageUrl} alt={isAr ? "تفاصيل التجربة" : "What's inside"} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000 ease-out" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </motion.div>
           )}
@@ -84,8 +93,20 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
             {features.map((feature, idx) => {
               if (!feature) return null;
 
-              const IconComponent = (LucideIcons as any)[feature.icon] || LucideIcons.Circle;
+              const iconName = feature.icon || 'Circle';
+              const IconComponent = (LucideIcons as any)[iconName] || LucideIcons.Circle;
               const isLarge = idx === 0 && features.length % 2 !== 0;
+
+              const titleVal = isAr 
+                ? (feature.titleAr || feature.titleEn || feature.title || '')
+                : (feature.titleEn || feature.title || feature.titleAr || '');
+
+              const descVal = isAr 
+                ? (feature.descriptionAr || feature.descriptionEn || feature.description || '')
+                : (feature.descriptionEn || feature.description || feature.descriptionAr || '');
+
+              const formattedTitle = formatLocalizedText(titleVal, locale);
+              const formattedDesc = formatLocalizedText(descVal, locale);
 
               return (
                 <motion.div
@@ -95,7 +116,7 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
                 >
                   {feature.imageUrl ? (
                     <div className="absolute inset-0">
-                      <img src={feature.imageUrl} alt={formatLocalizedText(feature.title)} className="w-full h-full object-cover opacity-40 group-hover:opacity-70 group-hover:scale-105 transition-all duration-1000 ease-out" />
+                      <img src={feature.imageUrl} alt={formattedTitle} className="w-full h-full object-cover opacity-40 group-hover:opacity-70 group-hover:scale-105 transition-all duration-1000 ease-out" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
                     </div>
                   ) : null}
@@ -106,9 +127,9 @@ export function WhatsInside({ description, features, imageUrl }: WhatsInsideProp
                     </div>
                     
                     <div className="mt-20 transform group-hover:-translate-y-2 transition-transform duration-500 ease-out">
-                      <h3 className="text-2xl font-bold mb-4 tracking-tight">{formatLocalizedText(feature.title)}</h3>
+                      <h3 className="text-2xl font-bold mb-4 tracking-tight">{formattedTitle}</h3>
                       <p className="text-zinc-400 text-base leading-relaxed group-hover:text-zinc-300 transition-colors duration-500">
-                        {formatLocalizedText(feature.description)}
+                        {formattedDesc}
                       </p>
                     </div>
                   </div>

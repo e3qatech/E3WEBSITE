@@ -4,11 +4,9 @@ import React, { useState, useEffect } from 'react';
 import {
   GatewayCustomizationPayload,
   DEFAULT_GATEWAY_CMS_PAYLOAD,
-  AtmosphereRendererType,
-  GatewayWeatherRule,
-  GatewayContentEn,
-  GatewayContentAr,
-  PreviewSimulationState,
+  GatewayPreviewSimulationState,
+  GatewayLogoConfig,
+  MediaHolderConfig,
 } from '@/types/gateway-cms';
 import { PortalGateway } from '@/components/home/PortalGateway';
 import {
@@ -17,110 +15,66 @@ import {
   Smartphone,
   Eye,
   Sliders,
-  Sparkles,
   ShieldAlert,
   CheckCircle2,
   FileText,
-  Box,
-  CloudRain,
-  Sun,
   Layers,
-  Megaphone,
   History,
   Activity,
   Play,
   RotateCcw,
-  Plus,
-  Trash2,
-  Wind,
-  Compass,
-  RefreshCw,
+  Upload,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  X,
+  Sparkles,
   ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type TabKey =
-  | 'overview'
-  | 'content'
-  | 'weather'
-  | 'atmosphere'
-  | 'time_of_day'
-  | 'rain_water'
-  | 'dust_sand'
-  | 'wind'
-  | 'fog_haze'
-  | 'campaigns'
-  | 'announcements'
-  | 'navigation'
-  | 'assets_3d'
-  | 'mobile'
-  | 'reduced_motion'
-  | 'performance'
-  | 'simulator'
-  | 'versions'
-  | 'focus_protection';
+  | 'english'
+  | 'arabic'
+  | 'logo'
+  | 'b2c_media'
+  | 'b2b_media'
+  | 'visual'
+  | 'seo'
+  | 'preview'
+  | 'versions';
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
-  { key: 'overview', label: '1. Overview', icon: Activity },
-  { key: 'content', label: '2. Gateway Content', icon: FileText },
-  { key: 'weather', label: '3. Weather & Live Conditions', icon: Sun },
-  { key: 'atmosphere', label: '4. Atmosphere Presets', icon: Sparkles },
-  { key: 'time_of_day', label: '5. Time of Day', icon: Sliders },
-  { key: 'rain_water', label: '6. Rain & Water', icon: CloudRain },
-  { key: 'dust_sand', label: '7. Dust & Sand', icon: Wind },
-  { key: 'wind', label: '8. Wind', icon: Compass },
-  { key: 'fog_haze', label: '9. Fog & Haze', icon: Sliders },
-  { key: 'campaigns', label: '10. Campaigns', icon: Megaphone },
-  { key: 'announcements', label: '11. Announcements', icon: Layers },
-  { key: 'navigation', label: '12. Navigation Effects', icon: Globe },
-  { key: 'assets_3d', label: '13. 3D Assets', icon: Box },
-  { key: 'mobile', label: '14. Mobile', icon: Smartphone },
-  { key: 'reduced_motion', label: '15. Reduced Motion', icon: Eye },
-  { key: 'performance', label: '16. Performance', icon: Sliders },
-  { key: 'simulator', label: '17. Preview Simulator', icon: Play },
-  { key: 'versions', label: '18. Versions & Publishing', icon: History },
-  { key: 'focus_protection', label: '19. Focus Protection', icon: ShieldCheck },
+  { key: 'english', label: '1. English Content', icon: FileText },
+  { key: 'arabic', label: '2. Arabic Content', icon: Globe },
+  { key: 'logo', label: '3. Logo & Branding', icon: Sparkles },
+  { key: 'b2c_media', label: '4. B2C Media', icon: ImageIcon },
+  { key: 'b2b_media', label: '5. B2B Media', icon: Layers },
+  { key: 'visual', label: '6. Visual & Behaviour', icon: Sliders },
+  { key: 'seo', label: '7. SEO & Accessibility', icon: ShieldCheck },
+  { key: 'preview', label: '8. Live Preview', icon: Play },
+  { key: 'versions', label: 'Version History', icon: History },
 ];
 
-const DEFAULT_SIMULATION_STATE: PreviewSimulationState = {
-  temperature: 34,
-  apparentTemperature: 38,
-  precipitation: 0,
-  rain: 0,
-  windSpeed: 18,
-  windGusts: 24,
-  windDirection: 45,
-  visibility: 10,
-  pm10: 45,
-  pm25: 20,
-  cloudCover: 10,
-  isDay: true,
-  weatherCode: 0,
-  heavyRainOverride: false,
-  selectedCampaignId: 'c-1',
-  selectedAnnouncementId: 'a-1',
+const DEFAULT_SIMULATION_STATE: GatewayPreviewSimulationState = {
   locale: 'en',
   theme: 'dark',
   viewport: 'desktop-1440',
-  capabilityTier: 'cinematic',
+  portalFocus: 'none',
   reducedMotion: false,
-  webglAvailable: true,
-  weatherApiAvailable: true,
-  emergencyDisable: false,
+  useFallbackMedia: false,
 };
 
 export default function GatewayCustomizationPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [activeTab, setActiveTab] = useState<TabKey>('english');
   const [formData, setFormData] = useState<GatewayCustomizationPayload>(DEFAULT_GATEWAY_CMS_PAYLOAD);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [fetchingLiveWeather, setFetchingLiveWeather] = useState(false);
   const [versions, setVersions] = useState<any[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // TYPED PREVIEW SIMULATION STATE
-  const [simState, setSimState] = useState<PreviewSimulationState>(DEFAULT_SIMULATION_STATE);
+  const [simState, setSimState] = useState<GatewayPreviewSimulationState>(DEFAULT_SIMULATION_STATE);
 
   const showToast = React.useCallback((message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -178,6 +132,11 @@ export default function GatewayCustomizationPage() {
         'success'
       );
 
+      setFormData((prev) => ({
+        ...prev,
+        status: action === 'publish' ? 'PUBLISHED' : 'DRAFT',
+      }));
+
       const verRes = await fetch('/api/settings/gateway?mode=versions');
       const verJson = await verRes.json();
       if (verJson.success && verJson.versions) {
@@ -202,216 +161,144 @@ export default function GatewayCustomizationPage() {
       });
 
       const json = await res.json();
-      if (!res.ok || json.error) throw new Error(json.error || 'Rollback failed');
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Rollback failed');
+      }
 
-      if (json.data) setFormData(json.data);
-      showToast(`Rolled back to version #${versionNum}!`, 'success');
+      if (json.data) {
+        setFormData(json.data);
+      }
+      showToast(`Successfully rolled back to version #${versionNum}`, 'success');
 
       const verRes = await fetch('/api/settings/gateway?mode=versions');
       const verJson = await verRes.json();
-      if (verJson.success && verJson.versions) setVersions(verJson.versions);
-    } catch (err: any) {
-      showToast(err.message || 'Rollback error', 'error');
+      if (verJson.success && verJson.versions) {
+        setVersions(verJson.versions);
+      }
+    } catch (error: any) {
+      showToast(error.message || 'Rollback failed', 'error');
     } finally {
       setPublishing(false);
     }
   };
 
-  const handleFetchCurrentLiveWeather = async () => {
-    try {
-      setFetchingLiveWeather(true);
-      const res = await fetch('/api/weather');
-      const json = await res.json();
-      if (json && json.temperature !== undefined) {
-        setSimState((prev) => ({
-          ...prev,
-          temperature: json.temperature || 32,
-          apparentTemperature: (json.temperature || 32) + 4,
-          rain: json.precipitation || 0,
-          isDay: json.isDay ?? true,
-          weatherApiAvailable: true,
-        }));
-        showToast('Fetched real live Doha weather data!', 'success');
-      }
-    } catch (_e) {
-      showToast('Failed to fetch live weather, falling back to simulated values.', 'error');
-    } finally {
-      setFetchingLiveWeather(false);
-    }
-  };
-
-  const updateEnglishState = (field: keyof GatewayContentEn, value: any) => {
+  // Helper for updating nested state
+  const updateEnglish = (key: keyof typeof formData.english, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      english: { ...prev.english, [field]: value },
+      english: { ...prev.english, [key]: value },
     }));
   };
 
-  const updateArabicState = (field: keyof GatewayContentAr, value: any) => {
+  const updateArabic = (key: keyof typeof formData.arabic, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      arabic: { ...prev.arabic, [field]: value },
+      arabic: { ...prev.arabic, [key]: value },
     }));
   };
 
-  const updateExperienceConfig = (field: string, value: any) => {
+  const updateLogo = (key: keyof GatewayLogoConfig, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      experienceConfig: {
-        ...DEFAULT_GATEWAY_CMS_PAYLOAD.experienceConfig,
-        ...(prev.experienceConfig || {}),
-        [field]: value,
-      } as any,
+      logo: { ...(prev.logo || DEFAULT_GATEWAY_CMS_PAYLOAD.logo), [key]: value },
     }));
   };
 
-  const updateWaterSandPhysics = (field: string, value: any) => {
-    setFormData((prev) => {
-      let finalVal = value;
-      if (field === 'waterMaxHeightPercent') finalVal = Math.min(Number(value) || 0, 40);
-      if (field === 'sandMaxHeightPercent') finalVal = Math.min(Number(value) || 0, 30);
-      return {
-        ...prev,
-        waterAndSandPhysics: {
-          ...DEFAULT_GATEWAY_CMS_PAYLOAD.waterAndSandPhysics,
-          ...(prev.waterAndSandPhysics || {}),
-          [field]: finalVal,
-        } as any,
-      };
-    });
-  };
-
-  const updateFocusProtection = (field: string, value: any) => {
+  const updateVisual = (key: keyof typeof formData.visual, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      focusProtection: {
-        ...DEFAULT_GATEWAY_CMS_PAYLOAD.focusProtection!,
-        ...(prev.focusProtection || {}),
-        [field]: value,
-      } as any,
+      visual: { ...prev.visual, [key]: value },
     }));
   };
 
-  const updateSimState = (field: keyof PreviewSimulationState, value: any) => {
-    setSimState((prev) => ({ ...prev, [field]: value }));
+  const updateSeo = (key: keyof typeof formData.seoAccess, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      seoAccess: { ...prev.seoAccess, [key]: value },
+    }));
   };
 
-  // Quick preset loader function for simulator buttons
-  const applyPreset = (name: string) => {
-    switch (name) {
-      case 'clear-day':
-        setSimState((prev) => ({ ...prev, temperature: 28, apparentTemperature: 30, rain: 0, pm10: 20, isDay: true, heavyRainOverride: false, webglAvailable: true }));
-        break;
-      case 'extreme-heat':
-        setSimState((prev) => ({ ...prev, temperature: 45, apparentTemperature: 49, rain: 0, pm10: 40, isDay: true, heavyRainOverride: false }));
-        break;
-      case 'rain':
-        setSimState((prev) => ({ ...prev, temperature: 22, apparentTemperature: 22, rain: 2.5, pm10: 15, isDay: true, heavyRainOverride: false }));
-        break;
-      case 'heavy-rain':
-        setSimState((prev) => ({ ...prev, temperature: 20, apparentTemperature: 20, rain: 8.0, pm10: 10, isDay: false, heavyRainOverride: true }));
-        break;
-      case 'dust-storm':
-        setSimState((prev) => ({ ...prev, temperature: 32, apparentTemperature: 34, rain: 0, pm10: 120, windSpeed: 30, isDay: true }));
-        break;
-      case 'sandstorm':
-        setSimState((prev) => ({ ...prev, temperature: 36, apparentTemperature: 38, rain: 0, pm10: 210, windGusts: 52, windSpeed: 38, isDay: true }));
-        break;
-      case 'high-wind':
-        setSimState((prev) => ({ ...prev, windSpeed: 45, windGusts: 65 }));
-        break;
-      case 'fog':
-        setSimState((prev) => ({ ...prev, visibility: 0.8, temperature: 18, rain: 0 }));
-        break;
-      case 'night':
-        setSimState((prev) => ({ ...prev, isDay: false, temperature: 24, apparentTemperature: 25 }));
-        break;
-      case 'campaign':
-        setSimState((prev) => ({ ...prev, selectedCampaignId: 'c-1' }));
-        break;
-      case 'campaign-rain':
-        setSimState((prev) => ({ ...prev, selectedCampaignId: 'c-1', rain: 6.0 }));
-        break;
-      case 'campaign-sandstorm':
-        setSimState((prev) => ({ ...prev, selectedCampaignId: 'c-1', pm10: 180, windGusts: 48 }));
-        break;
-      case 'api-failure':
-        setSimState((prev) => ({ ...prev, weatherApiAvailable: false }));
-        break;
-      case 'webgl-failure':
-        setSimState((prev) => ({ ...prev, webglAvailable: false }));
-        break;
-      case 'reduced-motion':
-        setSimState((prev) => ({ ...prev, reducedMotion: true }));
-        break;
-      case 'mobile-lightweight':
-        setSimState((prev) => ({ ...prev, viewport: 'mobile-390', capabilityTier: 'lightweight' }));
-        break;
-      default:
-        break;
-    }
+  const updateMedia = (
+    mediaKey: 'b2cDesktopMedia' | 'b2cMobileMedia' | 'b2bDesktopMedia' | 'b2bMobileMedia',
+    field: keyof MediaHolderConfig,
+    value: any
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [mediaKey]: { ...prev[mediaKey], [field]: value },
+    }));
   };
 
   if (loading) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <div className="flex items-center gap-3 text-emerald-400">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          <span className="font-mono text-sm tracking-wider uppercase">Loading E3 Experience Composer...</span>
-        </div>
+      <div className="flex h-96 w-full items-center justify-center text-slate-400">
+        <Activity className="h-6 w-6 animate-spin" />
+        <span className="ms-2 font-medium">Loading Gateway Customization CMS...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 text-slate-100">
+    <div className="space-y-6 p-6 pb-24 text-slate-100 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toast && (
         <div
           className={cn(
-            'fixed top-6 right-6 z-50 flex items-center gap-3 rounded-lg px-4 py-3 shadow-xl backdrop-blur-md transition-all',
+            'fixed top-6 right-6 z-50 flex items-center gap-2 rounded-xl px-4 py-3 shadow-2xl backdrop-blur-md text-sm font-semibold transition-all border',
             toast.type === 'success'
-              ? 'border border-emerald-500/30 bg-emerald-950/80 text-emerald-200'
-              : 'border border-rose-500/30 bg-rose-950/80 text-rose-200'
+              ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/50'
+              : 'bg-rose-950/90 text-rose-200 border-rose-500/50'
           )}
         >
-          {toast.type === 'success' ? <CheckCircle2 className="h-5 w-5 text-emerald-400" /> : <ShieldAlert className="h-5 w-5 text-rose-400" />}
-          <span className="text-sm font-medium">{toast.message}</span>
+          {toast.type === 'success' ? <CheckCircle2 className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
+          <span>{toast.message}</span>
         </div>
       )}
 
-      {/* Header Bar */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      {/* Header bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-emerald-400 uppercase">
-            <Sparkles className="h-4 w-4" /> E3 Living Threshold Gateway Engine
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-black tracking-tight text-white">Gateway Customization CMS</h1>
+            <span
+              className={cn(
+                'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border',
+                formData.status === 'PUBLISHED'
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                  : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+              )}
+            >
+              {formData.status}
+            </span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Experience Composer & CMS Studio</h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Configure the original E3 50/50 B2C & B2B gateway experience, media, branding, and localization.
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => handleSave('save_draft')}
             disabled={saving || publishing}
-            className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-200 shadow-md transition-all hover:bg-slate-700 hover:text-white border border-slate-700 disabled:opacity-50"
           >
-            <Save className="h-4 w-4 text-emerald-400" />
-            {saving ? 'Saving Draft...' : 'Save Draft'}
+            <Save className="h-4 w-4" />
+            <span>{saving ? 'Saving Draft...' : 'Save Draft'}</span>
           </button>
 
           <button
             onClick={() => handleSave('publish')}
             disabled={saving || publishing}
-            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 hover:bg-emerald-500 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-950/50 transition-all hover:bg-purple-500 disabled:opacity-50"
           >
-            <Globe className="h-4 w-4" />
-            {publishing ? 'Publishing...' : 'Publish Gateway'}
+            <CheckCircle2 className="h-4 w-4" />
+            <span>{publishing ? 'Publishing...' : 'Publish Gateway'}</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs Navigation Grid */}
-      <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-9">
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-slate-800/80">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -420,146 +307,416 @@ export default function GatewayCustomizationPage() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={cn(
-                'flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium transition-all',
+                'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border',
                 isActive
-                  ? 'border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 shadow-md shadow-emerald-950/50'
-                  : 'border border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                  ? 'bg-purple-600/30 text-purple-200 border-purple-500/50 shadow-md'
+                  : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200'
               )}
             >
-              <Icon className={cn('h-3.5 w-3.5 shrink-0', isActive ? 'text-emerald-400' : 'text-slate-500')} />
-              <span className="truncate">{tab.label}</span>
+              <Icon className="h-3.5 w-3.5" />
+              <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* TAB CONTENT AREA */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-sm">
-        {/* TAB 1: OVERVIEW */}
-        {activeTab === 'overview' && (
+      {/* TAB CONTENT PANELS */}
+      <div className="mt-4">
+        {/* 1. ENGLISH CONTENT TAB */}
+        {activeTab === 'english' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">System Status Overview</h2>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
-                <div className="text-xs font-medium text-slate-400">Weather Engine Status</div>
-                <div className="mt-2 text-xl font-bold text-emerald-400">
-                  {formData.experienceConfig?.systemEnabled ? 'ACTIVE & LIVE' : 'DISABLED'}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-purple-300 flex items-center gap-2">
+                <FileText className="h-4 w-4" /> Main Gateway Introduction (English)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Gateway Eyebrow</label>
+                  <input
+                    type="text"
+                    value={formData.english.eyebrowEn || ''}
+                    onChange={(e) => updateEnglish('eyebrowEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="WELCOME TO E3"
+                  />
                 </div>
-                <div className="mt-1 text-xs text-slate-500">Provider: Open-Meteo Commercial</div>
-              </div>
-
-              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
-                <div className="text-xs font-medium text-slate-400">Default Scene Preset</div>
-                <div className="mt-2 text-xl font-bold text-sky-400">
-                  {formData.experienceConfig?.defaultScenePreset || 'clear-day'}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Main Headline</label>
+                  <input
+                    type="text"
+                    value={formData.english.headlineEn || ''}
+                    onChange={(e) => updateEnglish('headlineEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="TWO WORLDS. ONE E3."
+                  />
                 </div>
-                <div className="mt-1 text-xs text-slate-500">Fallback: {formData.experienceConfig?.fallbackMode || 'STATIC_POSTER'}</div>
-              </div>
-
-              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
-                <div className="text-xs font-medium text-slate-400">Active Weather Rules</div>
-                <div className="mt-2 text-xl font-bold text-purple-400">
-                  {formData.weatherRules?.filter((r) => r.enabled).length || 0} Rules Active
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Supporting Text</label>
+                  <textarea
+                    rows={2}
+                    value={formData.english.supportingTextEn || ''}
+                    onChange={(e) => updateEnglish('supportingTextEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Whether you’re looking for your next unforgettable experience or a trusted partner..."
+                  />
                 </div>
-                <div className="mt-1 text-xs text-slate-500">Total presets: {formData.atmospherePresets?.length || 0}</div>
-              </div>
-
-              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
-                <div className="text-xs font-medium text-slate-400">Published Version</div>
-                <div className="mt-2 text-xl font-bold text-amber-400">
-                  v{versions[0]?.version || 1}
-                </div>
-                <div className="mt-1 text-xs text-slate-500">Snapshots stored: {versions.length}</div>
               </div>
             </div>
 
-            <div className="rounded-lg border border-rose-900/30 bg-rose-950/20 p-4">
-              <div className="flex items-center justify-between">
+            {/* B2C Portal Content */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-sky-400 flex items-center gap-2">
+                <Layers className="h-4 w-4" /> B2C Experiences Portal (English)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold text-rose-300">Emergency Override Control</h3>
-                  <p className="text-xs text-rose-400/80">Instantly disable all dynamic 3D takeovers, canvas physics, and live weather overlays across all portals.</p>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Eyebrow Label</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2cLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="EXPERIENCES & ATTRACTIONS"
+                  />
                 </div>
-                <button
-                  onClick={() => updateExperienceConfig('emergencyDisableAll', !formData.experienceConfig?.emergencyDisableAll)}
-                  className={cn(
-                    'rounded-lg px-4 py-2 text-xs font-bold uppercase transition-all',
-                    formData.experienceConfig?.emergencyDisableAll
-                      ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/50'
-                      : 'border border-rose-700/50 bg-rose-900/40 text-rose-200 hover:bg-rose-800'
-                  )}
-                >
-                  {formData.experienceConfig?.emergencyDisableAll ? 'EMERGENCY DISABLE ACTIVE' : 'ENGAGE EMERGENCY DISABLE'}
-                </button>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Main Title</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cTitleEn || ''}
+                    onChange={(e) => updateEnglish('b2cTitleEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="EXPERIENCE WHAT’S NEXT"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Description</label>
+                  <textarea
+                    rows={2}
+                    value={formData.english.b2cDescEn || ''}
+                    onChange={(e) => updateEnglish('b2cDescEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Discover live events, family attractions and unforgettable entertainment..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">CTA Text</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cCtaLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2cCtaLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Explore Experiences"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Destination URL</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cDestinationUrl || ''}
+                    onChange={(e) => updateEnglish('b2cDestinationUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="/b2c"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Statistic Badge (Optional)</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cStatLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2cStatLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="1.2M+ Annual Visitors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">CTA Accessibility Label</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cAriaLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2cAriaLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Navigate to E3 Experiences & Attractions"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* B2B Portal Content */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-indigo-400 flex items-center gap-2">
+                <Layers className="h-4 w-4" /> B2B Enterprise Solutions Portal (English)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Eyebrow Label</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2bLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="FOR BRANDS & ORGANIZATIONS"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Main Title</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bTitleEn || ''}
+                    onChange={(e) => updateEnglish('b2bTitleEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="BUILD WHAT’S NEXT"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Description</label>
+                  <textarea
+                    rows={2}
+                    value={formData.english.b2bDescEn || ''}
+                    onChange={(e) => updateEnglish('b2bDescEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Partner with E3 to design, produce and operate remarkable events..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">CTA Text</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bCtaLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2bCtaLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Work With E3"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Destination URL</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bDestinationUrl || ''}
+                    onChange={(e) => updateEnglish('b2bDestinationUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="/b2b"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Statistic Badge (Optional)</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bStatLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2bStatLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="450+ Corporate Activations"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">CTA Accessibility Label</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bAriaLabelEn || ''}
+                    onChange={(e) => updateEnglish('b2bAriaLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Navigate to E3 Enterprise Solutions"
+                  />
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* TAB 2: GATEWAY CONTENT */}
-        {activeTab === 'content' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Gateway Copy & Media Holders</h2>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4">
-                <h3 className="font-semibold text-sky-400">English Content</h3>
+        {/* 2. ARABIC CONTENT TAB */}
+        {activeTab === 'arabic' && (
+          <div className="space-y-6" dir="rtl">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-purple-300 flex items-center gap-2">
+                <Globe className="h-4 w-4" /> مقدمة البوابة الرئيسية (العربية)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400">Eyebrow (EN)</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">العنوان التمهيدي</label>
                   <input
                     type="text"
-                    value={formData.english.eyebrowEn}
-                    onChange={(e) => updateEnglishState('eyebrowEn', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                    value={formData.arabic.eyebrowAr || ''}
+                    onChange={(e) => updateArabic('eyebrowAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="مرحباً بكم في E3"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400">Headline (EN)</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">العنوان الرئيسي</label>
                   <input
                     type="text"
-                    value={formData.english.headlineEn}
-                    onChange={(e) => updateEnglishState('headlineEn', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                    value={formData.arabic.headlineAr || ''}
+                    onChange={(e) => updateArabic('headlineAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="عالمان. وجهة واحدة: E3"
                   />
                 </div>
-                <div>
-                  <label className="text-xs text-slate-400">Supporting Text (EN)</label>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">النص الداعم</label>
                   <textarea
-                    value={formData.english.supportingTextEn}
-                    onChange={(e) => updateEnglishState('supportingTextEn', e.target.value)}
                     rows={2}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                    value={formData.arabic.supportingTextAr || ''}
+                    onChange={(e) => updateArabic('supportingTextAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="سواء كنت تبحث عن تجربتك القادمة أو عن شريك موثوق لصناعتها..."
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 dir-rtl">
-                <h3 className="font-semibold text-sky-400">Arabic Content (المحتوى العربي)</h3>
+            {/* B2C Portal Arabic Content */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-sky-400 flex items-center gap-2">
+                <Layers className="h-4 w-4" /> بوابة تجارب الأفراد والجمهور (العربية)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400">العنوان العلوي (AR)</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">التصنيف</label>
                   <input
                     type="text"
-                    value={formData.arabic.eyebrowAr}
-                    onChange={(e) => updateArabicState('eyebrowAr', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                    value={formData.arabic.b2cLabelAr || ''}
+                    onChange={(e) => updateArabic('b2cLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="التجارب والوجهات"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400">العنوان الرئيسي (AR)</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">العنوان</label>
                   <input
                     type="text"
-                    value={formData.arabic.headlineAr}
-                    onChange={(e) => updateArabicState('headlineAr', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                    value={formData.arabic.b2cTitleAr || ''}
+                    onChange={(e) => updateArabic('b2cTitleAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="عِش التجربة القادمة"
                   />
                 </div>
-                <div>
-                  <label className="text-xs text-slate-400">النص التوضيحي (AR)</label>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">الوصف</label>
                   <textarea
-                    value={formData.arabic.supportingTextAr}
-                    onChange={(e) => updateArabicState('supportingTextAr', e.target.value)}
                     rows={2}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                    value={formData.arabic.b2cDescAr || ''}
+                    onChange={(e) => updateArabic('b2cDescAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="اكتشف الفعاليات الحية والوجهات العائلية وتجارب الترفيه الاستثنائية..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">نص الزر</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2cCtaLabelAr || ''}
+                    onChange={(e) => updateArabic('b2cCtaLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="استكشف التجارب"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">رابط الوجهة</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2cDestinationUrl || ''}
+                    onChange={(e) => updateArabic('b2cDestinationUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="/ar/b2c"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">شارة الإحصائيات (اختياري)</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2cStatLabelAr || ''}
+                    onChange={(e) => updateArabic('b2cStatLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="+١.٢ مليون زائر سنوياً"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">نص إمكانية الوصول للزر</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2cAriaLabelAr || ''}
+                    onChange={(e) => updateArabic('b2cAriaLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="الانتقال إلى تجارب ووجهات إي ثري"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* B2B Portal Arabic Content */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-indigo-400 flex items-center gap-2">
+                <Layers className="h-4 w-4" /> بوابة حلول الشركات والمؤسسات (العربية)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">التصنيف</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bLabelAr || ''}
+                    onChange={(e) => updateArabic('b2bLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="للعلامات التجارية والمؤسسات"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">العنوان</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bTitleAr || ''}
+                    onChange={(e) => updateArabic('b2bTitleAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="لنصنع القادم"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">الوصف</label>
+                  <textarea
+                    rows={2}
+                    value={formData.arabic.b2bDescAr || ''}
+                    onChange={(e) => updateArabic('b2bDescAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="تعاون مع E3 لتصميم وإنتاج وتشغيل فعاليات ووجهات وتجارب غامرة..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">نص الزر</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bCtaLabelAr || ''}
+                    onChange={(e) => updateArabic('b2bCtaLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="تعاون مع E3"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">رابط الوجهة</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bDestinationUrl || ''}
+                    onChange={(e) => updateArabic('b2bDestinationUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="/ar/b2b"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">شارة الإحصائيات (اختياري)</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bStatLabelAr || ''}
+                    onChange={(e) => updateArabic('b2bStatLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="+٤٥٠ مشروع مؤسسي"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">نص إمكانية الوصول للزر</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bAriaLabelAr || ''}
+                    onChange={(e) => updateArabic('b2bAriaLabelAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="الانتقال إلى حلول إي ثري للشركات"
                   />
                 </div>
               </div>
@@ -567,632 +724,670 @@ export default function GatewayCustomizationPage() {
           </div>
         )}
 
-        {/* TAB 3: WEATHER & LIVE CONDITIONS */}
-        {activeTab === 'weather' && (
+        {/* 3. LOGO & BRANDING TAB */}
+        {activeTab === 'logo' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Weather Engine & Rule Manager</h2>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-purple-300 flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> Official E3 Logo & Branding Assets
+              </h2>
+              <p className="text-xs text-slate-400">
+                Configure official E3 logos for light/dark themes and mobile devices. If no custom image is uploaded, the official vector E3 logo is automatically used as the verified fallback.
+              </p>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div>
-                <label className="text-xs text-slate-400">Doha Latitude</label>
-                <input
-                  type="number"
-                  step="0.0001"
-                  value={formData.experienceConfig?.dohaLatitude || 25.2854}
-                  onChange={(e) => updateExperienceConfig('dohaLatitude', parseFloat(e.target.value))}
-                  className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Default Logo URL</label>
+                  <input
+                    type="text"
+                    value={formData.logo?.defaultLogoUrl || ''}
+                    onChange={(e) => updateLogo('defaultLogoUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="https://cdn.e3.qa/logo-default.png"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Light Theme Logo URL</label>
+                  <input
+                    type="text"
+                    value={formData.logo?.lightLogoUrl || ''}
+                    onChange={(e) => updateLogo('lightLogoUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="https://cdn.e3.qa/logo-light.png"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Dark Theme Logo URL</label>
+                  <input
+                    type="text"
+                    value={formData.logo?.darkLogoUrl || ''}
+                    onChange={(e) => updateLogo('darkLogoUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="https://cdn.e3.qa/logo-dark.png"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Logo URL</label>
+                  <input
+                    type="text"
+                    value={formData.logo?.mobileLogoUrl || ''}
+                    onChange={(e) => updateLogo('mobileLogoUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="https://cdn.e3.qa/logo-mobile.png"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Logo Destination Link</label>
+                  <input
+                    type="text"
+                    value={formData.logo?.destinationUrl || '/'}
+                    onChange={(e) => updateLogo('destinationUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="/"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">English Alternative Text</label>
+                  <input
+                    type="text"
+                    value={formData.logo?.altEn || ''}
+                    onChange={(e) => updateLogo('altEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Official E3 Qatar Logo"
+                  />
+                </div>
               </div>
+            </div>
+          </div>
+        )}
 
-              <div>
-                <label className="text-xs text-slate-400">Doha Longitude</label>
-                <input
-                  type="number"
-                  step="0.0001"
-                  value={formData.experienceConfig?.dohaLongitude || 51.5310}
-                  onChange={(e) => updateExperienceConfig('dohaLongitude', parseFloat(e.target.value))}
-                  className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-400">Refresh Interval (Mins)</label>
-                <input
-                  type="number"
-                  value={formData.experienceConfig?.weatherRefreshIntervalMin || 30}
-                  onChange={(e) => updateExperienceConfig('weatherRefreshIntervalMin', parseInt(e.target.value))}
-                  className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                />
+        {/* 4. B2C MEDIA TAB */}
+        {activeTab === 'b2c_media' && (
+          <div className="space-y-6">
+            {/* Desktop Media */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-sky-400 flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" /> B2C Desktop Media Settings
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media Type</label>
+                  <select
+                    value={formData.b2cDesktopMedia.mediaType}
+                    onChange={(e) => updateMedia('b2cDesktopMedia', 'mediaType', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">Approved Iframe</option>
+                    <option value="MODEL_3D">3D Model</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2cDesktopMedia.mediaUrl}
+                    onChange={(e) => updateMedia('b2cDesktopMedia', 'mediaUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mandatory Fallback Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2cDesktopMedia.fallbackImageUrl}
+                    onChange={(e) => updateMedia('b2cDesktopMedia', 'fallbackImageUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Poster Image URL (Video)</label>
+                  <input
+                    type="text"
+                    value={formData.b2cDesktopMedia.posterImageUrl || ''}
+                    onChange={(e) => updateMedia('b2cDesktopMedia', 'posterImageUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Focal Point X (%)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={formData.b2cDesktopMedia.focalPointX}
+                    onChange={(e) => updateMedia('b2cDesktopMedia', 'focalPointX', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Focal Point Y (%)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={formData.b2cDesktopMedia.focalPointY}
+                    onChange={(e) => updateMedia('b2cDesktopMedia', 'focalPointY', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-slate-200">Weather Rule Trigger Table ({formData.weatherRules?.length || 0} Rules)</h3>
-                <button
-                  onClick={() => {
-                    const newRule: GatewayWeatherRule = {
-                      id: `r-${Date.now()}`,
-                      name: 'New Custom Weather Rule',
-                      enabled: true,
-                      priority: (formData.weatherRules?.length || 0) + 1,
-                      presetId: 'rain',
-                      blendIntensity: 0.8,
-                    };
-                    setFormData((prev) => ({ ...prev, weatherRules: [...(prev.weatherRules || []), newRule] }));
-                  }}
-                  className="flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add Rule
-                </button>
+            {/* Mobile Media */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-sky-400 flex items-center gap-2">
+                <Smartphone className="h-4 w-4" /> B2C Mobile Media Settings
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media Type</label>
+                  <select
+                    value={formData.b2cMobileMedia.mediaType}
+                    onChange={(e) => updateMedia('b2cMobileMedia', 'mediaType', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">Approved Iframe</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Media URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2cMobileMedia.mediaUrl}
+                    onChange={(e) => updateMedia('b2cMobileMedia', 'mediaUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Fallback Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2cMobileMedia.fallbackImageUrl}
+                    onChange={(e) => updateMedia('b2cMobileMedia', 'fallbackImageUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. B2B MEDIA TAB */}
+        {activeTab === 'b2b_media' && (
+          <div className="space-y-6">
+            {/* Desktop Media */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-indigo-400 flex items-center gap-2">
+                <Layers className="h-4 w-4" /> B2B Desktop Media Settings
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media Type</label>
+                  <select
+                    value={formData.b2bDesktopMedia.mediaType}
+                    onChange={(e) => updateMedia('b2bDesktopMedia', 'mediaType', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">Approved Iframe</option>
+                    <option value="MODEL_3D">3D Model</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2bDesktopMedia.mediaUrl}
+                    onChange={(e) => updateMedia('b2bDesktopMedia', 'mediaUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mandatory Fallback Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2bDesktopMedia.fallbackImageUrl}
+                    onChange={(e) => updateMedia('b2bDesktopMedia', 'fallbackImageUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Poster Image URL (Video)</label>
+                  <input
+                    type="text"
+                    value={formData.b2bDesktopMedia.posterImageUrl || ''}
+                    onChange={(e) => updateMedia('b2bDesktopMedia', 'posterImageUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Focal Point X (%)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={formData.b2bDesktopMedia.focalPointX}
+                    onChange={(e) => updateMedia('b2bDesktopMedia', 'focalPointX', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Focal Point Y (%)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={formData.b2bDesktopMedia.focalPointY}
+                    onChange={(e) => updateMedia('b2bDesktopMedia', 'focalPointY', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Media */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-indigo-400 flex items-center gap-2">
+                <Smartphone className="h-4 w-4" /> B2B Mobile Media Settings
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media Type</label>
+                  <select
+                    value={formData.b2bMobileMedia.mediaType}
+                    onChange={(e) => updateMedia('b2bMobileMedia', 'mediaType', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">Approved Iframe</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Media URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2bMobileMedia.mediaUrl}
+                    onChange={(e) => updateMedia('b2bMobileMedia', 'mediaUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Fallback Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.b2bMobileMedia.fallbackImageUrl}
+                    onChange={(e) => updateMedia('b2bMobileMedia', 'fallbackImageUrl', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. VISUAL & BEHAVIOUR TAB */}
+        {activeTab === 'visual' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-purple-300 flex items-center gap-2">
+                <Sliders className="h-4 w-4" /> Gateway Visual & Interaction Settings
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Initial Split Ratio (%)</label>
+                  <input
+                    type="number"
+                    min={30}
+                    max={70}
+                    value={formData.visual.initialSplitRatio || 50}
+                    onChange={(e) => updateVisual('initialSplitRatio', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Selected Portal Width (%)</label>
+                  <input
+                    type="number"
+                    min={50}
+                    max={80}
+                    value={formData.visual.selectedPortalWidth || 63}
+                    onChange={(e) => updateVisual('selectedPortalWidth', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Default Theme Mode</label>
+                  <select
+                    value={formData.visual.themeMode}
+                    onChange={(e) => updateVisual('themeMode', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="dark">Dark Theme</option>
+                    <option value="light">Light Theme</option>
+                    <option value="auto">Auto / System</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Mobile Portal Order</label>
+                  <select
+                    value={formData.visual.mobilePortalOrder || 'b2c_first'}
+                    onChange={(e) => updateVisual('mobilePortalOrder', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="b2c_first">B2C First, then B2B</option>
+                    <option value="b2b_first">B2B First, then B2C</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Media Overlay Strength (0 to 1)</label>
+                  <input
+                    type="number"
+                    step={0.1}
+                    min={0}
+                    max={1}
+                    value={formData.visual.overlayStrength ?? 0.6}
+                    onChange={(e) => updateVisual('overlayStrength', Number(e.target.value))}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Background Style</label>
+                  <select
+                    value={formData.visual.backgroundStyle}
+                    onChange={(e) => updateVisual('backgroundStyle', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="wireframe">3D Wireframe Grid</option>
+                    <option value="glass">Glassmorphic Blur</option>
+                    <option value="gradient">Deep Ambient Gradient</option>
+                    <option value="custom_media">Custom Media</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="space-y-3">
-                {formData.weatherRules?.map((rule, idx) => (
-                  <div key={rule.id} className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-800 bg-slate-950 p-3">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 font-mono text-xs font-bold text-slate-300">
-                        #{rule.priority}
-                      </span>
-                      <input
-                        type="text"
-                        value={rule.name}
-                        onChange={(e) => {
-                          const updated = [...(formData.weatherRules || [])];
-                          updated[idx].name = e.target.value;
-                          setFormData((prev) => ({ ...prev, weatherRules: updated }));
-                        }}
-                        className="rounded border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-white font-medium"
-                      />
-                    </div>
+              {/* Toggles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-3 border-t border-slate-800">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={formData.visual.languageSwitcherVisible !== false}
+                    onChange={(e) => updateVisual('languageSwitcherVisible', e.target.checked)}
+                    className="rounded border-slate-700 bg-slate-950 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span>Show Language Switcher</span>
+                </label>
 
-                    <div className="flex items-center gap-4 text-xs">
-                      <div>
-                        <span className="text-slate-500">Preset:</span>{' '}
-                        <select
-                          value={rule.presetId}
-                          onChange={(e) => {
-                            const updated = [...(formData.weatherRules || [])];
-                            updated[idx].presetId = e.target.value as AtmosphereRendererType;
-                            setFormData((prev) => ({ ...prev, weatherRules: updated }));
-                          }}
-                          className="rounded border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white"
-                        >
-                          <option value="clear-day">Clear Day</option>
-                          <option value="sunset">Sunset</option>
-                          <option value="night">Night Sky</option>
-                          <option value="heat">Extreme Heat</option>
-                          <option value="rain">Rain</option>
-                          <option value="heavy-rain">Heavy Rain</option>
-                          <option value="sandstorm">Sandstorm</option>
-                        </select>
-                      </div>
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={formData.visual.themeSwitcherVisible !== false}
+                    onChange={(e) => updateVisual('themeSwitcherVisible', e.target.checked)}
+                    className="rounded border-slate-700 bg-slate-950 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span>Show Theme Switcher</span>
+                </label>
 
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={formData.visual.statisticsVisible !== false}
+                    onChange={(e) => updateVisual('statisticsVisible', e.target.checked)}
+                    className="rounded border-slate-700 bg-slate-950 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span>Show Statistic Badges</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={formData.visual.reducedMotionDefault || false}
+                    onChange={(e) => updateVisual('reducedMotionDefault', e.target.checked)}
+                    className="rounded border-slate-700 bg-slate-950 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span>Default Reduced Motion</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 7. SEO & ACCESSIBILITY TAB */}
+        {activeTab === 'seo' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-purple-300 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" /> SEO Metadata & Accessibility Settings
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">SEO Title (English)</label>
+                  <input
+                    type="text"
+                    value={formData.seoAccess.seoTitleEn || ''}
+                    onChange={(e) => updateSeo('seoTitleEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="E3 Qatar | Experiences, Attractions & Event Solutions"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">SEO Title (Arabic)</label>
+                  <input
+                    type="text"
+                    value={formData.seoAccess.seoTitleAr || ''}
+                    onChange={(e) => updateSeo('seoTitleAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="إي ثري قطر | التجارب والوجهات وحلول الفعاليات"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Meta Description (English)</label>
+                  <textarea
+                    rows={2}
+                    value={formData.seoAccess.seoDescEn || ''}
+                    onChange={(e) => updateSeo('seoDescEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Meta Description (Arabic)</label>
+                  <textarea
+                    rows={2}
+                    value={formData.seoAccess.seoDescAr || ''}
+                    onChange={(e) => updateSeo('seoDescAr', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">OpenGraph Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.seoAccess.ogImage || ''}
+                    onChange={(e) => updateSeo('ogImage', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Gateway ARIA Region Label (English)</label>
+                  <input
+                    type="text"
+                    value={formData.seoAccess.ariaGatewayLabelEn || ''}
+                    onChange={(e) => updateSeo('ariaGatewayLabelEn', e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs font-medium text-white focus:border-purple-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 8. LIVE PREVIEW TAB */}
+        {activeTab === 'preview' && (
+          <div className="space-y-4">
+            {/* Simulation Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Viewport controls */}
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, viewport: 'desktop-1440' }))}
+                    className={cn(
+                      'px-2.5 py-1 text-xs font-bold rounded-lg transition-all',
+                      simState.viewport === 'desktop-1440'
+                        ? 'bg-purple-600 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    )}
+                  >
+                    Desktop (1440)
+                  </button>
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, viewport: 'laptop-1280' }))}
+                    className={cn(
+                      'px-2.5 py-1 text-xs font-bold rounded-lg transition-all',
+                      simState.viewport === 'laptop-1280'
+                        ? 'bg-purple-600 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    )}
+                  >
+                    Laptop (1280)
+                  </button>
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, viewport: 'tablet-768' }))}
+                    className={cn(
+                      'px-2.5 py-1 text-xs font-bold rounded-lg transition-all',
+                      simState.viewport === 'tablet-768'
+                        ? 'bg-purple-600 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    )}
+                  >
+                    Tablet (768)
+                  </button>
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, viewport: 'mobile-390' }))}
+                    className={cn(
+                      'px-2.5 py-1 text-xs font-bold rounded-lg transition-all',
+                      simState.viewport === 'mobile-390'
+                        ? 'bg-purple-600 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    )}
+                  >
+                    Mobile (390)
+                  </button>
+                </div>
+
+                {/* Locale simulator */}
+                <button
+                  onClick={() =>
+                    setSimState((s) => ({ ...s, locale: s.locale === 'en' ? 'ar' : 'en' }))
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 border border-slate-700 text-slate-200 hover:bg-slate-700"
+                >
+                  <Globe className="h-3.5 w-3.5 text-purple-400" />
+                  <span>{simState.locale === 'en' ? 'Simulate Arabic (RTL)' : 'Simulate English (LTR)'}</span>
+                </button>
+
+                {/* Theme simulator */}
+                <button
+                  onClick={() =>
+                    setSimState((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 border border-slate-700 text-slate-200 hover:bg-slate-700"
+                >
+                  <span>{simState.theme === 'dark' ? 'Simulate Light Theme' : 'Simulate Dark Theme'}</span>
+                </button>
+
+                {/* Portal focus simulator */}
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+                  <span className="px-2 text-slate-400 font-bold">Focus:</span>
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, portalFocus: 'none' }))}
+                    className={cn(
+                      'px-2 py-1 font-bold rounded-md',
+                      simState.portalFocus === 'none' ? 'bg-purple-600 text-white' : 'text-slate-400'
+                    )}
+                  >
+                    Default (50/50)
+                  </button>
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, portalFocus: 'b2c' }))}
+                    className={cn(
+                      'px-2 py-1 font-bold rounded-md',
+                      simState.portalFocus === 'b2c' ? 'bg-purple-600 text-white' : 'text-slate-400'
+                    )}
+                  >
+                    B2C (63%)
+                  </button>
+                  <button
+                    onClick={() => setSimState((s) => ({ ...s, portalFocus: 'b2b' }))}
+                    className={cn(
+                      'px-2 py-1 font-bold rounded-md',
+                      simState.portalFocus === 'b2b' ? 'bg-purple-600 text-white' : 'text-slate-400'
+                    )}
+                  >
+                    B2B (63%)
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4" /> Live Preview Mode Active
+              </div>
+            </div>
+
+            {/* LIVE PREVIEW CANVAS */}
+            <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-2 overflow-hidden shadow-2xl min-h-[600px] flex items-center justify-center">
+              <PortalGateway previewMode={true} previewConfig={formData} simulation={simState} />
+            </div>
+          </div>
+        )}
+
+        {/* VERSIONS & ROLLBACK TAB */}
+        {activeTab === 'versions' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+              <h2 className="text-base font-extrabold text-purple-300 flex items-center gap-2">
+                <History className="h-4 w-4" /> Version History & Monotonic Rollback
+              </h2>
+              <p className="text-xs text-slate-400">
+                View previous published versions of the gateway configuration and restore snapshot states.
+              </p>
+
+              <div className="space-y-3 pt-2">
+                {versions.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic">No published version snapshots recorded yet.</p>
+                ) : (
+                  versions.map((ver) => (
+                    <div
+                      key={ver.version}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-slate-800 bg-slate-950/80"
+                    >
                       <div>
-                        <span className="text-slate-500">Blend:</span>{' '}
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0.1"
-                          max="1.0"
-                          value={rule.blendIntensity}
-                          onChange={(e) => {
-                            const updated = [...(formData.weatherRules || [])];
-                            updated[idx].blendIntensity = parseFloat(e.target.value);
-                            setFormData((prev) => ({ ...prev, weatherRules: updated }));
-                          }}
-                          className="w-16 rounded border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white"
-                        />
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-sm text-purple-300">Version #{ver.version}</span>
+                          <span className="text-xs text-slate-500">
+                            {new Date(ver.publishedAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">{ver.releaseNotes}</p>
+                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">By: {ver.publishedBy}</p>
                       </div>
 
                       <button
-                        onClick={() => {
-                          const updated = formData.weatherRules?.filter((_, i) => i !== idx) || [];
-                          setFormData((prev) => ({ ...prev, weatherRules: updated }));
-                        }}
-                        className="text-rose-400 hover:text-rose-300"
+                        onClick={() => handleRollback(ver.version)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 border border-slate-700 text-purple-300 hover:bg-purple-900/30 hover:border-purple-500 transition-all self-start sm:self-center"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        <span>Rollback to #{ver.version}</span>
                       </button>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 6: RAIN & WATER */}
-        {activeTab === 'rain_water' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Rain & Water Accumulation Physics</h2>
-
-            <div className="rounded-lg border border-sky-800/40 bg-sky-950/20 p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-sky-300">Water Accumulation Height Ceiling</h3>
-                <span className="rounded bg-sky-900/60 px-3 py-1 text-xs font-bold text-sky-200">HARD CEILING &le; 40%</span>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs text-slate-400">Water Max Height (% Viewport Height)</label>
-                  <input
-                    type="number"
-                    max={40}
-                    value={formData.waterAndSandPhysics?.waterMaxHeightPercent || 15}
-                    onChange={(e) => updateWaterSandPhysics('waterMaxHeightPercent', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs text-slate-400">Fill Speed Rate</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.waterAndSandPhysics?.waterFillRate || 0.05}
-                    onChange={(e) => updateWaterSandPhysics('waterFillRate', parseFloat(e.target.value))}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 7: DUST & SAND */}
-        {activeTab === 'dust_sand' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Dust Storm & Sand Dune Accumulation Physics</h2>
-
-            <div className="rounded-lg border border-amber-800/40 bg-amber-950/20 p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-amber-300">Sand Dune Accumulation Height Ceiling</h3>
-                <span className="rounded bg-amber-900/60 px-3 py-1 text-xs font-bold text-amber-200">HARD CEILING &le; 30%</span>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs text-slate-400">Sand Max Height (% Viewport Height)</label>
-                  <input
-                    type="number"
-                    max={30}
-                    value={formData.waterAndSandPhysics?.sandMaxHeightPercent || 10}
-                    onChange={(e) => updateWaterSandPhysics('sandMaxHeightPercent', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs text-slate-400">Sand Accumulation Rate</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.waterAndSandPhysics?.sandAccumulationRate || 0.03}
-                    onChange={(e) => updateWaterSandPhysics('sandAccumulationRate', parseFloat(e.target.value))}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-white"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 17: PREVIEW SIMULATOR */}
-        {activeTab === 'simulator' && (
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Interactive Gateway Preview Simulator</h2>
-                <p className="text-xs text-slate-400">Live isolated environment rendering draft CMS state without publishing.</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSimState(DEFAULT_SIMULATION_STATE)}
-                  className="flex items-center gap-1.5 rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
-                >
-                  <RotateCcw className="h-3.5 w-3.5 text-amber-400" /> Reset Defaults
-                </button>
-
-                <button
-                  onClick={handleFetchCurrentLiveWeather}
-                  disabled={fetchingLiveWeather}
-                  className="flex items-center gap-1.5 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-1.5 text-xs text-sky-300 hover:bg-sky-900/60 disabled:opacity-50"
-                >
-                  <RefreshCw className={cn("h-3.5 w-3.5 text-sky-400", fetchingLiveWeather && "animate-spin")} />
-                  {fetchingLiveWeather ? 'Fetching...' : 'Use Live Doha Weather'}
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Simulator Preset Buttons */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Simulation Presets:</span>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: 'Clear Day', key: 'clear-day', color: 'bg-sky-950/60 text-sky-300 border-sky-800/50' },
-                  { label: 'Extreme Heat', key: 'extreme-heat', color: 'bg-amber-950/60 text-amber-300 border-amber-800/50' },
-                  { label: 'Rain', key: 'rain', color: 'bg-blue-950/60 text-blue-300 border-blue-800/50' },
-                  { label: 'Heavy Rain', key: 'heavy-rain', color: 'bg-indigo-950/60 text-indigo-300 border-indigo-800/50' },
-                  { label: 'Dust Storm', key: 'dust-storm', color: 'bg-yellow-950/60 text-yellow-300 border-yellow-800/50' },
-                  { label: 'Sandstorm', key: 'sandstorm', color: 'bg-orange-950/60 text-orange-300 border-orange-800/50' },
-                  { label: 'High Wind', key: 'high-wind', color: 'bg-teal-950/60 text-teal-300 border-teal-800/50' },
-                  { label: 'Fog', key: 'fog', color: 'bg-slate-800 text-slate-200 border-slate-700' },
-                  { label: 'Night Sky', key: 'night', color: 'bg-purple-950/60 text-purple-300 border-purple-800/50' },
-                  { label: 'LEGO® Campaign', key: 'campaign', color: 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50' },
-                  { label: 'Campaign + Rain', key: 'campaign-rain', color: 'bg-cyan-950/60 text-cyan-300 border-cyan-800/50' },
-                  { label: 'Campaign + Sandstorm', key: 'campaign-sandstorm', color: 'bg-orange-950/80 text-orange-200 border-orange-700' },
-                  { label: 'API Failure', key: 'api-failure', color: 'bg-rose-950/50 text-rose-300 border-rose-800' },
-                  { label: 'WebGL Failure', key: 'webgl-failure', color: 'bg-slate-900 text-slate-400 border-slate-800' },
-                  { label: 'Reduced Motion', key: 'reduced-motion', color: 'bg-zinc-800 text-zinc-300 border-zinc-700' },
-                  { label: 'Mobile Lightweight', key: 'mobile-lightweight', color: 'bg-emerald-900/40 text-emerald-200 border-emerald-700' },
-                ].map((presetBtn) => (
-                  <button
-                    key={presetBtn.key}
-                    onClick={() => applyPreset(presetBtn.key)}
-                    className={cn('rounded border px-2.5 py-1 text-xs font-medium transition-all hover:scale-105', presetBtn.color)}
-                  >
-                    {presetBtn.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {/* Controls Column */}
-              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs">
-                <h3 className="font-semibold text-emerald-400">Weather & Physics Controls</h3>
-
-                <div>
-                  <label className="text-slate-400">Temperature ({simState.temperature}°C) / Apparent ({simState.apparentTemperature}°C)</label>
-                  <input
-                    type="range"
-                    min="10"
-                    max="50"
-                    value={simState.temperature}
-                    onChange={(e) => {
-                      const t = parseInt(e.target.value);
-                      updateSimState('temperature', t);
-                      updateSimState('apparentTemperature', t + 4);
-                    }}
-                    className="mt-1 w-full accent-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400">Rainfall ({simState.rain} mm)</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="20"
-                    step="0.5"
-                    value={simState.rain}
-                    onChange={(e) => updateSimState('rain', parseFloat(e.target.value))}
-                    className="mt-1 w-full accent-sky-500"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Heavy Rain Override</span>
-                  <input
-                    type="checkbox"
-                    checked={simState.heavyRainOverride}
-                    onChange={(e) => updateSimState('heavyRainOverride', e.target.checked)}
-                    className="h-4 w-4 accent-sky-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400">Wind Speed ({simState.windSpeed} km/h) / Gusts ({simState.windGusts} km/h)</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="60"
-                    value={simState.windSpeed}
-                    onChange={(e) => {
-                      const w = parseInt(e.target.value);
-                      updateSimState('windSpeed', w);
-                      updateSimState('windGusts', w + 10);
-                    }}
-                    className="mt-1 w-full accent-cyan-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400">PM10 Dust Level ({simState.pm10} µg/m³) / PM2.5 ({simState.pm25} µg/m³)</label>
-                  <input
-                    type="range"
-                    min="10"
-                    max="300"
-                    value={simState.pm10}
-                    onChange={(e) => {
-                      const p = parseInt(e.target.value);
-                      updateSimState('pm10', p);
-                      updateSimState('pm25', Math.floor(p / 2));
-                    }}
-                    className="mt-1 w-full accent-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400">Visibility ({simState.visibility} km)</label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="20"
-                    step="0.5"
-                    value={simState.visibility}
-                    onChange={(e) => updateSimState('visibility', parseFloat(e.target.value))}
-                    className="mt-1 w-full accent-purple-500"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                  <span className="text-slate-400">Time of Day</span>
-                  <button
-                    onClick={() => updateSimState('isDay', !simState.isDay)}
-                    className="rounded bg-slate-800 px-3 py-1 text-slate-200"
-                  >
-                    {simState.isDay ? '☀️ DAYTIME' : '🌙 NIGHTTIME'}
-                  </button>
-                </div>
-
-                <div className="space-y-2 pt-2 border-t border-slate-800">
-                  <h4 className="font-semibold text-slate-300">Environment & Device Options</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-slate-500">Active Campaign</label>
-                      <select
-                        value={simState.selectedCampaignId || 'none'}
-                        onChange={(e) => updateSimState('selectedCampaignId', e.target.value)}
-                        className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      >
-                        <option value="none">None (Default)</option>
-                        {formData.campaigns?.map((c) => (
-                          <option key={c.id} value={c.id}>{c.titleEn}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-slate-500">Device Frame</label>
-                      <select
-                        value={simState.viewport}
-                        onChange={(e) => updateSimState('viewport', e.target.value as any)}
-                        className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      >
-                        <option value="desktop-1440">Desktop (1440px)</option>
-                        <option value="laptop-1280">Laptop (1280px)</option>
-                        <option value="tablet-768">Tablet (768px)</option>
-                        <option value="mobile-390">Mobile (390px)</option>
-                        <option value="small-mobile-320">Small Mobile (320px)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-slate-500">Locale</label>
-                      <select
-                        value={simState.locale}
-                        onChange={(e) => updateSimState('locale', e.target.value as any)}
-                        className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      >
-                        <option value="en">English</option>
-                        <option value="ar">العربية</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-slate-500">Theme Mode</label>
-                      <select
-                        value={simState.theme}
-                        onChange={(e) => updateSimState('theme', e.target.value as any)}
-                        className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-white"
-                      >
-                        <option value="dark">Dark</option>
-                        <option value="light">Light</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-2 border-t border-slate-800">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Reduced Motion</span>
-                    <input
-                      type="checkbox"
-                      checked={simState.reducedMotion}
-                      onChange={(e) => updateSimState('reducedMotion', e.target.checked)}
-                      className="h-4 w-4 accent-emerald-500"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Simulate WebGL Failure</span>
-                    <input
-                      type="checkbox"
-                      checked={!simState.webglAvailable}
-                      onChange={(e) => updateSimState('webglAvailable', !e.target.checked)}
-                      className="h-4 w-4 accent-rose-500"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Simulate API Failure</span>
-                    <input
-                      type="checkbox"
-                      checked={!simState.weatherApiAvailable}
-                      onChange={(e) => updateSimState('weatherApiAvailable', !e.target.checked)}
-                      className="h-4 w-4 accent-amber-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Real-time Gateway Preview Canvas Column */}
-              <div className="lg:col-span-2 space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>Live Rendered Gateway Target ({simState.viewport.toUpperCase()} / {simState.locale.toUpperCase()} / {simState.theme.toUpperCase()})</span>
-                  <span className="font-mono text-emerald-400">Live Draft Preview Mode Active</span>
-                </div>
-
-                <div className="relative min-h-[520px] w-full overflow-hidden rounded-xl border border-slate-800 shadow-2xl bg-black">
-                  <PortalGateway
-                    cmsData={formData}
-                    previewMode={true}
-                    previewConfig={formData}
-                    simulation={simState}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 18: VERSIONS & PUBLISHING */}
-        {activeTab === 'versions' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-white">Version History & Rollback System</h2>
-
-            <div className="space-y-3">
-              {versions.map((ver) => (
-                <div key={ver.version} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950 p-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-amber-400">Version #{ver.version}</span>
-                      <span className="text-xs text-slate-500">{new Date(ver.publishedAt).toLocaleString()}</span>
-                    </div>
-                    <p className="mt-1 text-xs text-slate-400">{ver.releaseNotes}</p>
-                    <span className="font-mono text-[10px] text-slate-600">{ver.checksum}</span>
-                  </div>
-
-                  <button
-                    onClick={() => handleRollback(ver.version)}
-                    className="flex items-center gap-1.5 rounded border border-amber-700/50 bg-amber-950/40 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:bg-amber-900/60"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" /> Rollback to #{ver.version}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 19: FOCUS PROTECTION CONTROLS */}
-        {activeTab === 'focus_protection' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Selection Focus & Protection Controls</h2>
-                <p className="text-xs text-slate-400">Guarantees that B2B & B2C portal selection remains the primary visual focus.</p>
-              </div>
-              <span className="rounded-full bg-emerald-950/80 px-3 py-1 text-xs font-extrabold text-emerald-300 border border-emerald-500/30">
-                PROTECTION ALWAYS ON
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs">
-                <h3 className="font-semibold text-emerald-400">Card & Readability Controls</h3>
-
-                <div>
-                  <label className="text-slate-400">Atmosphere Around Portal Cards</label>
-                  <select
-                    value={formData.focusProtection?.atmosphereAroundCards || 'low'}
-                    onChange={(e) => updateFocusProtection('atmosphereAroundCards', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
-                  >
-                    <option value="off">Off (Clean Slate Behind Cards)</option>
-                    <option value="low">Low (Subtle Background Glow Only)</option>
-                    <option value="medium">Medium (Moderate Atmospheric Blend)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-slate-400">Content Reaction Mode</label>
-                  <select
-                    value={formData.focusProtection?.contentReaction || 'ambient'}
-                    onChange={(e) => updateFocusProtection('contentReaction', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
-                  >
-                    <option value="off">Off (Static Text & CTAs)</option>
-                    <option value="ambient">Ambient (Subtle Depth & Background Shift)</option>
-                    <option value="expressive">Expressive (Controlled Badge Motion)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-slate-400">Campaign Dominance Ceiling</label>
-                  <select
-                    value={formData.focusProtection?.campaignDominance || 'strong_protected'}
-                    onChange={(e) => updateFocusProtection('campaignDominance', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
-                  >
-                    <option value="background_only">Background Only</option>
-                    <option value="balanced">Balanced Theme Accent</option>
-                    <option value="strong_protected">Strong, but Portal Selection Protected</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-slate-400">Allow Accumulation Near Cards</label>
-                  <select
-                    value={formData.focusProtection?.allowAccumulationNearCards || 'outer_edges_only'}
-                    onChange={(e) => updateFocusProtection('allowAccumulationNearCards', e.target.value)}
-                    className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-1.5 text-white"
-                  >
-                    <option value="never">Never (Keep Bottom Free)</option>
-                    <option value="outer_edges_only">Outer Edges Only (Safe Capped Heights)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs">
-                <h3 className="font-semibold text-sky-400">Interaction Protection Rules</h3>
-
-                <div className="flex items-center justify-between py-1 border-b border-slate-800">
-                  <span>Interaction Focus Mode</span>
-                  <input
-                    type="checkbox"
-                    checked={formData.focusProtection?.focusModeEnabled ?? true}
-                    onChange={(e) => updateFocusProtection('focusModeEnabled', e.target.checked)}
-                    className="h-4 w-4 accent-emerald-500"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between py-1 border-b border-slate-800">
-                  <span>Reduce Effects on Hover / Focus</span>
-                  <input
-                    type="checkbox"
-                    checked={formData.focusProtection?.reduceEffectsOnHover ?? true}
-                    onChange={(e) => updateFocusProtection('reduceEffectsOnHover', e.target.checked)}
-                    className="h-4 w-4 accent-emerald-500"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between py-1 border-b border-slate-800">
-                  <span>WCAG AA Contrast Card Protection</span>
-                  <input
-                    type="checkbox"
-                    checked={formData.focusProtection?.cardContrastProtection ?? true}
-                    onChange={(e) => updateFocusProtection('cardContrastProtection', e.target.checked)}
-                    className="h-4 w-4 accent-emerald-500"
-                  />
-                </div>
-
-                <div className="rounded border border-emerald-800/40 bg-emerald-950/20 p-3 text-[11px] text-emerald-300">
-                  <span>Enforced Safety: Rain droplets, water accumulation, sand dunes, and weather effects render strictly behind portal text and CTAs at all times.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Fallback rendering for additional tabs */}
-        {!['overview', 'content', 'weather', 'atmosphere', 'rain_water', 'dust_sand', 'campaigns', 'simulator', 'versions', 'focus_protection'].includes(activeTab) && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white capitalize">{activeTab.replace('_', ' ')} Settings</h2>
-            <p className="text-xs text-slate-400">Manage configuration attributes for {activeTab}.</p>
-            <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
-              <span className="text-xs font-mono text-emerald-400">Status: Active & Synchronized with Gateway CMS Engine.</span>
             </div>
           </div>
         )}

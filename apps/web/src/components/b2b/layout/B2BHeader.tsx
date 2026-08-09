@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Search, Globe, Moon, Sun } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
+import { PulseOrbitDropdown } from '@/components/b2c/nav/PulseOrbitDropdown';
+import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 
 export function B2BHeader({ settings = {} }: { settings?: Record<string, string> }) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -98,8 +99,8 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             </span>
           </Link>
 
-          {/* Shared Portal Mode Switcher */}
-          <PortalModeSwitcher locale={currentLocale} showOrganizerLogin={true} />
+          {/* Pulse Orbit Submenu Dropdown */}
+          <PulseOrbitDropdown locale={currentLocale} />
         </div>
 
         {/* Desktop Nav */}
@@ -130,6 +131,8 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
 
         {/* Actions */}
         <div className="hidden lg:flex items-center gap-4">
+          <HeaderAuthControls locale={currentLocale} />
+
           <button className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer" aria-label="Search">
             <Search className="w-4 h-4" />
           </button>
@@ -150,12 +153,6 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             <Globe className="w-3.5 h-3.5 text-[var(--color-primary)]" />
             <span className="text-xs font-bold uppercase">{isAr ? "English" : "العربية"}</span>
           </button>
-          
-          <div className="w-px h-5 bg-[var(--border-level-1)] mx-1" />
-          
-          <Link href={`/${currentLocale}/login/business`} className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-            {isAr ? "دخول المنظم" : "Organizer Login"}
-          </Link>
           
           <Link
             href={`/${currentLocale}/b2b/contact`}
@@ -184,9 +181,9 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="fixed inset-0 z-40 bg-[var(--bg-level-1)] pt-24 px-6 pb-6 overflow-y-auto lg:hidden flex flex-col"
           >
-            {/* Mobile Portal Mode Switcher */}
+            {/* Mobile Pulse Orbit Submenu Dropdown */}
             <div className="mb-6">
-              <PortalModeSwitcher locale={currentLocale} showOrganizerLogin={true} onNavigate={() => setMobileMenuOpen(false)} />
+              <PulseOrbitDropdown locale={currentLocale} onNavigate={() => setMobileMenuOpen(false)} />
             </div>
             <nav className="flex flex-col gap-6 mb-8">
               {b2bNavLinks.map((link) => (

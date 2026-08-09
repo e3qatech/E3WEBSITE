@@ -80,7 +80,8 @@ const DESTINATIONS: NavDestination[] = [
   },
 ];
 
-import { PortalModeSwitcher } from '@/components/ui/PortalModeSwitcher';
+import { PulseOrbitDropdown } from './PulseOrbitDropdown';
+import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
 
 export function PulseOrbitNav({
@@ -240,8 +241,8 @@ export function PulseOrbitNav({
               />
             </Link>
 
-            {/* SHARED PORTAL MODE SWITCHER */}
-            <PortalModeSwitcher
+            {/* ACCESSIBLE PULSE ORBIT DROPDOWN SUBMENU */}
+            <PulseOrbitDropdown
               locale={locale}
               customerLabelEn={customerLabelEn}
               customerLabelAr={customerLabelAr}
@@ -275,6 +276,9 @@ export function PulseOrbitNav({
 
           {/* Action CTAs & Orbit Menu Trigger */}
           <div className="flex items-center gap-2">
+            {/* Header Authentication Controls: Login / Sign Up or Logged-in User Profile & Dashboard */}
+            <HeaderAuthControls locale={locale} />
+
             {/* Language Section Tab in Main Menu Bar */}
             <button
               onClick={toggleLanguage}
@@ -294,15 +298,6 @@ export function PulseOrbitNav({
             >
               {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
             </button>
-
-            {!isB2C && (
-              <Link
-                href={`/${locale}/login/business`}
-                className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 text-xs font-extrabold text-amber-400 hover:bg-amber-500/20 transition-all select-none cursor-pointer"
-              >
-                <span>{isAr ? 'تسجيل دخول المنظم' : 'Organizer Login'}</span>
-              </Link>
-            )}
 
             {/* Quick Ticket CTA */}
             {isB2C && isBookTicketsEnabled && (

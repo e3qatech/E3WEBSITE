@@ -210,6 +210,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
           description={displayDesc} 
           features={(attraction.features as any) || []}
           imageUrl={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
+          locale={locale}
         />
       )}
 

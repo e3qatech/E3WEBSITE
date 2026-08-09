@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     if (!user || !user.isActive) {
       return NextResponse.json({ error: 'Account inactive or unauthorized' }, { status: 401 });
     }
-    if (!['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'STAFF'].includes(user.role)) {
+    if (!['SUPER_ADMIN', 'SUPPORT_ADMIN', 'STAFF'].includes(user.role)) {
       return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
     }
 

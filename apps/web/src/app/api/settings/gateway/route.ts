@@ -81,12 +81,11 @@ export async function GET(req: NextRequest) {
       const mergedPayload: GatewayCustomizationPayload = {
         ...DEFAULT_GATEWAY_CMS_PAYLOAD,
         ...payload,
-        experienceConfig: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.experienceConfig, ...(payload.experienceConfig || {}) } as any,
-        waterAndSandPhysics: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.waterAndSandPhysics, ...(payload.waterAndSandPhysics || {}) } as any,
-        atmospherePresets: payload.atmospherePresets || DEFAULT_GATEWAY_CMS_PAYLOAD.atmospherePresets,
-        weatherRules: payload.weatherRules || DEFAULT_GATEWAY_CMS_PAYLOAD.weatherRules,
-        campaigns: payload.campaigns || DEFAULT_GATEWAY_CMS_PAYLOAD.campaigns,
-        announcements: payload.announcements || DEFAULT_GATEWAY_CMS_PAYLOAD.announcements,
+        english: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.english, ...(payload.english || {}) },
+        arabic: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.arabic, ...(payload.arabic || {}) },
+        logo: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.logo, ...(payload.logo || {}) },
+        visual: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.visual, ...(payload.visual || {}) },
+        seoAccess: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.seoAccess, ...(payload.seoAccess || {}) },
       };
 
       if (mode === 'published') {
@@ -220,18 +219,6 @@ export async function POST(req: NextRequest) {
       if (err) return NextResponse.json({ error: err }, { status: 400 });
     }
 
-    // Enforce safety limits in code
-    if (payload.waterAndSandPhysics) {
-      payload.waterAndSandPhysics.waterMaxHeightPercent = Math.min(
-        payload.waterAndSandPhysics.waterMaxHeightPercent || 15,
-        40
-      );
-      payload.waterAndSandPhysics.sandMaxHeightPercent = Math.min(
-        payload.waterAndSandPhysics.sandMaxHeightPercent || 10,
-        30
-      );
-    }
-
     const updatedAt = new Date().toISOString();
     const updatedPayload: GatewayCustomizationPayload = {
       ...payload,
@@ -277,7 +264,7 @@ export async function POST(req: NextRequest) {
           version: nextVersionNumber,
           publishedAt: updatedAt,
           publishedBy: session.user.email || 'Admin',
-          releaseNotes: `Published version ${nextVersionNumber} via Gateway Experience Composer CMS`,
+          releaseNotes: `Published version ${nextVersionNumber} via Gateway Customization CMS`,
           checksum: `chk_${Date.now()}_v${nextVersionNumber}`,
           snapshot: updatedPayload,
         };
