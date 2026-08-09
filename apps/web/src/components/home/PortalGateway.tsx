@@ -58,13 +58,20 @@ export function PortalGateway({
   // In Preview Mode, prefer draft config
   const activeCmsData = previewMode && previewConfig ? previewConfig : initialCmsData;
 
-  // Resolve locale (simulation > context > fallback)
-  const activeLocale = simulation?.locale || contextLocale || "en";
+  // Local Preview Overrides for previewMode state
+  const [localPreviewSim, setLocalPreviewSim] = useState<{ locale?: 'en' | 'ar'; theme?: 'dark' | 'light' }>({});
+
+  // Resolve locale (local preview > simulation > context > fallback)
+  const activeLocale = previewMode
+    ? localPreviewSim.locale || simulation?.locale || "en"
+    : simulation?.locale || contextLocale || "en";
   const isAr = activeLocale === "ar";
   const activeDir = isAr ? "rtl" : "ltr";
 
-  // Resolve theme (simulation > context > visual setting > dark)
-  const resolvedTheme = simulation?.theme || contextTheme || activeCmsData.visual?.themeMode || "dark";
+  // Resolve theme (local preview > simulation > context > visual setting > dark)
+  const resolvedTheme = previewMode
+    ? localPreviewSim.theme || simulation?.theme || activeCmsData.visual?.themeMode || "dark"
+    : simulation?.theme || contextTheme || activeCmsData.visual?.themeMode || "dark";
   const isLight = resolvedTheme === "light";
 
   // Active portal logic
@@ -124,13 +131,34 @@ export function PortalGateway({
 
   // Language switcher toggle
   const toggleLanguage = useCallback(() => {
+    if (previewMode) {
+      setLocalPreviewSim((prev) => ({
+        ...prev,
+        locale: activeLocale === "en" ? "ar" : "en",
+      }));
+      return;
+    }
     const nextLocale = activeLocale === "en" ? "ar" : "en";
     if (setLocale) setLocale(nextLocale);
-    if (!previewMode && pathname) {
+    if (pathname) {
       const newPath = pathname.replace(`/${activeLocale}`, `/${nextLocale}`);
       router.push(newPath.startsWith("/") ? newPath : `/${nextLocale}`);
     }
-  }, [activeLocale, setLocale, previewMode, pathname, router]);
+  }, [previewMode, activeLocale, setLocale, pathname, router]);
+
+  // Theme switcher toggle
+  const toggleTheme = useCallback(() => {
+    if (previewMode) {
+      setLocalPreviewSim((prev) => ({
+        ...prev,
+        theme: isLight ? "dark" : "light",
+      }));
+      return;
+    }
+    if (setTheme) {
+      setTheme(isLight ? "dark" : "light");
+    }
+  }, [previewMode, isLight, setTheme]);
 
   // Viewport Container Dimensions for CMS Live Preview Frame Resizing
   const viewportWidthClass = useMemo(() => {
@@ -174,7 +202,7 @@ export function PortalGateway({
   return (
     <div
       className={cn(
-        "relative flex flex-col justify-between transition-colors duration-500 font-sans select-none",
+        "relative w-full min-h-screen h-screen overflow-hidden flex flex-col justify-between transition-colors duration-500 font-sans select-none",
         viewportWidthClass,
         isLight ? "bg-[#f4f4f6] text-slate-900" : "bg-[#09090b] text-white"
       )}
@@ -182,25 +210,215 @@ export function PortalGateway({
       role="region"
       aria-label={ariaGatewayLabel || "E3 Qatar Portal Selection Gateway"}
     >
-      {/* Background Wireframe / Treatment Layer */}
-      {isMounted && visual.backgroundStyle === "wireframe" && (
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-15 dark:opacity-30">
-          <WireframeBackground />
-        </div>
-      )}
-
-      {/* Atmospheric Ambient Gradient */}
-      <div
-        className={cn(
-          "absolute inset-0 z-0 pointer-events-none transition-opacity duration-700",
-          isLight
-            ? "bg-gradient-to-b from-white/80 via-purple-50/20 to-slate-100/90"
-            : "bg-gradient-to-b from-slate-950/90 via-purple-950/20 to-black/95"
+      {/* 1. FULL-BLEED FULL-SCREEN BACKGROUND PORTAL MEDIA LAYER */}
+      <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
+        {/* Wireframe background */}
+        {isMounted && visual.backgroundStyle === "wireframe" && (
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-15 dark:opacity-30">
+            <WireframeBackground />
+          </div>
         )}
-      />
 
-      {/* 1. MINIMAL TRANSPARENT HEADER LAYER */}
-      <header className="relative z-40 w-full px-6 py-5 md:px-12 flex items-center justify-between pointer-events-auto">
+        {/* Ambient Gradient Overlay */}
+        <div
+          className={cn(
+            "absolute inset-0 z-0 pointer-events-none transition-opacity duration-700",
+            isLight
+              ? "bg-gradient-to-b from-white/70 via-purple-50/10 to-slate-100/80"
+              : "bg-gradient-to-b from-slate-950/80 via-purple-950/10 to-black/90"
+          )}
+        />
+
+        {/* CINEMATIC SLANTED 50/50 PORTALS (DESKTOP / MOBILE FULL BLEED) */}
+        <div className="absolute inset-0 z-10 w-full h-full flex flex-col md:flex-row">
+          {(showB2CFirstOnMobile ? ["b2c", "b2b"] : ["b2b", "b2c"]).map((portalKey) => {
+            const isB2C = portalKey === "b2c";
+            const title = isB2C ? b2cTitle : b2bTitle;
+            const label = isB2C ? b2cLabel : b2bLabel;
+            const desc = isB2C ? b2cDesc : b2bDesc;
+            const cta = isB2C ? b2cCta : b2bCta;
+            const stat = isB2C ? b2cStat : b2bStat;
+            const aria = isB2C ? b2cAria : b2bAria;
+
+            const desktopMedia = isB2C
+              ? activeCmsData.b2cDesktopMedia
+              : activeCmsData.b2bDesktopMedia;
+            const mobileMedia = isB2C
+              ? activeCmsData.b2cMobileMedia || activeCmsData.b2cDesktopMedia
+              : activeCmsData.b2bMobileMedia || activeCmsData.b2bDesktopMedia;
+
+            const activeMedia =
+              isMobileViewport && mobileMedia?.mediaUrl ? mobileMedia : desktopMedia;
+
+            const isHovered = hoveredPortal === portalKey;
+            const isFocused = focusedPortal === portalKey;
+            const isSelected = selectedPortal === portalKey;
+            const isOtherHovered =
+              hoveredPortal !== null && hoveredPortal !== portalKey;
+            const isOtherFocused =
+              focusedPortal !== null && focusedPortal !== portalKey;
+
+            // Slanted clip paths & flex values on Desktop
+            let desktopWidthPercent = 50;
+            if (activeFocus === portalKey) {
+              desktopWidthPercent = 62;
+            } else if (activeFocus && activeFocus !== portalKey) {
+              desktopWidthPercent = 38;
+            }
+
+            return (
+              <div
+                key={portalKey}
+                onMouseEnter={() => setHoveredPortal(portalKey as "b2c" | "b2b")}
+                onMouseLeave={() => setHoveredPortal(null)}
+                onFocus={() => setFocusedPortal(portalKey as "b2c" | "b2b")}
+                onBlur={() => setFocusedPortal(null)}
+                onClick={() => handleSelect(portalKey as "b2c" | "b2b")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelect(portalKey as "b2c" | "b2b");
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={aria || title}
+                style={{
+                  clipPath: isMobileViewport
+                    ? 'none'
+                    : isB2C
+                    ? isAr
+                      ? `polygon(0 0, 100% 0, 100% 100%, 0 100%)`
+                      : `polygon(0 0, ${desktopWidthPercent + 4}% 0, ${desktopWidthPercent - 4}% 100%, 0 100%)`
+                    : isAr
+                    ? `polygon(0 0, 100% 0, 100% 100%, 0 100%)`
+                    : `polygon(${desktopWidthPercent - 4}% 0, 100% 0, 100% 100%, ${desktopWidthPercent - 12}% 100%)`,
+                }}
+                className={cn(
+                  "relative group flex-1 flex flex-col justify-end p-8 md:p-14 cursor-pointer overflow-hidden transition-all ease-out",
+                  isReducedMotion ? "duration-200" : "duration-700",
+                  "h-1/2 md:h-full w-full",
+                  isHovered || isFocused || isSelected
+                    ? "z-20 brightness-105"
+                    : isOtherHovered || isOtherFocused
+                    ? "z-10 opacity-70 grayscale-[25%]"
+                    : "z-10 opacity-100",
+                  isLight
+                    ? isB2C
+                      ? "bg-gradient-to-br from-violet-900/90 via-purple-950/95 to-slate-950 text-white"
+                      : "bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-slate-950 text-white"
+                    : isB2C
+                    ? "bg-gradient-to-br from-violet-950/90 via-purple-950/95 to-black text-white"
+                    : "bg-gradient-to-br from-slate-950/95 via-zinc-900/95 to-black text-white"
+                )}
+              >
+                {/* MEDIA BACKGROUND LAYER */}
+                <div className="absolute inset-0 z-0">
+                  <UniversalMediaHolder
+                    config={
+                      simulation?.useFallbackMedia
+                        ? {
+                            ...activeMedia,
+                            mediaUrl: activeMedia.fallbackImageUrl,
+                            mediaType: "IMAGE",
+                          }
+                        : activeMedia
+                    }
+                    locale={activeLocale}
+                    className={cn(
+                      "h-full w-full object-cover transition-transform ease-out opacity-45 group-hover:opacity-65",
+                      isReducedMotion ? "duration-200" : "duration-700",
+                      isHovered ? "scale-105" : "scale-100"
+                    )}
+                  />
+
+                  {/* GRADIENT OVERLAY FOR TEXT READABILITY */}
+                  <div
+                    className={cn(
+                      "absolute inset-0 pointer-events-none transition-opacity duration-500",
+                      isB2C
+                        ? "bg-gradient-to-t from-violet-950/95 via-purple-950/60 to-transparent"
+                        : "bg-gradient-to-t from-slate-950/95 via-indigo-950/60 to-transparent"
+                    )}
+                    style={{
+                      opacity: visual.overlayStrength ?? 0.6,
+                    }}
+                  />
+                </div>
+
+                {/* PROTECTED CONTENT ZONE */}
+                <div className="relative z-20 space-y-4 max-w-xl pb-4">
+                  {/* Category Tag & Stat Badge */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={cn(
+                        "inline-block px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-widest border shadow-lg backdrop-blur-md",
+                        isB2C
+                          ? "bg-purple-500/30 text-purple-200 border-purple-400/50"
+                          : "bg-indigo-500/30 text-indigo-200 border-indigo-400/50"
+                      )}
+                    >
+                      {label}
+                    </span>
+
+                    {stat && visual.statisticsVisible !== false && (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white/90 border border-white/20 backdrop-blur-md">
+                        {stat}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-white drop-shadow-lg uppercase">
+                    {title}
+                  </h2>
+
+                  {/* Description */}
+                  <p className="text-xs md:text-sm text-slate-200 font-medium leading-relaxed drop-shadow-sm max-w-md line-clamp-3 md:line-clamp-none">
+                    {desc}
+                  </p>
+
+                  {/* CTA BUTTON */}
+                  <div className="pt-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelect(portalKey as "b2c" | "b2b");
+                      }}
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center gap-3 rounded-xl px-6 py-3.5 text-xs md:text-sm font-black text-white shadow-2xl transition-all min-h-[48px] focus:outline-none focus:ring-2 focus:ring-white uppercase tracking-wider",
+                        isB2C
+                          ? "bg-purple-600 hover:bg-purple-500 shadow-purple-950/60"
+                          : "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-950/60",
+                        isHovered && !isReducedMotion && "translate-x-1 rtl:-translate-x-1 scale-[1.02]"
+                      )}
+                    >
+                      <span>{cta}</span>
+                      {isAr ? (
+                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                      ) : (
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* DYNAMIC SLANTED SEAM LINE (DESKTOP) */}
+          <div
+            className={cn(
+              "hidden md:block absolute top-0 bottom-0 z-30 w-1.5 -skew-x-6 pointer-events-none transition-all duration-700 bg-gradient-to-b from-purple-400 via-indigo-400 to-sky-400 shadow-[0_0_25px_rgba(168,85,247,0.9)]",
+              activeFocus === "b2c" ? "left-[60%]" : activeFocus === "b2b" ? "left-[40%]" : "left-[50%]"
+            )}
+          />
+        </div>
+      </div>
+
+      {/* 2. FLOATING MINIMAL TRANSPARENT HEADER LAYER */}
+      <header className="relative z-40 w-full px-6 py-6 md:px-12 flex items-center justify-between pointer-events-auto">
         {/* E3 Official Logo */}
         <a
           href={logo?.destinationUrl || "/"}
@@ -226,14 +444,14 @@ export function PortalGateway({
               onClick={toggleLanguage}
               type="button"
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-sm backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-purple-500",
+                "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black transition-all border shadow-lg backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer",
                 isLight
-                  ? "bg-white/80 text-slate-800 border-slate-300/80 hover:bg-white hover:border-purple-400"
-                  : "bg-slate-900/80 text-slate-200 border-slate-700/80 hover:bg-slate-800 hover:border-purple-500/50"
+                  ? "bg-white/90 text-slate-800 border-slate-300/80 hover:bg-white hover:border-purple-400"
+                  : "bg-slate-900/90 text-slate-100 border-slate-700/80 hover:bg-slate-800 hover:border-purple-500/50"
               )}
               aria-label={isAr ? "Switch to English" : "التحويل إلى العربية"}
             >
-              <Globe className="h-3.5 w-3.5 text-purple-400" />
+              <Globe className="h-4 w-4 text-purple-400" />
               <span>{isAr ? "English" : "العربية"}</span>
             </button>
           )}
@@ -241,13 +459,13 @@ export function PortalGateway({
           {/* Theme Control */}
           {visual.themeSwitcherVisible !== false && (
             <button
-              onClick={() => setTheme && setTheme(isLight ? 'dark' : 'light')}
+              onClick={toggleTheme}
               type="button"
               className={cn(
-                "inline-flex items-center justify-center p-2 rounded-full text-xs transition-all border shadow-sm backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-purple-500",
+                "inline-flex items-center justify-center p-2 rounded-full text-xs transition-all border shadow-lg backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer",
                 isLight
-                  ? "bg-white/80 text-slate-800 border-slate-300/80 hover:bg-white"
-                  : "bg-slate-900/80 text-slate-200 border-slate-700/80 hover:bg-slate-800"
+                  ? "bg-white/90 text-slate-800 border-slate-300/80 hover:bg-white"
+                  : "bg-slate-900/90 text-slate-100 border-slate-700/80 hover:bg-slate-800"
               )}
               aria-label={isLight ? "Switch to Dark Mode" : "Switch to Light Mode"}
             >
@@ -261,12 +479,12 @@ export function PortalGateway({
         </div>
       </header>
 
-      {/* 2. BILINGUAL GATEWAY INTRODUCTION */}
-      <section className="relative z-30 w-full px-6 md:px-12 pt-2 pb-4 text-center max-w-4xl mx-auto flex flex-col items-center">
+      {/* 3. FLOATING BILINGUAL GATEWAY INTRODUCTION */}
+      <section className="relative z-30 w-full px-6 md:px-12 pt-2 pb-2 text-center max-w-4xl mx-auto flex flex-col items-center pointer-events-none">
         {eyebrow && (
           <span
             className={cn(
-              "inline-block px-3 py-1 mb-2 text-[10px] md:text-xs font-extrabold uppercase tracking-widest rounded-full border shadow-sm backdrop-blur-md transition-all",
+              "inline-block px-3.5 py-1 mb-2 text-[10px] md:text-xs font-black uppercase tracking-widest rounded-full border shadow-lg backdrop-blur-md transition-all pointer-events-auto",
               isLight
                 ? "bg-purple-100/90 text-purple-900 border-purple-200"
                 : "bg-purple-950/80 text-purple-300 border-purple-500/30"
@@ -278,7 +496,7 @@ export function PortalGateway({
 
         <h1
           className={cn(
-            "text-2xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight transition-colors",
+            "text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-none transition-colors uppercase drop-shadow-lg",
             isLight ? "text-slate-900" : "text-white"
           )}
         >
@@ -288,8 +506,8 @@ export function PortalGateway({
         {supportingText && (
           <p
             className={cn(
-              "mt-2 text-xs md:text-sm font-medium leading-relaxed max-w-2xl text-balance transition-colors",
-              isLight ? "text-slate-600" : "text-slate-300"
+              "mt-2 text-xs md:text-sm font-semibold leading-relaxed max-w-2xl text-balance transition-colors drop-shadow-md",
+              isLight ? "text-slate-700" : "text-slate-200"
             )}
           >
             {supportingText}
@@ -297,190 +515,8 @@ export function PortalGateway({
         )}
       </section>
 
-      {/* 3. CINEMATIC 50/50 B2C & B2B SPLIT CONTAINER */}
-      <main className="relative z-30 flex-1 w-full px-4 md:px-10 pb-6 flex flex-col md:flex-row items-stretch justify-center gap-3 md:gap-0 overflow-hidden">
-        {/* PORTAL RENDER ORDER ON MOBILE */}
-        {(showB2CFirstOnMobile ? ["b2c", "b2b"] : ["b2b", "b2c"]).map((portalKey) => {
-          const isB2C = portalKey === "b2c";
-          const title = isB2C ? b2cTitle : b2bTitle;
-          const label = isB2C ? b2cLabel : b2bLabel;
-          const desc = isB2C ? b2cDesc : b2bDesc;
-          const cta = isB2C ? b2cCta : b2bCta;
-          const stat = isB2C ? b2cStat : b2bStat;
-          const aria = isB2C ? b2cAria : b2bAria;
-
-          const desktopMedia = isB2C
-            ? activeCmsData.b2cDesktopMedia
-            : activeCmsData.b2bDesktopMedia;
-          const mobileMedia = isB2C
-            ? activeCmsData.b2cMobileMedia || activeCmsData.b2cDesktopMedia
-            : activeCmsData.b2bMobileMedia || activeCmsData.b2bDesktopMedia;
-
-          const activeMedia =
-            isMobileViewport && mobileMedia?.mediaUrl ? mobileMedia : desktopMedia;
-
-          const isHovered = hoveredPortal === portalKey;
-          const isFocused = focusedPortal === portalKey;
-          const isSelected = selectedPortal === portalKey;
-          const isOtherHovered =
-            hoveredPortal !== null && hoveredPortal !== portalKey;
-          const isOtherFocused =
-            focusedPortal !== null && focusedPortal !== portalKey;
-
-          // Flex allocation on desktop: Default 50/50, Active 63/37
-          let flexClass = "md:flex-[50]";
-          if (activeFocus === portalKey) {
-            flexClass = "md:flex-[63]";
-          } else if (activeFocus && activeFocus !== portalKey) {
-            flexClass = "md:flex-[37]";
-          }
-
-          return (
-            <div
-              key={portalKey}
-              onMouseEnter={() => setHoveredPortal(portalKey as "b2c" | "b2b")}
-              onMouseLeave={() => setHoveredPortal(null)}
-              onFocus={() => setFocusedPortal(portalKey as "b2c" | "b2b")}
-              onBlur={() => setFocusedPortal(null)}
-              onClick={() => handleSelect(portalKey as "b2c" | "b2b")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleSelect(portalKey as "b2c" | "b2b");
-                }
-              }}
-              tabIndex={0}
-              role="button"
-              aria-label={aria || title}
-              className={cn(
-                "relative group flex-1 flex flex-col justify-end p-6 md:p-10 cursor-pointer rounded-2xl md:rounded-none overflow-hidden transition-all ease-out",
-                isReducedMotion ? "duration-200" : "duration-500",
-                flexClass,
-                // Divider styling on desktop
-                isB2C
-                  ? "md:rounded-s-3xl md:border-e border-purple-500/20"
-                  : "md:rounded-e-3xl md:border-s border-purple-500/20",
-                // Mobile height constraints
-                "min-h-[42vh] md:min-h-0",
-                // Active vs Inactive visual emphasis
-                isHovered || isFocused || isSelected
-                  ? "z-20 shadow-2xl ring-2 ring-purple-500/60"
-                  : isOtherHovered || isOtherFocused
-                  ? "z-10 opacity-75 grayscale-[20%]"
-                  : "z-10 opacity-100",
-                // Theme background styling
-                isLight
-                  ? isB2C
-                    ? "bg-gradient-to-br from-violet-900/90 via-purple-950/95 to-slate-950 text-white"
-                    : "bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-slate-950 text-white"
-                  : isB2C
-                  ? "bg-gradient-to-br from-violet-950/90 via-purple-950/95 to-black text-white"
-                  : "bg-gradient-to-br from-slate-950/95 via-zinc-900/95 to-black text-white"
-              )}
-            >
-              {/* MEDIA BACKGROUND LAYER */}
-              <div className="absolute inset-0 z-0">
-                <UniversalMediaHolder
-                  config={
-                    simulation?.useFallbackMedia
-                      ? {
-                          ...activeMedia,
-                          mediaUrl: activeMedia.fallbackImageUrl,
-                          mediaType: "IMAGE",
-                        }
-                      : activeMedia
-                  }
-                  locale={activeLocale}
-                  className={cn(
-                    "h-full w-full object-cover transition-transform ease-out opacity-45 group-hover:opacity-60",
-                    isReducedMotion ? "duration-200" : "duration-700",
-                    isHovered ? "scale-105" : "scale-100"
-                  )}
-                />
-
-                {/* TEXT PROTECTION GRADIENT OVERLAY */}
-                <div
-                  className={cn(
-                    "absolute inset-0 pointer-events-none transition-opacity duration-500",
-                    isB2C
-                      ? "bg-gradient-to-t from-violet-950/95 via-purple-950/60 to-transparent"
-                      : "bg-gradient-to-t from-slate-950/95 via-indigo-950/60 to-transparent"
-                  )}
-                  style={{
-                    opacity: visual.overlayStrength ?? 0.6,
-                  }}
-                />
-              </div>
-
-              {/* CURVED / ANGLED RESTRAINED E3 BRAND DIVIDER (DESKTOP INTERFACE) */}
-              <div
-                className={cn(
-                  "hidden md:block absolute top-0 bottom-0 z-10 w-1 pointer-events-none transition-colors duration-500",
-                  isB2C ? "right-0 bg-gradient-to-b from-purple-500/0 via-purple-400/50 to-purple-500/0" : "left-0 bg-gradient-to-b from-indigo-500/0 via-indigo-400/50 to-indigo-500/0"
-                )}
-              />
-
-              {/* PROTECTED CONTENT ZONE */}
-              <div className="relative z-20 space-y-3 max-w-xl">
-                {/* Eyebrow / Category Tag & Optional Stat Badge */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={cn(
-                      "inline-block px-3 py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-wider border shadow-sm backdrop-blur-md",
-                      isB2C
-                        ? "bg-purple-500/30 text-purple-200 border-purple-400/40"
-                        : "bg-indigo-500/30 text-indigo-200 border-indigo-400/40"
-                    )}
-                  >
-                    {label}
-                  </span>
-
-                  {stat && visual.statisticsVisible !== false && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-white/90 border border-white/20 backdrop-blur-md">
-                      {stat}
-                    </span>
-                  )}
-                </div>
-
-                {/* Main Title */}
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tight text-white drop-shadow-md">
-                  {title}
-                </h2>
-
-                {/* Description */}
-                <p className="text-xs md:text-sm text-slate-200 font-medium leading-relaxed drop-shadow-sm line-clamp-3 md:line-clamp-none">
-                  {desc}
-                </p>
-
-                {/* CTA BUTTON */}
-                <div className="pt-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelect(portalKey as "b2c" | "b2b");
-                    }}
-                    type="button"
-                    className={cn(
-                      "inline-flex items-center gap-2.5 rounded-xl px-5 py-3 text-xs md:text-sm font-bold text-white shadow-xl transition-all min-h-[44px] focus:outline-none focus:ring-2 focus:ring-white",
-                      isB2C
-                        ? "bg-purple-600 hover:bg-purple-500 shadow-purple-950/50"
-                        : "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-950/50",
-                      isHovered && !isReducedMotion && "translate-x-1 rtl:-translate-x-1"
-                    )}
-                  >
-                    <span>{cta}</span>
-                    {isAr ? (
-                      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </main>
+      {/* Spacer to push content area cleanly */}
+      <div className="relative z-20 pointer-events-none pb-4" />
     </div>
   );
 }

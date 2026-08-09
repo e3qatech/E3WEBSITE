@@ -69,8 +69,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   )
 }
 
+const defaultToastContext: ToastContextType = {
+  toast: (message: string, type: ToastType = "success") => {
+    if (typeof window !== "undefined") {
+      console.log(`[Toast ${type}]: ${message}`);
+    }
+  },
+};
+
 export function useToast() {
-  const context = useContext(ToastContext)
-  if (!context) throw new Error("useToast must be used within a ToastProvider")
-  return context
+  const context = useContext(ToastContext);
+  return context || defaultToastContext;
 }

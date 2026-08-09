@@ -1,4 +1,5 @@
 import { LocaleProvider } from "@/components/layout/LocaleProvider";
+import { ToastProvider } from "@/components/dashboard/ui/ToastProvider";
 
 export default async function LocaleLayout({
   children,
@@ -10,7 +11,9 @@ export default async function LocaleLayout({
   await params;
   return (
     <LocaleProvider>
-      {children}
+      <ToastProvider>
+        {children}
+      </ToastProvider>
     </LocaleProvider>
   );
 }
