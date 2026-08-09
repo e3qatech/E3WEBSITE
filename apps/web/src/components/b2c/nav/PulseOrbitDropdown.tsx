@@ -202,7 +202,7 @@ export function PulseOrbitDropdown({
               className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 hover:bg-slate-900 hover:text-emerald-400 transition-colors"
             >
               <PartyPopper className="h-3.5 w-3.5 text-purple-400" />
-              <span>{isAr ? 'الباقات والفعاليات' : 'Packages & Buyouts'}</span>
+              <span>{isAr ? 'الباقات' : 'Packages'}</span>
             </Link>
           </div>
         </div>

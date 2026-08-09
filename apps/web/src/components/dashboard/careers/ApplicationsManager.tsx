@@ -5,6 +5,7 @@ import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { FileText, Download, Cpu, Search, Filter } from "lucide-react"
+import { safeFetchJson } from "@/lib/utils"
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {
   const [applications, setApplications] = useState(initialApplications)
@@ -19,11 +20,11 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
     setParsing(true)
     try {
       const res = await fetch(`/api/careers/${id}/parse`, { method: 'POST' })
-      const json = await res.json()
+      const parsed = await safeFetchJson(res)
       
-      if (!res.ok) throw new Error(json.error || "Failed to parse CV")
+      if (!parsed.ok) throw new Error(parsed.error || "Failed to parse CV")
       
-      setApplications(prev => prev.map(app => app.id === id ? json.application : app))
+      setApplications(prev => prev.map(app => app.id === id ? parsed.data.application : app))
       toast("CV parsed successfully.", "success")
     } catch (e: any) {
       console.error(e)
@@ -41,9 +42,9 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       })
-      const json = await res.json()
+      const parsed = await safeFetchJson(res)
       
-      if (!res.ok) throw new Error(json.error || "Failed to update status")
+      if (!parsed.ok) throw new Error(parsed.error || "Failed to update status")
       
       setApplications(prev => prev.map(app => app.id === id ? { ...app, status: newStatus } : app))
       toast("Application status updated.", "success")

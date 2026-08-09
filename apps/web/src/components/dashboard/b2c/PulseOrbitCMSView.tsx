@@ -53,8 +53,8 @@ const DEFAULT_DESTINATIONS: OrbitDestinationItem[] = [
   },
   {
     id: "packages",
-    labelEn: "Packages & Events",
-    labelAr: "الباقات والفعاليات",
+    labelEn: "Packages",
+    labelAr: "الباقات",
     href: "/b2c/packages",
     descEn: "VIP Birthday parties, corporate team outings, and private venue buyouts.",
     descAr: "حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.",

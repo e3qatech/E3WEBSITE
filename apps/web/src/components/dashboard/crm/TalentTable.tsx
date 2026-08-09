@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { format } from "date-fns"
+import { safeFetchJson } from "@/lib/utils"
 import {
   flexRender,
   getCoreRowModel,
@@ -103,25 +104,27 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
         method: "POST",
         body: formData
       })
-      if (res.ok) {
-        const parsedData = await res.json()
-        
-        // Save to DB
+      const parsed = await safeFetchJson(res)
+
+      if (parsed.ok && parsed.data) {
         const saveRes = await fetch("/api/crm/talent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(parsedData)
+          body: JSON.stringify(parsed.data)
         })
 
-        if (saveRes.ok) {
+        const saveParsed = await safeFetchJson(saveRes)
+        if (saveParsed.ok) {
           router.refresh()
+        } else {
+          alert(saveParsed.error || "Failed to save candidate.")
         }
       } else {
-        alert("Failed to parse resume.")
+        alert(parsed.error || "Failed to parse resume.")
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert("An error occurred.")
+      alert(err?.message || "An error occurred.")
     } finally {
       setIsParsing(false)
       if (e.target) e.target.value = ''

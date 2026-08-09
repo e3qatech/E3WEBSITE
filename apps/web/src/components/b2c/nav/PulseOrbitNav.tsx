@@ -61,8 +61,8 @@ const DESTINATIONS: NavDestination[] = [
     mediaUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop',
   },
   {
-    labelEn: 'Packages & Events',
-    labelAr: 'الباقات والفعاليات',
+    labelEn: 'Packages',
+    labelAr: 'الباقات',
     href: '/b2c/packages',
     icon: PartyPopper,
     descEn: 'VIP Birthday parties, corporate team outings, and private venue buyouts.',
@@ -225,7 +225,7 @@ export function PulseOrbitNav({
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-          {/* Company Logo & Portal Mode Switcher */}
+          {/* Company Logo */}
           <div className="flex items-center gap-4">
             <Link
               href={`/${locale}/b2c`}
@@ -240,17 +240,6 @@ export function PulseOrbitNav({
                 size="md"
               />
             </Link>
-
-            {/* ACCESSIBLE PULSE ORBIT DROPDOWN SUBMENU */}
-            <PulseOrbitDropdown
-              locale={locale}
-              customerLabelEn={customerLabelEn}
-              customerLabelAr={customerLabelAr}
-              organizerLabelEn={organizerLabelEn}
-              organizerLabelAr={organizerLabelAr}
-              customerUrl={customerUrl}
-              organizerUrl={organizerUrl}
-            />
           </div>
 
           {/* Desktop Links (Resting State) */}
@@ -352,11 +341,14 @@ export function PulseOrbitNav({
             <div className="flex items-center gap-3">
               <span className="h-3 w-3 rounded-full bg-emerald-400 animate-ping" />
               <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest font-bold">
-                PULSE ORBIT DESTINATIONS
+                {isAr ? (orbitData?.titleAr || 'وجهات مدار إي ثري') : (orbitData?.titleEn || 'PULSE ORBIT DESTINATIONS')}
               </span>
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Login / Sign Up Controls in Right-Side Pulse Orbit Overlay */}
+              <HeaderAuthControls locale={locale} />
+
               {/* Language Switch */}
               <Link
                 href={isAr ? `/en${pathname?.replace('/ar', '') || ''}` : `/ar${pathname?.replace('/en', '') || ''}`}

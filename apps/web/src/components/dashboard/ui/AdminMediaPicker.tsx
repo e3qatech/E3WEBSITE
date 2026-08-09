@@ -6,6 +6,7 @@ import { AdminButton } from "./AdminButton"
 import { Image as ImageIcon, Video, FileText, UploadCloud, Check, Trash2 } from "lucide-react"
 import { uploadFile } from "@/lib/upload"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { safeFetchJson } from "@/lib/utils"
 
 interface Media {
   id: string
@@ -41,9 +42,9 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     setLoading(true)
     try {
       const res = await fetch("/api/cms/media")
-      const json = await res.json()
-      if (json.data) {
-        setMediaList(json.data)
+      const parsed = await safeFetchJson(res)
+      if (parsed.ok && parsed.data?.data) {
+        setMediaList(parsed.data.data)
       }
     } catch (e) {
       console.error(e)

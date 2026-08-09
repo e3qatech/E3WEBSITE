@@ -98,9 +98,6 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
               {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
             </span>
           </Link>
-
-          {/* Pulse Orbit Submenu Dropdown */}
-          <PulseOrbitDropdown locale={currentLocale} />
         </div>
 
         {/* Desktop Nav */}

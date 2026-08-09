@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent } from 'react';
 import { Mail, MessageCircle, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { safeFetchJson } from '@/lib/utils';
 
 export function SubscribeSection() {
   const [channel, setChannel] = useState<'EMAIL' | 'WHATSAPP' | 'BOTH'>('EMAIL');
@@ -36,11 +37,11 @@ export function SubscribeSection() {
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to subscribe');
+      const parsed = await safeFetchJson(res);
+      if (!parsed.ok) throw new Error(parsed.error || 'Failed to subscribe');
 
       setStatus('SUCCESS');
-      setMessage(data.message || 'Successfully subscribed! Check your inbox.');
+      setMessage(parsed.data?.message || 'Successfully subscribed! Check your inbox.');
       setEmail('');
       setPhone('');
     } catch (err: any) {

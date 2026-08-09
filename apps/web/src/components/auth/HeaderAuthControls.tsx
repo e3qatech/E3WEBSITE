@@ -90,6 +90,30 @@ export function HeaderAuthControls({
 
                 <button
                   type="button"
+                  onClick={() => {
+                    setUserDropdownOpen(false);
+                    openLogin();
+                  }}
+                  className="w-full text-start flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-900 hover:text-white transition-colors"
+                >
+                  <LogIn className="h-4 w-4 text-emerald-400" />
+                  <span>{isAr ? 'تبديل الحساب / تسجيل الدخول' : 'Login / Switch Account'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserDropdownOpen(false);
+                    openSignUp();
+                  }}
+                  className="w-full text-start flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-900 hover:text-white transition-colors"
+                >
+                  <UserPlus className="h-4 w-4 text-sky-400" />
+                  <span>{isAr ? 'إنشاء حساب جديد' : 'Sign Up New Account'}</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => signOut({ callbackUrl: `/${locale}` })}
                   className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-950/40 transition-colors mt-1 border-t border-slate-800/80 pt-2"
                 >
