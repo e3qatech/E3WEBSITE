@@ -47,11 +47,28 @@ export async function uploadFile(file: File, context?: string): Promise<{ url: s
   }
 
   if (!response.ok) {
-    const errJson = await response.json().catch(() => ({}));
-    throw new Error(errJson.error || `Upload failed (${response.status})`);
+    const errText = await response.text().catch(() => '');
+    let errJson: any = {};
+    try {
+      errJson = JSON.parse(errText);
+    } catch (_e) {}
+    if (errText.includes('Request Entity Too Large') || response.status === 413) {
+      throw new Error('Upload failed (413 Payload Too Large). File size exceeds the server limit. Please enter a direct URL or compress the media.');
+    }
+    throw new Error(errJson.error || errText || `Upload failed (${response.status})`);
   }
 
-  const data = await response.json();
+  const resText = await response.text();
+  let data: any = {};
+  try {
+    data = JSON.parse(resText);
+  } catch (_e) {
+    if (resText.includes('Request Entity Too Large')) {
+      throw new Error('Upload failed (413 Payload Too Large). File size exceeds the server limit.');
+    }
+    throw new Error(resText || 'Invalid response from upload server.');
+  }
+
   if (data.url) {
     return { url: data.url, fileName: data.fileName || file.name };
   }

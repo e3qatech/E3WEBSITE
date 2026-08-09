@@ -196,8 +196,22 @@ export function PortalGateway({
 
   const isReducedMotion = simulation?.reducedMotion || visual.reducedMotionDefault;
 
-  // Mobile Portal Ordering
-  const showB2CFirstOnMobile = visual.mobilePortalOrder !== "b2b_first";
+  // Active Media resolution
+  const activeB2cDesktopMedia = activeCmsData.b2cDesktopMedia;
+  const activeB2cMobileMedia = activeCmsData.b2cMobileMedia || activeCmsData.b2cDesktopMedia;
+  const activeB2cMedia = isMobileViewport && activeB2cMobileMedia?.mediaUrl ? activeB2cMobileMedia : activeB2cDesktopMedia;
+
+  const activeB2bDesktopMedia = activeCmsData.b2bDesktopMedia;
+  const activeB2bMobileMedia = activeCmsData.b2bMobileMedia || activeCmsData.b2bDesktopMedia;
+  const activeB2bMedia = isMobileViewport && activeB2bMobileMedia?.mediaUrl ? activeB2bMobileMedia : activeB2bDesktopMedia;
+
+  // Dynamic slanted seam position (%)
+  let b2cSeamLeft = 50;
+  if (hoveredPortal === 'b2c' || focusedPortal === 'b2c') {
+    b2cSeamLeft = 62;
+  } else if (hoveredPortal === 'b2b' || focusedPortal === 'b2b') {
+    b2cSeamLeft = 38;
+  }
 
   return (
     <div
@@ -210,7 +224,7 @@ export function PortalGateway({
       role="region"
       aria-label={ariaGatewayLabel || "E3 Qatar Portal Selection Gateway"}
     >
-      {/* 1. FULL-BLEED FULL-SCREEN BACKGROUND PORTAL MEDIA LAYER */}
+      {/* 1. FULL-BLEED SEAMLESS CINEMATIC 50/50 PORTALS */}
       <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
         {/* Wireframe background */}
         {isMounted && visual.backgroundStyle === "wireframe" && (
@@ -229,202 +243,151 @@ export function PortalGateway({
           )}
         />
 
-        {/* CINEMATIC SLANTED 50/50 PORTALS (DESKTOP / MOBILE FULL BLEED) */}
-        <div className="absolute inset-0 z-10 w-full h-full flex flex-col md:flex-row">
-          {(showB2CFirstOnMobile ? ["b2c", "b2b"] : ["b2b", "b2c"]).map((portalKey) => {
-            const isB2C = portalKey === "b2c";
-            const title = isB2C ? b2cTitle : b2bTitle;
-            const label = isB2C ? b2cLabel : b2bLabel;
-            const desc = isB2C ? b2cDesc : b2bDesc;
-            const cta = isB2C ? b2cCta : b2bCta;
-            const stat = isB2C ? b2cStat : b2bStat;
-            const aria = isB2C ? b2cAria : b2bAria;
-
-            const desktopMedia = isB2C
-              ? activeCmsData.b2cDesktopMedia
-              : activeCmsData.b2bDesktopMedia;
-            const mobileMedia = isB2C
-              ? activeCmsData.b2cMobileMedia || activeCmsData.b2cDesktopMedia
-              : activeCmsData.b2bMobileMedia || activeCmsData.b2bDesktopMedia;
-
-            const activeMedia =
-              isMobileViewport && mobileMedia?.mediaUrl ? mobileMedia : desktopMedia;
-
-            const isHovered = hoveredPortal === portalKey;
-            const isFocused = focusedPortal === portalKey;
-            const isSelected = selectedPortal === portalKey;
-            const isOtherHovered =
-              hoveredPortal !== null && hoveredPortal !== portalKey;
-            const isOtherFocused =
-              focusedPortal !== null && focusedPortal !== portalKey;
-
-            // Slanted clip paths & flex values on Desktop
-            let desktopWidthPercent = 50;
-            if (activeFocus === portalKey) {
-              desktopWidthPercent = 62;
-            } else if (activeFocus && activeFocus !== portalKey) {
-              desktopWidthPercent = 38;
-            }
-
-            return (
-              <div
-                key={portalKey}
-                onMouseEnter={() => setHoveredPortal(portalKey as "b2c" | "b2b")}
-                onMouseLeave={() => setHoveredPortal(null)}
-                onFocus={() => setFocusedPortal(portalKey as "b2c" | "b2b")}
-                onBlur={() => setFocusedPortal(null)}
-                onClick={() => handleSelect(portalKey as "b2c" | "b2b")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleSelect(portalKey as "b2c" | "b2b");
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={aria || title}
-                style={{
-                  clipPath: isMobileViewport
-                    ? 'none'
-                    : isB2C
-                    ? isAr
-                      ? `polygon(0 0, 100% 0, 100% 100%, 0 100%)`
-                      : `polygon(0 0, ${desktopWidthPercent + 4}% 0, ${desktopWidthPercent - 4}% 100%, 0 100%)`
-                    : isAr
-                    ? `polygon(0 0, 100% 0, 100% 100%, 0 100%)`
-                    : `polygon(${desktopWidthPercent - 4}% 0, 100% 0, 100% 100%, ${desktopWidthPercent - 12}% 100%)`,
-                }}
-                className={cn(
-                  "relative group flex-1 flex flex-col justify-end p-8 md:p-14 cursor-pointer overflow-hidden transition-all ease-out",
-                  isReducedMotion ? "duration-200" : "duration-700",
-                  "h-1/2 md:h-full w-full",
-                  isHovered || isFocused || isSelected
-                    ? "z-20 brightness-105"
-                    : isOtherHovered || isOtherFocused
-                    ? "z-10 opacity-70 grayscale-[25%]"
-                    : "z-10 opacity-100",
-                  isLight
-                    ? isB2C
-                      ? "bg-gradient-to-br from-violet-900/90 via-purple-950/95 to-slate-950 text-white"
-                      : "bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-slate-950 text-white"
-                    : isB2C
-                    ? "bg-gradient-to-br from-violet-950/90 via-purple-950/95 to-black text-white"
-                    : "bg-gradient-to-br from-slate-950/95 via-zinc-900/95 to-black text-white"
-                )}
-              >
-                {/* MEDIA BACKGROUND LAYER */}
-                <div className="absolute inset-0 z-0">
-                  <UniversalMediaHolder
-                    config={
-                      simulation?.useFallbackMedia
-                        ? {
-                            ...activeMedia,
-                            mediaUrl: activeMedia.fallbackImageUrl,
-                            mediaType: "IMAGE",
-                          }
-                        : activeMedia
-                    }
-                    locale={activeLocale}
-                    className={cn(
-                      "h-full w-full object-cover transition-transform ease-out opacity-45 group-hover:opacity-65",
-                      isReducedMotion ? "duration-200" : "duration-700",
-                      isHovered ? "scale-105" : "scale-100"
-                    )}
-                  />
-
-                  {/* GRADIENT OVERLAY FOR TEXT READABILITY */}
-                  <div
-                    className={cn(
-                      "absolute inset-0 pointer-events-none transition-opacity duration-500",
-                      isB2C
-                        ? "bg-gradient-to-t from-violet-950/95 via-purple-950/60 to-transparent"
-                        : "bg-gradient-to-t from-slate-950/95 via-indigo-950/60 to-transparent"
-                    )}
-                    style={{
-                      opacity: visual.overlayStrength ?? 0.6,
-                    }}
-                  />
-                </div>
-
-                {/* PROTECTED CONTENT ZONE */}
-                <div className="relative z-20 space-y-4 max-w-xl pb-4">
-                  {/* Category Tag & Stat Badge */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={cn(
-                        "inline-block px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-widest border shadow-lg backdrop-blur-md",
-                        isB2C
-                          ? "bg-purple-500/30 text-purple-200 border-purple-400/50"
-                          : "bg-indigo-500/30 text-indigo-200 border-indigo-400/50"
-                      )}
-                    >
-                      {label}
-                    </span>
-
-                    {stat && visual.statisticsVisible !== false && (
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white/90 border border-white/20 backdrop-blur-md">
-                        {stat}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-white drop-shadow-lg uppercase">
-                    {title}
-                  </h2>
-
-                  {/* Description */}
-                  <p className="text-xs md:text-sm text-slate-200 font-medium leading-relaxed drop-shadow-sm max-w-md line-clamp-3 md:line-clamp-none">
-                    {desc}
-                  </p>
-
-                  {/* CTA BUTTON */}
-                  <div className="pt-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelect(portalKey as "b2c" | "b2b");
-                      }}
-                      type="button"
-                      className={cn(
-                        "inline-flex items-center gap-3 rounded-xl px-6 py-3.5 text-xs md:text-sm font-black text-white shadow-2xl transition-all min-h-[48px] focus:outline-none focus:ring-2 focus:ring-white uppercase tracking-wider",
-                        isB2C
-                          ? "bg-purple-600 hover:bg-purple-500 shadow-purple-950/60"
-                          : "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-950/60",
-                        isHovered && !isReducedMotion && "translate-x-1 rtl:-translate-x-1 scale-[1.02]"
-                      )}
-                    >
-                      <span>{cta}</span>
-                      {isAr ? (
-                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                      ) : (
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* DYNAMIC SLANTED SEAM LINE (DESKTOP) */}
-          <div
+        {/* UNDERNEATH LAYER: B2B PORTAL (ENTERPRISE SOLUTIONS / BUILD WITH E3) */}
+        <div
+          onMouseEnter={() => setHoveredPortal("b2b")}
+          onMouseLeave={() => setHoveredPortal(null)}
+          onFocus={() => setFocusedPortal("b2b")}
+          onBlur={() => setFocusedPortal(null)}
+          onClick={() => handleSelect("b2b")}
+          tabIndex={0}
+          role="button"
+          aria-label={b2bAria || b2bTitle}
+          className={cn(
+            "absolute inset-0 w-full h-full cursor-pointer transition-all duration-700 overflow-hidden",
+            hoveredPortal === "b2b" ? "brightness-105 z-10" : hoveredPortal === "b2c" ? "opacity-75 grayscale-[20%]" : "opacity-100"
+          )}
+        >
+          <UniversalMediaHolder
+            config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2bMedia}
+            locale={activeLocale}
             className={cn(
-              "hidden md:block absolute top-0 bottom-0 z-30 w-1.5 -skew-x-6 pointer-events-none transition-all duration-700 bg-gradient-to-b from-purple-400 via-indigo-400 to-sky-400 shadow-[0_0_25px_rgba(168,85,247,0.9)]",
-              activeFocus === "b2c" ? "left-[60%]" : activeFocus === "b2b" ? "left-[40%]" : "left-[50%]"
+              "h-full w-full object-cover transition-transform duration-700 opacity-50 group-hover:opacity-70",
+              hoveredPortal === "b2b" ? "scale-105" : "scale-100"
             )}
           />
+          <div
+            className="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/95 via-indigo-950/60 to-transparent"
+            style={{ opacity: visual.overlayStrength ?? 0.6 }}
+          />
+          
+          {/* B2B Content Overlay */}
+          <div className="absolute bottom-10 end-8 md:end-16 z-30 max-w-xl space-y-3 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-indigo-500/30 text-indigo-200 border border-indigo-400/50 shadow-lg backdrop-blur-md">
+                {b2bLabel}
+              </span>
+              {b2bStat && visual.statisticsVisible !== false && (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white/90 border border-white/20 backdrop-blur-md">
+                  {b2bStat}
+                </span>
+              )}
+            </div>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-white drop-shadow-lg uppercase">
+              {b2bTitle}
+            </h2>
+            <p className="text-xs md:text-sm text-slate-200 font-medium leading-relaxed drop-shadow-sm max-w-md line-clamp-3 md:line-clamp-none">
+              {b2bDesc}
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelect("b2b");
+                }}
+                type="button"
+                className="inline-flex items-center gap-3 rounded-xl px-6 py-3.5 text-xs md:text-sm font-black text-white bg-indigo-600 hover:bg-indigo-500 shadow-2xl shadow-indigo-950/60 transition-all min-h-[48px] uppercase tracking-wider cursor-pointer"
+              >
+                <span>{b2bCta}</span>
+                {isAr ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* TOP OVERLAID LAYER: B2C PORTAL (PUBLIC EXPERIENCES / EXPERIENCE WITH E3) CLIPPED ANGLED */}
+        <div
+          onMouseEnter={() => setHoveredPortal("b2c")}
+          onMouseLeave={() => setHoveredPortal(null)}
+          onFocus={() => setFocusedPortal("b2c")}
+          onBlur={() => setFocusedPortal(null)}
+          onClick={() => handleSelect("b2c")}
+          tabIndex={0}
+          role="button"
+          aria-label={b2cAria || b2cTitle}
+          style={{
+            clipPath: isMobileViewport
+              ? 'none'
+              : isAr
+              ? `polygon(${b2cSeamLeft - 4}% 0, 100% 0, 100% 100%, ${b2cSeamLeft + 4}% 100%)`
+              : `polygon(0 0, ${b2cSeamLeft + 4}% 0, ${b2cSeamLeft - 4}% 100%, 0 100%)`,
+          }}
+          className={cn(
+            "absolute inset-0 w-full h-full cursor-pointer transition-all duration-700 overflow-hidden z-20",
+            hoveredPortal === "b2c" ? "brightness-105" : hoveredPortal === "b2b" ? "opacity-75 grayscale-[20%]" : "opacity-100"
+          )}
+        >
+          <UniversalMediaHolder
+            config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2cMedia}
+            locale={activeLocale}
+            className={cn(
+              "h-full w-full object-cover transition-transform duration-700 opacity-50 group-hover:opacity-70",
+              hoveredPortal === "b2c" ? "scale-105" : "scale-100"
+            )}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none bg-gradient-to-t from-violet-950/95 via-purple-950/60 to-transparent"
+            style={{ opacity: visual.overlayStrength ?? 0.6 }}
+          />
+
+          {/* B2C Content Overlay */}
+          <div className="absolute bottom-10 start-8 md:start-16 z-30 max-w-xl space-y-3 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-purple-500/30 text-purple-200 border border-purple-400/50 shadow-lg backdrop-blur-md">
+                {b2cLabel}
+              </span>
+              {b2cStat && visual.statisticsVisible !== false && (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white/90 border border-white/20 backdrop-blur-md">
+                  {b2cStat}
+                </span>
+              )}
+            </div>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-white drop-shadow-lg uppercase">
+              {b2cTitle}
+            </h2>
+            <p className="text-xs md:text-sm text-slate-200 font-medium leading-relaxed drop-shadow-sm max-w-md line-clamp-3 md:line-clamp-none">
+              {b2cDesc}
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelect("b2c");
+                }}
+                type="button"
+                className="inline-flex items-center gap-3 rounded-xl px-6 py-3.5 text-xs md:text-sm font-black text-white bg-purple-600 hover:bg-purple-500 shadow-2xl shadow-purple-950/60 transition-all min-h-[48px] uppercase tracking-wider cursor-pointer"
+              >
+                <span>{b2cCta}</span>
+                {isAr ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* DYNAMIC SLANTED SEAM LINE (DESKTOP SEPARATOR) */}
+        <div
+          style={{
+            left: `${b2cSeamLeft}%`,
+          }}
+          className="hidden md:block absolute top-0 bottom-0 z-30 w-1.5 -skew-x-6 pointer-events-none transition-all duration-700 bg-gradient-to-b from-purple-400 via-indigo-400 to-sky-400 shadow-[0_0_25px_rgba(168,85,247,0.95)]"
+        />
       </div>
 
-      {/* 2. FLOATING MINIMAL TRANSPARENT HEADER LAYER */}
+      {/* 2. FLOATING HEADER LAYER */}
       <header className="relative z-40 w-full px-6 py-6 md:px-12 flex items-center justify-between pointer-events-auto">
-        {/* E3 Official Logo */}
         <a
           href={logo?.destinationUrl || "/"}
-          onClick={(e) => {
-            if (previewMode) e.preventDefault();
-          }}
+          onClick={(e) => { if (previewMode) e.preventDefault(); }}
           className="inline-flex items-center gap-3 transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-lg p-1"
           aria-label={isAr ? logo?.altAr || "شعار إي ثري قطر" : logo?.altEn || "E3 Qatar Official Logo"}
         >
@@ -436,9 +399,7 @@ export function PortalGateway({
           />
         </a>
 
-        {/* Header Controls: Language Switcher & Theme Control */}
         <div className="flex items-center gap-3">
-          {/* Language Switcher */}
           {visual.languageSwitcherVisible !== false && (
             <button
               onClick={toggleLanguage}
@@ -456,7 +417,6 @@ export function PortalGateway({
             </button>
           )}
 
-          {/* Theme Control */}
           {visual.themeSwitcherVisible !== false && (
             <button
               onClick={toggleTheme}
@@ -515,7 +475,6 @@ export function PortalGateway({
         )}
       </section>
 
-      {/* Spacer to push content area cleanly */}
       <div className="relative z-20 pointer-events-none pb-4" />
     </div>
   );
