@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useB2CExperience } from '@/components/b2c/runtime/B2CExperienceRuntime';
+import { useSession } from 'next-auth/react';
 import {
   Sparkles,
   Ticket,
@@ -19,6 +20,7 @@ import {
   Menu as MenuIcon,
   ChevronRight,
   ArrowRight,
+  User as UserIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -116,6 +118,14 @@ export function PulseOrbitNav({
 }) {
   const pathname = usePathname();
   const { trackTelemetry } = useB2CExperience();
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated' && !!session?.user;
+  const userInitial = session?.user?.name
+    ? session.user.name.charAt(0).toUpperCase()
+    : session?.user?.email
+    ? session.user.email.charAt(0).toUpperCase()
+    : null;
+
   const isAr = locale === 'ar';
   const isB2C = pathname?.includes('/b2c') || !pathname?.includes('/b2b');
 
@@ -265,9 +275,6 @@ export function PulseOrbitNav({
 
           {/* Action CTAs & Orbit Menu Trigger */}
           <div className="flex items-center gap-2">
-            {/* Header Authentication Controls: Login / Sign Up or Logged-in User Profile & Dashboard */}
-            <HeaderAuthControls locale={locale} />
-
             {/* Language Section Tab in Main Menu Bar */}
             <button
               onClick={toggleLanguage}
@@ -314,14 +321,25 @@ export function PulseOrbitNav({
               )
             )}
 
-            {/* Menu Trigger Button */}
+            {/* Menu Trigger Button (Pulse Orbit Tab) */}
             <button
               onClick={toggleMenu}
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
-              className="inline-flex items-center gap-2 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
+              className={cn(
+                "inline-flex items-center gap-2 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none",
+                isAuthenticated && "border-emerald-500/40 bg-emerald-950/30 hover:border-emerald-500/60 text-emerald-300 shadow-sm"
+              )}
             >
-              {menuOpen ? <X className="h-4 w-4 text-rose-400" /> : <MenuIcon className="h-4 w-4 text-emerald-400" />}
+              {menuOpen ? (
+                <X className="h-4 w-4 text-rose-400" />
+              ) : isAuthenticated ? (
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-extrabold text-[10px] border border-emerald-500/40 shadow-sm">
+                  {userInitial || <UserIcon className="h-3 w-3" />}
+                </div>
+              ) : (
+                <MenuIcon className="h-4 w-4 text-emerald-400" />
+              )}
               <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? 'القائمة' : 'PULSE ORBIT')}</span>
             </button>
           </div>
