@@ -17,18 +17,25 @@ export function useSocket(namespace: string) {
   const [socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
-    // Socket.io automatically handles exponential backoff and reconnection
+    // Only attempt socket connection in browser
+    if (typeof window === 'undefined') return
+
+    // Socket.io config: default to polling first for serverless environment compatibility
     const socketInstance = io(namespace, {
       path: '/api/socket.io',
-      transports: ['websocket', 'polling'],
-      withCredentials: true, // Important for sending NextAuth cookies during handshake
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
+      transports: ['polling', 'websocket'],
+      withCredentials: true,
+      reconnectionAttempts: 3,
+      reconnectionDelay: 2000,
       reconnectionDelayMax: 5000,
-      timeout: 20000,
+      timeout: 10000,
+      autoConnect: true
     })
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for connection initialization
+    socketInstance.on('connect_error', () => {
+      // Gracefully suppress socket errors on Vercel serverless functions without WebSockets
+    })
+
     setSocket(socketInstance)
 
     return () => {

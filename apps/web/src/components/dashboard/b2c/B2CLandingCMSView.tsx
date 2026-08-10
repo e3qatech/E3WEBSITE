@@ -100,13 +100,23 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
   const handleSave = async () => {
     setSaving(true)
     try {
+      const jsonBody = JSON.stringify({ content });
+      if (jsonBody.length > 3.5 * 1024 * 1024) {
+        throw new Error('Payload Too Large. One or more of your section media items contains a large embedded file. Please compress images/videos or paste direct CDN URLs.')
+      }
+
       const res = await fetch('/api/cms/pages/b2c-landing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
+        body: jsonBody
       })
 
-      if (!res.ok) throw new Error('Failed to save CMS configuration')
+      if (!res.ok) {
+        if (res.status === 413) {
+          throw new Error('Payload Too Large (HTTP 413). Please compress uploaded media files or paste direct video URLs.')
+        }
+        throw new Error('Failed to save CMS configuration')
+      }
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))

@@ -171,14 +171,22 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
         },
       };
 
+      const jsonBody = JSON.stringify(payload);
+      if (jsonBody.length > 3.5 * 1024 * 1024) {
+        throw new Error("Payload Too Large. One of your destination media items contains a large embedded file. Please compress your media file or paste a direct video URL.");
+      }
+
       // Save to pulse-orbit slug
       const res = await fetch("/api/cms/pages/pulse-orbit", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: jsonBody,
       });
 
       if (!res.ok) {
+        if (res.status === 413) {
+          throw new Error("Payload Too Large (HTTP 413). Please compress uploaded media files or paste direct video URLs.");
+        }
         const errJson = await res.json().catch(() => ({}));
         throw new Error(errJson.error || `Server returned HTTP ${res.status}`);
       }

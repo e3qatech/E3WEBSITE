@@ -16,10 +16,18 @@ export function useTelemetry(attractionId?: string) {
   const [occupancy, setOccupancy] = useState<Record<string, OccupancyData>>({});
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     if (!socketInstance) {
       socketInstance = io('/public', {
         path: '/api/socket.io',
-        transports: ['websocket', 'polling'],
+        transports: ['polling', 'websocket'],
+        reconnectionAttempts: 3,
+        timeout: 10000,
+      });
+
+      socketInstance.on('connect_error', () => {
+        // Silent fallback for Vercel serverless functions
       });
     }
 
@@ -40,13 +48,12 @@ export function useTelemetry(attractionId?: string) {
 
     return () => {
       socket.off('occupancy:update', handleUpdate);
-      if (attractionId) {
+      if (attractionId && socket.connected) {
         socket.emit('leave:attraction', attractionId);
       }
     };
   }, [attractionId]);
 
-  // If attractionId is provided, return just that occupancy, else return the whole map
   return { 
     occupancy: attractionId ? occupancy[attractionId] : null,
     allOccupancy: occupancy
