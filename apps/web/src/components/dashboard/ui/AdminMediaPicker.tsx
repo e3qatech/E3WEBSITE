@@ -138,8 +138,8 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   }
 
   return (
-    <div className="flex flex-col gap-2.5 w-full max-w-md">
-      <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{label}</span>
+    <div className="flex flex-col gap-2.5 w-full">
+      {label && <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{label}</span>}
       
       <input
         ref={fileInputRef}
@@ -150,29 +150,12 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         disabled={uploading}
       />
 
-      {/* Prominent Always-Visible System File Upload Action Bar */}
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all shadow-sm disabled:opacity-50"
-        >
-          <UploadCloud className="w-4 h-4" />
-          {uploading ? "Uploading System File..." : "📁 Upload Local File from Computer"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="text-xs font-semibold text-slate-400 hover:text-emerald-400 underline px-2 py-1 transition-colors"
-        >
-          Paste Link / Library →
-        </button>
-      </div>
-
+      {/* Main Media Preview Container */}
       {value ? (
-        <div className="relative w-full rounded-2xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center shadow-sm">
+        <div 
+          onClick={() => fileInputRef.current?.click()}
+          className="relative w-full rounded-2xl overflow-hidden border border-[var(--border-default)] group bg-[var(--surface-default)] aspect-video flex items-center justify-center shadow-sm cursor-pointer"
+        >
           {isVideoUrl(value) ? (
             <video src={value} className="w-full h-full object-cover" controls autoPlay loop muted playsInline />
           ) : value.match(/\.(pdf|doc)$/i) ? (
@@ -180,13 +163,44 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           ) : (
             <img src={value} alt="Selected Media" className="w-full h-full object-cover" />
           )}
-          <div className="absolute inset-0 bg-zinc-950/75 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 p-4">
-            <AdminButton variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-              Upload Different File
-            </AdminButton>
-            <AdminButton variant="danger" size="sm" onClick={() => onChange("")}>
-              Remove
-            </AdminButton>
+          <div className="absolute inset-0 bg-zinc-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-3">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <AdminButton 
+                type="button" 
+                variant="primary" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+              >
+                <UploadCloud className="w-3.5 h-3.5 mr-1" />
+                Upload New File
+              </AdminButton>
+              <AdminButton 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(true);
+                }}
+              >
+                Library / URL
+              </AdminButton>
+              <AdminButton 
+                type="button" 
+                variant="danger" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange("");
+                }}
+              >
+                Remove
+              </AdminButton>
+            </div>
+            <span className="text-[11px] text-slate-300 font-medium">Click image to upload new file from computer</span>
           </div>
         </div>
       ) : (
@@ -202,17 +216,38 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
               {uploading 
                 ? "Uploading file..." 
                 : accept.includes("image") && !accept.includes("video") 
-                  ? "Click to Upload Local Image File" 
+                  ? "Click to Upload Image File" 
                   : accept.includes("video") && !accept.includes("image") 
-                    ? "Click to Upload Local Video File" 
-                    : "Click to Upload Local File from System"}
+                    ? "Click to Upload Video File" 
+                    : "Click to Upload Local File"}
             </span>
             <span className="text-xs text-[var(--text-tertiary)] block">
-              Select any image or video directly from your computer folders
+              Select image or video from your computer or device
             </span>
           </div>
         </div>
       )}
+
+      {/* Quick Action Bar */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
+        >
+          <UploadCloud className="w-3.5 h-3.5" />
+          <span>{uploading ? "Uploading..." : "Upload File"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold transition-all cursor-pointer"
+        >
+          Library / Paste URL
+        </button>
+      </div>
 
       <SlideOver isOpen={isOpen} onClose={() => setIsOpen(false)} title="Media Library">
         <div className="flex flex-col gap-6">

@@ -419,16 +419,26 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Media Picker */}
-              <div className="space-y-2">
+              {/* Media Picker & Direct URL Field */}
+              <div className="space-y-3">
                 <label className="block text-xs font-semibold text-[var(--text-secondary)]">Destination Media Cover (Video, Image, 3D Iframe)</label>
                 <AdminMediaPicker
                   value={dest.mediaUrl}
                   onChange={(url) => handleDestinationChange(dest.id, "mediaUrl", url)}
                   onUploadStatusChange={handleUploadStatus}
-                  label="Destination Media"
+                  label=""
                   accept="video/*,image/*"
                 />
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Direct Media URL / File Link</label>
+                  <input
+                    type="text"
+                    value={dest.mediaUrl || ''}
+                    onChange={(e) => handleDestinationChange(dest.id, "mediaUrl", e.target.value)}
+                    placeholder="https://... or upload local file above"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-3 py-1.5 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
               </div>
 
               {/* Labels & Routes */}
