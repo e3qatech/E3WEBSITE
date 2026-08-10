@@ -212,6 +212,9 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
       }
 
       // Trigger instant Next.js router refresh so public & admin pages re-fetch immediately
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated'));
+      }
       router.refresh();
       toast("Pulse Orbit & Destination media saved successfully.", "success");
     } catch (e: any) {

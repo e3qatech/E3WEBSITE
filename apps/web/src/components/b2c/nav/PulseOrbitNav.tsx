@@ -132,17 +132,46 @@ export function PulseOrbitNav({
   const lightLogoUrl = settings?.lightLogoUrl;
   const darkLogoUrl = settings?.darkLogoUrl;
 
-  const rawDestinations = (orbitData?.destinations && orbitData.destinations.length > 0)
-    ? orbitData.destinations
+  const [currentOrbitData, setCurrentOrbitData] = useState<any>(orbitData);
+
+  useEffect(() => {
+    if (orbitData) {
+      setCurrentOrbitData(orbitData);
+    }
+  }, [orbitData]);
+
+  const fetchLatestOrbit = async () => {
+    try {
+      const res = await fetch('/api/cms/pages/pulse-orbit?t=' + Date.now());
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.data?.content) {
+          setCurrentOrbitData(json.data.content);
+        }
+      }
+    } catch (_e) {
+      // Ignore network errors
+    }
+  };
+
+  useEffect(() => {
+    fetchLatestOrbit();
+    const handleUpdate = () => fetchLatestOrbit();
+    window.addEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
+    return () => window.removeEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
+  }, []);
+
+  const rawDestinations = (currentOrbitData?.destinations && currentOrbitData.destinations.length > 0)
+    ? currentOrbitData.destinations
         .filter((d: any) => d.enabled !== false && d.id !== 'tickets' && !d.href?.includes('/tickets'))
         .map((d: any, idx: number) => ({
           labelEn: d.labelEn,
           labelAr: d.labelAr,
           href: d.href,
-          icon: DESTINATIONS[idx % DESTINATIONS.length]?.icon || Sparkles,
+          icon: DESTINATIONS.find((std) => std.href === d.href)?.icon || DESTINATIONS[idx % DESTINATIONS.length]?.icon || Sparkles,
           descEn: d.descEn,
           descAr: d.descAr,
-          mediaUrl: d.mediaUrl,
+          mediaUrl: d.mediaUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
         }))
     : DESTINATIONS;
 
@@ -157,7 +186,7 @@ export function PulseOrbitNav({
     if (destinationList && destinationList.length > 0) {
       setActiveDestination(destinationList[0]);
     }
-  }, [orbitData]);
+  }, [currentOrbitData]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -254,7 +283,7 @@ export function PulseOrbitNav({
 
           {/* Desktop Links (Resting State) */}
           <nav className="hidden md:flex items-center gap-1 p-1 rounded-full border border-slate-800/80 bg-slate-900/60 backdrop-blur-md">
-            {destinationList.slice(0, 4).map((dest) => {
+            {destinationList.slice(0, 4).map((dest: any) => {
               const isActive = pathname?.includes(dest.href);
               return (
                 <Link
@@ -359,7 +388,7 @@ export function PulseOrbitNav({
             <div className="flex items-center gap-3">
               <span className="h-3 w-3 rounded-full bg-emerald-400 animate-ping" />
               <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest font-bold">
-                {isAr ? (orbitData?.titleAr || 'وجهات مدار إي ثري') : (orbitData?.titleEn || 'PULSE ORBIT DESTINATIONS')}
+                {isAr ? (currentOrbitData?.titleAr || 'وجهات مدار إي ثري') : (currentOrbitData?.titleEn || 'PULSE ORBIT DESTINATIONS')}
               </span>
             </div>
 
@@ -399,7 +428,7 @@ export function PulseOrbitNav({
           <div className="my-auto grid grid-cols-1 gap-8 lg:grid-cols-12 max-w-7xl mx-auto w-full py-6">
             {/* DESTINATION WORLDS LIST (7 COLS) */}
             <div className="lg:col-span-7 space-y-2">
-              {destinationList.map((dest) => {
+              {destinationList.map((dest: any) => {
                 const Icon = dest.icon;
                 const isSelected = activeDestination.href === dest.href;
                 return (

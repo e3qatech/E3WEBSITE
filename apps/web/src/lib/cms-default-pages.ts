@@ -352,15 +352,22 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     const mergedDestinations = rawDestinations.map((rawDest: any, idx: number) => {
       const match = defaults.destinations.find((d: any) => d.id === rawDest.id) || defaults.destinations[idx] || {};
       return {
-        ...match,
-        ...rawDest,
-        mediaUrl: (rawDest.mediaUrl && String(rawDest.mediaUrl).trim() !== '') ? rawDest.mediaUrl : match.mediaUrl,
+        id: rawDest.id || match.id || `dest-${idx}`,
+        labelEn: (rawDest.labelEn !== undefined && rawDest.labelEn !== null) ? rawDest.labelEn : (match.labelEn || ""),
+        labelAr: (rawDest.labelAr !== undefined && rawDest.labelAr !== null) ? rawDest.labelAr : (match.labelAr || ""),
+        href: (rawDest.href !== undefined && rawDest.href !== null) ? rawDest.href : (match.href || ""),
+        descEn: (rawDest.descEn !== undefined && rawDest.descEn !== null) ? rawDest.descEn : (match.descEn || ""),
+        descAr: (rawDest.descAr !== undefined && rawDest.descAr !== null) ? rawDest.descAr : (match.descAr || ""),
+        mediaUrl: (rawDest.mediaUrl && String(rawDest.mediaUrl).trim() !== '') ? rawDest.mediaUrl : (match.mediaUrl || ""),
+        enabled: rawDest.enabled !== undefined ? Boolean(rawDest.enabled) : (match.enabled ?? true),
       };
     });
 
     return {
       ...defaults,
       ...raw,
+      titleEn: raw.titleEn || defaults.titleEn,
+      titleAr: raw.titleAr || defaults.titleAr,
       destinations: mergedDestinations,
     };
   }
