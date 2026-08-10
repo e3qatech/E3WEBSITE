@@ -50,7 +50,7 @@ export default async function CareersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-default)]">
-              {jobs.map(job => (
+              {jobs.map((job: any) => (
                 <tr key={job.id} className="hover:bg-[var(--surface-hover)] transition-colors">
                   <td className="p-4">
                     <div className="font-bold text-[var(--text-primary)] mb-1">{job.title}</div>

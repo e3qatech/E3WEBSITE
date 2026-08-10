@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     if (actionType === 'PROJECT_REQUEST') {
       const parsed = projectRequestSchema.parse(body);
       
-      const result = await db.$transaction(async (tx) => {
+      const result = await db.$transaction(async (tx: any) => {
         const lead = await tx.lead.create({
           data: {
             name: parsed.name,
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     if (actionType === 'MEETING_REQUEST') {
       const parsed = meetingRequestSchema.parse(body);
       
-      const result = await db.$transaction(async (tx) => {
+      const result = await db.$transaction(async (tx: any) => {
         const lead = await tx.lead.create({
           data: {
             name: parsed.name,
@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
 
     if (actionType === 'BOOK_MEETING') {
       const parsed = bookMeetingSchema.parse(body);
-      const result = await db.$transaction(async (tx) => {
+      const result = await db.$transaction(async (tx: any) => {
         // Atomic slot claim — updateMany with isBooked predicate prevents TOCTOU race
         const slotClaim = await tx.availabilitySlot.updateMany({
           where: { id: parsed.slotId, isBooked: false },

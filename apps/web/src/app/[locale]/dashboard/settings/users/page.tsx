@@ -35,7 +35,7 @@ export default async function UsersSettingsPage() {
     },
   });
 
-  const formattedUsers = rawUsers.map(user => ({
+  const formattedUsers = rawUsers.map((user: any) => ({
     ...user,
     email: user.email || '',
     createdAt: user.createdAt.toISOString(),

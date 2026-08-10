@@ -19,13 +19,13 @@ export async function GET() {
     })
 
     // PII Masking (CSO Check)
-    const processedLeads = leads.map(lead => {
+    const processedLeads = leads.map((lead: any) => {
       let email = lead.email;
       let phone = lead.phone;
 
       // Staff can only see full PII if the lead is assigned to them
       if (role === "STAFF" && lead.assignedToId !== userId) {
-        email = email.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => { 
+        email = email.replace(/(.{2})(.*)(?=@)/, (gp1: string, gp2: string, gp3: string) => { 
           return gp2 + gp3.replace(/./g, '*'); 
         });
         phone = phone ? phone.replace(/.(?=.{4})/g, '*') : phone;

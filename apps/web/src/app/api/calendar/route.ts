@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const result = attractions.map(attraction => {
+    const result = attractions.map((attraction: any) => {
       const thumbnail = attraction.gallery?.[0]?.url || attraction.heroThumbnailUrl || attraction.heroMediaUrl || null;
       const lowestPrice = attraction.pricing?.[0] ? `${attraction.pricing[0].currency} ${attraction.pricing[0].price}` : null;
       
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
 
     if (availableNow) {
       // If asking for available now, strictly return those with capacity
-      const filtered = result.filter(r => r.isAvailable);
+      const filtered = result.filter((r: any) => r.isAvailable);
       try {
         await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60); // 1 min cache for live availability
       } catch (e: any) {

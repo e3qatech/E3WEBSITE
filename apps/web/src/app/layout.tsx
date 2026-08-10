@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await db.setting.findMany({
       where: { key: 'faviconUrl' }
     });
-    faviconUrl = settings.find(s => s.key === 'faviconUrl')?.value as string | undefined;
+    faviconUrl = settings.find((s: any) => s.key === 'faviconUrl')?.value as string | undefined;
   } catch (error) {
     console.error("Error fetching favicon metadata:", error);
   }

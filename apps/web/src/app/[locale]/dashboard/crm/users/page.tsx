@@ -40,7 +40,7 @@ export default async function UsersPage() {
     take: 100,
   });
 
-  const formattedUsers = users.map((u) => ({
+  const formattedUsers = users.map((u: any) => ({
     ...u,
     createdAt: u.createdAt.toISOString(),
   }));

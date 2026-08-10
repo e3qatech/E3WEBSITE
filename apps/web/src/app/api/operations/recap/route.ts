@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       }
     })
 
-    const visitors = schedules.reduce((acc, s) => acc + s.currentCount, 0)
+    const visitors = schedules.reduce((acc: number, s: any) => acc + s.currentCount, 0)
     
     // Fetch generic pricing to estimate revenue if we don't have explicit transaction data
     let avgPrice = 150 // Fallback price
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       // Average across all
       const allPrices = await db.attractionPricing.findMany()
       if (allPrices.length > 0) {
-        avgPrice = allPrices.reduce((acc, p) => acc + p.price, 0) / allPrices.length
+        avgPrice = allPrices.reduce((acc: number, p: any) => acc + p.price, 0) / allPrices.length
       }
     }
 

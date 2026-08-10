@@ -205,7 +205,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                   <h3 className="text-2xl font-black text-zinc-100 tracking-tight mb-4">Key Team</h3>
                   <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 flex-1">
                     <div className="flex flex-col gap-2">
-                      {project.teamMembers.map((tm, i) => (
+                      {project.teamMembers.map((tm: any, i: number) => (
                         <div key={i} className="group relative py-4 border-b border-zinc-800/50 last:border-0 flex justify-between items-center cursor-default">
                           <div className="text-xl font-bold text-zinc-300 group-hover:text-zinc-100 transition-colors z-10 mix-blend-difference">
                             {tm.employeeProfile?.firstName} {tm.employeeProfile?.lastName}

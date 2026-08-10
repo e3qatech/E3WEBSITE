@@ -18,7 +18,7 @@ export default async function ClientsPage() {
   })
 
   // Format dates for client
-  const formattedClients = clients.map(c => ({
+  const formattedClients = clients.map((c: any) => ({
     ...c,
     createdAt: c.createdAt.toISOString(),
   }))

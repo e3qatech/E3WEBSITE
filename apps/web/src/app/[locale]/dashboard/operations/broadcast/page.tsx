@@ -23,7 +23,7 @@ export default async function BroadcastPage() {
   })
 
   // Format dates for client
-  const formattedBroadcasts = broadcasts.map(b => ({
+  const formattedBroadcasts = broadcasts.map((b: any) => ({
     ...b,
     createdAt: b.createdAt.toISOString(),
     updatedAt: b.updatedAt.toISOString(),

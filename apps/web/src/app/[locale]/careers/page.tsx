@@ -51,7 +51,7 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
               </p>
             </div>
           ) : (
-            jobs.map((job) => (
+            jobs.map((job: any) => (
               <Link 
                 href={`/${locale}/careers/${job.id}`} 
                 key={job.id}

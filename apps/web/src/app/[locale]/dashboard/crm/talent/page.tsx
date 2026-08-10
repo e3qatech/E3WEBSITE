@@ -18,7 +18,7 @@ export default async function TalentPage() {
   })
 
   // Format dates for client
-  const formattedTalent = talent.map(t => ({
+  const formattedTalent = talent.map((t: any) => ({
     ...t,
     appliedDate: t.appliedDate.toISOString(),
   }))

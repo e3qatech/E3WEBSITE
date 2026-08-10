@@ -77,7 +77,7 @@ export default async function EditCasePage({
     gallery,
     technicalSpecs,
     servicesUsed,
-    teamMembers: caseStudy.teamMembers.map(tm => ({
+    teamMembers: caseStudy.teamMembers.map((tm: any) => ({
       employeeProfileId: tm.employeeProfileId,
       roleEn: tm.roleEn || "",
       roleAr: tm.roleAr || ""

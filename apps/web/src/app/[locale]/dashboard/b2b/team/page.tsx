@@ -23,7 +23,7 @@ export default async function B2BTeamPage() {
   })
 
   // Safe type formatting
-  const formattedMembers = teamMembers.map(m => ({
+  const formattedMembers = teamMembers.map((m: any) => ({
     id: m.id,
     firstName: m.firstName,
     lastName: m.lastName,
@@ -34,7 +34,7 @@ export default async function B2BTeamPage() {
     aboutSummary: m.aboutSummary,
     aboutSummaryAr: m.aboutSummaryAr,
     profileImage: m.profileImage,
-    availability: m.availability.map(slot => ({
+    availability: m.availability.map((slot: any) => ({
       id: slot.id,
       startTime: slot.startTime.toISOString(),
       endTime: slot.endTime.toISOString(),

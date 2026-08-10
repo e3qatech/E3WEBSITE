@@ -28,18 +28,18 @@ export async function GET(_req: NextRequest) {
       }
     });
 
-    const result = attractions.map(attraction => {
+    const result = attractions.map((attraction: any) => {
       // General availability check for today
       let isAvailableToday = false;
       if (attraction.schedules && attraction.schedules.length > 0) {
-         isAvailableToday = attraction.schedules.some(s => s.currentCount < s.capacityGate);
+         isAvailableToday = attraction.schedules.some((s: any) => s.currentCount < s.capacityGate);
       } else {
          // If no schedules exist, we might assume it's open based on temporal rules, but for tickets, we'll default to available
          isAvailableToday = true;
       }
 
       // Map the pricing tiers
-      const pricingTiers = attraction.pricing.map(p => ({
+      const pricingTiers = attraction.pricing.map((p: any) => ({
         id: p.id,
         ticketType: p.type,
         titleEn: p.titleEn,

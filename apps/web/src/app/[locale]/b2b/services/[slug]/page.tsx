@@ -110,7 +110,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
               <div className="p-8 rounded-xl bg-zinc-900 border border-zinc-800">
                 <h3 className="text-xl font-bold text-zinc-100 mb-6">Core Deliverables & Process</h3>
                 <ul className="space-y-6">
-                  {processList.map((step: any, i) => (
+                  {processList.map((step: any, i: number) => (
                     <li key={i} className="flex items-start gap-4">
                       <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-1" />
                       <div>
@@ -151,7 +151,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
             </div>
             
             <div className="grid md:grid-cols-2 gap-8">
-              {service.projects.map((proj: any, i) => {
+              {service.projects.map((proj: any, i: number) => {
                 const isAttraction = !!proj.attraction;
                 const linkHref = isAttraction ? `/b2c/attractions/${proj.attraction.slug}` : null;
                 const targetName = isAttraction ? (proj.attraction.nameEn || proj.titleEn) : proj.titleEn;
@@ -215,7 +215,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
           <div className="container mx-auto px-4 md:px-8">
             <h2 className="text-3xl font-black text-zinc-100 tracking-tight mb-12">Gallery</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {service.gallery.map((img: any, i) => (
+              {service.gallery.map((img: any, i: number) => (
                 <div key={i} className="aspect-square bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden relative group">
                   <img src={img.url} alt={img.captionEn || "Gallery Image"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>

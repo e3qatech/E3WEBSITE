@@ -13,7 +13,7 @@ export default async function GeneralSettingsPage() {
     where: { type: "GENERAL" }
   })
   
-  const settings = settingsRecords.reduce((acc, curr) => {
+  const settings = settingsRecords.reduce((acc: any, curr: any) => {
     acc[curr.key] = curr.value
     return acc
   }, {} as Record<string, any>)

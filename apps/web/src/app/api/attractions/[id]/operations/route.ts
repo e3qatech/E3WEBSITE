@@ -1,32 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { isWithinInterval, getDay, format } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+import db from '@/lib/db';
 import { redis } from '@/lib/redis';
+import { toZonedTime } from 'date-fns-tz';
+import { format, getDay, isWithinInterval } from 'date-fns';
 
 const QATAR_TZ = 'Asia/Qatar';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  props: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-  }
-
   try {
-    const { id: attractionId } = await params;
+    const params = await props.params;
+    const attractionId = params.id;
 
-    // 30 second cache for live operations endpoint
-    const cacheKey = `attractions:operations:${attractionId}`;
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return NextResponse.json(JSON.parse(cached));
+    if (!attractionId) {
+      return NextResponse.json({ error: 'Attraction ID is required' }, { status: 400 });
     }
 
-    const rules = await db.attractionTemporalRule.findMany({
+    const cacheKey = `attraction:operations:${attractionId}`;
+    const cachedData = await redis.get(cacheKey);
+
+    if (cachedData) {
+      return NextResponse.json(JSON.parse(cachedData));
+    }
+
+    const rules = await db.temporalRule.findMany({
       where: { attractionId },
     });
 
@@ -38,9 +37,9 @@ export async function GET(
     let isOpen = false;
     
     // 1. RECURRING
-    const recurring = rules.filter(r => r.ruleType === 'RECURRING');
+    const recurring = rules.filter((r: any) => r.ruleType === 'RECURRING');
     for (const rule of recurring) {
-       if (rule.daysOfWeek && Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.includes(currentDay)) {
+       if (rule.daysOfWeek && Array.isArray(rule.daysOfWeek) && (rule.daysOfWeek as any).includes(currentDay)) {
          if (rule.openTime && rule.closeTime && currentTimeStr >= rule.openTime && currentTimeStr <= rule.closeTime) {
            isOpen = true;
          }
@@ -48,7 +47,7 @@ export async function GET(
     }
 
     // 2. OVERRIDE
-    const overrides = rules.filter(r => r.ruleType === 'OVERRIDE');
+    const overrides = rules.filter((r: any) => r.ruleType === 'OVERRIDE');
     for (const rule of overrides) {
        if (rule.startDate && rule.endDate) {
           const start = toZonedTime(rule.startDate, QATAR_TZ);
@@ -64,7 +63,7 @@ export async function GET(
     }
 
     // 3. CLOSURE
-    const closures = rules.filter(r => r.ruleType === 'CLOSURE');
+    const closures = rules.filter((r: any) => r.ruleType === 'CLOSURE');
     for (const rule of closures) {
        if (rule.startDate && rule.endDate) {
           const start = toZonedTime(rule.startDate, QATAR_TZ);

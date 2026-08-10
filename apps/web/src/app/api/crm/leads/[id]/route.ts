@@ -33,7 +33,7 @@ export async function GET(
     let phone = lead.phone;
 
     if (role === "STAFF" && lead.assignedToId !== userId) {
-      email = email.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => { 
+      email = email.replace(/(.{2})(.*)(?=@)/, (gp1: string, gp2: string, gp3: string) => { 
         return gp2 + gp3.replace(/./g, '*'); 
       });
       phone = phone ? phone.replace(/.(?=.{4})/g, '*') : phone;

@@ -41,8 +41,8 @@ export default async function CalendarPage() {
     acc[curr.key] = curr.value;
     return acc;
   }, {} as Record<string, any>);
-  const discounts = attractions.flatMap(a => 
-    a.offers.map(o => ({
+  const discounts = attractions.flatMap((a: any) => 
+    a.offers.map((o: any) => ({
       id: o.id,
       title: a.nameEn,
       description: `Special offer for ${a.nameEn}`,

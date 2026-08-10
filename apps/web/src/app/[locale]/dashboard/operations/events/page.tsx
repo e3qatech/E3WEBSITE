@@ -38,7 +38,7 @@ export default async function OperationsEventsPage() {
   ])
 
   // Format dates for client
-  const formattedSchedules = schedules.map(s => ({
+  const formattedSchedules = schedules.map((s: any) => ({
     ...s,
     startTime: s.startTime.toISOString(),
     endTime: s.endTime.toISOString(),

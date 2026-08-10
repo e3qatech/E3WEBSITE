@@ -75,7 +75,7 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
                 {locale === 'ar' ? 'عن الوظيفة' : 'About the Role'}
               </h2>
               <div className="prose prose-invert max-w-none text-[var(--text-secondary)]">
-                {job.description.split('\n').map((paragraph, idx) => (
+                {job.description.split('\n').map((paragraph: string, idx: number) => (
                   <p key={idx} className="mb-4">{paragraph}</p>
                 ))}
               </div>
@@ -87,7 +87,7 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
                   {locale === 'ar' ? 'المتطلبات' : 'Requirements'}
                 </h2>
                 <div className="prose prose-invert max-w-none text-[var(--text-secondary)]">
-                  {job.requirements.split('\n').map((req, idx) => (
+                  {job.requirements.split('\n').map((req: string, idx: number) => (
                     req.trim() && (
                       <div key={idx} className="flex items-start gap-3 mb-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] mt-2 shrink-0" />

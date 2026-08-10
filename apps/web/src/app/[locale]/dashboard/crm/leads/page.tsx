@@ -24,11 +24,11 @@ export default async function LeadsPage() {
   })
 
   // Format dates for client
-  const formattedLeads = leads.map(l => ({
+  const formattedLeads = leads.map((l: any) => ({
     ...l,
     createdAt: l.createdAt.toISOString(),
     updatedAt: l.updatedAt.toISOString(),
-    activities: l.activities.map(a => ({
+    activities: l.activities.map((a: any) => ({
       ...a,
       timestamp: a.timestamp.toISOString()
     }))

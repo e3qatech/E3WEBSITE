@@ -39,11 +39,11 @@ export default async function LeadDetailPage({
     ...lead,
     createdAt: lead.createdAt.toISOString(),
     updatedAt: lead.updatedAt.toISOString(),
-    activities: lead.activities.map(a => ({
+    activities: lead.activities.map((a: any) => ({
       ...a,
       timestamp: a.timestamp.toISOString()
     })),
-    inquiries: lead.inquiries.map(i => ({
+    inquiries: lead.inquiries.map((i: any) => ({
       ...i,
       createdAt: i.createdAt.toISOString(),
       updatedAt: i.updatedAt.toISOString()

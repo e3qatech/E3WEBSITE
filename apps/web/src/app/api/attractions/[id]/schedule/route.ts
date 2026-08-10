@@ -34,7 +34,7 @@ export async function GET(
     });
 
     // Filter rules that are active for the targetDate
-    const activeRules = rules.filter(rule => {
+    const activeRules = rules.filter((rule: any) => {
       // If rule has start/end date, ensure targetDate is within it
       if (rule.startDate && rule.endDate) {
         if (!isWithinInterval(qatarDate, { start: startOfDay(rule.startDate), end: endOfDay(rule.endDate) })) {
@@ -49,7 +49,7 @@ export async function GET(
     });
 
     // 1. Check for CLOSURE
-    const closure = activeRules.find(r => r.ruleType === 'CLOSURE');
+    const closure = activeRules.find((r: any) => r.ruleType === 'CLOSURE');
     if (closure) {
       return NextResponse.json({
         isOpen: false,
@@ -61,7 +61,7 @@ export async function GET(
     }
 
     // 2. Check for OVERRIDE
-    const override = activeRules.find(r => r.ruleType === 'OVERRIDE');
+    const override = activeRules.find((r: any) => r.ruleType === 'OVERRIDE');
     if (override) {
       return NextResponse.json({
         isOpen: true,
@@ -73,9 +73,9 @@ export async function GET(
     }
 
     // 3. Fallback to RECURRING
-    const recurringRules = activeRules.filter(r => r.ruleType === 'RECURRING');
+    const recurringRules = activeRules.filter((r: any) => r.ruleType === 'RECURRING');
     
-    const applicableRecurring = recurringRules.find(r => {
+    const applicableRecurring = recurringRules.find((r: any) => {
        if (r.daysOfWeek && Array.isArray(r.daysOfWeek)) {
           return (r.daysOfWeek as number[]).includes(dayOfWeek);
        }

@@ -36,7 +36,7 @@ export default async function AttractionsPage() {
     }
   })
 
-  const formattedAttractions = attractions.map(a => ({
+  const formattedAttractions = attractions.map((a: any) => ({
     id: a.id,
     slug: a.slug,
     name: {

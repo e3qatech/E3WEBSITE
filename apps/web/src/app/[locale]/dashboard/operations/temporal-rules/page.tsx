@@ -32,7 +32,7 @@ export default async function TemporalRulesPage() {
   ]);
 
   // Format dates for client
-  const formattedRules = rules.map(rule => ({
+  const formattedRules = rules.map((rule: any) => ({
     ...rule,
     startDate: rule.startDate?.toISOString() || null,
     endDate: rule.endDate?.toISOString() || null,

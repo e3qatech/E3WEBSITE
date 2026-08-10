@@ -21,7 +21,7 @@ export default async function InquiriesPage() {
   })
 
   // Format dates for client
-  const formattedInquiries = inquiries.map(i => ({
+  const formattedInquiries = inquiries.map((i: any) => ({
     ...i,
     createdAt: i.createdAt.toISOString(),
   }))

@@ -18,7 +18,7 @@ export default async function SubscribersPage() {
   })
 
   // Format dates for client
-  const formattedSubscribers = subscribers.map(s => ({
+  const formattedSubscribers = subscribers.map((s: any) => ({
     ...s,
     createdAt: s.createdAt.toISOString(),
     verifiedAt: s.verifiedAt?.toISOString() || null

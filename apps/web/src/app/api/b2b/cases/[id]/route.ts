@@ -25,7 +25,7 @@ export async function PUT(
       attractionId, teamMembers, testimonials
     } = body
 
-    await db.$transaction(async (tx) => {
+    await db.$transaction(async (tx: any) => {
       // 1. Delete existing team members
       await tx.caseStudyTeamMember.deleteMany({
         where: { caseStudyId: id }

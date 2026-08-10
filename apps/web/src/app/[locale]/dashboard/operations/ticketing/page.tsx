@@ -41,13 +41,13 @@ export default async function TicketingPage() {
   })
 
   // Format dates for client
-  const formattedSchedules = schedules.map(s => ({
+  const formattedSchedules = schedules.map((s: any) => ({
     ...s,
     startTime: s.startTime.toISOString(),
     endTime: s.endTime.toISOString(),
   }))
 
-  const formattedLogs = logs.map(l => ({
+  const formattedLogs = logs.map((l: any) => ({
     ...l,
     createdAt: l.createdAt.toISOString()
   }))

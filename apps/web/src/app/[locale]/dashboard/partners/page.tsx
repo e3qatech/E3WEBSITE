@@ -31,7 +31,7 @@ export default async function PartnersPage() {
 
       <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl overflow-hidden shadow-sm flex-1 p-6">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {partners.map(partner => (
+          {partners.map((partner: any) => (
             <div key={partner.id} className="group relative bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all hover:border-[var(--color-primary)]">
               
               <div className="absolute top-2 end-2">
