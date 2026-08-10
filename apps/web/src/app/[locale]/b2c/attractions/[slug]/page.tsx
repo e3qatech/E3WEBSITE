@@ -44,9 +44,9 @@ async function getAttractionData(slug: string) {
   const rules = attraction.temporalRules || [];
 
   // 1. RECURRING
-  const recurring = rules.filter(r => r.ruleType === 'RECURRING');
+  const recurring = rules.filter((r: any) => r.ruleType === 'RECURRING');
   for (const rule of recurring) {
-     if (rule.daysOfWeek && Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.includes(currentDay)) {
+     if (rule.daysOfWeek && Array.isArray(rule.daysOfWeek) && (rule.daysOfWeek as any).includes(currentDay)) {
        if (rule.openTime && rule.closeTime && currentTimeStr >= rule.openTime && currentTimeStr <= rule.closeTime) {
          isOpen = true;
        }
@@ -54,7 +54,7 @@ async function getAttractionData(slug: string) {
   }
 
   // 2. OVERRIDE
-  const overrides = rules.filter(r => r.ruleType === 'OVERRIDE');
+  const overrides = rules.filter((r: any) => r.ruleType === 'OVERRIDE');
   for (const rule of overrides) {
      if (rule.startDate && rule.endDate) {
         const start = toZonedTime(rule.startDate, QATAR_TZ);
@@ -70,7 +70,7 @@ async function getAttractionData(slug: string) {
   }
 
   // 3. CLOSURE
-  const closures = rules.filter(r => r.ruleType === 'CLOSURE');
+  const closures = rules.filter((r: any) => r.ruleType === 'CLOSURE');
   for (const rule of closures) {
      if (rule.startDate && rule.endDate) {
         const start = toZonedTime(rule.startDate, QATAR_TZ);

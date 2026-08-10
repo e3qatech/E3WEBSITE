@@ -1,6 +1,22 @@
 import { PrismaClient } from '@prisma/client'
 
+const createBrowserProxy = () => {
+  return new Proxy({}, {
+    get() {
+      return new Proxy(() => Promise.resolve(null), {
+        get() {
+          return () => Promise.resolve([])
+        }
+      })
+    }
+  }) as any
+}
+
 const prismaClientSingleton = () => {
+  if (typeof window !== 'undefined') {
+    return createBrowserProxy()
+  }
+
   const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public'
   return new PrismaClient({
     datasources: {
@@ -57,9 +73,11 @@ declare const globalThis: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton>;
 } & typeof global;
 
-const db = globalThis.prismaGlobal ?? prismaClientSingleton()
+const db = typeof window !== 'undefined' ? createBrowserProxy() : (globalThis.prismaGlobal ?? prismaClientSingleton())
 
 export { db }
 export default db
 
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = db
+if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+  globalThis.prismaGlobal = db
+}

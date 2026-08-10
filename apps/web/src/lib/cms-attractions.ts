@@ -1,5 +1,3 @@
-import db from '@/lib/db'
-
 export type AvailabilitySource = 'NONE' | 'MANUAL' | 'BOOKINGQUBE' | 'SENSOR' | 'OTHER_VERIFIED_API'
 export type BookingMode = 'NONE' | 'BOOKINGQUBE_PRODUCT' | 'EXTERNAL_URL' | 'INTERNAL_ROUTE' | 'CONTACT'
 
@@ -164,7 +162,9 @@ export function filterAttractionsByUrlParams(attractions: any[], params: Attract
  * Server-side canonical attraction query
  */
 export async function getCanonicalAttractions() {
+  if (typeof window !== 'undefined') return []
   try {
+    const { default: db } = await import('@/lib/db')
     const records = await db.attraction.findMany({
       where: { isPublished: true },
       include: {
