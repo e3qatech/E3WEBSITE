@@ -90,6 +90,89 @@ interface AttractionsState {
   setSortMode: (mode: SortMode) => void;
 }
 
+export const DEFAULT_FALLBACK_ATTRACTIONS: Attraction[] = [
+  {
+    id: "attraction-snow-park",
+    slug: "snow-park-doha",
+    nameEn: "Snow Dunes & Ice World",
+    nameAr: "تلال الثلج وعالم الجليد",
+    taglineEn: "Doha's First Arctic Snow & Ice Adventure Park",
+    taglineAr: "أول حديقة مغامرات ثلجية قطبية في الدوحة",
+    descriptionEn: "Experience sub-zero indoor snow dunes, ice slides, snowmobiles, and magical winter experiences for the whole family.",
+    descriptionAr: "استمتع بالمغامرات الثلجية المغلقة، الزلاجات الجليدية، ودراجات الثلج وتجارب الشتاء الساحرة للعائلة.",
+    isPublished: true,
+    isFeatured: true,
+    isHidden: false,
+    computedStatus: "ACTIVE",
+    isSpecialEvent: true,
+    heroMediaType: "IMAGE",
+    heroMediaUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=1200&auto=format&fit=crop",
+    gallery: [{ url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=1200&auto=format&fit=crop" }],
+    pricing: [{ price: 120, currency: "QAR" }],
+    schedules: [{ openTime: "10:00", closeTime: "22:00" }]
+  },
+  {
+    id: "attraction-kinetic-arena",
+    slug: "kinetic-arena",
+    nameEn: "Kinetic Dome & Laser Arena",
+    nameAr: "قبة الضوء وساحة الليزر",
+    taglineEn: "High-octane spatial sound and laser combat arena",
+    taglineAr: "ساحة معارك الليزر والتكنولوجيا التفاعلية",
+    descriptionEn: "Immersive laser tag, kinetic light domes, interactive esports stages, and multi-player VR battles.",
+    descriptionAr: "عالم ألعاب الليزر التفاعلية، العروض الضوئية، وبطولات الألعاب الإلكترونية الجيرسكوبية.",
+    isPublished: true,
+    isFeatured: false,
+    isHidden: false,
+    computedStatus: "ACTIVE",
+    isSpecialEvent: false,
+    heroMediaType: "IMAGE",
+    heroMediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+    gallery: [{ url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop" }],
+    pricing: [{ price: 95, currency: "QAR" }],
+    schedules: [{ openTime: "12:00", closeTime: "00:00" }]
+  },
+  {
+    id: "attraction-kids-space",
+    slug: "kids-galaxy-city",
+    nameEn: "Kids Galaxy & Discovery City",
+    nameAr: "عالم الأطفال ومدينة الاكتشاف",
+    taglineEn: "Creative play, space exploration, and interactive workshops",
+    taglineAr: "ألعاب تفاعلية، استكشاف الفضاء، وورش عمل إبداعية للأطفال",
+    descriptionEn: "Safe, interactive learning and play zones, giant trampoline parks, and space exploration adventures for kids.",
+    descriptionAr: "مناطق ألعاب تعليمية وتفاعلية آمنة، صالات القفز المطاطية، ومغامرات استكشاف الفضاء للأطفال.",
+    isPublished: true,
+    isFeatured: false,
+    isHidden: false,
+    computedStatus: "ACTIVE",
+    isSpecialEvent: false,
+    heroMediaType: "IMAGE",
+    heroMediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+    gallery: [{ url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop" }],
+    pricing: [{ price: 75, currency: "QAR" }],
+    schedules: [{ openTime: "09:00", closeTime: "21:00" }]
+  },
+  {
+    id: "attraction-winter-fest",
+    slug: "doha-winter-festival",
+    nameEn: "Doha Winter Lights Festival",
+    nameAr: "مهرجان أضواء الدوحة الشتوي",
+    taglineEn: "Seasonal celebration with live music, drone shows, and gourmet food trucks",
+    taglineAr: "احتفال موسمي، عروض الدرون المضيئة، ومطاعم فاخرة",
+    descriptionEn: "Spectacular nocturnal drone light shows, international musical acts, artisan food markets, and carnival rides.",
+    descriptionAr: "عروض الطائرات بدون طيار المضيئة، عروض موسيقية عالمية، وأسوق المأكولات والمهرجانات.",
+    isPublished: true,
+    isFeatured: false,
+    isHidden: false,
+    computedStatus: "COMING SOON",
+    isSpecialEvent: true,
+    heroMediaType: "IMAGE",
+    heroMediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+    gallery: [{ url: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop" }],
+    pricing: [{ price: 150, currency: "QAR" }],
+    schedules: [{ openTime: "16:00", closeTime: "01:00" }]
+  }
+];
+
 export const useAttractionsStore = create<AttractionsState>((set, get) => ({
   attractions: [],
   featuredAttraction: null,
@@ -99,10 +182,14 @@ export const useAttractionsStore = create<AttractionsState>((set, get) => ({
   userLocation: null,
   sortMode: 'Recommended',
   
-  setAttractions: (attractions) => {
-    const enrichedAttractions = attractions.map(a => {
+  setAttractions: (incomingAttractions) => {
+    const attractionsToEnrich = (incomingAttractions && incomingAttractions.length > 0) 
+      ? incomingAttractions 
+      : DEFAULT_FALLBACK_ATTRACTIONS;
+
+    const enrichedAttractions = attractionsToEnrich.map(a => {
       const temporal = a.temporalStatus || {};
-      let status = "COMING SOON";
+      let status = a.computedStatus || "COMING SOON";
       
       if (temporal.statusOverride && temporal.statusOverride !== "NONE" && temporal.statusOverride !== "") {
          if (temporal.statusOverride === "FORCE_ACTIVE") status = "ACTIVE";
@@ -124,18 +211,18 @@ export const useAttractionsStore = create<AttractionsState>((set, get) => ({
         distanceKm = calculateDistance(state.userLocation.lat, state.userLocation.lng, a.coordinates.lat, a.coordinates.lng);
       }
 
-      const timingStatus = getLiveTimingStatus(a.operations?.schedules || []);
+      const timingStatus = a.operations?.schedules ? getLiveTimingStatus(a.operations.schedules) : undefined;
 
       return { 
         ...a,
         computedStatus: status,
-        isSpecialEvent: !!temporal.isSpecialEvent,
+        isSpecialEvent: a.isSpecialEvent ?? !!temporal.isSpecialEvent,
         distanceKm,
         timingStatus
       };
     });
 
-    const featured = enrichedAttractions.find(a => a.isFeatured) || null;
+    const featured = enrichedAttractions.find(a => a.isFeatured) || enrichedAttractions[0] || null;
 
     set({ attractions: enrichedAttractions, featuredAttraction: featured, isLoading: false });
   },

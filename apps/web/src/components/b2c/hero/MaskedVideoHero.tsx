@@ -85,6 +85,13 @@ export function MaskedVideoHero({
     >
       {/* 1. FULL-BLEED CINEMATIC MEDIA BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950">
+        {/* Base Fallback Image Layer (Ensures instant background media load & video buffering backup) */}
+        <img
+          src={posterUrl || (mediaType === 'IMAGE' ? mediaUrl : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop')}
+          alt="Hero Background Poster"
+          className="w-full h-full object-cover scale-105 opacity-60 dark:opacity-70 transition-opacity duration-1000 absolute inset-0"
+        />
+
         {mediaType === 'VIDEO' && mediaUrl && (
           <video
             src={mediaUrl}
@@ -93,30 +100,30 @@ export function MaskedVideoHero({
             loop
             muted={isMuted}
             playsInline
-            className="w-full h-full object-cover scale-105 opacity-40 transition-opacity duration-1000"
+            className="w-full h-full object-cover scale-105 opacity-70 dark:opacity-80 transition-opacity duration-1000 absolute inset-0 z-10"
           />
         )}
 
-        {mediaType === 'IMAGE' && (
+        {mediaType === 'IMAGE' && mediaUrl && (
           <img
-            src={mediaUrl || posterUrl}
+            src={mediaUrl}
             alt="Hero Background"
-            className="w-full h-full object-cover scale-105 opacity-40 transition-opacity duration-1000"
+            className="w-full h-full object-cover scale-105 opacity-70 dark:opacity-80 transition-opacity duration-1000 absolute inset-0 z-10"
           />
         )}
 
         {(mediaType === 'MODEL_3D' || mediaType === 'IFRAME' || mediaType === 'SPLINE') && (
           <iframe
             src={extractIframeUrl(mediaUrl)}
-            className="w-full h-full border-none opacity-50 pointer-events-auto"
+            className="w-full h-full border-none opacity-60 pointer-events-auto absolute inset-0 z-10"
             allow="autoplay; fullscreen; xr-spatial-tracking"
             sandbox="allow-scripts allow-same-origin allow-popups"
           />
         )}
 
-        {/* Ambient Dark Overlay Gradients for Pristine Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-slate-950/70 to-slate-950/90 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-transparent pointer-events-none" />
+        {/* Ambient Dark Overlay Gradients for Optimal Media Visibility & Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/60 z-20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/30 to-transparent z-20 pointer-events-none" />
       </div>
 
       {/* 2. HERO CONTENT GRID */}
