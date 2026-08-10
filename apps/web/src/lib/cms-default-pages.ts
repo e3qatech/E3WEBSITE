@@ -648,6 +648,27 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
           })
         : defaults.guestMemories.moments,
     },
+    ourBrands: {
+      headlineEn: "Worlds created by E3",
+      headlineAr: "عوالم من ابتكار E3",
+      subtextEn: "Explore flagship entertainment worlds, kinetic arenas, and digital platforms created and operated by E3.",
+      subtextAr: "استكشف منظومة الوجهات والساحات الترفيهية والتطبيقات الرقمية التي ابتكرتها وطوّرتها E3.",
+      ...(raw.ourBrands || {}),
+    },
+    coreTeam: {
+      headlineEn: "The people behind the experience",
+      headlineAr: "الفريق الذي يصنع التجربة",
+      subtextEn: "The visionary directors, spatial designers, and operational leaders bringing E3 experiences to life.",
+      subtextAr: "المبدعون والمهندسون والمصممون القائمون على ابتكار وتشغيل وجهات إي ثري الترفيهية.",
+      ...(raw.coreTeam || {}),
+    },
+    socialFeed: {
+      headlineEn: "E3 Happening Now — Live Moments",
+      headlineAr: "إي ثري الآن — لحظات حية مباشرة",
+      subtextEn: "Real-time moments, live event highlights, and guest stories streaming across official E3 channels.",
+      subtextAr: "تابع أحدث الفعاليات واللحظات الترفيهية الحية عبر حساباتنا الرسمية.",
+      ...(raw.socialFeed || {}),
+    },
     act7Ticket: {
       ...defaults.act7Ticket,
       ...(raw.act7Ticket || {}),

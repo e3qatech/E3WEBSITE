@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Layers, Sparkles, MapPin, Heart, Ticket, Video, Image as ImageIcon } from 'lucide-react'
+import { Save, Plus, Trash2, Layers, Sparkles, MapPin, Heart, Ticket, Video, Image as ImageIcon, Users, Share2 } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
@@ -35,6 +35,16 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
     setContent((prev: any) => ({
       ...prev,
       act2: { ...prev.act2, [field]: val }
+    }))
+  }
+
+  const handleSectionHeadingChange = (section: string, field: string, val: any) => {
+    setContent((prev: any) => ({
+      ...prev,
+      [section]: {
+        ...(prev[section] || {}),
+        [field]: val
+      }
     }))
   }
 
@@ -122,7 +132,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
             <span>B2C Story Landing CMS Editor</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Manage all media covers, story taxonomy options, venue maps, and digital tickets in real-time.
+            Manage Our Brands, Core Team, Social Feeds, Media Covers, and Digital Tickets in real-time.
           </p>
         </div>
 
@@ -190,6 +200,93 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
         </div>
       </div>
 
+      {/* Our Brands Section Settings */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <h2 className="text-lg font-extrabold text-purple-400 flex items-center gap-2">
+          <Sparkles className="w-5 h-5" />
+          <span>Worlds Created by E3 (Our Brands) Section</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Section Headline (English)</label>
+            <input
+              type="text"
+              value={content.ourBrands?.headlineEn || ''}
+              onChange={(e) => handleSectionHeadingChange('ourBrands', 'headlineEn', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Section Headline (Arabic)</label>
+            <input
+              type="text"
+              value={content.ourBrands?.headlineAr || ''}
+              onChange={(e) => handleSectionHeadingChange('ourBrands', 'headlineAr', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+              dir="rtl"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Core Team Section Settings */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <h2 className="text-lg font-extrabold text-sky-400 flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          <span>The People Behind the Experience (Core Team) Section</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Section Headline (English)</label>
+            <input
+              type="text"
+              value={content.coreTeam?.headlineEn || ''}
+              onChange={(e) => handleSectionHeadingChange('coreTeam', 'headlineEn', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Section Headline (Arabic)</label>
+            <input
+              type="text"
+              value={content.coreTeam?.headlineAr || ''}
+              onChange={(e) => handleSectionHeadingChange('coreTeam', 'headlineAr', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+              dir="rtl"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Social Feed Section Settings */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <h2 className="text-lg font-extrabold text-pink-400 flex items-center gap-2">
+          <Share2 className="w-5 h-5" />
+          <span>E3 Happening Now (Social Feed) Section</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Section Headline (English)</label>
+            <input
+              type="text"
+              value={content.socialFeed?.headlineEn || ''}
+              onChange={(e) => handleSectionHeadingChange('socialFeed', 'headlineEn', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-pink-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Section Headline (Arabic)</label>
+            <input
+              type="text"
+              value={content.socialFeed?.headlineAr || ''}
+              onChange={(e) => handleSectionHeadingChange('socialFeed', 'headlineAr', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-pink-500"
+              dir="rtl"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Featured Attraction Worlds Media Section */}
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
         <h2 className="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
@@ -206,50 +303,6 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
                 onChange={(url) => handleWorldMediaChange(idx, url)}
                 label="World Media Cover"
                 accept="video/*,image/*"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Story Taxonomy Portals Media Section */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
-        <h2 className="text-lg font-extrabold text-sky-400 flex items-center gap-2">
-          <Sparkles className="w-5 h-5" />
-          <span>Story Taxonomy Portal Media (Letterform Previews)</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(content.intentSelector?.options || []).map((opt: any, idx: number) => (
-            <div key={opt.id || idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-              <span className="text-xs font-bold text-sky-400 block">{opt.labelEn} / {opt.labelAr}</span>
-              <AdminMediaPicker
-                value={opt.mediaUrl}
-                onChange={(url) => handleStoryOptionMediaChange(idx, url)}
-                label="Portal Image"
-                accept="image/*,video/*"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Guest Memory Gallery Moments Media Section */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
-        <h2 className="text-lg font-extrabold text-pink-400 flex items-center gap-2">
-          <Heart className="w-5 h-5" />
-          <span>Guest Memories & Gallery Media Moments</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(content.guestMemories?.moments || []).map((moment: any, idx: number) => (
-            <div key={moment.id || idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-              <span className="text-xs font-bold text-pink-400 block">{moment.titleEn}</span>
-              <AdminMediaPicker
-                value={moment.mediaUrl}
-                onChange={(url) => handleGuestMomentMediaChange(idx, url)}
-                label="Moment Media"
-                accept="image/*,video/*"
               />
             </div>
           ))}
