@@ -1,43 +1,21 @@
-import { Metadata } from "next"
-import db from "@/lib/db"
-import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
-import { B2CLandingCMSView } from "@/components/dashboard/b2c/B2CLandingCMSView"
-
-export const metadata: Metadata = {
-  title: "B2C Landing Page CMS | E3 Admin",
-}
+import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
+import db from '@/lib/db'
+import { B2CLandingCMSView } from '@/components/dashboard/b2c/B2CLandingCMSView'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
-export default async function B2CLandingPage() {
-  let rawContent: any = null
+export default async function DashboardB2CLandingCMSPage() {
+  let rawContent = null
   try {
-    const page = await db.pages.findUnique({
-      where: { slug: "b2c-landing" }
+    const pageRecord = await (db as any).pages?.findUnique({
+      where: { slug: 'b2c-landing' }
     })
-    rawContent = page?.content
-  } catch (_e) {
-    rawContent = null
+    rawContent = pageRecord?.content || null
+  } catch (err) {
+    console.warn('[CMS Dashboard B2C Landing] Failed reading page record:', err)
   }
 
-  if (!rawContent) {
-    try {
-      const settingRecord = await (db as any).siteSettings.findUnique({
-        where: { key: "cms_page_b2c-landing" }
-      })
-      rawContent = settingRecord?.value
-    } catch (_e) {
-      rawContent = null
-    }
-  }
+  const cmsData = getMergedCMSPageContent('b2c-landing', rawContent)
 
-  if (!rawContent) {
-    const globalStore = (globalThis as any).__globalCMSPagesStore
-    rawContent = globalStore?.["b2c-landing"]?.content
-  }
-
-  const initialData = getMergedCMSPageContent("b2c-landing", rawContent)
-
-  return <B2CLandingCMSView initialData={initialData as any} />
+  return <B2CLandingCMSView initialData={cmsData} />
 }
