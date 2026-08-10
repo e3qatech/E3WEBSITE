@@ -93,17 +93,17 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
       <section className="py-20">
         <div className="container mx-auto px-4 md:px-8 space-y-20">
 
-          {/* 1. OUR BRANDS (E3 CREATED & OPERATED) */}
+          {/* 1. OUR BRANDS */}
           <div className="space-y-8">
             <div className="flex items-center justify-between border-b border-purple-950/60 pb-4">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="w-6 h-6 text-purple-400" />
                 <h2 className="text-2xl font-black text-white tracking-tight">
-                  {isAr ? "عوالم من ابتكار E3 (Our Brands)" : "Worlds Created by E3 (Our Brands)"}
+                  {isAr ? "علاماتنا التجارية (Our Brands)" : "Our Brands"}
                 </h2>
               </div>
               <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                {isAr ? "ملك وحصرياً لـ E3" : "100% E3 OWNED"}
+                {isAr ? "عوالم وتطبيقات E3" : "E3 ECOSYSTEM"}
               </span>
             </div>
 
@@ -117,10 +117,18 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
                   <div className="flex items-center gap-4">
                     <img src={brand.logoPrimary} alt={brand.nameEn} className="w-12 h-12 rounded-xl object-cover border border-purple-500/40" />
                     <div>
-                      <h3 className="text-lg font-extrabold text-white group-hover:text-purple-300 transition-colors">
-                        {isAr ? brand.nameAr : brand.nameEn}
-                      </h3>
-                      <span className="text-xs font-mono text-purple-400 font-bold">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-extrabold text-white group-hover:text-purple-300 transition-colors">
+                          {isAr ? brand.nameAr : brand.nameEn}
+                        </h3>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-purple-300">
+                          {brand.relationship === 'SUBSIDIARY' ? (isAr ? 'شركة تابعة' : 'Subsidiary') :
+                           brand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة' : 'Owned Concept') :
+                           brand.relationship === 'OPERATED' ? (isAr ? 'مفهوم مُشغّل' : 'Operated Concept') :
+                           (isAr ? 'تجربة منفّذة' : 'Delivered Experience')}
+                        </span>
+                      </div>
+                      <span className="text-xs font-mono text-purple-400 font-bold block mt-0.5">
                         {isAr ? brand.taglineAr : brand.taglineEn}
                       </span>
                     </div>

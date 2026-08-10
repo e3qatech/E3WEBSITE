@@ -94,7 +94,10 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
                 <div>
                   <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block">
-                    {brand.isOwned ? (isAr ? "علامة إي ثري" : "E3 CREATED") : (isAr ? "شريك" : "PARTNER")}
+                    {brand.relationship === 'SUBSIDIARY' ? (isAr ? 'شركة تابعة' : 'Subsidiary') :
+                     brand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة' : 'Owned Concept') :
+                     brand.relationship === 'OPERATED' ? (isAr ? 'مفهوم مُشغّل' : 'Operated Concept') :
+                     (isAr ? 'تجربة منفّذة' : 'Delivered Experience')}
                   </span>
                   <h3 className="text-base font-extrabold text-white line-clamp-1 mt-0.5">
                     {isAr ? brand.nameAr : brand.nameEn}

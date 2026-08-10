@@ -675,18 +675,24 @@ model Job {
 }
 
 model Partner {
-  id          String   @id @default(cuid())
-  name        String
-  website     String?
-  category    String   @default("TECHNOLOGY")
-  description String?  @db.Text
-  logoUrl     String?
-  isVisible   Boolean  @default(true)
-  orderIndex  Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  name                 String
+  nameAr               String?
+  website              String?
+  category             String   @default("TECHNOLOGY")
+  relationship         String   @default("PARTNER") // OWNED, SUBSIDIARY, OPERATED, LICENSED, DELIVERED, CLIENT, PARTNER
+  description          String?  @db.Text
+  descriptionAr        String?  @db.Text
+  logoUrl              String?
+  featureOnB2CLanding  Boolean  @default(false)
+  featureOnB2BPartners Boolean  @default(true)
+  isVisible            Boolean  @default(true)
+  orderIndex           Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@index([category])
+  @@index([relationship])
 }
 
 model Setting {
@@ -728,6 +734,61 @@ model EventTimeSlot {
   event CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
+}
+
+// ---------------------------------------------------------
+// Social Channels & Live Feeds Layer
+// ---------------------------------------------------------
+
+model SocialChannel {
+  id           String    @id @default(cuid())
+  platform     String    // INSTAGRAM, YOUTUBE, TIKTOK, FACEBOOK, LINKEDIN, X
+  channelName  String
+  handle       String
+  profileUrl   String
+  feedMode     String    @default("CURATED_CMS") // OFFICIAL_API, CURATED_CMS, INDIVIDUAL_OEMBED, MANUAL_MEDIA, CACHED_FALLBACK
+  syncEnabled  Boolean   @default(true)
+  isVisible    Boolean   @default(true)
+  sortPriority Int       @default(0)
+  ctaLabelEn   String?
+  ctaLabelAr   String?
+  lastSyncTime DateTime?
+  status       String    @default("CONNECTED") // CONNECTED, DISCONNECTED, EXPIRED_TOKEN
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  posts SocialPost[]
+
+  @@index([platform])
+  @@index([isVisible])
+}
+
+model SocialPost {
+  id                    String   @id @default(cuid())
+  channelId             String?
+  platform              String   // INSTAGRAM, YOUTUBE, TIKTOK, FACEBOOK, LINKEDIN, X
+  postUrl               String
+  mediaType             String   @default("IMAGE") // IMAGE, VIDEO, CAROUSEL
+  mediaUrl              String
+  posterUrl             String?
+  captionEn             String   @db.Text
+  captionAr             String   @db.Text
+  originalCaption       String?  @db.Text
+  platformPostId        String?
+  postDate              DateTime @default(now())
+  isApproved            Boolean  @default(true)
+  isFeatured            Boolean  @default(false)
+  isVisible             Boolean  @default(true)
+  relatedBrandSlug      String?
+  relatedAttractionSlug String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  channel SocialChannel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+
+  @@index([platform])
+  @@index([isApproved])
+  @@index([isVisible])
 }
 
 // ---------------------------------------------------------
@@ -879,6 +940,15 @@ model EmployeeProfile {
   contactEmail String?
   linkedinUrl  String?
 
+  featureOnB2CLanding Boolean @default(false)
+  isCoreTeam          Boolean @default(false)
+  b2cOrder            Int     @default(0)
+  b2cRoleEn           String?
+  b2cRoleAr           String?
+  b2cBioEn            String? @db.Text
+  b2cBioAr            String? @db.Text
+  b2cPortrait         String?
+
   isActive Boolean @default(true)
   order    Int     @default(0)
 
@@ -890,4 +960,5 @@ model EmployeeProfile {
 
   @@index([department])
   @@index([isActive])
+  @@index([featureOnB2CLanding])
 }
