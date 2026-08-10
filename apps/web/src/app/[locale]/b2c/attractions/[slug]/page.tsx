@@ -17,6 +17,7 @@ import { toZonedTime, format } from 'date-fns-tz';
 import { getDay, isWithinInterval } from 'date-fns';
 
 import { formatLocalizedText } from "@/lib/utils"
+import { resolveBookingUrl } from "@/lib/cms-attractions"
 
 async function getAttractionData(slug: string) {
   const attraction = await db.attraction.findFirst({
@@ -201,7 +202,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         status={attraction.isFeatured ? "Featured Experience" : undefined}
         logoUrl={attraction.logoUrl}
         ctaText="Get Tickets"
-        ctaLink={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+        ctaLink={resolveBookingUrl(attraction, locale)}
       />
 
       {/* 2 & 3. Intro + What's Inside */}
