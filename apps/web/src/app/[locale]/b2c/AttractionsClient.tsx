@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAttractionsStore, Attraction } from '@/store/useAttractionsStore';
 import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
 import { useB2CTheme } from '@/components/ui/B2CThemeComponents';
 
-// Act Narrative Components
-import { Act1ImagineIt } from '@/components/b2c/story/Act1ImagineIt';
-import { Act2BringItToLife } from '@/components/b2c/story/Act2BringItToLife';
-import { Act3AttractionWorlds } from '@/components/b2c/story/Act3AttractionWorlds';
-import { IntentSelectorDoorways } from '@/components/b2c/story/IntentSelectorDoorways';
+// Master Narrative Story Components
+import { CinematicHeroUniversal } from '@/components/b2c/story/CinematicHeroUniversal';
+import { IdeasToLifeComparison } from '@/components/b2c/story/IdeasToLifeComparison';
+import { StoryTaxonomyPortals } from '@/components/b2c/story/StoryTaxonomyPortals';
+import { ExperienceWorldsStage } from '@/components/b2c/story/ExperienceWorldsStage';
 import { Act4LivingDayTimeline } from '@/components/b2c/story/Act4LivingDayTimeline';
-import { Act5QatarRouteMap } from '@/components/b2c/story/Act5QatarRouteMap';
-import { Act6GuestMemoryRibbon } from '@/components/b2c/story/Act6GuestMemoryRibbon';
-import { Act7TactileTicketScene } from '@/components/b2c/story/Act7TactileTicketScene';
+import { QatarInteractiveMap } from '@/components/b2c/story/QatarInteractiveMap';
+import { HorizontalGPUParallaxGallery } from '@/components/b2c/story/HorizontalGPUParallaxGallery';
+import { TactileDigitalTicket } from '@/components/b2c/story/TactileDigitalTicket';
+import { StoryTrailControl } from '@/components/b2c/story/StoryTrailControl';
 
 export function AttractionsClient({
   locale,
@@ -55,33 +56,42 @@ export function AttractionsClient({
 
   return (
     <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
-      {/* Act I — Imagine It */}
-      <Act1ImagineIt content={cmsData} locale={locale} />
+      {/* 1. Cinematic Hero Section */}
+      <CinematicHeroUniversal content={cmsData} locale={locale} />
 
-      {/* Act II — Bring It to Life */}
-      <Act2BringItToLife content={cmsData} locale={locale} />
+      {/* 2. From Idea to Reality (Ideas to Life) */}
+      <IdeasToLifeComparison content={cmsData} locale={locale} />
 
-      {/* Act III — Enter the Worlds */}
-      <Act3AttractionWorlds content={cmsData} locale={locale} />
-
-      {/* Story Intent Selector Doorways */}
-      <IntentSelectorDoorways
+      {/* 3. Story Discovery Taxonomy ("What kind of story do you want today?") */}
+      <StoryTaxonomyPortals
         content={cmsData}
         locale={locale}
         onSelectCategory={(cat) => setFilteredCategory(cat)}
       />
 
-      {/* Act IV — The Living Day Timeline */}
+      {/* 4. Enter the Experience Worlds */}
+      <ExperienceWorldsStage content={cmsData} locale={locale} />
+
+      {/* 5. Live Today Timeline */}
       <Act4LivingDayTimeline content={cmsData} locale={locale} />
 
-      {/* Act V — A Journey Across Qatar */}
-      <Act5QatarRouteMap content={cmsData} locale={locale} />
+      {/* 6. Explore E3 Across Qatar & Near Me Geolocation */}
+      <QatarInteractiveMap content={cmsData} locale={locale} />
 
-      {/* Act VI — The Moment Becomes a Memory */}
-      <Act6GuestMemoryRibbon content={cmsData} locale={locale} />
+      {/* 7. The Moment Becomes a Memory (GPU Parallax Gallery) */}
+      <HorizontalGPUParallaxGallery content={cmsData} locale={locale} />
 
-      {/* Act VII — Final Scene: Make Today the Story */}
-      <Act7TactileTicketScene content={cmsData} locale={locale} />
+      {/* 8. Final Booking Transformation (Tactile Ticket) */}
+      <TactileDigitalTicket content={cmsData} locale={locale} />
+
+      {/* Persistent Story Trail Journey Indicator */}
+      <StoryTrailControl
+        currentStoryLabelEn="Drive"
+        currentStoryLabelAr="قيادة"
+        currentWorldNameEn="Kids City Driving School"
+        currentWorldNameAr="مدينة قيادة الأطفال"
+        locale={locale}
+      />
     </div>
   );
 }

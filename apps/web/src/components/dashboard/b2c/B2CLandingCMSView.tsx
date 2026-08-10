@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Layers, Sparkles, MapPin, Heart, Ticket } from 'lucide-react'
+import { Save, Plus, Trash2, Layers, Sparkles, MapPin, Heart, Ticket, Video, Image as ImageIcon } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
@@ -16,6 +16,13 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
     ...DEFAULT_B2C_LANDING_CONTENT,
     ...(initialData || {})
   }))
+
+  const handleHeroChange = (field: string, val: any) => {
+    setContent((prev: any) => ({
+      ...prev,
+      hero: { ...prev.hero, [field]: val }
+    }))
+  }
 
   const handleAct1Change = (field: string, val: any) => {
     setContent((prev: any) => ({
@@ -49,6 +56,11 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
 
       if (!res.ok) throw new Error('Failed to save CMS configuration')
 
+      // Dispatch real-time update event for public landing pages
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+      }
+
       toast('B2C Landing Story saved successfully!', 'success')
       router.refresh()
     } catch (err: any) {
@@ -69,7 +81,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
             <span>B2C Story Landing CMS Editor</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Manage the 7-act narrative experience: headlines, steps, attraction worlds, Qatar map, and tickets.
+            Manage the continuous narrative experience: universal hero media, story taxonomy, Qatar venue map, and tickets.
           </p>
         </div>
 
@@ -83,39 +95,65 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
         </button>
       </div>
 
-      {/* Act I Form */}
+      {/* Universal Hero Media Section */}
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
         <h2 className="text-lg font-extrabold text-purple-400 flex items-center gap-2">
-          <span>Act I — Imagine It</span>
+          <Video className="w-5 h-5" />
+          <span>Universal Hero Media Settings</span>
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Headline (English)</label>
-            <input
-              type="text"
-              value={content.act1?.headlineEn || ''}
-              onChange={(e) => handleAct1Change('headlineEn', e.target.value)}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <label className="block text-xs font-semibold text-slate-400">Hero Media Type</label>
+            <select
+              value={content.hero?.mediaType || 'VIDEO'}
+              onChange={(e) => handleHeroChange('mediaType', e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+            >
+              <option value="VIDEO">Autoplay Muted Video</option>
+              <option value="IMAGE">Static Premium Image</option>
+              <option value="IFRAME">Allowlisted Embedded Iframe / WebGL</option>
+              <option value="MODEL_3D">3D Model (GLB/GLTF)</option>
+            </select>
+
+            <label className="block text-xs font-semibold text-slate-400">Hero Desktop Cover / Video URL</label>
+            <AdminMediaPicker
+              value={content.hero?.mediaUrl}
+              onChange={(url) => handleHeroChange('mediaUrl', url)}
+              label=""
+              accept="video/*,image/*"
             />
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Headline (Arabic)</label>
-            <input
-              type="text"
-              value={content.act1?.headlineAr || ''}
-              onChange={(e) => handleAct1Change('headlineAr', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
-              dir="rtl"
-            />
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Seeded Heading (English)</label>
+              <input
+                type="text"
+                value={content.act1?.headlineEn || ''}
+                onChange={(e) => handleAct1Change('headlineEn', e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Seeded Heading (Arabic)</label>
+              <input
+                type="text"
+                value={content.act1?.headlineAr || ''}
+                onChange={(e) => handleAct1Change('headlineAr', e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                dir="rtl"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Act II Form */}
+      {/* Ideas to Life Spatial Blueprint Settings */}
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
         <h2 className="text-lg font-extrabold text-sky-400 flex items-center gap-2">
           <Layers className="w-5 h-5" />
-          <span>Act II — Bring It to Life</span>
+          <span>From Idea to Reality (Ideas to Life)</span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -140,11 +178,11 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
         </div>
       </div>
 
-      {/* Act VII Ticket Form */}
+      {/* Tactile Ticket Settings */}
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
         <h2 className="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
           <Ticket className="w-5 h-5" />
-          <span>Act VII — Make Today the Story (Ticket Scene)</span>
+          <span>Tactile Digital Ticket & Booking Settings</span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
