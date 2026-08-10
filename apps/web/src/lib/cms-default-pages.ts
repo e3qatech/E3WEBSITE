@@ -617,11 +617,21 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...(raw.act2 || {}),
       steps: (raw.act2?.steps && raw.act2.steps.length > 0) ? raw.act2.steps : defaults.act2.steps,
     },
-    act3Worlds: (raw.act3Worlds && raw.act3Worlds.length > 0) ? raw.act3Worlds : defaults.act3Worlds,
+    act3Worlds: (raw.act3Worlds && raw.act3Worlds.length > 0)
+      ? raw.act3Worlds.map((w: any, idx: number) => {
+          const match = defaults.act3Worlds[idx] || {};
+          return { ...match, ...w, mediaUrl: (w.mediaUrl && String(w.mediaUrl).trim() !== '') ? w.mediaUrl : (match.mediaUrl || '') };
+        })
+      : defaults.act3Worlds,
     intentSelector: {
       ...defaults.intentSelector,
       ...(raw.intentSelector || {}),
-      options: (raw.intentSelector?.options && raw.intentSelector.options.length > 0) ? raw.intentSelector.options : defaults.intentSelector.options,
+      options: (raw.intentSelector?.options && raw.intentSelector.options.length > 0)
+        ? raw.intentSelector.options.map((o: any, idx: number) => {
+            const match = defaults.intentSelector.options[idx] || {};
+            return { ...match, ...o, mediaUrl: (o.mediaUrl && String(o.mediaUrl).trim() !== '') ? o.mediaUrl : (match.mediaUrl || '') };
+          })
+        : defaults.intentSelector.options,
     },
     qatarMap: {
       ...defaults.qatarMap,
@@ -631,7 +641,12 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     guestMemories: {
       ...defaults.guestMemories,
       ...(raw.guestMemories || {}),
-      moments: (raw.guestMemories?.moments && raw.guestMemories.moments.length > 0) ? raw.guestMemories.moments : defaults.guestMemories.moments,
+      moments: (raw.guestMemories?.moments && raw.guestMemories.moments.length > 0)
+        ? raw.guestMemories.moments.map((m: any, idx: number) => {
+            const match = defaults.guestMemories.moments[idx] || {};
+            return { ...match, ...m, mediaUrl: (m.mediaUrl && String(m.mediaUrl).trim() !== '') ? m.mediaUrl : (match.mediaUrl || '') };
+          })
+        : defaults.guestMemories.moments,
     },
     act7Ticket: {
       ...defaults.act7Ticket,

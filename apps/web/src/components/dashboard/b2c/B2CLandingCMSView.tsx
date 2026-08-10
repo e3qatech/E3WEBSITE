@@ -38,6 +38,48 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
     }))
   }
 
+  const handleWorldMediaChange = (idx: number, url: string) => {
+    setContent((prev: any) => {
+      const copy = [...(prev.act3Worlds || [])]
+      if (copy[idx]) {
+        copy[idx] = { ...copy[idx], mediaUrl: url }
+      }
+      return { ...prev, act3Worlds: copy }
+    })
+  }
+
+  const handleStoryOptionMediaChange = (idx: number, url: string) => {
+    setContent((prev: any) => {
+      const optionsCopy = [...(prev.intentSelector?.options || [])]
+      if (optionsCopy[idx]) {
+        optionsCopy[idx] = { ...optionsCopy[idx], mediaUrl: url }
+      }
+      return {
+        ...prev,
+        intentSelector: {
+          ...(prev.intentSelector || {}),
+          options: optionsCopy
+        }
+      }
+    })
+  }
+
+  const handleGuestMomentMediaChange = (idx: number, url: string) => {
+    setContent((prev: any) => {
+      const momentsCopy = [...(prev.guestMemories?.moments || [])]
+      if (momentsCopy[idx]) {
+        momentsCopy[idx] = { ...momentsCopy[idx], mediaUrl: url }
+      }
+      return {
+        ...prev,
+        guestMemories: {
+          ...(prev.guestMemories || {}),
+          moments: momentsCopy
+        }
+      }
+    })
+  }
+
   const handleAct7Change = (field: string, val: any) => {
     setContent((prev: any) => ({
       ...prev,
@@ -56,7 +98,6 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
 
       if (!res.ok) throw new Error('Failed to save CMS configuration')
 
-      // Dispatch real-time update event for public landing pages
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
       }
@@ -81,7 +122,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
             <span>B2C Story Landing CMS Editor</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Manage the continuous narrative experience: universal hero media, story taxonomy, Qatar venue map, and tickets.
+            Manage all media covers, story taxonomy options, venue maps, and digital tickets in real-time.
           </p>
         </div>
 
@@ -149,38 +190,75 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
         </div>
       </div>
 
-      {/* Ideas to Life Spatial Blueprint Settings */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-        <h2 className="text-lg font-extrabold text-sky-400 flex items-center gap-2">
-          <Layers className="w-5 h-5" />
-          <span>From Idea to Reality (Ideas to Life)</span>
+      {/* Featured Attraction Worlds Media Section */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
+        <h2 className="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
+          <ImageIcon className="w-5 h-5" />
+          <span>Attraction Worlds Media & Covers</span>
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Headline (English)</label>
-            <input
-              type="text"
-              value={content.act2?.headlineEn || ''}
-              onChange={(e) => handleAct2Change('headlineEn', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Headline (Arabic)</label>
-            <input
-              type="text"
-              value={content.act2?.headlineAr || ''}
-              onChange={(e) => handleAct2Change('headlineAr', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
-              dir="rtl"
-            />
-          </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {(content.act3Worlds || []).map((world: any, idx: number) => (
+            <div key={world.id || idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+              <span className="text-xs font-bold text-emerald-400 block">{world.nameEn} ({world.nameAr})</span>
+              <AdminMediaPicker
+                value={world.mediaUrl}
+                onChange={(url) => handleWorldMediaChange(idx, url)}
+                label="World Media Cover"
+                accept="video/*,image/*"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Story Taxonomy Portals Media Section */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
+        <h2 className="text-lg font-extrabold text-sky-400 flex items-center gap-2">
+          <Sparkles className="w-5 h-5" />
+          <span>Story Taxonomy Portal Media (Letterform Previews)</span>
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(content.intentSelector?.options || []).map((opt: any, idx: number) => (
+            <div key={opt.id || idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <span className="text-xs font-bold text-sky-400 block">{opt.labelEn} / {opt.labelAr}</span>
+              <AdminMediaPicker
+                value={opt.mediaUrl}
+                onChange={(url) => handleStoryOptionMediaChange(idx, url)}
+                label="Portal Image"
+                accept="image/*,video/*"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Guest Memory Gallery Moments Media Section */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
+        <h2 className="text-lg font-extrabold text-pink-400 flex items-center gap-2">
+          <Heart className="w-5 h-5" />
+          <span>Guest Memories & Gallery Media Moments</span>
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(content.guestMemories?.moments || []).map((moment: any, idx: number) => (
+            <div key={moment.id || idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <span className="text-xs font-bold text-pink-400 block">{moment.titleEn}</span>
+              <AdminMediaPicker
+                value={moment.mediaUrl}
+                onChange={(url) => handleGuestMomentMediaChange(idx, url)}
+                label="Moment Media"
+                accept="image/*,video/*"
+              />
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Tactile Ticket Settings */}
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-        <h2 className="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
+        <h2 className="text-lg font-extrabold text-amber-400 flex items-center gap-2">
           <Ticket className="w-5 h-5" />
           <span>Tactile Digital Ticket & Booking Settings</span>
         </h2>
@@ -191,7 +269,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               type="text"
               value={content.act7Ticket?.headlineEn || ''}
               onChange={(e) => handleAct7Change('headlineEn', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
@@ -200,7 +278,7 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
               type="text"
               value={content.act7Ticket?.headlineAr || ''}
               onChange={(e) => handleAct7Change('headlineAr', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               dir="rtl"
             />
           </div>

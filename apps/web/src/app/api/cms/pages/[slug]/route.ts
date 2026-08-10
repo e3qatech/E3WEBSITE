@@ -94,7 +94,8 @@ export async function PUT(
 
     const body = await req.json();
     const validatedData = pageUpdateSchema.parse(body);
-    const mergedContent = getMergedCMSPageContent(slug, validatedData.content);
+    const rawIncomingContent = validatedData.content !== undefined ? validatedData.content : (body.content !== undefined ? body.content : body);
+    const mergedContent = getMergedCMSPageContent(slug, rawIncomingContent);
 
     let updatedPage: any = null;
 
@@ -157,6 +158,7 @@ export async function PUT(
       revalidatePath('/b2c', 'layout');
       revalidatePath('/[locale]/b2c/attractions', 'layout');
       revalidatePath('/[locale]/dashboard/b2c/pulse-orbit', 'page');
+      revalidatePath('/[locale]/dashboard/b2c/landing', 'page');
       revalidatePath('/[locale]/dashboard/settings/pulse-orbit', 'page');
     } catch (_e) {
       // Ignore revalidate errors
@@ -164,7 +166,14 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: updatedPage });
   } catch (error) {
-    console.error(`[PUT /api/cms/pages/${slug}] error:`, error);
+    console.error(`[PUT/POST /api/cms/pages/${slug}] error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+export async function POST(
+  req: NextRequest,
+  ctx: { params: Promise<{ slug: string }> }
+) {
+  return PUT(req, ctx);
 }
