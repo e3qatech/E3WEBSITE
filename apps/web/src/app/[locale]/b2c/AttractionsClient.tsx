@@ -50,7 +50,7 @@ export function AttractionsClient({
   useEffect(() => {
     const fetchLatestCMS = async () => {
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now());
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           if (json?.data?.content) {
@@ -61,7 +61,21 @@ export function AttractionsClient({
     };
 
     window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
-    return () => window.removeEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('e3_cms_sync');
+      bc.onmessage = (event) => {
+        if (event.data?.type === 'b2c_landing_updated') {
+          fetchLatestCMS();
+        }
+      };
+    } catch (_e) {}
+
+    return () => {
+      window.removeEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
+      if (bc) bc.close();
+    };
   }, []);
 
   useEffect(() => {

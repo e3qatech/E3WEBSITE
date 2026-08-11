@@ -113,6 +113,11 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        try {
+          const bc = new BroadcastChannel('e3_cms_sync')
+          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
+          bc.close()
+        } catch (_bcErr) {}
       }
 
       await fetchLatestData()

@@ -23,16 +23,16 @@ export function IdeasToLifeManager() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing')
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
         if (res.ok) {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
           setFullContent(data)
           if (data.act2) {
             setAct2({
-              headlineEn: data.act2.headlineEn || DEFAULT_B2C_LANDING_CONTENT.act2.headlineEn,
-              headlineAr: data.act2.headlineAr || DEFAULT_B2C_LANDING_CONTENT.act2.headlineAr,
-              steps: data.act2.steps || DEFAULT_B2C_LANDING_CONTENT.act2.steps
+              headlineEn: data.act2.headlineEn !== undefined ? data.act2.headlineEn : DEFAULT_B2C_LANDING_CONTENT.act2.headlineEn,
+              headlineAr: data.act2.headlineAr !== undefined ? data.act2.headlineAr : DEFAULT_B2C_LANDING_CONTENT.act2.headlineAr,
+              steps: (data.act2.steps && data.act2.steps.length > 0) ? data.act2.steps : DEFAULT_B2C_LANDING_CONTENT.act2.steps
             })
           }
         }
@@ -111,10 +111,22 @@ export function IdeasToLifeManager() {
       const json = await res.json().catch(() => null)
       if (json?.data?.content) {
         setFullContent(json.data.content)
+        if (json.data.content.act2) {
+          setAct2({
+            headlineEn: json.data.content.act2.headlineEn || '',
+            headlineAr: json.data.content.act2.headlineAr || '',
+            steps: json.data.content.act2.steps || []
+          })
+        }
       }
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        try {
+          const bc = new BroadcastChannel('e3_cms_sync')
+          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
+          bc.close()
+        } catch (_bcErr) {}
       }
 
       toast('Ideas to Life content manager saved successfully!', 'success')
