@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth"
 import { format } from "date-fns"
 import Link from "next/link"
 import { LiveOccupancy } from "@/components/shared/LiveOccupancy"
+import { LiveWebsiteChangesWidget } from "@/components/dashboard/ui/LiveWebsiteChangesWidget"
 
 export const metadata = {
   title: "Command Center | E3 Admin"
@@ -252,9 +253,12 @@ export default async function DashboardOverviewPage() {
             </div>
           </div>
 
-          {/* Live Activity Feed */}
-          <div className="flex-1 min-h-[300px] bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm">
-            <h3 className="text-[15px] font-semibold text-text-primary tracking-tight mb-4">Recent Activity</h3>
+          {/* Live Website Changes & Activity Feed */}
+          <LiveWebsiteChangesWidget />
+
+          {/* Recent Activity */}
+          <div className="flex-1 min-h-[250px] bg-bg-level-2 border border-border-default rounded-xl p-5 shadow-sm">
+            <h3 className="text-[15px] font-semibold text-text-primary tracking-tight mb-4">System Activity</h3>
             <LiveFeed initialItems={feedItems} />
           </div>
 

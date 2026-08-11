@@ -113,7 +113,7 @@ export function AdminSidebar() {
 
   const isClient = useMounted();
   const { data: session } = useSession();
-  const {} = useAdminTheme();
+  const { resolvedTheme } = useAdminTheme();
   
   const userRole = (session?.user as any)?.role || "SUPER_ADMIN"; // Default to Super Admin for command center view if no session
   const userInitials = session?.user?.email?.substring(0, 2).toUpperCase() || "SU";
@@ -134,13 +134,13 @@ export function AdminSidebar() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="flex items-center gap-3 w-full"
+            className="flex items-center justify-between w-full"
           >
-            <E3Logo isLight={false} size="sm" showText={true} />
+            <E3Logo isLight={resolvedTheme === 'light'} size="md" showText={false} />
             
             <button 
               onClick={() => setCollapsed(!collapsed)}
-              className="hidden md:flex p-1 rounded-md hover:bg-surface-active text-text-secondary transition-all shrink-0 ms-auto"
+              className="hidden md:flex p-1.5 rounded-lg hover:bg-surface-active text-text-secondary transition-all shrink-0 ms-auto cursor-pointer"
             >
               <ChevronLeft size={16} className="icon-directional" />
             </button>
