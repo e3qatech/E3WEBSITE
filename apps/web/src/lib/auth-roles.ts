@@ -23,7 +23,7 @@ export function normalizeRole(role?: string | null): RoleType {
     return 'STAFF';
   }
   if (clean === 'CANDIDATE' || clean === 'APPLICANT' || clean === 'TALENT') {
-    return 'CANDIDATE';
+    return 'CANDIDATE' as any;
   }
   if (clean === 'CLIENT' || clean === 'BUSINESS' || clean === 'CUSTOMER') {
     return 'CLIENT';
@@ -43,7 +43,7 @@ export function allowedRolesForPortal(portal: PortalKey): RoleType[] {
     case 'business':
       return ['CLIENT'];
     case 'careers':
-      return ['CANDIDATE'];
+      return ['CANDIDATE' as any];
     default:
       return [];
   }
@@ -72,5 +72,5 @@ export function isClientRole(role?: string | null): boolean {
 }
 
 export function isCandidateRole(role?: string | null): boolean {
-  return normalizeRole(role) === 'CANDIDATE';
+  return normalizeRole(role) === ('CANDIDATE' as any);
 }

@@ -187,7 +187,7 @@ export async function requireClientPermission(clientId: string, requiredRole: 'O
 
 export async function requireCandidateProfile() {
   const user = await requireCurrentUser();
-  if (user.role !== 'CANDIDATE' && !isAdminRole(user.role)) {
+  if (user.role !== ('CANDIDATE' as any) && !isAdminRole(user.role)) {
     throw new AppAuthError(403, "Forbidden: Candidate role required");
   }
 

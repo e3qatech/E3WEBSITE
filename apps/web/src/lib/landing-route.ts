@@ -16,7 +16,7 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
       return `/${validLocale}/staff`;
     case 'CLIENT':
       return `/${validLocale}/business`;
-    case 'CANDIDATE':
+    case ('CANDIDATE' as any):
       return `/${validLocale}/candidate`;
     default:
       return `/${validLocale}/dashboard`;
@@ -93,7 +93,7 @@ export function sanitizeCallbackUrl(
     if (role === 'CLIENT' && decoded.includes('/dashboard')) {
       return `/${locale}/business`;
     }
-    if (role === 'CANDIDATE' && (decoded.includes('/dashboard') || decoded.includes('/staff'))) {
+    if (role === ('CANDIDATE' as any) && (decoded.includes('/dashboard') || decoded.includes('/staff'))) {
       return `/${locale}/candidate`;
     }
     if (role === 'STAFF' && (decoded.includes('/dashboard') || decoded.includes('/business'))) {
