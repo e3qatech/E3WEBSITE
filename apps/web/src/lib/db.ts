@@ -23,7 +23,25 @@ const prismaClientSingleton = () => {
     throw new Error('Database configuration is missing');
   }
 
-  const finalUrl = dbUrl || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public';
+  let finalUrl = dbUrl || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public';
+
+  // Enforce Connection Pooling for Neon to prevent Serverless connection exhaustion
+  try {
+    if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
+      const parsedUrl = new URL(finalUrl);
+      if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
+        const parts = parsedUrl.hostname.split('.');
+        parts[0] = parts[0] + '-pooler';
+        parsedUrl.hostname = parts.join('.');
+      }
+      if (parsedUrl.hostname.includes('-pooler')) {
+        parsedUrl.searchParams.set('pgbouncer', 'true');
+      }
+      finalUrl = parsedUrl.toString();
+    }
+  } catch (e) {
+    // Ignore URL parse errors
+  }
 
   return new PrismaClient({
     datasources: {
