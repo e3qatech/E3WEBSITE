@@ -22,6 +22,9 @@ function _extractMediaUrlsFromObject(obj: any, urls = new Set<string>()): Set<st
   return urls;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

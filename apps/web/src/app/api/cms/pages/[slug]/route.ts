@@ -16,6 +16,9 @@ const pageUpdateSchema = z.object({
 const globalCMSPagesStore: Record<string, any> = (globalThis as any).__globalCMSPagesStore || {};
 (globalThis as any).__globalCMSPagesStore = globalCMSPagesStore;
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -77,6 +80,11 @@ export async function GET(
         title,
         content: mergedContent,
         seo,
+      },
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Surrogate-Control': 'no-store',
       },
     });
   } catch (error) {
