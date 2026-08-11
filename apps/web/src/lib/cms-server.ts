@@ -65,15 +65,25 @@ export function deepMergeCMSContent(target: any, source: any): any {
       continue;
     }
 
-    // Explicit remove action (null, '__REMOVE__', 'REMOVE_MEDIA')
-    if (srcVal === null || srcVal === '__REMOVE__' || srcVal === 'REMOVE_MEDIA') {
+    // Explicit removal operation (null, '__REMOVE__', '__REMOVE_MEDIA__', 'REMOVE_MEDIA', or object with removeMedia: true)
+    if (
+      srcVal === null ||
+      srcVal === '__REMOVE__' ||
+      srcVal === '__REMOVE_MEDIA__' ||
+      srcVal === 'REMOVE_MEDIA' ||
+      (typeof srcVal === 'object' && srcVal !== null && srcVal.removeMedia === true)
+    ) {
       result[key] = '';
       continue;
     }
 
-    // If source provides an empty string, determine if it's intentional removal
+    // Empty string produced by incomplete form hydration: preserve existing target value if present
     if (srcVal === '') {
-      result[key] = '';
+      if (tgtVal !== undefined && tgtVal !== null && tgtVal !== '') {
+        result[key] = tgtVal;
+      } else {
+        result[key] = '';
+      }
       continue;
     }
 

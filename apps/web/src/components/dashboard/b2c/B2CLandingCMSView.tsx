@@ -15,6 +15,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [content, setContent] = useState<any>(initialData || DEFAULT_B2C_LANDING_CONTENT)
 
   const fetchLatestData = async () => {
@@ -167,11 +168,11 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
         <button
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || uploading}
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-extrabold transition-all shadow-md cursor-pointer disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : 'Save Page Layout'}</span>
+          <span>{saving ? 'Saving...' : uploading ? 'Uploading Media...' : 'Save Page Layout'}</span>
         </button>
       </div>
 
@@ -180,6 +181,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         title="Landing Hero Media & Cover Settings"
         subtitle="Single unified hero media editor supporting Image, Video, 3D GLB Models, Embed IFrames, and Poster Fallbacks."
         value={content.heroMedia || { mediaType: content.hero?.mediaType || 'IMAGE', mediaUrl: content.hero?.mediaUrl || content.act1Hero?.desktopVideoUrl }}
+        onUploadStatusChange={setUploading}
         onChange={(heroMedia: UniversalMediaConfig) => setContent((prev: any) => ({
           ...prev,
           heroMedia,

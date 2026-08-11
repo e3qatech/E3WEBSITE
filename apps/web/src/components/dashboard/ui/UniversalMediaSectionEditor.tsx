@@ -41,6 +41,7 @@ interface UniversalMediaSectionEditorProps {
   value: Partial<UniversalMediaConfig>
   onChange: (updated: UniversalMediaConfig) => void
   accentColor?: string
+  onUploadStatusChange?: (uploading: boolean) => void
 }
 
 export function UniversalMediaSectionEditor({
@@ -48,7 +49,8 @@ export function UniversalMediaSectionEditor({
   subtitle = "Configure Hero or Footer media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Images.",
   value,
   onChange,
-  accentColor: _accentColor = "purple"
+  accentColor: _accentColor = "purple",
+  onUploadStatusChange
 }: UniversalMediaSectionEditorProps) {
   const mediaConfig: UniversalMediaConfig = {
     ...DEFAULT_UNIVERSAL_MEDIA,
@@ -184,6 +186,7 @@ export function UniversalMediaSectionEditor({
               onChange={(url: string) => updateField('mediaUrl', url)}
               label="Choose / Upload"
               accept="*"
+              onUploadStatusChange={onUploadStatusChange}
             />
           </div>
         </div>
@@ -244,6 +247,7 @@ export function UniversalMediaSectionEditor({
               onChange={(url: string) => updateField('fallbackImage', url)}
               label="Fallback Image"
               accept="image/*"
+              onUploadStatusChange={onUploadStatusChange}
             />
           </div>
         </div>
