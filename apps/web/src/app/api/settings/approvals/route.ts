@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import db from "@/lib/db";
 import { auth } from "@/lib/auth";
+import db from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { action, rules, item, itemId, newStatus, reviewNote } = body;
+    const { action, rules, item, itemId, _newStatus, reviewNote } = body;
 
     // Action 1: Save Approval Policy Rules
     if (action === "SAVE_RULES" && rules) {

@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Save, Sparkles, Video, Play, Sliders } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import { DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig, UniversalMediaSectionEditor } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
+import { Save, Sliders, Sparkles, Video } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function B2CMediaManager() {
   const router = useRouter()
@@ -64,6 +64,7 @@ export function B2CMediaManager() {
       }
     }
     loadData()
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSave = async () => {

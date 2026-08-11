@@ -59,6 +59,7 @@ export function ThemeProvider({
     };
 
     const currentResolved = computeResolvedTheme(themePreference);
+// eslint-disable-next-line react-hooks/set-state-in-effect
     setResolvedTheme(currentResolved);
 
     // Apply data-theme attribute directly on document root

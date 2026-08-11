@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
 import { auth } from "@/lib/auth"
 import db from "@/lib/db"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -124,6 +125,7 @@ export default async function RootLayout({
             />
             
             {children}
+            <SpeedInsights />
           </ThemeProvider>
         </AuthProvider>
       </body>

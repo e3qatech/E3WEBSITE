@@ -31,11 +31,11 @@ export function AttractionsClient({
 }) {
   useLiveOccupancy();
   usePointerIntent();
-  const { isAr } = useB2CTheme();
+  const { isAr: _isAr } = useB2CTheme();
   const [liveCmsContent, setLiveCmsContent] = useState(cmsData);
 
   const {
-    attractions,
+    attractions: _attractions,
     setAttractions,
   } = useAttractionsStore();
 
@@ -43,6 +43,7 @@ export function AttractionsClient({
 
   useEffect(() => {
     if (cmsData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLiveCmsContent(cmsData);
     }
   }, [cmsData]);

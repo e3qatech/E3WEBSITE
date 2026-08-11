@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from 'react'
-import { Video, Image as ImageIcon, Box, Frame, Sparkles, Layers, Sliders, ShieldCheck, Eye } from 'lucide-react'
+import { Box, Eye, Frame, Image as ImageIcon, Sparkles, Video } from 'lucide-react'
 import { AdminMediaPicker } from './AdminMediaPicker'
 
 export interface UniversalMediaConfig {
@@ -49,7 +48,7 @@ export function UniversalMediaSectionEditor({
   subtitle = "Configure Hero or Footer media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Images.",
   value,
   onChange,
-  accentColor = "purple"
+  accentColor: _accentColor = "purple"
 }: UniversalMediaSectionEditorProps) {
   const mediaConfig: UniversalMediaConfig = {
     ...DEFAULT_UNIVERSAL_MEDIA,

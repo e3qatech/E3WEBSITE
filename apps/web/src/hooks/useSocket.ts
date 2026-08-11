@@ -1,16 +1,16 @@
 "use client"
 
+import type {
+    BroadcastEvent,
+    DashboardStatsEvent,
+    NewFeedbackEvent,
+    NewLeadEvent,
+    OccupancyEvent,
+    StatusEvent,
+    TicketSoldEvent
+} from '@/lib/socket'
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
-import type { 
-  OccupancyEvent, 
-  StatusEvent, 
-  DashboardStatsEvent, 
-  NewLeadEvent, 
-  TicketSoldEvent, 
-  NewFeedbackEvent, 
-  BroadcastEvent 
-} from '@/lib/socket'
 
 // Base hook for connecting to a namespace
 export function useSocket(namespace: string) {
@@ -36,6 +36,7 @@ export function useSocket(namespace: string) {
       // Gracefully suppress socket errors on Vercel serverless functions without WebSockets
     })
 
+// eslint-disable-next-line react-hooks/set-state-in-effect
     setSocket(socketInstance)
 
     return () => {

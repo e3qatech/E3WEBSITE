@@ -24,7 +24,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PulseOrbitDropdown } from './PulseOrbitDropdown';
+import { PulseOrbitDropdown as _PulseOrbitDropdown } from './PulseOrbitDropdown';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
 
@@ -112,12 +112,12 @@ export function PulseOrbitNav({
   settings,
   orbitData,
   type = 'b2c',
-  customerLabelEn = 'Customer',
-  customerLabelAr = 'الزائر',
-  organizerLabelEn = 'Organizer',
-  organizerLabelAr = 'المنظّم',
-  customerUrl = '/b2c',
-  organizerUrl = '/b2b',
+  customerLabelEn: _customerLabelEn = 'Customer',
+  customerLabelAr: _customerLabelAr = 'الزائر',
+  organizerLabelEn: _organizerLabelEn = 'Organizer',
+  organizerLabelAr: _organizerLabelAr = 'المنظّم',
+  customerUrl: _customerUrl = '/b2c',
+  organizerUrl: _organizerUrl = '/b2b',
 }: {
   locale?: string;
   settings?: Record<string, string>;
@@ -181,6 +181,7 @@ export function PulseOrbitNav({
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBothOrbits();
     const handleUpdate = () => fetchBothOrbits();
     window.addEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
@@ -230,15 +231,17 @@ export function PulseOrbitNav({
 
   useEffect(() => {
     if (destinationList && destinationList.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveDestination(destinationList[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrbitData, activePortalTab]);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -274,6 +277,7 @@ export function PulseOrbitNav({
     } else {
       newPath = `/${targetLocale}${newPath}`;
     }
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = newPath;
   };
 

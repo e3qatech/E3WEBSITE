@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Trash2, Save, CheckCircle2, Loader2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { CheckCircle2, Loader2, Plus, Save, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
-import { uploadFile } from "@/lib/upload"
-import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "../ui/UniversalMediaSectionEditor"
+import { DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig, UniversalMediaSectionEditor } from "../ui/UniversalMediaSectionEditor"
 
 type PageSettings = {
   title: string
@@ -28,7 +27,7 @@ export function ContactPageManager() {
   const [, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const [_uploading, _setUploading] = useState(false)
 
   const [pageSettings, setPageSettings] = useState<PageSettings>({
     title: "How Can We Help?",

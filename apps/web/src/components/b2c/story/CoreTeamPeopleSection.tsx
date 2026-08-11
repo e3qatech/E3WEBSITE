@@ -1,10 +1,9 @@
 "use client"
 
+import { CoreTeamRecord, DEFAULT_CORE_TEAM } from '@/lib/cms-team'
+import { motion } from 'framer-motion'
+import { ArrowUpRight, Users } from 'lucide-react'
 import { useState } from 'react'
-import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Users, ArrowUpRight, Play, Sparkles } from 'lucide-react'
-import { DEFAULT_CORE_TEAM, CoreTeamRecord } from '@/lib/cms-team'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 
 interface CoreTeamPeopleSectionProps {
@@ -67,7 +66,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
 
         {/* Editorial Portraits Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {teamMembers.map((member, idx) => {
+          {teamMembers.map((member, _idx) => {
             const isActive = member.id === activeMemberId
             return (
               <motion.div

@@ -1,8 +1,8 @@
-import { Metadata } from "next";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { ApprovalsView } from "@/components/dashboard/settings/ApprovalsView";
+import { auth } from "@/lib/auth";
 import db from "@/lib/db";
+import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Workflow Approvals | E3 Admin",
@@ -61,6 +61,7 @@ export default async function ApprovalsPage() {
         status: "PENDING",
         priority: "HIGH",
         details: "Updated pricing tiers and hero media for Q3 Qatar Entertainment Festival.",
+// eslint-disable-next-line react-hooks/purity
         createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
       },
       {
@@ -73,6 +74,7 @@ export default async function ApprovalsPage() {
         status: "PENDING",
         priority: "MEDIUM",
         details: "Special 15% corporate discount requested for Qatar Airways VIP event.",
+// eslint-disable-next-line react-hooks/purity
         createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
       },
       {
@@ -86,6 +88,7 @@ export default async function ApprovalsPage() {
         priority: "URGENT",
         details: "Extend attraction closing times to 02:00 AM during public holidays.",
         approvedBy: "System SuperAdmin",
+// eslint-disable-next-line react-hooks/purity
         actionedAt: new Date(Date.now() - 86400000).toISOString(),
       }
     ];

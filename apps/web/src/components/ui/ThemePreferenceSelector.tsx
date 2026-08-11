@@ -4,7 +4,7 @@ import { useTheme, ThemePreference } from '@/components/layout/ThemeProvider'
 import { Sun, Moon, Laptop } from 'lucide-react'
 
 export function ThemePreferenceSelector({ locale = 'en' }: { locale?: string }) {
-  const { themePreference, resolvedTheme, setThemePreference } = useTheme()
+  const { themePreference, resolvedTheme: _resolvedTheme, setThemePreference } = useTheme()
   const isAr = locale === 'ar'
 
   const options: { id: ThemePreference; labelEn: string; labelAr: string; icon: any }[] = [

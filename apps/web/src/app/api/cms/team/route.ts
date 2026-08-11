@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
-import db from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { DEFAULT_CORE_TEAM } from '@/lib/cms-team'
+import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     let teamMembers: any[] = []
     try {

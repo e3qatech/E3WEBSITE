@@ -373,7 +373,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/attractions",
       descEn: "Pristine Snow Park, Urban Arena, Kids City, and kinetic entertainment.",
       descAr: "حديقة الثلج النقي، والساحة التفاعلية، وعالم الأطفال.",
-      mediaUrl: "",
+      mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
       enabled: true,
     },
     {
@@ -383,7 +383,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/calendar",
       descEn: "Live concerts, seasonal festivals, passes, and exclusive entertainment shows.",
       descAr: "الحفلات الحية والمهرجانات الموسمية والتذاكر والعروض الترفيهية.",
-      mediaUrl: "",
+      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
       enabled: true,
     },
     {
@@ -393,7 +393,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/discover",
       descEn: "Curated visitor guides, dining, and spatial technology showcases.",
       descAr: "دليل الزوار، المطاعم، والتكنولوجيا التفاعلية.",
-      mediaUrl: "",
+      mediaUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
       enabled: true,
     },
     {
@@ -403,7 +403,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/packages",
       descEn: "VIP Birthday parties, corporate team outings, and private venue buyouts.",
       descAr: "حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.",
-      mediaUrl: "",
+      mediaUrl: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
       enabled: true,
     },
     {
@@ -413,7 +413,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/contact",
       descEn: "24/7 guest support, venue location, and concierge services.",
       descAr: "خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.",
-      mediaUrl: "",
+      mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1200&q=80",
       enabled: true,
     },
   ]
@@ -661,7 +661,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
         href: (rawDest.href !== undefined && rawDest.href !== null) ? rawDest.href : (match.href || ""),
         descEn: (rawDest.descEn !== undefined && rawDest.descEn !== null) ? rawDest.descEn : (match.descEn || ""),
         descAr: (rawDest.descAr !== undefined && rawDest.descAr !== null) ? rawDest.descAr : (match.descAr || ""),
-        mediaUrl: (rawDest.mediaUrl !== undefined && rawDest.mediaUrl !== null) ? rawDest.mediaUrl : (match.mediaUrl || ""),
+        mediaUrl: (rawDest.mediaUrl !== undefined && rawDest.mediaUrl !== null && String(rawDest.mediaUrl).trim() !== "") ? String(rawDest.mediaUrl).trim() : (match.mediaUrl || ""),
         enabled: rawDest.enabled !== undefined ? Boolean(rawDest.enabled) : (match.enabled ?? true),
       };
     });

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { Bell, Check, Trash2, ExternalLink, Sparkles, AlertCircle, Info, CheckCircle2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { AlertCircle, Bell, CheckCircle2, Info, Sparkles, Trash2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 interface NotificationItem {
   id: string
@@ -16,7 +16,7 @@ interface NotificationItem {
 export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
-  const [loading, setLoading] = useState(false)
+  const [_loading, _setLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const fetchNotifications = async () => {
@@ -34,6 +34,7 @@ export function NotificationDropdown() {
   }
 
   useEffect(() => {
+// eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotifications()
     const interval = setInterval(fetchNotifications, 15000) // Poll every 15s for live updates
     return () => clearInterval(interval)

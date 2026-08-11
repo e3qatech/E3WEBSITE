@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { Activity, RefreshCw, Layers, CheckCircle2, Globe, ArrowUpRight } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { Activity, RefreshCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface ActivityItem {
   id: string
@@ -35,6 +35,7 @@ export function LiveWebsiteChangesWidget() {
   }
 
   useEffect(() => {
+// eslint-disable-next-line react-hooks/set-state-in-effect
     fetchActivity()
     const interval = setInterval(fetchActivity, 10000) // Live refresh every 10s
     return () => clearInterval(interval)

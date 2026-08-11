@@ -4,7 +4,7 @@ import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
-import { getCMSPageContentServer } from '@/lib/cms-server';
+import { getCMSPageContentServer, deepMergeCMSContent } from '@/lib/cms-server';
 
 const pageUpdateSchema = z.object({
   title: z.any().optional(),
@@ -158,10 +158,12 @@ export async function PUT(
 
     // Deep merge incoming content on top of existing saved state so section managers never overwrite each other
     const existingContent = await getCMSPageContentServer(slug);
-    const deepMergedContent = {
-      ...(existingContent || {}),
-      ...(rawIncomingContent || {}),
-    };
+    let deepMergedContent: any;
+    try {
+      deepMergedContent = deepMergeCMSContent(existingContent || {}, rawIncomingContent || {});
+    } catch (mergeErr: any) {
+      return NextResponse.json({ error: mergeErr?.message || 'Invalid CMS content payload' }, { status: 400 });
+    }
 
     const mergedContent = getMergedCMSPageContent(slug, deepMergedContent);
 

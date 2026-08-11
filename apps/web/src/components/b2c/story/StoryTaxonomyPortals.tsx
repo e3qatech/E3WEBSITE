@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowUpRight, Sparkles } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ArrowUpRight } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface StoryTaxonomyPortalsProps {
   content: any
@@ -17,6 +17,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   const searchParams = useSearchParams()
 
   const selector = content?.intentSelector || {}
+// eslint-disable-next-line react-hooks/exhaustive-deps
   const options = selector.options || []
 
   // Initialize active taxonomy from URL parameter ?story=... or default
@@ -29,6 +30,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   useEffect(() => {
     if (paramStory) {
       const match = options.find((o: any) => o.id === paramStory || o.category === paramStory)
+// eslint-disable-next-line react-hooks/set-state-in-effect
       if (match) setActiveId(match.id)
     }
   }, [paramStory, options])

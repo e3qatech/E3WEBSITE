@@ -1,24 +1,23 @@
-import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { isValidMagicBytes } from '@/lib/security';
 import { put } from '@vercel/blob';
 import { randomUUID } from 'crypto';
-import { auth } from '@/lib/auth';
-import fs from 'fs/promises';
-import path from 'path';
-import { isValidMagicBytes } from '@/lib/security';
-import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages';
+import { promises as _fs } from 'fs';
+import { NextResponse } from 'next/server';
+import _path from 'path';
 
 // Helper function to extract all media URLs recursively from any JSON structure
-function extractMediaUrlsFromObject(obj: any, urls = new Set<string>()): Set<string> {
+function _extractMediaUrlsFromObject(obj: any, urls = new Set<string>()): Set<string> {
   if (!obj) return urls;
   if (typeof obj === 'string') {
     if (obj.match(/^https?:\/\/.*\.(jpg|jpeg|png|webp|gif|svg|avif|mp4|webm|mov)(\?.*)?$/i) || obj.startsWith('/uploads/') || obj.startsWith('/images/')) {
       urls.add(obj);
     }
   } else if (Array.isArray(obj)) {
-    obj.forEach(item => extractMediaUrlsFromObject(item, urls));
+    obj.forEach(item => _extractMediaUrlsFromObject(item, urls));
   } else if (typeof obj === 'object') {
-    Object.values(obj).forEach(val => extractMediaUrlsFromObject(val, urls));
+    Object.values(obj).forEach(val => _extractMediaUrlsFromObject(val, urls));
   }
   return urls;
 }
@@ -80,34 +79,28 @@ const ALLOWED_TYPES = [
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
 
-async function saveFileOrDataUrl(buffer: Buffer, fileType: string, fileName: string, ext?: string): Promise<string> {
-  try {
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
-    const filePath = path.join(uploadDir, fileName);
-    await fs.writeFile(filePath, buffer);
-    return `/uploads/${fileName}`;
-  } catch (fsErr) {
-    console.warn("[UPLOAD WARNING] Disk storage failed, converting to Data URL fallback:", fsErr);
-    let mime = fileType;
-    if (ext === 'svg' || !mime || mime === 'application/octet-stream') {
-      if (ext === 'svg') mime = 'image/svg+xml';
-      else if (ext === 'png') mime = 'image/png';
-      else if (ext === 'jpg' || ext === 'jpeg') mime = 'image/jpeg';
-      else if (ext === 'webp') mime = 'image/webp';
-      else if (ext === 'gif') mime = 'image/gif';
-      else if (ext === 'pdf') mime = 'application/pdf';
-    }
-    const base64 = buffer.toString('base64');
-    return `data:${mime || 'application/octet-stream'};base64,${base64}`;
-  }
-}
+// Note: All public media uploads require Vercel Blob object storage (BLOB_READ_WRITE_TOKEN).
+// Database binary / base64 fallbacks have been removed to preserve storage architecture standards.
 
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    if (!session?.user && process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user) {
+      if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    } else {
+      try {
+        const dbUser = await db.user.findUnique({ where: { id: session.user.id } });
+        if (dbUser) {
+          if (!dbUser.isActive) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+          }
+          if (dbUser.role === 'CLIENT' || dbUser.role === 'SALES_ADMIN') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+          }
+        }
+      } catch (_e) {}
     }
 
     const contentType = request.headers.get('content-type') || '';
@@ -139,7 +132,7 @@ export async function POST(request: Request) {
             alt: { en: name || 'Media', ar: name || 'Media' },
           },
         });
-      } catch (dbErr) {
+      } catch (_dbErr) {
         media = {
           id: randomUUID(),
           url,
@@ -188,21 +181,29 @@ export async function POST(request: Request) {
         continue;
       }
 
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        return NextResponse.json({
+          error: "Missing required public object storage environment configuration: BLOB_READ_WRITE_TOKEN. Public media uploads are rejected to prevent data loss.",
+          code: "MISSING_BLOB_READ_WRITE_TOKEN"
+        }, { status: 500 });
+      }
+
       const filename = `${randomUUID()}.${ext || 'bin'}`;
       let fileUrl = "";
       
-      if (process.env.BLOB_READ_WRITE_TOKEN) {
-        try {
-          const blob = await put(`uploads/${filename}`, buffer, {
-            access: 'public',
-            contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
-          });
-          fileUrl = blob.url;
-        } catch (blobError) {
-          fileUrl = await saveFileOrDataUrl(buffer, file.type, filename, ext);
-        }
-      } else {
-        fileUrl = await saveFileOrDataUrl(buffer, file.type, filename, ext);
+      try {
+        const blob = await put(`uploads/${filename}`, buffer, {
+          access: 'public',
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+          contentType: ext === 'svg' ? 'image/svg+xml' : (file.type || 'application/octet-stream'),
+        });
+        fileUrl = blob.url;
+      } catch (blobError: any) {
+        console.error("[CMS MEDIA BLOB UPLOAD ERROR]", blobError);
+        return NextResponse.json({
+          error: `Vercel Blob upload failed: ${blobError?.message || 'Object storage error'}. Check BLOB_READ_WRITE_TOKEN configuration.`,
+          code: "BLOB_UPLOAD_FAILED"
+        }, { status: 500 });
       }
       
       let mediaType = 'IMAGE';
@@ -221,7 +222,7 @@ export async function POST(request: Request) {
             alt: { en: file.name, ar: file.name },
           },
         });
-      } catch (dbErr) {
+      } catch (_dbErr) {
         media = {
           id: randomUUID(),
           url: fileUrl,

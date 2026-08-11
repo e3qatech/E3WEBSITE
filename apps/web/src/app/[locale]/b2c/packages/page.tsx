@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function PackagesPage(props: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await props.params;
+  const { locale: _locale } = await props.params;
 
   let settings: any = null;
 

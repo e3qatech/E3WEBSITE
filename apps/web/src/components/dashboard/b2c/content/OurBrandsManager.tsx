@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Sparkles, Award } from 'lucide-react'
-import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
+import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
+import { Award, Plus, Save, Sparkles, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function OurBrandsManager() {
   const router = useRouter()
@@ -44,6 +44,7 @@ export function OurBrandsManager() {
       }
     }
     loadData()
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleBrandChange = (idx: number, field: string, value: any) => {

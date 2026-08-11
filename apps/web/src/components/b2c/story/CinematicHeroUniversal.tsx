@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Calendar, Compass, Ticket, Play, Pause } from 'lucide-react'
+import { ArrowRight, Calendar, Pause, Play, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 
 interface CinematicHeroUniversalProps {
@@ -46,7 +46,7 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
 
   const isVideo = isExplicitVideo || (!isExplicitImage && !isExplicitIframe && (/\.(mp4|webm|mov|m4v|mkv)$/i.test(mediaUrl) || mediaUrl.includes('/video/') || mediaUrl.includes('mixkit.co')))
   const isIframe = isExplicitIframe || (!isExplicitImage && !isExplicitVideo && (mediaUrl.includes('iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo') || mediaUrl.includes('spline')))
-  const isImage = isExplicitImage || (!isVideo && !isIframe)
+  const _isImage = isExplicitImage || (!isVideo && !isIframe)
 
   const headline = isAr
     ? (act1Hero.titleAr || act1.headlineAr || hero.headerAr || "أيام تمرّ… وأيام تتحول إلى حكايات.")

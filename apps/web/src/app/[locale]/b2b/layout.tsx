@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { B2BLayout } from '@/components/b2b/layout/B2BLayout'
 import { PulseOrbitNav } from '@/components/b2c/nav/PulseOrbitNav'

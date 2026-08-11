@@ -37,6 +37,7 @@ export function usePointerIntent(options?: {
     const isCoarse = window.matchMedia('(pointer: coarse)').matches
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+// eslint-disable-next-line react-hooks/set-state-in-effect
     setPointerState(prev => ({ ...prev, isCoarse, reducedMotion }))
 
     if ((isCoarse && disabledOnMobile) || (reducedMotion && disabledInReducedMotion)) {

@@ -1,13 +1,14 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
-import { AdminMediaPicker } from "../ui/AdminMediaPicker"
-import { AdminButton } from "../ui/AdminButton"
-import { Save, Eye, EyeOff, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Building2, User, Image as ImageIcon, Type } from "lucide-react"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { ArrowDown, ArrowUp, Building2, Eye, EyeOff, Image as ImageIcon, Plus, Save, Trash2, Type, User } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { AdminButton } from "../ui/AdminButton"
+import { AdminFormLayout } from "../ui/AdminFormLayout"
+import { AdminMediaPicker } from "../ui/AdminMediaPicker"
+import { AdminPageHeader } from "../ui/AdminPageHeader"
 
 export interface OrbitDestinationItem {
   id: string
@@ -225,6 +226,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   };
 
   useEffect(() => {
+// eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLatestCMSData();
     window.addEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData);
     let bc: BroadcastChannel | null = null;

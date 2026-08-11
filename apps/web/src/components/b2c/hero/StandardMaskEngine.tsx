@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MaskPresetType, getPresetSvgPath } from './MaskPresets';
 import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useId, useRef, useState } from 'react';
+import { MaskPresetType, getPresetSvgPath } from './MaskPresets';
 
 export interface MaskEngineProps {
   portalMode: 'customer' | 'organizer';
@@ -55,6 +55,7 @@ export function StandardMaskEngine({
 
   // Reset videoFailed when videoUrl changes
   useEffect(() => {
+// eslint-disable-next-line react-hooks/set-state-in-effect
     setVideoFailed(false);
   }, [videoUrl]);
 

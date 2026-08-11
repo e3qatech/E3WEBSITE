@@ -1,20 +1,20 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
-import { useMounted } from "@/hooks/useMounted";
-import { useRouter, usePathname } from "next/navigation";
-import dynamic from "next/dynamic";
-import { ArrowRight, ArrowLeft, Sun, Moon, Globe } from "lucide-react";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { useTheme } from "@/components/layout/ThemeProvider";
-import { UniversalMediaHolder } from "@/components/shared/UniversalMediaHolder";
-import {
-  GatewayCustomizationPayload,
-  DEFAULT_GATEWAY_CMS_PAYLOAD,
-  GatewayPreviewSimulationState,
-} from "@/types/gateway-cms";
 import { E3Logo } from "@/components/shared/E3Logo";
+import { UniversalMediaHolder } from "@/components/shared/UniversalMediaHolder";
+import { useMounted } from "@/hooks/useMounted";
 import { cn } from "@/lib/utils";
+import {
+    DEFAULT_GATEWAY_CMS_PAYLOAD,
+    GatewayCustomizationPayload,
+    GatewayPreviewSimulationState,
+} from "@/types/gateway-cms";
+import { ArrowLeft, ArrowRight, Globe, Moon, Sun } from "lucide-react";
+import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { playSpatialHoverSound } from "@/components/b2c/nav/PulseOrbitNav";
 
@@ -43,7 +43,7 @@ export function PortalGateway({
 
   const [hoveredPortal, setHoveredPortal] = useState<"b2c" | "b2b" | null>(null);
   const [focusedPortal, setFocusedPortal] = useState<"b2c" | "b2b" | null>(null);
-  const [selectedPortal, setSelectedPortal] = useState<"b2c" | "b2b" | null>(null);
+  const [_selectedPortal, setSelectedPortal] = useState<"b2c" | "b2b" | null>(null);
   const [isMobileViewport, setIsMobileViewport] = useState<boolean>(false);
   const isMounted = useMounted();
 
@@ -77,7 +77,7 @@ export function PortalGateway({
   const isLight = resolvedTheme === "light";
 
   // Active portal logic
-  const activeFocus = simulation?.portalFocus !== "none" ? simulation?.portalFocus || null : hoveredPortal || focusedPortal;
+  const _activeFocus = simulation?.portalFocus !== "none" ? simulation?.portalFocus || null : hoveredPortal || focusedPortal;
 
   // Content bindings
   const en = activeCmsData.english || DEFAULT_GATEWAY_CMS_PAYLOAD.english;
@@ -196,7 +196,7 @@ export function PortalGateway({
     }
   }, [simulation, previewMode]);
 
-  const isReducedMotion = simulation?.reducedMotion || visual.reducedMotionDefault;
+  const _isReducedMotion = simulation?.reducedMotion || visual.reducedMotionDefault;
 
   // Active Media resolution
   const activeB2cDesktopMedia = activeCmsData.b2cDesktopMedia;

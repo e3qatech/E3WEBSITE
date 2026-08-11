@@ -1,6 +1,92 @@
 import db from '@/lib/db';
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
 
+export function isTemporaryUrl(url: any): boolean {
+  if (typeof url !== 'string') return false;
+  const clean = url.trim().toLowerCase();
+  return clean.startsWith('blob:') || clean.startsWith('file:') || clean.includes('localhost:') || clean.startsWith('/tmp/');
+}
+
+export function validateCMSNoTempUrls(obj: any): void {
+  if (!obj) return;
+  if (typeof obj === 'string') {
+    if (isTemporaryUrl(obj)) {
+      throw new Error(`Temporary or local URL detected (${obj}). Only persistent public URLs are allowed.`);
+    }
+  } else if (Array.isArray(obj)) {
+    obj.forEach(validateCMSNoTempUrls);
+  } else if (typeof obj === 'object') {
+    Object.values(obj).forEach(validateCMSNoTempUrls);
+  }
+}
+
+export function deepMergeCMSContent(target: any, source: any): any {
+  if (source === null || source === undefined) return target;
+  if (target === null || target === undefined) {
+    validateCMSNoTempUrls(source);
+    return source;
+  }
+
+  validateCMSNoTempUrls(source);
+
+  if (typeof target !== 'object' || typeof source !== 'object') {
+    return source;
+  }
+
+  // Array handling: preserve item content by stable ID, support deliberate removal & reordering
+  if (Array.isArray(target) || Array.isArray(source)) {
+    if (!Array.isArray(source)) return target;
+    if (!Array.isArray(target)) return source;
+    
+    // If source array items have stable IDs, merge matching items by ID while respecting source order
+    const hasStableIds = source.some((item: any) => item && typeof item === 'object' && item.id !== undefined);
+    if (hasStableIds) {
+      return source.map((srcItem: any) => {
+        if (srcItem && typeof srcItem === 'object' && srcItem.id !== undefined) {
+          const matchingTarget = target.find((t: any) => t && t.id === srcItem.id);
+          return matchingTarget ? deepMergeCMSContent(matchingTarget, srcItem) : srcItem;
+        }
+        return srcItem;
+      });
+    }
+    
+    // Fallback for arrays without IDs
+    return source;
+  }
+
+  const result: Record<string, any> = { ...target };
+  
+  for (const key of Object.keys(source)) {
+    const srcVal = source[key];
+    const tgtVal = target[key];
+
+    // Explicit field omitted: preserve target
+    if (srcVal === undefined) {
+      continue;
+    }
+
+    // Explicit remove action (null, '__REMOVE__', 'REMOVE_MEDIA')
+    if (srcVal === null || srcVal === '__REMOVE__' || srcVal === 'REMOVE_MEDIA') {
+      result[key] = '';
+      continue;
+    }
+
+    // If source provides an empty string, determine if it's intentional removal
+    if (srcVal === '') {
+      result[key] = '';
+      continue;
+    }
+
+    if (typeof srcVal === 'object' && typeof tgtVal === 'object' && srcVal !== null && tgtVal !== null) {
+      result[key] = deepMergeCMSContent(tgtVal, srcVal);
+    } else {
+      result[key] = srcVal;
+    }
+  }
+
+  return result;
+}
+
 export async function getCMSPageContentServer(slug: string): Promise<any> {
   let rawContent: any = null;
 

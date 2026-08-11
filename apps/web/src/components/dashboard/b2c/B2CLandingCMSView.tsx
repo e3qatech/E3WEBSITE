@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Save, Sparkles, Image as ImageIcon, Video, Eye, EyeOff, Plus, Trash2, Layers, Lightbulb, Compass, Award, MapPin, Radio, Film } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
+import { UniversalMediaConfig, UniversalMediaSectionEditor } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
-import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
-import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import { Save, Sparkles } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface B2CLandingCMSViewProps {
   initialData?: any
@@ -33,6 +31,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
   useEffect(() => {
     if (initialData) {
+// eslint-disable-next-line react-hooks/set-state-in-effect
       setContent(initialData);
     }
     fetchLatestData();

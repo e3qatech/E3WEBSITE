@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from 'react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Compass, Ticket, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react'
+import { Sparkles, Ticket } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
 
 interface StoryTrailControlProps {
   currentStoryLabelEn?: string
@@ -21,7 +21,7 @@ export function StoryTrailControl({
   locale = "en"
 }: StoryTrailControlProps) {
   const isAr = locale === 'ar'
-  const [minimized, setMinimized] = useState(false)
+  const [_minimized, _setMinimized] = useState(false)
 
   return (
     <motion.div

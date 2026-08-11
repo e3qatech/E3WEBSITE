@@ -17,7 +17,7 @@ export function useLiveOccupancy() {
     
     try {
       socketRef.current = io(socketUrl, {
-        path: '/api/socket',
+        path: '/api/socket.io',
         autoConnect: true,
         reconnection: true,
         reconnectionDelay: 1000,

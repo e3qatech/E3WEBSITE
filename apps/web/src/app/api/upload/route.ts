@@ -3,8 +3,8 @@ import { put } from "@vercel/blob"
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client"
 import { randomUUID } from "crypto"
 import { auth } from "@/lib/auth"
-import fs from "fs/promises"
-import path from "path"
+import { promises as _fs } from 'fs';
+import _path from 'path';
 import { isValidMagicBytes } from "@/lib/security"
 import { rateLimit } from "@/lib/rate-limit"
 
@@ -33,97 +33,9 @@ const RESUME_TYPES = [
   'application/octet-stream'
 ];
 
-import db from "@/lib/db";
-
-async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isPrivate: boolean = false): Promise<string> {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  // Try saving to public/uploads directory first (local dev / writable disk)
-  try {
-    const uploadDir = path.join(process.cwd(), isPrivate ? "private" : "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
-    const filePath = path.join(uploadDir, fileName);
-    await fs.writeFile(filePath, buffer);
-    return isPrivate ? `/private/uploads/${fileName}` : `/uploads/${fileName}`;
-  } catch (fsErr) {
-    console.warn("[UPLOAD NOTICE] Disk storage is read-only. Persisting media binary in PostgreSQL database:", fsErr);
-    if (isPrivate) {
-        throw new Error("Private storage unavailable on read-only system without valid blob setup.");
-    }
-    
-    let mime = file.type;
-    if (ext === 'svg' || !mime || mime === 'application/octet-stream') {
-      if (ext === 'svg') mime = 'image/svg+xml';
-      else if (ext === 'png') mime = 'image/png';
-      else if (ext === 'jpg' || ext === 'jpeg') mime = 'image/jpeg';
-      else if (ext === 'webp') mime = 'image/webp';
-      else if (ext === 'gif') mime = 'image/gif';
-      else if (ext === 'pdf') mime = 'application/pdf';
-      else if (ext === 'mp4') mime = 'video/mp4';
-      else if (ext === 'webm') mime = 'video/webm';
-    }
-
-    let mediaType: any = 'IMAGE';
-    if (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext || '')) mediaType = 'VIDEO';
-    else if (mime.includes('pdf') || ['pdf', 'doc', 'docx'].includes(ext || '')) mediaType = 'DOCUMENT';
-    else if (['glb', 'gltf'].includes(ext || '')) mediaType = 'MODEL_3D';
-
-    const base64Data = buffer.toString('base64');
-
-    try {
-      // Create database record with binary payload stored in metadata
-      const mediaRecord = await db.media.create({
-        data: {
-          url: '',
-          type: mediaType,
-          mimeType: mime || 'application/octet-stream',
-          size: file.size,
-          alt: { en: fileName || 'Media', ar: fileName || 'Media' },
-          metadata: {
-            data: base64Data,
-            fileName,
-          }
-        }
-      });
-
-      const streamableUrl = `/api/media/${mediaRecord.id}`;
-      await db.media.update({
-        where: { id: mediaRecord.id },
-        data: { url: streamableUrl }
-      });
-
-      return streamableUrl;
-    } catch (dbErr) {
-      console.warn("[UPLOAD NOTICE] db.media.create skipped, using SiteSettings database persistence:", dbErr);
-      const mediaId = `med_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      const streamableUrl = `/api/media/${mediaId}`;
-
-      try {
-        await (db as any).siteSettings.upsert({
-          where: { key: `cms_media_${mediaId}` },
-          update: {
-            value: { base64Data, mime, fileName, size: file.size, mediaType } as any,
-            group: 'MEDIA',
-          },
-          create: {
-            key: `cms_media_${mediaId}`,
-            value: { base64Data, mime, fileName, size: file.size, mediaType } as any,
-            group: 'MEDIA',
-          },
-        });
-      } catch (_settingErr) {
-        console.warn(`[UPLOAD WARN] SiteSettings persistence error:`, _settingErr);
-      }
-
-      const globalMediaStore = (globalThis as any).__globalMediaStore || {};
-      (globalThis as any).__globalMediaStore = globalMediaStore;
-      globalMediaStore[mediaId] = { base64Data, mime, fileName };
-
-      return streamableUrl;
-    }
-  }
-}
+// Note: All public website uploads require Vercel Blob object storage (BLOB_READ_WRITE_TOKEN).
+// Private resume uploads require RESUME_BLOB_READ_WRITE_TOKEN.
+// Database base64 binary fallbacks have been removed to preserve object storage architecture.
 
 import { cookies } from "next/headers"
 
@@ -251,28 +163,28 @@ export async function POST(request: Request) {
     const hasPublicToken = !!process.env.BLOB_READ_WRITE_TOKEN;
 
     if (isPublicResume && !hasResumeToken) {
-      return NextResponse.json({ success: false, error: 'Resume storage is unconfigured' }, { status: 503 });
+      return NextResponse.json({ success: false, error: 'Private resume storage is unconfigured: RESUME_BLOB_READ_WRITE_TOKEN is missing.' }, { status: 503 });
     }
 
-    if (isPublicResume ? hasResumeToken : hasPublicToken) {
-      try {
-        const prefix = isPublicResume ? 'private_resumes' : 'uploads';
-        const blobAccess = isPublicResume ? 'private' : 'public';
-        const uploadToken = isPublicResume ? process.env.RESUME_BLOB_READ_WRITE_TOKEN : process.env.BLOB_READ_WRITE_TOKEN;
-        
-        const blob = await put(`${prefix}/${fileName}`, file, {
-          access: blobAccess as any,
-          contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
-          token: uploadToken
-        });
-        // Private blobs: return pathname for download proxy, not public URL
-        fileUrl = isPublicResume ? blob.pathname : blob.url;
-      } catch (blobError) {
-        console.warn("[UPLOAD WARNING] Vercel Blob upload failed, falling back to disk/DataURL:", blobError);
-        fileUrl = await saveFileOrDataUrl(file, fileName, ext, isPublicResume);
-      }
-    } else {
-      fileUrl = await saveFileOrDataUrl(file, fileName, ext, isPublicResume);
+    if (!isPublicResume && !hasPublicToken) {
+      return NextResponse.json({ success: false, error: 'Public media storage is unconfigured: BLOB_READ_WRITE_TOKEN is missing.' }, { status: 500 });
+    }
+
+    try {
+      const prefix = isPublicResume ? 'private_resumes' : 'uploads';
+      const blobAccess = isPublicResume ? 'private' : 'public';
+      const uploadToken = isPublicResume ? process.env.RESUME_BLOB_READ_WRITE_TOKEN : process.env.BLOB_READ_WRITE_TOKEN;
+      
+      const blob = await put(`${prefix}/${fileName}`, file, {
+        access: blobAccess as any,
+        contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
+        token: uploadToken
+      });
+      // Private blobs: return pathname for download proxy, not public URL
+      fileUrl = isPublicResume ? blob.pathname : blob.url;
+    } catch (blobError: any) {
+      console.error("[UPLOAD ERROR] Vercel Blob upload failed:", blobError);
+      return NextResponse.json({ success: false, error: `Object storage upload failed: ${blobError?.message || 'Upload error'}` }, { status: 500 });
     }
 
     // Sanitize original filename — strip path components and null bytes

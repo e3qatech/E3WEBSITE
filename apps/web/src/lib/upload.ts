@@ -79,7 +79,7 @@ export async function uploadFile(originalFile: File, context?: string): Promise<
     if (blob && blob.url) {
       return { url: blob.url, fileName: file.name };
     }
-  } catch (blobError: any) {
+  } catch (_blobError: any) {
     console.info('[Upload Notice] Vercel Blob token not set, using direct server upload.');
   }
 

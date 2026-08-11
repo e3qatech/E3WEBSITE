@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { SlideOver } from "./SlideOver"
-import { AdminButton } from "./AdminButton"
-import { Image as ImageIcon, Video, FileText, UploadCloud, Check, Trash2 } from "lucide-react"
-import { uploadFile } from "@/lib/upload"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { uploadFile } from "@/lib/upload"
 import { safeFetchJson } from "@/lib/utils"
+import { Check, FileText, Image as ImageIcon, Trash2, UploadCloud, Video } from "lucide-react"
+import { useEffect, useRef, useState } from 'react'
+import { AdminButton } from "./AdminButton"
+import { SlideOver } from "./SlideOver"
 
 interface Media {
   id: string
@@ -35,6 +35,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset error state on image change
     setImgError(false)
   }, [value])
 
@@ -86,7 +87,6 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     setUploading(true)
     onUploadStatusChange?.(true)
     try {
-      // 1. Upload via smart upload utility (uses Vercel Blob client upload for large files like videos)
       const { url, fileName } = await uploadFile(file, "cms_media")
       
       let mediaType = "IMAGE"
@@ -94,7 +94,6 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
       else if (file.type.includes("pdf") || file.name.match(/\.(pdf|doc|docx)$/i)) mediaType = "DOCUMENT"
       else if (file.name.match(/\.(glb|gltf)$/i)) mediaType = "MODEL_3D"
 
-      // 2. Register media item in CMS database
       const res = await fetch("/api/cms/media", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,13 +109,15 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
       const data = await res.json().catch(() => null);
       const finalUrl = data?.url || url;
 
-      if (finalUrl) {
+      if (finalUrl && !finalUrl.startsWith('blob:') && !finalUrl.startsWith('file:')) {
         if (res.ok && data) {
           setMediaList(prev => [data, ...prev]);
         }
         onChange(finalUrl);
         toast(`Media "${fileName}" uploaded & published successfully!`, "success");
         setIsOpen(false);
+      } else {
+        throw new Error("Storage provider returned an invalid temporary URL.");
       }
     } catch (err: any) {
       console.error("Upload error:", err)
@@ -384,4 +385,3 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     </div>
   )
 }
-

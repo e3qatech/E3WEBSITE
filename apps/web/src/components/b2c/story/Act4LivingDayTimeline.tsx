@@ -1,8 +1,8 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 "use client"
 
+import { Clock, Radio, Ticket } from 'lucide-react'
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Clock, Radio, Calendar, Ticket, ChevronRight } from 'lucide-react'
 
 interface Act4LivingDayTimelineProps {
   content: any

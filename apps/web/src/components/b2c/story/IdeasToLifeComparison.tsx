@@ -1,8 +1,8 @@
 "use client"
 
+import { AnimatePresence, motion } from 'framer-motion'
+import { CheckCircle2, ChevronRight, Layers } from 'lucide-react'
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Layers, ChevronRight, CheckCircle2 } from 'lucide-react'
 
 interface IdeasToLifeComparisonProps {
   content: any
@@ -18,7 +18,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
   const activeStep = steps[activeStepIndex] || steps[0] || {}
 
   // CMS-first: each step has a mediaUrl field; these are only used if step.mediaUrl is empty
-  const stepMediaFallbacks: string[] = []
+  const _stepMediaFallbacks: string[] = []
 
   return (
     <section id="bring-it-to-life" className="relative py-24 bg-[#070310] border-b border-purple-950/40 text-white overflow-hidden">
