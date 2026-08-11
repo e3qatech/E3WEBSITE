@@ -75,7 +75,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
           >
             {/* Left Media Stage (7 Cols) */}
             <div className="lg:col-span-7 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 group bg-slate-950">
-              {resolveMediaType(activeWorld.mediaUrl) === 'VIDEO' ? (
+              {resolveMediaType({ url: activeWorld.mediaUrl, explicitType: activeWorld?.mediaType || undefined }) === 'VIDEO' ? (
                 <video
                   key={activeWorld.mediaUrl}
                   src={activeWorld.mediaUrl}

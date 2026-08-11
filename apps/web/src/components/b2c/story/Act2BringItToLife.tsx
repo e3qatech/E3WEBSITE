@@ -91,7 +91,7 @@ export function Act2BringItToLife({ content, locale }: Act2BringItToLifeProps) {
                 className="absolute inset-0"
               >
                 {stepMediaUrl ? (
-                  resolveMediaType(stepMediaUrl) === 'VIDEO' ? (
+                  resolveMediaType({ url: stepMediaUrl, explicitType: activeStep?.mediaType || undefined }) === 'VIDEO' ? (
                     <video
                       key={stepMediaUrl}
                       src={stepMediaUrl}

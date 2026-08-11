@@ -92,7 +92,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                 className="absolute inset-0"
               >
                 {activeStep.mediaUrl ? (
-                  resolveMediaType(activeStep.mediaUrl) === 'VIDEO' ? (
+                  resolveMediaType({ url: activeStep.mediaUrl, explicitType: activeStep?.mediaType || undefined }) === 'VIDEO' ? (
                     <video
                       key={activeStep.mediaUrl}
                       src={activeStep.mediaUrl}
