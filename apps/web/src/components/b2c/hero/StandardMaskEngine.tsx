@@ -162,12 +162,14 @@ export function StandardMaskEngine({
                 onError={handleVideoError}
                 className="w-full h-full object-cover scale-105"
               />
-            ) : (
+            ) : (posterUrl || fallbackImageUrl) ? (
               <img
-                src={posterUrl || fallbackImageUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop'}
+                src={posterUrl || fallbackImageUrl}
                 alt={isRtl ? altTextAr : altTextEn}
                 className="w-full h-full object-cover"
               />
+            ) : (
+              <div className="w-full h-full bg-slate-950" />
             )}
           </motion.div>
         </AnimatePresence>

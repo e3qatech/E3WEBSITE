@@ -334,7 +334,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       <UniversalMediaSectionEditor
         title="Landing Footer Banner Media Settings"
         subtitle="Universal footer banner media supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
-        value={content.footerMedia || { mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop' }}
+        value={content.footerMedia || { mediaType: 'IMAGE', mediaUrl: '' }}
         onChange={(footerMedia: UniversalMediaConfig) => setContent((prev: any) => ({ ...prev, footerMedia }))}
         accentColor="indigo"
       />

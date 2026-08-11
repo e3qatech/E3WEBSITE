@@ -20,7 +20,7 @@ export function LightweightMaskEngine({
   className,
 }: MaskEngineProps) {
   const pathData = getPresetSvgPath(preset, customSvgMask);
-  const mediaSrc = posterUrl || fallbackImageUrl || videoUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop';
+  const mediaSrc = posterUrl || fallbackImageUrl || videoUrl || '';
 
   return (
     <div

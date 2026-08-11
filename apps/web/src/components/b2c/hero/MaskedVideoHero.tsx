@@ -46,8 +46,8 @@ export function MaskedVideoHero({
   const rawMediaUrl = heroConfig?.mediaUrl || maskedConfig?.customerDesktopVideo;
   const mediaUrl = (rawMediaUrl && typeof rawMediaUrl === 'string' && rawMediaUrl.trim() !== '') 
     ? rawMediaUrl 
-    : 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4';
-  const posterUrl = heroConfig?.posterUrl || maskedConfig?.customerPoster || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop';
+    : '';
+  const posterUrl = heroConfig?.posterUrl || maskedConfig?.customerPoster || '';
   
   const streamMediaUrl = heroConfig?.streamMediaUrl || mediaUrl;
   const streamPosterUrl = heroConfig?.streamPosterUrl || posterUrl;
@@ -85,12 +85,13 @@ export function MaskedVideoHero({
     >
       {/* 1. FULL-BLEED CINEMATIC MEDIA BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950">
-        {/* Base Fallback Image Layer (Ensures instant background media load & video buffering backup) */}
-        <img
-          src={posterUrl || (mediaType === 'IMAGE' ? mediaUrl : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop')}
-          alt="Hero Background Poster"
-          className="w-full h-full object-cover scale-105 opacity-60 dark:opacity-70 transition-opacity duration-1000 absolute inset-0"
-        />
+        {(posterUrl || (mediaType === 'IMAGE' && mediaUrl)) && (
+          <img
+            src={posterUrl || mediaUrl}
+            alt="Hero Background Poster"
+            className="w-full h-full object-cover scale-105 opacity-60 dark:opacity-70 transition-opacity duration-1000 absolute inset-0"
+          />
+        )}
 
         {mediaType === 'VIDEO' && mediaUrl && (
           <video

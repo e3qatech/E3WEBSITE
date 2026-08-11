@@ -17,15 +17,7 @@ export function Act2BringItToLife({ content, locale }: Act2BringItToLifeProps) {
 
   const activeStep = steps[activeStepIndex] || steps[0] || {}
 
-  // Media presets for the 6 step evolution
-  const stepMediaList = [
-    "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=1200&auto=format&fit=crop", // Sketch
-    "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop", // Wireframe blueprint
-    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop", // Light & Materials
-    "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop", // Fabrication
-    "https://images.unsplash.com/photo-1566454825481-4e48f80aa4d7?q=80&w=1200&auto=format&fit=crop", // Guests entering
-    "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1200&auto=format&fit=crop"  // Fully alive
-  ]
+  const stepMediaUrl = (activeStep.mediaUrl || "").trim()
 
   return (
     <section id="bring-it-to-life" className="relative py-24 bg-[#070310] border-b border-purple-950/40 text-white overflow-hidden">
@@ -96,11 +88,17 @@ export function Act2BringItToLife({ content, locale }: Act2BringItToLifeProps) {
                 transition={{ duration: 0.6 }}
                 className="absolute inset-0"
               >
-                <img
-                  src={stepMediaList[activeStepIndex] || stepMediaList[0]}
-                  alt={activeStep.titleEn || "Transformation Stage"}
-                  className="w-full h-full object-cover"
-                />
+                {stepMediaUrl ? (
+                  <img
+                    src={stepMediaUrl}
+                    alt={activeStep.titleEn || "Transformation Stage"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-600 text-sm font-mono">
+                    Upload step media from CMS
+                  </div>
+                )}
                 {/* Wireframe Overlay Effect */}
                 {activeStepIndex < 2 && (
                   <div className="absolute inset-0 bg-blue-950/60 backdrop-blur-[2px] border-4 border-dashed border-sky-400/40 mix-blend-overlay" />
