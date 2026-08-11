@@ -48,14 +48,20 @@ export function AttractionsClient({
     }
   }, [cmsData]);
 
+  const lastFetchTimestampRef = React.useRef<number>(0);
+
   useEffect(() => {
     const fetchLatestCMS = async () => {
+      const requestTimestamp = Date.now();
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' });
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + requestTimestamp, { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
-          if (json?.data?.content) {
-            setLiveCmsContent(json.data.content);
+          if (requestTimestamp >= lastFetchTimestampRef.current) {
+            lastFetchTimestampRef.current = requestTimestamp;
+            if (json?.data?.content) {
+              setLiveCmsContent(json.data.content);
+            }
           }
         }
       } catch (_e) {}

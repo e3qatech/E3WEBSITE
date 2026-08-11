@@ -61,7 +61,7 @@ export function UniversalMediaSectionEditor({
 
   const updateField = (field: keyof UniversalMediaConfig, val: any) => {
     if (field === 'mediaUrl' && typeof val === 'string') {
-      const autoType = resolveMediaType({ url: val, explicitType: mediaConfig.mediaType })
+      const autoType = resolveMediaType({ url: val, explicitType: undefined })
       onChange({
         ...mediaConfig,
         mediaUrl: val,

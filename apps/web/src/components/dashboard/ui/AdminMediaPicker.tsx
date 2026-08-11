@@ -7,6 +7,7 @@ import { Check, FileText, Image as ImageIcon, Trash2, UploadCloud, Video } from 
 import { useEffect, useRef, useState } from 'react'
 import { AdminButton } from "./AdminButton"
 import { SlideOver } from "./SlideOver"
+import { resolveMediaType } from "@/lib/media-resolver"
 
 interface Media {
   id: string
@@ -40,10 +41,8 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   }, [value])
 
   const isVideoUrl = (url: string | null | undefined): boolean => {
-    if (!url || typeof url !== 'string') return false;
-    const clean = url.trim().toLowerCase();
-    if (clean.match(/\.(jpg|jpeg|png|webp|gif|svg|avif)(\?.*)?$/i) || clean.startsWith('data:image/')) return false;
-    return !!clean.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i) || clean.startsWith('data:video/') || clean.includes('/video/') || clean.includes('/videos/') || clean.includes('mixkit');
+    if (!url) return false;
+    return resolveMediaType({ url, explicitType: undefined }) === 'VIDEO';
   };
 
   const fetchMedia = async () => {
