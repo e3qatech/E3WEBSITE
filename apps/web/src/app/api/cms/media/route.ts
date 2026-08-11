@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     // 1. Fetch DB media items
     try {
       const dbMedia = await db.media.findMany({
-        where: type ? { type: type as any } : {},
+        where: type && type !== 'ALL' ? { type: type as any } : {},
         orderBy: { createdAt: 'desc' },
       });
       media = dbMedia;
@@ -45,57 +45,13 @@ export async function GET(request: Request) {
       console.warn("[CMS MEDIA GET NOTICE] db.media query notice:", dbErr);
     }
 
-    // 2. Extract all site-wide used media from default seed & DB pages to ensure complete global media list
-    const usedUrls = new Set<string>();
-    extractMediaUrlsFromObject(DEFAULT_B2C_LANDING_CONTENT, usedUrls);
-
-    try {
-      const pages = await db.pages.findMany({ take: 50 });
-      pages.forEach((p: any) => extractMediaUrlsFromObject(p.content, usedUrls));
-    } catch (_e) {
-      // Ignore Pages table query error
-    }
-
-    // Convert extracted URLs into synthetic Media items if not already present in media array
-    const existingUrls = new Set(media.map(m => m.url));
-    const syntheticMedia: any[] = [];
-
-    usedUrls.forEach((url) => {
-      if (!existingUrls.has(url)) {
-        let isVideo = false;
-        let isDoc = false;
-        let is3D = false;
-
-        if (url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i)) isVideo = true;
-        else if (url.match(/\.(pdf|doc|docx)(\?.*)?$/i)) isDoc = true;
-        else if (url.match(/\.(glb|gltf)(\?.*)?$/i)) is3D = true;
-
-        const mediaType = isVideo ? 'VIDEO' : isDoc ? 'DOCUMENT' : is3D ? 'MODEL_3D' : 'IMAGE';
-        if (!type || type === 'ALL' || type === mediaType) {
-          syntheticMedia.push({
-            id: `site-used-${Math.abs(url.split('').reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0))}`,
-            url,
-            type: mediaType,
-            mimeType: isVideo ? 'video/mp4' : 'image/jpeg',
-            size: 0,
-            alt: { en: 'Website Media Asset', ar: 'ملف وسائط في الموقع' },
-            createdAt: new Date().toISOString(),
-            isSiteUsed: true
-          });
-        }
-      }
-    });
-
-    const combinedMedia = [...media, ...syntheticMedia];
-    const filteredMedia = type && type !== 'ALL' ? combinedMedia.filter(m => m.type === type) : combinedMedia;
-
     return NextResponse.json({
-      data: filteredMedia,
+      data: media,
       meta: {
-        total: filteredMedia.length,
+        total,
         page,
         limit,
-        totalPages: Math.ceil(filteredMedia.length / limit),
+        totalPages: Math.ceil(total / limit) || 1,
       },
     });
   } catch (error) {

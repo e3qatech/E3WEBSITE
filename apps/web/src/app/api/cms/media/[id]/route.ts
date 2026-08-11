@@ -22,22 +22,20 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const media = await db.media.findUnique({ where: { id } });
 
-    if (!media) {
-      return NextResponse.json({ error: 'Media not found' }, { status: 404 });
-    }
-
-    // Delete from Vercel Blob
     try {
-      await del(media.url);
-    } catch (e) {
-      console.warn('Failed to delete from blob storage:', e);
-      // We continue to delete from DB even if blob deletion fails
+      const media = await db.media.findUnique({ where: { id } });
+      if (media) {
+        try {
+          if (media.url && media.url.startsWith('http')) {
+            await del(media.url);
+          }
+        } catch (_e) {}
+        await db.media.delete({ where: { id } });
+      }
+    } catch (_dbErr) {
+      // Gracefully ignore missing record errors
     }
-
-    // Delete from DB
-    await db.media.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

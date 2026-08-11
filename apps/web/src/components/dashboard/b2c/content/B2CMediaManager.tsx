@@ -44,13 +44,11 @@ export function B2CMediaManager() {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
           setFullContent(data)
-          if (data.hero) {
             setHeroMedia({
-              mediaType: data.hero.mediaType || 'VIDEO',
-              mediaUrl: data.hero.mediaUrl || DEFAULT_B2C_LANDING_CONTENT.hero.mediaUrl,
-              posterUrl: data.hero.posterUrl || DEFAULT_B2C_LANDING_CONTENT.hero.posterUrl
+              mediaType: data.hero?.mediaType || data.heroMedia?.mediaType || 'IMAGE',
+              mediaUrl: data.hero?.mediaUrl || data.heroMedia?.mediaUrl || '',
+              posterUrl: data.hero?.posterUrl || data.heroMedia?.posterUrl || ''
             })
-          }
           if (data.maskedVideo) {
             setMaskedVideo({
               ...DEFAULT_B2C_LANDING_CONTENT.maskedVideo,

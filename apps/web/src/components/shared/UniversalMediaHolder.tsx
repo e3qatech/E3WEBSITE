@@ -150,17 +150,23 @@ export function UniversalMediaHolder({
               ref={videoRef}
               src={config.mediaUrl}
               poster={config.posterImageUrl || fallbackUrl}
-              autoPlay={config.autoplay && !forceReducedMotion}
-              loop={config.loop}
-              muted={config.muted}
+              autoPlay={config.autoplay !== false && !forceReducedMotion}
+              loop={config.loop !== false}
+              muted={config.muted ?? true}
               playsInline
+              preload="metadata"
               style={focalStyle}
               className={cn(
-                'w-full h-full transition-opacity duration-500',
-                isLoaded ? 'opacity-100' : 'opacity-0'
+                'w-full h-full object-cover transition-opacity duration-500',
+                isLoaded ? 'opacity-100' : 'opacity-90'
               )}
               onLoadedData={() => setIsLoaded(true)}
-              onError={() => setHasError(true)}
+              onCanPlay={() => setIsLoaded(true)}
+              onError={(e) => {
+                console.warn('[MEDIA_HOLDER] Video playback warning:', e);
+                // Only set fallback error if mediaUrl is missing or completely invalid
+                if (!config.mediaUrl) setHasError(true);
+              }}
             />
           )}
 

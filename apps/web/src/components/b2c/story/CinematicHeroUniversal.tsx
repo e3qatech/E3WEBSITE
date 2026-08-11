@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles, Calendar, Compass, Ticket, Play, Pause } from 'lucide-react'
@@ -55,6 +55,13 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
   const subtext = isAr
     ? (act1Hero.subtextAr || act1.subtextAr || hero.subHeaderAr || "ادخل عالمًا من الوجهات الترفيهية والتجارب الحية واللحظات التي لا تُنسى مع E3.")
     : (act1Hero.subtextEn || act1.subtextEn || hero.subHeaderEn || "Enter a world of attractions, live experiences and unforgettable moments created by E3.")
+
+  useEffect(() => {
+    if (isVideo && videoRef.current) {
+      videoRef.current.muted = true
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {})
+    }
+  }, [isVideo, mediaUrl])
 
   const togglePlayback = () => {
     if (videoRef.current) {
