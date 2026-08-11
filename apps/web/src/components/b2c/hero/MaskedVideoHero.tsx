@@ -79,6 +79,7 @@ export function MaskedVideoHero({
       <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950">
         {(posterUrl || (mediaType === 'IMAGE' && mediaUrl)) && (
           <img
+            key={posterUrl || mediaUrl}
             src={posterUrl || mediaUrl}
             alt="Hero Background Poster"
             className="w-full h-full object-cover scale-105 opacity-60 dark:opacity-70 transition-opacity duration-1000 absolute inset-0"
@@ -87,6 +88,7 @@ export function MaskedVideoHero({
 
         {mediaType === 'VIDEO' && mediaUrl && (
           <video
+            key={mediaUrl}
             src={mediaUrl}
             poster={posterUrl}
             autoPlay
@@ -99,6 +101,7 @@ export function MaskedVideoHero({
 
         {mediaType === 'IMAGE' && mediaUrl && (
           <img
+            key={mediaUrl}
             src={mediaUrl}
             alt="Hero Background"
             className="w-full h-full object-cover scale-105 opacity-70 dark:opacity-80 transition-opacity duration-1000 absolute inset-0 z-10"
@@ -107,6 +110,7 @@ export function MaskedVideoHero({
 
         {(mediaType === 'MODEL_3D' || mediaType === 'IFRAME' || (mediaType as string) === 'SPLINE') && (
           <iframe
+            key={extractIframeUrl(mediaUrl)}
             src={extractIframeUrl(mediaUrl)}
             className="w-full h-full border-none opacity-60 pointer-events-auto absolute inset-0 z-10"
             allow="autoplay; fullscreen; xr-spatial-tracking"

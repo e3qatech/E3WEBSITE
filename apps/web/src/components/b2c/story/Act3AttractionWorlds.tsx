@@ -75,10 +75,11 @@ export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsPr
           >
             {/* Left Column — Media Stage (7 Cols) */}
             <div className="lg:col-span-7 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 group bg-slate-950">
-              {resolveMediaType({ url: activeWorld.mediaUrl, explicitType: activeWorld?.mediaType || undefined }) === 'VIDEO' ? (
+              {activeWorld.desktopVideoUrl || (activeWorld.mediaType === 'VIDEO' && activeWorld.mediaUrl) ? (
                 <video
-                  key={activeWorld.mediaUrl}
-                  src={activeWorld.mediaUrl}
+                  key={activeWorld.desktopVideoUrl || activeWorld.mediaUrl}
+                  src={activeWorld.desktopVideoUrl || activeWorld.mediaUrl}
+                  poster={activeWorld.posterUrl}
                   autoPlay
                   loop
                   muted

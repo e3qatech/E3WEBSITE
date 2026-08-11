@@ -84,6 +84,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
         <div className="absolute inset-0 z-0 overflow-hidden">
           {isVideo ? (
             <video
+              key={mediaUrl}
               ref={videoRef}
               src={mediaUrl}
               poster={posterUrl}
@@ -95,12 +96,14 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
             />
           ) : isIframe ? (
             <iframe
+              key={mediaUrl}
               src={mediaUrl}
               className="w-full h-full border-none opacity-65 sm:opacity-75 pointer-events-none scale-105"
               allow="autoplay; fullscreen"
             />
           ) : (
             <img
+              key={mediaUrl}
               src={mediaUrl}
               alt="E3 Hero Media Cover"
               className="w-full h-full object-cover opacity-65 sm:opacity-75 scale-105 transition-all duration-1000"

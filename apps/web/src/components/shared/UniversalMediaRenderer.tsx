@@ -43,6 +43,7 @@ export function UniversalMediaRenderer({
       return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
           <Image 
+            key={src}
             src={src}
             alt={alt}
             fill
@@ -57,6 +58,7 @@ export function UniversalMediaRenderer({
       return (
         <div className={cn("relative w-full h-full overflow-hidden flex items-center justify-center bg-zinc-950", className)}>
           <video
+            key={src}
             src={src}
             poster={poster}
             autoPlay={autoPlay}
@@ -74,6 +76,7 @@ export function UniversalMediaRenderer({
       return (
         <div className={cn("relative w-full h-full", className)}>
           <iframe 
+            key={src}
             src={src}
             title={alt}
             className="w-full h-full border-0"

@@ -647,9 +647,10 @@ export function B2CMediaCard({
       >
         {/* Media */}
         {mediaType === "VIDEO" ? (
-          <video src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+          <video key={mediaUrl} src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
         ) : (
           <img 
+            key={mediaUrl}
             src={mediaUrl} 
             alt="Media Card Asset" 
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
