@@ -48,8 +48,31 @@ export async function GET(
           seo = page.seo;
         }
       } catch (dbErr) {
-        console.error(`[DB ERROR /api/cms/pages/${targetSlug}] Pages table query failed:`, dbErr);
-        throw dbErr;
+        console.warn(`[DB WARN /api/cms/pages/${targetSlug}] Pages table query failed. Attempting Vercel Blob fallback:`, dbErr);
+        try {
+          if (process.env.BLOB_READ_WRITE_TOKEN) {
+            const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
+            const { list } = await import('@vercel/blob');
+            const blobs = await list({
+              prefix: `cms/pages/${envName}/${targetSlug}.json`,
+              limit: 1
+            });
+            if (blobs && blobs.blobs && blobs.blobs.length > 0) {
+              const url = blobs.blobs[0].url;
+              const res = await fetch(url, { cache: 'no-store' });
+              if (res.ok) {
+                rawContent = await res.json();
+                console.log(`[CMS BLOB FALLBACK] Recovered page ${targetSlug} from Vercel Blob: ${url}`);
+              }
+            }
+          }
+        } catch (blobErr) {
+          console.warn(`[CMS BLOB FALLBACK] Failed to read from Vercel Blob for ${targetSlug}:`, blobErr);
+        }
+
+        if (!rawContent) {
+          throw dbErr;
+        }
       }
 
       // 2. Fallback to Secondary SiteSettings model in PostgreSQL

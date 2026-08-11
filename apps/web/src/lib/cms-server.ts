@@ -109,8 +109,31 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
       rawContent = pageRecord.content;
     }
   } catch (err) {
-    console.error(`[DB ERROR /getCMSPageContentServer] Primary database query failed for slug ${slug}:`, err);
-    throw err;
+    console.warn(`[DB WARN /getCMSPageContentServer] Primary database query failed for slug ${slug}. Attempting Vercel Blob fallback:`, err);
+    try {
+      if (process.env.BLOB_READ_WRITE_TOKEN) {
+        const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
+        const { list } = await import('@vercel/blob');
+        const blobs = await list({
+          prefix: `cms/pages/${envName}/${slug}.json`,
+          limit: 1
+        });
+        if (blobs && blobs.blobs && blobs.blobs.length > 0) {
+          const url = blobs.blobs[0].url;
+          const res = await fetch(url, { cache: 'no-store' });
+          if (res.ok) {
+            rawContent = await res.json();
+            console.log(`[CMS BLOB FALLBACK] Recovered page ${slug} from Vercel Blob: ${url}`);
+          }
+        }
+      }
+    } catch (blobErr) {
+      console.warn(`[CMS BLOB FALLBACK] Failed to read from Vercel Blob for ${slug}:`, blobErr);
+    }
+
+    if (!rawContent) {
+      throw err; // If fallback failed or missing, bubble up the DB error
+    }
   }
 
   // 2. Fallback to Secondary db.siteSettings model in PostgreSQL
