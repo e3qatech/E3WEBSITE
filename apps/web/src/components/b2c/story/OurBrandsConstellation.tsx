@@ -177,7 +177,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
             </div>
 
             <div className="lg:col-span-5 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-xl">
-              {resolveMediaType({ url: activeBrand.desktopFeatureMedia || activeBrand.logoPrimary, explicitType: activeBrand?.mediaType || activeBrand?.desktopFeatureMediaType || undefined }) === 'VIDEO' ? (
+              {resolveMediaType({ url: activeBrand.desktopFeatureMedia || activeBrand.logoPrimary, explicitType: (activeBrand as any)?.mediaType || (activeBrand as any)?.desktopFeatureMediaType || undefined }) === 'VIDEO' ? (
                 <video
                   key={activeBrand.desktopFeatureMedia || activeBrand.id}
                   src={activeBrand.desktopFeatureMedia}
