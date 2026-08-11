@@ -222,6 +222,7 @@ export async function PUT(
           await put(`cms/pages/${targetSlug}.json`, JSON.stringify(mergedContent), {
             access: 'public',
             addRandomSuffix: false,
+            allowOverwrite: true,
             contentType: 'application/json',
           });
         } catch (blobErr) {

@@ -178,7 +178,8 @@ export async function POST(request: Request) {
       const blob = await put(`${prefix}/${fileName}`, file, {
         access: blobAccess as any,
         contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
-        token: uploadToken
+        token: uploadToken,
+        allowOverwrite: true,
       });
       // Private blobs: return pathname for download proxy, not public URL
       fileUrl = isPublicResume ? blob.pathname : blob.url;
