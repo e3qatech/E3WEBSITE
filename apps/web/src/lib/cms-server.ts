@@ -100,8 +100,40 @@ export function deepMergeCMSContent(target: any, source: any): any {
 export async function getCMSPageContentServer(slug: string): Promise<any> {
   let rawContent: any = null;
 
-  // 1. Check Vercel Blob Storage CDN FIRST (Source of truth when active)
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  // 1. Check Primary db.pages model in PostgreSQL FIRST (Real-time database source of truth)
+  try {
+    const pageRecord = await (db as any).pages?.findUnique({
+      where: { slug }
+    });
+    if (pageRecord?.content) {
+      rawContent = pageRecord.content;
+    }
+  } catch (_err) {
+    rawContent = null;
+  }
+
+  // 2. Fallback to Secondary db.siteSettings model in PostgreSQL
+  if (!rawContent) {
+    try {
+      const settingRecord = await (db as any).siteSettings?.findUnique({
+        where: { key: `cms_page_${slug}` }
+      });
+      if (settingRecord?.value) {
+        rawContent = settingRecord.value;
+      }
+    } catch (_err) {
+      rawContent = null;
+    }
+  }
+
+  // 3. Fallback to Tertiary in-memory store
+  if (!rawContent) {
+    const globalStore = (globalThis as any).__globalCMSPagesStore;
+    rawContent = globalStore?.[slug]?.content || null;
+  }
+
+  // 4. Fallback to Quaternary Vercel Blob Storage CDN (Export backup)
+  if (!rawContent && process.env.BLOB_READ_WRITE_TOKEN) {
     try {
       const { list } = await import('@vercel/blob');
       const { blobs } = await list({ prefix: `cms/pages/${slug}.json` });
@@ -116,40 +148,6 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
     } catch (_blobErr) {
       console.warn(`[CMS SERVER BLOB READ NOTICE] ${slug}:`, _blobErr);
     }
-  }
-
-  // 2. Fallback to Primary db.pages model in PostgreSQL
-  if (!rawContent) {
-    try {
-      const pageRecord = await (db as any).pages?.findUnique({
-        where: { slug }
-      });
-      if (pageRecord?.content) {
-        rawContent = pageRecord.content;
-      }
-    } catch (_err) {
-      rawContent = null;
-    }
-  }
-
-  // 3. Fallback to Secondary db.siteSettings model in PostgreSQL
-  if (!rawContent) {
-    try {
-      const settingRecord = await (db as any).siteSettings?.findUnique({
-        where: { key: `cms_page_${slug}` }
-      });
-      if (settingRecord?.value) {
-        rawContent = settingRecord.value;
-      }
-    } catch (_err) {
-      rawContent = null;
-    }
-  }
-
-  // 4. Fallback to Tertiary in-memory store
-  if (!rawContent) {
-    const globalStore = (globalThis as any).__globalCMSPagesStore;
-    rawContent = globalStore?.[slug]?.content || null;
   }
 
   return getMergedCMSPageContent(slug, rawContent);

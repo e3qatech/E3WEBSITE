@@ -34,8 +34,43 @@ export async function GET(
     for (const targetSlug of searchSlugs) {
       if (rawContent) break;
 
-      // 1. Check Vercel Blob Storage CDN FIRST (Source of truth when active)
-      if (process.env.BLOB_READ_WRITE_TOKEN) {
+      // 1. Check Primary Pages model in PostgreSQL FIRST (Real-time database source of truth)
+      try {
+        const page = await db.pages.findUnique({
+          where: { slug: targetSlug },
+        });
+        if (page && page.content) {
+          rawContent = page.content;
+          title = page.title;
+          seo = page.seo;
+        }
+      } catch (_dbErr) {
+        // Ignore Pages table query failure
+      }
+
+      // 2. Fallback to Secondary SiteSettings model in PostgreSQL
+      if (!rawContent) {
+        try {
+          const setting = await (db as any).siteSettings.findUnique({
+            where: { key: `cms_page_${targetSlug}` },
+          });
+          if (setting && setting.value) {
+            rawContent = setting.value;
+          }
+        } catch (_settingErr) {
+          // Ignore SiteSettings table query failure
+        }
+      }
+
+      // 3. Fallback to Tertiary in-memory store
+      if (!rawContent && globalCMSPagesStore[targetSlug]) {
+        rawContent = globalCMSPagesStore[targetSlug].content;
+        title = globalCMSPagesStore[targetSlug].title || title;
+        seo = globalCMSPagesStore[targetSlug].seo || seo;
+      }
+
+      // 4. Fallback to Quaternary Vercel Blob Storage CDN (Export backup)
+      if (!rawContent && process.env.BLOB_READ_WRITE_TOKEN) {
         try {
           const { list } = await import('@vercel/blob');
           const { blobs } = await list({ prefix: `cms/pages/${targetSlug}.json` });
@@ -50,42 +85,6 @@ export async function GET(
         } catch (_blobErr) {
           console.warn(`[BLOB READ NOTICE /api/cms/pages/${targetSlug}]:`, _blobErr);
         }
-      }
-
-      // 2. Fallback to Primary Pages model in PostgreSQL
-      if (!rawContent) {
-        try {
-          const page = await db.pages.findUnique({
-            where: { slug: targetSlug },
-          });
-          if (page && page.content) {
-            rawContent = page.content;
-            title = page.title;
-            seo = page.seo;
-          }
-        } catch (_dbErr) {
-          // Ignore Pages table query failure
-        }
-      }
-
-      // 3. Fallback to Secondary SiteSettings model in PostgreSQL
-      if (!rawContent) {
-        try {
-          const setting = await (db as any).siteSettings.findUnique({
-            where: { key: `cms_page_${targetSlug}` },
-          });
-          if (setting && setting.value) {
-            rawContent = setting.value;
-          }
-        } catch (_settingErr) {
-          // Ignore SiteSettings table query failure
-        }
-      }
-
-      if (!rawContent && globalCMSPagesStore[targetSlug]) {
-        rawContent = globalCMSPagesStore[targetSlug].content;
-        title = globalCMSPagesStore[targetSlug].title || title;
-        seo = globalCMSPagesStore[targetSlug].seo || seo;
       }
     }
 
