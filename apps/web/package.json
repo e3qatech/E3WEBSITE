@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
-    "build": "prisma generate --schema=prisma/schema.prisma && next build",
+    "build": "prisma generate --schema=prisma/schema.prisma && prisma db push --accept-data-loss && next build",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint . --max-warnings=0",
     "seed:events": "tsx prisma/seed-events.ts",
