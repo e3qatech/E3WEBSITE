@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Video, Image as ImageIcon, Box, Frame, Sparkles, Layers, Sliders, ShieldCheck } from 'lucide-react'
+import { Video, Image as ImageIcon, Box, Frame, Sparkles, Layers, Sliders, ShieldCheck, Eye } from 'lucide-react'
 import { AdminMediaPicker } from './AdminMediaPicker'
 
 export interface UniversalMediaConfig {
@@ -26,7 +26,7 @@ export const DEFAULT_UNIVERSAL_MEDIA: UniversalMediaConfig = {
   fallbackImage: '',
   posterUrl: '',
   altTextEn: 'Section Media',
-  altTextAr: 'وسائط القسام',
+  altTextAr: 'وسائط القسم',
   aspectRatio: '16/9',
   autoPlay: true,
   loop: true,
@@ -56,11 +56,38 @@ export function UniversalMediaSectionEditor({
     ...(value || {})
   }
 
+  const detectMediaType = (url: string): 'IMAGE' | 'VIDEO' | 'MODEL_3D' | 'IFRAME' => {
+    if (!url) return mediaConfig.mediaType || 'IMAGE'
+    const clean = url.trim().toLowerCase()
+    if (/\.(mp4|webm|mov|m4v|mkv)$/i.test(clean) || clean.includes('mixkit.co') || clean.includes('/video/')) {
+      return 'VIDEO'
+    }
+    if (/\.(glb|gltf)$/i.test(clean)) {
+      return 'MODEL_3D'
+    }
+    if (clean.includes('iframe') || clean.includes('youtube.com/embed') || clean.includes('vimeo.com') || clean.includes('spline.design')) {
+      return 'IFRAME'
+    }
+    if (/\.(jpeg|jpg|png|webp|gif|svg|avif)$/i.test(clean) || clean.includes('unsplash') || clean.startsWith('data:image')) {
+      return 'IMAGE'
+    }
+    return mediaConfig.mediaType || 'IMAGE'
+  }
+
   const updateField = (field: keyof UniversalMediaConfig, val: any) => {
-    onChange({
-      ...mediaConfig,
-      [field]: val
-    })
+    if (field === 'mediaUrl' && typeof val === 'string') {
+      const autoType = detectMediaType(val)
+      onChange({
+        ...mediaConfig,
+        mediaUrl: val,
+        mediaType: autoType,
+      })
+    } else {
+      onChange({
+        ...mediaConfig,
+        [field]: val
+      })
+    }
   }
 
   return (
@@ -157,15 +184,47 @@ export function UniversalMediaSectionEditor({
               value={mediaConfig.mediaUrl || ''}
               onChange={(url: string) => updateField('mediaUrl', url)}
               label="Choose / Upload"
-              accept={
-                mediaConfig.mediaType === 'IMAGE' ? 'image/*' :
-                mediaConfig.mediaType === 'VIDEO' ? 'video/*' :
-                mediaConfig.mediaType === 'MODEL_3D' ? '.glb,.gltf' :
-                '*'
-              }
+              accept="*"
             />
           </div>
         </div>
+
+        {/* Live Media Preview Box */}
+        {mediaConfig.mediaUrl && (
+          <div className="p-3 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-bold text-[var(--text-secondary)]">
+              <span className="flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                <span>Active Live Media Preview:</span>
+              </span>
+              <span className="uppercase text-[10px] text-[var(--color-primary)] bg-[var(--surface-selected)] px-2 py-0.5 rounded font-extrabold">
+                {mediaConfig.mediaType}
+              </span>
+            </div>
+
+            <div className="relative rounded-lg overflow-hidden border border-[var(--border-level-1)] max-h-48 flex items-center justify-center bg-black/40">
+              {mediaConfig.mediaType === 'VIDEO' ? (
+                <video
+                  src={mediaConfig.mediaUrl}
+                  poster={mediaConfig.fallbackImage || mediaConfig.posterUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="max-h-48 w-full object-cover"
+                />
+              ) : mediaConfig.mediaType === 'IFRAME' ? (
+                <iframe src={mediaConfig.mediaUrl} className="w-full h-36 border-none" allow="autoplay; fullscreen" />
+              ) : (
+                <img
+                  src={mediaConfig.mediaUrl}
+                  alt="Media Preview"
+                  className="max-h-48 w-full object-cover"
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 3. Fallback Image for 3D / Video / IFrame & Low Power Devices */}
         <div>

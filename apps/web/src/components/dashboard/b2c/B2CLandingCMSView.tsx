@@ -199,12 +199,28 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         </div>
       </div>
 
-      {/* Universal Hero Media Section */}
+      {/* Single Unified Hero Media Editor */}
       <UniversalMediaSectionEditor
-        title="Landing Hero Media Settings"
-        subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
-        value={content.heroMedia || { mediaType: content.hero?.mediaType || 'VIDEO', mediaUrl: content.hero?.mediaUrl || content.act1Hero?.desktopVideoUrl }}
-        onChange={(heroMedia: UniversalMediaConfig) => setContent((prev: any) => ({ ...prev, heroMedia }))}
+        title="Landing Hero Media & Cover Settings"
+        subtitle="Single unified hero media editor supporting Image, Video, 3D GLB Models, Embed IFrames, and Poster Fallbacks."
+        value={content.heroMedia || { mediaType: content.hero?.mediaType || 'IMAGE', mediaUrl: content.hero?.mediaUrl || content.act1Hero?.desktopVideoUrl }}
+        onChange={(heroMedia: UniversalMediaConfig) => setContent((prev: any) => ({
+          ...prev,
+          heroMedia,
+          hero: {
+            ...(prev.hero || {}),
+            mediaUrl: heroMedia.mediaUrl,
+            mediaType: heroMedia.mediaType,
+            posterUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
+          },
+          act1Hero: {
+            ...(prev.act1Hero || {}),
+            mediaUrl: heroMedia.mediaUrl,
+            desktopVideoUrl: heroMedia.mediaUrl,
+            mediaType: heroMedia.mediaType,
+            posterUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
+          }
+        }))}
         accentColor="purple"
       />
 
