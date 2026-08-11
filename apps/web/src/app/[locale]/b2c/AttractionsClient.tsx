@@ -32,6 +32,7 @@ export function AttractionsClient({
   useLiveOccupancy();
   usePointerIntent();
   const { isAr } = useB2CTheme();
+  const [liveCmsContent, setLiveCmsContent] = useState(cmsData);
 
   const {
     attractions,
@@ -39,6 +40,29 @@ export function AttractionsClient({
   } = useAttractionsStore();
 
   const [_filteredCategory, setFilteredCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (cmsData) {
+      setLiveCmsContent(cmsData);
+    }
+  }, [cmsData]);
+
+  useEffect(() => {
+    const fetchLatestCMS = async () => {
+      try {
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now());
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.data?.content) {
+            setLiveCmsContent(json.data.content);
+          }
+        }
+      } catch (_e) {}
+    };
+
+    window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
+    return () => window.removeEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
+  }, []);
 
   useEffect(() => {
     if (initialAttractions.length > 0) {
@@ -62,41 +86,41 @@ export function AttractionsClient({
   return (
     <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
       {/* 1. Cinematic Universal Hero */}
-      <CinematicHeroUniversal content={cmsData} locale={locale} />
+      <CinematicHeroUniversal content={liveCmsContent} locale={locale} />
 
       {/* 2. From Idea to Reality (Ideas to Life) */}
-      <IdeasToLifeComparison content={cmsData} locale={locale} />
+      <IdeasToLifeComparison content={liveCmsContent} locale={locale} />
 
       {/* 3. Story Discovery Taxonomy ("What kind of story do you want today?") */}
       <StoryTaxonomyPortals
-        content={cmsData}
+        content={liveCmsContent}
         locale={locale}
         onSelectCategory={(cat) => setFilteredCategory(cat)}
       />
 
       {/* 4. Worlds Created by E3 (Our Brands Constellation) */}
-      <OurBrandsConstellation content={cmsData} locale={locale} />
+      <OurBrandsConstellation content={liveCmsContent} locale={locale} />
 
       {/* 5. Enter the Experience Worlds */}
-      <ExperienceWorldsStage content={cmsData} locale={locale} />
+      <ExperienceWorldsStage content={liveCmsContent} locale={locale} />
 
       {/* 6. The People Behind the Experience (Core Team) */}
-      <CoreTeamPeopleSection content={cmsData} locale={locale} />
+      <CoreTeamPeopleSection content={liveCmsContent} locale={locale} />
 
       {/* 7. Live Today Timeline */}
-      <Act4LivingDayTimeline content={cmsData} locale={locale} />
+      <Act4LivingDayTimeline content={liveCmsContent} locale={locale} />
 
       {/* 8. Explore E3 Across Qatar & Near Me Geolocation */}
-      <QatarInteractiveMap content={cmsData} locale={locale} />
+      <QatarInteractiveMap content={liveCmsContent} locale={locale} />
 
       {/* 9. E3 Happening Now (Social Feed) */}
-      <SocialFeedSection content={cmsData} locale={locale} />
+      <SocialFeedSection content={liveCmsContent} locale={locale} />
 
       {/* 10. The Moment Becomes a Memory (GPU Parallax Gallery) */}
-      <HorizontalGPUParallaxGallery content={cmsData} locale={locale} />
+      <HorizontalGPUParallaxGallery content={liveCmsContent} locale={locale} />
 
       {/* 11. Final Booking Transformation (Tactile Ticket) */}
-      <TactileDigitalTicket content={cmsData} locale={locale} />
+      <TactileDigitalTicket content={liveCmsContent} locale={locale} />
 
       {/* Persistent Story Trail Journey Indicator */}
       <StoryTrailControl

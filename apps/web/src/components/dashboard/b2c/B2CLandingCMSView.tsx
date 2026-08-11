@@ -39,59 +39,45 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
     }))
   }
 
-  const handleWorldMediaChange = (idx: number, url: string) => {
-    setContent((prev: any) => {
-      const copy = [...(prev.act3Worlds || [])]
-      if (copy[idx]) {
-        copy[idx] = { ...copy[idx], mediaUrl: url }
-      }
-      return { ...prev, act3Worlds: copy }
-    })
-  }
-
-  const handleStoryOptionMediaChange = (idx: number, url: string) => {
-    setContent((prev: any) => {
-      const optionsCopy = [...(prev.intentSelector?.options || [])]
-      if (optionsCopy[idx]) {
-        optionsCopy[idx] = { ...optionsCopy[idx], mediaUrl: url }
-      }
-      return {
-        ...prev,
-        intentSelector: {
-          ...(prev.intentSelector || {}),
-          options: optionsCopy
-        }
-      }
-    })
-  }
-
-  const handleGuestMomentMediaChange = (idx: number, url: string) => {
-    setContent((prev: any) => {
-      const momentsCopy = [...(prev.guestMemories?.moments || [])]
-      if (momentsCopy[idx]) {
-        momentsCopy[idx] = { ...momentsCopy[idx], mediaUrl: url }
-      }
-      return {
-        ...prev,
-        guestMemories: {
-          ...(prev.guestMemories || {}),
-          moments: momentsCopy
-        }
-      }
-    })
-  }
-
-  const handleAct7Change = (field: string, val: any) => {
-    setContent((prev: any) => ({
-      ...prev,
-      act7Ticket: { ...prev.act7Ticket, [field]: val }
-    }))
-  }
-
   const handleSave = async () => {
     setSaving(true)
     try {
-      const jsonBody = JSON.stringify({ content });
+      const heroMedia = content.heroMedia || {}
+      const act1Hero = content.act1Hero || {}
+      
+      const mediaUrlResolved = (heroMedia.mediaUrl || act1Hero.mediaUrl || act1Hero.desktopVideoUrl || '').trim()
+      
+      const updatedContent = {
+        ...content,
+        heroMedia: {
+          ...heroMedia,
+          mediaUrl: mediaUrlResolved,
+        },
+        hero: {
+          ...(content.hero || {}),
+          ...heroMedia,
+          ...act1Hero,
+          headerEn: act1Hero.titleEn || content.hero?.headerEn,
+          headerAr: act1Hero.titleAr || content.hero?.headerAr,
+          subHeaderEn: act1Hero.subtextEn || content.hero?.subHeaderEn,
+          subHeaderAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
+          mediaUrl: mediaUrlResolved,
+          mediaType: heroMedia.mediaType || 'VIDEO',
+          posterUrl: (heroMedia.posterUrl || '').trim(),
+        },
+        act1Hero: {
+          ...act1Hero,
+          ...heroMedia,
+          titleEn: act1Hero.titleEn || content.hero?.headerEn,
+          titleAr: act1Hero.titleAr || content.hero?.headerAr,
+          subtextEn: act1Hero.subtextEn || content.hero?.subHeaderEn,
+          subtextAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
+          mediaUrl: mediaUrlResolved,
+          desktopVideoUrl: mediaUrlResolved,
+        },
+      }
+
+      const jsonBody = JSON.stringify({ content: updatedContent })
       if (jsonBody.length > 3.5 * 1024 * 1024) {
         throw new Error('Payload Too Large. One or more of your section media items contains a large embedded file. Please compress images/videos or paste direct CDN URLs.')
       }
@@ -217,7 +203,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       <UniversalMediaSectionEditor
         title="Landing Hero Media Settings"
         subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
-        value={content.heroMedia || { mediaType: 'VIDEO', mediaUrl: content.act1Hero?.desktopVideoUrl }}
+        value={content.heroMedia || { mediaType: content.hero?.mediaType || 'VIDEO', mediaUrl: content.hero?.mediaUrl || content.act1Hero?.desktopVideoUrl }}
         onChange={(heroMedia: UniversalMediaConfig) => setContent((prev: any) => ({ ...prev, heroMedia }))}
         accentColor="purple"
       />
@@ -231,23 +217,50 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Seeded Heading (English)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Headline Text (English)</label>
             <input
               type="text"
-              value={content.act1Hero?.titleEn || ''}
+              value={content.act1Hero?.titleEn || content.hero?.headerEn || ''}
               onChange={(e) => handleAct1Change('titleEn', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              placeholder="e.g. Some days pass. Others become stories."
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Seeded Heading (Arabic)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Headline Text (Arabic)</label>
             <input
               type="text"
               dir="rtl"
-              value={content.act1Hero?.titleAr || ''}
+              value={content.act1Hero?.titleAr || content.hero?.headerAr || ''}
               onChange={(e) => handleAct1Change('titleAr', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              placeholder="مثال: أيام تمرّ… وأيام تتحول إلى حكايات."
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext Description (English)</label>
+            <textarea
+              rows={3}
+              value={content.act1Hero?.subtextEn || content.hero?.subHeaderEn || ''}
+              onChange={(e) => handleAct1Change('subtextEn', e.target.value)}
+              placeholder="Enter hero subtitle description..."
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext Description (Arabic)</label>
+            <textarea
+              rows={3}
+              dir="rtl"
+              value={content.act1Hero?.subtextAr || content.hero?.subHeaderAr || ''}
+              onChange={(e) => handleAct1Change('subtextAr', e.target.value)}
+              placeholder="أدخل الوصف الفرعي للهيرو..."
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
         </div>
@@ -267,7 +280,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
               type="text"
               value={content.act2Curtain?.headingEn || ''}
               onChange={(e) => handleAct2Change('headingEn', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
 
@@ -278,7 +291,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
               dir="rtl"
               value={content.act2Curtain?.headingAr || ''}
               onChange={(e) => handleAct2Change('headingAr', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
         </div>
