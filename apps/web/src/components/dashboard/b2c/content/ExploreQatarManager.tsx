@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Sparkles, MapPin, Navigation, Clock, Layers } from 'lucide-react'
+import { Save, Plus, Trash2, Sparkles, MapPin } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
+import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 
 export function ExploreQatarManager() {
@@ -14,11 +15,20 @@ export function ExploreQatarManager() {
   const [fullContent, setFullContent] = useState<any>(null)
   
   const [qatarMap, setQatarMap] = useState({
-    headlineEn: '',
-    headlineAr: '',
+    titleEn: '',
+    titleAr: '',
     subtextEn: '',
     subtextAr: '',
-    venues: [] as Array<any>
+    pinPoints: [] as Array<{
+      id: string
+      nameEn: string
+      nameAr: string
+      lat: number
+      lng: number
+      locationLabelEn?: string
+      locationLabelAr?: string
+      mediaUrl?: string
+    }>
   })
 
   useEffect(() => {
@@ -31,11 +41,11 @@ export function ExploreQatarManager() {
           setFullContent(data)
           if (data.qatarMap) {
             setQatarMap({
-              headlineEn: data.qatarMap.headlineEn || DEFAULT_B2C_LANDING_CONTENT.qatarMap.headlineEn,
-              headlineAr: data.qatarMap.headlineAr || DEFAULT_B2C_LANDING_CONTENT.qatarMap.headlineAr,
+              titleEn: data.qatarMap.headlineEn || data.qatarMap.titleEn || DEFAULT_B2C_LANDING_CONTENT.qatarMap.headlineEn,
+              titleAr: data.qatarMap.headlineAr || data.qatarMap.titleAr || DEFAULT_B2C_LANDING_CONTENT.qatarMap.headlineAr,
               subtextEn: data.qatarMap.subtextEn || DEFAULT_B2C_LANDING_CONTENT.qatarMap.subtextEn,
               subtextAr: data.qatarMap.subtextAr || DEFAULT_B2C_LANDING_CONTENT.qatarMap.subtextAr,
-              venues: data.qatarMap.venues || DEFAULT_B2C_LANDING_CONTENT.qatarMap.venues
+              pinPoints: data.qatarMap.venues || data.qatarMap.pinPoints || []
             })
           }
         }
@@ -49,45 +59,39 @@ export function ExploreQatarManager() {
     loadData()
   }, [])
 
-  const handleVenueChange = (idx: number, field: string, value: any) => {
+  const handlePinChange = (idx: number, field: string, value: any) => {
     setQatarMap(prev => {
-      const venuesCopy = [...prev.venues]
-      if (venuesCopy[idx]) {
-        venuesCopy[idx] = { ...venuesCopy[idx], [field]: value }
+      const copy = [...prev.pinPoints]
+      if (copy[idx]) {
+        copy[idx] = { ...copy[idx], [field]: value }
       }
-      return { ...prev, venues: venuesCopy }
+      return { ...prev, pinPoints: copy }
     })
   }
 
-  const handleAddVenue = () => {
+  const handleAddPin = () => {
     setQatarMap(prev => ({
       ...prev,
-      venues: [
-        ...prev.venues,
+      pinPoints: [
+        ...prev.pinPoints,
         {
-          id: `venue-${Date.now()}`,
-          nameEn: 'New Venue Ground',
-          nameAr: 'موقع فعاليات جديد',
-          areaEn: 'Central Doha',
-          areaAr: 'وسط الدوحة',
-          experiencesEn: 'Interactive Entertainment Arena',
-          experiencesAr: 'ساحة ترفيه تفاعلية',
-          hoursEn: '10:00 AM - 10:00 PM',
-          hoursAr: '١٠:٠٠ ص - ١٠:٠٠ م',
-          statusEn: 'Open Now',
-          statusAr: 'مفتوح الآن',
+          id: `pin-${Date.now()}`,
+          nameEn: 'New Venue Location',
+          nameAr: 'موقع جديد',
           lat: 25.2854,
           lng: 51.5310,
-          directionsUrl: 'https://maps.google.com/?q=Doha'
+          locationLabelEn: 'Doha, Qatar',
+          locationLabelAr: 'الدوحة، قطر',
+          mediaUrl: 'https://images.unsplash.com/photo-1512632578553-196ea887e8f6?q=80&w=800&auto=format&fit=crop'
         }
       ]
     }))
   }
 
-  const handleDeleteVenue = (idx: number) => {
+  const handleDeletePin = (idx: number) => {
     setQatarMap(prev => ({
       ...prev,
-      venues: prev.venues.filter((_, i) => i !== idx)
+      pinPoints: prev.pinPoints.filter((_, i) => i !== idx)
     }))
   }
 
@@ -96,7 +100,13 @@ export function ExploreQatarManager() {
     try {
       const updatedFullContent = {
         ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),
-        qatarMap
+        qatarMap: {
+          headlineEn: qatarMap.titleEn,
+          headlineAr: qatarMap.titleAr,
+          subtextEn: qatarMap.subtextEn,
+          subtextAr: qatarMap.subtextAr,
+          venues: qatarMap.pinPoints
+        }
       }
 
       const res = await fetch('/api/cms/pages/b2c-landing', {
@@ -111,7 +121,7 @@ export function ExploreQatarManager() {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
       }
 
-      toast('Explore E3 Across Qatar saved successfully!', 'success')
+      toast('Qatar Map content manager saved successfully!', 'success')
       router.refresh()
     } catch (err: any) {
       console.error(err)
@@ -123,229 +133,174 @@ export function ExploreQatarManager() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-400 flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-emerald-400" />
+      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
+        <Sparkles className="w-5 h-5 animate-spin text-emerald-500" />
         <span>Loading Qatar Map Content Manager...</span>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8 text-white">
+    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
               B2C CONTENT MANAGER
             </span>
-            <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-              <MapPin className="w-6 h-6 text-emerald-400" />
+            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+              <MapPin className="w-6 h-6 text-emerald-500" />
               <span>Explore E3 Across Qatar Content Manager</span>
             </h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Manage interactive Qatar map pin locations, venue experience details, GPS coordinates, and directions URLs across Doha.
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
+            Manage interactive map pins, GPS coordinates, venue labels, and location media highlights across Qatar.
           </p>
         </div>
 
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
         >
           <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving Changes...' : 'Save Qatar Venues'}</span>
+          <span>{saving ? 'Saving Changes...' : 'Save Qatar Map'}</span>
         </button>
       </div>
 
-      {/* Headline & Description */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
-        <h2 className="text-lg font-bold text-emerald-400 flex items-center gap-2">
-          <Navigation className="w-5 h-5" />
-          <span>Section Headline & Subtext</span>
+      {/* Section Header */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <h2 className="text-lg font-bold text-emerald-500 flex items-center gap-2">
+          <Sparkles className="w-5 h-5" />
+          <span>Map Section Title & Subtext</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Headline (English)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Title (English)</label>
             <input
               type="text"
-              value={qatarMap.headlineEn}
-              onChange={(e) => setQatarMap(prev => ({ ...prev, headlineEn: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-              placeholder="A Journey Across Qatar"
+              value={qatarMap.titleEn}
+              onChange={(e) => setQatarMap(prev => ({ ...prev, titleEn: e.target.value }))}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 placeholder:text-[var(--text-tertiary)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Headline (Arabic)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Title (Arabic)</label>
             <input
               type="text"
               dir="rtl"
-              value={qatarMap.headlineAr}
-              onChange={(e) => setQatarMap(prev => ({ ...prev, headlineAr: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-              placeholder="رحلة عبر أنحاء قطر"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Subtext (English)</label>
-            <textarea
-              rows={2}
-              value={qatarMap.subtextEn}
-              onChange={(e) => setQatarMap(prev => ({ ...prev, subtextEn: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-              placeholder="Discover E3's permanent attraction worlds and temporary event arenas across Doha."
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Subtext (Arabic)</label>
-            <textarea
-              rows={2}
-              dir="rtl"
-              value={qatarMap.subtextAr}
-              onChange={(e) => setQatarMap(prev => ({ ...prev, subtextAr: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-              placeholder="استكشف وجهات إي ثري الترفيهية وصالات الفعاليات في كافة مناطق الدوحة."
+              value={qatarMap.titleAr}
+              onChange={(e) => setQatarMap(prev => ({ ...prev, titleAr: e.target.value }))}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 placeholder:text-[var(--text-tertiary)]"
             />
           </div>
         </div>
       </div>
 
-      {/* Venues Pins Manager */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
+      {/* Map Pins Roster */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-emerald-400 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-emerald-500 flex items-center gap-2">
               <MapPin className="w-5 h-5" />
-              <span>Map Venues & Pin Locations ({qatarMap.venues.length})</span>
+              <span>Location Map Pins ({qatarMap.pinPoints.length})</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Add venue coordinates, area titles, and maps links displayed on the interactive Qatar map.
-            </p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage venue locations, lat/lng coordinates, and location photos.</p>
           </div>
 
           <button
-            onClick={handleAddVenue}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+            onClick={handleAddPin}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Map Venue</span>
+            <span>Add Map Pin</span>
           </button>
         </div>
 
-        <div className="space-y-4">
-          {qatarMap.venues.map((venue, idx) => (
-            <div key={venue.id || idx} className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 space-y-4 relative">
-              <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
-                <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-emerald-400" />
-                  <span>Venue #{idx + 1}: {venue.nameEn || 'Untitled Venue'}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {qatarMap.pinPoints.map((pin, idx) => (
+            <div
+              key={pin.id || idx}
+              className="p-5 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] space-y-4 shadow-sm"
+            >
+              <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-3">
+                <span className="text-xs font-extrabold text-emerald-500 uppercase tracking-wider">
+                  Pin #{idx + 1}
                 </span>
 
                 <button
-                  onClick={() => handleDeleteVenue(idx)}
-                  className="p-1 text-rose-400 hover:text-rose-300 cursor-pointer"
-                  title="Remove Venue"
+                  onClick={() => handleDeletePin(idx)}
+                  className="p-1 rounded-lg hover:bg-rose-500/20 text-rose-400 transition-colors cursor-pointer"
+                  title="Delete Pin"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Venue Name (English)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Venue Name (English)</label>
                   <input
                     type="text"
-                    value={venue.nameEn || ''}
-                    onChange={(e) => handleVenueChange(idx, 'nameEn', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="Doha Festival City Arena"
+                    value={pin.nameEn || ''}
+                    onChange={(e) => handlePinChange(idx, 'nameEn', e.target.value)}
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Venue Name (Arabic)</label>
-                  <input
-                    type="text"
-                    dir="rtl"
-                    value={venue.nameAr || ''}
-                    onChange={(e) => handleVenueChange(idx, 'nameAr', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="ساحة دوحة فستيفال سيتي"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Featured Experiences (EN)</label>
-                  <input
-                    type="text"
-                    value={venue.experiencesEn || ''}
-                    onChange={(e) => handleVenueChange(idx, 'experiencesEn', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="Kids City Driving School & Snow Dunes"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Featured Experiences (AR)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Venue Name (Arabic)</label>
                   <input
                     type="text"
                     dir="rtl"
-                    value={venue.experiencesAr || ''}
-                    onChange={(e) => handleVenueChange(idx, 'experiencesAr', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="مدينة قيادة الأطفال وتلال الثلج"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Area / District (EN)</label>
-                  <input
-                    type="text"
-                    value={venue.areaEn || ''}
-                    onChange={(e) => handleVenueChange(idx, 'areaEn', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="North Doha"
+                    value={pin.nameAr || ''}
+                    onChange={(e) => handlePinChange(idx, 'nameAr', e.target.value)}
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">GPS Latitude</label>
-                  <input
-                    type="number"
-                    step="0.0001"
-                    value={venue.lat || 0}
-                    onChange={(e) => handleVenueChange(idx, 'lat', parseFloat(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Latitude</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={pin.lat || 0}
+                      onChange={(e) => handlePinChange(idx, 'lat', parseFloat(e.target.value))}
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Longitude</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={pin.lng || 0}
+                      onChange={(e) => handlePinChange(idx, 'lng', parseFloat(e.target.value))}
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">GPS Longitude</label>
-                  <input
-                    type="number"
-                    step="0.0001"
-                    value={venue.lng || 0}
-                    onChange={(e) => handleVenueChange(idx, 'lng', parseFloat(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Directions Link URL</label>
-                  <input
-                    type="text"
-                    value={venue.directionsUrl || ''}
-                    onChange={(e) => handleVenueChange(idx, 'directionsUrl', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="https://maps.google.com/..."
-                  />
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Location Media Photo</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={pin.mediaUrl || ''}
+                      onChange={(e) => handlePinChange(idx, 'mediaUrl', e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className="flex-1 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 placeholder:text-[var(--text-tertiary)]"
+                    />
+                    <AdminMediaPicker
+                      value={pin.mediaUrl || ''}
+                      onChange={(url: string) => handlePinChange(idx, 'mediaUrl', url)}
+                      label="Media"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

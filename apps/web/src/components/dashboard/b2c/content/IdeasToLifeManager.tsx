@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Sparkles, Layers, ArrowUp, ArrowDown, Lightbulb, CheckCircle2 } from 'lucide-react'
+import { Save, Plus, Trash2, Sparkles, ArrowUp, ArrowDown, Lightbulb } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
@@ -124,28 +124,28 @@ export function IdeasToLifeManager() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-400 flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-amber-400" />
+      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
+        <Sparkles className="w-5 h-5 animate-spin text-amber-500" />
         <span>Loading Ideas to Life Content Manager...</span>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-white">
+    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30">
               B2C CONTENT MANAGER
             </span>
-            <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-              <Lightbulb className="w-6 h-6 text-amber-400" />
+            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+              <Lightbulb className="w-6 h-6 text-amber-500" />
               <span>Ideas to Life Content Manager</span>
             </h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
             Manage the step-by-step creative blueprint process, headline messaging, and visual stages shown on the B2C Landing Page.
           </p>
         </div>
@@ -153,7 +153,7 @@ export function IdeasToLifeManager() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
         >
           <Save className="w-4 h-4" />
           <span>{saving ? 'Saving Changes...' : 'Save Ideas to Life'}</span>
@@ -161,32 +161,32 @@ export function IdeasToLifeManager() {
       </div>
 
       {/* Main Section Banner */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
-        <h2 className="text-lg font-bold text-amber-400 flex items-center gap-2">
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <h2 className="text-lg font-bold text-amber-500 flex items-center gap-2">
           <Sparkles className="w-5 h-5" />
           <span>Section Headline & Subtext</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Headline (English)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Headline (English)</label>
             <input
               type="text"
               value={act2.headlineEn}
               onChange={(e) => setAct2(prev => ({ ...prev, headlineEn: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500 placeholder:text-[var(--text-tertiary)]"
               placeholder="We don’t just imagine fun. We bring it to life."
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Headline (Arabic)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Headline (Arabic)</label>
             <input
               type="text"
               dir="rtl"
               value={act2.headlineAr}
               onChange={(e) => setAct2(prev => ({ ...prev, headlineAr: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500 placeholder:text-[var(--text-tertiary)]"
               placeholder="لا نكتفي بتخيّل المتعة… بل نحوّلها إلى واقع."
             />
           </div>
@@ -194,21 +194,19 @@ export function IdeasToLifeManager() {
       </div>
 
       {/* Process Steps Roster */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-amber-400 flex items-center gap-2">
-              <Layers className="w-5 h-5" />
-              <span>Creative Process Stages ({act2.steps.length})</span>
+            <h2 className="text-lg font-bold text-amber-500 flex items-center gap-2">
+              <Lightbulb className="w-5 h-5" />
+              <span>Blueprint Steps Roster ({act2.steps.length})</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Add, remove, or reorder the stages that illustrate how E3 converts raw concepts into physical entertainment worlds.
-            </p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">Add, reorder, or edit stages in the blueprint pipeline.</p>
           </div>
 
           <button
             onClick={handleAddStep}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Stage</span>
@@ -217,18 +215,20 @@ export function IdeasToLifeManager() {
 
         <div className="space-y-4">
           {act2.steps.map((step, idx) => (
-            <div key={step.id || idx} className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 space-y-4 relative group">
-              <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
-                <span className="text-xs font-bold text-amber-400 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400" />
-                  <span>Stage #{idx + 1}</span>
+            <div
+              key={step.id || idx}
+              className="p-5 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] space-y-4 transition-all"
+            >
+              <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-3">
+                <span className="text-xs font-extrabold text-amber-500 uppercase tracking-wider">
+                  Stage #{idx + 1}
                 </span>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleMoveStep(idx, 'up')}
                     disabled={idx === 0}
-                    className="p-1 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
+                    className="p-1 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30 cursor-pointer"
                     title="Move Up"
                   >
                     <ArrowUp className="w-4 h-4" />
@@ -236,14 +236,14 @@ export function IdeasToLifeManager() {
                   <button
                     onClick={() => handleMoveStep(idx, 'down')}
                     disabled={idx === act2.steps.length - 1}
-                    className="p-1 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
+                    className="p-1 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30 cursor-pointer"
                     title="Move Down"
                   >
                     <ArrowDown className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteStep(idx)}
-                    className="p-1 text-rose-400 hover:text-rose-300 cursor-pointer ms-2"
+                    className="p-1 rounded-lg hover:bg-rose-500/20 text-rose-400 transition-colors cursor-pointer"
                     title="Delete Stage"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -253,66 +253,62 @@ export function IdeasToLifeManager() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Step Title (English)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Stage Title (English)</label>
                   <input
                     type="text"
-                    value={step.titleEn}
+                    value={step.titleEn || ''}
                     onChange={(e) => handleStepChange(idx, 'titleEn', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    placeholder="1. A Thin Sketch"
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Step Title (Arabic)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Stage Title (Arabic)</label>
                   <input
                     type="text"
                     dir="rtl"
-                    value={step.titleAr}
+                    value={step.titleAr || ''}
                     onChange={(e) => handleStepChange(idx, 'titleAr', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    placeholder="١. رسم أولي"
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Description (English)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Description (English)</label>
                   <textarea
                     rows={2}
-                    value={step.descEn}
+                    value={step.descEn || ''}
                     onChange={(e) => handleStepChange(idx, 'descEn', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    placeholder="Initial concept and spatial layout..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Description (Arabic)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Description (Arabic)</label>
                   <textarea
                     rows={2}
                     dir="rtl"
-                    value={step.descAr}
+                    value={step.descAr || ''}
                     onChange={(e) => handleStepChange(idx, 'descAr', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    placeholder="التصور الفني وتوزيع المساحات..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Stage Media Preview URL (Image or Video)</label>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Stage Visual Media</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={step.mediaUrl || ''}
                     onChange={(e) => handleStepChange(idx, 'mediaUrl', e.target.value)}
-                    className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    placeholder="https://..."
+                    placeholder="https://images.unsplash.com/..."
+                    className="flex-1 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-500 placeholder:text-[var(--text-tertiary)]"
                   />
                   <AdminMediaPicker
                     value={step.mediaUrl || ''}
                     onChange={(url: string) => handleStepChange(idx, 'mediaUrl', url)}
-                    label="Step Media"
+                    label="Media"
                   />
                 </div>
               </div>

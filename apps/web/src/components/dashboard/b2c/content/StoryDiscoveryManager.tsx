@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Sparkles, Compass, Target, Image as ImageIcon } from 'lucide-react'
+import { Save, Plus, Trash2, Sparkles, Compass } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
@@ -119,174 +119,162 @@ export function StoryDiscoveryManager() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-400 flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-purple-400" />
+      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
+        <Sparkles className="w-5 h-5 animate-spin text-purple-500" />
         <span>Loading Story Discovery Content Manager...</span>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-white">
+    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/10 text-purple-500 border border-purple-500/30">
               B2C CONTENT MANAGER
             </span>
-            <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-              <Compass className="w-6 h-6 text-purple-400" />
+            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+              <Compass className="w-6 h-6 text-purple-500" />
               <span>Story Discovery Content Manager</span>
             </h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Manage interactive visitor intent paths (Drive, Bounce, Compete, Celebrate, etc.), category filters, and story choice covers.
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
+            Manage interactive guest story selection cards, mood categories, and destination media links.
           </p>
         </div>
 
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
         >
           <Save className="w-4 h-4" />
           <span>{saving ? 'Saving Changes...' : 'Save Story Discovery'}</span>
         </button>
       </div>
 
-      {/* Title & Section Config */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
-        <h2 className="text-lg font-bold text-purple-400 flex items-center gap-2">
-          <Target className="w-5 h-5" />
-          <span>Selector Title & Question</span>
+      {/* Section Header */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <h2 className="text-lg font-bold text-purple-500 flex items-center gap-2">
+          <Sparkles className="w-5 h-5" />
+          <span>Section Title & Prompt</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Title Question (English)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Title Prompt (English)</label>
             <input
               type="text"
               value={intentSelector.titleEn}
               onChange={(e) => setIntentSelector(prev => ({ ...prev, titleEn: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
-              placeholder="What Kind of Story Do You Want Today?"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-purple-500 placeholder:text-[var(--text-tertiary)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Title Question (Arabic)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Title Prompt (Arabic)</label>
             <input
               type="text"
               dir="rtl"
               value={intentSelector.titleAr}
               onChange={(e) => setIntentSelector(prev => ({ ...prev, titleAr: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
-              placeholder="أي نوع من الحكايات تريد أن تعيشها اليوم؟"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-purple-500 placeholder:text-[var(--text-tertiary)]"
             />
           </div>
         </div>
       </div>
 
-      {/* Intent Options Grid */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
+      {/* Options Cards Roster */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-purple-400 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-purple-500 flex items-center gap-2">
               <Compass className="w-5 h-5" />
-              <span>Interactive Story Options ({intentSelector.options.length})</span>
+              <span>Discovery Story Paths ({intentSelector.options.length})</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Each option provides a quick filter trigger for guests looking for specific experience categories.
-            </p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage individual story cards presented in the interactive selector.</p>
           </div>
 
           <button
             onClick={handleAddOption}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 border border-purple-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Story Option</span>
+            <span>Add Story Card</span>
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {intentSelector.options.map((opt, idx) => (
-            <div key={opt.id || idx} className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 space-y-4 relative">
-              <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
-                <span className="text-xs font-bold text-purple-400 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-purple-400" />
-                  <span>Option #{idx + 1} ({opt.category})</span>
+            <div
+              key={opt.id || idx}
+              className="p-5 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] space-y-4 shadow-sm"
+            >
+              <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-3">
+                <span className="text-xs font-extrabold text-purple-500 uppercase tracking-wider">
+                  Card #{idx + 1}
                 </span>
 
                 <button
                   onClick={() => handleDeleteOption(idx)}
-                  className="p-1 text-rose-400 hover:text-rose-300 cursor-pointer"
-                  title="Delete Option"
+                  className="p-1 rounded-lg hover:bg-rose-500/20 text-rose-400 transition-colors cursor-pointer"
+                  title="Delete Card"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Label (English)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Card Label (English)</label>
                   <input
                     type="text"
-                    value={opt.labelEn}
+                    value={opt.labelEn || ''}
                     onChange={(e) => handleOptionChange(idx, 'labelEn', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
-                    placeholder="Drive"
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Label (Arabic)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Card Label (Arabic)</label>
                   <input
                     type="text"
                     dir="rtl"
-                    value={opt.labelAr}
+                    value={opt.labelAr || ''}
                     onChange={(e) => handleOptionChange(idx, 'labelAr', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
-                    placeholder="قيادة"
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Category Tag</label>
-                <select
-                  value={opt.category}
-                  onChange={(e) => handleOptionChange(idx, 'category', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
-                >
-                  <option value="kids">Kids (الأطفال)</option>
-                  <option value="active">Active & Bounce (الأنشطة والقفز)</option>
-                  <option value="arena">Tactical Arena (التحديات والمنافسات)</option>
-                  <option value="discovery">Discovery & Culture (الاستكشاف)</option>
-                  <option value="events">Live Events & Festivals (الفعاليات الحية)</option>
-                  <option value="family">Family Time (العائلة)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1 flex items-center gap-1">
-                  <ImageIcon className="w-3 h-3 text-purple-400" />
-                  <span>Thumbnail Cover Image</span>
-                </label>
-                <div className="flex gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Target Route / CTA Link</label>
                   <input
                     type="text"
-                    value={opt.mediaUrl || ''}
-                    onChange={(e) => handleOptionChange(idx, 'mediaUrl', e.target.value)}
-                    className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
-                    placeholder="https://..."
+                    value={opt.ctaUrl || ''}
+                    onChange={(e) => handleOptionChange(idx, 'ctaUrl', e.target.value)}
+                    placeholder="/b2c/attractions"
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                   />
-                  <AdminMediaPicker
-                    value={opt.mediaUrl || ''}
-                    onChange={(url: string) => handleOptionChange(idx, 'mediaUrl', url)}
-                    label="Cover Image"
-                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Background Media</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={opt.mediaUrl || ''}
+                      onChange={(e) => handleOptionChange(idx, 'mediaUrl', e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className="flex-1 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-purple-500 placeholder:text-[var(--text-tertiary)]"
+                    />
+                    <AdminMediaPicker
+                      value={opt.mediaUrl || ''}
+                      onChange={(url: string) => handleOptionChange(idx, 'mediaUrl', url)}
+                      label="Media"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

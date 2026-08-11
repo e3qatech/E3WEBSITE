@@ -104,99 +104,71 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
   }
 
   const moveUp = (index: number) => {
-    if (index <= 0) return
+    if (index === 0) return
     setDestinations((prev) => {
-      const copy = [...prev]
-      const temp = copy[index - 1]
-      copy[index - 1] = copy[index]
-      copy[index] = temp
-      return copy
+      const updated = [...prev]
+      const temp = updated[index - 1]
+      updated[index - 1] = updated[index]
+      updated[index] = temp
+      return updated
     })
   }
 
   const moveDown = (index: number) => {
-    if (index >= destinations.length - 1) return
+    if (index === destinations.length - 1) return
     setDestinations((prev) => {
-      const copy = [...prev]
-      const temp = copy[index + 1]
-      copy[index + 1] = copy[index]
-      copy[index] = temp
-      return copy
+      const updated = [...prev]
+      const temp = updated[index + 1]
+      updated[index + 1] = updated[index]
+      updated[index] = temp
+      return updated
     })
   }
 
-  const removeDestination = (id: string) => {
-    if (destinations.length <= 1) {
-      toast("At least one destination world must be maintained.", "error")
-      return
-    }
-    setDestinations((prev) => prev.filter((d) => d.id !== id))
-    toast("Destination removed", "info")
+  const addDestination = () => {
+    const newId = `destination-${Date.now()}`
+    setDestinations((prev) => [
+      ...prev,
+      {
+        id: newId,
+        labelEn: "New Experience World",
+        labelAr: "وجهة ترفيهية جديدة",
+        href: "/b2c/attractions",
+        descEn: "Describe this destination's key highlights and attraction features.",
+        descAr: "وصف المعالم والأنشطة الترفيهية في هذه الوجهة.",
+        mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+        enabled: true,
+      },
+    ])
   }
 
-  const addDestination = () => {
-    const newId = `dest-${Date.now()}`
-    const newItem: OrbitDestinationItem = {
-      id: newId,
-      labelEn: "New World Destination",
-      labelAr: "وجهة ترفيهية جديدة",
-      href: "/b2c/attractions",
-      descEn: "Custom E3 kinetic experience world.",
-      descAr: "عالم تفاعلي جديد من إي ثري.",
-      mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
-      enabled: true,
-    }
-    setDestinations((prev) => [...prev, newItem])
-    toast("New destination world added", "success")
+  const removeDestination = (id: string) => {
+    setDestinations((prev) => prev.filter((item) => item.id !== id))
   }
 
   const handleSave = async () => {
-    if (uploadingCount > 0) {
-      toast("Please wait for all pending image/video uploads to complete before saving.", "error")
-      return
-    }
-
-    setSaving(true);
+    setSaving(true)
     try {
       const payload = {
-        content: {
-          titleEn: orbitTitleEn,
-          titleAr: orbitTitleAr,
-          destinations,
-          bookTicketsUrl,
-          bookTicketsLabelEn,
-          bookTicketsLabelAr,
-          bookTicketsEnabled,
-          bookTicketsExternal,
-        },
-      };
-
-      const jsonBody = JSON.stringify(payload);
-      if (jsonBody.length > 3.5 * 1024 * 1024) {
-        throw new Error("Payload Too Large. One of your destination media items contains a large embedded file. Please compress your media file or paste a direct video URL.");
+        titleEn: orbitTitleEn,
+        titleAr: orbitTitleAr,
+        bookTicketsUrl,
+        bookTicketsLabelEn,
+        bookTicketsLabelAr,
+        bookTicketsEnabled,
+        bookTicketsExternal,
+        destinations,
       }
 
-      // Save to pulse-orbit slug
-      const res = await fetch("/api/cms/pages/pulse-orbit", {
-        method: "PUT",
+      const res = await fetch("/api/cms/pages/b2c-pulse-orbit", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: jsonBody,
-      });
+        body: JSON.stringify({ content: payload }),
+      })
 
       if (!res.ok) {
-        if (res.status === 413) {
-          throw new Error("Payload Too Large (HTTP 413). Please compress uploaded media files or paste direct video URLs.");
-        }
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || `Server returned HTTP ${res.status}`);
+        throw new Error("Failed to save Pulse Orbit CMS config")
       }
-
-      // Also save to b2c-pulse-orbit slug for cross-compatibility
-      fetch("/api/cms/pages/b2c-pulse-orbit", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }).catch(() => {});
 
       // Sync settings payload safely
       const settingsPayload = [
@@ -205,7 +177,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
         { key: "bookTicketsLabelAr", value: bookTicketsLabelAr, type: "GENERAL" },
         { key: "bookTicketsEnabled", value: String(bookTicketsEnabled), type: "GENERAL" },
         { key: "bookTicketsExternal", value: String(bookTicketsExternal), type: "GENERAL" },
-      ];
+      ]
 
       for (const item of settingsPayload) {
         try {
@@ -213,7 +185,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(item),
-          });
+          })
         } catch (_sErr) {
           // Ignore non-critical setting sync notice
         }
@@ -221,17 +193,17 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
 
       // Trigger instant Next.js router refresh so public & admin pages re-fetch immediately
       if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated'));
+        window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated'))
       }
-      router.refresh();
-      toast("Pulse Orbit & Destination media saved successfully.", "success");
+      router.refresh()
+      toast("Pulse Orbit & Destination media saved successfully.", "success")
     } catch (e: any) {
-      console.error(e);
-      toast(e?.message || "Failed to save Pulse Orbit CMS.", "error");
+      console.error(e)
+      toast(e?.message || "Failed to save Pulse Orbit CMS.", "error")
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
     <AdminFormLayout>
@@ -256,7 +228,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
         <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
           <span>Header &quot;Book Tickets&quot; CTA Hyperlink Manager</span>
         </h3>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-[var(--text-secondary)]">
           Configure the hyperlink destination URL and button labels for the header &quot;Book Tickets&quot; tab across all public pages.
         </p>
 
@@ -268,7 +240,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
               value={bookTicketsUrl}
               onChange={(e) => setBookTicketsUrl(e.target.value)}
               placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
-              className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-emerald-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
             />
           </div>
 
@@ -279,7 +251,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                 type="text"
                 value={bookTicketsLabelEn}
                 onChange={(e) => setBookTicketsLabelEn(e.target.value)}
-                className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
             <div>
@@ -288,29 +260,29 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                 type="text"
                 value={bookTicketsLabelAr}
                 onChange={(e) => setBookTicketsLabelAr(e.target.value)}
-                className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 dir="rtl"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-6 pt-2">
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={bookTicketsEnabled}
                 onChange={(e) => setBookTicketsEnabled(e.target.checked)}
-                className="rounded border-[var(--border-level-2)] text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-[var(--border-level-1)] accent-[var(--color-primary)] w-4 h-4 cursor-pointer"
               />
               Show CTA Button in Header
             </label>
 
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={bookTicketsExternal}
                 onChange={(e) => setBookTicketsExternal(e.target.checked)}
-                className="rounded border-[var(--border-level-2)] text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-[var(--border-level-1)] accent-[var(--color-primary)] w-4 h-4 cursor-pointer"
               />
               Open in New Tab (_blank)
             </label>
@@ -328,7 +300,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
               type="text"
               value={orbitTitleEn}
               onChange={(e) => setOrbitTitleEn(e.target.value)}
-              className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
           <div>
@@ -337,7 +309,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
               type="text"
               value={orbitTitleAr}
               onChange={(e) => setOrbitTitleAr(e.target.value)}
-              className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               dir="rtl"
             />
           </div>
@@ -349,12 +321,12 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xl font-extrabold text-[var(--text-primary)]">Destinations Media & Content</h3>
-            <p className="text-xs text-slate-400 mt-1">Reorder, replace media, edit labels, or add custom destination worlds to Pulse Orbit.</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-1">Reorder, replace media, edit labels, or add custom destination worlds to Pulse Orbit.</p>
           </div>
           <button
             type="button"
             onClick={addDestination}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition-all shadow-md"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-extrabold transition-all shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Add Destination World
@@ -368,12 +340,12 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
           >
             <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 font-bold text-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold text-sm">
                   {idx + 1}
                 </span>
                 <div>
-                  <h4 className="font-bold text-white text-base">{dest.labelEn || `Destination ${idx + 1}`}</h4>
-                  <span className="text-xs font-mono text-slate-400">{dest.href}</span>
+                  <h4 className="font-bold text-[var(--text-primary)] text-base">{dest.labelEn || `Destination ${idx + 1}`}</h4>
+                  <span className="text-xs font-mono text-[var(--text-secondary)]">{dest.href}</span>
                 </div>
               </div>
 
@@ -383,7 +355,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                   type="button"
                   onClick={() => moveUp(idx)}
                   disabled={idx === 0}
-                  className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-lg border border-[var(--border-level-1)] bg-[var(--bg-level-1)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                   title="Move Up"
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
@@ -394,7 +366,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                   type="button"
                   onClick={() => moveDown(idx)}
                   disabled={idx === destinations.length - 1}
-                  className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-lg border border-[var(--border-level-1)] bg-[var(--bg-level-1)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                   title="Move Down"
                 >
                   <ArrowDown className="w-3.5 h-3.5" />
@@ -404,10 +376,10 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                 <button
                   type="button"
                   onClick={() => handleDestinationChange(dest.id, "enabled", !dest.enabled)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     dest.enabled
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                      : "bg-slate-800 text-slate-400 border border-slate-700"
+                      ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30"
+                      : "bg-[var(--bg-level-1)] text-[var(--text-secondary)] border border-[var(--border-level-1)]"
                   }`}
                 >
                   {dest.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -418,7 +390,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                 <button
                   type="button"
                   onClick={() => removeDestination(dest.id)}
-                  className="p-1.5 rounded-lg border border-rose-500/30 bg-rose-950/40 text-rose-300 hover:bg-rose-900/50 transition-colors"
+                  className="p-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors cursor-pointer"
                   title="Remove Destination"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -438,13 +410,13 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                   accept="video/*,image/*"
                 />
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Direct Media URL / File Link</label>
+                  <label className="block text-[11px] font-semibold text-[var(--text-tertiary)] mb-1">Direct Media URL / File Link</label>
                   <input
                     type="text"
                     value={dest.mediaUrl || ''}
                     onChange={(e) => handleDestinationChange(dest.id, "mediaUrl", e.target.value)}
                     placeholder="https://... or upload local file above"
-                    className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-3 py-1.5 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
                   />
                 </div>
               </div>
@@ -458,7 +430,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                       type="text"
                       value={dest.labelEn}
                       onChange={(e) => handleDestinationChange(dest.id, "labelEn", e.target.value)}
-                      className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
                   <div>
@@ -467,7 +439,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                       type="text"
                       value={dest.labelAr}
                       onChange={(e) => handleDestinationChange(dest.id, "labelAr", e.target.value)}
-                      className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                       dir="rtl"
                     />
                   </div>
@@ -479,7 +451,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                     type="text"
                     value={dest.href}
                     onChange={(e) => handleDestinationChange(dest.id, "href", e.target.value)}
-                    className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
                   />
                 </div>
 
@@ -490,7 +462,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                       rows={2}
                       value={dest.descEn}
                       onChange={(e) => handleDestinationChange(dest.id, "descEn", e.target.value)}
-                      className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
                   <div>
@@ -499,7 +471,7 @@ export function PulseOrbitCMSView({ initialData }: { initialData: any }) {
                       rows={2}
                       value={dest.descAr}
                       onChange={(e) => handleDestinationChange(dest.id, "descAr", e.target.value)}
-                      className="w-full bg-[var(--surface-input)] border border-[var(--border-level-2)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                       dir="rtl"
                     />
                   </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Sparkles, Video, Image as ImageIcon, Sliders, Play, Layers } from 'lucide-react'
+import { Save, Sparkles, Video, Play, Sliders } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
@@ -104,28 +104,28 @@ export function B2CMediaManager() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-400 flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-blue-400" />
+      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
+        <Sparkles className="w-5 h-5 animate-spin text-blue-500" />
         <span>Loading B2C Media Manager...</span>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8 text-white">
+    <div className="p-6 max-w-6xl mx-auto space-y-8 text-[var(--text-primary)]">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/30">
               B2C CONTENT MANAGER
             </span>
-            <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-              <Video className="w-6 h-6 text-blue-400" />
+            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+              <Video className="w-6 h-6 text-blue-500" />
               <span>B2C Media Manager</span>
             </h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
             Manage background video feeds, organic window masked video parameters, edge softness, hero media assets, and CDN links.
           </p>
         </div>
@@ -133,7 +133,7 @@ export function B2CMediaManager() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
         >
           <Save className="w-4 h-4" />
           <span>{saving ? 'Saving Changes...' : 'Save Media Settings'}</span>
@@ -141,19 +141,19 @@ export function B2CMediaManager() {
       </div>
 
       {/* Hero Media Section */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
-        <h2 className="text-lg font-bold text-blue-400 flex items-center gap-2">
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <h2 className="text-lg font-bold text-blue-500 flex items-center gap-2">
           <Play className="w-5 h-5" />
           <span>Hero Background Video & Poster</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Hero Media Type</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Hero Media Type</label>
             <select
               value={heroMedia.mediaType}
               onChange={(e) => setHeroMedia(prev => ({ ...prev, mediaType: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
             >
               <option value="VIDEO">Video Loop (.mp4)</option>
               <option value="IMAGE">Static High-Res Image</option>
@@ -161,13 +161,13 @@ export function B2CMediaManager() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Poster Preview Image URL</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Poster Preview Image URL</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={heroMedia.posterUrl || ''}
                 onChange={(e) => setHeroMedia(prev => ({ ...prev, posterUrl: e.target.value }))}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500 placeholder:text-[var(--text-tertiary)]"
                 placeholder="https://..."
               />
               <AdminMediaPicker
@@ -180,108 +180,83 @@ export function B2CMediaManager() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Hero Background Media URL</label>
+          <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Direct Video Asset URL (.mp4 / WebM)</label>
           <div className="flex gap-2">
             <input
               type="text"
               value={heroMedia.mediaUrl || ''}
               onChange={(e) => setHeroMedia(prev => ({ ...prev, mediaUrl: e.target.value }))}
-              className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-              placeholder="https://assets.mixkit.co/..."
+              className="flex-1 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500 placeholder:text-[var(--text-tertiary)]"
+              placeholder="https://assets.mixkit.co/videos/..."
             />
             <AdminMediaPicker
               value={heroMedia.mediaUrl || ''}
               onChange={(url: string) => setHeroMedia(prev => ({ ...prev, mediaUrl: url }))}
-              label="Hero Media"
+              label="Select / Upload"
+              accept="video/*"
             />
           </div>
         </div>
       </div>
 
-      {/* Organic Masked Video Settings */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
-        <h2 className="text-lg font-bold text-blue-400 flex items-center gap-2">
-          <Sliders className="w-5 h-5" />
-          <span>Organic Masked Video Window Parameters</span>
-        </h2>
+      {/* Masked Organic Window Controls */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-blue-500 flex items-center gap-2">
+            <Sliders className="w-5 h-5" />
+            <span>Organic Window Masked Video Controls</span>
+          </h2>
+
+          <label className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={maskedVideo.enabled}
+              onChange={(e) => setMaskedVideo(prev => ({ ...prev, enabled: e.target.checked }))}
+              className="rounded accent-blue-500"
+            />
+            <span>Enable Organic Window Video</span>
+          </label>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Mask Shape Preset</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Mask Shape Preset</label>
             <select
               value={maskedVideo.preset}
               onChange={(e) => setMaskedVideo(prev => ({ ...prev, preset: e.target.value }))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
             >
-              <option value="ORGANIC_WINDOW">Organic Fluid Window</option>
-              <option value="PORTAL_ARCH">Architectural Portal Arch</option>
-              <option value="KINETIC_DOME">Kinetic Dome Sphere</option>
-              <option value="HEXAGON_GRID">Hexagonal Cyber Grid</option>
+              <option value="ORGANIC_WINDOW">Organic Window Arch</option>
+              <option value="PILL_CAPSULE">Pill Capsule</option>
+              <option value="MODERN_HEXAGON">Modern Hexagon</option>
+              <option value="CIRCLE">Circular Focal</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Edge Softness Blur ({maskedVideo.edgeSoftness}px)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Mask Scale ({maskedVideo.scale}x)</label>
             <input
               type="range"
-              min="0"
-              max="40"
-              value={maskedVideo.edgeSoftness}
-              onChange={(e) => setMaskedVideo(prev => ({ ...prev, edgeSoftness: Number(e.target.value) }))}
-              className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-2"
+              min="0.5"
+              max="2"
+              step="0.05"
+              value={maskedVideo.scale}
+              onChange={(e) => setMaskedVideo(prev => ({ ...prev, scale: parseFloat(e.target.value) }))}
+              className="w-full accent-blue-500 mt-2"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Idle Breathing Animation</label>
-            <button
-              onClick={() => setMaskedVideo(prev => ({ ...prev, idleBreathe: !prev.idleBreathe }))}
-              className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition-all border ${
-                maskedVideo.idleBreathe
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                  : 'bg-slate-950 text-slate-400 border-slate-800'
-              }`}
-            >
-              {maskedVideo.idleBreathe ? 'Enabled (Smooth Motion)' : 'Disabled (Static)'}
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Customer Portal Video URL</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={maskedVideo.customerDesktopVideo || ''}
-                onChange={(e) => setMaskedVideo(prev => ({ ...prev, customerDesktopVideo: e.target.value }))}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
-                placeholder="https://..."
-              />
-              <AdminMediaPicker
-                value={maskedVideo.customerDesktopVideo || ''}
-                onChange={(url: string) => setMaskedVideo(prev => ({ ...prev, customerDesktopVideo: url }))}
-                label="Customer Video"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Organizer/B2B Portal Video URL</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={maskedVideo.organizerDesktopVideo || ''}
-                onChange={(e) => setMaskedVideo(prev => ({ ...prev, organizerDesktopVideo: e.target.value }))}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
-                placeholder="https://..."
-              />
-              <AdminMediaPicker
-                value={maskedVideo.organizerDesktopVideo || ''}
-                onChange={(url: string) => setMaskedVideo(prev => ({ ...prev, organizerDesktopVideo: url }))}
-                label="Organizer Video"
-              />
-            </div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Edge Feathering / Softness ({maskedVideo.edgeSoftness}px)</label>
+            <input
+              type="range"
+              min="0"
+              max="40"
+              step="1"
+              value={maskedVideo.edgeSoftness}
+              onChange={(e) => setMaskedVideo(prev => ({ ...prev, edgeSoftness: parseInt(e.target.value) }))}
+              className="w-full accent-blue-500 mt-2"
+            />
           </div>
         </div>
       </div>
