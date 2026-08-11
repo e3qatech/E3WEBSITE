@@ -60,7 +60,7 @@ const prismaClientSingleton = () => {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
           const start = performance.now()
-          const TIMEOUT_MS = 5000 // 5 seconds max per query
+          const TIMEOUT_MS = 15000 // 15 seconds max per query (increased for cold starts)
           
           const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS)
