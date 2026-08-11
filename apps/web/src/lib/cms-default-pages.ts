@@ -410,6 +410,68 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
   ]
 };
 
+export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
+  titleEn: "B2B ENTERPRISE ORBIT",
+  titleAr: "مدار إي ثري لقطاع الأعمال",
+  bookTicketsUrl: "/b2b/contact",
+  bookTicketsLabelEn: "REQUEST PROPOSAL",
+  bookTicketsLabelAr: "اطلب عرض سعر",
+  bookTicketsEnabled: true,
+  bookTicketsExternal: false,
+  destinations: [
+    {
+      id: "services",
+      labelEn: "Services & Solutions",
+      labelAr: "الخدمات والحلول المتكاملة",
+      href: "/b2b/services",
+      descEn: "Turnkey event engineering, spatial design, kinetic AV, and production.",
+      descAr: "هندسة الفعاليات، التصميم الفضائي، الحلول الصوتية والضوئية والإنتاج.",
+      mediaUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "cases",
+      labelEn: "Case Studies & Portfolio",
+      labelAr: "دراسات الحالة والمشاريع",
+      href: "/b2b/cases",
+      descEn: "Flagship national ceremonies, summits, and mega entertainment builds in Qatar.",
+      descAr: "الاحتفالات الوطنية، القمم، والمشاريع الترفيهية الكبرى في قطر.",
+      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "team",
+      labelEn: "Leadership & Atelier Team",
+      labelAr: "القيادة وفريق الإنتاج",
+      href: "/b2b/team",
+      descEn: "Meet the executive visionaries, technical directors, and spatial architects.",
+      descAr: "تعرف على القادة والمهندسين ومخرجي الفعاليات في إي ثري.",
+      mediaUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "careers",
+      labelEn: "HR & Talent Careers",
+      labelAr: "الوظائف والكوادر البشرية",
+      href: "/b2b/careers",
+      descEn: "Join E3's world-class event production team or apply for open roles.",
+      descAr: "انضم إلى فريق إنتاج الفعاليات العالمي في إي ثري أو قدم على الوظائف.",
+      mediaUrl: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+    {
+      id: "b2b-contact",
+      labelEn: "B2B Proposal & Contact",
+      labelAr: "تقديم الطلبات والتواصل",
+      href: "/b2b/contact",
+      descEn: "24/7 corporate inquiry desk, venue booking, and RFP submission.",
+      descAr: "مكتب استفسارات الشركات، حجوزات المقرات، وتقديم المناقصات.",
+      mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop",
+      enabled: true,
+    },
+  ]
+};
+
 export const DEFAULT_B2C_PACKAGES_CONTENT = {
   hero: {
     titleEn: "Group & Birthday Packages",
@@ -570,8 +632,9 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     };
   }
 
-  if (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit') {
-    const defaults = DEFAULT_PULSE_ORBIT_CONTENT;
+  if (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit' || slug === 'b2b-pulse-orbit') {
+    const isB2B = slug === 'b2b-pulse-orbit';
+    const defaults = isB2B ? DEFAULT_B2B_PULSE_ORBIT_CONTENT : DEFAULT_PULSE_ORBIT_CONTENT;
     const raw = rawContent || {};
     const rawDestinations = Array.isArray(raw.destinations) && raw.destinations.length > 0
       ? raw.destinations

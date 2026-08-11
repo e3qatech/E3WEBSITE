@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
@@ -25,36 +25,44 @@ export async function GET(
     let title: any = { en: slug, ar: slug };
     let seo: any = {};
 
-    try {
-      const page = await db.pages.findUnique({
-        where: { slug },
-      });
-      if (page) {
-        rawContent = page.content;
-        title = page.title;
-        seo = page.seo;
-      }
-    } catch (_dbErr) {
-      // Ignore Pages table query failure
-    }
+    // For pulse-orbit or b2c-pulse-orbit fallback check
+    const searchSlugs = (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit')
+      ? ['b2c-pulse-orbit', 'pulse-orbit']
+      : [slug];
 
-    if (!rawContent) {
+    for (const targetSlug of searchSlugs) {
+      if (rawContent) break;
       try {
-        const setting = await (db as any).siteSettings.findUnique({
-          where: { key: `cms_page_${slug}` },
+        const page = await db.pages.findUnique({
+          where: { slug: targetSlug },
         });
-        if (setting && setting.value) {
-          rawContent = setting.value;
+        if (page && page.content) {
+          rawContent = page.content;
+          title = page.title;
+          seo = page.seo;
         }
-      } catch (_settingErr) {
-        // Ignore SiteSettings table query failure
+      } catch (_dbErr) {
+        // Ignore Pages table query failure
       }
-    }
 
-    if (!rawContent && globalCMSPagesStore[slug]) {
-      rawContent = globalCMSPagesStore[slug].content;
-      title = globalCMSPagesStore[slug].title || title;
-      seo = globalCMSPagesStore[slug].seo || seo;
+      if (!rawContent) {
+        try {
+          const setting = await (db as any).siteSettings.findUnique({
+            where: { key: `cms_page_${targetSlug}` },
+          });
+          if (setting && setting.value) {
+            rawContent = setting.value;
+          }
+        } catch (_settingErr) {
+          // Ignore SiteSettings table query failure
+        }
+      }
+
+      if (!rawContent && globalCMSPagesStore[targetSlug]) {
+        rawContent = globalCMSPagesStore[targetSlug].content;
+        title = globalCMSPagesStore[targetSlug].title || title;
+        seo = globalCMSPagesStore[targetSlug].seo || seo;
+      }
     }
 
     const mergedContent = getMergedCMSPageContent(slug, rawContent);
@@ -99,42 +107,58 @@ export async function PUT(
 
     let updatedPage: any = null;
 
-    // 1. Persist to primary Pages model in PostgreSQL
-    try {
-      updatedPage = await db.pages.upsert({
-        where: { slug },
-        update: {
-          ...(validatedData.title !== undefined && { title: validatedData.title }),
-          content: mergedContent,
-          ...(validatedData.seo !== undefined && { seo: validatedData.seo }),
-        },
-        create: {
-          slug,
-          title: validatedData.title || { en: slug, ar: slug },
-          content: mergedContent,
-          seo: validatedData.seo || {},
-        },
-      });
-    } catch (dbError) {
-      console.warn(`[DB WARN /api/cms/pages/${slug}] Pages table upsert failed, attempting SiteSettings fallback:`, dbError);
-    }
+    // Define target slugs for pulse-orbit synchronization
+    const slugsToSave = (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit')
+      ? ['b2c-pulse-orbit', 'pulse-orbit']
+      : [slug];
 
-    // 2. Persist to secondary SiteSettings model in PostgreSQL (guarantees cross-lambda persistence)
-    try {
-      await (db as any).siteSettings.upsert({
-        where: { key: `cms_page_${slug}` },
-        update: {
-          value: mergedContent as any,
-          group: 'UI',
-        },
-        create: {
-          key: `cms_page_${slug}`,
-          value: mergedContent as any,
-          group: 'UI',
-        },
-      });
-    } catch (settingError) {
-      console.warn(`[DB WARN /api/cms/pages/${slug}] SiteSettings table upsert notice:`, settingError);
+    for (const targetSlug of slugsToSave) {
+      // 1. Persist to primary Pages model in PostgreSQL
+      try {
+        const pageResult = await db.pages.upsert({
+          where: { slug: targetSlug },
+          update: {
+            ...(validatedData.title !== undefined && { title: validatedData.title }),
+            content: mergedContent,
+            ...(validatedData.seo !== undefined && { seo: validatedData.seo }),
+          },
+          create: {
+            slug: targetSlug,
+            title: validatedData.title || { en: targetSlug, ar: targetSlug },
+            content: mergedContent,
+            seo: validatedData.seo || {},
+          },
+        });
+        if (targetSlug === slug || !updatedPage) updatedPage = pageResult;
+      } catch (dbError) {
+        console.warn(`[DB WARN /api/cms/pages/${targetSlug}] Pages table upsert failed, attempting SiteSettings fallback:`, dbError);
+      }
+
+      // 2. Persist to secondary SiteSettings model in PostgreSQL
+      try {
+        await (db as any).siteSettings.upsert({
+          where: { key: `cms_page_${targetSlug}` },
+          update: {
+            value: mergedContent as any,
+            group: 'UI',
+          },
+          create: {
+            key: `cms_page_${targetSlug}`,
+            value: mergedContent as any,
+            group: 'UI',
+          },
+        });
+      } catch (settingError) {
+        console.warn(`[DB WARN /api/cms/pages/${targetSlug}] SiteSettings table upsert notice:`, settingError);
+      }
+
+      globalCMSPagesStore[targetSlug] = {
+        slug: targetSlug,
+        title: validatedData.title || { en: targetSlug, ar: targetSlug },
+        content: mergedContent,
+        seo: validatedData.seo || {},
+        updatedAt: new Date().toISOString(),
+      };
     }
 
     if (!updatedPage) {
@@ -147,18 +171,20 @@ export async function PUT(
       };
     }
 
-    globalCMSPagesStore[slug] = updatedPage;
-
     // Purge Next.js App Router cache so public & admin pages update immediately
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/[locale]/b2c', 'layout');
+      revalidatePath('/[locale]/b2b', 'layout');
       revalidatePath('/en/b2c', 'layout');
       revalidatePath('/ar/b2c', 'layout');
+      revalidatePath('/en/b2b', 'layout');
+      revalidatePath('/ar/b2b', 'layout');
       revalidatePath('/b2c', 'layout');
+      revalidatePath('/b2b', 'layout');
       revalidatePath('/[locale]/b2c/attractions', 'layout');
       revalidatePath('/[locale]/dashboard/b2c/pulse-orbit', 'page');
-      revalidatePath('/[locale]/dashboard/b2c/landing', 'page');
+      revalidatePath('/[locale]/dashboard/b2b/pulse-orbit', 'page');
       revalidatePath('/[locale]/dashboard/settings/pulse-orbit', 'page');
     } catch (_e) {
       // Ignore revalidate errors

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect } from 'react'
-import { B2BHeader } from './B2BHeader'
+import { PulseOrbitNav } from '@/components/b2c/nav/PulseOrbitNav'
 import { B2BFooter } from './B2BFooter'
 import { cn } from '@/lib/utils'
 import { useMounted } from '@/hooks/useMounted'
@@ -9,9 +9,13 @@ import { useMounted } from '@/hooks/useMounted'
 export function B2BLayout({
   children,
   settings = {},
+  locale = 'en',
+  orbitData
 }: {
   children: React.ReactNode
   settings?: Record<string, string>
+  locale?: string
+  orbitData?: any
 }) {
   useMounted();
 
@@ -31,9 +35,9 @@ export function B2BLayout({
         "b2b-portal-root"
       )}
     >
-      <B2BHeader settings={settings} />
+      <PulseOrbitNav locale={locale} settings={settings} orbitData={orbitData} type="b2b" />
       
-      <main className="flex-1 flex flex-col pt-[88px] relative z-10">
+      <main className="flex-1 flex flex-col pt-20 relative z-10">
         {children}
       </main>
       

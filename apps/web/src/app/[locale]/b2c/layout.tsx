@@ -29,8 +29,13 @@ export default async function B2CLayout({
   let orbitPage: any = null;
   try {
     orbitPage = await db.pages.findUnique({
-      where: { slug: "pulse-orbit" }
+      where: { slug: "b2c-pulse-orbit" }
     });
+    if (!orbitPage) {
+      orbitPage = await db.pages.findUnique({
+        where: { slug: "pulse-orbit" }
+      });
+    }
   } catch (e) {
     console.warn("[B2C LAYOUT NOTICE] Failed to query pulse-orbit page:", e);
   }
@@ -39,9 +44,14 @@ export default async function B2CLayout({
     try {
       const settingModel = (db as any).siteSettings || (db as any).setting;
       if (settingModel) {
-        const setting = await settingModel.findUnique({
-          where: { key: "cms_page_pulse-orbit" }
+        let setting = await settingModel.findUnique({
+          where: { key: "cms_page_b2c-pulse-orbit" }
         });
+        if (!setting) {
+          setting = await settingModel.findUnique({
+            where: { key: "cms_page_pulse-orbit" }
+          });
+        }
         if (setting && setting.value) {
           orbitPage = { content: setting.value };
         }
@@ -51,21 +61,18 @@ export default async function B2CLayout({
     }
   }
 
-  const orbitData = getMergedCMSPageContent("pulse-orbit", orbitPage?.content);
+  const orbitData = getMergedCMSPageContent("b2c-pulse-orbit", orbitPage?.content);
 
   return (
     <B2CExperienceProvider>
       <B2CThemeProvider locale={locale}>
         <B2CPageShell className="flex flex-col min-h-screen relative bg-slate-950 text-slate-100">
           <B2CSceneHost preset="ambient-particles" colorAccent="#10b981" />
-          <PulseOrbitNav locale={locale} settings={settingsMap} orbitData={orbitData} />
+          <PulseOrbitNav locale={locale} settings={settingsMap} orbitData={orbitData} type="b2c" />
           <main className="flex-1 pt-20 relative z-10">
             <B2CRouteTransition>{children}</B2CRouteTransition>
           </main>
-          <Footer
-            portal="b2c"
-            settings={settingsMap}
-          />
+          <Footer portal="b2c" />
         </B2CPageShell>
       </B2CThemeProvider>
     </B2CExperienceProvider>

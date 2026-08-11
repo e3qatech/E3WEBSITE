@@ -21,6 +21,7 @@ import {
   ChevronRight,
   ArrowRight,
   User as UserIcon,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -82,6 +83,54 @@ const DESTINATIONS: NavDestination[] = [
   },
 ];
 
+const B2B_DESTINATIONS: NavDestination[] = [
+  {
+    labelEn: 'Services & Solutions',
+    labelAr: 'الخدمات والحلول المتكاملة',
+    href: '/b2b/services',
+    icon: Briefcase,
+    descEn: 'Turnkey event engineering, spatial design, kinetic AV, and production.',
+    descAr: 'هندسة الفعاليات، التصميم الفضائي، الحلول الصوتية والضوئية والإنتاج.',
+    mediaUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    labelEn: 'Case Studies',
+    labelAr: 'دراسات الحالة والمشاريع',
+    href: '/b2b/cases',
+    icon: Sparkles,
+    descEn: 'Flagship national ceremonies, summits, and mega entertainment builds in Qatar.',
+    descAr: 'الاحتفالات الوطنية، القمم، والمشاريع الترفيهية الكبرى في قطر.',
+    mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    labelEn: 'Leadership & Team',
+    labelAr: 'القيادة وفريق الإنتاج',
+    href: '/b2b/team',
+    icon: UserIcon,
+    descEn: 'Meet the executive visionaries, technical directors, and spatial architects.',
+    descAr: 'تعرف على القادة والمهندسين ومخرجي الفعاليات في إي ثري.',
+    mediaUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    labelEn: 'HR & Talent Careers',
+    labelAr: 'الوظائف والكوادر البشرية',
+    href: '/b2b/careers',
+    icon: Briefcase,
+    descEn: "Join E3's world-class event production team or apply for open roles.",
+    descAr: 'انضم إلى فريق إنتاج الفعاليات العالمي في إي ثري أو قدم على الوظائف.',
+    mediaUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    labelEn: 'B2B Proposal & Contact',
+    labelAr: 'تقديم الطلبات والتواصل',
+    href: '/b2b/contact',
+    icon: PhoneCall,
+    descEn: '24/7 corporate inquiry desk, venue booking, and RFP submission.',
+    descAr: 'مكتب استفسارات الشركات، حجوزات المقرات، وتقديم المناقصات.',
+    mediaUrl: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop',
+  },
+];
+
 import { PulseOrbitDropdown } from './PulseOrbitDropdown';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
@@ -90,6 +139,7 @@ export function PulseOrbitNav({
   locale = 'en',
   settings,
   orbitData,
+  type = 'b2c',
   customerLabelEn = 'Customer',
   customerLabelAr = 'الزائر',
   organizerLabelEn = 'Organizer',
@@ -109,6 +159,7 @@ export function PulseOrbitNav({
     bookTicketsEnabled?: boolean | string;
     bookTicketsExternal?: boolean | string;
   };
+  type?: 'b2c' | 'b2b';
   customerLabelEn?: string;
   customerLabelAr?: string;
   organizerLabelEn?: string;
@@ -127,10 +178,12 @@ export function PulseOrbitNav({
     : null;
 
   const isAr = locale === 'ar';
-  const isB2C = pathname?.includes('/b2c') || !pathname?.includes('/b2b');
+  const isB2C = type === 'b2c';
 
   const lightLogoUrl = settings?.lightLogoUrl;
   const darkLogoUrl = settings?.darkLogoUrl;
+
+  const defaultDestList = isB2C ? DESTINATIONS : B2B_DESTINATIONS;
 
   const [currentOrbitData, setCurrentOrbitData] = useState<any>(orbitData);
 
@@ -142,7 +195,8 @@ export function PulseOrbitNav({
 
   const fetchLatestOrbit = async () => {
     try {
-      const res = await fetch('/api/cms/pages/pulse-orbit?t=' + Date.now());
+      const endpoint = isB2C ? '/api/cms/pages/b2c-pulse-orbit' : '/api/cms/pages/b2b-pulse-orbit';
+      const res = await fetch(`${endpoint}?t=${Date.now()}`);
       if (res.ok) {
         const json = await res.json();
         if (json?.data?.content) {
@@ -156,10 +210,12 @@ export function PulseOrbitNav({
 
   useEffect(() => {
     fetchLatestOrbit();
-    const handleUpdate = () => fetchLatestOrbit();
+    const handleUpdate = (e: any) => {
+      fetchLatestOrbit();
+    };
     window.addEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
     return () => window.removeEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
-  }, []);
+  }, [type]);
 
   const rawDestinations = (currentOrbitData?.destinations && currentOrbitData.destinations.length > 0)
     ? currentOrbitData.destinations
@@ -168,18 +224,18 @@ export function PulseOrbitNav({
           labelEn: d.labelEn,
           labelAr: d.labelAr,
           href: d.href,
-          icon: DESTINATIONS.find((std) => std.href === d.href)?.icon || DESTINATIONS[idx % DESTINATIONS.length]?.icon || Sparkles,
+          icon: defaultDestList.find((std) => std.href === d.href)?.icon || defaultDestList[idx % defaultDestList.length]?.icon || Sparkles,
           descEn: d.descEn,
           descAr: d.descAr,
           mediaUrl: d.mediaUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
         }))
-    : DESTINATIONS;
+    : defaultDestList;
 
   const destinationList = rawDestinations.filter((d: any) => !d.href?.includes('/tickets'));
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeDestination, setActiveDestination] = useState<NavDestination>(destinationList[0] || DESTINATIONS[0]);
+  const [activeDestination, setActiveDestination] = useState<NavDestination>(destinationList[0] || defaultDestList[0]);
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
@@ -210,7 +266,7 @@ export function PulseOrbitNav({
     const nextState = !menuOpen;
     setMenuOpen(nextState);
     if (nextState) {
-      trackTelemetry('menu_opened', { locale });
+      trackTelemetry('menu_opened', { locale, type });
     }
   };
 
@@ -218,12 +274,13 @@ export function PulseOrbitNav({
     const targetLocale = isAr ? 'en' : 'ar';
     document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
     let newPath = pathname || `/${locale}`;
+    const basePrefix = isB2C ? '/b2c' : '/b2b';
     if (newPath.startsWith('/ar/')) {
       newPath = newPath.replace('/ar/', `/${targetLocale}/`);
     } else if (newPath.startsWith('/en/')) {
       newPath = newPath.replace('/en/', `/${targetLocale}/`);
     } else if (newPath === '/ar' || newPath === '/en') {
-      newPath = `/${targetLocale}/b2c`;
+      newPath = `/${targetLocale}${basePrefix}`;
     } else {
       newPath = `/${targetLocale}${newPath}`;
     }
@@ -239,18 +296,21 @@ export function PulseOrbitNav({
     }
   };
 
-  const bookTicketsRawUrl = settings?.bookTicketsUrl || orbitData?.bookTicketsUrl || '/b2c/tickets';
+  const bookTicketsRawUrl = settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || (isB2C ? '/b2c/tickets' : '/b2b/contact');
   const isExternalBookUrl = bookTicketsRawUrl.startsWith('http://') || bookTicketsRawUrl.startsWith('https://');
   const bookTicketsHref = isExternalBookUrl
     ? bookTicketsRawUrl
     : bookTicketsRawUrl.startsWith('/')
-      ? `/${locale}${bookTicketsRawUrl.startsWith('/b2c') ? bookTicketsRawUrl : '/b2c' + bookTicketsRawUrl}`
-      : `/${locale}/b2c/${bookTicketsRawUrl}`;
+      ? `/${locale}${bookTicketsRawUrl}`
+      : `/${locale}/${bookTicketsRawUrl}`;
 
-  const bookTicketsLabelEn = settings?.bookTicketsLabelEn || orbitData?.bookTicketsLabelEn || 'BOOK TICKETS';
-  const bookTicketsLabelAr = settings?.bookTicketsLabelAr || orbitData?.bookTicketsLabelAr || 'احجز التذاكر';
-  const isBookTicketsEnabled = settings?.bookTicketsEnabled !== 'false' && orbitData?.bookTicketsEnabled !== false;
-  const openInNewTab = settings?.bookTicketsExternal === 'true' || orbitData?.bookTicketsExternal === true || isExternalBookUrl;
+  const bookTicketsLabelEn = settings?.bookTicketsLabelEn || currentOrbitData?.bookTicketsLabelEn || (isB2C ? 'BOOK TICKETS' : 'REQUEST PROPOSAL');
+  const bookTicketsLabelAr = settings?.bookTicketsLabelAr || currentOrbitData?.bookTicketsLabelAr || (isB2C ? 'احجز التذاكر' : 'اطلب عرض سعر');
+  const isBookTicketsEnabled = settings?.bookTicketsEnabled !== 'false' && currentOrbitData?.bookTicketsEnabled !== false;
+  const openInNewTab = settings?.bookTicketsExternal === 'true' || currentOrbitData?.bookTicketsExternal === true || isExternalBookUrl;
+
+  const defaultTitleEn = isB2C ? 'PULSE ORBIT DESTINATIONS' : 'B2B ENTERPRISE ORBIT';
+  const defaultTitleAr = isB2C ? 'وجهات مدار إي ثري' : 'مدار إي ثري لقطاع الأعمال';
 
   return (
     <>
@@ -267,7 +327,7 @@ export function PulseOrbitNav({
           {/* Company Logo */}
           <div className="flex items-center gap-4">
             <Link
-              href={`/${locale}/b2c`}
+              href={`/${locale}${isB2C ? '/b2c' : '/b2b'}`}
               className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
             >
@@ -324,17 +384,17 @@ export function PulseOrbitNav({
               {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
             </button>
 
-            {/* Quick Ticket CTA */}
-            {isB2C && isBookTicketsEnabled && (
+            {/* Quick Ticket / Proposal CTA */}
+            {isBookTicketsEnabled && (
               isExternalBookUrl ? (
                 <a
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : "_self"}
                   rel={openInNewTab ? "noopener noreferrer" : undefined}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref })}
+                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type })}
                 >
-                  <Ticket className="h-4 w-4" />
+                  {isB2C ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </a>
               ) : (
@@ -342,9 +402,9 @@ export function PulseOrbitNav({
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : undefined}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref })}
+                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type })}
                 >
-                  <Ticket className="h-4 w-4" />
+                  {isB2C ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </Link>
               )
@@ -369,7 +429,7 @@ export function PulseOrbitNav({
               ) : (
                 <MenuIcon className="h-4 w-4 text-emerald-400" />
               )}
-              <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? 'القائمة' : 'PULSE ORBIT')}</span>
+              <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? (isB2C ? 'القائمة' : 'قطاع الأعمال') : (isB2C ? 'PULSE ORBIT' : 'B2B ORBIT'))}</span>
             </button>
           </div>
         </div>
@@ -388,7 +448,7 @@ export function PulseOrbitNav({
             <div className="flex items-center gap-3">
               <span className="h-3 w-3 rounded-full bg-emerald-400 animate-ping" />
               <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest font-bold">
-                {isAr ? (currentOrbitData?.titleAr || 'وجهات مدار إي ثري') : (currentOrbitData?.titleEn || 'PULSE ORBIT DESTINATIONS')}
+                {isAr ? (currentOrbitData?.titleAr || defaultTitleAr) : (currentOrbitData?.titleEn || defaultTitleEn)}
               </span>
             </div>
 
@@ -397,18 +457,18 @@ export function PulseOrbitNav({
               <HeaderAuthControls locale={locale} />
 
               {/* Language Switch */}
-              <Link
-                href={isAr ? `/en${pathname?.replace('/ar', '') || ''}` : `/ar${pathname?.replace('/en', '') || ''}`}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-800"
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer"
               >
                 <Globe className="h-3.5 w-3.5 text-sky-400" />
                 <span>{isAr ? 'English' : 'العربية'}</span>
-              </Link>
+              </button>
 
               {/* Theme Toggle */}
               <button
-                onClick={() => setCurrentTheme(currentTheme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800"
+                onClick={toggleTheme}
+                className="p-2 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 cursor-pointer"
                 aria-label="Toggle Theme"
               >
                 {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
@@ -416,7 +476,7 @@ export function PulseOrbitNav({
 
               <button
                 onClick={() => setMenuOpen(false)}
-                className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-rose-300 hover:bg-rose-900/50 transition-colors"
+                className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-rose-300 hover:bg-rose-900/50 transition-colors cursor-pointer"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
@@ -430,18 +490,18 @@ export function PulseOrbitNav({
             <div className="lg:col-span-7 space-y-2">
               {destinationList.map((dest: any) => {
                 const Icon = dest.icon;
-                const isSelected = activeDestination.href === dest.href;
+                const isSelected = activeDestination?.href === dest.href;
                 return (
                   <Link
                     key={dest.href}
                     href={`/${locale}${dest.href}`}
                     onMouseEnter={() => {
                       setActiveDestination(dest);
-                      trackTelemetry('destination_selected', { href: dest.href });
+                      trackTelemetry('destination_selected', { href: dest.href, type });
                     }}
                     onClick={() => setMenuOpen(false)}
                     className={cn(
-                      'group flex items-center justify-between rounded-2xl border p-4 transition-all duration-300',
+                      'group flex items-center justify-between rounded-2xl border p-4 transition-all duration-300 cursor-pointer',
                       isSelected
                         ? 'border-emerald-500/80 bg-emerald-950/30 text-white shadow-xl shadow-emerald-950/50 translate-x-1'
                         : 'border-slate-800/60 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200'
@@ -512,24 +572,24 @@ export function PulseOrbitNav({
 
               <div className="relative z-10">
                 <span className="inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-mono font-bold text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-3">
-                  FEATURED WORLD
+                  {isB2C ? 'FEATURED WORLD' : 'ENTERPRISE SOLUTION'}
                 </span>
                 <h3 className="text-2xl font-extrabold text-white">
-                  {isAr ? activeDestination.labelAr : activeDestination.labelEn}
+                  {isAr ? activeDestination?.labelAr : activeDestination?.labelEn}
                 </h3>
               </div>
 
               <div className="relative z-10 space-y-4 pt-12">
                 <p className="text-sm text-slate-300 leading-relaxed">
-                  {isAr ? activeDestination.descAr : activeDestination.descEn}
+                  {isAr ? activeDestination?.descAr : activeDestination?.descEn}
                 </p>
 
                 <Link
-                  href={`/${locale}${activeDestination.href}`}
+                  href={`/${locale}${activeDestination?.href || (isB2C ? '/b2c' : '/b2b')}`}
                   onClick={() => setMenuOpen(false)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition-all"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition-all cursor-pointer"
                 >
-                  <span>{isAr ? 'استكشف الوجهة' : 'EXPLORE WORLD'}</span>
+                  <span>{isAr ? 'استكشف الوجهة' : (isB2C ? 'EXPLORE WORLD' : 'DISCOVER SOLUTION')}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -543,7 +603,11 @@ export function PulseOrbitNav({
             </div>
 
             <div className="flex items-center gap-4 font-semibold">
-              <Link href={`/${locale}/business`} className="hover:text-emerald-400 transition-colors">
+              <Link href={`/${locale}/b2c`} className="hover:text-emerald-400 transition-colors">
+                {isAr ? 'بوابة الزوار (B2C)' : 'B2C Customer Portal'}
+              </Link>
+              <span>•</span>
+              <Link href={`/${locale}/b2b`} className="hover:text-emerald-400 transition-colors">
                 {isAr ? 'بوابة الشركات (B2B)' : 'B2B Enterprise Portal'}
               </Link>
               <span>•</span>

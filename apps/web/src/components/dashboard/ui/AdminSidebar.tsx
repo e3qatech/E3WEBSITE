@@ -44,6 +44,7 @@ const sidebarConfig = [
     { label: "Explore E3 Across Qatar", href: "/dashboard/b2c/content/qatar-map" },
     { label: "Live Feed", href: "/dashboard/b2c/content/live-feed" },
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
+    { label: "Pulse Orbit (B2C)", href: "/dashboard/b2c/pulse-orbit" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
     { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
     { label: "Events & Calendar", href: "/dashboard/b2c/calendar" }
@@ -62,6 +63,7 @@ const sidebarConfig = [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team Page Editor", href: "/dashboard/b2b/team-page" },
+    { label: "Pulse Orbit (B2B)", href: "/dashboard/b2b/pulse-orbit" },
     { label: "Clients CMS", href: "/dashboard/b2b/clients" },
     { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
