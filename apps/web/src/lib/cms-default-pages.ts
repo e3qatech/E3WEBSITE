@@ -655,7 +655,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
         href: (rawDest.href !== undefined && rawDest.href !== null) ? rawDest.href : (match.href || ""),
         descEn: (rawDest.descEn !== undefined && rawDest.descEn !== null) ? rawDest.descEn : (match.descEn || ""),
         descAr: (rawDest.descAr !== undefined && rawDest.descAr !== null) ? rawDest.descAr : (match.descAr || ""),
-        mediaUrl: (rawDest.mediaUrl && String(rawDest.mediaUrl).trim() !== '') ? rawDest.mediaUrl : (match.mediaUrl || ""),
+        mediaUrl: (rawDest.mediaUrl !== undefined && rawDest.mediaUrl !== null) ? rawDest.mediaUrl : (match.mediaUrl || ""),
         enabled: rawDest.enabled !== undefined ? Boolean(rawDest.enabled) : (match.enabled ?? true),
       };
     });

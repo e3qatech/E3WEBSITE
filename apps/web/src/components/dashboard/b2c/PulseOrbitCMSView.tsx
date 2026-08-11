@@ -174,32 +174,59 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   const [b2bProposalEnabled, setB2BProposalEnabled] = useState(initialB2BData?.bookTicketsEnabled ?? true)
   const [b2bProposalExternal, setB2BProposalExternal] = useState(Boolean(initialB2BData?.bookTicketsExternal))
 
-  // Fetch missing tab data if not provided
-  useEffect(() => {
-    async function loadB2B() {
-      if (!initialB2BData) {
-        try {
-          const res = await fetch('/api/cms/pages/b2b-pulse-orbit')
-          if (res.ok) {
-            const json = await res.json()
-            if (json?.data?.content) {
-              const c = json.data.content
-              if (c.titleEn) setB2BTitleEn(c.titleEn)
-              if (c.titleAr) setB2BTitleAr(c.titleAr)
-              if (c.navButtonTextEn) setB2BNavButtonTextEn(c.navButtonTextEn)
-              if (c.navButtonTextAr) setB2BNavButtonTextAr(c.navButtonTextAr)
-              if (c.logoUrl) setB2BLogoUrl(c.logoUrl)
-              if (c.destinations && c.destinations.length > 0) setB2BDestinations(c.destinations)
-              if (c.bookTicketsUrl) setB2BProposalUrl(c.bookTicketsUrl)
-              if (c.bookTicketsLabelEn) setB2BProposalLabelEn(c.bookTicketsLabelEn)
-              if (c.bookTicketsLabelAr) setB2BProposalLabelAr(c.bookTicketsLabelAr)
-            }
+  // Fetch latest CMS data from API to ensure state matches DB 100%
+  const fetchLatestCMSData = async () => {
+    try {
+      const [resB2C, resB2B] = await Promise.all([
+        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now()),
+        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now()),
+      ]);
+
+      if (resB2C.ok) {
+        const json = await resB2C.json();
+        const c = json?.data?.content;
+        if (c) {
+          if (c.titleEn !== undefined) setB2CTitleEn(c.titleEn);
+          if (c.titleAr !== undefined) setB2CTitleAr(c.titleAr);
+          if (c.navButtonTextEn !== undefined) setB2CNavButtonTextEn(c.navButtonTextEn);
+          if (c.navButtonTextAr !== undefined) setB2CNavButtonTextAr(c.navButtonTextAr);
+          if (c.logoUrl !== undefined) setB2CLogoUrl(c.logoUrl);
+          if (Array.isArray(c.destinations) && c.destinations.length > 0) {
+            setB2CDestinations(c.destinations.filter((d: any) => d.id !== 'tickets' && !d.href?.includes('/tickets')));
           }
-        } catch (_e) {}
+          if (c.bookTicketsUrl !== undefined) setB2CTicketsUrl(c.bookTicketsUrl);
+          if (c.bookTicketsLabelEn !== undefined) setB2CTicketsLabelEn(c.bookTicketsLabelEn);
+          if (c.bookTicketsLabelAr !== undefined) setB2CTicketsLabelAr(c.bookTicketsLabelAr);
+          if (c.bookTicketsEnabled !== undefined) setB2CTicketsEnabled(Boolean(c.bookTicketsEnabled));
+          if (c.bookTicketsExternal !== undefined) setB2CTicketsExternal(Boolean(c.bookTicketsExternal));
+        }
       }
-    }
-    loadB2B()
-  }, [initialB2BData])
+
+      if (resB2B.ok) {
+        const json = await resB2B.json();
+        const c = json?.data?.content;
+        if (c) {
+          if (c.titleEn !== undefined) setB2BTitleEn(c.titleEn);
+          if (c.titleAr !== undefined) setB2BTitleAr(c.titleAr);
+          if (c.navButtonTextEn !== undefined) setB2BNavButtonTextEn(c.navButtonTextEn);
+          if (c.navButtonTextAr !== undefined) setB2BNavButtonTextAr(c.navButtonTextAr);
+          if (c.logoUrl !== undefined) setB2BLogoUrl(c.logoUrl);
+          if (Array.isArray(c.destinations) && c.destinations.length > 0) {
+            setB2BDestinations(c.destinations);
+          }
+          if (c.bookTicketsUrl !== undefined) setB2BProposalUrl(c.bookTicketsUrl);
+          if (c.bookTicketsLabelEn !== undefined) setB2BProposalLabelEn(c.bookTicketsLabelEn);
+          if (c.bookTicketsLabelAr !== undefined) setB2BProposalLabelAr(c.bookTicketsLabelAr);
+          if (c.bookTicketsEnabled !== undefined) setB2BProposalEnabled(Boolean(c.bookTicketsEnabled));
+          if (c.bookTicketsExternal !== undefined) setB2BProposalExternal(Boolean(c.bookTicketsExternal));
+        }
+      }
+    } catch (_e) {}
+  };
+
+  useEffect(() => {
+    fetchLatestCMSData();
+  }, []);
 
   const currentDestinations = activeTab === 'B2C' ? b2cDestinations : b2bDestinations
   const setCurrentDestinations = (updater: (prev: OrbitDestinationItem[]) => OrbitDestinationItem[]) => {
@@ -300,6 +327,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated', { detail: { type: 'b2c' } }))
         }
+        await fetchLatestCMSData()
         toast("B2C Pulse Orbit media & destinations saved successfully.", "success")
       } else {
         const payload = {
@@ -327,6 +355,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated', { detail: { type: 'b2b' } }))
         }
+        await fetchLatestCMSData()
         toast("B2B Enterprise Orbit media & destinations saved successfully.", "success")
       }
 
