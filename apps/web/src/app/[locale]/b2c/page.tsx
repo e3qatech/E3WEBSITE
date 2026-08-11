@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import db from '@/lib/db';
-import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
+import { getCMSPageContentServer } from '@/lib/cms-server';
 import { AttractionsClient } from './AttractionsClient';
 
 export const metadata: Metadata = {
@@ -14,33 +14,7 @@ export const revalidate = 0;
 export default async function AttractionsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   
-  let rawContent: any = null;
-  try {
-    const cmsPage = await db.pages.findUnique({
-      where: { slug: "b2c-landing" }
-    });
-    rawContent = cmsPage?.content;
-  } catch (_e) {
-    rawContent = null;
-  }
-
-  if (!rawContent) {
-    try {
-      const settingRecord = await (db as any).siteSettings.findUnique({
-        where: { key: "cms_page_b2c-landing" }
-      });
-      rawContent = settingRecord?.value;
-    } catch (_e) {
-      rawContent = null;
-    }
-  }
-
-  if (!rawContent) {
-    const globalStore = (globalThis as any).__globalCMSPagesStore;
-    rawContent = globalStore?.["b2c-landing"]?.content;
-  }
-
-  const cmsData = getMergedCMSPageContent("b2c-landing", rawContent);
+  const cmsData = await getCMSPageContentServer("b2c-landing");
 
   // Fetch published attractions to seed the client store
   let attractions: any[] = [];

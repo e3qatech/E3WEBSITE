@@ -58,6 +58,22 @@ export async function GET(
         }
       }
 
+      if (!rawContent && process.env.BLOB_READ_WRITE_TOKEN) {
+        try {
+          const { list } = await import('@vercel/blob');
+          const { blobs } = await list({ prefix: `cms/pages/${targetSlug}.json` });
+          if (blobs && blobs.length > 0) {
+            const blobUrl = blobs[0].url;
+            const res = await fetch(`${blobUrl}?t=${Date.now()}`, { cache: 'no-store' });
+            if (res.ok) {
+              rawContent = await res.json();
+            }
+          }
+        } catch (_blobErr) {
+          console.warn(`[BLOB READ NOTICE /api/cms/pages/${targetSlug}]:`, _blobErr);
+        }
+      }
+
       if (!rawContent && globalCMSPagesStore[targetSlug]) {
         rawContent = globalCMSPagesStore[targetSlug].content;
         title = globalCMSPagesStore[targetSlug].title || title;
@@ -179,6 +195,20 @@ export async function PUT(
         });
       } catch (settingError) {
         console.warn(`[DB WARN /api/cms/pages/${targetSlug}] SiteSettings table upsert notice:`, settingError);
+      }
+
+      // 3. Persist to Vercel Blob Storage CDN (Guaranteed to work across all serverless lambdas)
+      if (process.env.BLOB_READ_WRITE_TOKEN) {
+        try {
+          const { put } = await import('@vercel/blob');
+          await put(`cms/pages/${targetSlug}.json`, JSON.stringify(mergedContent), {
+            access: 'public',
+            addRandomSuffix: false,
+            contentType: 'application/json',
+          });
+        } catch (blobErr) {
+          console.warn(`[BLOB WRITE WARN /api/cms/pages/${targetSlug}]:`, blobErr);
+        }
       }
 
       globalCMSPagesStore[targetSlug] = {
