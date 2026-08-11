@@ -72,8 +72,9 @@ export async function GET(
       // 4. Fallback to Quaternary Vercel Blob Storage CDN (Export backup)
       if (!rawContent && process.env.BLOB_READ_WRITE_TOKEN) {
         try {
+          const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
           const { list } = await import('@vercel/blob');
-          const { blobs } = await list({ prefix: `cms/pages/${targetSlug}.json` });
+          const { blobs } = await list({ prefix: `cms/pages/${envName}/${targetSlug}.json` });
           if (blobs && blobs.length > 0) {
             const newestBlob = blobs.slice().sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
             const blobUrl = newestBlob.url;
@@ -217,8 +218,9 @@ export async function PUT(
       // 3. Persist to Vercel Blob Storage CDN (Guaranteed to work across all serverless lambdas)
       if (process.env.BLOB_READ_WRITE_TOKEN) {
         try {
+          const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
           const { put } = await import('@vercel/blob');
-          await put(`cms/pages/${targetSlug}.json`, JSON.stringify(mergedContent), {
+          await put(`cms/pages/${envName}/${targetSlug}.json`, JSON.stringify(mergedContent), {
             access: 'public',
             addRandomSuffix: false,
             allowOverwrite: true,

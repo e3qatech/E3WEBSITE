@@ -135,8 +135,9 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
   // 4. Fallback to Quaternary Vercel Blob Storage CDN (Export backup)
   if (!rawContent && process.env.BLOB_READ_WRITE_TOKEN) {
     try {
+      const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
       const { list } = await import('@vercel/blob');
-      const { blobs } = await list({ prefix: `cms/pages/${slug}.json` });
+      const { blobs } = await list({ prefix: `cms/pages/${envName}/${slug}.json` });
       if (blobs && blobs.length > 0) {
         const newestBlob = blobs.slice().sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
         const blobUrl = newestBlob.url;

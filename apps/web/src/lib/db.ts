@@ -17,11 +17,18 @@ const prismaClientSingleton = () => {
     return createBrowserProxy()
   }
 
-  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public'
+  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING;
+
+  if (!dbUrl && process.env.VERCEL) {
+    throw new Error('Database configuration is missing');
+  }
+
+  const finalUrl = dbUrl || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public';
+
   return new PrismaClient({
     datasources: {
       db: {
-        url: dbUrl,
+        url: finalUrl,
       },
     },
     log: [

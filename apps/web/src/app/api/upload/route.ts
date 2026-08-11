@@ -179,7 +179,6 @@ export async function POST(request: Request) {
         access: blobAccess as any,
         contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
         token: uploadToken,
-        allowOverwrite: true,
       });
       // Private blobs: return pathname for download proxy, not public URL
       fileUrl = isPublicResume ? blob.pathname : blob.url;
