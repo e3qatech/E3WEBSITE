@@ -21,7 +21,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
   const fetchLatestData = async () => {
     try {
-      const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now());
+      const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         if (json?.data?.content) {
@@ -36,6 +36,21 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       setContent(initialData);
     }
     fetchLatestData();
+    window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestData);
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('e3_cms_sync');
+      bc.onmessage = (event) => {
+        if (event.data?.type === 'b2c_landing_updated') {
+          fetchLatestData();
+        }
+      };
+    } catch (_e) {}
+
+    return () => {
+      window.removeEventListener('e3_cms_b2c_landing_updated', fetchLatestData);
+      if (bc) bc.close();
+    };
   }, [initialData]);
 
   const handleAct1Change = (field: string, val: any) => {

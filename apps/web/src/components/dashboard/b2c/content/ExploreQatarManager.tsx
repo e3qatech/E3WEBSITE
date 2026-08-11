@@ -34,7 +34,7 @@ export function ExploreQatarManager() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing')
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
         if (res.ok) {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
@@ -82,7 +82,7 @@ export function ExploreQatarManager() {
           lng: 51.5310,
           locationLabelEn: 'Doha, Qatar',
           locationLabelAr: 'الدوحة، قطر',
-          mediaUrl: 'https://images.unsplash.com/photo-1512632578553-196ea887e8f6?q=80&w=800&auto=format&fit=crop'
+          mediaUrl: ''
         }
       ]
     }))
@@ -117,8 +117,27 @@ export function ExploreQatarManager() {
 
       if (!res.ok) throw new Error('Failed to save Qatar Map content')
 
+      const json = await res.json().catch(() => null)
+      if (json?.data?.content) {
+        setFullContent(json.data.content)
+        if (json.data.content.qatarMap) {
+          setQatarMap({
+            titleEn: json.data.content.qatarMap.headlineEn || json.data.content.qatarMap.titleEn || '',
+            titleAr: json.data.content.qatarMap.headlineAr || json.data.content.qatarMap.titleAr || '',
+            subtextEn: json.data.content.qatarMap.subtextEn || '',
+            subtextAr: json.data.content.qatarMap.subtextAr || '',
+            pinPoints: json.data.content.qatarMap.venues || json.data.content.qatarMap.pinPoints || []
+          })
+        }
+      }
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        try {
+          const bc = new BroadcastChannel('e3_cms_sync')
+          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
+          bc.close()
+        } catch (_bcErr) {}
       }
 
       toast('Qatar Map content manager saved successfully!', 'success')

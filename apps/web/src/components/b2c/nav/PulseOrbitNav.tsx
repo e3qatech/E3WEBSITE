@@ -163,8 +163,8 @@ export function PulseOrbitNav({
   const fetchBothOrbits = useCallback(async () => {
     try {
       const [resB2C, resB2B] = await Promise.all([
-        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now()),
-        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now()),
+        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }),
+        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }),
       ]);
 
       if (resB2C.ok) {
@@ -184,7 +184,21 @@ export function PulseOrbitNav({
     fetchBothOrbits();
     const handleUpdate = () => fetchBothOrbits();
     window.addEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
-    return () => window.removeEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('e3_cms_sync');
+      bc.onmessage = (event) => {
+        if (event.data?.type === 'pulse_orbit_updated' || event.data?.type === 'b2c_landing_updated') {
+          fetchBothOrbits();
+        }
+      };
+    } catch (_e) {}
+
+    return () => {
+      window.removeEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
+      if (bc) bc.close();
+    };
   }, [fetchBothOrbits]);
 
   const currentOrbitData = activePortalTab === 'b2c' ? (b2cOrbitData || orbitData) : (b2bOrbitData || orbitData);

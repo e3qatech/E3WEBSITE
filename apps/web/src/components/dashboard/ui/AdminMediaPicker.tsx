@@ -32,10 +32,17 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
+  const [imgError, setImgError] = useState(false)
+
+  useEffect(() => {
+    setImgError(false)
+  }, [value])
+
   const isVideoUrl = (url: string | null | undefined): boolean => {
-    if (!url) return false;
-    if (url.match(/\.(jpg|jpeg|png|webp|gif|svg|avif)(\?.*)?$/i) || url.startsWith('data:image/')) return false;
-    return !!url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i) || url.startsWith('data:video/');
+    if (!url || typeof url !== 'string') return false;
+    const clean = url.trim().toLowerCase();
+    if (clean.match(/\.(jpg|jpeg|png|webp|gif|svg|avif)(\?.*)?$/i) || clean.startsWith('data:image/')) return false;
+    return !!clean.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i) || clean.startsWith('data:video/') || clean.includes('/video/') || clean.includes('/videos/') || clean.includes('mixkit');
   };
 
   const fetchMedia = async () => {
@@ -171,8 +178,19 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
             <video src={value} className="w-full h-full object-cover" controls autoPlay loop muted playsInline />
           ) : value.match(/\.(pdf|doc)$/i) ? (
             <FileText className="w-10 h-10 text-[var(--text-tertiary)]" />
+          ) : imgError ? (
+            <div className="flex flex-col items-center justify-center p-4 text-center space-y-2 bg-slate-900 text-slate-300 w-full h-full">
+              <ImageIcon className="w-8 h-8 text-sky-400/80 animate-pulse" />
+              <span className="text-xs font-mono break-all line-clamp-2 px-2">{value}</span>
+              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">Media Link Set</span>
+            </div>
           ) : (
-            <img src={value} alt="Selected Media" className="w-full h-full object-cover" />
+            <img
+              src={value}
+              alt="Selected Media"
+              className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
+            />
           )}
           <div className="absolute inset-0 bg-zinc-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-3">
             <div className="flex flex-wrap items-center justify-center gap-2">

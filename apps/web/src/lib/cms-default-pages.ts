@@ -707,7 +707,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     act3Worlds: (raw.act3Worlds && raw.act3Worlds.length > 0)
       ? raw.act3Worlds.map((w: any, idx: number) => {
           const match = defaults.act3Worlds[idx] || {};
-          return { ...match, ...w, mediaUrl: (w.mediaUrl && String(w.mediaUrl).trim() !== '') ? w.mediaUrl : (match.mediaUrl || '') };
+          return { ...match, ...w, mediaUrl: w.mediaUrl !== undefined ? String(w.mediaUrl).trim() : (match.mediaUrl || '') };
         })
       : defaults.act3Worlds,
     intentSelector: {
@@ -716,7 +716,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       options: (raw.intentSelector?.options && raw.intentSelector.options.length > 0)
         ? raw.intentSelector.options.map((o: any, idx: number) => {
             const match = defaults.intentSelector.options[idx] || {};
-            return { ...match, ...o, mediaUrl: (o.mediaUrl && String(o.mediaUrl).trim() !== '') ? o.mediaUrl : (match.mediaUrl || '') };
+            return { ...match, ...o, mediaUrl: o.mediaUrl !== undefined ? String(o.mediaUrl).trim() : (match.mediaUrl || '') };
           })
         : defaults.intentSelector.options,
     },
@@ -731,7 +731,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       moments: (raw.guestMemories?.moments && raw.guestMemories.moments.length > 0)
         ? raw.guestMemories.moments.map((m: any, idx: number) => {
             const match = defaults.guestMemories.moments[idx] || {};
-            return { ...match, ...m, mediaUrl: (m.mediaUrl && String(m.mediaUrl).trim() !== '') ? m.mediaUrl : (match.mediaUrl || '') };
+            return { ...match, ...m, mediaUrl: m.mediaUrl !== undefined ? String(m.mediaUrl).trim() : (match.mediaUrl || '') };
           })
         : defaults.guestMemories.moments,
     },

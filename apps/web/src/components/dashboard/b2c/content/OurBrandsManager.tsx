@@ -27,7 +27,7 @@ export function OurBrandsManager() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing')
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
         if (res.ok) {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
@@ -65,7 +65,7 @@ export function OurBrandsManager() {
         titleAr: 'علامة تجارية جديدة',
         taglineEn: 'Immersive entertainment destination in Qatar.',
         taglineAr: 'وجهة ترفيهية تفاعلية في قطر.',
-        mediaUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
+        mediaUrl: '',
         href: '/b2c/attractions'
       }
     ])
@@ -91,8 +91,21 @@ export function OurBrandsManager() {
 
       if (!res.ok) throw new Error('Failed to save Our Brands content')
 
+      const json = await res.json().catch(() => null)
+      if (json?.data?.content) {
+        setFullContent(json.data.content)
+        if (json.data.content.act3Worlds) {
+          setAct3Worlds(json.data.content.act3Worlds)
+        }
+      }
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        try {
+          const bc = new BroadcastChannel('e3_cms_sync')
+          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
+          bc.close()
+        } catch (_bcErr) {}
       }
 
       toast('Our Brands content manager saved successfully!', 'success')

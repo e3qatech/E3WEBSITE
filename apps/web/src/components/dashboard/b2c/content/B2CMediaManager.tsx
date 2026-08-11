@@ -40,7 +40,7 @@ export function B2CMediaManager() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing')
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
         if (res.ok) {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
@@ -103,8 +103,30 @@ export function B2CMediaManager() {
 
       if (!res.ok) throw new Error('Failed to save B2C Media settings')
 
+      const json = await res.json().catch(() => null)
+      if (json?.data?.content) {
+        setFullContent(json.data.content)
+        if (json.data.content.heroMedia) {
+          setHeroMedia({
+            ...DEFAULT_UNIVERSAL_MEDIA,
+            ...json.data.content.heroMedia
+          })
+        }
+        if (json.data.content.maskedVideo) {
+          setMaskedVideo({
+            ...DEFAULT_B2C_LANDING_CONTENT.maskedVideo,
+            ...json.data.content.maskedVideo
+          })
+        }
+      }
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        try {
+          const bc = new BroadcastChannel('e3_cms_sync')
+          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
+          bc.close()
+        } catch (_bcErr) {}
       }
 
       toast('B2C Media Manager saved successfully!', 'success')
