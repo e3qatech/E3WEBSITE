@@ -56,6 +56,10 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
     ? (act1Hero.subtextAr || act1.subtextAr || hero.subHeaderAr || "ادخل عالمًا من الوجهات الترفيهية والتجارب الحية واللحظات التي لا تُنسى مع E3.")
     : (act1Hero.subtextEn || act1.subtextEn || hero.subHeaderEn || "Enter a world of attractions, live experiences and unforgettable moments created by E3.")
 
+  const badgeText = isAr
+    ? (heroMedia.badgeAr || hero.badgeAr || act1Hero.badgeAr || "عالم إي ثري الترفيهي بقطر")
+    : (heroMedia.badgeEn || hero.badgeEn || act1Hero.badgeEn || "E3 QATAR ENTERTAINMENT WORLDS")
+
   useEffect(() => {
     if (isVideo && videoRef.current) {
       videoRef.current.muted = true
@@ -77,36 +81,38 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
   return (
     <section className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-[#090314] via-[#0f0728] to-[#070212] px-4 sm:px-6 lg:px-8 py-24 text-white border-b border-purple-950/40">
       {/* Background Universal Media Layer */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        {isVideo ? (
-          <video
-            ref={videoRef}
-            src={mediaUrl}
-            poster={posterUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-40 scale-105 transition-all duration-1000"
-          />
-        ) : isIframe ? (
-          <iframe
-            src={mediaUrl}
-            className="w-full h-full border-none opacity-40 pointer-events-none scale-105"
-            allow="autoplay; fullscreen"
-          />
-        ) : (
-          <img
-            src={mediaUrl}
-            alt="E3 Hero Media Cover"
-            className="w-full h-full object-cover opacity-40 scale-105 transition-all duration-1000"
-          />
-        )}
+      {mediaUrl ? (
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {isVideo ? (
+            <video
+              ref={videoRef}
+              src={mediaUrl}
+              poster={posterUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover opacity-65 sm:opacity-75 scale-105 transition-all duration-1000"
+            />
+          ) : isIframe ? (
+            <iframe
+              src={mediaUrl}
+              className="w-full h-full border-none opacity-65 sm:opacity-75 pointer-events-none scale-105"
+              allow="autoplay; fullscreen"
+            />
+          ) : (
+            <img
+              src={mediaUrl}
+              alt="E3 Hero Media Cover"
+              className="w-full h-full object-cover opacity-65 sm:opacity-75 scale-105 transition-all duration-1000"
+            />
+          )}
 
-        {/* Ambient Dark Purple & Gradient Mask */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#090314]/90 via-[#090314]/50 to-[#070212]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(168,85,247,0.2),transparent_70%)] pointer-events-none" />
-      </div>
+          {/* Ambient Dark Purple & Gradient Mask */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#090314]/75 via-[#090314]/40 to-[#070212]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(168,85,247,0.25),transparent_70%)] pointer-events-none" />
+        </div>
+      ) : null}
 
       {/* Central Morphing E3 Arrow Device */}
       <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none scale-125 z-0">
@@ -123,7 +129,7 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-950/60 text-purple-300 text-xs font-bold uppercase tracking-widest backdrop-blur-md shadow-xl shadow-purple-950/80"
         >
           <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
-          <span>{isAr ? "عالم إي ثري الترفيهي بقطر" : "E3 QATAR ENTERTAINMENT WORLDS"}</span>
+          <span>{badgeText}</span>
         </motion.div>
 
         {/* Hero Headline */}
