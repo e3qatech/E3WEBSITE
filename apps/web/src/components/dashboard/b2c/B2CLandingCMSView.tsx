@@ -124,7 +124,8 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         if (res.status === 413) {
           throw new Error('Payload Too Large (HTTP 413). Please compress uploaded media files or paste direct video URLs.')
         }
-        throw new Error('Failed to save CMS configuration')
+        const errorJson = await res.json().catch(() => null);
+        throw new Error(errorJson?.error || `Failed to save CMS configuration (HTTP ${res.status})`);
       }
 
       if (typeof window !== 'undefined') {

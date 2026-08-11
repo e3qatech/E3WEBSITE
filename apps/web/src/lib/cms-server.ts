@@ -108,8 +108,9 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
     if (pageRecord?.content) {
       rawContent = pageRecord.content;
     }
-  } catch (_err) {
-    rawContent = null;
+  } catch (err) {
+    console.error(`[DB ERROR /getCMSPageContentServer] Primary database query failed for slug ${slug}:`, err);
+    throw err;
   }
 
   // 2. Fallback to Secondary db.siteSettings model in PostgreSQL

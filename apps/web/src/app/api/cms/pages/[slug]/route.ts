@@ -47,8 +47,9 @@ export async function GET(
           title = page.title;
           seo = page.seo;
         }
-      } catch (_dbErr) {
-        // Ignore Pages table query failure
+      } catch (dbErr) {
+        console.error(`[DB ERROR /api/cms/pages/${targetSlug}] Pages table query failed:`, dbErr);
+        throw dbErr;
       }
 
       // 2. Fallback to Secondary SiteSettings model in PostgreSQL
@@ -89,15 +90,7 @@ export async function GET(
     });
   } catch (error) {
     console.error(`[GET /api/cms/pages/${slug}] error:`, error);
-    const defaultContent = getMergedCMSPageContent(slug, globalCMSPagesStore[slug]?.content);
-    return NextResponse.json({
-      data: {
-        slug,
-        title: { en: slug, ar: slug },
-        content: defaultContent,
-        seo: {},
-      },
-    });
+    return NextResponse.json({ error: 'Database connection failed while fetching CMS page' }, { status: 500 });
   }
 }
 
@@ -183,7 +176,8 @@ export async function PUT(
         });
         if (targetSlug === slug || !updatedPage) updatedPage = pageResult;
       } catch (dbError) {
-        console.warn(`[DB WARN /api/cms/pages/${targetSlug}] Pages table upsert failed, attempting SiteSettings fallback:`, dbError);
+        console.warn(`[DB WARN /api/cms/pages/${targetSlug}] Pages table upsert failed:`, dbError);
+        throw dbError;
       }
 
       // 2. Persist to secondary SiteSettings model in PostgreSQL
@@ -261,7 +255,7 @@ export async function PUT(
     return NextResponse.json({ success: true, data: updatedPage });
   } catch (error) {
     console.error(`[PUT/POST /api/cms/pages/${slug}] error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 });
   }
 }
 
