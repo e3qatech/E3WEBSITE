@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Save, Sparkles, Calendar, Globe, Search } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 
 export function CalendarPageEditor() {
   const router = useRouter()
@@ -16,6 +17,8 @@ export function CalendarPageEditor() {
     titleAr: 'جدول الفعاليات والعروض الحية',
     descEn: 'Discover drone parades, live music festivals, and international shows across Qatar.',
     descAr: 'اكتشف عروض الدرون المضيئة والمهرجانات الموسيقية والعروض العالمية في الدوحة.',
+    heroMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'VIDEO', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4' } as UniversalMediaConfig,
+    footerMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1200&auto=format&fit=crop' } as UniversalMediaConfig,
     seoTitle: 'Events & Calendar | E3 Qatar',
     seoDescription: 'Live event calendar, tickets, and scheduled entertainment shows.'
   })
@@ -82,7 +85,7 @@ export function CalendarPageEditor() {
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Manage page layout, titles, banner text, and SEO metadata for the public Events Calendar (`/b2c/calendar`).
+            Manage page layout, universal hero & footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (`/b2c/calendar`).
           </p>
         </div>
 
@@ -147,6 +150,24 @@ export function CalendarPageEditor() {
           </div>
         </div>
       </div>
+
+      {/* Universal Hero Media Controls */}
+      <UniversalMediaSectionEditor
+        title="Page Hero Media Section"
+        subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
+        value={pageConfig.heroMedia}
+        onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, heroMedia }))}
+        accentColor="purple"
+      />
+
+      {/* Universal Footer Media Controls */}
+      <UniversalMediaSectionEditor
+        title="Page Footer Media Section"
+        subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
+        value={pageConfig.footerMedia}
+        onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
+        accentColor="indigo"
+      />
 
       {/* SEO Settings */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">

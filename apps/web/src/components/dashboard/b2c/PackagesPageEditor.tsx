@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Save, Sparkles, Gift, Globe, Search } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 
 export function PackagesPageEditor() {
   const router = useRouter()
@@ -16,6 +17,8 @@ export function PackagesPageEditor() {
     titleAr: 'باقات وأعياد الميلاد',
     descEn: 'Unforgettable birthday parties, VIP celebration rooms, and group experience packages.',
     descAr: 'حفلات أعياد ميلاد لا تُنسى، غرف احتفالات خاصة، وباقات ترفيهية للمجموعات.',
+    heroMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop' } as UniversalMediaConfig,
+    footerMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'VIDEO', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4' } as UniversalMediaConfig,
     seoTitle: 'Packages & Birthdays | E3 Qatar',
     seoDescription: 'Book custom birthday packages, VIP party rooms, and group events.'
   })
@@ -82,7 +85,7 @@ export function PackagesPageEditor() {
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Manage page layout, titles, pricing notices, and SEO metadata for the public Packages Page (`/b2c/packages`).
+            Manage page layout, universal hero & footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (`/b2c/packages`).
           </p>
         </div>
 
@@ -147,6 +150,24 @@ export function PackagesPageEditor() {
           </div>
         </div>
       </div>
+
+      {/* Universal Hero Media Section */}
+      <UniversalMediaSectionEditor
+        title="Page Hero Media Section"
+        subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
+        value={pageConfig.heroMedia}
+        onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, heroMedia }))}
+        accentColor="pink"
+      />
+
+      {/* Universal Footer Media Section */}
+      <UniversalMediaSectionEditor
+        title="Page Footer Media Section"
+        subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
+        value={pageConfig.footerMedia}
+        onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
+        accentColor="purple"
+      />
 
       {/* SEO Settings */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">

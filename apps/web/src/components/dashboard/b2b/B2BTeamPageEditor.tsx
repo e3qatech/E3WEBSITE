@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Save, Sparkles, Users, Globe, Search } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 
 export function B2BTeamPageEditor() {
   const router = useRouter()
@@ -17,7 +17,8 @@ export function B2BTeamPageEditor() {
     titleAr: 'قيادة وفريق عمل إي ثري',
     descEn: 'Meet the visionaries, engineers, and creative producers powering E3 events across Qatar.',
     descAr: 'تعرف على قادة، مهندسي ومخرجي الفعاليات في إي ثري قطر.',
-    coverMediaUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop',
+    heroMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop' } as UniversalMediaConfig,
+    footerMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'VIDEO', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4' } as UniversalMediaConfig,
     seoTitle: 'Our Team & Leadership | E3 Qatar B2B',
     seoDescription: 'Meet the executive leadership, spatial engineers, and event atelier directors at E3.'
   })
@@ -84,7 +85,7 @@ export function B2BTeamPageEditor() {
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Manage page titles, team introduction copy, header covers, and SEO metadata for the B2B Leadership & Team page.
+            Manage page titles, universal hero & footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (`/b2b/team`).
           </p>
         </div>
 
@@ -148,24 +149,25 @@ export function B2BTeamPageEditor() {
             />
           </div>
         </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Team Header Cover Image</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={pageConfig.coverMediaUrl}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, coverMediaUrl: e.target.value }))}
-              className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-            />
-            <AdminMediaPicker
-              value={pageConfig.coverMediaUrl}
-              onChange={(url: string) => setPageConfig(prev => ({ ...prev, coverMediaUrl: url }))}
-              label="Cover Image"
-            />
-          </div>
-        </div>
       </div>
+
+      {/* Universal Hero Media Section */}
+      <UniversalMediaSectionEditor
+        title="Page Hero Media Section"
+        subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
+        value={pageConfig.heroMedia}
+        onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, heroMedia }))}
+        accentColor="blue"
+      />
+
+      {/* Universal Footer Media Section */}
+      <UniversalMediaSectionEditor
+        title="Page Footer Media Section"
+        subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
+        value={pageConfig.footerMedia}
+        onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
+        accentColor="indigo"
+      />
 
       {/* SEO Settings */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 backdrop-blur-md">
