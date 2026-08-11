@@ -40,13 +40,15 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
   ).trim()
 
   const rawMediaType = (heroMedia.mediaType || hero.mediaType || act1Hero.mediaType || '').toUpperCase()
-  const isExplicitImage = rawMediaType === 'IMAGE'
   const isExplicitVideo = rawMediaType === 'VIDEO'
   const isExplicitIframe = rawMediaType === 'IFRAME' || rawMediaType === 'MODEL_3D'
 
-  const isVideo = isExplicitVideo || (!isExplicitImage && !isExplicitIframe && (/\.(mp4|webm|mov|m4v|mkv)$/i.test(mediaUrl) || mediaUrl.includes('/video/') || mediaUrl.includes('mixkit.co')))
-  const isIframe = isExplicitIframe || (!isExplicitImage && !isExplicitVideo && (mediaUrl.includes('iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo') || mediaUrl.includes('spline')))
-  const _isImage = isExplicitImage || (!isVideo && !isIframe)
+  const isVideoPattern = /\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('/video/') || mediaUrl.includes('mixkit.co')
+  const isIframePattern = mediaUrl.includes('iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo') || mediaUrl.includes('spline')
+
+  const isVideo = isVideoPattern || (isExplicitVideo && !isIframePattern)
+  const isIframe = (isExplicitIframe || isIframePattern) && !isVideo
+  const _isImage = !isVideo && !isIframe
 
   const headline = isAr
     ? (act1Hero.titleAr || act1.headlineAr || hero.headerAr || "أيام تمرّ… وأيام تتحول إلى حكايات.")

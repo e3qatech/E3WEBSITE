@@ -58,14 +58,14 @@ export function MaskedVideoHero({
   
   // Determine media type dynamically if not explicitly specified
   let mediaType = (heroConfig?.mediaType || 'VIDEO').toUpperCase();
-  if (mediaUrl.includes('spline.design') || mediaUrl.includes('sketchfab') || mediaUrl.includes('/3d/')) {
+  if (/\.(mp4|webm|mov|m4v|mkv)($|\?)/i.test(mediaUrl) || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.includes('/uploads/') || mediaUrl.includes('mixkit') || mediaUrl.startsWith('data:video/')) {
+    mediaType = 'VIDEO';
+  } else if (mediaUrl.includes('spline.design') || mediaUrl.includes('sketchfab') || mediaUrl.includes('/3d/')) {
     mediaType = 'MODEL_3D';
   } else if (mediaUrl.includes('<iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo')) {
     mediaType = 'IFRAME';
   } else if (/\.(jpg|jpeg|png|webp|gif|svg|avif)($|\?)/i.test(mediaUrl) || mediaUrl.startsWith('data:image/')) {
     mediaType = 'IMAGE';
-  } else if (/\.(mp4|webm|mov|m4v|mkv)($|\?)/i.test(mediaUrl) || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.includes('/uploads/') || mediaUrl.includes('mixkit') || mediaUrl.startsWith('data:video/')) {
-    mediaType = 'VIDEO';
   }
 
   const headerTitle = isAr
