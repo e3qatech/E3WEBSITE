@@ -61,6 +61,8 @@ export function AttractionsClient({
       } catch (_e) {}
     };
 
+    fetchLatestCMS();
+
     window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
 
     let bc: BroadcastChannel | null = null;
