@@ -40,7 +40,8 @@ export async function GET(
           const { list } = await import('@vercel/blob');
           const { blobs } = await list({ prefix: `cms/pages/${targetSlug}.json` });
           if (blobs && blobs.length > 0) {
-            const blobUrl = blobs[0].url;
+            const newestBlob = blobs.slice().sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
+            const blobUrl = newestBlob.url;
             const res = await fetch(`${blobUrl}?t=${Date.now()}`, { cache: 'no-store' });
             if (res.ok) {
               rawContent = await res.json();
