@@ -13,8 +13,10 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
   const isAr = locale === 'ar'
   const [activeTab, setActiveTab] = useState<'NOW' | 'LATER' | 'SOON'>('NOW')
 
+  const cmsLivingDay = content?.livingDay || {}
+
   // Real-time scheduled data
-  const scheduleNow = [
+  const defaultScheduleNow = [
     {
       id: "s1",
       titleEn: "Kids City Traffic License Exam",
@@ -43,7 +45,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
     }
   ]
 
-  const scheduleLater = [
+  const defaultScheduleLater = [
     {
       id: "s3",
       titleEn: "Urban Arena Paintless Laser Tournament",
@@ -68,25 +70,28 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
       statusEn: "Tonight 8 PM",
       statusAr: "الليلة الساعة ٠٨:٠٠ م",
       badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-      price: 150
+      price: 0
     }
   ]
 
-  const scheduleSoon = [
+  const defaultScheduleSoon = [
     {
       id: "s5",
-      titleEn: "E3 International Winter Festival",
-      titleAr: "مهرجان إي ثري الشتوي الدولي",
-      venueEn: "Al Rayyan Grounds",
-      venueAr: "ميدان الريان",
-      timeEn: "Dec 15 - Jan 10",
-      timeAr: "١٥ ديسمبر - ١٠ يناير",
-      statusEn: "Coming Soon",
-      statusAr: "قريباً",
+      titleEn: "Pristine Snow Park Family Pass",
+      titleAr: "باقة العائلة لإنفلاتا ثلج",
+      venueEn: "Katara Cultural Village",
+      venueAr: "كتارا القرية الثقافية",
+      timeEn: "Tomorrow 10:00 AM",
+      timeAr: "غداً الساعة ١٠:٠٠ ص",
+      statusEn: "Tickets Selling Fast",
+      statusAr: "التذاكر تنفذ سريعا",
       badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/30",
-      price: 120
     }
   ]
+
+  const scheduleNow = (cmsLivingDay.scheduleNow && cmsLivingDay.scheduleNow.length > 0) ? cmsLivingDay.scheduleNow : defaultScheduleNow
+  const scheduleLater = (cmsLivingDay.scheduleLater && cmsLivingDay.scheduleLater.length > 0) ? cmsLivingDay.scheduleLater : defaultScheduleLater
+  const scheduleSoon = (cmsLivingDay.scheduleSoon && cmsLivingDay.scheduleSoon.length > 0) ? cmsLivingDay.scheduleSoon : defaultScheduleSoon
 
   const getList = () => {
     if (activeTab === 'NOW') return scheduleNow
@@ -143,7 +148,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
         {/* Timeline Schedule Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {getList().map((item) => (
+          {getList().map((item: any) => (
             <div
               key={item.id}
               className="p-6 rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-md flex flex-col justify-between space-y-6 hover:border-slate-700 transition-all group"
