@@ -65,6 +65,17 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     const file = e.target.files?.[0]
     if (!file) return
 
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
+    const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|webm|mov|m4v|mkv)$/i)
+    const MAX_MB = isVideo ? 50 : 15
+
+    if (file.size > MAX_MB * 1024 * 1024) {
+      toast(`Upload Failed: File "${file.name}" (${fileSizeMB}MB) exceeds maximum allowed size (${MAX_MB}MB). Please compress file or use a direct URL.`, "error")
+      if (fileInputRef.current) fileInputRef.current.value = ""
+      return
+    }
+
+    toast(`Uploading "${file.name}" (${fileSizeMB}MB)...`, "info")
     setUploading(true)
     onUploadStatusChange?.(true)
     try {
@@ -72,7 +83,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
       const { url, fileName } = await uploadFile(file, "cms_media")
       
       let mediaType = "IMAGE"
-      if (file.type.startsWith("video/") || file.name.match(/\.(mp4|webm|mov|m4v|mkv)$/i)) mediaType = "VIDEO"
+      if (isVideo) mediaType = "VIDEO"
       else if (file.type.includes("pdf") || file.name.match(/\.(pdf|doc|docx)$/i)) mediaType = "DOCUMENT"
       else if (file.name.match(/\.(glb|gltf)$/i)) mediaType = "MODEL_3D"
 
@@ -97,13 +108,13 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           setMediaList(prev => [data, ...prev]);
         }
         onChange(finalUrl);
-        toast("Media uploaded & published successfully", "success");
+        toast(`Media "${fileName}" uploaded & published successfully!`, "success");
         setIsOpen(false);
       }
     } catch (err: any) {
       console.error("Upload error:", err)
       const msg = err?.message || "Failed to upload file."
-      toast(msg, "error")
+      toast(`Upload Error: ${msg}`, "error")
     } finally {
       setUploading(false)
       onUploadStatusChange?.(false)

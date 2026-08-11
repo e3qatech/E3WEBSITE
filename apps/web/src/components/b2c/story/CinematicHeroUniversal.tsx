@@ -28,7 +28,7 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
     act1Hero.desktopVideoUrl ||
     act1Hero.mediaUrl ||
     act1.mediaUrl ||
-    "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4"
+    ""
   ).trim()
 
   const posterUrl = (
@@ -36,7 +36,7 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
     hero.posterUrl ||
     act1Hero.posterUrl ||
     act1.posterUrl ||
-    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop"
+    ""
   ).trim()
 
   const rawMediaType = (heroMedia.mediaType || hero.mediaType || act1Hero.mediaType || '').toUpperCase()

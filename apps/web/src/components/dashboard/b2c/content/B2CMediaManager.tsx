@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Save, Sparkles, Video, Play, Sliders } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 
 export function B2CMediaManager() {
@@ -14,10 +14,11 @@ export function B2CMediaManager() {
   const [saving, setSaving] = useState(false)
   const [fullContent, setFullContent] = useState<any>(null)
   
-  const [heroMedia, setHeroMedia] = useState({
-    mediaType: 'VIDEO',
+  const [heroMedia, setHeroMedia] = useState<UniversalMediaConfig>({
+    ...DEFAULT_UNIVERSAL_MEDIA,
+    mediaType: 'IMAGE',
     mediaUrl: '',
-    posterUrl: ''
+    fallbackImage: ''
   })
 
   const [maskedVideo, setMaskedVideo] = useState({
@@ -44,11 +45,10 @@ export function B2CMediaManager() {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
           setFullContent(data)
-            setHeroMedia({
-              mediaType: data.hero?.mediaType || data.heroMedia?.mediaType || 'IMAGE',
-              mediaUrl: data.hero?.mediaUrl || data.heroMedia?.mediaUrl || '',
-              posterUrl: data.hero?.posterUrl || data.heroMedia?.posterUrl || ''
-            })
+          setHeroMedia({
+            ...DEFAULT_UNIVERSAL_MEDIA,
+            ...(data.heroMedia || data.hero || {})
+          })
           if (data.maskedVideo) {
             setMaskedVideo({
               ...DEFAULT_B2C_LANDING_CONTENT.maskedVideo,
@@ -69,11 +69,28 @@ export function B2CMediaManager() {
   const handleSave = async () => {
     setSaving(true)
     try {
+      const mediaUrlResolved = (heroMedia.mediaUrl || '').trim()
+      const mediaTypeResolved = heroMedia.mediaType || (mediaUrlResolved && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(mediaUrlResolved) ? 'IMAGE' : 'IMAGE')
+
       const updatedFullContent = {
         ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),
+        heroMedia: {
+          ...heroMedia,
+          mediaUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
+        },
         hero: {
           ...(fullContent?.hero || DEFAULT_B2C_LANDING_CONTENT.hero),
-          ...heroMedia
+          ...heroMedia,
+          mediaUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
+        },
+        act1Hero: {
+          ...(fullContent?.act1Hero || {}),
+          ...heroMedia,
+          mediaUrl: mediaUrlResolved,
+          desktopVideoUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
         },
         maskedVideo
       }
@@ -139,63 +156,13 @@ export function B2CMediaManager() {
       </div>
 
       {/* Hero Media Section */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-blue-500 flex items-center gap-2">
-          <Play className="w-5 h-5" />
-          <span>Hero Background Video & Poster</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Hero Media Type</label>
-            <select
-              value={heroMedia.mediaType}
-              onChange={(e) => setHeroMedia(prev => ({ ...prev, mediaType: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
-            >
-              <option value="VIDEO">Video Loop (.mp4)</option>
-              <option value="IMAGE">Static High-Res Image</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Poster Preview Image URL</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={heroMedia.posterUrl || ''}
-                onChange={(e) => setHeroMedia(prev => ({ ...prev, posterUrl: e.target.value }))}
-                className="flex-1 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500 placeholder:text-[var(--text-tertiary)]"
-                placeholder="https://..."
-              />
-              <AdminMediaPicker
-                value={heroMedia.posterUrl || ''}
-                onChange={(url: string) => setHeroMedia(prev => ({ ...prev, posterUrl: url }))}
-                label="Poster Image"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Direct Video Asset URL (.mp4 / WebM)</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={heroMedia.mediaUrl || ''}
-              onChange={(e) => setHeroMedia(prev => ({ ...prev, mediaUrl: e.target.value }))}
-              className="flex-1 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-blue-500 placeholder:text-[var(--text-tertiary)]"
-              placeholder="https://assets.mixkit.co/videos/..."
-            />
-            <AdminMediaPicker
-              value={heroMedia.mediaUrl || ''}
-              onChange={(url: string) => setHeroMedia(prev => ({ ...prev, mediaUrl: url }))}
-              label="Select / Upload"
-              accept="video/*"
-            />
-          </div>
-        </div>
-      </div>
+      <UniversalMediaSectionEditor
+        title="Landing Hero Media & Cover Settings"
+        subtitle="Universal hero media configuration supporting Image, Video, 3D Canvas, IFrame, and Fallback Images. Kept in 100% lockstep with B2C Landing Layout Editor."
+        value={heroMedia}
+        onChange={(updated: UniversalMediaConfig) => setHeroMedia(updated)}
+        accentColor="blue"
+      />
 
       {/* Masked Organic Window Controls */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
