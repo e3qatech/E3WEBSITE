@@ -29,22 +29,25 @@ import { E3Logo } from "@/components/shared/E3Logo";
 // Updated configuration mapping 17 domain modules into refined logical buckets
 const sidebarConfig = [
   { label: "Command Center", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
-  { label: "Auth Control & RBAC", icon: ShieldCheck, href: "/dashboard/crm/users", badge: "RBAC", roles: ["SUPER_ADMIN"], subItems: [
-    { label: "Users & Permissions", href: "/dashboard/crm/users" },
-    { label: "Client Memberships", href: "/dashboard/crm/clients" },
-    { label: "Security & Sessions", href: "/dashboard/settings/users" }
+  { label: "B2C Pages", icon: FileText, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Landing Page Editor", href: "/dashboard/b2c/landing" },
+    { label: "Pulse Orbit Editor", href: "/dashboard/b2c/pulse-orbit" },
+    { label: "Discover Page Editor", href: "/dashboard/b2c/discover" },
+    { label: "Contact Page Editor", href: "/dashboard/b2c/contact" },
+    { label: "Attractions Page Editor", href: "/dashboard/b2c/attractions-page" },
+    { label: "Packages Page Editor", href: "/dashboard/b2c/packages-page" },
+    { label: "Events & Calendar Page Editor", href: "/dashboard/b2c/calendar-page" }
   ] },
-  { label: "Gateway Customization", icon: Sliders, href: "/dashboard/settings/gateway", badge: "CMS", roles: ["SUPER_ADMIN"], subItems: [
-    { label: "Gateway Editor (EN/AR)", href: "/dashboard/settings/gateway" },
-    { label: "Global Settings", href: "/dashboard/settings/general" },
-    { label: "SEO & Meta Settings", href: "/dashboard/settings/seo" }
-  ] },
-  { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Service Manager", href: "/dashboard/b2b/services" },
-    { label: "Case Studies", href: "/dashboard/b2b/cases" },
-    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
-    { label: "Clients CMS", href: "/dashboard/b2b/clients" },
-    { label: "Attractions", href: "/dashboard/b2b/attractions" }
+  { label: "B2C Content", icon: Star, href: "/dashboard/b2c/content/ideas", badge: "6 New", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Ideas to Life", href: "/dashboard/b2c/content/ideas" },
+    { label: "Story Discovery", href: "/dashboard/b2c/content/story-discovery" },
+    { label: "Our Brands", href: "/dashboard/b2c/content/brands" },
+    { label: "Explore E3 Across Qatar", href: "/dashboard/b2c/content/qatar-map" },
+    { label: "Live Feed", href: "/dashboard/b2c/content/live-feed" },
+    { label: "Media Manager", href: "/dashboard/b2c/content/media" },
+    { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
+    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
+    { label: "Events & Calendar", href: "/dashboard/b2c/calendar" }
   ] },
   { label: "B2B Pages", icon: FileText, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Homepage Editor", href: "/dashboard/b2b/home" },
@@ -56,14 +59,12 @@ const sidebarConfig = [
     { label: "FAQs Editor", href: "/dashboard/b2b/faqs" },
     { label: "Feedback Form", href: "/dashboard/b2b/feedback" }
   ] },
-  { label: "B2C Experience CMS", icon: Star, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Landing Editor", href: "/dashboard/b2c/landing" },
-    { label: "Pulse Orbit CMS", href: "/dashboard/b2c/pulse-orbit" },
-    { label: "Attractions Manager", href: "/dashboard/b2c/attractions" },
-    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
-    { label: "Events & Calendar", href: "/dashboard/b2c/calendar" },
-    { label: "Discover Editor", href: "/dashboard/b2c/discover" },
-    { label: "Contact Editor", href: "/dashboard/b2c/contact" }
+  { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Service Manager", href: "/dashboard/b2b/services" },
+    { label: "Case Studies", href: "/dashboard/b2b/cases" },
+    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
+    { label: "Clients CMS", href: "/dashboard/b2b/clients" },
+    { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
   { label: "Global Media", icon: Database, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN"], subItems: [
     { label: "Media Library", href: "/dashboard/cms/media" },
@@ -90,8 +91,8 @@ const sidebarConfig = [
     { label: "Broadcasts", href: "/dashboard/operations/broadcast" }
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
+    { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "Global General", href: "/dashboard/settings/general" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },
     { label: "Workflow Approvals", href: "/dashboard/settings/approvals" },

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Plus, Trash2, Layers, Sparkles, MapPin, Heart, Ticket, Video, Image as ImageIcon, Users, Share2 } from 'lucide-react'
+import Link from 'next/link'
+import { Save, Plus, Trash2, Layers, Sparkles, MapPin, Heart, Ticket, Video, Image as ImageIcon, Users, Share2, Lightbulb, Compass, Building2, Radio } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
@@ -137,12 +138,17 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
       {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-purple-400" />
-            <span>B2C Story Landing CMS Editor</span>
-          </h1>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              B2C PAGE EDITOR
+            </span>
+            <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-purple-400" />
+              <span>Landing Page Layout & Section Editor</span>
+            </h1>
+          </div>
           <p className="text-xs text-slate-400 mt-1">
-            Manage Our Brands, Core Team, Social Feeds, Media Covers, and Digital Tickets in real-time.
+            Manage page layout, hero titles, main headlines, and section visibility. Use Content Managers for detailed item rosters.
           </p>
         </div>
 
@@ -152,8 +158,69 @@ export function B2CLandingCMSView({ initialData }: { initialData: any }) {
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition-all shadow-md cursor-pointer disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : 'Save Story Configuration'}</span>
+          <span>{saving ? 'Saving...' : 'Save Page Layout'}</span>
         </button>
+      </div>
+
+      {/* Quick B2C Content Managers Navigation */}
+      <div className="bg-slate-900/80 border border-purple-500/30 rounded-2xl p-5 space-y-3 shadow-lg">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-extrabold text-purple-300 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-purple-400" />
+            <span>Dedicated Content Managers for Landing Page Sections</span>
+          </h2>
+          <span className="text-[11px] font-medium text-slate-400">Click any manager to edit item rosters directly</span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-1">
+          <Link
+            href="/dashboard/b2c/content/ideas"
+            className="flex flex-col items-center justify-center p-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 transition-all text-center group"
+          >
+            <Lightbulb className="w-5 h-5 mb-1 text-amber-400 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold truncate w-full">Ideas to Life</span>
+          </Link>
+
+          <Link
+            href="/dashboard/b2c/content/story-discovery"
+            className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 transition-all text-center group"
+          >
+            <Compass className="w-5 h-5 mb-1 text-purple-400 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold truncate w-full">Story Discovery</span>
+          </Link>
+
+          <Link
+            href="/dashboard/b2c/content/brands"
+            className="flex flex-col items-center justify-center p-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 transition-all text-center group"
+          >
+            <Building2 className="w-5 h-5 mb-1 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold truncate w-full">Our Brands</span>
+          </Link>
+
+          <Link
+            href="/dashboard/b2c/content/qatar-map"
+            className="flex flex-col items-center justify-center p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 transition-all text-center group"
+          >
+            <MapPin className="w-5 h-5 mb-1 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold truncate w-full">Explore Qatar</span>
+          </Link>
+
+          <Link
+            href="/dashboard/b2c/content/live-feed"
+            className="flex flex-col items-center justify-center p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 transition-all text-center group"
+          >
+            <Radio className="w-5 h-5 mb-1 text-rose-400 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold truncate w-full">Live Feed</span>
+          </Link>
+
+          <Link
+            href="/dashboard/b2c/content/media"
+            className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 transition-all text-center group"
+          >
+            <Video className="w-5 h-5 mb-1 text-blue-400 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold truncate w-full">Media Manager</span>
+          </Link>
+        </div>
       </div>
 
       {/* Universal Hero Media Section */}

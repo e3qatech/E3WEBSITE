@@ -23,18 +23,42 @@ import { useMounted } from "@/hooks/useMounted";
 
 const sidebarConfig = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
-  { label: "B2B Management", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
-    { label: "Services CMS", href: "/dashboard/b2b/services" },
+  { label: "B2C Pages", icon: Users, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Landing Page Editor", href: "/dashboard/b2c/landing" },
+    { label: "Pulse Orbit Editor", href: "/dashboard/b2c/pulse-orbit" },
+    { label: "Discover Page Editor", href: "/dashboard/b2c/discover" },
+    { label: "Contact Page Editor", href: "/dashboard/b2c/contact" },
+    { label: "Attractions Page Editor", href: "/dashboard/b2c/attractions-page" },
+    { label: "Packages Page Editor", href: "/dashboard/b2c/packages-page" },
+    { label: "Events & Calendar Page Editor", href: "/dashboard/b2c/calendar-page" }
+  ] },
+  { label: "B2C Content", icon: Users, href: "/dashboard/b2c/content/ideas", badge: 6, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Ideas to Life", href: "/dashboard/b2c/content/ideas" },
+    { label: "Story Discovery", href: "/dashboard/b2c/content/story-discovery" },
+    { label: "Our Brands", href: "/dashboard/b2c/content/brands" },
+    { label: "Explore E3 Across Qatar", href: "/dashboard/b2c/content/qatar-map" },
+    { label: "Live Feed", href: "/dashboard/b2c/content/live-feed" },
+    { label: "Media Manager", href: "/dashboard/b2c/content/media" },
+    { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
+    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
+    { label: "Events & Calendar", href: "/dashboard/b2c/calendar" }
+  ] },
+  { label: "B2B Pages", icon: Briefcase, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+    { label: "Homepage Editor", href: "/dashboard/b2b/home" },
+    { label: "About Us Editor", href: "/dashboard/b2b/about" },
+    { label: "Contact Editor", href: "/dashboard/b2b/contact" },
+    { label: "Services Page", href: "/dashboard/b2b/services-page" },
+    { label: "Cases Page", href: "/dashboard/b2b/cases-page" },
+    { label: "Client Page Editor", href: "/dashboard/b2b/clients-page" },
+    { label: "FAQs Editor", href: "/dashboard/b2b/faqs" },
+    { label: "Feedback Form", href: "/dashboard/b2b/feedback" }
+  ] },
+  { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
+    { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team & Roster", href: "/dashboard/b2b/team" },
+    { label: "Clients CMS", href: "/dashboard/b2b/clients" },
     { label: "Partners", href: "/dashboard/b2b/partners" }
-  ] },
-  { label: "B2C Management", icon: Users, href: "/dashboard/b2c/attractions", badge: 4, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "Landing Page", href: "/dashboard/b2c/landing" },
-    { label: "Attractions", href: "/dashboard/b2c/attractions" },
-    { label: "Events Calendar", href: "/dashboard/b2c/calendar" },
-    { label: "Discover Page", href: "/dashboard/b2c/discover" },
-    { label: "Contact Page", href: "/dashboard/b2c/contact" }
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Events", href: "/dashboard/operations/events" },
@@ -50,8 +74,9 @@ const sidebarConfig = [
     { label: "Subscribers", href: "/dashboard/crm/subscribers" }
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
-    { label: "General", href: "/dashboard/settings/general" },
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
+    { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
+    { label: "General", href: "/dashboard/settings/general" },
     { label: "SEO", href: "/dashboard/settings/seo" },
     { label: "UI", href: "/dashboard/settings/ui" },
     { label: "Users", href: "/dashboard/settings/users" }
