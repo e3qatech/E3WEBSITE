@@ -4,6 +4,12 @@
  */
 
 export const DEFAULT_B2C_LANDING_CONTENT = {
+  heroMedia: {
+    mediaType: "IMAGE",
+    mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+    fallbackImage: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+    posterUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+  },
   act1: {
     headlineEn: "Some days pass. Others become stories.",
     headlineAr: "أيام تمرّ… وأيام تتحول إلى حكايات.",
@@ -746,10 +752,12 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...(raw.act7Ticket || {}),
     },
     heroMedia: {
+      ...defaults.heroMedia,
       ...(raw.heroMedia || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.hero.mediaUrl,
-      mediaType: raw.heroMedia?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : raw.hero?.mediaType || defaults.hero.mediaType),
-      posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim() || defaults.hero.posterUrl,
+      mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.heroMedia.mediaUrl,
+      mediaType: raw.heroMedia?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : raw.hero?.mediaType || defaults.heroMedia.mediaType),
+      fallbackImage: (raw.heroMedia?.fallbackImage || raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim() || defaults.heroMedia.fallbackImage,
+      posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim() || defaults.heroMedia.posterUrl,
     },
     hero: {
       ...defaults.hero,
@@ -762,10 +770,12 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim() || defaults.hero.posterUrl,
     },
     act1Hero: {
+      ...defaults.hero,
       ...(raw.act1Hero || {}),
       ...(raw.heroMedia || {}),
       ...(raw.hero || {}),
       mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.hero.mediaUrl,
+      desktopVideoUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.hero.mediaUrl,
       mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : defaults.hero.mediaType),
     },
     maskedVideo: {

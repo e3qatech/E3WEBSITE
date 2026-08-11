@@ -19,11 +19,24 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
   const [saving, setSaving] = useState(false)
   const [content, setContent] = useState<any>(initialData || DEFAULT_B2C_LANDING_CONTENT)
 
+  const fetchLatestData = async () => {
+    try {
+      const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now());
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.data?.content) {
+          setContent(json.data.content);
+        }
+      }
+    } catch (_e) {}
+  };
+
   useEffect(() => {
     if (initialData) {
-      setContent(initialData)
+      setContent(initialData);
     }
-  }, [initialData])
+    fetchLatestData();
+  }, [initialData]);
 
   const handleAct1Change = (field: string, val: any) => {
     setContent((prev: any) => ({
@@ -46,12 +59,14 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       const act1Hero = content.act1Hero || {}
       
       const mediaUrlResolved = (heroMedia.mediaUrl || act1Hero.mediaUrl || act1Hero.desktopVideoUrl || '').trim()
+      const mediaTypeResolved = heroMedia.mediaType || (mediaUrlResolved && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(mediaUrlResolved) ? 'IMAGE' : 'IMAGE')
       
       const updatedContent = {
         ...content,
         heroMedia: {
           ...heroMedia,
           mediaUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
         },
         hero: {
           ...(content.hero || {}),
@@ -62,7 +77,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
           subHeaderEn: act1Hero.subtextEn || content.hero?.subHeaderEn,
           subHeaderAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
           mediaUrl: mediaUrlResolved,
-          mediaType: heroMedia.mediaType || 'VIDEO',
+          mediaType: mediaTypeResolved,
           posterUrl: (heroMedia.posterUrl || '').trim(),
         },
         act1Hero: {
@@ -74,6 +89,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
           subtextAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
           mediaUrl: mediaUrlResolved,
           desktopVideoUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
         },
       }
 
@@ -99,6 +115,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
       }
 
+      await fetchLatestData()
       toast('B2C Landing Story saved successfully!', 'success')
       router.refresh()
     } catch (err: any) {
