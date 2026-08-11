@@ -8,30 +8,52 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const media = await db.media.findUnique({
-      where: { id },
-    });
+    let base64Data: string | null = null;
+    let mimeType: string = "image/jpeg";
 
-    if (!media) {
-      return NextResponse.json({ error: "Media not found" }, { status: 404 });
+    // 1. Primary lookup: db.media table in PostgreSQL
+    try {
+      const media = await db.media.findUnique({ where: { id } });
+      if (media) {
+        if (media.url && media.url.startsWith("http")) {
+          return NextResponse.redirect(media.url);
+        }
+        const metadata = media.metadata as any;
+        base64Data = metadata?.data || null;
+        mimeType = media.mimeType || "image/jpeg";
+      }
+    } catch (_dbErr) {}
+
+    // 2. Secondary lookup: db.siteSettings table in PostgreSQL
+    if (!base64Data) {
+      try {
+        const setting = await (db as any).siteSettings.findUnique({
+          where: { key: `cms_media_${id}` },
+        });
+        if (setting && setting.value) {
+          base64Data = setting.value.base64Data || null;
+          mimeType = setting.value.mime || "image/jpeg";
+        }
+      } catch (_settingErr) {}
     }
 
-    // If media.url is an external HTTP URL (e.g. Vercel Blob), redirect to it
-    if (media.url && media.url.startsWith("http")) {
-      return NextResponse.redirect(media.url);
+    // 3. Tertiary lookup: in-memory store
+    if (!base64Data) {
+      const globalMediaStore = (globalThis as any).__globalMediaStore;
+      const cached = globalMediaStore?.[id];
+      if (cached) {
+        base64Data = cached.base64Data;
+        mimeType = cached.mime || "image/jpeg";
+      }
     }
-
-    const metadata = media.metadata as any;
-    const base64Data = metadata?.data;
 
     if (!base64Data) {
-      return NextResponse.json({ error: "Media content unavailable" }, { status: 404 });
+      return NextResponse.json({ error: "Media not found" }, { status: 404 });
     }
 
     // Convert Base64 back to Buffer
     const buffer = Buffer.from(base64Data, "base64");
     const totalSize = buffer.length;
-    const mimeType = media.mimeType || "video/mp4";
 
     // Support HTTP Range requests for HTML5 video seeking & streaming
     const rangeHeader = req.headers.get("range");

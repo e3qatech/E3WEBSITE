@@ -95,8 +95,32 @@ async function saveFileOrDataUrl(file: File, fileName: string, ext?: string, isP
 
       return streamableUrl;
     } catch (dbErr) {
-      console.warn("[UPLOAD NOTICE] db.media.create skipped (Media table not found in production DB), using Data URL fallback:", dbErr);
-      return `data:${mime || 'application/octet-stream'};base64,${base64Data}`;
+      console.warn("[UPLOAD NOTICE] db.media.create skipped, using SiteSettings database persistence:", dbErr);
+      const mediaId = `med_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const streamableUrl = `/api/media/${mediaId}`;
+
+      try {
+        await (db as any).siteSettings.upsert({
+          where: { key: `cms_media_${mediaId}` },
+          update: {
+            value: { base64Data, mime, fileName, size: file.size, mediaType } as any,
+            group: 'MEDIA',
+          },
+          create: {
+            key: `cms_media_${mediaId}`,
+            value: { base64Data, mime, fileName, size: file.size, mediaType } as any,
+            group: 'MEDIA',
+          },
+        });
+      } catch (_settingErr) {
+        console.warn(`[UPLOAD WARN] SiteSettings persistence error:`, _settingErr);
+      }
+
+      const globalMediaStore = (globalThis as any).__globalMediaStore || {};
+      (globalThis as any).__globalMediaStore = globalMediaStore;
+      globalMediaStore[mediaId] = { base64Data, mime, fileName };
+
+      return streamableUrl;
     }
   }
 }

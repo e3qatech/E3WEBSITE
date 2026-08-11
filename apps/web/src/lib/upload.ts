@@ -5,7 +5,7 @@
  * Includes client-side image compression for images > 1MB to prevent serverless request limit (4.5MB) errors.
  */
 
-async function compressImageClientSide(file: File, maxSizeBytes: number = 1.2 * 1024 * 1024): Promise<File> {
+async function compressImageClientSide(file: File, maxSizeBytes: number = 600 * 1024): Promise<File> {
   if (!file.type.startsWith('image/') || file.type.includes('svg') || file.size <= maxSizeBytes) {
     return file
   }
