@@ -28,7 +28,7 @@ const DEFAULT_B2C_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2c/attractions",
     descEn: "Pristine Snow Park, Urban Arena, Kids City, and kinetic entertainment.",
     descAr: "حديقة الثلج النقي، والساحة التفاعلية، وعالم الأطفال.",
-    mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -38,7 +38,7 @@ const DEFAULT_B2C_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2c/calendar",
     descEn: "Live concerts, seasonal festivals, passes, and exclusive entertainment shows.",
     descAr: "الحفلات الحية والمهرجانات الموسمية والتذاكر والعروض الترفيهية.",
-    mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -48,7 +48,7 @@ const DEFAULT_B2C_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2c/discover",
     descEn: "Curated visitor guides, dining, and spatial technology showcases.",
     descAr: "دليل الزوار، المطاعم، والتكنولوجيا التفاعلية.",
-    mediaUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -58,7 +58,7 @@ const DEFAULT_B2C_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2c/packages",
     descEn: "VIP Birthday parties, corporate team outings, and private venue buyouts.",
     descAr: "حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.",
-    mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -68,7 +68,7 @@ const DEFAULT_B2C_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2c/contact",
     descEn: "24/7 guest support, venue location, and concierge services.",
     descAr: "خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.",
-    mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
 ]
@@ -81,7 +81,7 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2b/services",
     descEn: "Turnkey event engineering, spatial design, kinetic AV, and production.",
     descAr: "هندسة الفعاليات، التصميم الفضائي، الحلول الصوتية والضوئية والإنتاج.",
-    mediaUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -91,7 +91,7 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2b/cases",
     descEn: "Flagship national ceremonies, summits, and mega entertainment builds in Qatar.",
     descAr: "الاحتفالات الوطنية، القمم، والمشاريع الترفيهية الكبرى في قطر.",
-    mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -101,7 +101,7 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2b/team",
     descEn: "Meet the executive visionaries, technical directors, and spatial architects.",
     descAr: "تعرف على القادة والمهندسين ومخرجي الفعاليات في إي ثري.",
-    mediaUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -111,7 +111,7 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2b/careers",
     descEn: "Join E3's world-class event production team or apply for open roles.",
     descAr: "انضم إلى فريق إنتاج الفعاليات العالمي في إي ثري أو قدم على الوظائف.",
-    mediaUrl: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
   {
@@ -121,7 +121,7 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     href: "/b2b/contact",
     descEn: "24/7 corporate inquiry desk, venue booking, and RFP submission.",
     descAr: "مكتب استفسارات الشركات، حجوزات المقرات، وتقديم المناقصات.",
-    mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
     enabled: true,
   },
 ]
@@ -178,8 +178,8 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   const fetchLatestCMSData = async () => {
     try {
       const [resB2C, resB2B] = await Promise.all([
-        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now()),
-        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now()),
+        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }),
+        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }),
       ]);
 
       if (resB2C.ok) {
@@ -226,6 +226,21 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
 
   useEffect(() => {
     fetchLatestCMSData();
+    window.addEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData);
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('e3_cms_sync');
+      bc.onmessage = (event) => {
+        if (event.data?.type === 'pulse_orbit_updated') {
+          fetchLatestCMSData();
+        }
+      };
+    } catch (_e) {}
+
+    return () => {
+      window.removeEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData);
+      if (bc) bc.close();
+    };
   }, []);
 
   const currentDestinations = activeTab === 'B2C' ? b2cDestinations : b2bDestinations
@@ -326,6 +341,11 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
 
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated', { detail: { type: 'b2c' } }))
+          try {
+            const bc = new BroadcastChannel('e3_cms_sync')
+            bc.postMessage({ type: 'pulse_orbit_updated', timestamp: Date.now() })
+            bc.close()
+          } catch (_bcErr) {}
         }
         await fetchLatestCMSData()
         toast("B2C Pulse Orbit media & destinations saved successfully.", "success")
@@ -354,6 +374,11 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
 
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('e3_cms_pulse_orbit_updated', { detail: { type: 'b2b' } }))
+          try {
+            const bc = new BroadcastChannel('e3_cms_sync')
+            bc.postMessage({ type: 'pulse_orbit_updated', timestamp: Date.now() })
+            bc.close()
+          } catch (_bcErr) {}
         }
         await fetchLatestCMSData()
         toast("B2B Enterprise Orbit media & destinations saved successfully.", "success")
