@@ -79,12 +79,17 @@ export function B2CThemeProvider({
   );
 }
 
+const DEFAULT_B2C_THEME_CONTEXT: B2CThemeContextType = {
+  theme: "dark",
+  setTheme: () => {},
+  toggleTheme: () => {},
+  locale: "en",
+  isAr: false,
+};
+
 export function useB2CTheme() {
   const context = useContext(B2CThemeContext);
-  if (!context) {
-    throw new Error("useB2CTheme must be used within a B2CThemeProvider");
-  }
-  return context;
+  return context || DEFAULT_B2C_THEME_CONTEXT;
 }
 
 // ==========================================

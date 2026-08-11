@@ -22,12 +22,19 @@ interface B2CExperienceContextType {
 
 const B2CExperienceContext = createContext<B2CExperienceContextType | undefined>(undefined);
 
+const DEFAULT_B2C_EXPERIENCE_CONTEXT: B2CExperienceContextType = {
+  capabilityTier: 'BALANCED',
+  reducedMotion: false,
+  webglAvailable: true,
+  motionSettings: DEFAULT_B2C_MOTION_SETTINGS,
+  updateMotionSettings: () => {},
+  trackTelemetry: () => {},
+  telemetryLogs: [],
+};
+
 export function useB2CExperience() {
   const context = useContext(B2CExperienceContext);
-  if (!context) {
-    throw new Error('useB2CExperience must be used within a B2CExperienceProvider');
-  }
-  return context;
+  return context || DEFAULT_B2C_EXPERIENCE_CONTEXT;
 }
 
 const TELEMETRY_ALLOWLIST = new Set<TelemetryEventType>([
