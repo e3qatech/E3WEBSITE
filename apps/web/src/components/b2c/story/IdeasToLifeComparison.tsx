@@ -89,15 +89,27 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                 transition={{ duration: 0.6 }}
                 className="absolute inset-0"
               >
-                {(activeStep.mediaUrl || stepMediaFallbacks[activeStepIndex]) ? (
-                  <img
-                    src={activeStep.mediaUrl || stepMediaFallbacks[activeStepIndex]}
-                    alt={activeStep.titleEn || "Transformation Stage"}
-                    className="w-full h-full object-cover"
-                  />
+                {activeStep.mediaUrl ? (
+                  /\.(mp4|webm|mov|m4v)($|\?)/i.test(activeStep.mediaUrl) ? (
+                    <video
+                      src={activeStep.mediaUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={activeStep.mediaUrl}
+                      alt={activeStep.titleEn || "Transformation Stage"}
+                      className="w-full h-full object-cover"
+                    />
+                  )
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-600 text-sm font-mono">
-                    Upload step media from CMS
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950/90 text-slate-500 text-xs font-mono p-6 text-center space-y-2 border border-slate-800/80">
+                    <Layers className="w-8 h-8 text-sky-500/40 animate-pulse" />
+                    <span>Upload stage visual media from Ideas to Life Content Manager in CMS</span>
                   </div>
                 )}
                 {activeStepIndex < 2 && (
@@ -107,7 +119,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
 
                 <div className="absolute bottom-6 start-6 end-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 backdrop-blur-md">
                   <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-widest">
-                    {isAr ? `المرحلة ٠${activeStepIndex + 1} من ٠٦` : `STAGE 0${activeStepIndex + 1} OF 06`}
+                    {isAr ? `المرحلة ٠${activeStepIndex + 1} من ٠${steps.length || 6}` : `STAGE 0${activeStepIndex + 1} OF 0${steps.length || 6}`}
                   </span>
                   <h3 className="text-xl font-extrabold text-white mt-1">
                     {isAr ? activeStep.titleAr : activeStep.titleEn}

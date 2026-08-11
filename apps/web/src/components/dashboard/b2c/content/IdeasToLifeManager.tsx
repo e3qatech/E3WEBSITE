@@ -108,6 +108,11 @@ export function IdeasToLifeManager() {
 
       if (!res.ok) throw new Error('Failed to save Ideas to Life content')
 
+      const json = await res.json().catch(() => null)
+      if (json?.data?.content) {
+        setFullContent(json.data.content)
+      }
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
       }
@@ -309,6 +314,7 @@ export function IdeasToLifeManager() {
                     value={step.mediaUrl || ''}
                     onChange={(url: string) => handleStepChange(idx, 'mediaUrl', url)}
                     label="Media"
+                    accept="image/*,video/*"
                   />
                 </div>
               </div>

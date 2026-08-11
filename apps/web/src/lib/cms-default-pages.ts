@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Default Content seeds for CMS Pages.
  * Prevents form clearing / empty text inputs on cold starts, empty DBs, or deployments.
  */
@@ -26,12 +26,12 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     headlineEn: "We don’t just imagine fun. We bring it to life.",
     headlineAr: "لا نكتفي بتخيّل المتعة… بل نحوّلها إلى واقع.",
     steps: [
-      { id: 1, titleEn: "1. A Thin Sketch", titleAr: "١. رسم أولي", descEn: "The initial creative spark drawn from pure imagination." },
-      { id: 2, titleEn: "2. Spatial Depth", titleAr: "٢. عمق هندسي", descEn: "Translating blueprints into architectural engineering." },
-      { id: 3, titleEn: "3. Materials & Light", titleAr: "٣. مواد وإضاءة", descEn: "Infusing kinetic dome surfaces and vibrant stage lighting." },
-      { id: 4, titleEn: "4. Physical Assembly", titleAr: "٤. البناء الحقيقي", descEn: "E3 atelier teams fabricating the real-world attraction." },
-      { id: 5, titleEn: "5. Guests Enter", titleAr: "٥. دخول الزوار", descEn: "The doors open to welcome families and thrill-seekers." },
-      { id: 6, titleEn: "6. Fully Alive", titleAr: "٦. نبض متكامل", descEn: "Everlasting memories created every second." }
+      { id: 1, titleEn: "1. A Thin Sketch", titleAr: "١. رسم أولي", descEn: "The initial creative spark drawn from pure imagination.", mediaUrl: "" },
+      { id: 2, titleEn: "2. Spatial Depth", titleAr: "٢. عمق هندسي", descEn: "Translating blueprints into architectural engineering.", mediaUrl: "" },
+      { id: 3, titleEn: "3. Materials & Light", titleAr: "٣. مواد وإضاءة", descEn: "Infusing kinetic dome surfaces and vibrant stage lighting.", mediaUrl: "" },
+      { id: 4, titleEn: "4. Physical Assembly", titleAr: "٤. البناء الحقيقي", descEn: "E3 atelier teams fabricating the real-world attraction.", mediaUrl: "" },
+      { id: 5, titleEn: "5. Guests Enter", titleAr: "٥. دخول الزوار", descEn: "The doors open to welcome families and thrill-seekers.", mediaUrl: "" },
+      { id: 6, titleEn: "6. Fully Alive", titleAr: "٦. نبض متكامل", descEn: "Everlasting memories created every second.", mediaUrl: "" }
     ]
   },
   act3Worlds: [
@@ -693,7 +693,16 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     act2: {
       ...defaults.act2,
       ...(raw.act2 || {}),
-      steps: (raw.act2?.steps && raw.act2.steps.length > 0) ? raw.act2.steps : defaults.act2.steps,
+      steps: (raw.act2?.steps && raw.act2.steps.length > 0)
+        ? raw.act2.steps.map((s: any, idx: number) => {
+            const match = defaults.act2.steps[idx] || {};
+            return {
+              ...match,
+              ...s,
+              mediaUrl: (s.mediaUrl !== undefined ? s.mediaUrl : (match.mediaUrl || '')).trim()
+            };
+          })
+        : defaults.act2.steps,
     },
     act3Worlds: (raw.act3Worlds && raw.act3Worlds.length > 0)
       ? raw.act3Worlds.map((w: any, idx: number) => {
