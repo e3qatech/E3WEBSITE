@@ -24,7 +24,12 @@ export const NATIVE_BROWSER_VIDEO_FORMATS = ['video/mp4', 'video/webm', 'applica
 export function resolveMediaType(options: ResolveMediaTypeOptions | string): MediaType {
   const opts: ResolveMediaTypeOptions = typeof options === 'string' ? { url: options } : (options || {});
   const rawUrl = (opts.url || '').trim();
-  const rawMime = (opts.contentType || opts.mimeType || '').trim().toLowerCase();
+  let hashMime = '';
+  if (rawUrl.includes('#type=')) {
+    hashMime = decodeURIComponent(rawUrl.split('#type=')[1].split('#')[0].split('&')[0]);
+  }
+  
+  const rawMime = (opts.contentType || opts.mimeType || hashMime).trim().toLowerCase();
   const explicit = (opts.explicitType || '').trim().toUpperCase();
 
   // 1. Primary Source of Truth: Explicit MIME / Content-Type from upload service or HTTP headers

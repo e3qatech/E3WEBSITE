@@ -22,6 +22,7 @@ export interface OurBrandRecord {
   desktopFeatureMedia?: string
   mobileFeatureMedia?: string
   backgroundMedia?: string
+  mediaType?: string
   brandColor: string
   secondaryColor?: string
   textColorPref?: 'LIGHT' | 'DARK'

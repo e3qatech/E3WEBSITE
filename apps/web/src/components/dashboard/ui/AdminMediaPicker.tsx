@@ -112,7 +112,11 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         if (res.ok && data) {
           setMediaList(prev => [data, ...prev]);
         }
-        onChange(finalUrl);
+        
+        // Append MIME type as hash fragment to preserve exact file type across generic string boundaries
+        const urlWithMime = file.type ? `${finalUrl}#type=${encodeURIComponent(file.type)}` : finalUrl;
+        onChange(urlWithMime);
+        
         toast(`Media "${fileName}" uploaded & published successfully!`, "success");
         setIsOpen(false);
       } else {

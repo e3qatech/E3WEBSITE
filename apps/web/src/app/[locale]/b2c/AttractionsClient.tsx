@@ -48,23 +48,30 @@ export function AttractionsClient({
     }
   }, [cmsData]);
 
-  const lastFetchTimestampRef = React.useRef<number>(0);
-
   useEffect(() => {
+    let abortController = new AbortController();
+
     const fetchLatestCMS = async () => {
-      const requestTimestamp = Date.now();
+      // Abort any pending request
+      abortController.abort();
+      abortController = new AbortController();
+
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing?t=' + requestTimestamp, { cache: 'no-store' });
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { 
+          cache: 'no-store',
+          signal: abortController.signal
+        });
         if (res.ok) {
           const json = await res.json();
-          if (requestTimestamp >= lastFetchTimestampRef.current) {
-            lastFetchTimestampRef.current = requestTimestamp;
-            if (json?.data?.content) {
-              setLiveCmsContent(json.data.content);
-            }
+          if (json?.data?.content) {
+            setLiveCmsContent(json.data.content);
           }
         }
-      } catch (_e) {}
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch CMS updates', err);
+        }
+      }
     };
 
     fetchLatestCMS();
@@ -82,6 +89,7 @@ export function AttractionsClient({
     } catch (_e) {}
 
     return () => {
+      abortController.abort();
       window.removeEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
       if (bc) bc.close();
     };
