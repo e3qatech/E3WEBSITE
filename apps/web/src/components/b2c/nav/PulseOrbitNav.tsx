@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useB2CExperience } from '@/components/b2c/runtime/B2CExperienceRuntime';
@@ -24,6 +24,9 @@ import {
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PulseOrbitDropdown } from './PulseOrbitDropdown';
+import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
+import { E3Logo } from '@/components/shared/E3Logo';
 
 interface NavDestination {
   labelEn: string;
@@ -131,9 +134,50 @@ const B2B_DESTINATIONS: NavDestination[] = [
   },
 ];
 
-import { PulseOrbitDropdown } from './PulseOrbitDropdown';
-import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
-import { E3Logo } from '@/components/shared/E3Logo';
+// High-tech spatial audio hover effect synthesizer using Web Audio API
+function playSpatialHoverSound() {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    
+    const ctx = new AudioContextClass();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+
+    osc.type = 'sine';
+    const now = ctx.currentTime;
+    
+    // Pitch sweep for futuristic spatial UI hover chime
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.07);
+
+    // Smooth soft gain envelope
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+    if (panner) {
+      const randomPan = (Math.random() - 0.5) * 0.8;
+      panner.pan.setValueAtTime(randomPan, now);
+      osc.connect(gain);
+      gain.connect(panner);
+      panner.connect(ctx.destination);
+    } else {
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+    }
+
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } catch (_e) {
+    // Graceful fallback if Web Audio API is disabled or restricted
+  }
+}
 
 export function PulseOrbitNav({
   locale = 'en',
@@ -152,6 +196,9 @@ export function PulseOrbitNav({
   orbitData?: {
     titleEn?: string;
     titleAr?: string;
+    navButtonTextEn?: string;
+    navButtonTextAr?: string;
+    logoUrl?: string;
     destinations?: any[];
     bookTicketsUrl?: string;
     bookTicketsLabelEn?: string;
@@ -178,44 +225,42 @@ export function PulseOrbitNav({
     : null;
 
   const isAr = locale === 'ar';
-  const isB2C = type === 'b2c';
-
   const lightLogoUrl = settings?.lightLogoUrl;
   const darkLogoUrl = settings?.darkLogoUrl;
 
-  const defaultDestList = isB2C ? DESTINATIONS : B2B_DESTINATIONS;
+  const [activePortalTab, setActivePortalTab] = useState<'b2c' | 'b2b'>(type);
+  const [b2cOrbitData, setB2COrbitData] = useState<any>(type === 'b2c' ? orbitData : null);
+  const [b2bOrbitData, setB2BOrbitData] = useState<any>(type === 'b2b' ? orbitData : null);
 
-  const [currentOrbitData, setCurrentOrbitData] = useState<any>(orbitData);
-
-  useEffect(() => {
-    if (orbitData) {
-      setCurrentOrbitData(orbitData);
-    }
-  }, [orbitData]);
-
-  const fetchLatestOrbit = async () => {
+  const fetchBothOrbits = useCallback(async () => {
     try {
-      const endpoint = isB2C ? '/api/cms/pages/b2c-pulse-orbit' : '/api/cms/pages/b2b-pulse-orbit';
-      const res = await fetch(`${endpoint}?t=${Date.now()}`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json?.data?.content) {
-          setCurrentOrbitData(json.data.content);
-        }
+      const [resB2C, resB2B] = await Promise.all([
+        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now()),
+        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now()),
+      ]);
+
+      if (resB2C.ok) {
+        const jsonB2C = await resB2C.json();
+        if (jsonB2C?.data?.content) setB2COrbitData(jsonB2C.data.content);
+      }
+      if (resB2B.ok) {
+        const jsonB2B = await resB2B.json();
+        if (jsonB2B?.data?.content) setB2BOrbitData(jsonB2B.data.content);
       }
     } catch (_e) {
       // Ignore network errors
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchLatestOrbit();
-    const handleUpdate = (e: any) => {
-      fetchLatestOrbit();
-    };
+    fetchBothOrbits();
+    const handleUpdate = () => fetchBothOrbits();
     window.addEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
     return () => window.removeEventListener('e3_cms_pulse_orbit_updated', handleUpdate);
-  }, [type]);
+  }, [fetchBothOrbits]);
+
+  const currentOrbitData = activePortalTab === 'b2c' ? (b2cOrbitData || orbitData) : (b2bOrbitData || orbitData);
+  const defaultDestList = activePortalTab === 'b2c' ? DESTINATIONS : B2B_DESTINATIONS;
 
   const rawDestinations = (currentOrbitData?.destinations && currentOrbitData.destinations.length > 0)
     ? currentOrbitData.destinations
@@ -242,7 +287,7 @@ export function PulseOrbitNav({
     if (destinationList && destinationList.length > 0) {
       setActiveDestination(destinationList[0]);
     }
-  }, [currentOrbitData]);
+  }, [currentOrbitData, activePortalTab]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -266,7 +311,7 @@ export function PulseOrbitNav({
     const nextState = !menuOpen;
     setMenuOpen(nextState);
     if (nextState) {
-      trackTelemetry('menu_opened', { locale, type });
+      trackTelemetry('menu_opened', { locale, type: activePortalTab });
     }
   };
 
@@ -274,7 +319,7 @@ export function PulseOrbitNav({
     const targetLocale = isAr ? 'en' : 'ar';
     document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
     let newPath = pathname || `/${locale}`;
-    const basePrefix = isB2C ? '/b2c' : '/b2b';
+    const basePrefix = activePortalTab === 'b2c' ? '/b2c' : '/b2b';
     if (newPath.startsWith('/ar/')) {
       newPath = newPath.replace('/ar/', `/${targetLocale}/`);
     } else if (newPath.startsWith('/en/')) {
@@ -296,7 +341,7 @@ export function PulseOrbitNav({
     }
   };
 
-  const bookTicketsRawUrl = settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || (isB2C ? '/b2c/tickets' : '/b2b/contact');
+  const bookTicketsRawUrl = settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || (activePortalTab === 'b2c' ? '/b2c/tickets' : '/b2b/contact');
   const isExternalBookUrl = bookTicketsRawUrl.startsWith('http://') || bookTicketsRawUrl.startsWith('https://');
   const bookTicketsHref = isExternalBookUrl
     ? bookTicketsRawUrl
@@ -304,13 +349,16 @@ export function PulseOrbitNav({
       ? `/${locale}${bookTicketsRawUrl}`
       : `/${locale}/${bookTicketsRawUrl}`;
 
-  const bookTicketsLabelEn = settings?.bookTicketsLabelEn || currentOrbitData?.bookTicketsLabelEn || (isB2C ? 'BOOK TICKETS' : 'REQUEST PROPOSAL');
-  const bookTicketsLabelAr = settings?.bookTicketsLabelAr || currentOrbitData?.bookTicketsLabelAr || (isB2C ? 'احجز التذاكر' : 'اطلب عرض سعر');
+  const bookTicketsLabelEn = settings?.bookTicketsLabelEn || currentOrbitData?.bookTicketsLabelEn || (activePortalTab === 'b2c' ? 'BOOK TICKETS' : 'REQUEST PROPOSAL');
+  const bookTicketsLabelAr = settings?.bookTicketsLabelAr || currentOrbitData?.bookTicketsLabelAr || (activePortalTab === 'b2c' ? 'احجز التذاكر' : 'اطلب عرض سعر');
   const isBookTicketsEnabled = settings?.bookTicketsEnabled !== 'false' && currentOrbitData?.bookTicketsEnabled !== false;
   const openInNewTab = settings?.bookTicketsExternal === 'true' || currentOrbitData?.bookTicketsExternal === true || isExternalBookUrl;
 
-  const defaultTitleEn = isB2C ? 'PULSE ORBIT DESTINATIONS' : 'B2B ENTERPRISE ORBIT';
-  const defaultTitleAr = isB2C ? 'وجهات مدار إي ثري' : 'مدار إي ثري لقطاع الأعمال';
+  const defaultTitleEn = activePortalTab === 'b2c' ? 'PULSE ORBIT DESTINATIONS' : 'B2B ENTERPRISE ORBIT';
+  const defaultTitleAr = activePortalTab === 'b2c' ? 'وجهات مدار إي ثري' : 'مدار إي ثري لقطاع الأعمال';
+  
+  const customNavBtnEn = currentOrbitData?.navButtonTextEn || (type === 'b2c' ? 'PULSE ORBIT' : 'B2B ORBIT');
+  const customNavBtnAr = currentOrbitData?.navButtonTextAr || (type === 'b2c' ? 'القائمة' : 'قطاع الأعمال');
 
   return (
     <>
@@ -324,20 +372,28 @@ export function PulseOrbitNav({
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-          {/* Company Logo */}
+          {/* Company Logo / Orbit Logo */}
           <div className="flex items-center gap-4">
             <Link
-              href={`/${locale}${isB2C ? '/b2c' : '/b2b'}`}
+              href={`/${locale}${type === 'b2c' ? '/b2c' : '/b2b'}`}
               className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
             >
-              <E3Logo
-                lightLogoUrl={lightLogoUrl}
-                darkLogoUrl={darkLogoUrl}
-                isLight={currentTheme === 'light'}
-                showText={false}
-                size="md"
-              />
+              {currentOrbitData?.logoUrl ? (
+                <img
+                  src={currentOrbitData.logoUrl}
+                  alt="Pulse Orbit Logo"
+                  className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
+                />
+              ) : (
+                <E3Logo
+                  lightLogoUrl={lightLogoUrl}
+                  darkLogoUrl={darkLogoUrl}
+                  isLight={currentTheme === 'light'}
+                  showText={false}
+                  size="md"
+                />
+              )}
             </Link>
           </div>
 
@@ -392,9 +448,9 @@ export function PulseOrbitNav({
                   target={openInNewTab ? "_blank" : "_self"}
                   rel={openInNewTab ? "noopener noreferrer" : undefined}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type })}
+                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
-                  {isB2C ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
+                  {activePortalTab === 'b2c' ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </a>
               ) : (
@@ -402,15 +458,15 @@ export function PulseOrbitNav({
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : undefined}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type })}
+                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
-                  {isB2C ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
+                  {activePortalTab === 'b2c' ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </Link>
               )
             )}
 
-            {/* Menu Trigger Button (Pulse Orbit Tab) */}
+            {/* Menu Trigger Button (Pulse Orbit Tab) with Customizable Name */}
             <button
               onClick={toggleMenu}
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
@@ -429,7 +485,7 @@ export function PulseOrbitNav({
               ) : (
                 <MenuIcon className="h-4 w-4 text-emerald-400" />
               )}
-              <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? (isB2C ? 'القائمة' : 'قطاع الأعمال') : (isB2C ? 'PULSE ORBIT' : 'B2B ORBIT'))}</span>
+              <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? customNavBtnAr : customNavBtnEn)}</span>
             </button>
           </div>
         </div>
@@ -444,12 +500,56 @@ export function PulseOrbitNav({
           aria-label="Pulse Orbit Navigation"
         >
           {/* Top Bar inside Overlay */}
-          <div className="flex items-center justify-between border-b border-slate-800/80 pb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
             <div className="flex items-center gap-3">
-              <span className="h-3 w-3 rounded-full bg-emerald-400 animate-ping" />
+              {currentOrbitData?.logoUrl ? (
+                <img
+                  src={currentOrbitData.logoUrl}
+                  alt="Pulse Orbit Logo"
+                  className="h-8 w-auto object-contain"
+                />
+              ) : (
+                <span className="h-3 w-3 rounded-full bg-emerald-400 animate-ping" />
+              )}
               <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest font-bold">
                 {isAr ? (currentOrbitData?.titleAr || defaultTitleAr) : (currentOrbitData?.titleEn || defaultTitleEn)}
               </span>
+            </div>
+
+            {/* Visitor & Organiser Section Tab Switcher inside Pulse Orbit Overlay */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 border border-slate-800 rounded-xl shadow-inner">
+              <button
+                type="button"
+                onClick={() => {
+                  playSpatialHoverSound();
+                  setActivePortalTab('b2c');
+                }}
+                className={cn(
+                  "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer select-none",
+                  activePortalTab === 'b2c'
+                    ? "bg-emerald-500 text-slate-950 shadow-md"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                )}
+              >
+                <UserIcon className="h-3.5 w-3.5" />
+                <span>{isAr ? 'زائر (B2C)' : 'Visitor Portal'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playSpatialHoverSound();
+                  setActivePortalTab('b2b');
+                }}
+                className={cn(
+                  "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer select-none",
+                  activePortalTab === 'b2b'
+                    ? "bg-sky-500 text-slate-950 shadow-md"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                )}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                <span>{isAr ? 'منظم (B2B)' : 'Organiser Portal'}</span>
+              </button>
             </div>
 
             <div className="flex items-center gap-4">
@@ -496,8 +596,9 @@ export function PulseOrbitNav({
                     key={dest.href}
                     href={`/${locale}${dest.href}`}
                     onMouseEnter={() => {
+                      playSpatialHoverSound();
                       setActiveDestination(dest);
-                      trackTelemetry('destination_selected', { href: dest.href, type });
+                      trackTelemetry('destination_selected', { href: dest.href, type: activePortalTab });
                     }}
                     onClick={() => setMenuOpen(false)}
                     className={cn(
@@ -572,7 +673,7 @@ export function PulseOrbitNav({
 
               <div className="relative z-10">
                 <span className="inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-mono font-bold text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-3">
-                  {isB2C ? 'FEATURED WORLD' : 'ENTERPRISE SOLUTION'}
+                  {activePortalTab === 'b2c' ? 'FEATURED WORLD' : 'ENTERPRISE SOLUTION'}
                 </span>
                 <h3 className="text-2xl font-extrabold text-white">
                   {isAr ? activeDestination?.labelAr : activeDestination?.labelEn}
@@ -585,11 +686,11 @@ export function PulseOrbitNav({
                 </p>
 
                 <Link
-                  href={`/${locale}${activeDestination?.href || (isB2C ? '/b2c' : '/b2b')}`}
+                  href={`/${locale}${activeDestination?.href || (activePortalTab === 'b2c' ? '/b2c' : '/b2b')}`}
                   onClick={() => setMenuOpen(false)}
                   className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition-all cursor-pointer"
                 >
-                  <span>{isAr ? 'استكشف الوجهة' : (isB2C ? 'EXPLORE WORLD' : 'DISCOVER SOLUTION')}</span>
+                  <span>{isAr ? 'استكشف الوجهة' : (activePortalTab === 'b2c' ? 'EXPLORE WORLD' : 'DISCOVER SOLUTION')}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>

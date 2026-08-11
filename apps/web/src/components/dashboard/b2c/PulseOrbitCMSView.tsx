@@ -6,7 +6,7 @@ import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import { AdminButton } from "../ui/AdminButton"
-import { Save, Eye, EyeOff, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Building2, User } from "lucide-react"
+import { Save, Eye, EyeOff, Plus, Trash2, ArrowUp, ArrowDown, Sparkles, Building2, User, Image as ImageIcon, Type } from "lucide-react"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 
 export interface OrbitDestinationItem {
@@ -147,6 +147,10 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   )
   const [b2cTitleEn, setB2CTitleEn] = useState(initialData?.titleEn || "PULSE ORBIT DESTINATIONS")
   const [b2cTitleAr, setB2CTitleAr] = useState(initialData?.titleAr || "وجهات مدار إي ثري")
+  const [b2cNavButtonTextEn, setB2CNavButtonTextEn] = useState(initialData?.navButtonTextEn || "PULSE ORBIT")
+  const [b2cNavButtonTextAr, setB2CNavButtonTextAr] = useState(initialData?.navButtonTextAr || "القائمة")
+  const [b2cLogoUrl, setB2CLogoUrl] = useState(initialData?.logoUrl || "")
+
   const [b2cTicketsUrl, setB2CTicketsUrl] = useState(initialData?.bookTicketsUrl || "/b2c/tickets")
   const [b2cTicketsLabelEn, setB2CTicketsLabelEn] = useState(initialData?.bookTicketsLabelEn || "BOOK TICKETS")
   const [b2cTicketsLabelAr, setB2CTicketsLabelAr] = useState(initialData?.bookTicketsLabelAr || "احجز التذاكر")
@@ -160,6 +164,10 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   )
   const [b2bTitleEn, setB2BTitleEn] = useState(initialB2BData?.titleEn || "B2B ENTERPRISE ORBIT")
   const [b2bTitleAr, setB2BTitleAr] = useState(initialB2BData?.titleAr || "مدار إي ثري لقطاع الأعمال")
+  const [b2bNavButtonTextEn, setB2BNavButtonTextEn] = useState(initialB2BData?.navButtonTextEn || "B2B ORBIT")
+  const [b2bNavButtonTextAr, setB2BNavButtonTextAr] = useState(initialB2BData?.navButtonTextAr || "قطاع الأعمال")
+  const [b2bLogoUrl, setB2BLogoUrl] = useState(initialB2BData?.logoUrl || "")
+
   const [b2bProposalUrl, setB2BProposalUrl] = useState(initialB2BData?.bookTicketsUrl || "/b2b/contact")
   const [b2bProposalLabelEn, setB2BProposalLabelEn] = useState(initialB2BData?.bookTicketsLabelEn || "REQUEST PROPOSAL")
   const [b2bProposalLabelAr, setB2BProposalLabelAr] = useState(initialB2BData?.bookTicketsLabelAr || "اطلب عرض سعر")
@@ -178,6 +186,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
               const c = json.data.content
               if (c.titleEn) setB2BTitleEn(c.titleEn)
               if (c.titleAr) setB2BTitleAr(c.titleAr)
+              if (c.navButtonTextEn) setB2BNavButtonTextEn(c.navButtonTextEn)
+              if (c.navButtonTextAr) setB2BNavButtonTextAr(c.navButtonTextAr)
+              if (c.logoUrl) setB2BLogoUrl(c.logoUrl)
               if (c.destinations && c.destinations.length > 0) setB2BDestinations(c.destinations)
               if (c.bookTicketsUrl) setB2BProposalUrl(c.bookTicketsUrl)
               if (c.bookTicketsLabelEn) setB2BProposalLabelEn(c.bookTicketsLabelEn)
@@ -260,6 +271,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
         const payload = {
           titleEn: b2cTitleEn,
           titleAr: b2cTitleAr,
+          navButtonTextEn: b2cNavButtonTextEn,
+          navButtonTextAr: b2cNavButtonTextAr,
+          logoUrl: b2cLogoUrl,
           bookTicketsUrl: b2cTicketsUrl,
           bookTicketsLabelEn: b2cTicketsLabelEn,
           bookTicketsLabelAr: b2cTicketsLabelAr,
@@ -291,6 +305,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
         const payload = {
           titleEn: b2bTitleEn,
           titleAr: b2bTitleAr,
+          navButtonTextEn: b2bNavButtonTextEn,
+          navButtonTextAr: b2bNavButtonTextAr,
+          logoUrl: b2bLogoUrl,
           bookTicketsUrl: b2bProposalUrl,
           bookTicketsLabelEn: b2bProposalLabelEn,
           bookTicketsLabelAr: b2bProposalLabelAr,
@@ -326,7 +343,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
     <AdminFormLayout>
       <AdminPageHeader
         title="Pulse Orbit CMS Hub"
-        description="Manage live media, labels, descriptions, and route paths for B2C & B2B Pulse Orbit modal navigation overlays."
+        description="Manage live media, logos, navigation tab names, header titles, and route paths for B2C & B2B Pulse Orbit modal overlays."
         action={
           <AdminButton
             variant="primary"
@@ -352,7 +369,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
           }`}
         >
           <User className="w-4 h-4" />
-          <span>B2C Pulse Orbit (Customer)</span>
+          <span>B2C Pulse Orbit (Visitor / Customer)</span>
         </button>
 
         <button
@@ -365,8 +382,114 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
           }`}
         >
           <Building2 className="w-4 h-4" />
-          <span>B2B Enterprise Orbit (Corporate)</span>
+          <span>B2B Enterprise Orbit (Organiser / Corporate)</span>
         </button>
+      </div>
+
+      {/* Orbit Logo Manager Section */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
+        <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-[var(--color-primary)]" />
+          <span>{activeTab} Orbit Header Logo Manager</span>
+        </h3>
+        <p className="text-xs text-[var(--text-secondary)]">
+          Upload or specify a custom brand logo image to display inside the top-bar header of the {activeTab} Pulse Orbit modal overlay.
+        </p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+          <div>
+            <AdminMediaPicker
+              value={activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl}
+              onChange={(url) => activeTab === 'B2C' ? setB2CLogoUrl(url) : setB2BLogoUrl(url)}
+              onUploadStatusChange={handleUploadStatus}
+              label={`Upload ${activeTab} Orbit Logo`}
+              accept="image/*"
+            />
+          </div>
+          <div className="lg:col-span-2 space-y-3">
+            <label className="block text-xs font-semibold text-[var(--text-secondary)]">Direct Image URL / Asset Link</label>
+            <input
+              type="text"
+              value={activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl}
+              onChange={(e) => activeTab === 'B2C' ? setB2CLogoUrl(e.target.value) : setB2BLogoUrl(e.target.value)}
+              placeholder="https://... (Leave blank to use default site global logo)"
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
+            />
+            { (activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl) && (
+              <div className="p-3 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl flex items-center gap-4 w-fit">
+                <span className="text-xs font-bold text-[var(--text-secondary)]">Logo Preview:</span>
+                <img src={activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl} alt="Orbit Logo Preview" className="h-8 w-auto object-contain" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Header Button / Tab Name Customizer */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
+        <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+          <Type className="w-5 h-5 text-[var(--color-primary)]" />
+          <span>Header Navigation Button Custom Name (Change "Pulse Orbit" Tab Label)</span>
+        </h3>
+        <p className="text-xs text-[var(--text-secondary)]">
+          Customize the exact text displayed on the header menu trigger button on public {activeTab} pages (e.g. "PULSE ORBIT", "NAVIGATE", "DESTINATIONS", etc.).
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Header Button Text (English)</label>
+            <input
+              type="text"
+              value={activeTab === 'B2C' ? b2cNavButtonTextEn : b2bNavButtonTextEn}
+              onChange={(e) => activeTab === 'B2C' ? setB2CNavButtonTextEn(e.target.value) : setB2BNavButtonTextEn(e.target.value)}
+              placeholder={activeTab === 'B2C' ? "PULSE ORBIT" : "B2B ORBIT"}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Header Button Text (Arabic)</label>
+            <input
+              type="text"
+              value={activeTab === 'B2C' ? b2cNavButtonTextAr : b2bNavButtonTextAr}
+              onChange={(e) => activeTab === 'B2C' ? setB2CNavButtonTextAr(e.target.value) : setB2BNavButtonTextAr(e.target.value)}
+              placeholder={activeTab === 'B2C' ? "القائمة" : "قطاع الأعمال"}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              dir="rtl"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Global Orbit Header Titles */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">{activeTab} Orbit Overlay Banner Titles</h3>
+        <p className="text-xs text-[var(--text-secondary)]">
+          Configure the top headline text shown inside the full-screen Pulse Orbit modal overlay header.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Overlay Banner Title (English)</label>
+            <input
+              type="text"
+              value={activeTab === 'B2C' ? b2cTitleEn : b2bTitleEn}
+              onChange={(e) => activeTab === 'B2C' ? setB2CTitleEn(e.target.value) : setB2BTitleEn(e.target.value)}
+              placeholder={activeTab === 'B2C' ? "PULSE ORBIT DESTINATIONS" : "B2B ENTERPRISE ORBIT"}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Overlay Banner Title (Arabic)</label>
+            <input
+              type="text"
+              value={activeTab === 'B2C' ? b2cTitleAr : b2bTitleAr}
+              onChange={(e) => activeTab === 'B2C' ? setB2CTitleAr(e.target.value) : setB2BTitleAr(e.target.value)}
+              placeholder={activeTab === 'B2C' ? "وجهات مدار إي ثري" : "مدار إي ثري لقطاع الأعمال"}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
+              dir="rtl"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Header CTA Manager for active tab */}
@@ -432,32 +555,6 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
               />
               Open in New Tab (_blank)
             </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Global Title Settings */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
-        <h3 className="text-lg font-bold text-[var(--text-primary)]">{activeTab} Orbit Header Titles</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Title (English)</label>
-            <input
-              type="text"
-              value={activeTab === 'B2C' ? b2cTitleEn : b2bTitleEn}
-              onChange={(e) => activeTab === 'B2C' ? setB2CTitleEn(e.target.value) : setB2BTitleEn(e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Title (Arabic)</label>
-            <input
-              type="text"
-              value={activeTab === 'B2C' ? b2cTitleAr : b2bTitleAr}
-              onChange={(e) => activeTab === 'B2C' ? setB2CTitleAr(e.target.value) : setB2BTitleAr(e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-              dir="rtl"
-            />
           </div>
         </div>
       </div>

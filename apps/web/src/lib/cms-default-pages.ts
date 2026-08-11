@@ -351,6 +351,9 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
 export const DEFAULT_PULSE_ORBIT_CONTENT = {
   titleEn: "PULSE ORBIT DESTINATIONS",
   titleAr: "وجهات مدار إي ثري",
+  navButtonTextEn: "PULSE ORBIT",
+  navButtonTextAr: "القائمة",
+  logoUrl: "",
   bookTicketsUrl: "/b2c/tickets",
   bookTicketsLabelEn: "BOOK TICKETS",
   bookTicketsLabelAr: "احجز التذاكر",
@@ -413,6 +416,9 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
 export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
   titleEn: "B2B ENTERPRISE ORBIT",
   titleAr: "مدار إي ثري لقطاع الأعمال",
+  navButtonTextEn: "B2B ORBIT",
+  navButtonTextAr: "قطاع الأعمال",
+  logoUrl: "",
   bookTicketsUrl: "/b2b/contact",
   bookTicketsLabelEn: "REQUEST PROPOSAL",
   bookTicketsLabelAr: "اطلب عرض سعر",
@@ -657,8 +663,11 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     return {
       ...defaults,
       ...raw,
-      titleEn: raw.titleEn || defaults.titleEn,
-      titleAr: raw.titleAr || defaults.titleAr,
+      titleEn: (raw.titleEn !== undefined && raw.titleEn !== null && String(raw.titleEn).trim() !== '') ? raw.titleEn : defaults.titleEn,
+      titleAr: (raw.titleAr !== undefined && raw.titleAr !== null && String(raw.titleAr).trim() !== '') ? raw.titleAr : defaults.titleAr,
+      navButtonTextEn: (raw.navButtonTextEn !== undefined && raw.navButtonTextEn !== null && String(raw.navButtonTextEn).trim() !== '') ? raw.navButtonTextEn : (defaults as any).navButtonTextEn,
+      navButtonTextAr: (raw.navButtonTextAr !== undefined && raw.navButtonTextAr !== null && String(raw.navButtonTextAr).trim() !== '') ? raw.navButtonTextAr : (defaults as any).navButtonTextAr,
+      logoUrl: (raw.logoUrl !== undefined && raw.logoUrl !== null) ? raw.logoUrl : (defaults as any).logoUrl,
       destinations: mergedDestinations,
     };
   }
