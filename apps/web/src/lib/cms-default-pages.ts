@@ -683,9 +683,43 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
   const defaults = DEFAULT_B2C_LANDING_CONTENT;
   const raw = rawContent || {};
 
+  const resolvedHeroMediaUrl = (
+    raw.heroMedia?.mediaUrl ||
+    raw.hero?.mediaUrl ||
+    raw.act1Hero?.desktopVideoUrl ||
+    raw.act1Hero?.mediaUrl ||
+    ''
+  ).trim();
+
+  const resolvedHeroMediaType = raw.heroMedia?.mediaType || raw.hero?.mediaType || raw.act1Hero?.mediaType || 'IMAGE';
+  const resolvedHeroPosterUrl = (raw.heroMedia?.posterUrl || raw.heroMedia?.fallbackImage || raw.hero?.posterUrl || '').trim();
+
+  const heroMediaObj = {
+    mediaUrl: resolvedHeroMediaUrl,
+    mediaType: resolvedHeroMediaType,
+    posterUrl: resolvedHeroPosterUrl,
+    fallbackImage: resolvedHeroPosterUrl,
+  };
+
   return {
     ...defaults,
     ...raw,
+    heroMedia: {
+      ...defaults.heroMedia,
+      ...(raw.heroMedia || {}),
+      ...heroMediaObj,
+    },
+    hero: {
+      ...defaults.hero,
+      ...(raw.hero || {}),
+      ...heroMediaObj,
+    },
+    act1Hero: {
+      ...defaults.hero,
+      ...(raw.act1Hero || {}),
+      ...heroMediaObj,
+      desktopVideoUrl: resolvedHeroMediaUrl,
+    },
     act1: {
       ...defaults.act1,
       ...(raw.act1 || {}),
@@ -759,33 +793,6 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     act7Ticket: {
       ...defaults.act7Ticket,
       ...(raw.act7Ticket || {}),
-    },
-    heroMedia: {
-      ...defaults.heroMedia,
-      ...(raw.heroMedia || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
-      mediaType: raw.heroMedia?.mediaType ?? raw.hero?.mediaType ?? 'IMAGE',
-      fallbackImage: (raw.heroMedia?.fallbackImage ?? raw.heroMedia?.posterUrl ?? raw.hero?.posterUrl ?? '').trim(),
-      posterUrl: (raw.heroMedia?.posterUrl ?? raw.hero?.posterUrl ?? '').trim(),
-    },
-    hero: {
-      ...defaults.hero,
-      ...(raw.hero || {}),
-      ...(raw.heroMedia || {}),
-      ...(raw.act1Hero || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
-      mediaType: raw.heroMedia?.mediaType ?? raw.hero?.mediaType ?? 'IMAGE',
-      streamMediaUrl: (raw.heroMedia?.streamMediaUrl ?? raw.hero?.streamMediaUrl ?? '').trim(),
-      posterUrl: (raw.heroMedia?.posterUrl ?? raw.hero?.posterUrl ?? '').trim(),
-    },
-    act1Hero: {
-      ...defaults.hero,
-      ...(raw.act1Hero || {}),
-      ...(raw.heroMedia || {}),
-      ...(raw.hero || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
-      desktopVideoUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
-      mediaType: raw.heroMedia?.mediaType ?? raw.hero?.mediaType ?? 'IMAGE',
     },
     maskedVideo: {
       ...defaults.maskedVideo,
