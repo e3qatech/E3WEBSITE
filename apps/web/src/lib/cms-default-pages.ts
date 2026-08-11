@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Default Content seeds for CMS Pages.
  * Prevents form clearing / empty text inputs on cold starts, empty DBs, or deployments.
  */
@@ -56,7 +56,7 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       ctaAr: "تولَّ القيادة",
       accentColor: "#38bdf8",
       materialType: "ROAD_MARKING",
-      mediaUrl: "https://images.unsplash.com/photo-1566454825481-4e48f80aa4d7?q=80&w=1200&auto=format&fit=crop"
+      mediaUrl: ""
     },
     {
       id: "inflatapark-doha",
@@ -79,7 +79,7 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       ctaAr: "اقفز إلى المتعة",
       accentColor: "#a855f7",
       materialType: "INFLATABLE_SEAM",
-      mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop"
+      mediaUrl: ""
     },
     {
       id: "urban-arena",
@@ -102,7 +102,7 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       ctaAr: "يدخل التحدي",
       accentColor: "#10b981",
       materialType: "LUMINOUS_TRAIL",
-      mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop"
+      mediaUrl: ""
     },
     {
       id: "live-festivals",
@@ -125,19 +125,19 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       ctaAr: "كن جزءًا من اللحظة",
       accentColor: "#f43f5e",
       materialType: "STAGE_RIBBON",
-      mediaUrl: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1200&auto=format&fit=crop"
+      mediaUrl: ""
     }
   ],
   intentSelector: {
     titleEn: "What Kind of Story Do You Want Today?",
     titleAr: "أي نوع من الحكايات تريد أن تعيشها اليوم؟",
     options: [
-      { id: "drive", labelEn: "Drive", labelAr: "قيادة", category: "kids", mediaUrl: "https://images.unsplash.com/photo-1566454825481-4e48f80aa4d7?q=80&w=800&auto=format&fit=crop" },
-      { id: "bounce", labelEn: "Bounce", labelAr: "قفز", category: "active", mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop" },
-      { id: "compete", labelEn: "Compete", labelAr: "تحدي", category: "arena", mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop" },
-      { id: "explore", labelEn: "Explore", labelAr: "استكشاف", category: "discovery", mediaUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop" },
-      { id: "celebrate", labelEn: "Celebrate", labelAr: "احتفال", category: "events", mediaUrl: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop" },
-      { id: "family", labelEn: "Family Time", labelAr: "عائلي", category: "family", mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop" }
+      { id: "drive", labelEn: "Drive", labelAr: "قيادة", category: "kids", mediaUrl: "" },
+      { id: "bounce", labelEn: "Bounce", labelAr: "قفز", category: "active", mediaUrl: "" },
+      { id: "compete", labelEn: "Compete", labelAr: "تحدي", category: "arena", mediaUrl: "" },
+      { id: "explore", labelEn: "Explore", labelAr: "استكشاف", category: "discovery", mediaUrl: "" },
+      { id: "celebrate", labelEn: "Celebrate", labelAr: "احتفال", category: "events", mediaUrl: "" },
+      { id: "family", labelEn: "Family Time", labelAr: "عائلي", category: "family", mediaUrl: "" }
     ]
   },
   qatarMap: {
@@ -218,11 +218,11 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     subtextEn: "Real smiles, real reactions, and everlasting memories captured at E3 Qatar destinations.",
     subtextAr: "ابتسامات حقيقية، مشاعر صادقة، وذكريات دائمة من زوار وجهات إي ثري.",
     moments: [
-      { id: "m1", titleEn: "First License Earned", titleAr: "أول رخصة قيادة", captionEn: "Kids City Driving School victory moment", captionAr: "لحظة استلام رخصة قيادة الأطفال", mediaUrl: "https://images.unsplash.com/photo-1566454825481-4e48f80aa4d7?q=80&w=800&auto=format&fit=crop" },
-      { id: "m2", titleEn: "Family Bounce Challenge", titleAr: "تحدي القفز العائلي", captionEn: "InflataPark Doha giant dunes", captionAr: "تحدي القفز في إنفلاتا بارك", mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop" },
-      { id: "m3", titleEn: "Laser Arena Champions", titleAr: "أبطال ساحة الليزر", captionEn: "Urban Arena team competition", captionAr: "فوز الفريق في ساحة الليزر", mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop" },
-      { id: "m4", titleEn: "Nocturnal Drone Light Show", titleAr: "عروض الدرون المضيئة", captionEn: "Al Rayyan outdoor festival night", captionAr: "ليلة العروض المضيئة في سماء الريان", mediaUrl: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop" },
-      { id: "m5", titleEn: "Unforgettable Birthdays", titleAr: "أعياد ميلاد لا تُنسى", captionEn: "VIP party room celebrations", captionAr: "احتفالات خاصة في غرف VIP", mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop" }
+      { id: "m1", titleEn: "First License Earned", titleAr: "أول رخصة قيادة", captionEn: "Kids City Driving School victory moment", captionAr: "لحظة استلام رخصة قيادة الأطفال", mediaUrl: "" },
+      { id: "m2", titleEn: "Family Bounce Challenge", titleAr: "تحدي القفز العائلي", captionEn: "InflataPark Doha giant dunes", captionAr: "تحدي القفز في إنفلاتا بارك", mediaUrl: "" },
+      { id: "m3", titleEn: "Laser Arena Champions", titleAr: "أبطال ساحة الليزر", captionEn: "Urban Arena team competition", captionAr: "فوز الفريق في ساحة الليزر", mediaUrl: "" },
+      { id: "m4", titleEn: "Nocturnal Drone Light Show", titleAr: "عروض الدرون المضيئة", captionEn: "Al Rayyan outdoor festival night", captionAr: "ليلة العروض المضيئة في سماء الريان", mediaUrl: "" },
+      { id: "m5", titleEn: "Unforgettable Birthdays", titleAr: "أعياد ميلاد لا تُنسى", captionEn: "VIP party room celebrations", captionAr: "احتفالات خاصة في غرف VIP", mediaUrl: "" }
     ]
   },
   act7Ticket: {
@@ -240,15 +240,15 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   },
   hero: {
     mediaType: "VIDEO",
-    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "",
+    posterUrl: "",
     headerEn: "E3 PULSE ENTERTAINMENT WORLDS",
     headerAr: "استكشف عالم إي ثري الترفيهي",
     subHeaderEn: "Qatar premier immersive attractions and kinetic entertainment.",
     subHeaderAr: "تجارب ترفيهية غامرة ومدن ألعاب فضائية في قطر",
     showSearch: true,
-    streamMediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
-    streamPosterUrl: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop",
+    streamMediaUrl: "",
+    streamPosterUrl: "",
     streamBadgeEn: "LIVE STREAM",
     streamBadgeAr: "مباشر الآن",
     streamTitleEn: "E3 KINETIC EXPERIENCE",
@@ -270,17 +270,17 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     idleBreathe: true,
     cursorResponse: true,
     customSvgMask: "",
-    customerDesktopVideo: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
+    customerDesktopVideo: "",
     customerMobileVideo: "",
-    customerPoster: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+    customerPoster: "",
     customerFallbackImage: "",
     customerMaskPreset: "ORGANIC_WINDOW",
     customerAccent: "#10b981",
     customerAltEn: "E3 Pulse Customer Attractions Video",
     customerAltAr: "فيديو تجارب زوار إي ثري الترفيهية",
-    organizerDesktopVideo: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+    organizerDesktopVideo: "",
     organizerMobileVideo: "",
-    organizerPoster: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=800&auto=format&fit=crop",
+    organizerPoster: "",
     organizerFallbackImage: "",
     organizerMaskPreset: "PORTAL_ARCH",
     organizerAccent: "#3b82f6",
@@ -373,7 +373,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/attractions",
       descEn: "Pristine Snow Park, Urban Arena, Kids City, and kinetic entertainment.",
       descAr: "حديقة الثلج النقي، والساحة التفاعلية، وعالم الأطفال.",
-      mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -383,7 +383,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/calendar",
       descEn: "Live concerts, seasonal festivals, passes, and exclusive entertainment shows.",
       descAr: "الحفلات الحية والمهرجانات الموسمية والتذاكر والعروض الترفيهية.",
-      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -393,7 +393,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/discover",
       descEn: "Curated visitor guides, dining, and spatial technology showcases.",
       descAr: "دليل الزوار، المطاعم، والتكنولوجيا التفاعلية.",
-      mediaUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -403,7 +403,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/packages",
       descEn: "VIP Birthday parties, corporate team outings, and private venue buyouts.",
       descAr: "حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.",
-      mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -413,7 +413,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/contact",
       descEn: "24/7 guest support, venue location, and concierge services.",
       descAr: "خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.",
-      mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
   ]
@@ -438,7 +438,7 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
       href: "/b2b/services",
       descEn: "Turnkey event engineering, spatial design, kinetic AV, and production.",
       descAr: "هندسة الفعاليات، التصميم الفضائي، الحلول الصوتية والضوئية والإنتاج.",
-      mediaUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -448,7 +448,7 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
       href: "/b2b/cases",
       descEn: "Flagship national ceremonies, summits, and mega entertainment builds in Qatar.",
       descAr: "الاحتفالات الوطنية، القمم، والمشاريع الترفيهية الكبرى في قطر.",
-      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -458,7 +458,7 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
       href: "/b2b/team",
       descEn: "Meet the executive visionaries, technical directors, and spatial architects.",
       descAr: "تعرف على القادة والمهندسين ومخرجي الفعاليات في إي ثري.",
-      mediaUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -468,7 +468,7 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
       href: "/b2b/careers",
       descEn: "Join E3's world-class event production team or apply for open roles.",
       descAr: "انضم إلى فريق إنتاج الفعاليات العالمي في إي ثري أو قدم على الوظائف.",
-      mediaUrl: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
     {
@@ -478,7 +478,7 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
       href: "/b2b/contact",
       descEn: "24/7 corporate inquiry desk, venue booking, and RFP submission.",
       descAr: "مكتب استفسارات الشركات، حجوزات المقرات، وتقديم المناقصات.",
-      mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop",
+      mediaUrl: "",
       enabled: true,
     },
   ]
@@ -754,29 +754,29 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     heroMedia: {
       ...defaults.heroMedia,
       ...(raw.heroMedia || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim(),
-      mediaType: raw.heroMedia?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : raw.hero?.mediaType || 'IMAGE'),
-      fallbackImage: (raw.heroMedia?.fallbackImage || raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim(),
-      posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim(),
+      mediaUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
+      mediaType: raw.heroMedia?.mediaType ?? raw.hero?.mediaType ?? 'IMAGE',
+      fallbackImage: (raw.heroMedia?.fallbackImage ?? raw.heroMedia?.posterUrl ?? raw.hero?.posterUrl ?? '').trim(),
+      posterUrl: (raw.heroMedia?.posterUrl ?? raw.hero?.posterUrl ?? '').trim(),
     },
     hero: {
       ...defaults.hero,
       ...(raw.hero || {}),
       ...(raw.heroMedia || {}),
       ...(raw.act1Hero || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim(),
-      mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : 'IMAGE'),
-      streamMediaUrl: (raw.heroMedia?.streamMediaUrl || raw.hero?.streamMediaUrl || '').trim(),
-      posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim(),
+      mediaUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
+      mediaType: raw.heroMedia?.mediaType ?? raw.hero?.mediaType ?? 'IMAGE',
+      streamMediaUrl: (raw.heroMedia?.streamMediaUrl ?? raw.hero?.streamMediaUrl ?? '').trim(),
+      posterUrl: (raw.heroMedia?.posterUrl ?? raw.hero?.posterUrl ?? '').trim(),
     },
     act1Hero: {
       ...defaults.hero,
       ...(raw.act1Hero || {}),
       ...(raw.heroMedia || {}),
       ...(raw.hero || {}),
-      mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim(),
-      desktopVideoUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim(),
-      mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : 'IMAGE'),
+      mediaUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
+      desktopVideoUrl: (raw.heroMedia?.mediaUrl ?? raw.hero?.mediaUrl ?? raw.act1Hero?.desktopVideoUrl ?? raw.act1Hero?.mediaUrl ?? '').trim(),
+      mediaType: raw.heroMedia?.mediaType ?? raw.hero?.mediaType ?? 'IMAGE',
     },
     maskedVideo: {
       ...defaults.maskedVideo,

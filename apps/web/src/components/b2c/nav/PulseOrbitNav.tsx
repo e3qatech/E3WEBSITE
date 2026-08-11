@@ -38,101 +38,20 @@ interface NavDestination {
   mediaUrl: string;
 }
 
-const DESTINATIONS: NavDestination[] = [
-  {
-    labelEn: 'Attractions',
-    labelAr: 'المرافق والوجهات',
-    href: '/b2c/attractions',
-    icon: Sparkles,
-    descEn: 'Pristine Snow Park, Urban Arena, Kids City, and kinetic entertainment.',
-    descAr: 'حديقة الثلج النقي، والساحة التفاعلية، وعالم الأطفال.',
-    mediaUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'Calendar',
-    labelAr: 'جدول الفعاليات',
-    href: '/b2c/calendar',
-    icon: CalendarIcon,
-    descEn: 'Live concerts, seasonal festivals, and exclusive entertainment shows.',
-    descAr: 'الحفلات الحية والمهرجانات الموسمية والعروض الترفيهية.',
-    mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'Discover',
-    labelAr: 'استكشف قطر',
-    href: '/b2c/discover',
-    icon: Compass,
-    descEn: 'Curated visitor guides, dining, and spatial technology showcases.',
-    descAr: 'دليل الزوار، المطاعم، والتكنولوجيا التفاعلية.',
-    mediaUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'Packages',
-    labelAr: 'الباقات',
-    href: '/b2c/packages',
-    icon: PartyPopper,
-    descEn: 'VIP Birthday parties, corporate team outings, and private venue buyouts.',
-    descAr: 'حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.',
-    mediaUrl: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'Contact',
-    labelAr: 'تواصل معنا',
-    href: '/b2c/contact',
-    icon: PhoneCall,
-    descEn: '24/7 guest support, venue location, and concierge services.',
-    descAr: 'خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.',
-    mediaUrl: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop',
-  },
-];
+// Icon map for matching CMS destinations to icons by href pattern
+const DEST_ICON_MAP: Record<string, any> = {
+  '/b2c/attractions': Sparkles,
+  '/b2c/calendar': CalendarIcon,
+  '/b2c/discover': Compass,
+  '/b2c/packages': PartyPopper,
+  '/b2c/contact': PhoneCall,
+  '/b2b/services': Briefcase,
+  '/b2b/cases': Sparkles,
+  '/b2b/team': UserIcon,
+  '/b2b/careers': Briefcase,
+  '/b2b/contact': PhoneCall,
+};
 
-const B2B_DESTINATIONS: NavDestination[] = [
-  {
-    labelEn: 'Services & Solutions',
-    labelAr: 'الخدمات والحلول المتكاملة',
-    href: '/b2b/services',
-    icon: Briefcase,
-    descEn: 'Turnkey event engineering, spatial design, kinetic AV, and production.',
-    descAr: 'هندسة الفعاليات، التصميم الفضائي، الحلول الصوتية والضوئية والإنتاج.',
-    mediaUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'Case Studies',
-    labelAr: 'دراسات الحالة والمشاريع',
-    href: '/b2b/cases',
-    icon: Sparkles,
-    descEn: 'Flagship national ceremonies, summits, and mega entertainment builds in Qatar.',
-    descAr: 'الاحتفالات الوطنية، القمم، والمشاريع الترفيهية الكبرى في قطر.',
-    mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'Leadership & Team',
-    labelAr: 'القيادة وفريق الإنتاج',
-    href: '/b2b/team',
-    icon: UserIcon,
-    descEn: 'Meet the executive visionaries, technical directors, and spatial architects.',
-    descAr: 'تعرف على القادة والمهندسين ومخرجي الفعاليات في إي ثري.',
-    mediaUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'HR & Talent Careers',
-    labelAr: 'الوظائف والكوادر البشرية',
-    href: '/b2b/careers',
-    icon: Briefcase,
-    descEn: "Join E3's world-class event production team or apply for open roles.",
-    descAr: 'انضم إلى فريق إنتاج الفعاليات العالمي في إي ثري أو قدم على الوظائف.',
-    mediaUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    labelEn: 'B2B Proposal & Contact',
-    labelAr: 'تقديم الطلبات والتواصل',
-    href: '/b2b/contact',
-    icon: PhoneCall,
-    descEn: '24/7 corporate inquiry desk, venue booking, and RFP submission.',
-    descAr: 'مكتب استفسارات الشركات، حجوزات المقرات، وتقديم المناقصات.',
-    mediaUrl: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=800&auto=format&fit=crop',
-  },
-];
 
 let sharedAudioCtx: AudioContext | null = null;
 
@@ -269,27 +188,30 @@ export function PulseOrbitNav({
   }, [fetchBothOrbits]);
 
   const currentOrbitData = activePortalTab === 'b2c' ? (b2cOrbitData || orbitData) : (b2bOrbitData || orbitData);
-  const defaultDestList = activePortalTab === 'b2c' ? DESTINATIONS : B2B_DESTINATIONS;
 
   const rawDestinations = (currentOrbitData?.destinations && currentOrbitData.destinations.length > 0)
     ? currentOrbitData.destinations
         .filter((d: any) => d.enabled !== false && d.id !== 'tickets' && !d.href?.includes('/tickets'))
-        .map((d: any, idx: number) => ({
+        .map((d: any) => ({
           labelEn: d.labelEn,
           labelAr: d.labelAr,
           href: d.href,
-          icon: defaultDestList.find((std) => std.href === d.href)?.icon || defaultDestList[idx % defaultDestList.length]?.icon || Sparkles,
+          // Match icon by href, fall back to Sparkles — no hardcoded fallback list
+          icon: DEST_ICON_MAP[d.href] || Sparkles,
           descEn: d.descEn,
           descAr: d.descAr,
-          mediaUrl: d.mediaUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop',
+          // CMS mediaUrl — no Unsplash fallback. Empty string means no image.
+          mediaUrl: d.mediaUrl || '',
         }))
-    : defaultDestList;
+    : [];
 
   const destinationList = rawDestinations.filter((d: any) => !d.href?.includes('/tickets'));
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeDestination, setActiveDestination] = useState<NavDestination>(destinationList[0] || defaultDestList[0]);
+  const [activeDestination, setActiveDestination] = useState<NavDestination | null>(
+    rawDestinations.length > 0 ? rawDestinations[0] : null
+  );
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
