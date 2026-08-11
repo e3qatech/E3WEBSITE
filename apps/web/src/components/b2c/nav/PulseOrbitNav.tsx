@@ -134,17 +134,26 @@ const B2B_DESTINATIONS: NavDestination[] = [
   },
 ];
 
-// High-tech spatial audio hover effect synthesizer using Web Audio API
-function playSpatialHoverSound() {
-  if (typeof window === 'undefined') return;
-  try {
+let sharedAudioCtx: AudioContext | null = null;
+
+function getSharedAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  if (!sharedAudioCtx) {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    
-    const ctx = new AudioContextClass();
-    if (ctx.state === 'suspended') {
-      ctx.resume();
+    if (AudioContextClass) {
+      sharedAudioCtx = new AudioContextClass();
     }
+  }
+  if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+    sharedAudioCtx.resume().catch(() => {});
+  }
+  return sharedAudioCtx;
+}
+
+export function playSpatialHoverSound(panOffset = 0) {
+  try {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -162,8 +171,8 @@ function playSpatialHoverSound() {
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
 
     if (panner) {
-      const randomPan = (Math.random() - 0.5) * 0.8;
-      panner.pan.setValueAtTime(randomPan, now);
+      const pan = panOffset !== 0 ? panOffset : (Math.random() - 0.5) * 0.8;
+      panner.pan.setValueAtTime(pan, now);
       osc.connect(gain);
       gain.connect(panner);
       panner.connect(ctx.destination);

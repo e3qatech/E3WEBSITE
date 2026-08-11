@@ -748,7 +748,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     heroMedia: {
       ...(raw.heroMedia || {}),
       mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.hero.mediaUrl,
-      mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || raw.act1Hero?.mediaType || defaults.hero.mediaType,
+      mediaType: raw.heroMedia?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : raw.hero?.mediaType || defaults.hero.mediaType),
       posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim() || defaults.hero.posterUrl,
     },
     hero: {
@@ -757,7 +757,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...(raw.heroMedia || {}),
       ...(raw.act1Hero || {}),
       mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.hero.mediaUrl,
-      mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || raw.act1Hero?.mediaType || defaults.hero.mediaType,
+      mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : defaults.hero.mediaType),
       streamMediaUrl: (raw.heroMedia?.streamMediaUrl || raw.hero?.streamMediaUrl || '').trim() || defaults.hero.streamMediaUrl,
       posterUrl: (raw.heroMedia?.posterUrl || raw.hero?.posterUrl || '').trim() || defaults.hero.posterUrl,
     },
@@ -766,6 +766,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...(raw.heroMedia || {}),
       ...(raw.hero || {}),
       mediaUrl: (raw.heroMedia?.mediaUrl || raw.hero?.mediaUrl || raw.act1Hero?.desktopVideoUrl || raw.act1Hero?.mediaUrl || '').trim() || defaults.hero.mediaUrl,
+      mediaType: raw.heroMedia?.mediaType || raw.hero?.mediaType || (raw.heroMedia?.mediaUrl && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(raw.heroMedia.mediaUrl) ? 'IMAGE' : defaults.hero.mediaType),
     },
     maskedVideo: {
       ...defaults.maskedVideo,

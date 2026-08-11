@@ -16,6 +16,8 @@ import {
 import { E3Logo } from "@/components/shared/E3Logo";
 import { cn } from "@/lib/utils";
 
+import { playSpatialHoverSound } from "@/components/b2c/nav/PulseOrbitNav";
+
 const WireframeBackground = dynamic(
   () => import("./WireframeBackground").then((mod) => mod.WireframeBackground),
   { ssr: false }
@@ -245,7 +247,7 @@ export function PortalGateway({
 
         {/* UNDERNEATH LAYER: B2B PORTAL (ENTERPRISE SOLUTIONS / BUILD WITH E3) */}
         <div
-          onMouseEnter={() => setHoveredPortal("b2b")}
+          onMouseEnter={() => { setHoveredPortal("b2b"); playSpatialHoverSound(0.5); }}
           onMouseLeave={() => setHoveredPortal(null)}
           onFocus={() => setFocusedPortal("b2b")}
           onBlur={() => setFocusedPortal(null)}
@@ -307,7 +309,7 @@ export function PortalGateway({
 
         {/* TOP OVERLAID LAYER: B2C PORTAL (PUBLIC EXPERIENCES / EXPERIENCE WITH E3) CLIPPED ANGLED */}
         <div
-          onMouseEnter={() => setHoveredPortal("b2c")}
+          onMouseEnter={() => { setHoveredPortal("b2c"); playSpatialHoverSound(-0.5); }}
           onMouseLeave={() => setHoveredPortal(null)}
           onFocus={() => setFocusedPortal("b2c")}
           onBlur={() => setFocusedPortal(null)}
