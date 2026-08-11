@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef } from 'react';
+import { resolveMediaType } from '@/lib/media-resolver';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Search, Sparkles, Calendar, ArrowRight, Play, Volume2, VolumeX } from 'lucide-react';
@@ -56,17 +57,8 @@ export function MaskedVideoHero({
   const streamSubtitle = isAr ? (heroConfig?.streamSubtitleAr || 'تجارب تفاعلية فريدة في الدوحة') : (heroConfig?.streamSubtitleEn || 'Doha Flagship Attractions & Events');
   const streamButtonUrl = heroConfig?.streamButtonUrl || `/${locale}/b2c/attractions`;
   
-  // Determine media type dynamically if not explicitly specified
-  let mediaType = (heroConfig?.mediaType || 'VIDEO').toUpperCase();
-  if (/\.(mp4|webm|mov|m4v|mkv)($|\?)/i.test(mediaUrl) || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.includes('/uploads/') || mediaUrl.includes('mixkit') || mediaUrl.startsWith('data:video/')) {
-    mediaType = 'VIDEO';
-  } else if (mediaUrl.includes('spline.design') || mediaUrl.includes('sketchfab') || mediaUrl.includes('/3d/')) {
-    mediaType = 'MODEL_3D';
-  } else if (mediaUrl.includes('<iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo')) {
-    mediaType = 'IFRAME';
-  } else if (/\.(jpg|jpeg|png|webp|gif|svg|avif)($|\?)/i.test(mediaUrl) || mediaUrl.startsWith('data:image/')) {
-    mediaType = 'IMAGE';
-  }
+  // Determine media type dynamically using unified media resolver
+  const mediaType = resolveMediaType({ url: mediaUrl, explicitType: heroConfig?.mediaType });
 
   const headerTitle = isAr
     ? (heroConfig.headerAr || (currentPortalMode === 'customer' ? 'استكشف عالم إي ثري الترفيهي' : 'هندسة الفعاليات والإنتاج الضخم'))
@@ -113,7 +105,7 @@ export function MaskedVideoHero({
           />
         )}
 
-        {(mediaType === 'MODEL_3D' || mediaType === 'IFRAME' || mediaType === 'SPLINE') && (
+        {(mediaType === 'MODEL_3D' || mediaType === 'IFRAME' || (mediaType as string) === 'SPLINE') && (
           <iframe
             src={extractIframeUrl(mediaUrl)}
             className="w-full h-full border-none opacity-60 pointer-events-auto absolute inset-0 z-10"

@@ -5,13 +5,14 @@ import { ArrowRight, Calendar, Pause, Play, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
+import { resolveMediaType } from '@/lib/media-resolver'
 
 interface CinematicHeroUniversalProps {
   content: any
   locale: string
 }
 
-export function CinematicHeroUniversal({ content, locale }: CinematicHeroUniversalProps) {
+export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHeroUniversalProps) {
   const isAr = locale === 'ar'
 
   const heroMedia = content?.heroMedia || {}
@@ -40,15 +41,11 @@ export function CinematicHeroUniversal({ content, locale }: CinematicHeroUnivers
   ).trim()
 
   const rawMediaType = (heroMedia.mediaType || hero.mediaType || act1Hero.mediaType || '').toUpperCase()
-  const isExplicitVideo = rawMediaType === 'VIDEO'
-  const isExplicitIframe = rawMediaType === 'IFRAME' || rawMediaType === 'MODEL_3D'
+  const resolvedType = resolveMediaType({ url: mediaUrl, explicitType: rawMediaType })
 
-  const isVideoPattern = /\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('/video/') || mediaUrl.includes('mixkit.co')
-  const isIframePattern = mediaUrl.includes('iframe') || mediaUrl.includes('youtube') || mediaUrl.includes('vimeo') || mediaUrl.includes('spline')
-
-  const isVideo = isVideoPattern || (isExplicitVideo && !isIframePattern)
-  const isIframe = (isExplicitIframe || isIframePattern) && !isVideo
-  const _isImage = !isVideo && !isIframe
+  const isVideo = resolvedType === 'VIDEO'
+  const isIframe = resolvedType === 'IFRAME' || resolvedType === 'MODEL_3D'
+  const _isImage = resolvedType === 'IMAGE'
 
   const headline = isAr
     ? (act1Hero.titleAr || act1.headlineAr || hero.headerAr || "أيام تمرّ… وأيام تتحول إلى حكايات.")

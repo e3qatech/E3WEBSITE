@@ -44,6 +44,8 @@ interface UniversalMediaSectionEditorProps {
   onUploadStatusChange?: (uploading: boolean) => void
 }
 
+import { resolveMediaType } from '@/lib/media-resolver'
+
 export function UniversalMediaSectionEditor({
   title,
   subtitle = "Configure Hero or Footer media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Images.",
@@ -57,27 +59,9 @@ export function UniversalMediaSectionEditor({
     ...(value || {})
   }
 
-  const detectMediaType = (url: string): 'IMAGE' | 'VIDEO' | 'MODEL_3D' | 'IFRAME' => {
-    if (!url) return mediaConfig.mediaType || 'IMAGE'
-    const clean = url.trim().toLowerCase()
-    if (/\.(mp4|webm|mov|m4v|mkv)$/i.test(clean) || clean.includes('mixkit.co') || clean.includes('/video/')) {
-      return 'VIDEO'
-    }
-    if (/\.(glb|gltf)$/i.test(clean)) {
-      return 'MODEL_3D'
-    }
-    if (clean.includes('iframe') || clean.includes('youtube.com/embed') || clean.includes('vimeo.com') || clean.includes('spline.design')) {
-      return 'IFRAME'
-    }
-    if (/\.(jpeg|jpg|png|webp|gif|svg|avif)$/i.test(clean) || clean.includes('unsplash') || clean.startsWith('data:image')) {
-      return 'IMAGE'
-    }
-    return mediaConfig.mediaType || 'IMAGE'
-  }
-
   const updateField = (field: keyof UniversalMediaConfig, val: any) => {
     if (field === 'mediaUrl' && typeof val === 'string') {
-      const autoType = detectMediaType(val)
+      const autoType = resolveMediaType({ url: val, explicitType: mediaConfig.mediaType })
       onChange({
         ...mediaConfig,
         mediaUrl: val,

@@ -7,6 +7,8 @@ import { Save, Sliders, Sparkles, Video } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { resolveMediaType } from '@/lib/media-resolver'
+
 export function B2CMediaManager() {
   const router = useRouter()
   const { toast } = useToast()
@@ -71,10 +73,7 @@ export function B2CMediaManager() {
     setSaving(true)
     try {
       const mediaUrlResolved = (heroMedia.mediaUrl || '').trim();
-      const isVideoFile = /\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i.test(mediaUrlResolved) || mediaUrlResolved.includes('/video/') || mediaUrlResolved.includes('mixkit.co');
-      const isModel3DFile = /\.(glb|gltf)(\?.*)?$/i.test(mediaUrlResolved);
-      const isIframeFile = mediaUrlResolved.includes('iframe') || mediaUrlResolved.includes('youtube') || mediaUrlResolved.includes('vimeo') || mediaUrlResolved.includes('spline');
-      const mediaTypeResolved = heroMedia.mediaType || (isVideoFile ? 'VIDEO' : isModel3DFile ? 'MODEL_3D' : isIframeFile ? 'IFRAME' : 'IMAGE');
+      const mediaTypeResolved = resolveMediaType({ url: mediaUrlResolved, explicitType: heroMedia.mediaType });
 
       const updatedFullContent = {
         ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),

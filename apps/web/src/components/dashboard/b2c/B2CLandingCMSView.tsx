@@ -6,6 +6,7 @@ import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 import { Save, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { resolveMediaType } from '@/lib/media-resolver'
 
 interface B2CLandingCMSViewProps {
   initialData?: any
@@ -74,11 +75,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       const act1Hero = content.act1Hero || {}
       
       const mediaUrlResolved = (heroMedia.mediaUrl || act1Hero.mediaUrl || act1Hero.desktopVideoUrl || '').trim()
-      const isVid = /\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i.test(mediaUrlResolved) || mediaUrlResolved.includes('/video/') || mediaUrlResolved.includes('mixkit.co')
-      const isModel3D = /\.(glb|gltf)(\?.*)?$/i.test(mediaUrlResolved)
-      const isIframe = mediaUrlResolved.includes('iframe') || mediaUrlResolved.includes('youtube') || mediaUrlResolved.includes('vimeo') || mediaUrlResolved.includes('spline')
-      const autoDetectedType = isVid ? 'VIDEO' : isModel3D ? 'MODEL_3D' : isIframe ? 'IFRAME' : 'IMAGE'
-      const mediaTypeResolved = isVid ? 'VIDEO' : isModel3D ? 'MODEL_3D' : isIframe ? 'IFRAME' : (heroMedia.mediaType || autoDetectedType)
+      const mediaTypeResolved = resolveMediaType({ url: mediaUrlResolved, explicitType: heroMedia.mediaType })
       
       const updatedContent = {
         ...content,
