@@ -18,7 +18,7 @@ export function MediaRenderer({ url, type, alt, className, fill }: MediaRenderer
     return <img src="/placeholder.jpg" alt={alt} className={className} />
   }
 
-  const resolvedType = resolveMediaType({ url, explicitType: type });
+  const resolvedType = resolveMediaType({ url, explicitType: type || undefined });
 
   if (resolvedType === "VIDEO") {
     return (
