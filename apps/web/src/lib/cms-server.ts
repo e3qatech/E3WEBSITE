@@ -132,24 +132,5 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
     rawContent = globalStore?.[slug]?.content || null;
   }
 
-  // 4. Fallback to Quaternary Vercel Blob Storage CDN (Export backup)
-  if (!rawContent && process.env.BLOB_READ_WRITE_TOKEN) {
-    try {
-      const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
-      const { list } = await import('@vercel/blob');
-      const { blobs } = await list({ prefix: `cms/pages/${envName}/${slug}.json` });
-      if (blobs && blobs.length > 0) {
-        const newestBlob = blobs.slice().sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
-        const blobUrl = newestBlob.url;
-        const res = await fetch(`${blobUrl}?t=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) {
-          rawContent = await res.json();
-        }
-      }
-    } catch (_blobErr) {
-      console.warn(`[CMS SERVER BLOB READ NOTICE] ${slug}:`, _blobErr);
-    }
-  }
-
   return getMergedCMSPageContent(slug, rawContent);
 }

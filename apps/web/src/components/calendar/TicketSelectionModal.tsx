@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-location-assign-relative-destination */
 'use client';
 
 import React, { useState, useEffect } from 'react';
