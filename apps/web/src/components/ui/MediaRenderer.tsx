@@ -1,5 +1,6 @@
 import React from "react"
 import Image from "next/image"
+import { resolveMediaType } from "@/lib/media-resolver"
 
 interface MediaRendererProps {
   url: string | null | undefined
@@ -17,9 +18,12 @@ export function MediaRenderer({ url, type, alt, className, fill }: MediaRenderer
     return <img src="/placeholder.jpg" alt={alt} className={className} />
   }
 
-  if (type === "VIDEO") {
+  const resolvedType = resolveMediaType({ url, explicitType: type });
+
+  if (resolvedType === "VIDEO") {
     return (
       <video
+        key={url}
         src={url}
         autoPlay
         muted
@@ -31,9 +35,10 @@ export function MediaRenderer({ url, type, alt, className, fill }: MediaRenderer
     )
   }
 
-  if (type === "IFRAME") {
+  if (resolvedType === "IFRAME" || resolvedType === "MODEL_3D") {
     return (
       <iframe
+        key={url}
         src={url}
         title={alt}
         allow="autoplay; fullscreen"
@@ -45,8 +50,8 @@ export function MediaRenderer({ url, type, alt, className, fill }: MediaRenderer
 
   // Default to IMAGE
   if (fill) {
-    return <Image src={url} alt={alt} fill className={className} />
+    return <Image key={url} src={url} alt={alt} fill className={className} />
   }
   
-  return <img src={url} alt={alt} className={className} />
+  return <img key={url} src={url} alt={alt} className={className} />
 }

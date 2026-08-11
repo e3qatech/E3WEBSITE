@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { resolveMediaType } from "@/lib/media-resolver";
 import { MapPin, Clock, Ticket, Users, AlertCircle, HelpCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -207,10 +208,10 @@ export function B2CHero({
       {/* Background Media & Cinematic Overlay */}
       <div className="absolute inset-0 z-0">
         {mediaUrl ? (
-          mediaType === "VIDEO" ? (
-            <video src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+          resolveMediaType({ url: mediaUrl, explicitType: mediaType }) === "VIDEO" ? (
+            <video key={mediaUrl} src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
           ) : (
-            <img src={mediaUrl} alt="Hero Background" className="w-full h-full object-cover" />
+            <img key={mediaUrl} src={mediaUrl} alt="Hero Background" className="w-full h-full object-cover" />
           )
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[var(--e3-deep-blue)]/10 via-[var(--e3-midnight)] to-[var(--e3-purple)]/10" />

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, ArrowRight, ExternalLink, Ticket, Compass } from 'lucide-react'
 import { DEFAULT_OUR_BRANDS, OurBrandRecord } from '@/lib/cms-brands'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
+import { resolveMediaType } from '@/lib/media-resolver'
 
 interface OurBrandsConstellationProps {
   content?: any
@@ -176,11 +177,24 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
             </div>
 
             <div className="lg:col-span-5 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-xl">
-              <img
-                src={activeBrand.desktopFeatureMedia || activeBrand.logoPrimary}
-                alt={activeBrand.nameEn}
-                className="w-full h-full object-cover"
-              />
+              {resolveMediaType(activeBrand.desktopFeatureMedia || activeBrand.logoPrimary) === 'VIDEO' ? (
+                <video
+                  key={activeBrand.desktopFeatureMedia || activeBrand.id}
+                  src={activeBrand.desktopFeatureMedia}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  key={activeBrand.desktopFeatureMedia || activeBrand.logoPrimary}
+                  src={activeBrand.desktopFeatureMedia || activeBrand.logoPrimary}
+                  alt={activeBrand.nameEn}
+                  className="w-full h-full object-cover"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
             </div>
           </motion.div>

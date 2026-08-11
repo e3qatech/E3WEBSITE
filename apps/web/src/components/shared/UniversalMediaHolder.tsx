@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MediaHolderConfig } from '@/types/gateway-cms';
 import { cn } from '@/lib/utils';
+import { resolveMediaType } from '@/lib/media-resolver';
 import dynamic from 'next/dynamic';
 
 const ModelViewer3D = dynamic(
@@ -56,9 +57,11 @@ export function UniversalMediaHolder({
   const captionText = locale === 'ar' ? config.captionAr || config.captionEn : config.captionEn || config.captionAr;
   const fallbackUrl = config.fallbackImageUrl || config.mediaUrl;
 
+  const effectiveMediaType = resolveMediaType({ url: config.mediaUrl, explicitType: config.mediaType });
+
   // Iframe Domain Security Check
   const isValidIframeUrl = React.useMemo(() => {
-    if (config.mediaType !== 'IFRAME') return true;
+    if (effectiveMediaType !== 'IFRAME') return true;
     if (!config.mediaUrl || !config.mediaUrl.startsWith('https://')) return false;
     try {
       const parsed = new URL(config.mediaUrl);
@@ -67,11 +70,11 @@ export function UniversalMediaHolder({
     } catch (_e) {
       return false;
     }
-  }, [config.mediaType, config.mediaUrl]);
+  }, [effectiveMediaType, config.mediaUrl]);
 
   // Video Viewport Observer (pause when offscreen)
   useEffect(() => {
-    if (config.mediaType !== 'VIDEO' || !videoRef.current) return;
+    if (effectiveMediaType !== 'VIDEO' || !videoRef.current) return;
     const el = videoRef.current;
 
     const observer = new IntersectionObserver(
@@ -92,7 +95,7 @@ export function UniversalMediaHolder({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [config.mediaType, config.autoplay, forceReducedMotion]);
+  }, [effectiveMediaType, config.autoplay, forceReducedMotion]);
 
   if (!config.isVisible) {
     return null;
@@ -102,8 +105,8 @@ export function UniversalMediaHolder({
   const shouldUseFallback =
     forceFallbackPreview ||
     hasError ||
-    (config.mediaType === 'IFRAME' && !isValidIframeUrl) ||
-    (forceReducedMotion && (config.mediaType === 'VIDEO' || config.mediaType === 'MODEL_3D'));
+    (effectiveMediaType === 'IFRAME' && !isValidIframeUrl) ||
+    (forceReducedMotion && (effectiveMediaType === 'VIDEO' || effectiveMediaType === 'MODEL_3D'));
 
   const focalStyle: React.CSSProperties = {
     objectFit: config.objectFit || 'cover',
@@ -119,25 +122,24 @@ export function UniversalMediaHolder({
       {/* FALLBACK IMAGE RENDERING */}
       {shouldUseFallback ? (
         <img
+          key={fallbackUrl}
           src={fallbackUrl}
           alt={altText || 'Media Fallback Asset'}
           style={focalStyle}
-          className="w-full h-full transition-opacity duration-500"
+          className="w-full h-full opacity-100 transition-opacity duration-300"
           loading={config.loadingStrategy}
           onError={() => console.error('[MEDIA_HOLDER] Fallback image load error')}
         />
       ) : (
         <>
           {/* 1. IMAGE TYPE */}
-          {config.mediaType === 'IMAGE' && (
+          {effectiveMediaType === 'IMAGE' && (
             <img
+              key={config.mediaUrl}
               src={config.mediaUrl}
               alt={altText || 'E3 Media Image'}
               style={focalStyle}
-              className={cn(
-                'w-full h-full transition-opacity duration-500',
-                isLoaded ? 'opacity-100' : 'opacity-0'
-              )}
+              className="w-full h-full opacity-100 transition-opacity duration-300"
               loading={config.loadingStrategy}
               onLoad={() => setIsLoaded(true)}
               onError={() => setHasError(true)}
@@ -145,8 +147,9 @@ export function UniversalMediaHolder({
           )}
 
           {/* 2. VIDEO TYPE */}
-          {config.mediaType === 'VIDEO' && (
+          {effectiveMediaType === 'VIDEO' && (
             <video
+              key={config.mediaUrl}
               ref={videoRef}
               src={config.mediaUrl}
               poster={config.posterImageUrl || fallbackUrl}
@@ -156,15 +159,11 @@ export function UniversalMediaHolder({
               playsInline
               preload="metadata"
               style={focalStyle}
-              className={cn(
-                'w-full h-full object-cover transition-opacity duration-500',
-                isLoaded ? 'opacity-100' : 'opacity-90'
-              )}
+              className="w-full h-full object-cover opacity-100 transition-opacity duration-300"
               onLoadedData={() => setIsLoaded(true)}
               onCanPlay={() => setIsLoaded(true)}
               onError={(e) => {
                 console.warn('[MEDIA_HOLDER] Video playback warning:', e);
-                // Only set fallback error if mediaUrl is missing or completely invalid
                 if (!config.mediaUrl) setHasError(true);
               }}
             />
