@@ -70,8 +70,11 @@ export function B2CMediaManager() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      const mediaUrlResolved = (heroMedia.mediaUrl || '').trim()
-      const mediaTypeResolved = heroMedia.mediaType || (mediaUrlResolved && /\.(jpeg|jpg|png|webp|gif|svg)$/i.test(mediaUrlResolved) ? 'IMAGE' : 'IMAGE')
+      const mediaUrlResolved = (heroMedia.mediaUrl || '').trim();
+      const isVideoFile = /\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i.test(mediaUrlResolved) || mediaUrlResolved.includes('/video/') || mediaUrlResolved.includes('mixkit.co');
+      const isModel3DFile = /\.(glb|gltf)(\?.*)?$/i.test(mediaUrlResolved);
+      const isIframeFile = mediaUrlResolved.includes('iframe') || mediaUrlResolved.includes('youtube') || mediaUrlResolved.includes('vimeo') || mediaUrlResolved.includes('spline');
+      const mediaTypeResolved = heroMedia.mediaType || (isVideoFile ? 'VIDEO' : isModel3DFile ? 'MODEL_3D' : isIframeFile ? 'IFRAME' : 'IMAGE');
 
       const updatedFullContent = {
         ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),
