@@ -175,67 +175,6 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         </button>
       </div>
 
-      {/* Quick B2C Content Managers Navigation */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-5 space-y-3 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[var(--color-primary)]" />
-            <span>Dedicated Content Managers for Landing Page Sections</span>
-          </h2>
-          <span className="text-[11px] font-medium text-[var(--text-tertiary)]">Click any manager to edit item rosters directly</span>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-1">
-          <Link
-            href="/dashboard/b2c/content/ideas"
-            className="flex flex-col items-center justify-center p-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 transition-all text-center group"
-          >
-            <Lightbulb className="w-5 h-5 mb-1 text-amber-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold">Ideas to Life</span>
-          </Link>
-
-          <Link
-            href="/dashboard/b2c/content/story-discovery"
-            className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-500 transition-all text-center group"
-          >
-            <Compass className="w-5 h-5 mb-1 text-purple-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold">Story Discovery</span>
-          </Link>
-
-          <Link
-            href="/dashboard/b2c/content/brands"
-            className="flex flex-col items-center justify-center p-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-500 transition-all text-center group"
-          >
-            <Award className="w-5 h-5 mb-1 text-cyan-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold">Our Brands</span>
-          </Link>
-
-          <Link
-            href="/dashboard/b2c/content/qatar-map"
-            className="flex flex-col items-center justify-center p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 transition-all text-center group"
-          >
-            <MapPin className="w-5 h-5 mb-1 text-emerald-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold">Explore Qatar</span>
-          </Link>
-
-          <Link
-            href="/dashboard/b2c/content/live-feed"
-            className="flex flex-col items-center justify-center p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-500 transition-all text-center group"
-          >
-            <Radio className="w-5 h-5 mb-1 text-rose-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold">Live Feed</span>
-          </Link>
-
-          <Link
-            href="/dashboard/b2c/content/media"
-            className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-500 transition-all text-center group"
-          >
-            <Film className="w-5 h-5 mb-1 text-blue-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold">Media Manager</span>
-          </Link>
-        </div>
-      </div>
-
       {/* Single Unified Hero Media Editor */}
       <UniversalMediaSectionEditor
         title="Landing Hero Media & Cover Settings"
