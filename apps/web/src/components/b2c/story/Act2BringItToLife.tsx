@@ -9,6 +9,8 @@ interface Act2BringItToLifeProps {
   locale: string
 }
 
+import { resolveMediaType } from '@/lib/media-resolver'
+
 export function Act2BringItToLife({ content, locale }: Act2BringItToLifeProps) {
   const isAr = locale === 'ar'
   const act = content?.act2 || {}
@@ -89,11 +91,24 @@ export function Act2BringItToLife({ content, locale }: Act2BringItToLifeProps) {
                 className="absolute inset-0"
               >
                 {stepMediaUrl ? (
-                  <img
-                    src={stepMediaUrl}
-                    alt={activeStep.titleEn || "Transformation Stage"}
-                    className="w-full h-full object-cover"
-                  />
+                  resolveMediaType(stepMediaUrl) === 'VIDEO' ? (
+                    <video
+                      key={stepMediaUrl}
+                      src={stepMediaUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      key={stepMediaUrl}
+                      src={stepMediaUrl}
+                      alt={activeStep.titleEn || "Transformation Stage"}
+                      className="w-full h-full object-cover"
+                    />
+                  )
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-600 text-sm font-mono">
                     Upload step media from CMS

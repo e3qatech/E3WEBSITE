@@ -9,6 +9,8 @@ interface IdeasToLifeComparisonProps {
   locale: string
 }
 
+import { resolveMediaType } from '@/lib/media-resolver'
+
 export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparisonProps) {
   const isAr = locale === 'ar'
   const act = content?.act2 || {}
@@ -90,8 +92,9 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                 className="absolute inset-0"
               >
                 {activeStep.mediaUrl ? (
-                  /\.(mp4|webm|mov|m4v)($|\?)/i.test(activeStep.mediaUrl) ? (
+                  resolveMediaType(activeStep.mediaUrl) === 'VIDEO' ? (
                     <video
+                      key={activeStep.mediaUrl}
                       src={activeStep.mediaUrl}
                       autoPlay
                       loop
@@ -101,6 +104,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                     />
                   ) : (
                     <img
+                      key={activeStep.mediaUrl}
                       src={activeStep.mediaUrl}
                       alt={activeStep.titleEn || "Transformation Stage"}
                       className="w-full h-full object-cover"

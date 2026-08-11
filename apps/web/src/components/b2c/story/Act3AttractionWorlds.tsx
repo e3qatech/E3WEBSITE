@@ -11,6 +11,8 @@ interface Act3AttractionWorldsProps {
   locale: string
 }
 
+import { resolveMediaType } from '@/lib/media-resolver'
+
 export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsProps) {
   const isAr = locale === 'ar'
   const worlds = content?.act3Worlds || []
@@ -73,11 +75,24 @@ export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsPr
           >
             {/* Left Column — Media Stage (7 Cols) */}
             <div className="lg:col-span-7 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 group bg-slate-950">
-              <img
-                src={activeWorld.mediaUrl}
-                alt={activeWorld.nameEn}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              {resolveMediaType(activeWorld.mediaUrl) === 'VIDEO' ? (
+                <video
+                  key={activeWorld.mediaUrl}
+                  src={activeWorld.mediaUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <img
+                  key={activeWorld.mediaUrl}
+                  src={activeWorld.mediaUrl}
+                  alt={activeWorld.nameEn}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
 
               {/* Status Badge Overlay */}
