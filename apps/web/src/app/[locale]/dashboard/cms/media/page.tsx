@@ -54,12 +54,12 @@ export default function MediaLibraryPage() {
   }, [])
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
     setUploading(true)
     const formData = new FormData()
-    formData.append("file", file)
+    Array.from(files).forEach(f => formData.append("files", f))
 
     try {
       const res = await fetch("/api/cms/media", {
@@ -67,7 +67,9 @@ export default function MediaLibraryPage() {
         body: formData
       })
       const data = await res.json()
-      if (data.url) {
+      if (data.data && Array.isArray(data.data)) {
+        setMediaList(prev => [...data.data, ...prev])
+      } else if (data.url) {
         setMediaList(prev => [data, ...prev])
       }
     } catch (e) {
@@ -140,6 +142,7 @@ export default function MediaLibraryPage() {
               <input 
                 type="file" 
                 id="media-upload-page" 
+                multiple
                 className="hidden" 
                 onChange={handleUpload}
                 disabled={uploading}
@@ -150,7 +153,7 @@ export default function MediaLibraryPage() {
                 disabled={uploading}
               >
                 <Upload className="w-4 h-4 me-2" />
-                {uploading ? "Uploading..." : "Upload Asset"}
+                {uploading ? "Uploading Bulk..." : "Upload Media / Bulk Upload"}
               </AdminButton>
             </div>
           </div>

@@ -31,7 +31,6 @@ const sidebarConfig = [
   { label: "Command Center", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
   { label: "B2C Pages", icon: FileText, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Page Editor", href: "/dashboard/b2c/landing" },
-    { label: "Pulse Orbit Editor", href: "/dashboard/b2c/pulse-orbit" },
     { label: "Discover Page Editor", href: "/dashboard/b2c/discover" },
     { label: "Contact Page Editor", href: "/dashboard/b2c/contact" },
     { label: "Attractions Page Editor", href: "/dashboard/b2c/attractions-page" },
@@ -62,7 +61,7 @@ const sidebarConfig = [
   { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 3, roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
-    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
+    { label: "Team Page Editor", href: "/dashboard/b2b/team-page" },
     { label: "Clients CMS", href: "/dashboard/b2b/clients" },
     { label: "Attractions", href: "/dashboard/b2b/attractions" }
   ] },
@@ -73,14 +72,15 @@ const sidebarConfig = [
   { label: "HR & Careers", icon: Briefcase, href: "/dashboard/team", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Team Profiles", href: "/dashboard/team" },
     { label: "Job Listings", href: "/dashboard/b2b/careers" },
-    { label: "Applications", href: "/dashboard/careers/applications" }
+    { label: "Job Applications", href: "/dashboard/careers/applications" },
+    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
+    { label: "Talent AI Parser", href: "/dashboard/crm/talent" }
   ] },
   { label: "CRM & Sales", icon: Users, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },
     { label: "Client Directory", href: "/dashboard/crm/clients" },
     { label: "Users & Roles", href: "/dashboard/crm/users" },
     { label: "Inquiries & Bookings", href: "/dashboard/crm/inquiries" },
-    { label: "Talent AI Parser", href: "/dashboard/crm/talent" },
     { label: "Subscribers", href: "/dashboard/crm/subscribers" }
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
@@ -92,6 +92,7 @@ const sidebarConfig = [
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
+    { label: "Pulse Orbit Editor", href: "/dashboard/settings/pulse-orbit" },
     { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "Global General", href: "/dashboard/settings/general" },
     { label: "Users & Roles", href: "/dashboard/settings/users" },

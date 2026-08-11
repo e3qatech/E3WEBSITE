@@ -25,7 +25,6 @@ const sidebarConfig = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN", "STAFF", "CLIENT"] },
   { label: "B2C Pages", icon: Users, href: "/dashboard/b2c/landing", roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Landing Page Editor", href: "/dashboard/b2c/landing" },
-    { label: "Pulse Orbit Editor", href: "/dashboard/b2c/pulse-orbit" },
     { label: "Discover Page Editor", href: "/dashboard/b2c/discover" },
     { label: "Contact Page Editor", href: "/dashboard/b2c/contact" },
     { label: "Attractions Page Editor", href: "/dashboard/b2c/attractions-page" },
@@ -56,25 +55,31 @@ const sidebarConfig = [
   { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
-    { label: "Team & Roster", href: "/dashboard/b2b/team" },
+    { label: "Team Page Editor", href: "/dashboard/b2b/team-page" },
     { label: "Clients CMS", href: "/dashboard/b2b/clients" },
     { label: "Partners", href: "/dashboard/b2b/partners" }
+  ] },
+  { label: "HR & Careers", icon: Briefcase, href: "/dashboard/team", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Team Profiles", href: "/dashboard/team" },
+    { label: "Job Listings", href: "/dashboard/b2b/careers" },
+    { label: "Job Applications", href: "/dashboard/careers/applications" },
+    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
+    { label: "Talent AI Parser", href: "/dashboard/crm/talent" }
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Events", href: "/dashboard/operations/events" },
     { label: "Temporal Rules", href: "/dashboard/operations/temporal-rules" },
     { label: "Broadcast", href: "/dashboard/operations/broadcast" }
   ] },
-  { label: "Team CMS", icon: Users, href: "/dashboard/team", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"] },
   { label: "CRM", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Leads Funnel", href: "/dashboard/crm/leads" },
     { label: "Clients", href: "/dashboard/crm/clients" },
     { label: "Inquiries", href: "/dashboard/crm/inquiries" },
-    { label: "Talent AI", href: "/dashboard/crm/talent" },
     { label: "Subscribers", href: "/dashboard/crm/subscribers" }
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
+    { label: "Pulse Orbit Editor", href: "/dashboard/settings/pulse-orbit" },
     { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "General", href: "/dashboard/settings/general" },
     { label: "SEO", href: "/dashboard/settings/seo" },
