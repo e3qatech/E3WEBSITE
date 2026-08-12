@@ -2,6 +2,29 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 
+export async function GET(request: Request) {
+  try {
+    const attractions = await db.attraction.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+      include: {
+        pricing: true,
+        faqs: true,
+        gallery: true,
+        attractionLocations: {
+          include: {
+            location: true
+          }
+        }
+      }
+    })
+    return NextResponse.json(attractions)
+  } catch (error: any) {
+    console.error("[ATTRACTIONS_GET_ERROR]", error)
+    return NextResponse.json({ error: "Failed to fetch attractions" }, { status: 500 })
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth()
@@ -58,59 +81,51 @@ export async function POST(request: Request) {
     const safeSocialLinks = (socialLinks || [])
       .filter((s: any) => s && s.url && String(s.url).trim() !== "")
       .map((s: any) => ({
-        platform: s.platform || "WEBSITE",
-        url: String(s.url).trim()
+        platform: String(s.platform || "WEB").trim().toUpperCase(),
+        url: String(s.url).trim(),
+        label: String(s.label || s.platform || "Link").trim()
       }))
 
     const safeGallery = (gallery || [])
-      .filter((g: any) => g && g.url && String(g.url).trim() !== "")
+      .filter((g: any) => g && (g.url || g.mediaUrl))
       .map((g: any, i: number) => ({
-        url: String(g.url).trim(),
-        captionEn: (g.captionEn || "").trim(),
-        captionAr: (g.captionAr || "").trim(),
+        url: String(g.url || g.mediaUrl).trim(),
+        captionEn: String(g.captionEn || "").trim(),
+        captionAr: String(g.captionAr || "").trim(),
         orderIndex: i
       }))
 
-    // Extract safeLocations and safeBrandPlacements since we'll process them in the transaction
-    const safeLocations = (body.locations || [])
-      .filter((l: any) => l && (l.nameEn || l.nameAr))
-      .map((l: any) => ({
-        nameEn: (l.nameEn || l.nameAr || "").trim(),
-        nameAr: (l.nameAr || l.nameEn || "").trim(),
-        addressEn: (l.addressEn || "").trim(),
-        addressAr: (l.addressAr || "").trim(),
-        coordinates: l.coordinates || {},
-        bookingUrl: (l.bookingUrl || "").trim()
-      }))
+    const safeLocations = Array.isArray(body.locations) ? body.locations.map((loc: any) => ({
+      nameEn: (loc.nameEn || loc.nameAr || "Venue Location").trim(),
+      nameAr: (loc.nameAr || loc.nameEn || "موقع الوجهة").trim(),
+      addressEn: (loc.addressEn || loc.addressAr || "Doha, Qatar").trim(),
+      addressAr: (loc.addressAr || loc.addressEn || "الدوحة، قطر").trim(),
+      latitude: typeof loc.latitude === 'number' ? loc.latitude : parseFloat(loc.latitude) || 25.2854,
+      longitude: typeof loc.longitude === 'number' ? loc.longitude : parseFloat(loc.longitude) || 51.5310,
+      pinColorToken: loc.pinColorToken || "CYAN",
+      pinBadgeText: loc.pinBadgeText || "E3 VENUE",
+      locationType: loc.locationType || "PERMANENT_ATTRACTION",
+      status: loc.status || "OPEN"
+    })) : []
 
-    const safeBrandPlacements = (body.brandPlacements || [])
-      .filter((bp: any) => bp && bp.brandId)
-      .map((bp: any) => ({
-        brandId: bp.brandId,
-        isPrimary: Boolean(bp.isPrimary),
-        type: bp.type || "HOSTED"
-      }))
-
-    let attraction: any;
-    
-    await db.$transaction(async (tx: any) => {
-      attraction = await tx.attraction.create({
+    const attraction = await db.$transaction(async (tx: any) => {
+      const attraction = await tx.attraction.create({
         data: {
           nameEn: cleanNameEn,
           nameAr: cleanNameAr,
           slug: cleanSlug,
-          descriptionEn: descriptionEn || "",
-          descriptionAr: descriptionAr || "",
-          taglineEn: taglineEn || "",
-          taglineAr: taglineAr || "",
-          mapUrl: mapUrl || "",
-          ticketingUrl: ticketingUrl || "",
-          logoUrl: logoUrl || "",
+          descriptionEn: (descriptionEn || "").trim(),
+          descriptionAr: (descriptionAr || "").trim(),
+          taglineEn: (taglineEn || "").trim(),
+          taglineAr: (taglineAr || "").trim(),
+          mapUrl: (mapUrl || "").trim(),
+          ticketingUrl: (ticketingUrl || "").trim(),
+          logoUrl: (logoUrl || "").trim(),
           heroMediaType: heroMediaType || "IMAGE",
-          heroMediaUrl: heroMediaUrl || "",
-          heroFallbackUrl: heroFallbackUrl || "",
-          heroThumbnailUrl: heroThumbnailUrl || "",
-          isPublished: Boolean(isPublished),
+          heroMediaUrl: (heroMediaUrl || "").trim(),
+          heroFallbackUrl: (heroFallbackUrl || "").trim(),
+          heroThumbnailUrl: (heroThumbnailUrl || "").trim(),
+          isPublished: isPublished !== undefined ? Boolean(isPublished) : true,
           isFeatured: Boolean(isFeatured),
           isHidden: Boolean(isHidden),
           features: Array.isArray(features) ? features : [],
@@ -118,15 +133,14 @@ export async function POST(request: Request) {
           partners: Array.isArray(partners) ? partners : [],
           socialPreviews: Array.isArray(socialPreviews) ? socialPreviews : [],
           newsCoverage: Array.isArray(newsCoverage) ? newsCoverage : [],
-          operations: mergedOperations,
-          temporalStatus: temporalStatus || {},
           testimonials: Array.isArray(testimonials) ? testimonials : [],
-          seo: seo || {},
+          operations: mergedOperations,
+          temporalStatus: temporalStatus || "OPEN",
           pricing: { create: safePricing },
           faqs: { create: safeFaqs },
           socialLinks: { create: safeSocialLinks },
           gallery: { create: safeGallery },
-          brandPlacements: { create: safeBrandPlacements },
+          seo: typeof seo === 'object' && seo !== null ? seo : {}
         }
       })
 
@@ -178,6 +192,8 @@ export async function POST(request: Request) {
           }
         })
       }
+
+      return attraction
     })
 
     return NextResponse.json(attraction)
