@@ -1180,3 +1180,409 @@ model PackageLead {
   @@index([leadType])
   @@index([packageId])
 }
+
+// ============================================================================
+// SOCIAL MEDIA FEED MANAGEMENT SYSTEM MODELS
+// ============================================================================
+
+enum SocialProviderKey {
+  META_INSTAGRAM
+  META_FACEBOOK
+  TIKTOK
+  YOUTUBE
+  LINKEDIN
+  MANUAL
+}
+
+enum SocialAccountStatus {
+  CONNECTED
+  HEALTHY
+  EXPIRING_SOON
+  ACTION_REQUIRED
+  DISCONNECTED
+  SYNCING
+  PAUSED
+  ERROR
+}
+
+enum SocialPostMediaType {
+  IMAGE
+  VIDEO
+  REEL
+  CAROUSEL
+  TEXT
+  LINK
+}
+
+enum SocialPostStatus {
+  PUBLISHED
+  DRAFT
+  HIDDEN
+  ARCHIVED
+  UNAVAILABLE
+}
+
+enum SocialModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SocialFeedMode {
+  AUTOMATIC
+  CURATED
+  HYBRID
+}
+
+enum SocialPlacementLocation {
+  B2C_HOME_LIVE_SOCIAL
+  B2B_HOME_CORPORATE
+  ATTRACTION_PAGE
+  BRAND_PAGE
+  CASE_STUDY_PAGE
+  CUSTOM_PAGE
+}
+
+enum SocialSyncStatus {
+  SUCCESS
+  PARTIAL_SUCCESS
+  FAILED
+  IN_PROGRESS
+}
+
+enum SocialAuditAction {
+  CREDENTIAL_UPDATE
+  ACCOUNT_CONNECT
+  ACCOUNT_DISCONNECT
+  TOKEN_REFRESH
+  SYNC_EXECUTE
+  POST_MODERATE
+  POST_MUTATE
+  FEED_UPDATE
+  PLACEMENT_UPDATE
+  SETTINGS_UPDATE
+}
+
+model SocialProviderConfig {
+  id                String            @id @default(cuid())
+  provider          SocialProviderKey @unique
+  name              String
+  enabled           Boolean           @default(true)
+  appId             String?
+  encryptedSecret   String?
+  apiVersion        String?           @default("v19.0")
+  authUrl           String?
+  callbackUrl       String?
+  requiredScopes    Json?             // String array
+  webhookToken      String?
+  apiKey            String?
+  instructions      String?
+  updatedBy         String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  accounts          SocialAccount[]
+}
+
+model SocialAccount {
+  id                    String              @id @default(cuid())
+  providerConfigId      String
+  providerConfig        SocialProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
+  provider              SocialProviderKey
+  providerAccountId     String
+  internalName          String
+  username              String
+  displayName           String?
+  profileUrl            String?
+  profileImageUrl       String?
+  brandId               String?
+  attractionId          String?
+  portal                PortalType          @default(SHARED)
+  status                SocialAccountStatus @default(CONNECTED)
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  tokenExpiresAt        DateTime?
+  grantedScopes         Json?
+  lastSuccessfulSync    DateTime?
+  lastSyncAttempt       DateTime?
+  autoSyncEnabled       Boolean             @default(true)
+  defaultModeration     SocialModerationStatus @default(APPROVED)
+  defaultVisibility     SocialPostStatus    @default(PUBLISHED)
+  isActive              Boolean             @default(true)
+  sortOrder             Int                 @default(0)
+  internalNotes         String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  posts                 SocialPost[]
+  feedSources           SocialFeedSource[]
+  syncJobs              SocialSyncJob[]
+  syncErrors            SocialSyncError[]
+
+  @@unique([provider, providerAccountId])
+  @@index([provider])
+  @@index([status])
+  @@index([isActive])
+}
+
+model SocialPost {
+  id                  String                 @id @default(cuid())
+  provider            SocialProviderKey
+  providerPostId      String
+  accountId           String?
+  account             SocialAccount?         @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  brandId             String?
+  attractionId        String?
+  portal              PortalType             @default(SHARED)
+  originalUrl         String
+  authorName          String
+  authorUsername      String
+  authorAvatarUrl     String?
+  captionEn           String?                @db.Text
+  captionAr           String?                @db.Text
+  rawCaption          String?                @db.Text
+  mediaType           SocialPostMediaType    @default(IMAGE)
+  mediaUrl            String
+  thumbnailUrl        String?
+  aspectRatio         Float?
+  width               Int?
+  height              Int?
+  publishedAt         DateTime
+  importedAt          DateTime               @default(now())
+  lastSyncedAt        DateTime               @default(now())
+  likeCount           Int                    @default(0)
+  commentCount        Int                    @default(0)
+  shareCount          Int                    @default(0)
+  viewCount           Int                    @default(0)
+  platformMetadata    Json?
+  isFeatured          Boolean                @default(false)
+  isPinned            Boolean                @default(false)
+  status              SocialPostStatus       @default(PUBLISHED)
+  moderationStatus    SocialModerationStatus @default(APPROVED)
+  sortPriority        Int                    @default(0)
+  contentWarning      Boolean                @default(false)
+  syncStatus          String                 @default("OK")
+  importError         String?
+  createdBy           String?
+  updatedBy           String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  carouselMedia       SocialPostMedia[]
+  feedPosts           SocialFeedPost[]
+
+  @@unique([provider, providerPostId])
+  @@index([provider])
+  @@index([accountId])
+  @@index([status])
+  @@index([moderationStatus])
+  @@index([isFeatured])
+  @@index([isPinned])
+  @@index([publishedAt])
+  @@index([brandId])
+  @@index([attractionId])
+}
+
+model SocialPostMedia {
+  id           String              @id @default(cuid())
+  postId       String
+  post         SocialPost          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaType    SocialPostMediaType @default(IMAGE)
+  url          String
+  thumbnailUrl String?
+  width        Int?
+  height       Int?
+  aspectRatio  Float?
+  sortOrder    Int                 @default(0)
+
+  @@index([postId])
+}
+
+model SocialFeed {
+  id                 String            @id @default(cuid())
+  name               String
+  description        String?
+  isActive           Boolean           @default(true)
+  mode               SocialFeedMode    @default(HYBRID)
+  portal             PortalType        @default(SHARED)
+  allowedPlatforms   Json?             // SocialProviderKey array
+  allowedMediaTypes  Json?             // SocialPostMediaType array
+  brandId            String?
+  attractionId       String?
+  maxPosts           Int               @default(12)
+  initialLoadCount   Int               @default(6)
+  loadMoreEnabled    Boolean           @default(true)
+  dateRangeDays      Int?
+  sortMethod         String            @default("LATEST_FIRST") // LATEST_FIRST, MANUAL, PINNED_FIRST, FEATURED_FIRST, RANDOM
+  showCaptions       Boolean           @default(true)
+  captionLimit       Int               @default(150)
+  showEngagement     Boolean           @default(true)
+  showPlatformBadge  Boolean           @default(true)
+  showAccountName    Boolean           @default(true)
+  showPostDate       Boolean           @default(true)
+  openInNewTab       Boolean           @default(true)
+  enableFollowCta    Boolean           @default(true)
+  followCtaTextEn    String?           @default("Follow E3 Qatar")
+  followCtaTextAr    String?           @default("تابع إي ثري قطر")
+  emptyStateTextEn   String?           @default("No social posts available at the moment.")
+  emptyStateTextAr   String?           @default("لا تتوفر منشورات تواصل حالياً.")
+  theme              String            @default("SYSTEM") // LIGHT, DARK, SYSTEM
+  layout             String            @default("GRID") // GRID, MASONRY, CAROUSEL, FEATURED_HERO
+  columnsDesktop     Int               @default(3)
+  columnsTablet      Int               @default(2)
+  columnsMobile      Int               @default(1)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  sources            SocialFeedSource[]
+  feedPosts          SocialFeedPost[]
+  placements         SocialPlacement[]
+
+  @@index([isActive])
+  @@index([portal])
+}
+
+model SocialFeedSource {
+  id           String         @id @default(cuid())
+  feedId       String
+  feed         SocialFeed     @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  accountId    String?
+  account      SocialAccount? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  brandId      String?
+  attractionId String?
+
+  @@index([feedId])
+  @@index([accountId])
+}
+
+model SocialFeedPost {
+  id         String     @id @default(cuid())
+  feedId     String
+  feed       SocialFeed @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  postId     String
+  post       SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  isPinned   Boolean    @default(false)
+  sortOrder  Int        @default(0)
+  addedAt    DateTime   @default(now())
+
+  @@unique([feedId, postId])
+  @@index([feedId])
+  @@index([postId])
+}
+
+model SocialPlacement {
+  id               String                  @id @default(cuid())
+  name             String
+  location         SocialPlacementLocation
+  feedId           String
+  feed             SocialFeed              @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  portal           PortalType              @default(SHARED)
+  pageSlug         String?
+  sectionPosition  Int                     @default(0)
+  isEnabled        Boolean                 @default(true)
+  headingEn        String?
+  headingAr        String?
+  subheadingEn     String?
+  subheadingAr     String?
+  eyebrowEn        String?
+  eyebrowAr        String?
+  ctaTextEn        String?
+  ctaTextAr        String?
+  ctaDestination   String?
+  backgroundStyle  String                  @default("TRANSPARENT")
+  theme            String                  @default("SYSTEM")
+  layoutOverride   String?
+  maxPostsOverride Int?
+  visibleDesktop   Boolean                 @default(true)
+  visibleTablet    Boolean                 @default(true)
+  visibleMobile    Boolean                 @default(true)
+  startDate        DateTime?
+  endDate          DateTime?
+  sortOrder        Int                     @default(0)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  @@index([location])
+  @@index([isEnabled])
+  @@index([portal])
+  @@index([feedId])
+}
+
+model SocialSyncJob {
+  id               String           @id @default(cuid())
+  accountId        String?
+  account          SocialAccount?   @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  provider         SocialProviderKey
+  status           SocialSyncStatus @default(IN_PROGRESS)
+  startTime        DateTime         @default(now())
+  endTime          DateTime?
+  durationMs       Int?
+  recordsCreated   Int              @default(0)
+  recordsUpdated   Int              @default(0)
+  recordsFailed    Int              @default(0)
+  recordsSkipped   Int              @default(0)
+  triggerType      String           @default("CRON") // CRON, MANUAL, WEBHOOK
+  logDetails       Json?
+  errorMessage     String?
+  createdAt        DateTime         @default(now())
+
+  @@index([provider])
+  @@index([accountId])
+  @@index([status])
+  @@index([startTime])
+}
+
+model SocialSyncError {
+  id             String            @id @default(cuid())
+  accountId      String?
+  account        SocialAccount?    @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  provider       SocialProviderKey
+  errorCode      String?
+  errorMessage   String
+  isResolved     Boolean           @default(false)
+  resolvedAt     DateTime?
+  resolvedBy     String?
+  createdAt      DateTime          @default(now())
+
+  @@index([provider])
+  @@index([accountId])
+  @@index([isResolved])
+}
+
+model SocialAuditLog {
+  id             String            @id @default(cuid())
+  userId         String?
+  userName       String?
+  userEmail      String?
+  action         SocialAuditAction
+  targetType     String
+  targetId       String?
+  summary        String
+  details        Json?
+  ipAddress      String?
+  createdAt      DateTime          @default(now())
+
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model SocialGlobalSettings {
+  id                        String   @id @default("default")
+  syncIntervalMinutes       Int      @default(30)
+  defaultModeration         SocialModerationStatus @default(APPROVED)
+  defaultFeedMode           SocialFeedMode   @default(HYBRID)
+  defaultMaxPosts           Int      @default(12)
+  dataRetentionDays         Int      @default(365)
+  showEngagementMetrics     Boolean  @default(true)
+  notifyOnSyncFailure       Boolean  @default(true)
+  notifyOnTokenExpiry       Boolean  @default(true)
+  notificationEmails        Json?    // String array
+  cacheDurationSeconds      Int      @default(300)
+  maxImportedPostsPerAccount Int     @default(100)
+  allowedMediaTypes         Json?    // SocialPostMediaType array
+  fallbackImageUrl          String?
+  enableManualEmbeds        Boolean  @default(true)
+  publicFeedsEnabled        Boolean  @default(true)
+  updatedBy                 String?
+  updatedAt                 DateTime @updatedAt
+}

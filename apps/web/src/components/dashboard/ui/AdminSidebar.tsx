@@ -44,6 +44,7 @@ const sidebarConfig = [
     { label: "Our Brands", href: "/dashboard/b2c/content/brands" },
     { label: "Explore E3 Across Qatar", href: "/dashboard/b2c/content/qatar-map" },
     { label: "Live Feed", href: "/dashboard/b2c/content/live-feed" },
+    { label: "Social Media Manager", href: "/admin/social-media" },
     { label: "Everlasting Memories", href: "/dashboard/b2c/content/memories" },
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
     { label: "Pulse Orbit (B2C)", href: "/dashboard/b2c/pulse-orbit" },
