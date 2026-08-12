@@ -458,9 +458,9 @@ export function DiscoverClient({
                   {features.map((item: any) => {
                     const itemImg = item.imageUrl || item.mediaUrl;
                     return (
-                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Side Image Placeholder Area */}
-                        <div className="relative h-48 md:h-auto w-full md:w-5/12 bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center shrink-0">
+                      <InteractiveCard key={item.id} className="overflow-hidden p-6 flex flex-col sm:flex-row items-stretch border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl gap-6" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* Side Image Frame */}
+                        <div className="relative w-full sm:w-5/12 aspect-[16/10] sm:aspect-auto sm:min-h-[220px] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
                           {itemImg ? (
                             <img src={itemImg} alt={item.titleEn} className="w-full h-full object-cover" />
                           ) : (
@@ -468,16 +468,16 @@ export function DiscoverClient({
                               <Smartphone className="w-12 h-12 text-[var(--e3-royal-blue)]" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area beside Image */}
-                        <div className="p-6 w-full md:w-7/12 flex-1 flex flex-col justify-between">
+                        {/* Content Area beside Image */}
+                        <div className="w-full sm:w-7/12 flex flex-col justify-between space-y-4">
                           <div>
                             <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
                               {isAr ? item.titleAr : item.titleEn}
                             </h3>
-                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium line-clamp-4">
                               {isAr ? item.descriptionAr : item.descriptionEn}
                             </p>
                           </div>
@@ -515,9 +515,9 @@ export function DiscoverClient({
                   {items.map((item: any) => {
                     const cardImg = item.imageUrl || item.mediaUrl;
                     return (
-                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Side Image Placeholder Area */}
-                        <div className="relative h-48 md:h-auto w-full md:w-5/12 bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center shrink-0">
+                      <InteractiveCard key={item.id} className="overflow-hidden p-6 flex flex-col sm:flex-row items-stretch border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl gap-6" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* Side Image Frame Area */}
+                        <div className="relative w-full sm:w-5/12 aspect-[16/10] sm:aspect-auto sm:min-h-[220px] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
                           {cardImg ? (
                             <img src={cardImg} alt={item.titleEn} className="w-full h-full object-cover" />
                           ) : (
@@ -525,11 +525,11 @@ export function DiscoverClient({
                               <Sparkles className="w-10 h-10 text-[var(--e3-purple)]" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area beside Image */}
-                        <div className="p-6 w-full md:w-7/12 flex-1 flex flex-col justify-between space-y-4">
+                        {/* Content Area beside Image */}
+                        <div className="w-full sm:w-7/12 flex flex-col justify-between space-y-4">
                           <div>
                             <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase block mb-2">
                               {isAr ? item.tabLabelAr : item.tabLabelEn}
@@ -537,14 +537,14 @@ export function DiscoverClient({
                             <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 font-display uppercase">
                               {isAr ? item.titleAr : item.titleEn}
                             </h3>
-                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium line-clamp-4">
                               {isAr ? item.descriptionAr : item.descriptionEn}
                             </p>
                           </div>
 
                           <a 
                             href={item.customUrl || "#"} 
-                            className="w-full py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors text-center flex items-center justify-center gap-2 shadow-md"
+                            className="w-full py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] hover:bg-[var(--e3-royal-blue)] hover:text-white transition-all text-center flex items-center justify-center gap-2 shadow-md group"
                           >
                             {isAr ? item.ctaLabelAr : item.ctaLabelEn}
                             <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
@@ -650,9 +650,9 @@ export function DiscoverClient({
                   {displayList.map((ins: any) => {
                     const postImg = ins.mediaUrl || ins.imageUrl || ins.coverImage;
                     return (
-                      <InteractiveCard key={ins.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Side Image Placeholder Area */}
-                        <div className="relative h-48 md:h-auto w-full md:w-5/12 bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center shrink-0">
+                      <InteractiveCard key={ins.id} className="overflow-hidden p-6 flex flex-col sm:flex-row items-stretch border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl gap-6" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* Side Image Frame Area */}
+                        <div className="relative w-full sm:w-5/12 aspect-[16/10] sm:aspect-auto sm:min-h-[220px] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
                           {postImg ? (
                             <img src={postImg} alt={ins.titleEn} className="w-full h-full object-cover" />
                           ) : (
@@ -660,13 +660,13 @@ export function DiscoverClient({
                               <Sparkles className="w-8 h-8 text-[var(--e3-royal-blue)]" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area beside Image */}
-                        <div className="p-6 w-full md:w-7/12 flex-1 flex flex-col justify-between">
+                        {/* Content Area beside Image */}
+                        <div className="w-full sm:w-7/12 flex flex-col justify-between space-y-4">
                           <div>
-                            <span className="px-2 py-0.5 text-[10px] font-extrabold rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block font-mono">
+                            <span className="px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block font-mono">
                               {ins.contentType}
                             </span>
                             <h3 className="font-extrabold text-base text-[var(--text-primary)] mb-2 line-clamp-2 uppercase font-display">
