@@ -1037,6 +1037,27 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     };
   }
 
+  if (slug === 'pulse-orbit') {
+    const raw = rawContent || {};
+    const defaultDestinations = [
+      { id: 'attractions', labelEn: 'Attractions', mediaUrl: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop' },
+      { id: 'packages', labelEn: 'Packages', mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop' }
+    ];
+    return {
+      ...raw,
+      destinations: (raw.destinations && raw.destinations.length > 0)
+        ? raw.destinations.map((d: any, idx: number) => {
+            const match = defaultDestinations[idx] || defaultDestinations[0];
+            return {
+              ...match,
+              ...d,
+              mediaUrl: (d.mediaUrl && d.mediaUrl.trim().length > 0) ? d.mediaUrl : match.mediaUrl
+            };
+          })
+        : defaultDestinations
+    };
+  }
+
   if (slug !== 'b2c-landing') return rawContent || {};
 
   const defaults = DEFAULT_B2C_LANDING_CONTENT;

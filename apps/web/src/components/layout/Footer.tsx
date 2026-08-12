@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLocale } from "./LocaleProvider";
 import { useTheme } from "./ThemeProvider";
 import { Send, ShieldCheck } from "lucide-react";
+import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import { cn } from "@/lib/utils";
 
 interface FooterProps {
@@ -68,9 +69,22 @@ export function Footer({ portal, settings = {} }: FooterProps) {
     }
   };
 
+  const backgroundMedia = settings.backgroundMedia ? (typeof settings.backgroundMedia === "string" ? JSON.parse(settings.backgroundMedia) : settings.backgroundMedia) : null;
+  const _foregroundMedia = settings.foregroundMedia ? (typeof settings.foregroundMedia === "string" ? JSON.parse(settings.foregroundMedia) : settings.foregroundMedia) : null;
+
   return (
-    <footer className="bg-[var(--surface-default)] border-t border-[var(--border-level-2)] pt-16 pb-8">
-      <div className="container mx-auto px-4 md:px-6">
+    <footer className="relative bg-[var(--surface-default)] border-t border-[var(--border-level-2)] pt-16 pb-8 overflow-hidden">
+      {backgroundMedia?.mediaUrl && (
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <UniversalMediaRenderer
+            src={backgroundMedia.mediaUrl}
+            type={(backgroundMedia.mediaType as any) || "IMAGE"}
+            alt="Footer Background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
         
         {/* 4-Column Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
