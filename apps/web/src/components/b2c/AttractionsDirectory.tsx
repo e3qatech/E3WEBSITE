@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Search, 
   MapPin, 
@@ -17,6 +17,12 @@ import {
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
+
+declare global {
+  interface Window {
+    L: any;
+  }
+}
 
 interface AttractionItem {
   id: string;
@@ -176,7 +182,7 @@ const FALLBACK_ATTRACTIONS: AttractionItem[] = [
 ];
 
 function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth radius in km
+  const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a =
@@ -223,7 +229,6 @@ function getTimingStatus(attraction: AttractionItem, isAr: boolean) {
   const openMinutes = (openH || 14) * 60 + (openM || 0);
   const closeMinutes = (closeH || 23) * 60 + (closeM || 0);
 
-  // Friendly time string e.g. "4:00 PM"
   const formattedOpen = new Date(2000, 0, 1, openH || 14, openM || 0).toLocaleTimeString(
     isAr ? 'ar-QA' : 'en-US', 
     { hour: 'numeric', minute: '2-digit' }
@@ -265,7 +270,11 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
   const [selectedAttrId, setSelectedAttrId] = useState<string>(list[0]?.id || '');
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
-  const [locationDenied, setLocationDenied] = useState(false);
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
 
   const categories = [
     { id: 'ALL', labelEn: 'All Attractions', labelAr: 'جميع الوجهات' },
@@ -276,6 +285,29 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
     { id: 'WATER & SPLASH', labelEn: 'Water & Splash', labelAr: 'ألعاب مائية' }
   ];
 
+  // Dynamically load Leaflet JS & CSS for real interactive map cartography
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    if (!window.L) {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.async = true;
+      script.onload = () => setLeafletLoaded(true);
+      document.head.appendChild(script);
+    } else {
+      setLeafletLoaded(true);
+    }
+  }, []);
+
   const handleRequestLocation = () => {
     if (!navigator.geolocation) {
       alert(isAr ? "خدمة تحديد الموقع غير مدعومة في متصفحك" : "Geolocation is not supported by your browser.");
@@ -284,14 +316,17 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+        const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+        setUserCoords(coords);
         setLocating(false);
-        setLocationDenied(false);
+
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.flyTo([coords.lat, coords.lng], 12);
+        }
       },
       (err) => {
         console.warn("Geolocation denied or error:", err);
         setLocating(false);
-        setLocationDenied(true);
       }
     );
   };
@@ -323,6 +358,94 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
   const selectedAttraction = useMemo(() => {
     return list.find((a) => a.id === selectedAttrId) || filteredAttractions[0] || list[0];
   }, [list, filteredAttractions, selectedAttrId]);
+
+  // Initialize Leaflet Map Instance
+  useEffect(() => {
+    if (!leafletLoaded || !mapContainerRef.current || !window.L) return;
+
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+
+    const L = window.L;
+    const map = L.map(mapContainerRef.current, {
+      center: [25.35, 51.48],
+      zoom: 11,
+      zoomControl: true,
+      scrollWheelZoom: false
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [leafletLoaded, viewMode]);
+
+  // Update Markers on Leaflet Map
+  useEffect(() => {
+    if (!mapInstanceRef.current || !window.L) return;
+
+    const L = window.L;
+    const map = mapInstanceRef.current;
+
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    filteredAttractions.forEach((attr) => {
+      const ops = attr.operations || {};
+      const lat = ops.lat || attr.coordinates?.lat || 25.418;
+      const lng = ops.lng || attr.coordinates?.lng || 51.530;
+
+      const isSelected = attr.id === selectedAttraction?.id;
+      const bgColor = isSelected ? '#1a1fd6' : 'rgba(9, 3, 20, 0.9)';
+      const bdColor = isSelected ? '#ffffff' : '#8b5cf6';
+      const size = isSelected ? 44 : 36;
+
+      const customIcon = L.divIcon({
+        className: 'custom-map-pin',
+        html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;"><div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bgColor}; border: 2px solid ${bdColor}; display: flex; items-center: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: all 0.3s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div></div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2]
+      });
+
+      const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+      const title = isAr ? attr.nameAr : attr.nameEn;
+      const locName = isAr ? (ops.locationNameAr || "قطر") : (ops.locationNameEn || "Qatar");
+      const bookText = isAr ? "حجز التذاكر" : "Book Tickets";
+      const ticketUrl = attr.ticketingUrl || "/en/b2c/calendar";
+      const imgHtml = attr.heroMediaUrl ? `<img src="${attr.heroMediaUrl}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" />` : '';
+
+      const popupContent = `
+        <div style="font-family: inherit; padding: 4px; max-width: 200px; text-align: ${isAr ? 'right' : 'left'};">
+          ${imgHtml}
+          <div style="font-weight: 800; font-size: 12px; text-transform: uppercase; color: #fff; margin-bottom: 2px;">${title}</div>
+          <div style="font-size: 10px; color: #94a3b8; margin-bottom: 6px;">${locName}</div>
+          <a href="${ticketUrl}" style="display: block; width: 100%; text-align: center; padding: 5px 10px; background: #1a1fd6; color: #fff; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; text-decoration: none;">${bookText}</a>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, {
+        className: 'e3-leaflet-popup'
+      });
+
+      marker.on('click', () => {
+        setSelectedAttrId(attr.id);
+      });
+
+      markersRef.current.push(marker);
+    });
+  }, [filteredAttractions, selectedAttraction, leafletLoaded, isAr]);
 
   return (
     <section id="attractions-directory" className="relative py-20 bg-[var(--bg-level-1)] text-white border-t border-[var(--border-level-2)]">
@@ -488,8 +611,8 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
-                          {/* Dynamic Timing Status Badge (NO Attraction is Shown as Plain "Closed") */}
-                          <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-mono font-extrabold uppercase backdrop-blur-md shadow-md z-10 ${timing.badgeClass}">
+                          {/* Dynamic Timing Status Badge */}
+                          <div className={`absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-mono font-extrabold uppercase backdrop-blur-md shadow-md z-10 ${timing.badgeClass}`}>
                             <span className={`w-2 h-2 rounded-full ${timing.dotClass}`} />
                             <span>{timing.label}</span>
                           </div>
@@ -539,89 +662,20 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
                 </div>
               )}
 
-              {/* Right Column: Interactive Vector Map Canvas */}
+              {/* Right Column: Real Leaflet Interactive Map Container */}
               {(viewMode === 'MAP' || viewMode === 'SPLIT') && (
                 <div className={`${viewMode === 'MAP' ? 'lg:col-span-12' : 'lg:col-span-6'} sticky top-24`}>
-                  <div className="relative aspect-[4/3] rounded-3xl border border-[var(--border-level-2)] bg-[#050110] p-6 overflow-hidden flex flex-col justify-between shadow-2xl">
-                    {/* Background Radial Glow */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(26,31,214,0.18),transparent_70%)] pointer-events-none" />
+                  <div className="relative aspect-[4/3] rounded-3xl border border-[var(--border-level-2)] bg-[#050110] overflow-hidden shadow-2xl flex flex-col justify-between">
+                    {/* Actual Leaflet Map Canvas Container */}
+                    <div ref={mapContainerRef} className="w-full h-full min-h-[420px] z-0" />
 
-                    {/* Interactive Qatar SVG Map Canvas */}
-                    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-                      <svg
-                        viewBox="0 0 600 800"
-                        className="w-full h-full max-h-[460px] text-slate-800 pointer-events-none drop-shadow-2xl"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        {/* Qatar Peninsula Boundary SVG Path */}
-                        <path
-                          d="M280 80 C 330 90, 380 140, 410 210 C 440 280, 460 360, 430 460 C 400 560, 360 640, 310 720 C 260 760, 210 740, 180 680 C 150 620, 140 520, 160 420 C 180 320, 200 210, 230 130 Z"
-                          fill="url(#qatarMapGradient)"
-                          stroke="rgba(26, 31, 214, 0.4)"
-                          strokeWidth="3"
-                          strokeDasharray="6 6"
-                        />
-                        <defs>
-                          <linearGradient id="qatarMapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#0b0620" />
-                            <stop offset="50%" stopColor="#100832" />
-                            <stop offset="100%" stopColor="#050110" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-
-                      {/* Map Pins overlay plotted across Qatar */}
-                      <div className="absolute inset-0">
-                        {filteredAttractions.map((attr, idx) => {
-                          const ops = attr.operations || {};
-                          const lat = ops.lat || attr.coordinates?.lat || 25.418;
-                          const lng = ops.lng || attr.coordinates?.lng || 51.530;
-
-                          // Map Qatar lat (24.8 to 26.1) and lng (50.7 to 51.7) to percentage offsets on SVG
-                          const topPct = Math.min(85, Math.max(15, 100 - ((lat - 24.8) / 1.3) * 100));
-                          const leftPct = Math.min(85, Math.max(15, ((lng - 50.7) / 1.0) * 100));
-
-                          const isSelected = attr.id === selectedAttraction?.id;
-                          const timing = getTimingStatus(attr, isAr);
-
-                          return (
-                            <div
-                              key={attr.id}
-                              style={{ top: `${topPct}%`, left: `${leftPct}%` }}
-                              onClick={() => setSelectedAttrId(attr.id)}
-                              className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20 group"
-                            >
-                              <div className="relative flex items-center justify-center">
-                                {isSelected && (
-                                  <div className="absolute w-12 h-12 rounded-full bg-[var(--e3-royal-blue)]/30 animate-ping pointer-events-none" />
-                                )}
-                                <div className={`p-2.5 rounded-full border shadow-2xl transition-transform duration-300 ${
-                                  isSelected 
-                                    ? 'bg-[var(--e3-royal-blue)] border-white scale-125 z-30' 
-                                    : 'bg-black/80 border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:scale-110'
-                                }`}>
-                                  <MapPin className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-[var(--e3-royal-blue)]'}`} />
-                                </div>
-
-                                {/* Hover Pin Label Badge */}
-                                <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 border border-[var(--border-level-2)] px-3 py-1.5 rounded-xl text-[11px] font-bold text-white whitespace-nowrap pointer-events-none shadow-2xl z-40">
-                                  {isAr ? attr.nameAr : attr.nameEn}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Selected Pin Attraction Info Floating Card */}
+                    {/* Selected Attraction Floating Info Card */}
                     {selectedAttraction && (
                       <motion.div 
                         key={selectedAttraction.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-4 rounded-2xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] backdrop-blur-md shadow-2xl flex items-center justify-between gap-4 relative z-30"
+                        className="p-4 rounded-2xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] backdrop-blur-md shadow-2xl flex items-center justify-between gap-4 absolute bottom-4 left-4 right-4 z-10"
                       >
                         <div className="flex items-center gap-3">
                           {selectedAttraction.heroMediaUrl && (
@@ -632,7 +686,7 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
                             />
                           )}
                           <div className="space-y-1">
-                            <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase block">SELECTED MAP DESTINATION</span>
+                            <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase block">SELECTED MAP PIN</span>
                             <h4 className="text-sm font-bold text-[var(--text-primary)] font-display uppercase">{isAr ? selectedAttraction.nameAr : selectedAttraction.nameEn}</h4>
                             <p className="text-[11px] text-[var(--text-secondary)] font-medium truncate max-w-[200px]">{selectedAttraction.operations?.locationNameEn || "Qatar"}</p>
                           </div>
