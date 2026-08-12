@@ -25,8 +25,8 @@ interface LockRecord {
   updatedAt: Date;
 }
 
-let dbLocks: Map<string, LockRecord> = new Map();
-let postsTable: Map<string, any> = new Map();
+const dbLocks: Map<string, LockRecord> = new Map();
+const postsTable: Map<string, any> = new Map();
 
 vi.mock('../lib/db', () => ({
   default: {

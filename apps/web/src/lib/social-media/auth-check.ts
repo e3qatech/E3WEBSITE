@@ -22,8 +22,10 @@ export async function checkSocialAdminAuth(
 ): Promise<{ isAuthed: boolean; role?: string; user?: any }> {
   try {
     const session = await auth();
-    if (session?.user) {
-      const userRole = (session.user as any).role || 'STAFF';
+    if (!session || !session.user) {
+      return { isAuthed: false };
+    }
+    const userRole = (session.user as any).role || 'STAFF';
 
       // Super Admin has all permissions
       if (userRole === 'SUPER_ADMIN') {
@@ -42,11 +44,11 @@ export async function checkSocialAdminAuth(
 
         case 'MANAGE_FEEDS':
         case 'MANAGE_PLACEMENTS':
-          return { isAuthed: ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'CONTENT_MANAGER'].includes(userRole), role: userRole, user: session.user };
+          return { isAuthed: ['SUPER_ADMIN', 'CONTENT_MANAGER'].includes(userRole), role: userRole, user: session.user };
 
         case 'MODERATE_POSTS':
         case 'RUN_SYNC':
-          return { isAuthed: ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'STAFF', 'CONTENT_MANAGER', 'EDITOR'].includes(userRole), role: userRole, user: session.user };
+          return { isAuthed: ['SUPER_ADMIN', 'CONTENT_MANAGER', 'EDITOR'].includes(userRole), role: userRole, user: session.user };
 
         case 'MANAGE_GLOBAL_SETTINGS':
           return { isAuthed: ['SUPER_ADMIN'].includes(userRole), role: userRole, user: session.user };
@@ -54,7 +56,6 @@ export async function checkSocialAdminAuth(
         default:
           return { isAuthed: true, role: userRole, user: session.user };
       }
-    }
   } catch (e) {
     console.debug('[Social Auth] Session evaluation error:', e);
   }

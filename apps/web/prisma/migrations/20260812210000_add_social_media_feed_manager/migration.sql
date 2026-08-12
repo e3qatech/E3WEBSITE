@@ -135,10 +135,12 @@ CREATE INDEX IF NOT EXISTS "SocialAccount_provider_idx"   ON "SocialAccount"("pr
 CREATE INDEX IF NOT EXISTS "SocialAccount_status_idx"     ON "SocialAccount"("status");
 CREATE INDEX IF NOT EXISTS "SocialAccount_isActive_idx"   ON "SocialAccount"("isActive");
 
-ALTER TABLE "SocialAccount"
-    ADD CONSTRAINT IF NOT EXISTS "SocialAccount_providerConfigId_fkey"
-    FOREIGN KEY ("providerConfigId")
-    REFERENCES "SocialProviderConfig"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialAccount"
+        ADD CONSTRAINT "SocialAccount_providerConfigId_fkey"
+        FOREIGN KEY ("providerConfigId")
+        REFERENCES "SocialProviderConfig"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialPost
@@ -199,10 +201,12 @@ CREATE INDEX IF NOT EXISTS "SocialPost_publishedAt_idx"      ON "SocialPost"("pu
 CREATE INDEX IF NOT EXISTS "SocialPost_brandId_idx"          ON "SocialPost"("brandId");
 CREATE INDEX IF NOT EXISTS "SocialPost_attractionId_idx"     ON "SocialPost"("attractionId");
 
-ALTER TABLE "SocialPost"
-    ADD CONSTRAINT IF NOT EXISTS "SocialPost_accountId_fkey"
-    FOREIGN KEY ("accountId")
-    REFERENCES "SocialAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialPost"
+        ADD CONSTRAINT "SocialPost_accountId_fkey"
+        FOREIGN KEY ("accountId")
+        REFERENCES "SocialAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialPostMedia
@@ -222,10 +226,12 @@ CREATE TABLE IF NOT EXISTS "SocialPostMedia" (
 
 CREATE INDEX IF NOT EXISTS "SocialPostMedia_postId_idx" ON "SocialPostMedia"("postId");
 
-ALTER TABLE "SocialPostMedia"
-    ADD CONSTRAINT IF NOT EXISTS "SocialPostMedia_postId_fkey"
-    FOREIGN KEY ("postId")
-    REFERENCES "SocialPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialPostMedia"
+        ADD CONSTRAINT "SocialPostMedia_postId_fkey"
+        FOREIGN KEY ("postId")
+        REFERENCES "SocialPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialFeed
@@ -286,13 +292,17 @@ CREATE TABLE IF NOT EXISTS "SocialFeedSource" (
 CREATE INDEX IF NOT EXISTS "SocialFeedSource_feedId_idx"    ON "SocialFeedSource"("feedId");
 CREATE INDEX IF NOT EXISTS "SocialFeedSource_accountId_idx" ON "SocialFeedSource"("accountId");
 
-ALTER TABLE "SocialFeedSource"
-    ADD CONSTRAINT IF NOT EXISTS "SocialFeedSource_feedId_fkey"
-    FOREIGN KEY ("feedId") REFERENCES "SocialFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialFeedSource"
+        ADD CONSTRAINT "SocialFeedSource_feedId_fkey"
+        FOREIGN KEY ("feedId") REFERENCES "SocialFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-ALTER TABLE "SocialFeedSource"
-    ADD CONSTRAINT IF NOT EXISTS "SocialFeedSource_accountId_fkey"
-    FOREIGN KEY ("accountId") REFERENCES "SocialAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialFeedSource"
+        ADD CONSTRAINT "SocialFeedSource_accountId_fkey"
+        FOREIGN KEY ("accountId") REFERENCES "SocialAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialFeedPost  (curated membership + pinning + ordering)
@@ -312,13 +322,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS "SocialFeedPost_feedId_postId_key"
 CREATE INDEX IF NOT EXISTS "SocialFeedPost_feedId_idx" ON "SocialFeedPost"("feedId");
 CREATE INDEX IF NOT EXISTS "SocialFeedPost_postId_idx" ON "SocialFeedPost"("postId");
 
-ALTER TABLE "SocialFeedPost"
-    ADD CONSTRAINT IF NOT EXISTS "SocialFeedPost_feedId_fkey"
-    FOREIGN KEY ("feedId") REFERENCES "SocialFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialFeedPost"
+        ADD CONSTRAINT "SocialFeedPost_feedId_fkey"
+        FOREIGN KEY ("feedId") REFERENCES "SocialFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-ALTER TABLE "SocialFeedPost"
-    ADD CONSTRAINT IF NOT EXISTS "SocialFeedPost_postId_fkey"
-    FOREIGN KEY ("postId") REFERENCES "SocialPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialFeedPost"
+        ADD CONSTRAINT "SocialFeedPost_postId_fkey"
+        FOREIGN KEY ("postId") REFERENCES "SocialPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialPlacement
@@ -361,9 +375,11 @@ CREATE INDEX IF NOT EXISTS "SocialPlacement_isEnabled_idx" ON "SocialPlacement"(
 CREATE INDEX IF NOT EXISTS "SocialPlacement_portal_idx"    ON "SocialPlacement"("portal");
 CREATE INDEX IF NOT EXISTS "SocialPlacement_feedId_idx"    ON "SocialPlacement"("feedId");
 
-ALTER TABLE "SocialPlacement"
-    ADD CONSTRAINT IF NOT EXISTS "SocialPlacement_feedId_fkey"
-    FOREIGN KEY ("feedId") REFERENCES "SocialFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialPlacement"
+        ADD CONSTRAINT "SocialPlacement_feedId_fkey"
+        FOREIGN KEY ("feedId") REFERENCES "SocialFeed"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialSyncJob
@@ -392,9 +408,11 @@ CREATE INDEX IF NOT EXISTS "SocialSyncJob_accountId_idx"  ON "SocialSyncJob"("ac
 CREATE INDEX IF NOT EXISTS "SocialSyncJob_status_idx"     ON "SocialSyncJob"("status");
 CREATE INDEX IF NOT EXISTS "SocialSyncJob_startTime_idx"  ON "SocialSyncJob"("startTime");
 
-ALTER TABLE "SocialSyncJob"
-    ADD CONSTRAINT IF NOT EXISTS "SocialSyncJob_accountId_fkey"
-    FOREIGN KEY ("accountId") REFERENCES "SocialAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialSyncJob"
+        ADD CONSTRAINT "SocialSyncJob_accountId_fkey"
+        FOREIGN KEY ("accountId") REFERENCES "SocialAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialSyncError
@@ -416,9 +434,11 @@ CREATE INDEX IF NOT EXISTS "SocialSyncError_provider_idx"   ON "SocialSyncError"
 CREATE INDEX IF NOT EXISTS "SocialSyncError_accountId_idx"  ON "SocialSyncError"("accountId");
 CREATE INDEX IF NOT EXISTS "SocialSyncError_isResolved_idx" ON "SocialSyncError"("isResolved");
 
-ALTER TABLE "SocialSyncError"
-    ADD CONSTRAINT IF NOT EXISTS "SocialSyncError_accountId_fkey"
-    FOREIGN KEY ("accountId") REFERENCES "SocialAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "SocialSyncError"
+        ADD CONSTRAINT "SocialSyncError_accountId_fkey"
+        FOREIGN KEY ("accountId") REFERENCES "SocialAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- -----------------------------------------------------------
 -- TABLE: SocialAuditLog

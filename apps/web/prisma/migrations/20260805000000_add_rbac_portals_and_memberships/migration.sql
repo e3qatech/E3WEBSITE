@@ -1,3 +1,16 @@
+-- Ensure RoleType and PortalType exist before altering
+DO $$ BEGIN
+    CREATE TYPE "RoleType" AS ENUM ('CLIENT', 'STAFF', 'SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'CLIENT_ADMIN', 'CLIENT_VIEWER');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE "PortalType" AS ENUM ('B2C', 'B2B', 'SHARED');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 -- AlterEnum
 ALTER TYPE "RoleType" ADD VALUE IF NOT EXISTS 'CANDIDATE';
 
@@ -7,6 +20,16 @@ DO $$ BEGIN
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
+
+-- Ensure base tables exist before altering
+CREATE TABLE IF NOT EXISTS "User" ("id" TEXT PRIMARY KEY, "name" TEXT, "email" TEXT UNIQUE, "role" "RoleType" DEFAULT 'CLIENT');
+CREATE TABLE IF NOT EXISTS "EmployeeProfile" ("id" TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS "Talent" ("id" TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS "Client" ("id" TEXT PRIMARY KEY, "name" TEXT);
+CREATE TABLE IF NOT EXISTS "Attraction" ("id" TEXT PRIMARY KEY, "slug" TEXT UNIQUE, "name" TEXT);
+CREATE TABLE IF NOT EXISTS "Brand" ("id" TEXT PRIMARY KEY, "slug" TEXT UNIQUE, "name" TEXT);
+CREATE TABLE IF NOT EXISTS "CaseStudy" ("id" TEXT PRIMARY KEY, "slug" TEXT UNIQUE, "title" TEXT);
+CREATE TABLE IF NOT EXISTS "Service" ("id" TEXT PRIMARY KEY, "slug" TEXT UNIQUE, "title" TEXT);
 
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "sessionVersion" INTEGER NOT NULL DEFAULT 1;
