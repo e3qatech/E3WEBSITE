@@ -263,6 +263,9 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         pricing={pricing}
         offers={attraction.offers || []}
         bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+        pricingNoteEn={(operations as any)?.pricingNoteEn}
+        pricingNoteAr={(operations as any)?.pricingNoteAr}
+        locale={locale}
       />
 
       {/* 7. Partners */}
