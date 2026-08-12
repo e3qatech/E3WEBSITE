@@ -87,6 +87,14 @@ export function UniversalMediaRenderer({
       )
       
     case 'SPLINE':
+      // Spline runtime requires valid .splinecode scene binary or prod.spline.design embed URL
+      if (!src.includes('.splinecode') && !src.includes('spline.design')) {
+        return (
+          <div className={cn("relative w-full h-full", className)}>
+            <iframe src={src} title={alt} className="w-full h-full border-0" allow="autoplay; fullscreen" loading="lazy" />
+          </div>
+        );
+      }
       return (
         <div className={cn("relative w-full h-full min-h-[300px]", className)}>
           <Suspense fallback={
@@ -98,13 +106,13 @@ export function UniversalMediaRenderer({
               )}
             </div>
           }>
-            <SplineViewer scene={src} />
+            <SplineViewer scene={src} onError={(err) => console.warn('[UniversalMediaRenderer] Spline load error fallback:', err)} />
           </Suspense>
         </div>
       )
       
     case 'THREE_D':
-      if (src.includes('spline.design') || src.includes('.splinecode')) {
+      if (src.includes('.splinecode') || (src.includes('spline.design') && !src.includes('/embed/'))) {
         return (
           <div className={cn("relative w-full h-full min-h-[300px]", className)}>
             <Suspense fallback={
@@ -116,7 +124,7 @@ export function UniversalMediaRenderer({
                 )}
               </div>
             }>
-              <SplineViewer scene={src} />
+              <SplineViewer scene={src} onError={(err) => console.warn('[UniversalMediaRenderer] Spline load error fallback:', err)} />
             </Suspense>
           </div>
         )
