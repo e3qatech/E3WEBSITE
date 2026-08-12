@@ -17,7 +17,29 @@ async function runRealPostgresLockTest() {
 
     const lockDbUrl = `${BASE_URL}/e3_disposable_lock_test`;
 
-    console.log('2. Provisioning database schema with `prisma migrate deploy`...');
+    console.log('2. Provisioning database schema with baseline workflow & `prisma migrate deploy`...');
+    execSync('npx prisma db push --skip-generate --accept-data-loss', {
+      env: { ...process.env, DATABASE_URL: lockDbUrl },
+      cwd: __dirname + '/..',
+      encoding: 'utf8'
+    });
+
+    const preSocialMigrations = [
+      '20260805000000_add_rbac_portals_and_memberships',
+      '20260812000000_add_story_discovery',
+      '20260812000001_add_brand_ip_system',
+      '20260812000002_add_insights_and_packages',
+      '20260812140000_extend_location_system',
+    ];
+
+    for (const mig of preSocialMigrations) {
+      execSync(`npx prisma migrate resolve --applied ${mig}`, {
+        env: { ...process.env, DATABASE_URL: lockDbUrl },
+        cwd: __dirname + '/..',
+        encoding: 'utf8'
+      });
+    }
+
     execSync('npx prisma migrate deploy', {
       env: { ...process.env, DATABASE_URL: lockDbUrl },
       cwd: __dirname + '/..',

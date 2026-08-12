@@ -1,10 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'VIEW_LOGS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
     const [providers, accounts, syncJobs, syncErrors, globalSettings] = await Promise.all([
       db.socialProviderConfig.findMany({ select: { id: true, provider: true, enabled: true, appId: true, apiVersion: true, updatedAt: true } }),
       db.socialAccount.findMany({ select: { id: true, provider: true, internalName: true, username: true, status: true, autoSyncEnabled: true, lastSuccessfulSync: true, lastSyncAttempt: true, tokenExpiresAt: true } }),
@@ -32,7 +37,10 @@ export async function GET() {
         apiVersion: p.apiVersion,
         lastConfigUpdate: p.updatedAt,
       })),
-      accounts,
+      accounts: accounts.map((a: any) => {
+        const { encryptedData, encryptedAccessToken, encryptedRefreshToken, ...rest } = a;
+        return rest;
+      }),
       recentSyncJobs: syncJobs,
       activeErrors: syncErrors,
     };
