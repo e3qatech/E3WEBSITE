@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const activeOnly = url.searchParams.get("active") === "true"
 
-    const storyTypes = await db.storyType.findMany({
+    let storyTypes = await db.storyType.findMany({
       where: activeOnly ? { isActive: true } : undefined,
       orderBy: { orderIndex: 'asc' },
       include: {
@@ -32,6 +32,49 @@ export async function GET(request: Request) {
         }
       }
     })
+
+    if (storyTypes.length === 0) {
+      const defaultStoryTypes = [
+        { slug: 'drive', titleEn: 'Drive', titleAr: 'القيادة', icon: 'car', accentColor: '#3b82f6', orderIndex: 1, isActive: true },
+        { slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز والمرح', icon: 'activity', accentColor: '#f59e0b', orderIndex: 2, isActive: true },
+        { slug: 'compete', titleEn: 'Compete', titleAr: 'التحدي والمنافسة', icon: 'trophy', accentColor: '#ef4444', orderIndex: 3, isActive: true },
+        { slug: 'explore', titleEn: 'Explore', titleAr: 'الاستكشاف', icon: 'compass', accentColor: '#10b981', orderIndex: 4, isActive: true },
+        { slug: 'celebrate', titleEn: 'Celebrate', titleAr: 'الاحتفال', icon: 'gift', accentColor: '#8b5cf6', orderIndex: 5, isActive: true },
+        { slug: 'family-time', titleEn: 'Family Time', titleAr: 'وقت العائلة', icon: 'users', accentColor: '#ec4899', orderIndex: 6, isActive: true }
+      ]
+      for (const st of defaultStoryTypes) {
+        await db.storyType.upsert({
+          where: { slug: st.slug },
+          update: {},
+          create: st
+        })
+      }
+      storyTypes = await db.storyType.findMany({
+        where: activeOnly ? { isActive: true } : undefined,
+        orderBy: { orderIndex: 'asc' },
+        include: {
+          features: {
+            include: {
+              attraction: {
+                select: {
+                  heroThumbnailUrl: true,
+                  heroMediaUrl: true,
+                  isPublished: true,
+                  slug: true,
+                  nameEn: true,
+                  nameAr: true,
+                  taglineEn: true,
+                  taglineAr: true,
+                }
+              }
+            }
+          },
+          _count: {
+            select: { features: true }
+          }
+        }
+      })
+    }
     
     return NextResponse.json(storyTypes)
   } catch (error: any) {

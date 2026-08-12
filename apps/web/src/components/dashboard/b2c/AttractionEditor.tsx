@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { 
   Save, ArrowLeft, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
-  Users, List, Calendar
+  Users, List, Calendar, X
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -54,13 +54,46 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
       : Array.isArray(initialData?.features) ? initialData.features : []
   )
 
-  const [availableStoryTypes, setAvailableStoryTypes] = useState<any[]>([])
+const DEFAULT_STORY_TYPES = [
+  { id: 'st-drive', slug: 'drive', titleEn: 'Drive', titleAr: 'القيادة', accentColor: '#3b82f6' },
+  { id: 'st-bounce', slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز والمرح', accentColor: '#f59e0b' },
+  { id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'التحدي والمنافسة', accentColor: '#ef4444' },
+  { id: 'st-explore', slug: 'explore', titleEn: 'Explore', titleAr: 'الاستكشاف', accentColor: '#10b981' },
+  { id: 'st-celebrate', slug: 'celebrate', titleEn: 'Celebrate', titleAr: 'الاحتفال', accentColor: '#8b5cf6' },
+  { id: 'st-family-time', slug: 'family-time', titleEn: 'Family Time', titleAr: 'وقت العائلة', accentColor: '#ec4899' },
+];
+
+  const [availableStoryTypes, setAvailableStoryTypes] = useState<any[]>(DEFAULT_STORY_TYPES)
   const [availableBrands, setAvailableBrands] = useState<any[]>([])
+
+  // Quick Create Story Type Modal
+  const [showQuickStoryTypeModal, setShowQuickStoryTypeModal] = useState(false)
+  const [targetFeatureIndexForStoryType, setTargetFeatureIndexForStoryType] = useState<number | null>(null)
+  const [newStoryTitleEn, setNewStoryTitleEn] = useState("")
+  const [newStoryTitleAr, setNewStoryTitleAr] = useState("")
+  const [newStoryAccentColor, setNewStoryAccentColor] = useState("#3b82f6")
+  const [isCreatingStoryType, setIsCreatingStoryType] = useState(false)
+
+  // Quick Create Brand Modal
+  const [showQuickBrandModal, setShowQuickBrandModal] = useState(false)
+  const [targetFeatureIndexForBrand, setTargetFeatureIndexForBrand] = useState<number | null>(null)
+  const [newBrandNameEn, setNewBrandNameEn] = useState("")
+  const [newBrandNameAr, setNewBrandNameAr] = useState("")
+  const [newBrandLogoUrl, setNewBrandLogoUrl] = useState("")
+  const [newBrandType, setNewBrandType] = useState("OWNED")
+  const [isCreatingBrand, setIsCreatingBrand] = useState(false)
+
   useEffect(() => {
     fetch('/api/b2c/story-types?active=true')
       .then(res => res.json())
-      .then(data => setAvailableStoryTypes(Array.isArray(data) ? data : []))
-      .catch(console.error)
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAvailableStoryTypes(data)
+        } else {
+          setAvailableStoryTypes(DEFAULT_STORY_TYPES)
+        }
+      })
+      .catch(() => setAvailableStoryTypes(DEFAULT_STORY_TYPES))
 
     fetch('/api/b2c/brands')
       .then(res => res.json())
@@ -141,6 +174,92 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [isDirty])
+
+  const handleQuickCreateStoryType = async () => {
+    if (!newStoryTitleEn.trim()) return
+    setIsCreatingStoryType(true)
+    try {
+      const res = await fetch("/api/b2c/story-types", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titleEn: newStoryTitleEn.trim(),
+          titleAr: newStoryTitleAr.trim() || newStoryTitleEn.trim(),
+          accentColor: newStoryAccentColor,
+          isActive: true
+        })
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || "Failed to create Story Type")
+      }
+      const created = await res.json()
+      setAvailableStoryTypes(prev => [...prev, created])
+      
+      if (targetFeatureIndexForStoryType !== null && features[targetFeatureIndexForStoryType]) {
+        const updated = [...features]
+        const currentIds = updated[targetFeatureIndexForStoryType].storyTypeIds || []
+        updated[targetFeatureIndexForStoryType] = {
+          ...updated[targetFeatureIndexForStoryType],
+          storyTypeIds: Array.from(new Set([...currentIds, created.id]))
+        }
+        setFeatures(updated)
+      }
+      
+      setShowQuickStoryTypeModal(false)
+      setNewStoryTitleEn("")
+      setNewStoryTitleAr("")
+      setTargetFeatureIndexForStoryType(null)
+    } catch (err: any) {
+      alert(err.message || "Failed to create story type")
+    } finally {
+      setIsCreatingStoryType(false)
+    }
+  }
+
+  const handleQuickCreateBrand = async () => {
+    if (!newBrandNameEn.trim()) return
+    setIsCreatingBrand(true)
+    try {
+      const res = await fetch("/api/b2c/brands", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nameEn: newBrandNameEn.trim(),
+          nameAr: newBrandNameAr.trim() || newBrandNameEn.trim(),
+          logoUrl: newBrandLogoUrl,
+          brandType: newBrandType,
+          isActive: true
+        })
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || "Failed to create Brand")
+      }
+      const created = await res.json()
+      setAvailableBrands(prev => [created, ...prev])
+      
+      if (targetFeatureIndexForBrand !== null && features[targetFeatureIndexForBrand]) {
+        const updated = [...features]
+        updated[targetFeatureIndexForBrand] = {
+          ...updated[targetFeatureIndexForBrand],
+          linkedBrandId: created.id,
+          showBrandLogo: true
+        }
+        setFeatures(updated)
+      }
+      
+      setShowQuickBrandModal(false)
+      setNewBrandNameEn("")
+      setNewBrandNameAr("")
+      setNewBrandLogoUrl("")
+      setTargetFeatureIndexForBrand(null)
+    } catch (err: any) {
+      alert(err.message || "Failed to create brand")
+    } finally {
+      setIsCreatingBrand(false)
+    }
+  }
 
   const handleSave = async () => {
     const newErrors = []
@@ -611,24 +730,39 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
 
                       {/* Story Discovery Classification */}
                       <div className="space-y-1.5 md:col-span-2 mt-2 pt-2 border-t border-[var(--border-default)]/50">
-                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Story Type / Activity Classification (Story Discovery)</label>
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
+                            Story Type / Activity Classification (Story Discovery)
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTargetFeatureIndexForStoryType(index)
+                              setShowQuickStoryTypeModal(true)
+                            }}
+                            className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> + Quick Create Type
+                          </button>
+                        </div>
+                        
                         <div className="flex flex-wrap gap-2 mb-2">
                           {(item.storyTypeIds || []).map((stId: string) => {
-                            const st = availableStoryTypes.find(t => t.id === stId)
+                            const st = availableStoryTypes.find(t => t.id === stId || t.slug === stId)
                             return (
-                              <span key={stId} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold" style={{ backgroundColor: `${st?.accentColor || '#3b82f6'}20`, color: st?.accentColor || '#3b82f6' }}>
+                              <span key={stId} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold shadow-sm" style={{ backgroundColor: `${st?.accentColor || '#3b82f6'}20`, color: st?.accentColor || '#3b82f6', border: `1px solid ${st?.accentColor || '#3b82f6'}40` }}>
                                 {st?.titleEn || stId}
                                 <button type="button" onClick={() => {
                                   const updated = [...features];
                                   updated[index] = { ...updated[index], storyTypeIds: (item.storyTypeIds || []).filter((id: string) => id !== stId) };
                                   setFeatures(updated);
-                                }} className="hover:opacity-70 ml-1">×</button>
+                                }} className="hover:opacity-70 ml-1 font-bold">×</button>
                               </span>
                             )
                           })}
                         </div>
                         <select
-                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none cursor-pointer"
                           value=""
                           onChange={(e) => {
                             const val = e.target.value;
@@ -641,14 +775,14 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                             }
                           }}
                         >
-                          <option value="">+ Assign Story Type</option>
-                          {availableStoryTypes.filter(st => !(item.storyTypeIds || []).includes(st.id)).map(st => (
-                            <option key={st.id} value={st.id}>{st.titleEn} / {st.titleAr}</option>
+                          <option value="">+ Assign Story Type...</option>
+                          {availableStoryTypes.filter(st => !(item.storyTypeIds || []).includes(st.id) && !(item.storyTypeIds || []).includes(st.slug)).map(st => (
+                            <option key={st.id || st.slug} value={st.id || st.slug}>{st.titleEn} / {st.titleAr}</option>
                           ))}
                         </select>
                       </div>
 
-                      {/* Highlight Type & Icon */}
+                      {/* Highlight Type & Icon Upload */}
                       <div className="space-y-1.5 md:col-span-2 mt-2 pt-2 border-t border-[var(--border-default)]/50 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Highlight Type</label>
@@ -668,26 +802,65 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                             <option value="SHOW">Show / Entertainment</option>
                           </select>
                         </div>
+
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Icon (SVG Code or URL)</label>
-                          <input
-                            type="text"
-                            value={item.iconUrl || ""}
-                            onChange={e => {
-                              const updated = [...features];
-                              updated[index] = { ...updated[index], iconUrl: e.target.value };
-                              setFeatures(updated);
-                            }}
-                            placeholder="e.g. /icons/ride.svg"
-                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
-                          />
+                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
+                            Icon (Local Upload, SVG Code or URL)
+                          </label>
+                          <div className="space-y-2">
+                            <MediaUploader
+                              value={item.iconUrl || ""}
+                              onChange={val => {
+                                const updated = [...features];
+                                updated[index] = { ...updated[index], iconUrl: val };
+                                setFeatures(updated);
+                              }}
+                              accept="image/*,.svg"
+                              placeholder="Upload local SVG / Icon file"
+                            />
+                            <input
+                              type="text"
+                              value={item.iconUrl || ""}
+                              onChange={e => {
+                                const updated = [...features];
+                                updated[index] = { ...updated[index], iconUrl: e.target.value };
+                                setFeatures(updated);
+                              }}
+                              placeholder="Or enter URL / SVG path (e.g. /icons/ride.svg)"
+                              className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      {/* Brand Linking */}
+                      {/* Brand Linking & Quick Create */}
                       <div className="space-y-1.5 md:col-span-2 mt-2 pt-2 border-t border-[var(--border-default)]/50 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Linked Brand / IP</label>
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
+                              Linked Brand / IP
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTargetFeatureIndexForBrand(index)
+                                  setShowQuickBrandModal(true)
+                                }}
+                                className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1"
+                              >
+                                <Plus className="w-3.5 h-3.5" /> + Quick Create Brand
+                              </button>
+                              <a
+                                href="/dashboard/b2c/brands"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline"
+                              >
+                                Manage Portfolio ↗
+                              </a>
+                            </div>
+                          </div>
                           <select
                             value={item.linkedBrandId || ""}
                             onChange={e => {
@@ -695,11 +868,11 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                               updated[index] = { ...updated[index], linkedBrandId: e.target.value };
                               setFeatures(updated);
                             }}
-                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none cursor-pointer"
                           >
                             <option value="">-- No Linked Brand --</option>
                             {availableBrands.map(b => (
-                              <option key={b.id} value={b.id}>{b.nameEn}</option>
+                              <option key={b.id} value={b.id}>{b.nameEn} ({b.brandType || "BRAND"})</option>
                             ))}
                           </select>
                         </div>
@@ -1330,6 +1503,153 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
 
         </div>
       </div>
+
+      {/* QUICK CREATE STORY TYPE MODAL */}
+      {showQuickStoryTypeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-3">
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">Quick Create Story Type</h3>
+              <button
+                type="button"
+                onClick={() => setShowQuickStoryTypeModal(false)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Title (English) *</label>
+                <input
+                  type="text"
+                  value={newStoryTitleEn}
+                  onChange={e => setNewStoryTitleEn(e.target.value)}
+                  placeholder="e.g. Drive, Bounce, Compete"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Title (Arabic)</label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={newStoryTitleAr}
+                  onChange={e => setNewStoryTitleAr(e.target.value)}
+                  placeholder="مثال: القيادة، القفز والمرح"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none text-right"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Accent Color</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={newStoryAccentColor}
+                    onChange={e => setNewStoryAccentColor(e.target.value)}
+                    className="w-10 h-10 rounded-lg border border-[var(--border-default)] cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={newStoryAccentColor}
+                    onChange={e => setNewStoryAccentColor(e.target.value)}
+                    className="bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-default)]">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowQuickStoryTypeModal(false)}>
+                Cancel
+              </Button>
+              <Button type="button" size="sm" disabled={!newStoryTitleEn.trim() || isCreatingStoryType} onClick={handleQuickCreateStoryType}>
+                {isCreatingStoryType ? "Creating..." : "Create & Assign"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QUICK CREATE BRAND MODAL */}
+      {showQuickBrandModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-3">
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">Quick Create Brand / IP</h3>
+              <button
+                type="button"
+                onClick={() => setShowQuickBrandModal(false)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Brand Name (English) *</label>
+                <input
+                  type="text"
+                  value={newBrandNameEn}
+                  onChange={e => setNewBrandNameEn(e.target.value)}
+                  placeholder="e.g. InflataRUN, Space Tribe"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Brand Name (Arabic)</label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={newBrandNameAr}
+                  onChange={e => setNewBrandNameAr(e.target.value)}
+                  placeholder="اسم العلامة التجارية بالعربية"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none text-right"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Brand Type</label>
+                <select
+                  value={newBrandType}
+                  onChange={e => setNewBrandType(e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none cursor-pointer"
+                >
+                  <option value="OWNED">E3 Owned Brand / IP</option>
+                  <option value="HOSTED">Hosted Attraction Concept</option>
+                  <option value="FNB">Food & Beverage Brand</option>
+                  <option value="SEASONAL">Seasonal Brand</option>
+                  <option value="DIGITAL">Digital Platform</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Brand Logo (Local Upload)</label>
+                <MediaUploader
+                  value={newBrandLogoUrl}
+                  onChange={setNewBrandLogoUrl}
+                  accept="image/*"
+                  placeholder="Upload Brand Logo from local disk"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-default)]">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowQuickBrandModal(false)}>
+                Cancel
+              </Button>
+              <Button type="button" size="sm" disabled={!newBrandNameEn.trim() || isCreatingBrand} onClick={handleQuickCreateBrand}>
+                {isCreatingBrand ? "Creating..." : "Create & Link Brand"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
