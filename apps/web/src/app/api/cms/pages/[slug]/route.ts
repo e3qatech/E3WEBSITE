@@ -164,8 +164,14 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const validatedData = pageUpdateSchema.parse(body);
-    const rawIncomingContent = validatedData.content !== undefined ? validatedData.content : (body.content !== undefined ? body.content : body);
+
+    // Frontend sends either { content } OR { data: { content } } — unwrap both
+    const bodyContent = body?.data?.content ?? body?.content;
+
+    const validatedData = pageUpdateSchema.parse(
+      body?.data !== undefined ? body.data : body
+    );
+    const rawIncomingContent = bodyContent ?? validatedData.content ?? body;
 
     // Deep merge incoming content on top of existing saved state so section managers never overwrite each other
     const existingContent = await getCMSPageContentServer(slug);
@@ -249,6 +255,13 @@ export async function PUT(
         updatedAt: new Date().toISOString(),
       };
     }
+
+    // Bust Next.js SSR cache so the page immediately reflects the new content
+    try {
+      revalidatePath('/b2c');
+      revalidatePath('/ar/b2c');
+      revalidatePath('/');
+    } catch (_e) {}
 
     if (!updatedPage) {
       updatedPage = {
