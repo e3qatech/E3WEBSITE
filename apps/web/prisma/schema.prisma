@@ -156,6 +156,8 @@ model Attraction {
   services         Service[]
   serviceProjects  ServiceProject[]
   telemetry        TelemetryLog[]
+  locations        Location[]
+  brandPlacements  BrandPlacement[]
 
   @@index([isPublished, isHidden])
 }
@@ -768,5 +770,163 @@ model AttractionFeature {
   attraction    Attraction  @relation(fields: [attractionId], references: [id], onDelete: Cascade)
   storyTypes    StoryType[]
 
+  iconUrl          String?
+  highlightType    String      @default("ACTIVITY")
+  linkedBrandId    String?
+  linkedBrand      BrandIP?    @relation(fields: [linkedBrandId], references: [id])
+  showBrandLogo    Boolean     @default(false)
+  logoVariant      String      @default("AUTO")
+  ctaLabelEn       String?
+  ctaLabelAr       String?
+  ctaUrl           String?
+  startDate        DateTime?
+  endDate          DateTime?
+  availableAt      Location[]
+
   @@index([attractionId])
+}
+
+model BrandCategory {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  nameEn    String
+  nameAr    String
+  brands    BrandIP[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model BrandRelationshipType {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  labelEn   String
+  labelAr   String
+  brands    BrandIP[]
+}
+
+model BrandIP {
+  id                     String    @id @default(cuid())
+  slug                   String    @unique
+  nameEn                 String
+  nameAr                 String
+  taglineEn              String?
+  taglineAr              String?
+  shortDescriptionEn     String?
+  shortDescriptionAr     String?
+  fullStoryEn            String?
+  fullStoryAr            String?
+  launchYear             Int?
+  parentEntity           String?
+  isActive               Boolean   @default(true)
+  lifecycleStatus        String    @default("ACTIVE") // ACTIVE, COMING_SOON, SEASONAL, INACTIVE, LEGACY
+
+  // Logo System
+  primaryLogoUrl         String?
+  lightLogoUrl           String?
+  darkLogoUrl            String?
+  compactLogoUrl         String?
+  logoAltEn              String?
+  logoAltAr              String?
+
+  // Media
+  mediaType              String    @default("IMAGE")
+  primaryMediaUrl        String?
+  coverMediaUrl          String?
+  detailMediaUrl         String?
+  fallbackImageUrl       String?
+  thumbnailUrl           String?
+  mediaGallery           Json?
+  mediaAltEn             String?
+  mediaAltAr             String?
+
+  // Taxonomies
+  categoryId             String?
+  category               BrandCategory? @relation(fields: [categoryId], references: [id])
+  relationships          BrandRelationshipType[]
+  primaryRelationshipId  String?
+
+  // B2C Presentation
+  showOnB2C              Boolean   @default(true)
+  showInWorldsCreated    Boolean   @default(true)
+  featureOnB2C           Boolean   @default(false)
+  b2cDisplayOrder        Int       @default(0)
+  b2cTitleOverrideEn     String?
+  b2cTitleOverrideAr     String?
+  b2cShortDescOverrideEn String?
+  b2cShortDescOverrideAr String?
+  b2cDetailCopyEn        String?
+  b2cDetailCopyAr        String?
+  b2cCtaLabelEn          String?
+  b2cCtaLabelAr          String?
+  b2cCtaUrl              String?
+
+  // B2B Presentation
+  showOnB2B              Boolean   @default(true)
+  showInB2BPortfolio     Boolean   @default(true)
+  featureOnB2B           Boolean   @default(false)
+  b2bDisplayOrder        Int       @default(0)
+  b2bBusinessOverviewEn  String?
+  b2bBusinessOverviewAr  String?
+  b2bBusinessValueEn     String?
+  b2bBusinessValueAr     String?
+  b2bCapabilitiesEn      String?
+  b2bCapabilitiesAr      String?
+  b2bCtaLabelEn          String?
+  b2bCtaLabelAr          String?
+  b2bInquiryUrl          String?
+
+  placements             BrandPlacement[]
+  linkedHighlights       AttractionFeature[]
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+model Location {
+  id               String   @id @default(cuid())
+  nameEn           String
+  nameAr           String
+  venueEn          String?
+  venueAr          String?
+  addressEn        String?
+  addressAr        String?
+  googleMapsUrl    String?
+  latitude         Float?
+  longitude        Float?
+  status           String   @default("OPEN")
+  openingDate      DateTime?
+  closingDate      DateTime?
+  generalHours     Json?
+  timingRules      Json?
+  ticketingUrl     String?
+  phone            String?
+  email            String?
+  whatsapp         String?
+  chatLink         String?
+  coverMediaUrl    String?
+  displayOrder     Int      @default(0)
+  isPrimary        Boolean  @default(false)
+  isPublished      Boolean  @default(true)
+  
+  attractionId     String?
+  attraction       Attraction? @relation(fields: [attractionId], references: [id])
+  
+  placements       BrandPlacement[]
+  highlightAvailabilities AttractionFeature[]
+}
+
+model BrandPlacement {
+  id           String    @id @default(cuid())
+  brandId      String
+  attractionId String
+  role         String    @default("HOSTED_EXPERIENCE") // PRIMARY_BRAND, SUB_BRAND, etc.
+  displayOrder Int       @default(0)
+  isVisible    Boolean   @default(true)
+  startDate    DateTime?
+  endDate      DateTime?
+  
+  brand        BrandIP    @relation(fields: [brandId], references: [id])
+  attraction   Attraction @relation(fields: [attractionId], references: [id])
+  locations    Location[]
+
+  @@unique([brandId, attractionId, role])
 }

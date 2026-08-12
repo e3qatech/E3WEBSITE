@@ -32,7 +32,9 @@ export default async function EditAttractionPage({
         include: {
           storyTypes: true
         }
-      }
+      },
+      locations: true,
+      brandPlacements: true
     }
   })
 

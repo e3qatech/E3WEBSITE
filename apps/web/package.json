@@ -11,6 +11,7 @@
     "seed:events": "tsx prisma/seed-events.ts",
     "seed:attractions": "tsx prisma/seed-attractions.ts",
     "seed:team": "tsx prisma/seed-team.ts",
+    "seed:locations": "tsx prisma/seed-locations.ts",
     "test": "vitest run",
     "test:all": "vitest run",
     "test:gate02": "vitest run src/tests/gate02.redis.test.ts",

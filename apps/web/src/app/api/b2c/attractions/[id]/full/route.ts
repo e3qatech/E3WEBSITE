@@ -21,7 +21,7 @@ export async function PUT(
       motionPreset, motionIntensity, heroSceneType, particleDensity,
       isPublished, isFeatured, isHidden,
       features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
-      pricing, faqs, socialLinks, gallery, seo
+      pricing, faqs, socialLinks, gallery, seo, locations, brandPlacements
     } = body
 
     const cleanNameEn = (nameEn || nameAr || slug || "Attraction").trim()
@@ -77,6 +77,27 @@ export async function PUT(
         orderIndex: i
       }))
 
+    const safeLocations = (locations || [])
+      .filter((l: any) => l && l.nameEn)
+      .map((l: any, i: number) => ({
+        nameEn: l.nameEn.trim(),
+        nameAr: (l.nameAr || l.nameEn).trim(),
+        venueEn: (l.venueEn || "").trim(),
+        ticketingUrl: (l.ticketingUrl || "").trim(),
+        isPrimary: Boolean(l.isPrimary),
+        isPublished: Boolean(l.isPublished),
+        displayOrder: i
+      }))
+
+    const safeBrandPlacements = (brandPlacements || [])
+      .filter((p: any) => p && p.brandId)
+      .map((p: any, i: number) => ({
+        brandId: p.brandId.trim(),
+        role: p.role || "HOSTED_EXPERIENCE",
+        isVisible: Boolean(p.isVisible),
+        displayOrder: i
+      }))
+
     // Execute database transaction
     await db.$transaction([
       db.attractionPricing.deleteMany({ where: { attractionId: id } }),
@@ -84,6 +105,8 @@ export async function PUT(
       db.attractionSocialLink.deleteMany({ where: { attractionId: id } }),
       db.attractionGalleryItem.deleteMany({ where: { attractionId: id } }),
       db.attractionFeature.deleteMany({ where: { attractionId: id } }),
+      db.location.deleteMany({ where: { attractionId: id } }),
+      db.brandPlacement.deleteMany({ where: { attractionId: id } }),
       db.attraction.update({
         where: { id },
         data: {
@@ -117,17 +140,26 @@ export async function PUT(
           faqs: { create: safeFaqs },
           socialLinks: { create: safeSocialLinks },
           gallery: { create: safeGallery },
+          locations: { create: safeLocations },
+          brandPlacements: { create: safeBrandPlacements },
           featuresList: {
             create: Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)).map((f: any, i: number) => ({
               titleEn: (f.titleEn || f.titleAr || "Feature").trim(),
               titleAr: (f.titleAr || f.titleEn || "ميزة").trim(),
               descriptionEn: (f.descriptionEn || "").trim(),
               descriptionAr: (f.descriptionAr || "").trim(),
-              imageUrl: (f.imageUrl || "").trim(),
+              imageUrl: String(f.imageUrl || "").trim(),
+              iconUrl: String(f.iconUrl || "").trim(),
+              highlightType: String(f.highlightType || "ACTIVITY").trim(),
+              linkedBrandId: f.linkedBrandId ? String(f.linkedBrandId).trim() : null,
+              showBrandLogo: Boolean(f.showBrandLogo),
+              logoVariant: String(f.logoVariant || "AUTO").trim(),
               orderIndex: i,
-              storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0 ? {
-                connect: f.storyTypeIds.map((sid: string) => ({ id: sid }))
-              } : undefined
+              storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0
+                ? {
+                    connect: f.storyTypeIds.map((id: string) => ({ id }))
+                  }
+                : undefined
             })) : []
           }
         }

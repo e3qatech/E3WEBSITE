@@ -55,10 +55,16 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   )
 
   const [availableStoryTypes, setAvailableStoryTypes] = useState<any[]>([])
+  const [availableBrands, setAvailableBrands] = useState<any[]>([])
   useEffect(() => {
     fetch('/api/b2c/story-types?active=true')
       .then(res => res.json())
       .then(data => setAvailableStoryTypes(Array.isArray(data) ? data : []))
+      .catch(console.error)
+
+    fetch('/api/b2c/brands')
+      .then(res => res.json())
+      .then(data => setAvailableBrands(Array.isArray(data) ? data : []))
       .catch(console.error)
   }, [])
 
@@ -82,17 +88,28 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     Array.isArray(initialData?.newsCoverage) ? initialData.newsCoverage : []
   )
 
-  // 7. Booking & Ops
+  // 7. Locations & Operations
+  const [locations, setLocations] = useState<any[]>(
+    Array.isArray(initialData?.locations) ? initialData.locations : []
+  )
+  
+  // Temporary legacy fields for backward compatibility
   const [mapUrl, setMapUrl] = useState(initialData?.mapUrl || "")
   const [ticketingUrl, setTicketingUrl] = useState(initialData?.ticketingUrl || "")
   const [operations, setOperations] = useState<any>(
     initialData?.operations || { venueName: "", ageGroup: "", hours: "", schedules: [], contactDetails: { phone: "", email: "", whatsapp: "", chatLink: "" } }
   )
+
   const [temporalStatus, setTemporalStatus] = useState<any>(
     initialData?.temporalStatus || { isPermanent: true, startDate: "", endDate: "", statusOverride: "", isSpecialEvent: false }
   )
   const [testimonials, setTestimonials] = useState<any[]>(
     Array.isArray(initialData?.testimonials) ? initialData.testimonials : []
+  )
+
+  // 7.5 Brands & Portfolio
+  const [brandPlacements, setBrandPlacements] = useState<any[]>(
+    Array.isArray(initialData?.brandPlacements) ? initialData.brandPlacements : []
   )
 
   // 8. FAQs
@@ -110,7 +127,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     isPublished, isFeatured, isHidden,
     heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl, logoUrl,
     features, pricing, partnerOffers, partners, socialLinks, socialPreviews, newsCoverage,
-    mapUrl, ticketingUrl, operations, temporalStatus, faqs, testimonials, gallery
+    locations, mapUrl, ticketingUrl, operations, brandPlacements, temporalStatus, faqs, testimonials, gallery
   })
   const [initialDataStr] = useState(currentData)
   const isDirty = currentData !== initialDataStr
@@ -148,6 +165,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
         pricing,
         partnerOffers, partners,
         socialLinks, socialPreviews, newsCoverage,
+        locations, brandPlacements,
         mapUrl, ticketingUrl, operations, temporalStatus,
         faqs, testimonials, gallery, seo
       }
@@ -185,7 +203,8 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     { id: "pricing", label: "Pricing & Tickets", icon: DollarSign },
     { id: "partners", label: "Partners", icon: Users },
     { id: "social", label: "Social & News", icon: Share2 },
-    { id: "ops", label: "Booking & Ops", icon: MapPin },
+    { id: "ops", label: "Locations & Ops", icon: MapPin },
+    { id: "brands", label: "Brands & IP", icon: Users },
     { id: "visibility", label: "Visibility", icon: Calendar },
     { id: "gallery", label: "Gallery", icon: ImageIcon },
     { id: "faqs", label: "FAQs", icon: HelpCircle },
@@ -628,6 +647,99 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                           ))}
                         </select>
                       </div>
+
+                      {/* Highlight Type & Icon */}
+                      <div className="space-y-1.5 md:col-span-2 mt-2 pt-2 border-t border-[var(--border-default)]/50 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Highlight Type</label>
+                          <select
+                            value={item.highlightType || "ACTIVITY"}
+                            onChange={e => {
+                              const updated = [...features];
+                              updated[index] = { ...updated[index], highlightType: e.target.value };
+                              setFeatures(updated);
+                            }}
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                          >
+                            <option value="ACTIVITY">Activity</option>
+                            <option value="DINING">Dining / F&B</option>
+                            <option value="RETAIL">Retail</option>
+                            <option value="SERVICE">Service</option>
+                            <option value="SHOW">Show / Entertainment</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Icon (SVG Code or URL)</label>
+                          <input
+                            type="text"
+                            value={item.iconUrl || ""}
+                            onChange={e => {
+                              const updated = [...features];
+                              updated[index] = { ...updated[index], iconUrl: e.target.value };
+                              setFeatures(updated);
+                            }}
+                            placeholder="e.g. /icons/ride.svg"
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Brand Linking */}
+                      <div className="space-y-1.5 md:col-span-2 mt-2 pt-2 border-t border-[var(--border-default)]/50 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Linked Brand / IP</label>
+                          <select
+                            value={item.linkedBrandId || ""}
+                            onChange={e => {
+                              const updated = [...features];
+                              updated[index] = { ...updated[index], linkedBrandId: e.target.value };
+                              setFeatures(updated);
+                            }}
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                          >
+                            <option value="">-- No Linked Brand --</option>
+                            {availableBrands.map(b => (
+                              <option key={b.id} value={b.id}>{b.nameEn}</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        {item.linkedBrandId && (
+                          <div className="space-y-2 flex flex-col justify-end">
+                            <label className="flex items-center gap-2 cursor-pointer pt-2">
+                              <input
+                                type="checkbox"
+                                checked={item.showBrandLogo ?? false}
+                                onChange={e => {
+                                  const updated = [...features];
+                                  updated[index] = { ...updated[index], showBrandLogo: e.target.checked };
+                                  setFeatures(updated);
+                                }}
+                                className="rounded border-[var(--border-default)] bg-[var(--surface-default)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                              />
+                              <span className="text-sm font-bold text-[var(--text-primary)]">Display Brand Logo in UI</span>
+                            </label>
+                            
+                            {item.showBrandLogo && (
+                              <select
+                                value={item.logoVariant || "AUTO"}
+                                onChange={e => {
+                                  const updated = [...features];
+                                  updated[index] = { ...updated[index], logoVariant: e.target.value };
+                                  setFeatures(updated);
+                                }}
+                                className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                              >
+                                <option value="AUTO">Auto (Light/Dark based on theme)</option>
+                                <option value="PRIMARY">Primary Logo</option>
+                                <option value="LIGHT">Light Logo (For dark backgrounds)</option>
+                                <option value="DARK">Dark Logo (For light backgrounds)</option>
+                                <option value="COMPACT">Compact / Monogram</option>
+                              </select>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -901,251 +1013,93 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             </div>
           )}
 
-          {/* 7. BOOKING & OPS */}
+          {/* 7. LOCATIONS & OPS */}
           {activeTab === "ops" && (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div>
-                <h2 className="text-lg font-black mb-6">Booking & Maps</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Map URL (Google Maps)</label>
-                    <input type="text" value={mapUrl} onChange={e => setMapUrl(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Ticketing URL</label>
-                    <input type="text" value={ticketingUrl} onChange={e => setTicketingUrl(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                  </div>
-                </div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-black">Locations & Operations</h2>
+                <Button type="button" onClick={() => setLocations([...locations, { id: Date.now().toString(), nameEn: "New Location", nameAr: "", isPrimary: false, isPublished: true }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Add Location
+                </Button>
               </div>
 
-              <div>
-                <h2 className="text-lg font-black mb-6">Operations</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Venue Name</label>
-                    <input type="text" value={operations.venueName} onChange={e => setOperations({...operations, venueName: e.target.value})} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Age Group</label>
-                    <input type="text" value={operations.ageGroup} onChange={e => setOperations({...operations, ageGroup: e.target.value})} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Hours (General)</label>
-                    <input type="text" value={operations.hours} onChange={e => setOperations({...operations, hours: e.target.value})} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                  </div>
-                </div>
-
-                <div className="mt-8 border-t border-[var(--border-default)] pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-md font-bold">Venue Contact Details</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Phone</label>
-                      <input type="text" placeholder="+974..." value={operations.contactDetails?.phone || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, phone: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Email</label>
-                      <input type="email" placeholder="info@..." value={operations.contactDetails?.email || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, email: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">WhatsApp</label>
-                      <input type="text" placeholder="wa.me/..." value={operations.contactDetails?.whatsapp || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, whatsapp: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Chat Link</label>
-                      <input type="text" placeholder="URL..." value={operations.contactDetails?.chatLink || ""} onChange={e => setOperations({...operations, contactDetails: {...operations.contactDetails, chatLink: e.target.value}})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 border-t border-[var(--border-default)] pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-md font-bold">Specific Date & Timing Rules</h3>
-                    <Button type="button" onClick={() => setOperations({...operations, schedules: [...(operations.schedules || []), { id: Date.now(), title: "", daysOfWeek: [], dateRanges: [{ startDate: "", endDate: "" }], timeSlots: [{ from: "", to: "" }] }]})} variant="outline" size="sm" className="gap-2 rounded-xl">
-                      <Plus className="w-4 h-4" /> Add Rule
-                    </Button>
-                  </div>
-                  <div className="space-y-4">
-                    {(operations.schedules || []).map((schedule: any, index: number) => (
-                      <div key={schedule.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
-                        <button type="button" onClick={() => {
-                          const newSchedules = [...(operations.schedules || [])];
-                          newSchedules.splice(index, 1);
-                          setOperations({...operations, schedules: newSchedules});
-                        }} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        
-                        <div className="grid grid-cols-1 gap-6 pe-10">
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Rule Title</label>
-                            <input type="text" placeholder="e.g. Weekends, National Day" value={schedule.title || ""} onChange={e => {
-                              const newSchedules = [...(operations.schedules || [])];
-                              newSchedules[index].title = e.target.value;
-                              setOperations({...operations, schedules: newSchedules});
-                            }} className="w-full md:w-1/2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                          </div>
-
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Days of Week</label>
-                            <div className="flex flex-wrap gap-2">
-                              {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map(day => {
-                                // For backwards compatibility, if it's a string, we might not match properly, so we encourage array usage
-                                const isSelected = Array.isArray(schedule.daysOfWeek) 
-                                  ? schedule.daysOfWeek.includes(day) 
-                                  : typeof schedule.daysOfWeek === 'string' && schedule.daysOfWeek.includes(day.slice(0, 3));
-                                return (
-                                  <button
-                                    key={day}
-                                    type="button"
-                                    onClick={() => {
-                                      const newSchedules = [...(operations.schedules || [])];
-                                      let currentDays = Array.isArray(schedule.daysOfWeek) ? [...schedule.daysOfWeek] : [];
-                                      if (isSelected) {
-                                        currentDays = currentDays.filter(d => d !== day);
-                                      } else {
-                                        currentDays.push(day);
-                                      }
-                                      newSchedules[index].daysOfWeek = currentDays;
-                                      setOperations({...operations, schedules: newSchedules});
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${
-                                      isSelected 
-                                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' 
-                                        : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border-[var(--border-default)] hover:border-[var(--color-primary)]/50'
-                                    }`}
-                                  >
-                                    {day.slice(0, 3)}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Date Ranges */}
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Date Ranges</label>
-                                <button type="button" onClick={() => {
-                                  const newSchedules = [...(operations.schedules || [])];
-                                  if (!Array.isArray(newSchedules[index].dateRanges)) {
-                                    newSchedules[index].dateRanges = newSchedules[index].startDate || newSchedules[index].endDate 
-                                      ? [{ startDate: newSchedules[index].startDate || "", endDate: newSchedules[index].endDate || "" }] 
-                                      : [];
-                                  }
-                                  newSchedules[index].dateRanges.push({ startDate: "", endDate: "" });
-                                  setOperations({...operations, schedules: newSchedules});
-                                }} className="text-[10px] uppercase font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1">
-                                  <Plus className="w-3 h-3" /> Add Range
-                                </button>
-                              </div>
-                              <div className="space-y-2">
-                                {(() => {
-                                  let ranges = Array.isArray(schedule.dateRanges) ? schedule.dateRanges : null;
-                                  if (!ranges) {
-                                    ranges = schedule.startDate || schedule.endDate ? [{ startDate: schedule.startDate || "", endDate: schedule.endDate || "" }] : [];
-                                  }
-                                  return ranges.length === 0 ? (
-                                    <p className="text-xs text-[var(--text-tertiary)] italic">No date ranges. Applies to all dates.</p>
-                                  ) : ranges.map((range: any, rIndex: number) => (
-                                    <div key={rIndex} className="flex items-center gap-2">
-                                      <input type="date" value={range.startDate || ""} onChange={e => {
-                                        const newSchedules = [...(operations.schedules || [])];
-                                        if (!Array.isArray(newSchedules[index].dateRanges)) {
-                                          newSchedules[index].dateRanges = ranges;
-                                        }
-                                        newSchedules[index].dateRanges[rIndex].startDate = e.target.value;
-                                        setOperations({...operations, schedules: newSchedules});
-                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
-                                      <span className="text-[var(--text-secondary)] text-xs font-medium">to</span>
-                                      <input type="date" value={range.endDate || ""} onChange={e => {
-                                        const newSchedules = [...(operations.schedules || [])];
-                                        if (!Array.isArray(newSchedules[index].dateRanges)) {
-                                          newSchedules[index].dateRanges = ranges;
-                                        }
-                                        newSchedules[index].dateRanges[rIndex].endDate = e.target.value;
-                                        setOperations({...operations, schedules: newSchedules});
-                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
-                                      <button type="button" onClick={() => {
-                                        const newSchedules = [...(operations.schedules || [])];
-                                        if (!Array.isArray(newSchedules[index].dateRanges)) newSchedules[index].dateRanges = ranges;
-                                        newSchedules[index].dateRanges.splice(rIndex, 1);
-                                        setOperations({...operations, schedules: newSchedules});
-                                      }} className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
-                                        <Trash2 className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  ));
-                                })()}
-                              </div>
-                            </div>
-
-                            {/* Time Slots */}
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Time Slots</label>
-                                <button type="button" onClick={() => {
-                                  const newSchedules = [...(operations.schedules || [])];
-                                  if (!Array.isArray(newSchedules[index].timeSlots)) {
-                                    newSchedules[index].timeSlots = typeof newSchedules[index].timeSlots === 'string' && newSchedules[index].timeSlots 
-                                      ? [{ from: newSchedules[index].timeSlots, to: "" }] 
-                                      : [];
-                                  }
-                                  newSchedules[index].timeSlots.push({ from: "", to: "" });
-                                  setOperations({...operations, schedules: newSchedules});
-                                }} className="text-[10px] uppercase font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1">
-                                  <Plus className="w-3 h-3" /> Add Time
-                                </button>
-                              </div>
-                              <div className="space-y-2">
-                                {(() => {
-                                  let slots = Array.isArray(schedule.timeSlots) ? schedule.timeSlots : null;
-                                  if (!slots) {
-                                    slots = typeof schedule.timeSlots === 'string' && schedule.timeSlots ? [{ from: schedule.timeSlots, to: "" }] : [];
-                                  }
-                                  return slots.length === 0 ? (
-                                    <p className="text-xs text-[var(--text-tertiary)] italic">No time slots specified.</p>
-                                  ) : slots.map((slot: any, tIndex: number) => (
-                                    <div key={tIndex} className="flex items-center gap-2">
-                                      <input type="time" value={slot.from || ""} onChange={e => {
-                                        const newSchedules = [...(operations.schedules || [])];
-                                        if (!Array.isArray(newSchedules[index].timeSlots)) newSchedules[index].timeSlots = slots;
-                                        newSchedules[index].timeSlots[tIndex].from = e.target.value;
-                                        setOperations({...operations, schedules: newSchedules});
-                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
-                                      <span className="text-[var(--text-secondary)] text-xs font-medium">to</span>
-                                      <input type="time" value={slot.to || ""} onChange={e => {
-                                        const newSchedules = [...(operations.schedules || [])];
-                                        if (!Array.isArray(newSchedules[index].timeSlots)) newSchedules[index].timeSlots = slots;
-                                        newSchedules[index].timeSlots[tIndex].to = e.target.value;
-                                        setOperations({...operations, schedules: newSchedules});
-                                      }} className="flex-1 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs focus:border-[var(--color-primary)] focus:outline-none" />
-                                      <button type="button" onClick={() => {
-                                        const newSchedules = [...(operations.schedules || [])];
-                                        if (!Array.isArray(newSchedules[index].timeSlots)) newSchedules[index].timeSlots = slots;
-                                        newSchedules[index].timeSlots.splice(tIndex, 1);
-                                        setOperations({...operations, schedules: newSchedules});
-                                      }} className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
-                                        <Trash2 className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  ));
-                                })()}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+              <div className="space-y-4">
+                {locations.map((loc, index) => (
+                  <div key={loc.id || index} className="p-5 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative">
+                    <button type="button" onClick={() => setLocations(locations.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pe-10">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Location Name (EN)</label>
+                        <input type="text" value={loc.nameEn || ''} onChange={e => updateArrayItem(setLocations, locations, index, "nameEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
                       </div>
-                    ))}
-                    {(!operations.schedules || operations.schedules.length === 0) && (
-                      <div className="text-center py-6 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-tertiary)] font-medium text-sm">
-                        No specific timing rules added.
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Location Name (AR)</label>
+                        <input type="text" dir="rtl" value={loc.nameAr || ''} onChange={e => updateArrayItem(setLocations, locations, index, "nameAr", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-right" />
                       </div>
-                    )}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Venue Context (EN)</label>
+                        <input type="text" value={loc.venueEn || ''} onChange={e => updateArrayItem(setLocations, locations, index, "venueEn", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Ticketing URL</label>
+                        <input type="text" value={loc.ticketingUrl || ''} onChange={e => updateArrayItem(setLocations, locations, index, "ticketingUrl", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                      </div>
+                      <div className="space-y-2 md:col-span-2 flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={loc.isPrimary} onChange={e => updateArrayItem(setLocations, locations, index, "isPrimary", e.target.checked)} className="rounded" />
+                          <span className="text-sm font-bold">Primary Location</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={loc.isPublished} onChange={e => updateArrayItem(setLocations, locations, index, "isPublished", e.target.checked)} className="rounded" />
+                          <span className="text-sm font-bold">Published</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
+                ))}
+                {locations.length === 0 && <div className="text-center py-12 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-tertiary)] font-medium">No locations defined.</div>}
+              </div>
+            </div>
+          )}
+
+          {/* 7.5 BRANDS & PORTFOLIO */}
+          {activeTab === "brands" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">Brands & Portfolio</h2>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">Connect this attraction to canonical Brands/IP.</p>
                 </div>
+                <Button type="button" onClick={() => setBrandPlacements([...brandPlacements, { id: Date.now().toString(), brandId: "", role: "HOSTED_EXPERIENCE", isVisible: true }])} variant="outline" size="sm" className="gap-2 rounded-xl">
+                  <Plus className="w-4 h-4" /> Link Brand
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {brandPlacements.map((placement, index) => (
+                  <div key={placement.id || index} className="p-5 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pe-10">
+                    <button type="button" onClick={() => setBrandPlacements(brandPlacements.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="w-1/2 space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Brand ID (Slug or ID)</label>
+                      <input type="text" value={placement.brandId} onChange={e => updateArrayItem(setBrandPlacements, brandPlacements, index, "brandId", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
+                    </div>
+                    <div className="w-1/2 space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Role</label>
+                      <select value={placement.role} onChange={e => updateArrayItem(setBrandPlacements, brandPlacements, index, "role", e.target.value)} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm">
+                        <option value="PRIMARY_BRAND">Primary Brand</option>
+                        <option value="SUB_BRAND">Sub-Brand</option>
+                        <option value="HOSTED_EXPERIENCE">Hosted Experience</option>
+                        <option value="FB_CONCEPT">F&B Concept</option>
+                        <option value="RETAIL_CONCEPT">Retail Concept</option>
+                      </select>
+                    </div>
+                  </div>
+                ))}
+                {brandPlacements.length === 0 && <div className="text-center py-12 border-2 border-dashed border-[var(--border-default)] rounded-xl text-[var(--text-tertiary)] font-medium">No brands linked.</div>}
               </div>
             </div>
           )}

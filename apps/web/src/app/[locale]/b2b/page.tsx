@@ -4,6 +4,7 @@ import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRender
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
+import { OurBrandsConstellation } from '@/components/b2c/story/OurBrandsConstellation'
 
 export default async function B2BHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -131,6 +132,39 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     { id: '5', name: 'QNCC', logoUrl: '' },
     { id: '6', name: 'Doha Festival City', logoUrl: '' }
   ]
+
+  // Fetch Brands for IP Portfolio
+  let dbBrands: any[] = []
+  try {
+    dbBrands = await db.brandIP.findMany({
+      where: { isActive: true, showOnB2B: true },
+      orderBy: { b2bDisplayOrder: 'asc' }
+    })
+  } catch (error) {
+    console.error("Error loading brands for B2B home:", error)
+  }
+
+  // Inject dynamic brands into CMS data if not hardcoded
+  if (content && dbBrands.length > 0) {
+    if (!content.ourBrands) content.ourBrands = {};
+    content.ourBrands.brands = dbBrands.map((b: any) => ({
+      id: b.id,
+      nameEn: b.b2bTitleOverrideEn || b.nameEn,
+      nameAr: b.b2bTitleOverrideAr || b.nameAr,
+      logoPrimary: b.primaryLogoUrl,
+      logoLight: b.lightLogoUrl,
+      logoDark: b.darkLogoUrl,
+      logoCompact: b.compactLogoUrl,
+      brandColor: "#10b981", // Emerald default for B2B if not specified
+      relationship: "OWNED",
+      shortDescEn: b.b2bShortDescOverrideEn || b.shortDescriptionEn,
+      shortDescAr: b.b2bShortDescOverrideAr || b.shortDescriptionAr,
+      detailCopyEn: b.b2bDetailCopyEn || b.fullStoryEn,
+      detailCopyAr: b.b2bDetailCopyAr || b.fullStoryAr,
+      primaryMediaUrl: b.primaryMediaUrl,
+      ctaUrl: b.b2bCtaUrl || `/${locale}/b2b/contact` // Default CTA
+    }));
+  }
 
   return (
     <div className="flex flex-col w-full" dir={isAr ? 'rtl' : 'ltr'}>
@@ -372,6 +406,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
           </div>
         </div>
       </section>
+
+      {/* Brands & IP Portfolio */}
+      {content?.ourBrands?.brands?.length > 0 && (
+        <OurBrandsConstellation content={content} locale={locale} />
+      )}
 
       {/* 7. Delivery Process */}
       <section className="py-24 bg-zinc-900 border-y border-zinc-800">
