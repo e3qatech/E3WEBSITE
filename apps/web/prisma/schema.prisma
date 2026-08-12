@@ -53,6 +53,7 @@ model User {
   jobApplications JobApplication[]
   sessions        Session[]
   systemLogs      SystemLog[]
+  packageLeads    PackageLead[]
 }
 
 model JobApplication {
@@ -158,6 +159,7 @@ model Attraction {
   telemetry        TelemetryLog[]
   locations        Location[]
   brandPlacements  BrandPlacement[]
+  packages         Package[]
 
   @@index([isPublished, isHidden])
 }
@@ -881,6 +883,7 @@ model BrandIP {
 
   placements             BrandPlacement[]
   linkedHighlights       AttractionFeature[]
+  packages               Package[]
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 }
@@ -916,6 +919,7 @@ model Location {
   
   placements       BrandPlacement[]
   highlightAvailabilities AttractionFeature[]
+  packages         Package[]
 }
 
 model BrandPlacement {
@@ -1002,4 +1006,132 @@ model Insight {
   @@index([contentType])
   @@index([publishedAt])
   @@index([featured])
+}
+
+model Package {
+  id                    String        @id @default(cuid())
+  slug                  String        @unique
+  code                  String?       @unique
+  titleEn               String
+  titleAr               String?
+  taglineEn             String?
+  taglineAr             String?
+  shortDescriptionEn    String?
+  shortDescriptionAr    String?
+  fullDescriptionEn     String?
+  fullDescriptionAr     String?
+  category              String        @default("BIRTHDAY") // BIRTHDAY, GROUP, SCHOOL, CORPORATE, PRIVATE_EVENT, CUSTOM
+  audienceType          String        @default("KIDS")     // KIDS, TEENS, ADULTS, FAMILIES, CORPORATE, ALL_AGES
+  coverMediaUrl         String?
+  heroMediaUrl          String?
+  heroMediaType         String        @default("IMAGE")
+  brochureUrl           String?
+  startingPrice         Float         @default(0)
+  priceDisplayMode      String        @default("STARTING_FROM") // STARTING_FROM, FIXED, PRICE_ON_REQUEST, PER_GUEST
+  currency              String        @default("QAR")
+  minGuests             Int           @default(10)
+  maxGuests             Int           @default(100)
+  durationMinutes       Int           @default(120)
+  ageSuitabilityEn      String?
+  ageSuitabilityAr      String?
+  indoorOutdoor         String        @default("INDOOR") // INDOOR, OUTDOOR, HYBRID
+  badgeTextEn           String?
+  badgeTextAr           String?
+  availabilityStatus    String        @default("AVAILABLE") // AVAILABLE, LIMITED, SEASONAL, BY_REQUEST
+  bookingType           String        @default("ENQUIRY_REQUIRED") // ENQUIRY_REQUIRED, INSTANT_BOOKING
+  bookingQubeUrl        String?
+  
+  // Relations
+  attractionId          String?
+  attraction            Attraction?   @relation(fields: [attractionId], references: [id])
+  brandId               String?
+  brand                 BrandIP?      @relation(fields: [brandId], references: [id])
+  locationId            String?
+  location              Location?     @relation(fields: [locationId], references: [id])
+
+  // Complex repeaters stored as JSON
+  tiers                 Json?
+  inclusions            Json?
+  addOns                Json?
+  journeySteps          Json?
+  gallery               Json?
+  testimonials          Json?
+  faqs                  Json?
+  termsConditions       Json?
+  seo                   Json?
+
+  isFeatured            Boolean       @default(false)
+  isPublished           Boolean       @default(true)
+  sortOrder             Int           @default(0)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  leads                 PackageLead[]
+
+  @@index([category])
+  @@index([isPublished])
+  @@index([isFeatured])
+  @@index([attractionId])
+}
+
+model PackageLead {
+  id                    String        @id @default(cuid())
+  leadId                String        @unique @default(cuid())
+  leadType              String        @default("BIRTHDAY") // BIRTHDAY, GROUP_SCHOOL, CORPORATE, GENERAL
+  
+  // Contact Info
+  customerName          String
+  companyOrOrg          String?
+  email                 String
+  phone                 String?
+  whatsApp              String?
+  contactMethod         String        @default("WHATSAPP") // PHONE, EMAIL, WHATSAPP
+
+  // Event Details
+  celebrationName       String?
+  ageGroup              String?
+  preferredDate         DateTime?
+  alternativeDate       DateTime?
+  preferredTimeSlot     String?
+  expectedGuests        Int           @default(10)
+  expectedChildren      Int?
+  expectedAdults        Int?
+  estimatedValue        Float?
+  
+  // Package Selection
+  packageId             String?
+  package               Package?      @relation(fields: [packageId], references: [id])
+  selectedTierId        String?
+  selectedTierName      String?
+  selectedAddOns        Json?
+  
+  // Requirements & Notes
+  themePreference       String?
+  cateringRequirements  String?
+  accessibilityReqs     String?
+  specialRequests       String?
+  attachments           Json?
+
+  // Status & Tracking
+  status                String        @default("NEW") // NEW, CONTACTED, QUALIFIED, AVAILABILITY_CHECK, QUOTATION_SENT, NEGOTIATION, DEPOSIT_PENDING, CONFIRMED, COMPLETED, LOST, SPAM
+  priority              String        @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  assignedToId          String?
+  assignedTo            User?         @relation(fields: [assignedToId], references: [id])
+  internalNotes         Json?
+  sourcePage            String?
+  utmSource             String?
+  utmCampaign           String?
+  locale                String        @default("en")
+
+  // Legal Consents
+  marketingConsent      Boolean       @default(false)
+  termsAccepted         Boolean       @default(true)
+  termsAcceptedAt       DateTime      @default(now())
+
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([status])
+  @@index([leadType])
+  @@index([packageId])
 }

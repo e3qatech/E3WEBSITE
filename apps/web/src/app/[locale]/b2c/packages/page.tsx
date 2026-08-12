@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function PackagesPage(props: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale: _locale } = await props.params;
+  const { locale } = await props.params;
 
   let settings: any = null;
 
@@ -27,25 +27,28 @@ export default async function PackagesPage(props: {
     console.warn("[PACKAGES PAGE DB NOTICE] Failed to query pages table:", e);
   }
 
-  if (!settings) {
-    try {
-      const settingModel = (db as any).siteSettings || (db as any).setting;
-      if (settingModel) {
-        const settingRecord = await settingModel.findUnique({
-          where: { key: "cms_page_b2c-packages" }
-        });
-        if (settingRecord && settingRecord.value) {
-          settings = settingRecord.value;
-        }
-      }
-    } catch (e) {
-      console.warn("[PACKAGES PAGE DB NOTICE] Failed to query siteSettings:", e);
-    }
+  let packages: any[] = [];
+  try {
+    packages = await db.package.findMany({
+      where: { isPublished: true },
+      include: {
+        attraction: { select: { id: true, nameEn: true, nameAr: true, slug: true } },
+        brand: { select: { id: true, nameEn: true, nameAr: true } },
+        location: { select: { id: true, nameEn: true, nameAr: true } }
+      },
+      orderBy: [
+        { isFeatured: "desc" },
+        { sortOrder: "asc" },
+        { createdAt: "desc" }
+      ]
+    });
+  } catch (e) {
+    console.warn("[PACKAGES PAGE DB NOTICE] Failed to query packages:", e);
   }
 
   return (
     <div className="min-h-screen bg-[var(--surface-default)] pt-20">
-      <PackagesClient initialSettings={settings} />
+      <PackagesClient locale={locale} initialSettings={settings} packages={packages} />
     </div>
   );
 }

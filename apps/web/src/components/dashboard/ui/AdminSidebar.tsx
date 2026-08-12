@@ -81,6 +81,7 @@ const sidebarConfig = [
   ] },
   { label: "CRM & Sales", icon: Users, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Sales Pipeline", href: "/dashboard/crm/leads" },
+    { label: "Package Leads", href: "/dashboard/leads/packages" },
     { label: "Client Directory", href: "/dashboard/crm/clients" },
     { label: "Users & Roles", href: "/dashboard/crm/users" },
     { label: "Inquiries & Bookings", href: "/dashboard/crm/inquiries" },

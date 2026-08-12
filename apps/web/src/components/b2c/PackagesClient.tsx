@@ -1,503 +1,297 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { PartyPopper, Users, Building2, Gift, Check, ShieldCheck, Sparkles, Send, Award } from "lucide-react";
-import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
-import { AnimatedText } from "@/components/ui/AnimatedText";
-import { InteractiveCard } from "@/components/ui/InteractiveCard";
-import { B2CGrid } from "@/components/ui/B2CGrid";
-import { MagneticButton } from "@/components/ui/MagneticButton";
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { 
+  Sparkles, 
+  Search, 
+  Filter, 
+  Users, 
+  Clock, 
+  Calendar, 
+  ArrowRight, 
+  Check, 
+  SlidersHorizontal,
+  ChevronRight,
+  ShieldCheck,
+  CheckCircle2,
+  Share2,
+  Grid
+} from "lucide-react"
+import { Button } from "@/components/ui/Button"
+import { InteractiveCard } from "@/components/ui/InteractiveCard"
+import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
+import { SmartPackageFinderModal } from "@/components/b2c/SmartPackageFinderModal"
+import { cn } from "@/lib/utils"
 
-const DEFAULT_PACKAGES = [
-  {
-    id: "birthday-silver",
-    titleEn: "Silver Birthday Party",
-    titleAr: "باقة أعياد الميلاد الفضية",
-    badgeEn: "Kids & Teens",
-    badgeAr: "الأطفال واليافعين",
-    icon: Gift,
-    descriptionEn: "Perfect choice for intimate celebrations. Includes 2 hours of park access, private party room, and dedicated host.",
-    descriptionAr: "الخيار الأمثل للاحتفالات الخاصة. يشمل ساعتين من الألعاب، غرفة حفلات خاصة، ومضيف مخصص.",
-    priceEn: "From QAR 1,800",
-    priceAr: "ابتداءً من 1,800 ر.ق",
-    perksEn: [
-      "Up to 10 Participating Guests",
-      "2 Hours Full Attraction Access",
-      "Private Decorated Party Room (1 Hr)",
-      "Dedicated Event Host",
-      "Custom Digital Invitations",
-      "Signature Birthday Cake"
-    ],
-    perksAr: [
-      "حتى 10 ضيوف مشاركين",
-      "ساعتان دخول شامل لجميع الألعاب",
-      "غرفة حفلات خاصة ومزينة (ساعة واحدة)",
-      "مضيف فعاليات مخصص للحفلة",
-      "دعوات إلكترونية مخصصة",
-      "كعكة عيد ميلاد خاصة"
-    ],
-    accentColor: "#10b981",
-  },
-  {
-    id: "birthday-gold-vip",
-    titleEn: "Gold VIP Birthday World",
-    titleAr: "باقة أعياد الميلاد الذهبية الـ VIP",
-    badgeEn: "Most Popular",
-    badgeAr: "الأكثر طلباً",
-    icon: PartyPopper,
-    popular: true,
-    descriptionEn: "The ultimate birthday extravaganza with full park access, VIP lounge, gourmet catering, and arcade credits for everyone.",
-    descriptionAr: "التجربة المتكاملة الأكثر روعة لأعياد الميلاد مع صالة VIP، وجبات فاخرة، ورصيد ألعاب إضافي للجميع.",
-    priceEn: "From QAR 3,500",
-    priceAr: "ابتداءً من 3,500 ر.ق",
-    perksEn: [
-      "Up to 20 Participating Guests",
-      "3 Hours Unlimited Attraction Access",
-      "VIP Private Lounge & Party Zone",
-      "Gourmet Meal & Drinks Package",
-      "QAR 100 Arcade Credit per Guest",
-      "Professional Photographer (1 Hr)",
-      "Custom Theme Styling & Balloon Arch"
-    ],
-    perksAr: [
-      "حتى 20 ضيفاً مشاركاً",
-      "3 ساعات دخول غير محدود للألعاب",
-      "صالة VIP خاصة وحصرية",
-      "وجبات ومشروبات فاخرة للجميع",
-      "رصيد ألعاب بقيمة 100 ر.ق لكل ضيف",
-      "مصور محترف (ساعة واحدة)",
-      "تنسيق بالونات وديكور حسب الثيمة"
-    ],
-    accentColor: "#b013b8",
-  },
-  {
-    id: "corporate-outing",
-    titleEn: "Corporate Team Building & Outing",
-    titleAr: "باقة الشركات وبناء فرق العمل",
-    badgeEn: "Corporate B2B",
-    badgeAr: "مخصص للشركات",
-    icon: Building2,
-    descriptionEn: "Energize your team with tailored competitions, privatized arenas, customized leaderboards, and executive catering.",
-    descriptionAr: "حفّز فريق عملك بمسابقات حصرية، حلبات خاصة، لوحة نتائج تفاعلية، وخدمات ضيافة رفيعة المستوى.",
-    priceEn: "From QAR 6,000",
-    priceAr: "ابتداءً من 6,000 ر.ق",
-    perksEn: [
-      "Up to 50 Team Members (Expandable)",
-      "Exclusive Arena Competition Access",
-      "Custom Team Leaderboard & Trophies",
-      "Executive Buffet Catering & Coffee Station",
-      "Dedicated Corporate Event Planner",
-      "Branded Digital Welcome Screen"
-    ],
-    perksAr: [
-      "حتى 50 موظفاً (قابل للزيادة)",
-      "دخول حصري لحلبات التنافس",
-      "لوحة نتائج مخصصة للشركة وكؤوس",
-      "بوفيه فاخر ومحطة قهوة مختصة",
-      "منسق فعاليات شركات مخصص",
-      "شاشات ترحيبية بهوية الشركة"
-    ],
-    accentColor: "#3b82f6",
-  },
-  {
-    id: "private-buyout",
-    titleEn: "Exclusive 100% Venue Buyout",
-    titleAr: "حجز المرفق بالكامل (Exclusive Buyout)",
-    badgeEn: "VIP Privatization",
-    badgeAr: "خصوصية تامة 100%",
-    icon: Users,
-    descriptionEn: "Complete privatization of our flagship entertainment centers for product launches, VIP galas, and large family days.",
-    descriptionAr: "إغلاق حصير للمرفق بالكامل لصالح مبيعاتك، إطلاق المنتجات، أو اليوم العائلي الخاص لشركتك.",
-    priceEn: "Custom Quote",
-    priceAr: "حسب الطلب والعدد",
-    perksEn: [
-      "Unlimited Guests (Up to Venue Capacity)",
-      "100% Private Venue Access (Closed to Public)",
-      "Full Stage, Audio & Kinetic Light Systems",
-      "Bespoke Catering & VIP Red Carpet Service",
-      "Full Security, Technical & Operations Staff",
-      "Complete Custom Branding Integration"
-    ],
-    perksAr: [
-      "عدد غير محدود من الضيوف (حسب الطاقة الاستيعابية)",
-      "دخول خاص 100% (مغلق أمام الجمهور)",
-      "أنظمة صوت وإضاءة ومسرح كاملة",
-      "ضيافة مخصصة وسجاد أحمر كبار الشخصيات",
-      "طاقم أمني وفني وتشغيلي كامل",
-      "دمج كامل لهوية فعاليتك في المرفق"
-    ],
-    accentColor: "#f59e0b",
+export function PackagesClient({
+  locale,
+  initialSettings,
+  packages: initialPackages = []
+}: {
+  locale: string
+  initialSettings?: any
+  packages?: any[]
+}) {
+  const isAr = locale === "ar"
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [packagesList, setPackagesList] = useState<any[]>(initialPackages)
+  const [loading, setLoading] = useState(false)
+
+  // Filters State synced with URL searchParams
+  const [activeCategory, setActiveCategory] = useState<string>(searchParams.get("category") || "ALL")
+  const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("search") || "")
+  const [selectedGuestRange, setSelectedGuestRange] = useState<string>(searchParams.get("guests") || "ALL")
+
+  // Modals & Comparison State
+  const [isFinderOpen, setIsFinderOpen] = useState(false)
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
+  const [selectedPackageForEnquiry, setSelectedPackageForEnquiry] = useState<any | null>(null)
+  const [comparedPackages, setComparedPackages] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/b2c/packages")
+      .then(res => res.json())
+      .then(json => {
+        if (Array.isArray(json.data)) setPackagesList(json.data)
+      })
+      .catch(console.error)
+  }, [])
+
+  // Sync category filter to URL params without page reload
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat)
+    const params = new URLSearchParams(searchParams.toString())
+    if (cat === "ALL") params.delete("category")
+    else params.set("category", cat)
+    router.replace(`/${locale}/b2c/packages?${params.toString()}`, { scroll: false })
   }
-];
 
-export function PackagesClient({ initialSettings }: { initialSettings?: any }) {
-  const { isAr } = useB2CTheme();
-  
-  const hero = {
-    titleEn: initialSettings?.hero?.titleEn || "Group & Birthday Packages",
-    titleAr: initialSettings?.hero?.titleAr || "باقات الحفلات والشركات وأعياد الميلاد",
-    subtitleEn: initialSettings?.hero?.subtitleEn || "Host unforgettable milestone birthday celebrations, team-building outings, and exclusive venue buyouts across Qatar.",
-    subtitleAr: initialSettings?.hero?.subtitleAr || "احتفل بأجمل اللحظات وحفلات أعياد الميلاد والفعاليات الخاصة بشركتك في أفضل الوجهات الترفيهية في قطر.",
-    badgeEn: initialSettings?.hero?.badgeEn || "VIP PACKAGES & EVENTS",
-    badgeAr: initialSettings?.hero?.badgeAr || "باقات الفعاليات والاحتفالات",
-  };
+  // Filter logic
+  const filteredPackages = packagesList.filter(pkg => {
+    const matchesCategory = activeCategory === "ALL" || pkg.category === activeCategory
+    const matchesSearch = 
+      !searchQuery ||
+      (pkg.titleEn || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (pkg.titleAr || "").toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesCategory && matchesSearch
+  })
 
-  const rawPackages = (initialSettings?.packages && initialSettings.packages.length > 0) ? initialSettings.packages : DEFAULT_PACKAGES;
-  const packagesList = rawPackages.map((pkg: any, idx: number) => ({
-    ...pkg,
-    icon: DEFAULT_PACKAGES[idx % DEFAULT_PACKAGES.length]?.icon || PartyPopper,
-  }));
-
-  const inquiryForm = {
-    titleEn: initialSettings?.inquiryForm?.titleEn || "Plan Your Event With E3 Experts",
-    titleAr: initialSettings?.inquiryForm?.titleAr || "احجز حفلهم أو فعاليتك القادمة",
-    subtitleEn: initialSettings?.inquiryForm?.subtitleEn || "Our VIP event planners will contact you within 24 hours to confirm dates, themes, and arrangements.",
-    subtitleAr: initialSettings?.inquiryForm?.subtitleAr || "سيعاود فريق تنظيم الحفلات والشركات التواصل معك خلال 24 ساعة لتأكيد التفاصيل.",
-  };
-
-  const [selectedPackage, setSelectedPackage] = useState<string>(packagesList[0]?.id || "birthday-gold-vip");
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    packageType: isAr ? (packagesList[0]?.titleAr || "Gold VIP Birthday World") : (packagesList[0]?.titleEn || "Gold VIP Birthday World"),
-    estimatedGuests: "20",
-    eventDate: "",
-    notes: ""
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch('/api/contact/b2c', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          actionType: 'PACKAGE_INQUIRY',
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          subject: `Package Inquiry: ${formData.packageType}`,
-          message: `Package Type: ${formData.packageType}\nDate: ${formData.eventDate}\nGuests: ${formData.estimatedGuests}\nNotes: ${formData.notes}`
-        })
-      });
-      if (res.ok) {
-        setFormSubmitted(true);
+  const toggleCompare = (pkg: any) => {
+    if (comparedPackages.some(p => p.id === pkg.id)) {
+      setComparedPackages(comparedPackages.filter(p => p.id !== pkg.id))
+    } else {
+      if (comparedPackages.length >= 3) {
+        alert(isAr ? "يمكنك مقارنة 3 باقات كحد أقصى" : "You can compare up to 3 packages max")
+        return
       }
-    } catch (_err) {
-      // Handle gracefully
-    } finally {
-      setLoading(false);
+      setComparedPackages([...comparedPackages, pkg])
     }
-  };
+  }
+
+  const categoryTabs = [
+    { id: "ALL", labelEn: "All Packages", labelAr: "جميع الباقات" },
+    { id: "BIRTHDAY", labelEn: "Birthdays", labelAr: "أعيد الميلاد" },
+    { id: "GROUP", labelEn: "Groups", labelAr: "المجموعات" },
+    { id: "SCHOOL", labelEn: "Schools & Nurseries", labelAr: "المدارس والحضانات" },
+    { id: "CORPORATE", labelEn: "Corporate & Team Building", labelAr: "الشركات وبناء الفرق" },
+    { id: "PRIVATE_EVENT", labelEn: "Private Events", labelAr: "الفعاليات الخاصة" },
+    { id: "CUSTOM", labelEn: "Custom Experiences", labelAr: "تجارب حسب الطلب" }
+  ]
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{__html: `
-        .font-righteous { font-family: var(--font-display), 'Righteous', sans-serif; }
-        .font-poppins { font-family: var(--font-sans), 'Poppins', sans-serif; }
-      `}} />
+    <div className="min-h-screen text-[var(--text-primary)] font-poppins pb-24" dir={isAr ? "rtl" : "ltr"}>
+      {/* 1. HERO SECTION */}
+      <section className="relative pt-12 pb-16 px-4 md:px-8 border-b border-[var(--border-level-2)] bg-gradient-to-b from-[var(--surface-default)] to-[var(--bg-level-1)] text-center overflow-hidden">
+        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--e3-royal-blue)]/10 text-[var(--e3-royal-blue)] border border-[var(--e3-royal-blue)]/20 text-xs font-mono font-extrabold uppercase tracking-widest">
+            <Sparkles className="w-3.5 h-3.5" />
+            {isAr ? "باقات الفعاليات والمناسبات الاستثنائية" : "E3 Celebration & Group Packages"}
+          </span>
 
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12 text-[var(--text-primary)] font-poppins text-start" dir={isAr ? 'rtl' : 'ltr'}>
-        
-        {/* 1. HERO SECTION */}
-        <div className="text-center py-16 flex flex-col items-center">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[rgba(176,19,184,0.1)] text-[var(--e3-magenta)] mb-6 border border-[var(--e3-magenta)]/20 shadow-[0_4px_15px_rgba(176,19,184,0.1)]"
-          >
-            <PartyPopper className="w-10 h-10" />
-          </motion.div>
-          
-          <AnimatedText 
-            as="h1" 
-            text={isAr ? hero.titleAr : hero.titleEn}
-            className="text-4xl md:text-5xl font-black mb-4 font-display uppercase tracking-wide justify-center"
-          />
-          
-          <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto font-medium leading-relaxed">
-            {isAr ? hero.subtitleAr : hero.subtitleEn}
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight font-display uppercase leading-[1.05]">
+            {isAr ? "لحظاتكم الكبيرة تستحق تجارب استثنائية" : "Big Moments Deserve Bigger Experiences"}
+          </h1>
+
+          <p className="text-base sm:text-lg text-[var(--text-secondary)] font-medium max-w-2xl mx-auto">
+            {isAr 
+              ? "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية بقطر." 
+              : "Discover birthday celebrations, group adventures, school experiences and corporate packages across E3's entertainment destinations."}
           </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+            <Button onClick={() => setIsFinderOpen(true)} className="gap-2 shadow-lg">
+              <Sparkles className="w-4 h-4" />
+              {isAr ? "مستكشف الباقات الذكي" : "Find Your Package Quiz"}
+            </Button>
+            <Button variant="outline" onClick={() => { setSelectedPackageForEnquiry(null); setIsEnquiryOpen(true); }} className="gap-2">
+              {isAr ? "خطط لفعاليتك الخاصة" : "Plan a Custom Event"}
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. CATEGORY TABS & FILTER BAR */}
+      <section className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-6">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-[var(--border-level-2)]">
+          {categoryTabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => handleCategoryChange(tab.id)}
+              className={cn(
+                "px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer",
+                activeCategory === tab.id
+                  ? "bg-[var(--e3-royal-blue)] text-white shadow-md"
+                  : "bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              )}
+            >
+              {isAr ? tab.labelAr : tab.labelEn}
+            </button>
+          ))}
         </div>
 
-        {/* 2. PACKAGES GRID */}
-        <div className="mb-20">
-          <B2CGrid columns={2} gap="lg">
-            {packagesList.map((pkg: any) => {
-              const Icon = pkg.icon || PartyPopper;
-              const isSelected = selectedPackage === pkg.id;
+        {/* Filter Bar Controls */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-2)] shadow-sm">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <input
+              type="text"
+              placeholder={isAr ? "ابحث عن اسم الباقة أو الفعالية..." : "Search packages by title or keyword..."}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl focus:outline-none focus:border-[var(--e3-royal-blue)]"
+            />
+          </div>
 
-              return (
-                <InteractiveCard 
-                  key={pkg.id}
-                  className={`flex flex-col h-full border-[rgba(75,0,143,0.3)] transition-all duration-300 ${
-                    pkg.popular ? 'ring-2 ring-[var(--e3-magenta)] shadow-[0_10px_35px_rgba(176,19,184,0.25)]' : ''
-                  }`}
-                  glowColor={pkg.accentColor || "#b013b8"}
-                  tiltStrength={5}
-                >
-                  <div className="p-6 md:p-8 flex flex-col h-full justify-between">
-                    <div>
-                      {/* Badge & Category Header */}
-                      <div className="flex items-center justify-between mb-4">
-                        <span 
-                          className="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider text-white backdrop-blur-md"
-                          style={{ backgroundColor: `${pkg.accentColor || "#b013b8"}dd` }}
-                        >
-                          {isAr ? pkg.badgeAr : pkg.badgeEn}
-                        </span>
-                        <span className="font-mono text-sm font-black text-white bg-[var(--surface-default)] px-3 py-1.5 rounded-xl border border-[var(--border-level-2)]">
-                          {isAr ? pkg.priceAr : pkg.priceEn}
-                        </span>
-                      </div>
-
-                      {/* Title & Description */}
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--e3-royal-blue)]">
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <h2 className="text-2xl font-black font-display uppercase tracking-wide">
-                          {isAr ? pkg.titleAr : pkg.titleEn}
-                        </h2>
-                      </div>
-
-                      <p className="text-sm text-[var(--text-secondary)] mb-6 font-medium leading-relaxed">
-                        {isAr ? pkg.descriptionAr : pkg.descriptionEn}
-                      </p>
-
-                      {/* Inclusion Perks List */}
-                      <div className="space-y-2.5 pt-4 border-t border-[var(--border-level-2)] mb-8">
-                        <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-3">
-                          {isAr ? "مميزات الباقة التشمل:" : "Package Inclusions:"}
-                        </p>
-                        {(isAr ? (pkg.perksAr || []) : (pkg.perksEn || [])).map((perk: string, i: number) => (
-                          <div key={i} className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)]">
-                            <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                              <Check className="w-3 h-3" />
-                            </div>
-                            <span>{perk}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Book / Select Button */}
-                    <MagneticButton
-                      onClick={() => {
-                        setSelectedPackage(pkg.id);
-                        setFormData(prev => ({ ...prev, packageType: isAr ? pkg.titleAr : pkg.titleEn }));
-                        const formElem = document.getElementById("inquiry-form");
-                        if (formElem) formElem.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      variant={isSelected ? "primary" : "secondary"}
-                      size="md"
-                      className="w-full uppercase font-black py-3 rounded-xl justify-center"
-                    >
-                      {isAr ? "حجز / استفسار عن الباقة" : "Book / Inquire Package"}
-                    </MagneticButton>
-                  </div>
-                </InteractiveCard>
-              );
-            })}
-          </B2CGrid>
-        </div>
-
-        {/* 3. INQUIRY & BOOKING FORM SECTION */}
-        <div id="inquiry-form" className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 end-0 w-80 h-80 bg-[var(--e3-purple)]/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-10">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-[rgba(26,31,214,0.1)] text-[var(--e3-royal-blue)] text-xs font-black uppercase tracking-wider mb-3 border border-[var(--e3-royal-blue)]/20">
-                {isAr ? "استمارة الحجز المباشر" : "Instant Booking & Custom Inquiry"}
+          <div className="flex items-center gap-3 shrink-0">
+            {comparedPackages.length > 0 && (
+              <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-bold">
+                {comparedPackages.length} {isAr ? "محددة للمقارنة" : "Selected to Compare"}
               </span>
-              <h2 className="text-3xl font-black font-display uppercase tracking-wide mb-2">
-                {isAr ? inquiryForm.titleAr : inquiryForm.titleEn}
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] font-medium">
-                {isAr ? inquiryForm.subtitleAr : inquiryForm.subtitleEn}
-              </p>
-            </div>
-
-            {formSubmitted ? (
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-8 text-center space-y-4"
-              >
-                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
-                  <Check className="w-8 h-8" />
-                </div>
-                <h3 className="text-2xl font-black uppercase font-display text-emerald-400">
-                  {isAr ? "تم استلام طلب الحجز بنجاح!" : "Inquiry Received Successfully!"}
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] font-medium max-w-md mx-auto">
-                  {isAr ? "شكراً لتواصلك. سيتواصل معك مدير الفعاليات لتجهيز باقتك المفضلة." : "Thank you for reaching out. Our event concierges will reach out to finalize your package details."}
-                </p>
-                <button
-                  onClick={() => setFormSubmitted(false)}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider hover:opacity-90 transition-opacity"
-                >
-                  {isAr ? "إرسال طلب آخر" : "Submit Another Inquiry"}
-                </button>
-              </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">
-                      {isAr ? "الاسم الكامل" : "Full Name"} *
-                    </label>
-                    <input 
-                      type="text" 
-                      required
-                      value={formData.name}
-                      onChange={e => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g. Nasser Al-Kuwari"
-                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">
-                      {isAr ? "البريد الإلكتروني" : "Email Address"} *
-                    </label>
-                    <input 
-                      type="email" 
-                      required
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="name@domain.com"
-                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">
-                      {isAr ? "رقم الهاتف" : "Phone / WhatsApp"} *
-                    </label>
-                    <input 
-                      type="tel" 
-                      required
-                      value={formData.phone}
-                      onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="+974 5500 0000"
-                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">
-                      {isAr ? "نوع الباقة" : "Package Type"}
-                    </label>
-                    <select
-                      value={formData.packageType}
-                      onChange={e => setFormData({ ...formData, packageType: e.target.value })}
-                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors text-[var(--text-primary)] cursor-pointer"
-                    >
-                      {packagesList.map((p: any) => (
-                        <option key={p.id} value={isAr ? p.titleAr : p.titleEn}>
-                          {isAr ? p.titleAr : p.titleEn}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">
-                      {isAr ? "تاريخ الفعالية المتوقع" : "Target Event Date"}
-                    </label>
-                    <input 
-                      type="date" 
-                      value={formData.eventDate}
-                      onChange={e => setFormData({ ...formData, eventDate: e.target.value })}
-                      className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors text-[var(--text-primary)]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">
-                    {isAr ? "ملاحظات إضافية / طلبات خاصة" : "Special Requests & Theme Notes"}
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formData.notes}
-                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder={isAr ? "مثال: عدد الأطفال، الثيمة المفضلة، أي متطلبات غذائية إضافية..." : "e.g. Preferred theme (Superheroes/Outer Space), food allergies, custom branding needs..."}
-                    className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors"
-                  />
-                </div>
-
-                <MagneticButton
-                  type="submit"
-                  disabled={loading}
-                  variant="primary"
-                  size="lg"
-                  className="w-full uppercase font-black py-4 rounded-xl justify-center gap-2"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>{loading ? (isAr ? "جاري إرسال الطلب..." : "Submitting Inquiry...") : (isAr ? "إرسال طلب الحجز" : "Submit Booking Inquiry")}</span>
-                </MagneticButton>
-              </form>
             )}
           </div>
         </div>
 
-        {/* 4. TRUST BADGES */}
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-20 pt-12 border-t border-[var(--border-level-2)] grid grid-cols-1 md:grid-cols-3 gap-12 text-center"
-        >
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-[rgba(26,31,214,0.08)] border border-[var(--e3-royal-blue)]/20 rounded-2xl flex items-center justify-center text-[var(--e3-royal-blue)] mb-4">
-              <ShieldCheck size={24} />
-            </div>
-            <h4 className="font-bold text-[var(--text-primary)] mb-2 font-display uppercase text-sm tracking-wide">
-              {isAr ? "تنسيق خاص ومباشر" : "Dedicated Host"}
-            </h4>
-            <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed max-w-xs">
-              {isAr ? "مضيف مخصص يتولى كافة التفاصيل منذ اللحظة الأولى وحتى المغادرة." : "A dedicated event host supervises your party from arrival to departure."}
-            </p>
-          </div>
+        {/* 3. PACKAGE CARDS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredPackages.map(pkg => {
+            const isComparing = comparedPackages.some(p => p.id === pkg.id)
+            const title = isAr ? (pkg.titleAr || pkg.titleEn) : pkg.titleEn
+            const desc = isAr ? (pkg.shortDescriptionAr || pkg.shortDescriptionEn) : pkg.shortDescriptionEn
+            const inclusions = Array.isArray(pkg.inclusions) ? pkg.inclusions.slice(0, 3) : []
 
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-[rgba(176,19,184,0.08)] border border-[var(--e3-magenta)]/20 rounded-2xl flex items-center justify-center text-[var(--e3-magenta)] mb-4">
-              <Sparkles size={24} />
-            </div>
-            <h4 className="font-bold text-[var(--text-primary)] mb-2 font-display uppercase text-sm tracking-wide">
-              {isAr ? "ثيمات وديكورات مخصصة" : "Bespoke Themes"}
-            </h4>
-            <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed max-w-xs">
-              {isAr ? "تنسيق ديكور بالونات ودعوات مخصصة تناسب شغف أطفالك أو شركتك." : "Custom balloon styling, personalized cake design, and digital invitation cards."}
-            </p>
-          </div>
+            return (
+              <InteractiveCard key={pkg.id} className="p-0 overflow-hidden flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
+                <div>
+                  {/* Cover Media */}
+                  <div className="relative h-52 bg-zinc-900 overflow-hidden">
+                    <img
+                      src={pkg.coverMediaUrl || "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80"}
+                      alt={title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    
+                    {pkg.badgeTextEn && (
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[var(--e3-royal-blue)] text-white text-[10px] font-extrabold uppercase tracking-wider shadow">
+                        {isAr ? pkg.badgeTextAr || pkg.badgeTextEn : pkg.badgeTextEn}
+                      </span>
+                    )}
 
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-[rgba(75,0,143,0.08)] border border-[var(--e3-purple)]/20 rounded-2xl flex items-center justify-center text-[var(--e3-purple)] mb-4">
-              <Award size={24} />
-            </div>
-            <h4 className="font-bold text-[var(--text-primary)] mb-2 font-display uppercase text-sm tracking-wide">
-              {isAr ? "دخول سريع وتفضيل خاص" : "VIP Fast-Track"}
-            </h4>
-            <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed max-w-xs">
-              {isAr ? "دخول فوري بدون انتظار مع مواقف سيارات خاصة لكبار الشخصيات." : "Express entrance and priority parking for all your guests."}
-            </p>
-          </div>
-        </motion.div>
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-bold font-mono">
+                      <span>{pkg.minGuests}-{pkg.maxGuests} Guests</span>
+                      <span>{pkg.durationMinutes ? `${pkg.durationMinutes} Mins` : ""}</span>
+                    </div>
+                  </div>
 
-      </div>
-    </>
-  );
+                  {/* Body Content */}
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-mono font-extrabold uppercase text-[var(--e3-royal-blue)] tracking-wider">
+                        {pkg.category}
+                      </span>
+                      <label className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-secondary)] cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isComparing}
+                          onChange={() => toggleCompare(pkg)}
+                          className="rounded text-[var(--e3-royal-blue)]"
+                        />
+                        <span>{isAr ? "مقارنة" : "Compare"}</span>
+                      </label>
+                    </div>
+
+                    <h3 className="font-extrabold text-lg text-[var(--text-primary)] font-display uppercase line-clamp-1">
+                      {title}
+                    </h3>
+
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2">
+                      {desc}
+                    </p>
+
+                    {/* Key Inclusions Bullet Points */}
+                    {inclusions.length > 0 && (
+                      <div className="space-y-1.5 pt-2 border-t border-[var(--border-level-2)]">
+                        {inclusions.map((inc: any, i: number) => (
+                          <div key={i} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span className="line-clamp-1">{isAr ? inc.titleAr || inc.titleEn : inc.titleEn}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer CTAs */}
+                <div className="p-6 pt-0 space-y-3">
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border-level-2)]">
+                    <span className="text-xs text-[var(--text-secondary)] font-mono">Starting From</span>
+                    <span className="text-lg font-black font-mono text-[var(--e3-royal-blue)]">
+                      {pkg.startingPrice ? `${pkg.startingPrice} ${pkg.currency || 'QAR'}` : 'On Request'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link href={`/${locale}/b2c/packages/${pkg.slug}`} className="w-full">
+                      <Button variant="outline" size="sm" className="w-full text-[11px] font-bold uppercase">
+                        {isAr ? "عرض التفاصيل" : "View Package"}
+                      </Button>
+                    </Link>
+                    <Button 
+                      size="sm" 
+                      onClick={() => { setSelectedPackageForEnquiry(pkg); setIsEnquiryOpen(true); }}
+                      className="w-full text-[11px] font-bold uppercase"
+                    >
+                      {isAr ? "طلب حجز" : "Quick Enquiry"}
+                    </Button>
+                  </div>
+                </div>
+              </InteractiveCard>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* MODALS */}
+      <SmartPackageFinderModal
+        isOpen={isFinderOpen}
+        onClose={() => setIsFinderOpen(false)}
+        locale={locale}
+        packages={packagesList}
+        onSelectPackage={pkg => { setSelectedPackageForEnquiry(pkg); setIsEnquiryOpen(true); }}
+      />
+
+      <PackageEnquiryModal
+        isOpen={isEnquiryOpen}
+        onClose={() => { setIsEnquiryOpen(false); setSelectedPackageForEnquiry(null); }}
+        locale={locale}
+        selectedPackage={selectedPackageForEnquiry}
+      />
+    </div>
+  )
 }

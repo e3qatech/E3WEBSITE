@@ -1,0 +1,92 @@
+import { NextRequest, NextResponse } from "next/server"
+import db from "@/lib/db"
+import { auth } from "@/lib/auth"
+
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    const item = await db.package.findFirst({
+      where: {
+        OR: [
+          { id },
+          { slug: id }
+        ]
+      },
+      include: {
+        attraction: true,
+        brand: true,
+        location: true
+      }
+    })
+
+    if (!item) {
+      return NextResponse.json({ error: "Package not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({ data: item })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await auth()
+    if (!session?.user && process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+    const body = await req.json()
+    const { attraction, brand, location, leads, createdAt, updatedAt, ...updateData } = body
+
+    const updated = await db.package.update({
+      where: { id },
+      data: updateData
+    })
+
+    return NextResponse.json({ data: updated })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Duplicate package endpoint
+  try {
+    const { id } = await params
+    const original = await db.package.findUnique({ where: { id } })
+    if (!original) return NextResponse.json({ error: "Package not found" }, { status: 404 })
+
+    const { id: _origId, slug, code, createdAt, updatedAt, ...copyData } = original
+    const duplicated = await db.package.create({
+      data: {
+        ...copyData,
+        titleEn: `${original.titleEn} (Copy)`,
+        titleAr: original.titleAr ? `${original.titleAr} (نسخة)` : undefined,
+        slug: `${original.slug}-copy-${Date.now()}`,
+        code: original.code ? `${original.code}-COPY` : undefined,
+        isPublished: false
+      }
+    })
+
+    return NextResponse.json({ data: duplicated })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await auth()
+    if (!session?.user && process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+    await db.package.delete({ where: { id } })
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
