@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Ticket, Sparkles, ArrowRight, Compass, Calendar, MapPin } from 'lucide-react'
+import { DEFAULT_ATTRACTION_WORLDS } from './ExperienceWorldsStage'
 
 interface TactileDigitalTicketProps {
   content: any
@@ -13,11 +14,29 @@ interface TactileDigitalTicketProps {
 export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketProps) {
   const isAr = locale === 'ar'
   const ticketData = content?.act7Ticket || {}
-  const secondaryActions = ticketData.secondaryActions || []
-  const worlds = content?.act3Worlds || []
+  const secondaryActions = ticketData.secondaryActions || [
+    { labelEn: "Explore Map GIS", labelAr: "تصفح الخريطة التفاعلية", url: `/${locale}/b2c/attractions#interactive-attractions-map` },
+    { labelEn: "View Calendar Schedule", labelAr: "جدول الفعاليات والمواعيد", url: `/${locale}/b2c/calendar` },
+    { labelEn: "Browse All Attractions", labelAr: "استكشف كافة الوجهات", url: `/${locale}/b2c/attractions` }
+  ]
 
-  const [selectedWorldId, setSelectedWorldId] = useState(worlds[0]?.id || 'kids-driving-school')
-  const activeWorld = worlds.find((w: any) => w.id === selectedWorldId) || worlds[0] || {}
+  const rawWorlds = content?.act3Worlds
+  const worlds = (Array.isArray(rawWorlds) && rawWorlds.length > 0) ? rawWorlds : DEFAULT_ATTRACTION_WORLDS
+
+  const [selectedWorldId, setSelectedWorldId] = useState(worlds[0]?.id || DEFAULT_ATTRACTION_WORLDS[0].id)
+
+  const rawActiveWorld = worlds.find((w: any) => w.id === selectedWorldId || w.slug === selectedWorldId) || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
+  const fallback = DEFAULT_ATTRACTION_WORLDS[0]
+
+  const activeWorld = {
+    ...fallback,
+    ...rawActiveWorld,
+    nameEn: rawActiveWorld.nameEn || fallback.nameEn,
+    nameAr: rawActiveWorld.nameAr || fallback.nameAr,
+    locationEn: rawActiveWorld.locationEn || rawActiveWorld.locationNameEn || fallback.locationEn,
+    locationAr: rawActiveWorld.locationAr || rawActiveWorld.locationNameAr || fallback.locationAr,
+    ticketingUrl: rawActiveWorld.ticketingUrl || `/${locale}/b2c/calendar`
+  }
 
   return (
     <section className="relative py-32 bg-gradient-to-b from-[#090318] via-[#0f0624] to-[#04010a] text-white overflow-hidden">
@@ -63,7 +82,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
                   {isAr ? "تذكرة الشرف الرقمية" : "OFFICIAL DIGITAL PASS"}
                 </span>
                 <h3 className="text-xl font-extrabold text-white">
-                  {isAr ? activeWorld.nameAr || "تجارب إي ثري الترفيهية بقطر" : activeWorld.nameEn || "E3 Qatar All-Access Pass"}
+                  {isAr ? activeWorld.nameAr : activeWorld.nameEn}
                 </h3>
               </div>
             </div>
@@ -72,11 +91,11 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
             <select
               value={selectedWorldId}
               onChange={(e) => setSelectedWorldId(e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-emerald-400 font-bold focus:outline-none"
+              className="bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 transition-colors shadow-lg cursor-pointer"
             >
               {worlds.map((w: any) => (
-                <option key={w.id} value={w.id}>
-                  {isAr ? w.nameAr : w.nameEn}
+                <option key={w.id || w.slug} value={w.id || w.slug}>
+                  {isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr)}
                 </option>
               ))}
             </select>
@@ -85,8 +104,9 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           {/* Ticket Info & Action */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
             <div className="space-y-2">
-              <span className="text-xs text-slate-400 font-medium block">
-                📍 {isAr ? activeWorld.locationAr || "دوحة فستيفال سيتي" : activeWorld.locationEn || "Doha Festival City"}
+              <span className="text-xs text-slate-300 font-bold flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{isAr ? activeWorld.locationAr : activeWorld.locationEn}</span>
               </span>
               <div className="flex items-center gap-2 text-xs text-emerald-400 font-bold">
                 <Sparkles className="w-4 h-4" />
@@ -96,7 +116,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
 
             <div className="flex flex-col gap-3">
               <Link
-                href={`/b2c/tickets?attraction=${activeWorld.slug || activeWorld.id}`}
+                href={activeWorld.ticketingUrl || `/${locale}/b2c/calendar`}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-base transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Ticket className="w-5 h-5" />

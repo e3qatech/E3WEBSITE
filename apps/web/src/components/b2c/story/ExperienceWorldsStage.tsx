@@ -5,20 +5,160 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Users, Clock, Ticket } from 'lucide-react'
+import { resolveMediaType } from '@/lib/media-resolver'
 
 interface ExperienceWorldsStageProps {
   content: any
   locale: string
 }
 
-import { resolveMediaType } from '@/lib/media-resolver'
+export const DEFAULT_ATTRACTION_WORLDS = [
+  {
+    id: "attr-inflatarun",
+    slug: "inflatarun-lusail",
+    nameEn: "InflataRUN Lusail Boulevard",
+    nameAr: "إنفلاتا ران شارع لوسيل التجاري",
+    taglineEn: "World's Longest Inflatable Obstacle Challenge & Aqua Park",
+    taglineAr: "أطول مضمار عقبات قابل للنفخ في العالم",
+    locationEn: "Lusail Boulevard, Qatar",
+    locationAr: "شارع لوسيل التجاري، قطر",
+    statusEn: "OPEN NOW",
+    statusAr: "مفتوح الآن",
+    materialType: "E3 WORLD",
+    accentColor: "#10b981",
+    mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+    audienceEn: "All Ages & Families",
+    audienceAr: "جميع الأعمار والعائلات",
+    timingsEn: "15:00 - 23:00 Daily",
+    timingsAr: "15:00 - 23:00 يومياً",
+    price: 75,
+    currency: "QAR",
+    ctaEn: "Book Pass & Ticket",
+    ctaAr: "احجز التذكرة والمواعيد"
+  },
+  {
+    id: "attr-cyberdome",
+    slug: "cyberdome-vr",
+    nameEn: "Cyberdome VR & Esports Arena",
+    nameAr: "ساحة السايبردوم للواقع الافتراضي والألعاب",
+    taglineEn: "Next-Gen 4D Haptic Motion Simulator & VR Cyber Hub",
+    taglineAr: "مركز أجهزة المحاكاة الحركية رباعية الأبعاد",
+    locationEn: "Place Vendôme Mall, Qatar",
+    locationAr: "مول بلاس فاندوم، لوسيل",
+    statusEn: "OPEN NOW",
+    statusAr: "مفتوح الآن",
+    materialType: "VR CYBERHUB",
+    accentColor: "#8b5cf6",
+    mediaUrl: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=1200&auto=format&fit=crop",
+    audienceEn: "Teens & Gamers (12+)",
+    audienceAr: "الشباب وهواة الألعاب (12+)",
+    timingsEn: "14:00 - 00:00 Daily",
+    timingsAr: "14:00 - 00:00 يومياً",
+    price: 90,
+    currency: "QAR",
+    ctaEn: "Book VR Simulator",
+    ctaAr: "احجز تجربة الواقع الافتراضي"
+  },
+  {
+    id: "attr-adrenaline",
+    slug: "adrenaline-racing-circuit",
+    nameEn: "Adrenaline Pro Karting Circuit",
+    nameAr: "حلبة أدرينالين لسباقات الكارتينج",
+    taglineEn: "High-Speed Electric Go-Karting Track & Pro Racing",
+    taglineAr: "حلبة كارتينج كهربائية عالية السرعة والإثارة",
+    locationEn: "Al Bidda Park, Doha",
+    locationAr: "حديقة البدع، الدوحة",
+    statusEn: "OPEN NOW",
+    statusAr: "مفتوح الآن",
+    materialType: "PRO RACING",
+    accentColor: "#f59e0b",
+    mediaUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop",
+    audienceEn: "Thrill Seekers & Adults",
+    audienceAr: "عشاق السرعة والإثارة",
+    timingsEn: "16:00 - 01:00 Daily",
+    timingsAr: "16:00 - 01:00 يومياً",
+    price: 120,
+    currency: "QAR",
+    ctaEn: "Book Karting Session",
+    ctaAr: "احجز سباق الكارتينج"
+  },
+  {
+    id: "attr-splash",
+    slug: "splash-kingdom",
+    nameEn: "Splash Kingdom Water Experience",
+    nameAr: "مملكة سبلاش للألعاب المائية",
+    taglineEn: "Inflatable Ocean Waterpark & Aqua Tower",
+    taglineAr: "مدينة الألعاب المائية والأبراج التفاعلية في الشاطئ",
+    locationEn: "Katara Beach, Qatar",
+    locationAr: "شاطئ كتارا، قطر",
+    statusEn: "OPEN NOW",
+    statusAr: "مفتوح الآن",
+    materialType: "AQUA PARK",
+    accentColor: "#06b6d4",
+    mediaUrl: "https://images.unsplash.com/photo-1582650625119-3a31f8418b0d?q=80&w=1200&auto=format&fit=crop",
+    audienceEn: "Kids & Families",
+    audienceAr: "الأطفال والعائلات",
+    timingsEn: "10:00 - 19:00 Daily",
+    timingsAr: "10:00 - 19:00 يومياً",
+    price: 65,
+    currency: "QAR",
+    ctaEn: "Book Aqua Pass",
+    ctaAr: "احجز تذكرة الألعاب المائية"
+  },
+  {
+    id: "attr-superpark",
+    slug: "superpark-msheireb",
+    nameEn: "SuperPark Msheireb Active Hub",
+    nameAr: "سوبربارك مشيرب للنشاط والمغامرات",
+    taglineEn: "All-in-One Indoor Multi-Sport & Trampoline Park",
+    taglineAr: "مجمع الألعاب والأنشطة الرياضية والترامبولين المغطى",
+    locationEn: "Msheireb Downtown Doha",
+    locationAr: "مشيرب قلب الدوحة",
+    statusEn: "OPEN NOW",
+    statusAr: "مفتوح الآن",
+    materialType: "SPORTS HUB",
+    accentColor: "#ec4899",
+    mediaUrl: "https://images.unsplash.com/photo-1517649763962-0c623266010b?q=80&w=1200&auto=format&fit=crop",
+    audienceEn: "All Ages & Sports Lovers",
+    audienceAr: "جميع الأعمار وهواة الرياضة",
+    timingsEn: "12:00 - 22:00 Daily",
+    timingsAr: "12:00 - 22:00 يومياً",
+    price: 85,
+    currency: "QAR",
+    ctaEn: "Book Active Pass",
+    ctaAr: "احجز تذكرة سوبربارك"
+  }
+];
 
 export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStageProps) {
   const isAr = locale === 'ar'
-  const worlds = content?.act3Worlds || []
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const rawWorlds = content?.act3Worlds
+  const worlds = (Array.isArray(rawWorlds) && rawWorlds.length > 0) ? rawWorlds : DEFAULT_ATTRACTION_WORLDS
 
-  const activeWorld = worlds[selectedIndex] || worlds[0] || {}
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const currentWorld = worlds[selectedIndex] || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
+
+  // Merge with fallback defaults to ensure mediaUrl, audience, timings and price are NEVER empty
+  const fallback = DEFAULT_ATTRACTION_WORLDS[selectedIndex % DEFAULT_ATTRACTION_WORLDS.length] || DEFAULT_ATTRACTION_WORLDS[0]
+  const activeWorld = {
+    ...fallback,
+    ...currentWorld,
+    mediaUrl: currentWorld.mediaUrl || currentWorld.heroMediaUrl || fallback.mediaUrl,
+    nameEn: currentWorld.nameEn || fallback.nameEn,
+    nameAr: currentWorld.nameAr || fallback.nameAr,
+    taglineEn: currentWorld.taglineEn || fallback.taglineEn,
+    taglineAr: currentWorld.taglineAr || fallback.taglineAr,
+    locationEn: currentWorld.locationEn || currentWorld.locationNameEn || fallback.locationEn,
+    locationAr: currentWorld.locationAr || currentWorld.locationNameAr || fallback.locationAr,
+    audienceEn: currentWorld.audienceEn || fallback.audienceEn,
+    audienceAr: currentWorld.audienceAr || fallback.audienceAr,
+    timingsEn: currentWorld.timingsEn || fallback.timingsEn,
+    timingsAr: currentWorld.timingsAr || fallback.timingsAr,
+    price: currentWorld.price || fallback.price,
+    currency: currentWorld.currency || fallback.currency,
+    ctaEn: currentWorld.ctaEn || fallback.ctaEn,
+    ctaAr: currentWorld.ctaAr || fallback.ctaAr,
+  }
 
   return (
     <section id="attraction-worlds" className="relative min-h-screen py-20 bg-[#080214] text-white flex flex-col justify-center overflow-hidden border-b border-purple-950/40">
@@ -46,6 +186,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
           <div className="flex flex-wrap items-center gap-2">
             {worlds.map((w: any, idx: number) => {
               const isActive = idx === selectedIndex
+              const tabName = isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr)
               return (
                 <button
                   key={w.id || idx}
@@ -56,7 +197,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                       : 'bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white'
                   }`}
                 >
-                  {isAr ? w.nameAr : w.nameEn}
+                  {tabName}
                 </button>
               )
             })}
@@ -115,7 +256,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   className="text-xs font-mono font-extrabold uppercase tracking-widest block mb-1"
                   style={{ color: activeWorld.accentColor || '#10b981' }}
                 >
-                  {isAr ? activeWorld.locationAr : activeWorld.locationEn}
+                  📍 {isAr ? activeWorld.locationAr : activeWorld.locationEn}
                 </span>
                 <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
                   {isAr ? activeWorld.nameAr : activeWorld.nameEn}
@@ -158,7 +299,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
 
                 <div className="flex items-center gap-3">
                   <Link
-                    href={`/b2c/attractions/${activeWorld.slug || activeWorld.id}`}
+                    href={activeWorld.ticketingUrl || `/${locale}/b2c/calendar`}
                     className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold text-xs transition-all shadow-lg hover:scale-105 cursor-pointer"
                   >
                     <Ticket className="w-4 h-4" />
