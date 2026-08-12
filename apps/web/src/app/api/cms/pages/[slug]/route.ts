@@ -123,7 +123,9 @@ async function checkCMSAuth(req: NextRequest): Promise<boolean> {
   try {
     const session = await auth();
     if (session?.user) return true;
-  } catch (_e) {}
+  } catch (e) {
+    console.debug('[CMS Auth] session error', e);
+  }
 
   try {
     const cookieStore = await cookies();
@@ -135,7 +137,9 @@ async function checkCMSAuth(req: NextRequest): Promise<boolean> {
       c.name.includes('admin')
     );
     if (isAuthed) return true;
-  } catch (_e) {}
+  } catch (e) {
+    console.debug('[CMS Auth] cookie store error', e);
+  }
 
   const cookieHeader = req.headers.get('cookie') || '';
   if (cookieHeader.includes('session-token') || cookieHeader.includes('next-auth') || cookieHeader.includes('authjs')) {
@@ -271,8 +275,8 @@ export async function PUT(
       revalidatePath('/[locale]/dashboard/b2c/pulse-orbit', 'page');
       revalidatePath('/[locale]/dashboard/b2b/pulse-orbit', 'page');
       revalidatePath('/[locale]/dashboard/settings/pulse-orbit', 'page');
-    } catch (_e) {
-      // Ignore revalidate errors
+    } catch (e) {
+      console.debug('[CMS Revalidate] cache purge error', e);
     }
 
     return NextResponse.json({ success: true, data: updatedPage });

@@ -49,8 +49,18 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
 
   // 3. What&apos;s Inside (Features)
   const [features, setFeatures] = useState<any[]>(
-    Array.isArray(initialData?.features) ? initialData.features : []
+    Array.isArray(initialData?.featuresList) && initialData.featuresList.length > 0
+      ? initialData.featuresList.map((f: any) => ({ ...f, storyTypeIds: f.storyTypes?.map((st: any) => st.id) || [] }))
+      : Array.isArray(initialData?.features) ? initialData.features : []
   )
+
+  const [availableStoryTypes, setAvailableStoryTypes] = useState<any[]>([])
+  useEffect(() => {
+    fetch('/api/b2c/story-types?active=true')
+      .then(res => res.json())
+      .then(data => setAvailableStoryTypes(Array.isArray(data) ? data : []))
+      .catch(console.error)
+  }, [])
 
   // 4. Pricing & Tickets
   const [pricing, setPricing] = useState<any[]>(initialData?.pricing || [])
@@ -578,6 +588,45 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                           placeholder="صف تجربة الزوار وتفاصيل الجذب..."
                           className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none resize-none text-right"
                         />
+                      </div>
+
+                      {/* Story Discovery Classification */}
+                      <div className="space-y-1.5 md:col-span-2 mt-2 pt-2 border-t border-[var(--border-default)]/50">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Story Type / Activity Classification (Story Discovery)</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {(item.storyTypeIds || []).map((stId: string) => {
+                            const st = availableStoryTypes.find(t => t.id === stId)
+                            return (
+                              <span key={stId} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold" style={{ backgroundColor: `${st?.accentColor || '#3b82f6'}20`, color: st?.accentColor || '#3b82f6' }}>
+                                {st?.titleEn || stId}
+                                <button type="button" onClick={() => {
+                                  const updated = [...features];
+                                  updated[index] = { ...updated[index], storyTypeIds: (item.storyTypeIds || []).filter((id: string) => id !== stId) };
+                                  setFeatures(updated);
+                                }} className="hover:opacity-70 ml-1">×</button>
+                              </span>
+                            )
+                          })}
+                        </div>
+                        <select
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
+                          value=""
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (!val) return;
+                            const currentIds = item.storyTypeIds || [];
+                            if (!currentIds.includes(val)) {
+                              const updated = [...features];
+                              updated[index] = { ...updated[index], storyTypeIds: [...currentIds, val] };
+                              setFeatures(updated);
+                            }
+                          }}
+                        >
+                          <option value="">+ Assign Story Type</option>
+                          {availableStoryTypes.filter(st => !(item.storyTypeIds || []).includes(st.id)).map(st => (
+                            <option key={st.id} value={st.id}>{st.titleEn} / {st.titleAr}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                   </div>

@@ -142,6 +142,7 @@ model Attraction {
   updatedAt        DateTime                 @updatedAt
   logoUrl          String?
   seo              Json?
+  featuresList     AttractionFeature[]
   faqs             AttractionFaq[]
   gallery          AttractionGalleryItem[]
   offers           AttractionOffer[]
@@ -731,4 +732,41 @@ enum LeadStatus {
   PROPOSAL
   WON
   LOST
+}
+
+model StoryType {
+  id             String              @id @default(cuid())
+  slug           String              @unique
+  titleEn        String
+  titleAr        String
+  descriptionEn  String?
+  descriptionAr  String?
+  icon           String?
+  coverMediaUrl  String?
+  coverMediaType String              @default("IMAGE")
+  accentColor    String?
+  orderIndex     Int                 @default(0)
+  isActive       Boolean             @default(true)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  features       AttractionFeature[]
+
+  @@index([isActive])
+}
+
+model AttractionFeature {
+  id            String      @id @default(cuid())
+  attractionId  String
+  titleEn       String
+  titleAr       String?
+  descriptionEn String?
+  descriptionAr String?
+  imageUrl      String?
+  orderIndex    Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  attraction    Attraction  @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  storyTypes    StoryType[]
+
+  @@index([attractionId])
 }

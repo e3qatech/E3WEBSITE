@@ -27,7 +27,12 @@ export default async function EditAttractionPage({
       gallery: { orderBy: { orderIndex: 'asc' } },
       socialLinks: true,
       offers: true,
-      temporalRules: true
+      temporalRules: true,
+      featuresList: {
+        include: {
+          storyTypes: true
+        }
+      }
     }
   })
 

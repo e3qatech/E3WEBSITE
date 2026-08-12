@@ -30,10 +30,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-500/30 bg-sky-950/40 text-sky-400 text-xs font-bold uppercase tracking-widest">
-            <Layers className="w-4 h-4 text-sky-400" />
-            <span>{isAr ? "تحويل الأفكار إلى واقع — IDEAS TO LIFE" : "IDEAS TO LIFE — WOW & HOW"}</span>
-          </div>
+
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
             {isAr ? (act.headlineAr || "لا نكتفي بتخيّل المتعة… بل نحوّلها إلى واقع.") : (act.headlineEn || "We don’t just imagine fun. We bring it to life.")}
           </h2>
@@ -48,7 +45,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
               return (
                 <button
                   key={step.id || idx}
-                  onClick={() => setActiveStepIndex(idx)}
+                  onMouseEnter={() => setActiveStepIndex(idx)}
                   className={`w-full text-start p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between cursor-pointer ${
                     isActive
                       ? 'border-sky-500 bg-sky-950/40 text-white shadow-lg shadow-sky-950/50 translate-x-1'
@@ -56,11 +53,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
-                      isActive ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-400'
-                    }`}>
-                      {idx + 1}
-                    </div>
+
                     <div>
                       <div className="font-bold text-sm text-white">
                         {isAr ? step.titleAr : step.titleEn}
@@ -122,9 +115,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
 
                 <div className="absolute bottom-6 start-6 end-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 backdrop-blur-md">
-                  <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-widest">
-                    {isAr ? `المرحلة ٠${activeStepIndex + 1} من ٠${steps.length || 6}` : `STAGE 0${activeStepIndex + 1} OF 0${steps.length || 6}`}
-                  </span>
+
                   <h3 className="text-xl font-extrabold text-white mt-1">
                     {isAr ? activeStep.titleAr : activeStep.titleEn}
                   </h3>

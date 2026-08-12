@@ -44,7 +44,9 @@ async function checkUploadAuth(request?: Request, context?: string | null): Prom
   try {
     const session = await auth();
     if (session?.user) return true;
-  } catch (_e) {}
+  } catch (e) {
+    console.debug('[Upload Auth] session error', e);
+  }
 
   try {
     const cookieStore = await cookies();
@@ -56,7 +58,9 @@ async function checkUploadAuth(request?: Request, context?: string | null): Prom
       c.name.includes('admin')
     );
     if (isAuthed) return true;
-  } catch (_e) {}
+  } catch (e) {
+    console.debug('[Upload Auth] cookie store error', e);
+  }
 
   if (request) {
     const cookieHeader = request.headers.get('cookie') || '';

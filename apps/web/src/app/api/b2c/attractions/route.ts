@@ -102,7 +102,20 @@ export async function POST(request: Request) {
         pricing: { create: safePricing },
         faqs: { create: safeFaqs },
         socialLinks: { create: safeSocialLinks },
-        gallery: { create: safeGallery }
+        gallery: { create: safeGallery },
+        featuresList: {
+          create: Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)).map((f: any, i: number) => ({
+            titleEn: (f.titleEn || f.titleAr || "Feature").trim(),
+            titleAr: (f.titleAr || f.titleEn || "ميزة").trim(),
+            descriptionEn: (f.descriptionEn || "").trim(),
+            descriptionAr: (f.descriptionAr || "").trim(),
+            imageUrl: (f.imageUrl || "").trim(),
+            orderIndex: i,
+            storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0 ? {
+              connect: f.storyTypeIds.map((sid: string) => ({ id: sid }))
+            } : undefined
+          })) : []
+        }
       }
     })
 

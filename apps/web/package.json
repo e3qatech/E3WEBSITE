@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
-    "build": "prisma generate --schema=prisma/schema.prisma && prisma migrate deploy && next build",
+    "build": "prisma generate --schema=prisma/schema.prisma && (npx prisma migrate resolve --applied 20260805000000_add_rbac_portals_and_memberships --schema=prisma/schema.prisma || true) && prisma migrate deploy --schema=prisma/schema.prisma && next build",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint . --max-warnings=0",
     "seed:events": "tsx prisma/seed-events.ts",

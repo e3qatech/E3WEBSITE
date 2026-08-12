@@ -83,6 +83,7 @@ export async function PUT(
       db.attractionFaq.deleteMany({ where: { attractionId: id } }),
       db.attractionSocialLink.deleteMany({ where: { attractionId: id } }),
       db.attractionGalleryItem.deleteMany({ where: { attractionId: id } }),
+      db.attractionFeature.deleteMany({ where: { attractionId: id } }),
       db.attraction.update({
         where: { id },
         data: {
@@ -115,7 +116,20 @@ export async function PUT(
           pricing: { create: safePricing },
           faqs: { create: safeFaqs },
           socialLinks: { create: safeSocialLinks },
-          gallery: { create: safeGallery }
+          gallery: { create: safeGallery },
+          featuresList: {
+            create: Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)).map((f: any, i: number) => ({
+              titleEn: (f.titleEn || f.titleAr || "Feature").trim(),
+              titleAr: (f.titleAr || f.titleEn || "ميزة").trim(),
+              descriptionEn: (f.descriptionEn || "").trim(),
+              descriptionAr: (f.descriptionAr || "").trim(),
+              imageUrl: (f.imageUrl || "").trim(),
+              orderIndex: i,
+              storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0 ? {
+                connect: f.storyTypeIds.map((sid: string) => ({ id: sid }))
+              } : undefined
+            })) : []
+          }
         }
       })
     ])
