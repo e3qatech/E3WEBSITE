@@ -715,16 +715,6 @@ export function DiscoverClient({
 
         return null;
       })}
-
-      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
-      <Footer 
-        portal="b2c" 
-        settings={{ 
-          footerMediaUrl: content.footerMediaUrl || content.footer?.backgroundMediaUrl || content.footer?.mediaUrl, 
-          footerMediaType: content.footerMediaType || content.footer?.backgroundMediaType || content.footer?.mediaType, 
-          footerPosterUrl: content.footerPosterUrl || content.footer?.backgroundPosterUrl || content.footer?.posterUrl 
-        }} 
-      />
     </div>
   );
 }

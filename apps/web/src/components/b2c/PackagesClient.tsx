@@ -325,16 +325,6 @@ export function PackagesClient({
         locale={locale}
         selectedPackage={selectedPackageForEnquiry}
       />
-
-      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
-      <Footer 
-        portal="b2c" 
-        settings={{ 
-          footerMediaUrl: initialSettings?.footerMedia?.mediaUrl || initialSettings?.footerMediaUrl, 
-          footerMediaType: initialSettings?.footerMedia?.mediaType || initialSettings?.footerMediaType, 
-          footerPosterUrl: initialSettings?.footerMedia?.posterMediaUrl || initialSettings?.footerPosterUrl 
-        }} 
-      />
     </div>
   )
 }

@@ -221,16 +221,6 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
           attractions={initialAttractions}
         />
       </div>
-
-      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
-      <Footer 
-        portal="b2c" 
-        settings={{ 
-          footerMediaUrl: footerMediaUrl || "", 
-          footerMediaType: footerMediaType || "IMAGE", 
-          footerPosterUrl: footerPosterUrl || "" 
-        }} 
-      />
     </div>
     </>
   );

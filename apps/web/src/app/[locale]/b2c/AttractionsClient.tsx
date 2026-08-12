@@ -162,16 +162,6 @@ export function AttractionsClient({
         currentWorldNameAr="مدينة قيادة الأطفال"
         locale={locale}
       />
-
-      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
-      <Footer 
-        portal="b2c" 
-        settings={{ 
-          footerMediaUrl: liveCmsContent?.footerMedia?.mediaUrl || liveCmsContent?.footerMediaUrl, 
-          footerMediaType: liveCmsContent?.footerMedia?.mediaType || liveCmsContent?.footerMediaType, 
-          footerPosterUrl: liveCmsContent?.footerMedia?.posterMediaUrl || liveCmsContent?.footerPosterUrl 
-        }} 
-      />
     </div>
   );
 }

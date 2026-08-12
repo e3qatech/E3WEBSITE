@@ -61,22 +61,57 @@ export default async function B2CLayout({
     }
   }
 
-  let landingPage: any = null;
+  let b2cPages: any[] = [];
   try {
-    landingPage = await db.pages.findUnique({
-      where: { slug: "b2c-landing" }
+    b2cPages = await db.pages.findMany({
+      where: {
+        slug: { in: ["b2c-landing", "b2c-discover", "b2c-attractions", "b2c-calendar", "b2c-packages"] }
+      }
     });
   } catch (e) {
-    console.warn("[B2C LAYOUT NOTICE] Failed to query b2c-landing page:", e);
+    console.warn("[B2C LAYOUT NOTICE] Failed to query b2c pages for footer settings:", e);
   }
-  const landingContent = getMergedCMSPageContent("b2c-landing", landingPage?.content);
-  const footerMediaConfig = landingContent?.footerMedia || {};
+
+  const pageContentMap = b2cPages.reduce((acc: any, page: any) => {
+    acc[page.slug] = page.content;
+    return acc;
+  }, {});
+
+  const landingContent = getMergedCMSPageContent("b2c-landing", pageContentMap["b2c-landing"]);
+  const discoverContent = getMergedCMSPageContent("b2c-discover", pageContentMap["b2c-discover"]);
+  const attractionsContent = getMergedCMSPageContent("b2c-attractions", pageContentMap["b2c-attractions"]);
+  const calendarContent = getMergedCMSPageContent("b2c-calendar", pageContentMap["b2c-calendar"]);
+  const packagesContent = getMergedCMSPageContent("b2c-packages", pageContentMap["b2c-packages"]);
+
+  const activeFooterMedia = 
+    discoverContent?.footerMediaUrl || discoverContent?.footer?.backgroundMediaUrl ||
+    attractionsContent?.footerMedia?.mediaUrl ||
+    calendarContent?.footerMedia?.mediaUrl ||
+    packagesContent?.footerMedia?.mediaUrl ||
+    landingContent?.footerMedia?.mediaUrl ||
+    settingsMap.footerMediaUrl || settingsMap.footerBackgroundMediaUrl;
+
+  const activeFooterMediaType = 
+    discoverContent?.footerMediaType || discoverContent?.footer?.backgroundMediaType ||
+    attractionsContent?.footerMedia?.mediaType ||
+    calendarContent?.footerMedia?.mediaType ||
+    packagesContent?.footerMedia?.mediaType ||
+    landingContent?.footerMedia?.mediaType ||
+    settingsMap.footerMediaType || settingsMap.footerBackgroundMediaType || "IMAGE";
+
+  const activeFooterPosterUrl = 
+    discoverContent?.footerPosterUrl || discoverContent?.footer?.backgroundPosterUrl ||
+    attractionsContent?.footerMedia?.posterMediaUrl ||
+    calendarContent?.footerMedia?.posterMediaUrl ||
+    packagesContent?.footerMedia?.posterMediaUrl ||
+    landingContent?.footerMedia?.posterMediaUrl ||
+    settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl;
 
   const mergedFooterSettings = {
     ...settingsMap,
-    footerMediaUrl: settingsMap.footerMediaUrl || settingsMap.footerBackgroundMediaUrl || footerMediaConfig.mediaUrl || footerMediaConfig.url,
-    footerMediaType: settingsMap.footerMediaType || settingsMap.footerBackgroundMediaType || footerMediaConfig.mediaType,
-    footerPosterUrl: settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl || footerMediaConfig.posterMediaUrl || footerMediaConfig.posterUrl
+    footerMediaUrl: activeFooterMedia,
+    footerMediaType: activeFooterMediaType,
+    footerPosterUrl: activeFooterPosterUrl
   };
 
   const orbitData = getMergedCMSPageContent("b2c-pulse-orbit", orbitPage?.content);
