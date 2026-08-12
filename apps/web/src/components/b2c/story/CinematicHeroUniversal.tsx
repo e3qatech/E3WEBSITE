@@ -78,7 +78,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
   }
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-[#090314] via-[#0f0728] to-[#070212] px-4 sm:px-6 lg:px-8 py-24 text-white border-b border-purple-950/40">
+    <section className="relative min-h-[92vh] flex flex-col justify-end items-center overflow-hidden bg-gradient-to-b from-[#090314] via-[#0f0728] to-[#070212] px-4 sm:px-6 lg:px-8 pt-36 pb-20 md:pb-28 text-white border-b border-purple-950/40">
       {/* Background Universal Media Layer */}
       {mediaUrl ? (
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -110,9 +110,9 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
             />
           )}
 
-          {/* Ambient Dark Purple & Gradient Mask */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#090314]/75 via-[#090314]/40 to-[#070212]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(168,85,247,0.25),transparent_70%)] pointer-events-none" />
+          {/* Ambient Bottom-to-Top Gradient Scrim Overlay for 100% text visibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#070212] via-[#090314]/85 to-transparent z-[1] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_75%,rgba(168,85,247,0.3),transparent_70%)] pointer-events-none z-[1]" />
         </div>
       ) : null}
 
@@ -121,8 +121,8 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
         <E3ArrowHeroDevice variant="LIGHT_BEAM" accentColor="#a855f7" className="w-full max-w-5xl h-auto" />
       </div>
 
-      {/* Main Hero Content */}
-      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 my-auto">
+      {/* Main Hero Content - Positioned from Bottom & Center Aligned */}
+      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 mt-auto mb-4 flex flex-col items-center justify-end">
         {/* Subtle Brand Tag */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}

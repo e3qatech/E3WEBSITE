@@ -100,7 +100,7 @@ export function DiscoverClient({
           const normalizedType = rawType === "MODEL_3D" ? "THREE_D" : rawType;
 
           return (
-            <section key="hero" id="hero" className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden bg-[var(--e3-midnight)]">
+            <section key="hero" id="hero" className="relative min-h-[92vh] flex flex-col justify-end pt-36 pb-20 md:pb-28 overflow-hidden bg-black">
               {/* Full-Bleed Hero Background Media Container */}
               {hero.mediaUrl ? (
                 <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
@@ -111,38 +111,38 @@ export function DiscoverClient({
                     className="w-full h-full object-cover"
                     poster={hero.posterMediaUrl || hero.mobileMediaUrl}
                   />
-                  {/* Dark gradient overlay scrim to ensure text legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-[var(--e3-midnight)]/85 via-[var(--e3-midnight)]/70 to-[var(--e3-midnight)] z-[1] pointer-events-none" />
+                  {/* Bottom-to-top dark gradient scrim overlay for 100% text visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/80 to-black/30 z-[1] pointer-events-none" />
                 </div>
               ) : (
                 <ImmersiveCanvas />
               )}
               
-              <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center w-full flex flex-col items-center justify-end">
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8 }}
-                  className="space-y-6 max-w-4xl mx-auto"
+                  className="space-y-6 max-w-4xl mx-auto text-center flex flex-col items-center justify-end"
                 >
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)] backdrop-blur-md">
+                  <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-black/60 border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)] backdrop-blur-md shadow-2xl">
                     <Sparkles className="w-3.5 h-3.5" />
                     {isAr ? (hero.eyebrowAr || "منظومة إي ثري الترفيهية") : (hero.eyebrowEn || "The E3 Qatar Ecosystem")}
                   </span>
 
-                  <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05] drop-shadow-lg">
+                  <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05] text-white drop-shadow-2xl text-center">
                     <AnimatedText text={isAr ? (hero.headlineAr || "تحويل الأفكار المكانية إلى معالم حية") : (hero.headlineEn || "Transforming Spatial Ideas Into Living Landmarks")} />
                   </h1>
 
-                  <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+                  <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg text-center">
                     {isAr ? (hero.subtextAr || "منظومة قطرية متكاملة لابتكار وإدارة التجارب والفعاليات") : (hero.subtextEn || "Integrated Qatari ecosystem for pioneering events and destinations.")}
                   </p>
 
                   {(hero.primaryCtaUrl || hero.primaryCtaLabelEn) && (
-                    <div className="pt-4 flex justify-center gap-4">
+                    <div className="pt-4 flex justify-center items-center w-full">
                       <a
                         href={hero.primaryCtaUrl || "#about"}
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform shadow-xl"
+                        className="inline-flex items-center gap-2 px-9 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform shadow-2xl"
                       >
                         {isAr ? (hero.primaryCtaLabelAr || "استكشف المنظومة") : (hero.primaryCtaLabelEn || "Explore Ecosystem")}
                         <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
