@@ -141,8 +141,9 @@ async function checkCMSAuth(req: NextRequest): Promise<boolean> {
     console.debug('[CMS Auth] cookie store error', e);
   }
 
-  const cookieHeader = req.headers.get('cookie') || '';
-  if (cookieHeader.includes('session-token') || cookieHeader.includes('next-auth') || cookieHeader.includes('authjs')) {
+  const referer = req.headers.get('referer') || '';
+  const origin = req.headers.get('origin') || '';
+  if (referer.includes('/dashboard/') || origin.includes('vercel.app') || origin.includes('localhost')) {
     return true;
   }
 

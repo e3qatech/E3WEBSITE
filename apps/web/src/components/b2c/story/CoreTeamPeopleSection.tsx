@@ -12,6 +12,13 @@ interface CoreTeamPeopleSectionProps {
   locale?: string
 }
 
+function getValidPortraitUrl(url?: string): string {
+  if (!url || typeof url !== 'string' || url.includes('eeeqa.com') || url.includes('placeholder')) {
+    return "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop"
+  }
+  return url
+}
+
 export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeopleSectionProps) {
   const isAr = locale === 'ar'
   const teamSectionData = content?.coreTeam || {}
@@ -80,7 +87,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           roleAr: m.designationAr || m.designation || "قيادي",
           bioEn: m.aboutSummary || m.tagline || "",
           bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-          portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+          portrait: getValidPortraitUrl(m.profileImage),
           showProfileLink: true,
           profileCtaLabelEn: "View Profile",
           profileCtaLabelAr: "عرض الملف",
@@ -105,7 +112,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           roleAr: m.roleAr || m.designationAr || m.roleEn || "قيادي",
           bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
           bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || "",
-          portrait: m.portrait || m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+          portrait: getValidPortraitUrl(m.portrait || m.profileImage),
           showProfileLink: true,
           profileCtaLabelEn: "View Profile",
           profileCtaLabelAr: "عرض الملف",
