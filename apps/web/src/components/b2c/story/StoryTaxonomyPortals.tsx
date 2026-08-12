@@ -1,7 +1,7 @@
 "use client"
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, Sparkles, MapPin } from 'lucide-react'
+import { ArrowUpRight, Sparkles, MapPin, ChevronDown } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { formatLocalizedText } from '@/lib/utils'
@@ -20,6 +20,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   const selector = content?.intentSelector || {}
   
   const [dbStoryTypes, setDbStoryTypes] = useState<any[]>([])
+  const [showAllActivities, setShowAllActivities] = useState(false)
 
   useEffect(() => {
     fetch('/api/b2c/story-types?active=true')
@@ -112,9 +113,14 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
     }
   }, [paramStory, options])
 
+  useEffect(() => {
+    setShowAllActivities(false)
+  }, [activeId])
+
   const activeOption = options.find((o: any) => o.id === activeId) || options[0] || {}
 
   const handleSelect = (option: any) => {
+    if (activeId === option.id) return
     setActiveId(option.id)
     onSelectCategory?.(option.category || option.id)
 
@@ -126,6 +132,12 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   if (options.length === 0) return null
 
   const selectedTitle = formatLocalizedText(isAr ? activeOption.labelAr : activeOption.labelEn, locale)
+
+  const INITIAL_LIMIT = 3
+  const allActivities = activeOption.activities || []
+  const totalCount = allActivities.length
+  const visibleActivities = showAllActivities ? allActivities : allActivities.slice(0, INITIAL_LIMIT)
+  const hasMore = totalCount > INITIAL_LIMIT
 
   return (
     <section className="relative py-24 bg-[#090418] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
@@ -152,6 +164,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
             return (
               <button
                 key={option.id}
+                onMouseEnter={() => handleSelect(option)}
                 onClick={() => handleSelect(option)}
                 className={`relative aspect-[3/4] rounded-3xl overflow-hidden border transition-all duration-500 group flex flex-col justify-between p-6 text-start cursor-pointer ${
                   isSelected
@@ -223,11 +236,17 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     </h4>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-slate-900/80 text-slate-300 border border-slate-700/80 font-bold">
+                    {isAr ? `${totalCount} تجارب متاحة` : `${totalCount} Experiences Available`}
+                  </span>
+                </div>
               </div>
 
               {/* Grid of actual activities / activations for this story type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeOption.activities?.map((act: any, idx: number) => {
+                {visibleActivities.map((act: any, idx: number) => {
                   const actTitle = formatLocalizedText(isAr ? (act.titleAr || act.titleEn) : (act.titleEn || act.titleAr), locale)
                   const actDesc = formatLocalizedText(isAr ? (act.descriptionAr || act.descriptionEn) : (act.descriptionEn || act.descriptionAr), locale)
                   const venueName = formatLocalizedText(isAr ? (act.attractionNameAr || act.attractionNameEn) : (act.attractionNameEn || act.attractionNameAr), locale)
@@ -289,6 +308,24 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                   )
                 })}
               </div>
+
+              {/* Show More / Show Less Button */}
+              {hasMore && (
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={() => setShowAllActivities(!showAllActivities)}
+                    className="px-6 py-3 rounded-2xl border border-purple-500/40 bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 font-bold text-xs uppercase tracking-wider transition-all shadow-xl hover:scale-105 flex items-center gap-2 cursor-pointer"
+                    style={{ borderColor: activeOption.accentColor ? `${activeOption.accentColor}60` : undefined }}
+                  >
+                    <span>
+                      {showAllActivities
+                        ? (isAr ? "عرض أقل" : "Show Less")
+                        : (isAr ? `عرض المزيد (${totalCount - INITIAL_LIMIT} تجارب أخرى)` : `Show More (${totalCount - INITIAL_LIMIT} More Experiences)`)}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showAllActivities ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

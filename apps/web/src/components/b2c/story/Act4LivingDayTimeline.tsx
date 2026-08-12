@@ -2,7 +2,8 @@
 "use client"
 
 import { Clock, Radio, Ticket } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { formatLocalizedText } from '@/lib/utils'
 
 interface Act4LivingDayTimelineProps {
   content: any
@@ -12,86 +13,82 @@ interface Act4LivingDayTimelineProps {
 export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimelineProps) {
   const isAr = locale === 'ar'
   const [activeTab, setActiveTab] = useState<'NOW' | 'LATER' | 'SOON'>('NOW')
+  const [dbAttractions, setDbAttractions] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch('/api/b2c/attractions')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbAttractions(data)
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   const cmsLivingDay = content?.livingDay || {}
 
-  // Real-time scheduled data
-  const defaultScheduleNow = [
-    {
-      id: "s1",
-      titleEn: "Kids City Traffic License Exam",
-      titleAr: "اختبار رخصة قيادة الأطفال",
-      venueEn: "Doha Festival City",
-      venueAr: "دوحة فستيفال سيتي",
-      timeEn: "10:00 AM - 10:00 PM",
-      timeAr: "١٠:٠٠ ص - ١٠:٠٠ م",
-      statusEn: "Open Now",
-      statusAr: "مفتوح الان",
-      badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-      price: 65
-    },
-    {
-      id: "s2",
-      titleEn: "InflataPark Soft-Body Bounce",
-      titleAr: "جلسات القفز في إنفلاتا بارك",
-      venueEn: "Place Vendôme Mall",
-      venueAr: "بلَاس فاندوم",
-      timeEn: "12:00 PM - 11:00 PM",
-      timeAr: "١٢:٠٠ م - ١١:٠٠ م",
-      statusEn: "Open Now",
-      statusAr: "مفتوح الان",
-      badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-      price: 90
-    }
-  ]
+  // Map real database attractions to schedule items
+  const realAttractionItems = dbAttractions.map(attr => {
+    const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
+      ? Math.min(...attr.pricing.map((p: any) => p.price))
+      : 45
 
-  const defaultScheduleLater = [
-    {
-      id: "s3",
-      titleEn: "Urban Arena Paintless Laser Tournament",
-      titleAr: "بطولة أوربان أرينا ليزر تاغ",
-      venueEn: "West Bay Kinetic Dome",
-      venueAr: "الخليج الغربي",
-      timeEn: "06:00 PM - 09:00 PM",
-      timeAr: "٠٦:٠٠ م - ٠٩:٠٠ م",
-      statusEn: "Session at 6:00 PM",
-      statusAr: "الجلسة الساعة ٠٦:٠٠ م",
-      badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-      price: 110
-    },
-    {
-      id: "s4",
-      titleEn: "Doha Light & Kinetic Parade",
-      titleAr: "عرض إي ثري الضوئي الاستعراضي",
-      venueEn: "Al Rayyan Event Arena",
-      venueAr: "ساحة الفعاليات بالريان",
-      timeEn: "08:00 PM - 10:00 PM",
-      timeAr: "٠٨:٠٠ م - ١٠:٠٠ م",
-      statusEn: "Tonight 8 PM",
-      statusAr: "الليلة الساعة ٠٨:٠٠ م",
-      badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-      price: 0
-    }
-  ]
+    const venue = attr.operations?.venueName 
+      || attr.operations?.venueAddressEn 
+      || attr.attractionLocations?.[0]?.location?.addressEn 
+      || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
 
-  const defaultScheduleSoon = [
-    {
-      id: "s5",
-      titleEn: "Pristine Snow Park Family Pass",
-      titleAr: "باقة العائلة لإنفلاتا ثلج",
-      venueEn: "Katara Cultural Village",
-      venueAr: "كتارا القرية الثقافية",
-      timeEn: "Tomorrow 10:00 AM",
-      timeAr: "غداً الساعة ١٠:٠٠ ص",
-      statusEn: "Tickets Selling Fast",
-      statusAr: "التذاكر تنفذ سريعا",
-      badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/30",
-    }
-  ]
+    const timingsEn = attr.operations?.timingsEn || "10:00 AM - 10:00 PM"
+    const timingsAr = attr.operations?.timingsAr || "١٠:٠٠ ص - ١٠:٠٠ م"
 
-  const scheduleNow = (cmsLivingDay.scheduleNow && cmsLivingDay.scheduleNow.length > 0) ? cmsLivingDay.scheduleNow : defaultScheduleNow
-  const scheduleLater = (cmsLivingDay.scheduleLater && cmsLivingDay.scheduleLater.length > 0) ? cmsLivingDay.scheduleLater : defaultScheduleLater
-  const scheduleSoon = (cmsLivingDay.scheduleSoon && cmsLivingDay.scheduleSoon.length > 0) ? cmsLivingDay.scheduleSoon : defaultScheduleSoon
+    const isLateNight = timingsEn.includes("12:00 AM") || timingsEn.includes("11:00 PM")
+    const isSpecialActivation = attr.slug.includes("spongebob") || attr.operations?.materialType === "CHARACTER ACTIVATION"
+
+    let category: 'NOW' | 'LATER' | 'SOON' = 'NOW'
+    if (isSpecialActivation) {
+      category = 'NOW'
+    } else if (isLateNight) {
+      category = 'LATER'
+    } else if (attr.slug.includes("inflatapark-doha-mall")) {
+      category = 'SOON'
+    }
+
+    return {
+      id: attr.id || attr.slug,
+      slug: attr.slug,
+      titleEn: attr.nameEn,
+      titleAr: attr.nameAr || attr.nameEn,
+      venueEn: venue,
+      venueAr: venue,
+      timeEn: timingsEn,
+      timeAr: timingsAr,
+      statusEn: category === 'NOW' ? "Open Now" : (category === 'LATER' ? "Open Until Midnight" : "Upcoming Session"),
+      statusAr: category === 'NOW' ? "مفتوح الآن" : (category === 'LATER' ? "مفتوح حتى منتصف الليل" : "جلسة قادمة"),
+      badgeColor: category === 'NOW' 
+        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" 
+        : (category === 'LATER' ? "bg-amber-500/10 text-amber-400 border-amber-500/30" : "bg-purple-500/10 text-purple-400 border-purple-500/30"),
+      price: minPrice,
+      category
+    }
+  })
+
+  // Group real database attractions into time categories
+  const liveNow = realAttractionItems.filter(i => i.category === 'NOW')
+  const liveLater = realAttractionItems.filter(i => i.category === 'LATER')
+  const liveSoon = realAttractionItems.filter(i => i.category === 'SOON')
+
+  const scheduleNow = (cmsLivingDay.scheduleNow && cmsLivingDay.scheduleNow.length > 0) 
+    ? cmsLivingDay.scheduleNow 
+    : (liveNow.length > 0 ? liveNow : realAttractionItems.slice(0, 2))
+
+  const scheduleLater = (cmsLivingDay.scheduleLater && cmsLivingDay.scheduleLater.length > 0) 
+    ? cmsLivingDay.scheduleLater 
+    : (liveLater.length > 0 ? liveLater : realAttractionItems.slice(2, 4))
+
+  const scheduleSoon = (cmsLivingDay.scheduleSoon && cmsLivingDay.scheduleSoon.length > 0) 
+    ? cmsLivingDay.scheduleSoon 
+    : (liveSoon.length > 0 ? liveSoon : realAttractionItems.slice(4))
 
   const getList = () => {
     if (activeTab === 'NOW') return scheduleNow
@@ -100,7 +97,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
   }
 
   return (
-    <section id="living-day" className="relative py-24 bg-[#060212] text-white border-b border-purple-950/40 overflow-hidden">
+    <section id="living-day" className="relative py-24 bg-[#060212] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_60%,rgba(16,185,129,0.1),transparent_60%)] pointer-events-none" />
 
@@ -148,39 +145,59 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
         {/* Timeline Schedule Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {getList().map((item: any) => (
-            <div
-              key={item.id}
-              className="p-6 rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-md flex flex-col justify-between space-y-6 hover:border-slate-700 transition-all group"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2 ${item.badgeColor}`}>
-                    {isAr ? item.statusAr : item.statusEn}
-                  </span>
-                  <h3 className="text-xl font-extrabold text-white group-hover:text-emerald-400 transition-colors">
-                    {isAr ? item.titleAr : item.titleEn}
-                  </h3>
-                  <span className="text-xs text-slate-400 block mt-1">
-                    📍 {isAr ? item.venueAr : item.venueEn}
-                  </span>
+          {getList().map((item: any) => {
+            const titleVal = formatLocalizedText(isAr ? (item.titleAr || item.titleEn) : (item.titleEn || item.titleAr), locale)
+            const venueVal = formatLocalizedText(isAr ? (item.venueAr || item.venueEn) : (item.venueEn || item.venueAr), locale)
+            const timeVal = formatLocalizedText(isAr ? (item.timeAr || item.timeEn) : (item.timeEn || item.timeAr), locale)
+            const statusVal = formatLocalizedText(isAr ? (item.statusAr || item.statusEn) : (item.statusEn || item.statusAr), locale)
+            const targetUrl = item.slug ? `/b2c/attractions/${item.slug}` : `/b2c/tickets`
+
+            return (
+              <div
+                key={item.id}
+                className="p-6 rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-md flex flex-col justify-between space-y-6 hover:border-emerald-500/50 transition-all group"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2 ${item.badgeColor}`}>
+                      {statusVal}
+                    </span>
+                    <h3 className="text-xl font-extrabold text-white group-hover:text-emerald-400 transition-colors">
+                      {titleVal}
+                    </h3>
+                    <span className="text-xs text-slate-400 block mt-1">
+                      📍 {venueVal}
+                    </span>
+                  </div>
+
+                  <div className="text-end">
+                    <span className="text-xs text-slate-400 block">{isAr ? "التذكرة" : "Ticket"}</span>
+                    <span className="text-lg font-extrabold text-white">{item.price > 0 ? `${item.price} QAR` : (isAr ? "مجاني" : "Free")}</span>
+                  </div>
                 </div>
 
-                <div className="text-end">
-                  <span className="text-xs text-slate-400 block">{isAr ? "التذكرة" : "Ticket"}</span>
-                  <span className="text-lg font-extrabold text-white">{item.price} QAR</span>
+                <div className="flex items-center justify-between border-t border-slate-800/80 pt-4">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{timeVal}</span>
+                  </div>
+
+                  <a
+                    href={targetUrl}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    <Ticket className="w-3.5 h-3.5" />
+                    <span>{isAr ? "احجز الآن" : "Book Ticket"}</span>
+                  </a>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between border-t border-slate-800/80 pt-4">
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <Clock className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{isAr ? item.timeAr : item.timeEn}</span>
-                </div>
-
-                <a
-                  href="/b2c/tickets"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}l bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
                 >
                   <Ticket className="w-3.5 h-3.5" />
                   <span>{isAr ? "احجز الآن" : "Book Ticket"}</span>

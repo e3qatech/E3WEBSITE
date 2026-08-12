@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Users, Clock, Ticket, ArrowRight } from 'lucide-react'
+import { MapPin, Users, Clock, Ticket, ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Sparkles } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 
@@ -134,6 +134,8 @@ interface ExperienceWorldsStageProps {
 export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStageProps) {
   const isAr = locale === 'ar'
   const [dbAttractions, setDbAttractions] = useState<any[]>([])
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
     fetch('/api/b2c/attractions')
@@ -192,7 +194,25 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   // Final worlds list prioritizing live database attractions
   const worlds = dbMappedWorlds.length > 0 ? dbMappedWorlds : (cmsWorlds.length > 0 ? cmsWorlds : DEFAULT_ATTRACTION_WORLDS)
 
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  // Auto Slider effect
+  useEffect(() => {
+    if (isPaused || worlds.length <= 1) return
+
+    const interval = setInterval(() => {
+      setSelectedIndex(prev => (prev + 1) % worlds.length)
+    }, 3500)
+
+    return () => clearInterval(interval)
+  }, [isPaused, worlds.length])
+
+  const handleNext = () => {
+    setSelectedIndex(prev => (prev + 1) % worlds.length)
+  }
+
+  const handlePrev = () => {
+    setSelectedIndex(prev => (prev - 1 + worlds.length) % worlds.length)
+  }
+
   const currentWorld = worlds[selectedIndex] || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
 
   const rawBadge = currentWorld.materialType || "E3 WORLD"
@@ -217,7 +237,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10">
-        {/* Section Header */}
+        {/* Section Header with Auto Slider Controls */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 border-b border-slate-800/80 pb-6">
           <div>
             <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">
@@ -228,25 +248,48 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
             </h2>
           </div>
 
-          {/* Attraction World Switcher Tabs */}
-          <div className="flex flex-wrap items-center gap-2">
-            {worlds.map((w: any, idx: number) => {
-              const isActive = idx === selectedIndex
-              const tabName = formatLocalizedText(isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr), locale)
-              return (
+          {/* Clean Auto Slider Controls Bar */}
+          <div className="flex items-center gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-2 backdrop-blur-md shadow-xl">
+            <button
+              onClick={handlePrev}
+              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 transition-all cursor-pointer shadow-md"
+              title={isAr ? "السابق" : "Previous"}
+            >
+              <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Slide Progress Dots */}
+            <div className="flex items-center gap-1.5 px-2">
+              {worlds.map((_, idx) => (
                 <button
-                  key={w.id || idx}
+                  key={idx}
                   onClick={() => setSelectedIndex(idx)}
-                  className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-white text-slate-950 shadow-lg scale-105'
-                      : 'bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white'
+                  className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
+                    idx === selectedIndex ? 'w-6 bg-emerald-400' : 'w-2 bg-slate-700 hover:bg-slate-500'
                   }`}
-                >
-                  {tabName}
-                </button>
-              )
-            })}
+                  title={isAr ? `الانتقال إلى الوجهة ${idx + 1}` : `Go to world ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Pause / Play Toggle */}
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300 transition-colors cursor-pointer"
+              title={isPaused ? (isAr ? "تشغيل التمرير التلقائي" : "Play Auto Slider") : (isAr ? "إيقاف التمرير التلقائي" : "Pause Auto Slider")}
+            >
+              {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="w-3.5 h-3.5 text-purple-400 fill-purple-400" />}
+            </button>
+
+            {/* Next Button */}
+            <button
+              onClick={handleNext}
+              className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all cursor-pointer shadow-md flex items-center gap-1 font-extrabold text-xs"
+              title={isAr ? "التالي" : "Next"}
+            >
+              <span>{isAr ? "التالي" : "Next"}</span>
+              <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+            </button>
           </div>
         </div>
 
@@ -258,6 +301,8 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
             className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-3xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
           >
             {/* Left Media Stage (7 Cols) */}
@@ -286,6 +331,23 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>{statusVal}</span>
               </div>
+
+              {/* Floating Next/Prev Arrow Controls on Media Overlay */}
+              <button
+                onClick={handlePrev}
+                className="absolute top-1/2 start-3 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/70 hover:bg-emerald-500 hover:text-slate-950 text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
+                title={isAr ? "السابق" : "Previous"}
+              >
+                <ChevronLeft className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
+              </button>
+
+              <button
+                onClick={handleNext}
+                className="absolute top-1/2 end-3 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/70 hover:bg-emerald-500 hover:text-slate-950 text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
+                title={isAr ? "التالي" : "Next"}
+              >
+                <ChevronRight className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
+              </button>
 
               <div
                 className="absolute bottom-4 end-4 px-3.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-slate-950 shadow-md"

@@ -43,37 +43,85 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     locale
   )
 
-  const selectedIds: string[] = Array.isArray(teamSectionData.selectedMemberIds)
+  const selectedIds: string[] = Array.isArray(teamSectionData.selectedMemberIds) && teamSectionData.selectedMemberIds.length > 0
     ? teamSectionData.selectedMemberIds
+    : (Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0
+        ? teamSectionData.members.map((m: any) => m.id)
+        : [])
+
+  // 1. Live selected members from database preserving selected order
+  const liveSelectedMembers = (selectedIds.length > 0 && dbTeamMembers.length > 0)
+    ? selectedIds
+        .map(id => dbTeamMembers.find(m => m.id === id || m.slug === id))
+        .filter(Boolean)
+        .map(m => ({
+          id: m.id,
+          slug: m.slug || m.id,
+          nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+          nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+          roleEn: m.designation || "Executive",
+          roleAr: m.designationAr || m.designation || "قيادي",
+          bioEn: m.aboutSummary || m.tagline || "",
+          bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+          portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+          showProfileLink: true,
+          profileCtaLabelEn: "View Profile",
+          profileCtaLabelAr: "عرض الملف"
+        }))
     : []
 
-  // Filter db team members matching selectedIds if provided
-  const matchedDbMembers = dbTeamMembers.length > 0 && selectedIds.length > 0
-    ? dbTeamMembers.filter(m => selectedIds.includes(m.id))
+  // 2. CMS-saved members object fallback (when offline or before API loads)
+  const cmsSavedMembers = Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0
+    ? teamSectionData.members.map((m: any) => ({
+        id: m.id,
+        slug: m.slug || m.id,
+        nameEn: m.nameEn || `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+        nameAr: m.nameAr || (m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : m.nameEn),
+        roleEn: m.roleEn || m.designation || "Executive",
+        roleAr: m.roleAr || m.designationAr || m.roleEn || "قيادي",
+        bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
+        bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || "",
+        portrait: m.portrait || m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف"
+      }))
     : []
 
-  const mappedDbMembers: any[] = matchedDbMembers.map(m => ({
-    id: m.id,
-    slug: m.slug || m.id,
-    nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-    nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
-    roleEn: m.designation || "Executive",
-    roleAr: m.designationAr || m.designation || "قيادي",
-    bioEn: m.aboutSummary || m.tagline || "",
-    bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-    portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-    showProfileLink: true,
-    profileCtaLabelEn: "View Profile",
-    profileCtaLabelAr: "عرض الملف"
-  }))
+  // 3. Fallback to all DB members if no selection in CMS
+  const allDbMembersMapped = dbTeamMembers.length > 0
+    ? dbTeamMembers.map(m => ({
+        id: m.id,
+        slug: m.slug || m.id,
+        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+        roleEn: m.designation || "Executive",
+        roleAr: m.designationAr || m.designation || "قيادي",
+        bioEn: m.aboutSummary || m.tagline || "",
+        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف"
+      }))
+    : []
 
-  const teamMembers: CoreTeamRecord[] = mappedDbMembers.length > 0
-    ? mappedDbMembers
-    : ((teamSectionData.members && teamSectionData.members.length > 0)
-        ? teamSectionData.members
-        : DEFAULT_CORE_TEAM)
+  const teamMembers: CoreTeamRecord[] = liveSelectedMembers.length > 0
+    ? liveSelectedMembers
+    : (cmsSavedMembers.length > 0
+        ? cmsSavedMembers
+        : (allDbMembersMapped.length > 0
+            ? allDbMembersMapped
+            : DEFAULT_CORE_TEAM))
 
   const [activeMemberId, setActiveMemberId] = useState(teamMembers[0]?.id || DEFAULT_CORE_TEAM[0].id)
+
+  useEffect(() => {
+    if (teamMembers.length > 0 && !teamMembers.some(m => m.id === activeMemberId)) {
+      setActiveMemberId(teamMembers[0].id)
+    }
+  }, [teamMembers, activeMemberId])
+
   const activeMember = teamMembers.find(m => m.id === activeMemberId) || teamMembers[0] || DEFAULT_CORE_TEAM[0]
 
   return (
@@ -111,7 +159,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
         </div>
 
         {/* Editorial Portraits Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${teamMembers.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-8 items-stretch`}>
           {teamMembers.map((member, _idx) => {
             const isActive = member.id === activeMemberId
             const memberName = formatLocalizedText(isAr ? member.nameAr : member.nameEn, locale)
@@ -162,7 +210,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                   </p>
 
                   {member.showProfileLink && (
-                    <a href={`/${locale}/b2c/team/${member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300">
+                    <a href={`/${locale}/b2c/team/${member.slug || member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300">
                       <span>{ctaLabel}</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>
