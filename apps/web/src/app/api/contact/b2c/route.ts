@@ -4,6 +4,14 @@ import { redis } from '@/lib/redis';
 import { z } from 'zod';
 import { rateLimit } from '@/lib/rate-limit';
 import { enforceBodyLimit } from '@/lib/body-limit';
+import {
+  safelySendEmail,
+  getNotificationTargetEmail,
+  renderAdminSupportTicketEmail,
+  renderUserSupportTicketConfirmationEmail,
+  renderAdminFeedbackEmail,
+  renderAdminGeneralInquiryEmail,
+} from '@/lib/email';
 
 const feedbackSchema = z.object({
   actionType: z.literal('FEEDBACK'),
@@ -89,6 +97,24 @@ export async function POST(req: NextRequest) {
           attractionId: parsed.attractionId,
         }
       });
+
+      // Dispatch admin feedback email notification (non-blocking)
+      getNotificationTargetEmail('FEEDBACK').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 Qatar Feedback] Rating: ${parsed.rating || 'N/A'} - ${parsed.name || 'Anonymous'}`,
+          html: renderAdminFeedbackEmail({
+            name: parsed.name,
+            email: parsed.email,
+            rating: parsed.rating,
+            attractionId: parsed.attractionId,
+            message: parsed.message,
+          }),
+          category: 'FEEDBACK',
+          replyTo: parsed.email || undefined,
+        });
+      });
+
       return NextResponse.json(feedback, { status: 201 });
     }
 
@@ -103,6 +129,35 @@ export async function POST(req: NextRequest) {
           message: parsed.message,
         }
       });
+
+      // Dispatch admin notification email (non-blocking)
+      getNotificationTargetEmail('SUPPORT').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 Support Ticket] ${parsed.name} - Inquiry #${inquiry.id}`,
+          html: renderAdminSupportTicketEmail({
+            name: parsed.name,
+            email: parsed.email,
+            phone: parsed.phone,
+            message: parsed.message,
+            ticketId: inquiry.id,
+          }),
+          category: 'SUPPORT',
+          replyTo: parsed.email,
+        });
+      });
+
+      // Dispatch user confirmation auto-acknowledgment email
+      safelySendEmail({
+        to: parsed.email,
+        subject: `[E3 Qatar] Support Request Received (#${inquiry.id})`,
+        html: renderUserSupportTicketConfirmationEmail({
+          name: parsed.name,
+          ticketId: inquiry.id,
+        }),
+        category: 'SUPPORT',
+      });
+
       return NextResponse.json(inquiry, { status: 201 });
     }
 
@@ -116,6 +171,24 @@ export async function POST(req: NextRequest) {
           message: body.message || `Subject: ${body.subject || 'Package Booking Inquiry'}`,
         }
       });
+
+      // Dispatch admin notification email
+      getNotificationTargetEmail('CONTACT').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 Package Inquiry] ${body.name || 'Guest'} - ${body.subject || 'Package Booking'}`,
+          html: renderAdminGeneralInquiryEmail({
+            name: body.name || 'Guest',
+            email: body.email || 'guest@e3.qa',
+            phone: body.phone,
+            subject: body.subject || 'Package Booking Inquiry',
+            message: body.message || 'No description provided.',
+          }),
+          category: 'CONTACT',
+          replyTo: body.email && body.email !== 'guest@e3.qa' ? body.email : undefined,
+        });
+      });
+
       return NextResponse.json(inquiry, { status: 201 });
     }
 

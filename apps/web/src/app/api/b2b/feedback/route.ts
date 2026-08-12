@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { safelySendEmail, getNotificationTargetEmail, renderAdminFeedbackEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +19,22 @@ export async function POST(req: NextRequest) {
         message,
         rating: rating ? parseInt(rating) : null,
       }
+    });
+
+    // Dispatch admin feedback email notification (non-blocking)
+    getNotificationTargetEmail('FEEDBACK').then(adminEmail => {
+      safelySendEmail({
+        to: adminEmail,
+        subject: `[E3 B2B Feedback] ${title || 'New Feedback'} - ${name || 'Corporate Guest'}`,
+        html: renderAdminFeedbackEmail({
+          name: name || undefined,
+          email: email || undefined,
+          rating: rating || null,
+          message: `${title ? `[${title}]\n\n` : ''}${message}`,
+        }),
+        category: 'FEEDBACK',
+        replyTo: email || undefined,
+      });
     });
 
     return NextResponse.json(feedback, { status: 201 });

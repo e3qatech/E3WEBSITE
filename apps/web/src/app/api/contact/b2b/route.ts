@@ -3,6 +3,12 @@ import { db } from '@/lib/db';
 import { z } from 'zod';
 import { rateLimit } from '@/lib/rate-limit';
 import { enforceBodyLimit } from '@/lib/body-limit';
+import {
+  safelySendEmail,
+  getNotificationTargetEmail,
+  renderAdminProjectRequestEmail,
+  renderAdminGeneralInquiryEmail,
+} from '@/lib/email';
 
 const projectRequestSchema = z.object({
   actionType: z.literal('PROJECT_REQUEST'),
@@ -99,6 +105,25 @@ export async function POST(req: NextRequest) {
 
         return { lead, inquiry };
       });
+
+      // Dispatch admin project request notification (non-blocking)
+      getNotificationTargetEmail('PROJECT').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 B2B Project Lead] ${parsed.name} (${parsed.company || 'Direct'})`,
+          html: renderAdminProjectRequestEmail({
+            name: parsed.name,
+            company: parsed.company,
+            email: parsed.email,
+            phone: parsed.phone,
+            message: parsed.message,
+            leadId: result.lead.id,
+          }),
+          category: 'PROJECT',
+          replyTo: parsed.email,
+        });
+      });
+
       return NextResponse.json(result, { status: 201 });
     }
 
@@ -153,6 +178,25 @@ export async function POST(req: NextRequest) {
 
         return { lead, inquiry, meeting };
       });
+
+      // Dispatch admin lead email notification
+      getNotificationTargetEmail('CONTACT').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 B2B Meeting Request] ${parsed.name} (${parsed.company || 'Corporate'})`,
+          html: renderAdminProjectRequestEmail({
+            name: parsed.name,
+            company: parsed.company,
+            email: parsed.email,
+            phone: parsed.phone,
+            message: `Consultation Requested for ${new Date(parsed.startTime).toLocaleString()}\n\nNote: ${parsed.message || 'None'}`,
+            leadId: result.lead.id,
+          }),
+          category: 'CONTACT',
+          replyTo: parsed.email,
+        });
+      });
+
       return NextResponse.json(result, { status: 201 });
     }
 
@@ -167,6 +211,23 @@ export async function POST(req: NextRequest) {
           message: parsed.message,
         }
       });
+
+      // Dispatch admin general inquiry email notification
+      getNotificationTargetEmail('CONTACT').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 B2B General Inquiry] ${parsed.name}`,
+          html: renderAdminGeneralInquiryEmail({
+            name: parsed.name,
+            email: parsed.email,
+            phone: parsed.phone,
+            message: parsed.message,
+          }),
+          category: 'CONTACT',
+          replyTo: parsed.email,
+        });
+      });
+
       return NextResponse.json(inquiry, { status: 201 });
     }
 
