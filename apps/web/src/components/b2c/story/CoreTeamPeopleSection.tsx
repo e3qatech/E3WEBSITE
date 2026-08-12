@@ -116,10 +116,38 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           status: 'PUBLISHED' as const
         }))
     }
+
+    // When selection IS configured, strictly show selected team members. Never fall back to DEFAULT_CORE_TEAM.
+    if (teamMembers.length === 0) {
+      return null
+    }
   } else {
-    // Selection has NEVER been configured in CMS (unconfigured seed state):
-    // Fall back to executive leadership defaults
-    teamMembers = DEFAULT_CORE_TEAM
+    // Selection has NOT been configured in CMS:
+    if (dbTeamMembers.length > 0) {
+      teamMembers = dbTeamMembers.map(m => ({
+        id: m.id,
+        slug: m.slug || m.id,
+        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+        roleEn: m.designation || "Executive",
+        roleAr: m.designationAr || m.designation || "قيادي",
+        bioEn: m.aboutSummary || m.tagline || "",
+        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف",
+        featureOnB2CLanding: true,
+        isCoreTeam: true,
+        b2cOrder: 1,
+        b2cVisibility: true,
+        status: 'PUBLISHED' as const
+      }))
+    } else if (hasMembersProp && teamSectionData.members.length > 0) {
+      teamMembers = teamSectionData.members
+    } else {
+      teamMembers = DEFAULT_CORE_TEAM
+    }
   }
 
   const [activeMemberId, setActiveMemberId] = useState(teamMembers[0]?.id || DEFAULT_CORE_TEAM[0].id)

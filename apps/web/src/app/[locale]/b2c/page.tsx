@@ -46,6 +46,16 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
     console.error("[B2C_PAGE_BRANDS_FETCH_ERROR]", error);
   }
 
+  let dbEmployees: any[] = [];
+  try {
+    dbEmployees = await db.employeeProfile.findMany({
+      where: { isActive: true },
+      orderBy: { order: 'asc' }
+    });
+  } catch (error) {
+    console.error("[B2C_PAGE_EMPLOYEES_FETCH_ERROR]", error);
+  }
+
   if (cmsData) {
     if (!cmsData.ourBrands) cmsData.ourBrands = {};
     if (dbBrands.length > 0) {
@@ -70,6 +80,44 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
         primaryMediaUrl: b.primaryMediaUrl,
         ctaUrl: b.b2cCtaUrl || `/b2c/brands/${b.slug}`
       }));
+    }
+
+    if (!cmsData.coreTeam) cmsData.coreTeam = {};
+    const selectedIds: string[] = Array.isArray(cmsData.coreTeam.selectedMemberIds)
+      ? cmsData.coreTeam.selectedMemberIds
+      : (Array.isArray(cmsData.coreTeam.members) ? cmsData.coreTeam.members.map((m: any) => m.id) : []);
+
+    if (dbEmployees.length > 0 && selectedIds.length > 0) {
+      const selectedEmployees = selectedIds
+        .map(id => dbEmployees.find(m => 
+          m.id === id || 
+          m.slug === id || 
+          `team-${m.slug}` === id || 
+          (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
+        ))
+        .filter(Boolean);
+
+      if (selectedEmployees.length > 0) {
+        cmsData.coreTeam.members = selectedEmployees.map(m => ({
+          id: m.id,
+          slug: m.slug || m.id,
+          nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+          nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+          roleEn: m.designation || "Executive",
+          roleAr: m.designationAr || m.designation || "قيادي",
+          bioEn: m.aboutSummary || m.tagline || "",
+          bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+          portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+          showProfileLink: true,
+          profileCtaLabelEn: "View Profile",
+          profileCtaLabelAr: "عرض الملف",
+          featureOnB2CLanding: true,
+          isCoreTeam: true,
+          b2cOrder: 1,
+          b2cVisibility: true,
+          status: 'PUBLISHED'
+        }));
+      }
     }
   }
 

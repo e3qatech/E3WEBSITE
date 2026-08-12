@@ -95,20 +95,24 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       ? currentCoreTeam.selectedMemberIds
       : (Array.isArray(currentCoreTeam.members) ? currentCoreTeam.members.map((m: any) => m.id) : [])
 
-    const isSelected = currentSelectedIds.includes(member.id)
+    const matchesMember = (id: string, m: any) =>
+      id === m.id || id === m.slug || `team-${m.slug}` === id || (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
+
+    const isSelected = currentSelectedIds.some(id => matchesMember(id, member))
     let newSelectedIds: string[]
 
     if (isSelected) {
-      newSelectedIds = currentSelectedIds.filter(id => id !== member.id)
+      newSelectedIds = currentSelectedIds.filter(id => !matchesMember(id, member))
     } else {
       newSelectedIds = [...currentSelectedIds, member.id]
     }
 
     // Map selected member objects for immediate preview & persistence
     const selectedObjects = availableTeamMembers
-      .filter(m => newSelectedIds.includes(m.id))
+      .filter(m => newSelectedIds.some(id => matchesMember(id, m)))
       .map(m => ({
         id: m.id,
+        slug: m.slug || m.id,
         nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
         nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
         roleEn: m.designation || "Executive",
