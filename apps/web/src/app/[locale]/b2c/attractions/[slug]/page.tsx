@@ -22,8 +22,15 @@ import { formatLocalizedText } from "@/lib/utils"
 import { resolveBookingUrl } from "@/lib/cms-attractions"
 
 async function getAttractionData(slug: string) {
+  const baseSlugKey = (slug || "").split('-')[0] || slug;
   const attraction = await db.attraction.findFirst({
-    where: { slug },
+    where: {
+      OR: [
+        { slug: slug },
+        { slug: { startsWith: slug } },
+        { slug: { contains: baseSlugKey, mode: 'insensitive' } }
+      ]
+    },
     include: {
       pricing: true,
       offers: true,
