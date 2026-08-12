@@ -6,6 +6,40 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(_req: NextRequest) {
   try {
+    let brands: any[] = []
+    try {
+      brands = await db.brandIP.findMany({
+        where: { isActive: true },
+        orderBy: { b2cDisplayOrder: 'asc' }
+      })
+    } catch (_dbErr) {
+      brands = []
+    }
+
+    if (brands.length > 0) {
+      // Map canonical BrandIP to Partner format for legacy consumers
+      const mapped = brands.map(b => ({
+        id: b.id,
+        slug: b.slug,
+        name: b.nameEn,
+        nameAr: b.nameAr,
+        relationship: b.primaryRelationshipId || 'SUBSIDIARY',
+        description: b.shortDescriptionEn || b.b2cShortDescOverrideEn || b.taglineEn || '',
+        descriptionAr: b.shortDescriptionAr || b.b2cShortDescOverrideAr || b.taglineAr || '',
+        logoUrl: b.primaryLogoUrl || b.lightLogoUrl || b.darkLogoUrl || '',
+        logoPrimary: b.primaryLogoUrl || b.lightLogoUrl || '',
+        logoLight: b.lightLogoUrl || '',
+        logoDark: b.darkLogoUrl || '',
+        brandColor: '#8b5cf6',
+        featureOnB2CLanding: b.featureOnB2C ?? b.showOnB2C ?? true,
+        featureOnB2BPartners: b.featureOnB2B ?? b.showOnB2B ?? true,
+        isVisible: b.isActive,
+        externalUrl: b.b2cCtaUrl || b.b2bInquiryUrl || ''
+      }))
+      return NextResponse.json({ data: mapped })
+    }
+
+    // Fallback query to db.partner
     let partners: any[] = []
     try {
       partners = await db.partner.findMany({
