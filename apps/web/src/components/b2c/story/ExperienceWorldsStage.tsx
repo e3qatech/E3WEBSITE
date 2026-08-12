@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Users, Clock, Ticket, ArrowRight } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
+import { formatLocalizedText } from '@/lib/utils'
 
 export const DEFAULT_ATTRACTION_WORLDS = [
   {
@@ -97,37 +98,21 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   })
 
   // Final worlds list prioritizing live database attractions
-  const worlds = dbMappedWorlds.length > 0 ? dbMappedWorlds : (cmsWorlds.length > 0 ? cmsWorlds : [
-    {
-      id: "urban-arena",
-      slug: "urban-arena-doha",
-      nameEn: "Urban Arena & Tactical Combat",
-      nameAr: "أوربان أرينا للتحدي والتكتيك",
-      taglineEn: "High-octane spatial sound, laser tag, and esports competitions",
-      taglineAr: "ساحة معارك الليزر والتكنولوجيا التفاعلية والرياضات الإلكترونية",
-      locationEn: "Doha Mall, P Floor, Qatar",
-      locationAr: "الدوحة مول، الطابق P، قطر",
-      statusEn: "OPEN NOW",
-      statusAr: "مفتوح الآن",
-      materialType: "LUMINOUS_TRAIL",
-      accentColor: "#10b981",
-      mediaUrl: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1200&auto=format&fit=crop",
-      audienceEn: "Teens, Adults & Groups",
-      audienceAr: "الشباب والكبار والمجموعات",
-      timingsEn: "02:00 PM - 12:00 AM",
-      timingsAr: "٠٢:٠٠ م - ١٢:٠٠ ص",
-      price: 45,
-      currency: "QAR",
-      ctaEn: "Book Pass & Ticket",
-      ctaAr: "احجز التذكرة والمواعيد"
-    }
-  ])
+  const worlds = dbMappedWorlds.length > 0 ? dbMappedWorlds : (cmsWorlds.length > 0 ? cmsWorlds : DEFAULT_ATTRACTION_WORLDS)
 
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const currentWorld = worlds[selectedIndex] || worlds[0]
+  const currentWorld = worlds[selectedIndex] || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
 
   const rawBadge = currentWorld.materialType || "E3 WORLD"
-  const safeMaterialType = (rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge
+  const safeMaterialType = formatLocalizedText((rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge, locale)
+
+  const nameVal = formatLocalizedText(isAr ? currentWorld.nameAr : currentWorld.nameEn, locale)
+  const taglineVal = formatLocalizedText(isAr ? currentWorld.taglineAr : currentWorld.taglineEn, locale)
+  const locationVal = formatLocalizedText(isAr ? currentWorld.locationAr : currentWorld.locationEn, locale)
+  const audienceVal = formatLocalizedText(isAr ? (currentWorld.audienceAr || "جميع الأعمار") : (currentWorld.audienceEn || "All Ages"), locale)
+  const timingsVal = formatLocalizedText(isAr ? (currentWorld.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص") : (currentWorld.timingsEn || "02:00 PM - 12:00 AM"), locale)
+  const statusVal = formatLocalizedText(isAr ? (currentWorld.statusAr || "مفتوح الآن") : (currentWorld.statusEn || "OPEN NOW"), locale)
+  const ctaVal = formatLocalizedText(isAr ? (currentWorld.ctaAr || "احجز التذكرة") : (currentWorld.ctaEn || "Book Pass & Ticket"), locale)
 
   return (
     <section id="attraction-worlds" className="relative min-h-screen py-20 bg-[#080214] text-white flex flex-col justify-center overflow-hidden border-b border-purple-950/40" dir={isAr ? "rtl" : "ltr"}>
@@ -155,7 +140,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
           <div className="flex flex-wrap items-center gap-2">
             {worlds.map((w: any, idx: number) => {
               const isActive = idx === selectedIndex
-              const tabName = isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr)
+              const tabName = formatLocalizedText(isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr), locale)
               return (
                 <button
                   key={w.id || idx}
@@ -199,7 +184,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 <img
                   key={currentWorld.mediaUrl}
                   src={currentWorld.mediaUrl}
-                  alt={currentWorld.nameEn}
+                  alt={nameVal}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}
@@ -207,7 +192,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
 
               <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-700 text-xs font-bold text-emerald-400 backdrop-blur-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>{isAr ? (currentWorld.statusAr || "مفتوح الآن") : (currentWorld.statusEn || "OPEN NOW")}</span>
+                <span>{statusVal}</span>
               </div>
 
               <div
@@ -225,13 +210,13 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   className="text-xs font-mono font-extrabold uppercase tracking-widest block mb-1"
                   style={{ color: currentWorld.accentColor || '#10b981' }}
                 >
-                  📍 {isAr ? currentWorld.locationAr : currentWorld.locationEn}
+                  📍 {locationVal}
                 </span>
                 <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                  {isAr ? currentWorld.nameAr : currentWorld.nameEn}
+                  {nameVal}
                 </h3>
                 <p className="text-sm text-slate-300 font-light mt-2 leading-relaxed">
-                  {isAr ? currentWorld.taglineAr : currentWorld.taglineEn}
+                  {taglineVal}
                 </p>
               </div>
 
@@ -242,7 +227,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   </div>
                   <div>
                     <span className="text-[11px] text-slate-400 font-medium block">{isAr ? "الفئة المستهدفة" : "Audience"}</span>
-                    <span className="text-xs font-bold text-white">{isAr ? (currentWorld.audienceAr || "جميع الأعمار") : (currentWorld.audienceEn || "All Ages")}</span>
+                    <span className="text-xs font-bold text-white">{audienceVal}</span>
                   </div>
                 </div>
 
@@ -252,7 +237,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   </div>
                   <div>
                     <span className="text-[11px] text-slate-400 font-medium block">{isAr ? "أوقات العمل" : "Timings"}</span>
-                    <span className="text-xs font-bold text-white">{isAr ? (currentWorld.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص") : (currentWorld.timingsEn || "02:00 PM - 12:00 AM")}</span>
+                    <span className="text-xs font-bold text-white">{timingsVal}</span>
                   </div>
                 </div>
               </div>
@@ -272,7 +257,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs tracking-wider uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />
-                  <span>{isAr ? (currentWorld.ctaAr || "استكشف احجز التذكرة") : (currentWorld.ctaEn || "Explore & Book Pass")}</span>
+                  <span>{ctaVal}</span>
                 </Link>
               </div>
             </div>

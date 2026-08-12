@@ -7,6 +7,7 @@ import { Sparkles, ArrowRight, ExternalLink, Ticket, Compass, Pause, Play, Chevr
 import { DEFAULT_OUR_BRANDS, OurBrandRecord } from '@/lib/cms-brands'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 import { resolveMediaType } from '@/lib/media-resolver'
+import { formatLocalizedText } from '@/lib/utils'
 
 interface OurBrandsConstellationProps {
   content?: any
@@ -17,13 +18,19 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
   const isAr = locale === 'ar'
   const brandSectionData = content?.ourBrands || {}
 
-  const heading = isAr
-    ? (brandSectionData.headlineAr || "عوالم من ابتكار E3")
-    : (brandSectionData.headlineEn || "Worlds created by E3")
+  const heading = formatLocalizedText(
+    isAr
+      ? (brandSectionData.headlineAr || "عوالم من ابتكار E3")
+      : (brandSectionData.headlineEn || "Worlds created by E3"),
+    locale
+  )
 
-  const subtext = isAr
-    ? (brandSectionData.subtextAr || "استكشف منظومة الوجهات والساحات الترفيهية والتطبيقات الرقمية التي ابتكرتها وطوّرتها E3.")
-    : (brandSectionData.subtextEn || "Explore flagship entertainment worlds, kinetic arenas, and digital platforms created and operated by E3.")
+  const subtext = formatLocalizedText(
+    isAr
+      ? (brandSectionData.subtextAr || "استكشف منظومة الوجهات والساحات الترفيهية والتطبيقات الرقمية التي ابتكرتها وطوّرتها E3.")
+      : (brandSectionData.subtextEn || "Explore flagship entertainment worlds, kinetic arenas, and digital platforms created and operated by E3."),
+    locale
+  )
 
   const brands: OurBrandRecord[] = brandSectionData.brands && brandSectionData.brands.length > 0
     ? brandSectionData.brands
@@ -82,6 +89,10 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
     const nextIdx = (safeActiveIndex + 1) % brands.length
     setActiveBrandId(brands[nextIdx].id)
   }
+
+  const activeName = formatLocalizedText(isAr ? activeBrand.nameAr : activeBrand.nameEn, locale)
+  const activeTagline = formatLocalizedText(isAr ? activeBrand.taglineAr : activeBrand.taglineEn, locale)
+  const activeDesc = formatLocalizedText(isAr ? activeBrand.descriptionAr : activeBrand.descriptionEn, locale)
 
   return (
     <section 
@@ -154,8 +165,10 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
             ref={scrollContainerRef}
             className="flex items-center gap-4 overflow-x-auto hide-scrollbar py-6 px-4 scroll-smooth snap-x snap-mandatory"
           >
-            {brands.map((brand, idx) => {
+            {brands.map((brand, _idx) => {
               const isActive = brand.id === activeBrandId
+              const brandName = formatLocalizedText(isAr ? brand.nameAr : brand.nameEn, locale)
+
               return (
                 <button
                   key={brand.id}
@@ -192,7 +205,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                     <div className="w-12 h-12 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-1">
                       <img
                         src={brand.logoPrimary}
-                        alt={brand.nameEn}
+                        alt={brandName}
                         className="w-full h-full object-cover rounded-xl"
                       />
                     </div>
@@ -209,7 +222,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                        (isAr ? 'تجربة منفّذة' : 'Delivered Experience')}
                     </span>
                     <h3 className="text-base font-extrabold text-white line-clamp-1 mt-0.5">
-                      {isAr ? brand.nameAr : brand.nameEn}
+                      {brandName}
                     </h3>
                   </div>
                 </button>
@@ -233,20 +246,20 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
             <div className="lg:col-span-7 space-y-5">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-1 shrink-0 shadow-lg">
-                  <img src={activeBrand.logoPrimary} alt={activeBrand.nameEn} className="w-full h-full object-cover rounded-xl" />
+                  <img src={activeBrand.logoPrimary} alt={activeName} className="w-full h-full object-cover rounded-xl" />
                 </div>
                 <div>
                   <span className="text-xs font-mono font-bold uppercase tracking-widest block" style={{ color: activeBrand.brandColor || '#a855f7' }}>
-                    {isAr ? activeBrand.taglineAr : activeBrand.taglineEn}
+                    {activeTagline}
                   </span>
                   <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
-                    {isAr ? activeBrand.nameAr : activeBrand.nameEn}
+                    {activeName}
                   </h3>
                 </div>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
-                {isAr ? activeBrand.descriptionAr : activeBrand.descriptionEn}
+                {activeDesc}
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -279,12 +292,12 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
               {(activeBrand as any).heroImage || activeBrand.logoPrimary ? (
                 <img
                   src={(activeBrand as any).heroImage || activeBrand.logoPrimary}
-                  alt={activeBrand.nameEn}
+                  alt={activeName}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               ) : (
                 <div className="w-full h-full bg-slate-950 flex items-center justify-center p-6 text-center">
-                  <span className="text-xs font-mono text-slate-500 uppercase">{activeBrand.nameEn}</span>
+                  <span className="text-xs font-mono text-slate-500 uppercase">{activeName}</span>
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />

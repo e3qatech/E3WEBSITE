@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowUpRight, Sparkles, MapPin } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { formatLocalizedText } from '@/lib/utils'
 
 interface StoryTaxonomyPortalsProps {
   content: any
@@ -75,19 +76,22 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       attractionNameAr: attr.nameAr
     }))
 
+    const titleEnStr = formatLocalizedText(st.titleEn, 'en')
+    const titleArStr = formatLocalizedText(st.titleAr, 'ar')
+
     return {
       id: st.slug,
-      labelEn: st.titleEn,
-      labelAr: st.titleAr,
-      category: st.titleEn.toUpperCase(),
+      labelEn: titleEnStr || st.slug,
+      labelAr: titleArStr || titleEnStr || st.slug,
+      category: (titleEnStr || st.slug).toUpperCase(),
       mediaUrl: st.coverMediaUrl 
         || displayActivities[0]?.imageUrl 
-        || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop', // Default E3 Fallback
+        || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
       accentColor: st.accentColor || '#a855f7',
       hasPublishedActivities: displayActivities.length > 0,
       activities: displayActivities
     }
-  }).filter(opt => opt.hasPublishedActivities) // Hide empty Story Types
+  }).filter(opt => opt.hasPublishedActivities)
 
   // Initialize active taxonomy from URL parameter ?story=... or default
   const paramStory = searchParams?.get('story')
@@ -114,13 +118,14 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
     setActiveId(option.id)
     onSelectCategory?.(option.category || option.id)
 
-    // Preserve selection in URL query parameter without full reload
     const newParams = new URLSearchParams(searchParams?.toString() || '')
     newParams.set('story', option.id)
     router.replace(`?${newParams.toString()}`, { scroll: false })
   }
 
-  if (options.length === 0) return null // Hide section if no story types exist
+  if (options.length === 0) return null
+
+  const selectedTitle = formatLocalizedText(isAr ? activeOption.labelAr : activeOption.labelEn, locale)
 
   return (
     <section className="relative py-24 bg-[#090418] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
@@ -134,7 +139,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
             <span>{isAr ? "استكشاف الحكايات والأنشطة" : "STORY DISCOVERY"}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-            {isAr ? (selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟") : (selector.titleEn || "What Kind of Story Do You Want Today?")}
+            {formatLocalizedText(isAr ? (selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟") : (selector.titleEn || "What Kind of Story Do You Want Today?"), locale)}
           </h2>
         </div>
 
@@ -142,6 +147,8 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {options.map((option: any) => {
             const isSelected = option.id === activeId
+            const labelText = formatLocalizedText(isAr ? option.labelAr : option.labelEn, locale)
+
             return (
               <button
                 key={option.id}
@@ -157,7 +164,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 <div className="absolute inset-0 z-0 overflow-hidden">
                   <img
                     src={option.mediaUrl}
-                    alt={option.labelEn}
+                    alt={labelText}
                     className={`w-full h-full object-cover transition-all duration-700 ${
                       isSelected ? 'opacity-60 scale-110' : 'opacity-25 group-hover:opacity-40 group-hover:scale-105'
                     }`}
@@ -171,7 +178,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
                     style={isSelected ? { backgroundColor: option.accentColor, color: '#000' } : { backgroundColor: '#1e293b', color: '#94a3b8' }}
                   >
-                    {option.category}
+                    {formatLocalizedText(option.category, locale)}
                   </span>
                   <ArrowUpRight className={`w-4 h-4 transition-transform ${isSelected ? 'translate-x-0.5 -translate-y-0.5' : 'text-slate-600'}`} style={isSelected ? { color: option.accentColor } : {}} />
                 </div>
@@ -181,7 +188,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                   <h3 className={`text-2xl sm:text-3xl font-extrabold uppercase tracking-tight transition-colors ${
                     isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'
                   }`}>
-                    {isAr ? option.labelAr : option.labelEn}
+                    {labelText}
                   </h3>
                 </div>
               </button>
@@ -212,7 +219,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                       {isAr ? "الحكاية المختارة" : "SELECTED STORY TYPE"}
                     </span>
                     <h4 className="text-xl font-extrabold text-white">
-                      {isAr ? activeOption.labelAr : activeOption.labelEn} — {isAr ? "الأنشطة والتجارب المتاحة اليوم" : "Active Experiences Available Today"}
+                      {selectedTitle} — {isAr ? "الأنشطة والتجارب المتاحة اليوم" : "Active Experiences Available Today"}
                     </h4>
                   </div>
                 </div>
@@ -221,9 +228,10 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               {/* Grid of actual activities / activations for this story type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeOption.activities?.map((act: any, idx: number) => {
-                  const actTitle = isAr ? (act.titleAr || act.titleEn) : (act.titleEn || act.titleAr)
-                  const actDesc = isAr ? (act.descriptionAr || act.descriptionEn) : (act.descriptionEn || act.descriptionAr)
-                  const venueName = isAr ? (act.attractionNameAr || act.attractionNameEn) : (act.attractionNameEn || act.attractionNameAr)
+                  const actTitle = formatLocalizedText(isAr ? (act.titleAr || act.titleEn) : (act.titleEn || act.titleAr), locale)
+                  const actDesc = formatLocalizedText(isAr ? (act.descriptionAr || act.descriptionEn) : (act.descriptionEn || act.descriptionAr), locale)
+                  const venueName = formatLocalizedText(isAr ? (act.attractionNameAr || act.attractionNameEn) : (act.attractionNameEn || act.attractionNameAr), locale)
+                  const badgeText = formatLocalizedText(act.highlightType || "ACTIVITY", locale)
 
                   return (
                     <a
@@ -246,7 +254,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                       {/* Header Badge */}
                       <div className="relative z-10 flex items-center justify-between gap-2">
                         <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                          {act.highlightType || "ACTIVITY"}
+                          {badgeText}
                         </span>
                         <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center backdrop-blur-md opacity-70 group-hover:opacity-100 transition-all group-hover:scale-110">
                           <ArrowUpRight className="w-4 h-4 text-white" />

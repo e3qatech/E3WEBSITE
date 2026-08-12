@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ArrowUpRight, Users } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
+import { formatLocalizedText } from '@/lib/utils'
 
 interface CoreTeamPeopleSectionProps {
   content?: any
@@ -28,13 +29,19 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
       .catch(console.error)
   }, [])
 
-  const heading = isAr
-    ? (teamSectionData.headlineAr || "الفريق الذي يصنع التجربة")
-    : (teamSectionData.headlineEn || "The people behind the experience")
+  const heading = formatLocalizedText(
+    isAr
+      ? (teamSectionData.headlineAr || "الفريق الذي يصنع التجربة")
+      : (teamSectionData.headlineEn || "The people behind the experience"),
+    locale
+  )
 
-  const subtext = isAr
-    ? (teamSectionData.subtextAr || "المبدعون والمهندسون والمصممون القائمون على ابتكار وتشغيل وجهات إي ثري الترفيهية.")
-    : (teamSectionData.subtextEn || "The visionary directors, spatial designers, and operational leaders bringing E3 experiences to life.")
+  const subtext = formatLocalizedText(
+    isAr
+      ? (teamSectionData.subtextAr || "المبدعون والمهندسون والمصممون القائمون على ابتكار وتشغيل وجهات إي ثري الترفيهية.")
+      : (teamSectionData.subtextEn || "The visionary directors, spatial designers, and operational leaders bringing E3 experiences to life."),
+    locale
+  )
 
   const selectedIds: string[] = Array.isArray(teamSectionData.selectedMemberIds)
     ? teamSectionData.selectedMemberIds
@@ -107,6 +114,11 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           {teamMembers.map((member, _idx) => {
             const isActive = member.id === activeMemberId
+            const memberName = formatLocalizedText(isAr ? member.nameAr : member.nameEn, locale)
+            const memberRole = formatLocalizedText(isAr ? member.roleAr : member.roleEn, locale)
+            const memberBio = formatLocalizedText(isAr ? member.bioAr : member.bioEn, locale)
+            const ctaLabel = formatLocalizedText(isAr ? (member.profileCtaLabelAr || "عرض الملف التفصيلي") : (member.profileCtaLabelEn || "View Profile"), locale)
+
             return (
               <motion.div
                 key={member.id}
@@ -129,7 +141,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-slate-950 mb-4 border border-slate-800">
                   <img
                     src={member.portrait}
-                    alt={member.nameEn}
+                    alt={memberName}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
                       isActive ? 'scale-105' : 'group-hover:scale-105 opacity-80'
                     }`}
@@ -140,18 +152,18 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                 {/* Member Details */}
                 <div className="space-y-2">
                   <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest">
-                    {isAr ? member.roleAr : member.roleEn}
+                    {memberRole}
                   </span>
                   <h3 className="text-xl font-extrabold text-white">
-                    {isAr ? member.nameAr : member.nameEn}
+                    {memberName}
                   </h3>
                   <p className="text-xs text-slate-300 font-light line-clamp-3 leading-relaxed">
-                    {isAr ? member.bioAr : member.bioEn}
+                    {memberBio}
                   </p>
 
                   {member.showProfileLink && (
                     <a href={`/${locale}/b2c/team/${member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300">
-                      <span>{isAr ? (member.profileCtaLabelAr || "عرض الملف التفصيلي") : (member.profileCtaLabelEn || "View Profile")}</span>
+                      <span>{ctaLabel}</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   )}
