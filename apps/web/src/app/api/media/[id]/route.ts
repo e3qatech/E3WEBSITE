@@ -51,8 +51,9 @@ export async function GET(
       return NextResponse.json({ error: "Media not found" }, { status: 404 });
     }
 
-    // Convert Base64 back to Buffer
-    const buffer = Buffer.from(base64Data, "base64");
+    // Convert Base64 back to Buffer cleanly
+    const cleanBase64 = base64Data.replace(/^data:[^;]+;base64,/, "").replace(/\s+/g, "");
+    const buffer = Buffer.from(cleanBase64, "base64");
     const totalSize = buffer.length;
 
     // Support HTTP Range requests for HTML5 video seeking & streaming
