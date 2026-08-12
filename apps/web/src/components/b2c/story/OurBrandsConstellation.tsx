@@ -91,8 +91,15 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
   }
 
   const activeName = formatLocalizedText(isAr ? activeBrand.nameAr : activeBrand.nameEn, locale)
-  const activeTagline = formatLocalizedText(isAr ? activeBrand.taglineAr : activeBrand.taglineEn, locale)
-  const activeDesc = formatLocalizedText(isAr ? activeBrand.descriptionAr : activeBrand.descriptionEn, locale)
+
+  const rawTaglineEn = activeBrand.taglineEn || (activeBrand as any).shortDescEn || (activeBrand as any).shortDescriptionEn || (activeBrand as any).tagline
+  const rawTaglineAr = activeBrand.taglineAr || (activeBrand as any).shortDescAr || (activeBrand as any).shortDescriptionAr || (activeBrand as any).tagline
+
+  const rawDescEn = activeBrand.descriptionEn || (activeBrand as any).detailCopyEn || (activeBrand as any).shortDescEn || (activeBrand as any).shortDescriptionEn || (activeBrand as any).description
+  const rawDescAr = activeBrand.descriptionAr || (activeBrand as any).detailCopyAr || (activeBrand as any).shortDescAr || (activeBrand as any).shortDescriptionAr || (activeBrand as any).description
+
+  const activeTagline = formatLocalizedText(isAr ? (rawTaglineAr || rawTaglineEn) : (rawTaglineEn || rawTaglineAr), locale) || (activeBrand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة لـ E3' : 'Owned E3 Concept') : (isAr ? 'منظومة إي ثري الترفيهية' : 'E3 Entertainment Realm'))
+  const activeDesc = formatLocalizedText(isAr ? (rawDescAr || rawDescEn) : (rawDescEn || rawDescAr), locale) || (isAr ? 'وجهة ترفيهية تفاعلية مبتكرة ومصممة بعناية لتقديم تجارب لا تُنسى في قطر.' : 'An innovative interactive entertainment destination engineered by E3 to deliver unforgettable experiences in Qatar.')
 
   return (
     <section 
@@ -249,18 +256,22 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                   <img src={activeBrand.logoPrimary} alt={activeName} className="w-full h-full object-cover rounded-xl" />
                 </div>
                 <div>
-                  <span className="text-xs font-mono font-bold uppercase tracking-widest block" style={{ color: activeBrand.brandColor || '#a855f7' }}>
-                    {activeTagline}
-                  </span>
+                  {activeTagline && (
+                    <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold uppercase tracking-wider mb-1 bg-purple-500/10 border border-purple-500/20" style={{ color: activeBrand.brandColor || '#a855f7', borderColor: `${activeBrand.brandColor || '#a855f7'}40` }}>
+                      {activeTagline}
+                    </span>
+                  )}
                   <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
                     {activeName}
                   </h3>
                 </div>
               </div>
 
-              <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
-                {activeDesc}
-              </p>
+              {activeDesc && (
+                <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
+                  {activeDesc}
+                </p>
+              )}
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 {activeBrand.internalRoute && (

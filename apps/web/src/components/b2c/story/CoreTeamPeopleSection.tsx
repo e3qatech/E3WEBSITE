@@ -43,6 +43,9 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     locale
   )
 
+  const hasExplicitSelection = (Array.isArray(teamSectionData.selectedMemberIds) && teamSectionData.selectedMemberIds.length > 0)
+    || (Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0)
+
   const selectedIds: string[] = Array.isArray(teamSectionData.selectedMemberIds) && teamSectionData.selectedMemberIds.length > 0
     ? teamSectionData.selectedMemberIds
     : (Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0
@@ -88,8 +91,8 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
       }))
     : []
 
-  // 3. Fallback to all DB members if no selection in CMS
-  const allDbMembersMapped = dbTeamMembers.length > 0
+  // 3. Fallback to DB members ONLY if no selection configuration exists in CMS
+  const allDbMembersMapped = (!hasExplicitSelection && dbTeamMembers.length > 0)
     ? dbTeamMembers.map(m => ({
         id: m.id,
         slug: m.slug || m.id,
@@ -110,9 +113,9 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     ? liveSelectedMembers
     : (cmsSavedMembers.length > 0
         ? cmsSavedMembers
-        : (allDbMembersMapped.length > 0
-            ? allDbMembersMapped
-            : DEFAULT_CORE_TEAM))
+        : (hasExplicitSelection
+            ? []
+            : (allDbMembersMapped.length > 0 ? allDbMembersMapped : DEFAULT_CORE_TEAM)))
 
   const [activeMemberId, setActiveMemberId] = useState(teamMembers[0]?.id || DEFAULT_CORE_TEAM[0].id)
 
@@ -121,6 +124,8 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
       setActiveMemberId(teamMembers[0].id)
     }
   }, [teamMembers, activeMemberId])
+
+  if (teamMembers.length === 0) return null
 
   const activeMember = teamMembers.find(m => m.id === activeMemberId) || teamMembers[0] || DEFAULT_CORE_TEAM[0]
 

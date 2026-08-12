@@ -156,7 +156,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         </div>
 
         {/* Story Category Doorways Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto max-w-6xl">
           {options.map((option: any) => {
             const isSelected = option.id === activeId
             const labelText = formatLocalizedText(isAr ? option.labelAr : option.labelEn, locale)
@@ -166,7 +166,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 key={option.id}
                 onMouseEnter={() => handleSelect(option)}
                 onClick={() => handleSelect(option)}
-                className={`relative aspect-[3/4] rounded-3xl overflow-hidden border transition-all duration-500 group flex flex-col justify-between p-6 text-start cursor-pointer ${
+                className={`relative aspect-[3/4] w-full max-w-[180px] sm:w-44 md:w-48 flex-1 min-w-[140px] max-w-[210px] rounded-3xl overflow-hidden border transition-all duration-500 group flex flex-col justify-between p-5 text-start cursor-pointer ${
                   isSelected
                     ? 'border-purple-500 bg-purple-950/60 shadow-2xl shadow-purple-950/80 scale-105 z-10'
                     : 'border-slate-800/80 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/80'
@@ -245,7 +245,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               </div>
 
               {/* Grid of actual activities / activations for this story type */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex flex-wrap justify-center gap-6">
                 {visibleActivities.map((act: any, idx: number) => {
                   const actTitle = formatLocalizedText(isAr ? (act.titleAr || act.titleEn) : (act.titleEn || act.titleAr), locale)
                   const actDesc = formatLocalizedText(isAr ? (act.descriptionAr || act.descriptionEn) : (act.descriptionEn || act.descriptionAr), locale)
@@ -256,7 +256,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     <a
                       key={act.id || idx}
                       href={`/b2c/attractions/${act.attractionSlug}`}
-                      className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between min-h-[220px] transition-all duration-500 hover:border-purple-500/50 hover:bg-slate-900/90 hover:shadow-2xl hover:-translate-y-1"
+                      className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between min-h-[220px] w-full max-w-sm flex-1 min-w-[280px] transition-all duration-500 hover:border-purple-500/50 hover:bg-slate-900/90 hover:shadow-2xl hover:-translate-y-1"
                     >
                       {/* Background Image overlay */}
                       {act.imageUrl && (
