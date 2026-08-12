@@ -2,475 +2,615 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { UploadCloud, ChevronRight, CheckCircle2, Target, Heart, Building } from "lucide-react";
-
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import Link from "next/link";
 import { 
-  useB2CTheme, 
-  B2CCard, 
-  B2CButton, 
-  B2CInput 
-} from "@/components/ui/B2CThemeComponents";
+  Target, 
+  Building, 
+  Award, 
+  Sparkles, 
+  ShieldCheck, 
+  CheckCircle2, 
+  BarChart3, 
+  Smartphone, 
+  ChevronRight, 
+  Download, 
+  ExternalLink, 
+  ArrowRight, 
+  Users, 
+  Briefcase, 
+  HelpCircle,
+  Globe,
+  Flame,
+  Layers
+} from "lucide-react";
+
+import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
 import { ImmersiveCanvas } from "@/components/ui/ImmersiveCanvas";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
 import { B2CGrid } from "@/components/ui/B2CGrid";
-import { MagneticButton } from "@/components/ui/MagneticButton";
+import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 
-
-
-export function DiscoverClient({ locale, initialSettings }: { locale: string; initialSettings: any }) {
-  const [dragActive, setDragActive] = useState(false);
-  const [uploadState, setUploadState] = useState<"idle" | "uploading" | "success">("idle");
+export function DiscoverClient({
+  locale,
+  initialSettings,
+  employeeProfiles = [],
+  partners = [],
+  clients = [],
+  caseStudies = [],
+  services = [],
+  jobs = []
+}: {
+  locale: string;
+  initialSettings: any;
+  employeeProfiles?: any[];
+  partners?: any[];
+  clients?: any[];
+  caseStudies?: any[];
+  services?: any[];
+  jobs?: any[];
+}) {
+  const isAr = locale === "ar";
   useB2CTheme();
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
+  const [activeConnectTab, setActiveConnectTab] = useState<number>(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      simulateUpload();
-    }
-  };
-
-  const simulateUpload = () => {
-    setUploadState("uploading");
-    setTimeout(() => {
-      setUploadState("success");
-      setTimeout(() => setUploadState("idle"), 3000);
-    }, 2000);
-  };
-
-  const isAr = locale === 'ar';
-
-  const defaultTeam = [
-    {
-      nameEn: "Fahad Al-Kuwari",
-      nameAr: "فهد الكواري",
-      roleEn: "Managing Director & Founder",
-      roleAr: "الرئيس التنفيذي والمؤسس",
-      descEn: "Pioneering spatial entertainment and kinetic attractions across Qatar.",
-      descAr: "قيادة قطاع الفعاليات والترفيه والتكنولوجيا التفاعلية في قطر."
-    },
-    {
-      nameEn: "Sarah Jenkins",
-      nameAr: "سارة جينكينز",
-      roleEn: "VP of Event Engineering",
-      roleAr: "نائب الرئيس لهندسة الفعاليات",
-      descEn: "Over 15 years leading large-scale stage production and arena buyouts.",
-      descAr: "أكثر من 15 عاماً في قيادة إنتاج المسارح والفعاليات الكبرى."
-    },
-    {
-      nameEn: "Tariq Mansour",
-      nameAr: "طارق منصور",
-      roleEn: "Head of Guest Experience",
-      roleAr: "مدير تجربة الزوار",
-      descEn: "Crafting flawless VIP birthday packages and corporate hospitality.",
-      descAr: "تصميم باقات أعياد الميلاد الفاخرة وضيافة الشركات."
-    },
-    {
-      nameEn: "Elena Rostova",
-      nameAr: "إيلينا روستوفا",
-      roleEn: "Creative Lighting & Spatial Director",
-      roleAr: "مديرة الإضاءة الفنية والتصميم",
-      descEn: "Specialist in immersive 3D lightscapes and interactive installations.",
-      descAr: "متخصصة في العروض الضوئية التفاعلية والتصاميم ثلاثية الأبعاد."
-    }
+  const content = initialSettings || {};
+  const sectionOrder: string[] = content.sectionOrder || [
+    "hero",
+    "about",
+    "leadership",
+    "visionMissionValues",
+    "recordBreaking",
+    "impactMilestones",
+    "bookingQube",
+    "connect",
+    "trustedAcrossQatar",
+    "latestInsights",
+    "faqs",
+    "finalGateway"
   ];
 
-  const team = (initialSettings?.team && initialSettings.team.length > 0) ? initialSettings.team : defaultTeam;
-
-  const hero = {
-    titleEn: initialSettings?.hero?.titleEn || "DISCOVER THE E3 WORLD",
-    titleAr: initialSettings?.hero?.titleAr || "استكشف عالم إي ثري الترفيهي",
-    subtitleEn: initialSettings?.hero?.subtitleEn || "Pioneering landmark entertainment, kinetic staging, and bespoke celebration packages in Qatar.",
-    subtitleAr: initialSettings?.hero?.subtitleAr || "نصنع تجارب ترفيهية استثنائية، عروض حية، وباقات مناسبات مخصصة في قطر.",
-    mediaType: "ORBS",
-    mediaUrl: "",
-    ...(initialSettings?.hero || {})
-  };
-
-  const rawHeritage = initialSettings?.heritage || {};
-  const heritage = {
-    titleEn: rawHeritage.titleEn || rawHeritage.title || "E3 Story & Heritage",
-    titleAr: rawHeritage.titleAr || rawHeritage.title || "قصة وإرث إي ثري",
-    descriptionEn: rawHeritage.descriptionEn || rawHeritage.description || "Founded in Doha, E3 Qatar transforms ideas into landmark physical experiences. From record-breaking InflataRun tracks to Doha Balloon Parades and futuristic family entertainment centers, we pioneer kinetic production and spatial design.",
-    descriptionAr: rawHeritage.descriptionAr || rawHeritage.description || "تأسست إي ثري في الدوحة لكي تحول الأفكار إلى تجارب ترفيهية واقعية مبهرة. من أكبر مضامير الألعاب إلى المهرجانات الوطنية والمدن الفضائية للأطفال.",
-    visionEn: rawHeritage.visionEn || rawHeritage.vision || "To be the premier spatial technology and event engineering company in the MENA region.",
-    visionAr: rawHeritage.visionAr || rawHeritage.vision || "أن نكون الشركة الرائدة في تقنيات الفعاليات وتصاميم الترفيه التفاعلي في المنطقة.",
-    missionEn: rawHeritage.missionEn || rawHeritage.mission || "Delivering safe, world-class immersive attractions and flawless celebration packages.",
-    missionAr: rawHeritage.missionAr || rawHeritage.mission || "تقديم وجهات ترفيهية آمنة عالمية المستوى وباقات حفلات متكاملة.",
-    valuesEn: rawHeritage.valuesEn || rawHeritage.values || "Innovation, Uncompromising Safety, Spatial Excellence, and Guest Delight.",
-    valuesAr: rawHeritage.valuesAr || rawHeritage.values || "الابتكار، السلامة المطلقة، التميز الهندسي، وإسعاد الزوار.",
-  };
-
-  const careers = {
-    title: initialSettings?.careers?.title || (isAr ? "انضم لشبكة مواهب وخبراء إي ثري" : "Join the E3 Talent & Event Crew"),
-    description: initialSettings?.careers?.description || (isAr ? "نرحب دائماً بالخبرات والكفاءات الشابة للانضمام لفريق الفعاليات والإنتاج في قطر." : "We welcome passionate event crew staffing, stage engineers, and creative producers to join our Qatar database."),
-    nlpText: initialSettings?.careers?.nlpText || (isAr ? "يتم تصنيف ومعالجة السير الذاتية تلقائياً لإرسال الفرص المناسبة فور توفرها." : "CVs are processed and tagged automatically to match you with upcoming event deployments."),
-    ...(initialSettings?.careers || {})
-  };
-
-  const corporate = {
-    titleEn: initialSettings?.corporate?.titleEn || initialSettings?.corporateRosterTitle || "E3 Leadership & Engineering Team",
-    titleAr: initialSettings?.corporate?.titleAr || "فريق القيادة والهندسة لـ إي ثري",
-    subtitleEn: initialSettings?.corporate?.subtitleEn || initialSettings?.corporateRosterSubtitle || "Pioneers in Event Staging & Spatial Experience",
-    subtitleAr: initialSettings?.corporate?.subtitleAr || "رواد هندسة الفعاليات والتجارب الفضائية",
-  };
+  // Helper map to match EmployeeProfiles to Leadership Messages
+  const employeeProfileMap = new Map(employeeProfiles.map(e => [e.id, e]));
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] font-poppins selection:bg-[rgba(26,31,214,0.3)] overflow-x-hidden relative" dir={isAr ? 'rtl' : 'ltr'}>
+    <div 
+      className="min-h-screen text-[var(--text-primary)] font-poppins selection:bg-[rgba(26,31,214,0.3)] overflow-x-hidden relative" 
+      dir={isAr ? "rtl" : "ltr"}
+    >
       <style dangerouslySetInnerHTML={{ __html: `
         .font-righteous { font-family: var(--font-display), 'Righteous', sans-serif; }
         .font-poppins { font-family: var(--font-sans), 'Poppins', sans-serif; }
       `}} />
-      
+
       {/* Noise Texture */}
-      <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-50 mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+      <div 
+        className="fixed inset-0 opacity-[0.03] pointer-events-none z-50 mix-blend-overlay" 
+        style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}
+      />
 
-      {/* SECTION 1: IMMERSIVE HERO */}
-      <section className="relative min-h-[100vh] flex items-center justify-center pt-20 overflow-hidden">
-        {/* Cinematic WebGL Background Layer */}
-        <ImmersiveCanvas />
+      {/* RENDER SECTIONS BASED ON CMS SECTION ORDER */}
+      {sectionOrder.map((sectionKey: string) => {
+        // 1. HERO SECTION
+        if (sectionKey === "hero" && content.hero?.enabled !== false) {
+          const hero = content.hero || {};
+          return (
+            <section key="hero" id="hero" className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
+              <ImmersiveCanvas />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-[var(--bg-level-1)] pointer-events-none" />
+              
+              <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-8 text-center">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                >
+                  {hero.eyebrowEn && (
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 text-[var(--e3-royal-blue)] font-mono text-xs tracking-widest uppercase mb-6 font-bold">
+                      {isAr ? hero.eyebrowAr : hero.eyebrowEn}
+                    </span>
+                  )}
+                  
+                  <AnimatedText 
+                    as="h1" 
+                    text={isAr ? hero.titleAr : hero.titleEn || "The Wow & The How"}
+                    className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase justify-center"
+                  />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-[var(--bg-level-1)] pointer-events-none" />
-        
-        <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-8 text-center mt-12">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          >
-            <AnimatedText 
-              as="h1" 
-              text={isAr ? hero.titleAr : hero.titleEn || "E3 Immersive Experience"}
-              className="text-5xl md:text-7xl lg:text-8.5xl font-black tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase justify-center"
-            />
-            <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-3xl mx-auto leading-relaxed font-medium whitespace-pre-wrap">
-              {isAr ? hero.subtitleAr : hero.subtitleEn}
-            </p>
-          </motion.div>
-        </div>
-      </section>
+                  <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-3xl mx-auto leading-relaxed font-medium mb-8">
+                    {isAr ? hero.subtitleAr : hero.subtitleEn}
+                  </p>
 
-      {/* SECTION 2: E3 STORY & HERITAGE */}
-      <section className="relative py-24 md:py-32 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/60 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
-            <div>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-6 font-display uppercase">{isAr ? heritage.titleAr : heritage.titleEn || "E3 Story & Heritage"}</h2>
-              <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6 whitespace-pre-wrap font-medium" 
-                dangerouslySetInnerHTML={{ 
-                  __html: ((isAr ? heritage.descriptionAr : heritage.descriptionEn) || "").replace(
-                    /(InflataRun track|Doha Balloon Parade)/g, 
-                    `<strong class="text-[var(--e3-royal-blue)] font-semibold">$1</strong>`
-                  ) 
-                }}
-              />
-            </div>
-            <div className="relative h-64 md:h-96 rounded-3xl border border-[rgba(75,0,143,0.3)] bg-[rgba(8,10,42,0.6)] overflow-hidden group shadow-[0_4px_30px_rgba(75,0,143,0.1)]">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[var(--e3-midnight)] to-[var(--e3-deep-blue)] opacity-80 group-hover:opacity-40 transition-opacity duration-500"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[var(--e3-royal-blue)] font-display text-xl tracking-[0.2em] uppercase opacity-70 group-hover:opacity-100 group-hover:text-[var(--e3-magenta)] transition-all duration-300 drop-shadow-[0_0_8px_rgba(26,31,214,0.6)]">
-                  E3 Archives
-                </span>
-              </div>
-            </div>
-          </div>
+                  {hero.supportingTextEn && (
+                    <p className="text-sm text-[var(--text-secondary)]/80 max-w-2xl mx-auto mb-10 font-mono">
+                      {isAr ? hero.supportingTextAr : hero.supportingTextEn}
+                    </p>
+                  )}
 
-          <B2CGrid columns={3} gap="lg">
-            <InteractiveCard className="p-8 group" glowColor="rgba(26, 31, 214, 0.3)">
-              <Target className="w-10 h-10 text-[var(--e3-royal-blue)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{isAr ? "الرؤية" : "Vision"}</h3>
-              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{isAr ? heritage.visionAr : heritage.visionEn}</p>
-            </InteractiveCard>
-            <InteractiveCard className="p-8 group" glowColor="rgba(75, 0, 143, 0.3)">
-              <Building className="w-10 h-10 text-[var(--e3-purple)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{isAr ? "المهمة" : "Mission"}</h3>
-              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{isAr ? heritage.missionAr : heritage.missionEn}</p>
-            </InteractiveCard>
-            <InteractiveCard className="p-8 group" glowColor="rgba(176, 19, 184, 0.3)">
-              <Heart className="w-10 h-10 text-[var(--e3-magenta)] mb-6 transform group-hover:scale-110 transition-transform duration-500" />
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4 font-display uppercase">{isAr ? "القيم" : "Core Values"}</h3>
-              <p className="text-[var(--text-secondary)] font-medium text-sm leading-relaxed">{isAr ? heritage.valuesAr : heritage.valuesEn}</p>
-            </InteractiveCard>
-          </B2CGrid>
-        </div>
-      </section>
-
-      {/* SECTION 3: CORE CORPORATE TEAM */}
-      <section className="relative py-24 md:py-32">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-4 font-display uppercase">
-              {isAr ? (corporate.titleAr || corporate.titleEn) : corporate.titleEn}
-            </h2>
-            <p className="text-[var(--e3-royal-blue)] font-bold text-xs uppercase tracking-[0.2em] font-poppins">
-              {isAr ? (corporate.subtitleAr || corporate.subtitleEn) : corporate.subtitleEn}
-            </p>
-          </div>
-          
-          <B2CGrid columns={4} gap="md">
-            {team.map((member: any, i: number) => {
-              const name = isAr ? (member.nameAr || member.nameEn || member.name) : (member.nameEn || member.name);
-              const role = isAr ? (member.roleAr || member.roleEn || member.role) : (member.roleEn || member.role);
-              const desc = isAr ? (member.descAr || member.descEn || member.desc) : (member.descEn || member.desc);
-
-              return (
-                <InteractiveCard key={name + i} className="p-6 relative group border-[rgba(75,0,143,0.3)]">
-                  <div className="w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] mb-6 border border-[var(--e3-royal-blue)]/30 flex items-center justify-center text-[var(--e3-royal-blue)] font-black text-xl shadow-[0_0_15px_rgba(26,31,214,0.1)] group-hover:border-[var(--e3-magenta)] group-hover:text-[var(--e3-magenta)] transition-all duration-300 overflow-hidden">
-                    {member.imageUrl ? (
-                      <img src={member.imageUrl} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      (name || "?").charAt(0)
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    {hero.primaryCta?.labelEn && (
+                      <a 
+                        href={hero.primaryCta.customUrl || "#about"} 
+                        className="px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-sm tracking-wide uppercase shadow-[0_0_20px_rgba(26,31,214,0.4)] hover:scale-105 transition-all flex items-center gap-2"
+                      >
+                        {isAr ? hero.primaryCta.labelAr : hero.primaryCta.labelEn}
+                        <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                      </a>
+                    )}
+                    {hero.secondaryCta?.labelEn && (
+                      <a 
+                        href={hero.secondaryCta.customUrl || "#leadership"} 
+                        className="px-8 py-4 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/60 text-[var(--text-primary)] font-bold text-sm tracking-wide uppercase hover:bg-[var(--surface-hover)] transition-all"
+                      >
+                        {isAr ? hero.secondaryCta.labelAr : hero.secondaryCta.labelEn}
+                      </a>
                     )}
                   </div>
-                  <h4 className="text-lg font-bold text-[var(--text-primary)] mb-1 font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors duration-300">
-                    {name}
-                  </h4>
-                  <p className="text-xs font-black text-[var(--e3-magenta)] mb-4 tracking-wider uppercase">
-                    {role}
-                  </p>
-                  <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
-                    {desc}
-                  </p>
-                </InteractiveCard>
-              );
-            })}
-          </B2CGrid>
-        </div>
-      </section>
-
-      {/* SECTION 4: GROUP BOOKINGS CONSOLE */}
-      <section className="relative py-24 md:py-32 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/40">
-        <div className="max-w-5xl mx-auto px-4 md:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-4 font-display uppercase">
-              {initialSettings?.bookingsTitle || "Group Bookings Console"}
-            </h2>
-            <p className="text-[var(--text-secondary)] font-medium">
-              {initialSettings?.bookingsSubtitle || "Generate high-value inquiries for specialized corporate and VIP celebrations."}
-            </p>
-          </div>
-
-          <B2CCard className="p-3 border-[rgba(75,0,143,0.3)] shadow-[0_12px_40px_rgba(0,0,0,0.3)]">
-            <Tabs defaultValue="corporate" className="w-full">
-              <TabsList className="grid grid-cols-2 bg-[var(--bg-level-1)] p-1.5 rounded-2xl mb-8 border border-[var(--border-level-2)]">
-                <TabsTrigger 
-                  value="corporate" 
-                  className="rounded-xl font-bold text-sm tracking-wide py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-royal-blue)] data-[state=active]:shadow-lg cursor-pointer transition-all"
-                >
-                  Corporate Events
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="vip" 
-                  className="rounded-xl font-bold text-sm tracking-wide py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-magenta)] data-[state=active]:shadow-lg cursor-pointer transition-all"
-                >
-                  VIP Birthdays
-                </TabsTrigger>
-              </TabsList>
-              
-              <div className="p-4 md:p-8">
-                <TabsContent value="corporate" className="mt-0">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-                    <div className="text-start">
-                      <h3 className="text-2xl font-black text-[var(--text-primary)] mb-6 tracking-tight font-display uppercase">Corporate Excellence</h3>
-                      <ul className="space-y-4 text-[var(--text-secondary)] mb-8 font-medium text-sm md:text-base">
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-royal-blue)] shrink-0"/> Specialized family days</li>
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-royal-blue)] shrink-0"/> Professional catering lists</li>
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-royal-blue)] shrink-0"/> Venue privatization (InflataPark)</li>
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-royal-blue)] shrink-0"/> Custom on-site branding</li>
-                      </ul>
-                    </div>
-                    <BookingForm type="Corporate" accentColor="purple" />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="vip" className="mt-0">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-                    <div className="text-start">
-                      <h3 className="text-2xl font-black text-[var(--text-primary)] mb-6 tracking-tight font-display uppercase">VIP Celebrations</h3>
-                      <ul className="space-y-4 text-[var(--text-secondary)] mb-8 font-medium text-sm md:text-base">
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-magenta)] shrink-0"/> Private sensory celebrations</li>
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-magenta)] shrink-0"/> Themed Party Halls (Doha Mall)</li>
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-magenta)] shrink-0"/> Custom cake setups</li>
-                        <li className="flex gap-3 items-center"><CheckCircle2 className="w-5 h-5 text-[var(--e3-magenta)] shrink-0"/> Interactive child-safe packages</li>
-                      </ul>
-                    </div>
-                    <BookingForm type="VIP" accentColor="rose" />
-                  </div>
-                </TabsContent>
+                </motion.div>
               </div>
-            </Tabs>
-          </B2CCard>
-        </div>
-      </section>
+            </section>
+          );
+        }
 
-      {/* SECTION 5: CAREERS & AI CV UPLOADER */}
-      <section className="relative py-24 md:py-32 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/60">
-        <div className="max-w-5xl mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div className="text-start">
-              <h2 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-6 font-display uppercase">
-                {careers.title}
-              </h2>
-              <p className="text-[var(--text-secondary)] text-lg mb-8 leading-relaxed font-medium" 
-                dangerouslySetInnerHTML={{ 
-                  __html: (careers.description || "").replace(
-                    /(freelance event crew staffing|Lusail corporate office)/g, 
-                    `<strong class="text-[var(--e3-royal-blue)] font-semibold">$1</strong>`
-                  ) 
-                }}
-              />
-              <B2CCard className="p-6 border-[rgba(75,0,143,0.3)]">
-                <h4 className="font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2 uppercase tracking-wider text-xs">
-                  <span className="w-2 h-2 rounded-full bg-[var(--e3-magenta)] animate-pulse" />
-                  How we process CVs
-                </h4>
-                <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">{careers.nlpText}</p>
-              </B2CCard>
-            </div>
+        // 2. ABOUT E3 SECTION
+        if (sectionKey === "about" && content.about?.enabled !== false) {
+          const about = content.about || {};
+          return (
+            <section key="about" id="about" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/40 backdrop-blur-sm">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-16">
+                  <div>
+                    <span className="text-xs font-bold text-[var(--e3-royal-blue)] tracking-widest uppercase font-mono mb-2 block">
+                      {isAr ? about.eyebrowAr : about.eyebrowEn || "ABOUT E3"}
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-6 font-display uppercase">
+                      {isAr ? about.headingAr : about.headingEn || "Transforming Ideas Into Living Landmarks"}
+                    </h2>
+                    <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6 font-medium">
+                      {isAr ? about.summaryAr : about.summaryEn}
+                    </p>
+                    <p className="text-[var(--text-secondary)]/80 text-sm leading-relaxed mb-8">
+                      {isAr ? about.fullStoryAr : about.fullStoryEn}
+                    </p>
 
-            {/* Drag & Drop Panel */}
-            <div 
-              className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
-                dragActive 
-                  ? 'border-[var(--e3-royal-blue)] bg-[rgba(26,31,214,0.06)] scale-[1.01] shadow-[0_0_20px_rgba(26,31,214,0.15)]' 
-                  : 'border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)]/50 bg-[var(--surface-default)]'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              {uploadState === "idle" && (
-                <div>
-                  <div className="w-20 h-20 mx-auto bg-[rgba(26,31,214,0.08)] border border-[var(--e3-royal-blue)]/30 rounded-2xl flex items-center justify-center mb-6 shadow-[0_4px_15px_rgba(26,31,214,0.06)]">
-                    <UploadCloud className="w-10 h-10 text-[var(--e3-royal-blue)]" />
+                    <div className="flex flex-wrap gap-6 items-center">
+                      {about.establishedYear && (
+                        <div className="px-4 py-2 rounded-xl bg-[var(--e3-midnight)] border border-[var(--e3-royal-blue)]/30 text-xs font-mono">
+                          <span className="text-[var(--text-secondary)]">{isAr ? "سنة التأسيس: " : "Est. Year: "}</span>
+                          <strong className="text-[var(--e3-royal-blue)] font-bold">{about.establishedYear}</strong>
+                        </div>
+                      )}
+                      {about.headquartersEn && (
+                        <div className="px-4 py-2 rounded-xl bg-[var(--e3-midnight)] border border-[var(--e3-purple)]/30 text-xs font-mono">
+                          <span className="text-[var(--text-secondary)]">{isAr ? "المقر الرئيسي: " : "HQ: "}</span>
+                          <strong className="text-[var(--e3-purple)] font-bold">{isAr ? about.headquartersAr : about.headquartersEn}</strong>
+                        </div>
+                      )}
+                      {about.companyProfileFileUrl && (
+                        <a 
+                          href={about.companyProfileFileUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-6 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4 text-[var(--e3-royal-blue)]" />
+                          {isAr ? about.companyProfileLabelAr : about.companyProfileLabelEn || "Download Profile"}
+                        </a>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Drop your CV here</h3>
-                  <p className="text-xs text-[var(--text-tertiary)] font-bold mb-8 uppercase tracking-wider">PDF, DOCX up to 10MB</p>
-                  
-                  <B2CButton variant="outline" size="sm" className="relative cursor-pointer">
-                    Browse Files
-                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => {
-                      if(e.target.files?.length) simulateUpload();
-                    }} />
-                  </B2CButton>
-                </div>
-              )}
 
-              {uploadState === "uploading" && (
-                <div className="py-8">
-                  <div className="w-12 h-12 border-4 border-[var(--bg-level-2)] border-t-[var(--e3-royal-blue)] rounded-full animate-spin mx-auto mb-6"></div>
-                  <p className="text-[var(--e3-royal-blue)] font-bold text-xs uppercase tracking-widest animate-pulse">NLP Extracting Skills...</p>
-                </div>
-              )}
-
-              {uploadState === "success" && (
-                <div className="py-8">
-                  <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_4px_15px_rgba(16,185,129,0.1)]">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                  {/* Fact Cards */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {Array.isArray(about.factItems) && about.factItems.map((fact: any) => (
+                      <InteractiveCard key={fact.id} className="p-6 text-center" glowColor="rgba(26, 31, 214, 0.2)">
+                        <div className="text-3xl md:text-4xl font-black font-display text-[var(--e3-royal-blue)] mb-2">
+                          {fact.value}
+                        </div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] mb-1">
+                          {isAr ? fact.labelAr : fact.labelEn}
+                        </div>
+                      </InteractiveCard>
+                    ))}
                   </div>
-                  <h3 className="text-xl font-bold text-emerald-500 mb-2 font-display uppercase">Profile Ingested</h3>
-                  <p className="text-xs text-[var(--text-tertiary)] font-bold uppercase tracking-wider">Added to E3 Talent Database</p>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+              </div>
+            </section>
+          );
+        }
+
+        // 3. LEADERSHIP PERSPECTIVES SECTION
+        if (sectionKey === "leadership" && content.leadership?.enabled !== false) {
+          const lead = content.leadership || {};
+          const messages = Array.isArray(lead.messages) ? lead.messages : [];
+
+          return (
+            <section key="leadership" id="leadership" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <span className="text-xs font-bold text-[var(--e3-magenta)] tracking-widest uppercase font-mono mb-2 block">
+                    {isAr ? lead.eyebrowAr : lead.eyebrowEn || "LEADERSHIP PERSPECTIVES"}
+                  </span>
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
+                    {isAr ? lead.headingAr : lead.headingEn || "Guided By Vision & Engineering Mastery"}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-sm font-medium">
+                    {isAr ? lead.introductionAr : lead.introductionEn}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {messages.map((msg: any) => {
+                    const linkedProfile = msg.teamMemberId ? employeeProfileMap.get(msg.teamMemberId) : null;
+                    const name = linkedProfile 
+                      ? (isAr ? `${linkedProfile.firstNameAr || linkedProfile.firstName} ${linkedProfile.lastNameAr || linkedProfile.lastName}` : `${linkedProfile.firstName} ${linkedProfile.lastName}`)
+                      : (isAr ? "قيادة إي ثري" : "E3 Leadership");
+                    const role = linkedProfile 
+                      ? (isAr ? linkedProfile.designationAr || linkedProfile.designation : linkedProfile.designation)
+                      : (isAr ? msg.messageTitleAr : msg.messageTitleEn);
+
+                    return (
+                      <InteractiveCard key={msg.id} className="p-8 flex flex-col justify-between" glowColor="rgba(75, 0, 143, 0.3)">
+                        <div>
+                          <div className="flex items-center gap-4 mb-6">
+                            {linkedProfile?.profileImage ? (
+                              <img 
+                                src={linkedProfile.profileImage} 
+                                alt={name} 
+                                className="w-14 h-14 rounded-full object-cover border-2 border-[var(--e3-royal-blue)]"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)] flex items-center justify-center font-bold text-lg text-[var(--e3-royal-blue)]">
+                                E3
+                              </div>
+                            )}
+                            <div>
+                              <h3 className="text-lg font-bold text-[var(--text-primary)]">{name}</h3>
+                              <p className="text-xs font-mono text-[var(--e3-royal-blue)] uppercase">{role}</p>
+                            </div>
+                          </div>
+
+                          <blockquote className="text-base font-semibold italic text-[var(--text-primary)] mb-4 border-l-2 border-[var(--e3-royal-blue)] pl-4">
+                            "{isAr ? msg.pullQuoteAr : msg.pullQuoteEn}"
+                          </blockquote>
+
+                          <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-6 font-medium">
+                            {isAr ? msg.fullMessageAr : msg.fullMessageEn}
+                          </p>
+                        </div>
+
+                        {linkedProfile?.slug && (
+                          <Link 
+                            href={`/${locale}/b2c/team/${linkedProfile.slug}`}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--e3-royal-blue)] hover:underline"
+                          >
+                            {isAr ? "عرض الملف الشخصي" : "View Full Profile"}
+                            <ChevronRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+                          </Link>
+                        )}
+                      </InteractiveCard>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // 4. VISION, MISSION & VALUES SECTION
+        if (sectionKey === "visionMissionValues" && content.visionMissionValues?.enabled !== false) {
+          const vmv = content.visionMissionValues || {};
+          const values = Array.isArray(vmv.values) ? vmv.values : [];
+
+          return (
+            <section key="visionMissionValues" id="visionMissionValues" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/60">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
+                    {isAr ? vmv.sectionTitleAr : vmv.sectionTitleEn || "Our Core Spine"}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-sm font-medium">
+                    {isAr ? vmv.sectionDescriptionAr : vmv.sectionDescriptionEn}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                  {vmv.vision?.enabled !== false && (
+                    <InteractiveCard className="p-8" glowColor="rgba(26, 31, 214, 0.3)">
+                      <Target className="w-10 h-10 text-[var(--e3-royal-blue)] mb-4" />
+                      <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3 font-display uppercase">
+                        {isAr ? vmv.vision.titleAr : vmv.vision.titleEn || "Vision"}
+                      </h3>
+                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+                        {isAr ? vmv.vision.descriptionAr : vmv.vision.descriptionEn}
+                      </p>
+                    </InteractiveCard>
+                  )}
+
+                  {vmv.mission?.enabled !== false && (
+                    <InteractiveCard className="p-8" glowColor="rgba(75, 0, 143, 0.3)">
+                      <Building className="w-10 h-10 text-[var(--e3-purple)] mb-4" />
+                      <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3 font-display uppercase">
+                        {isAr ? vmv.mission.titleAr : vmv.mission.titleEn || "Mission"}
+                      </h3>
+                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+                        {isAr ? vmv.mission.descriptionAr : vmv.mission.descriptionEn}
+                      </p>
+                    </InteractiveCard>
+                  )}
+                </div>
+
+                <B2CGrid columns={3} gap="lg">
+                  {values.map((val: any) => (
+                    <InteractiveCard key={val.id} className="p-6" glowColor="rgba(26, 31, 214, 0.2)">
+                      <Sparkles className="w-8 h-8 text-[var(--e3-royal-blue)] mb-3" />
+                      <h4 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
+                        {isAr ? val.titleAr : val.titleEn}
+                      </h4>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                        {isAr ? val.descriptionAr : val.descriptionEn}
+                      </p>
+                    </InteractiveCard>
+                  ))}
+                </B2CGrid>
+              </div>
+            </section>
+          );
+        }
+
+        // 5. RECORD BREAKING GUINNESS SECTION
+        if (sectionKey === "recordBreaking" && content.recordBreaking?.enabled !== false) {
+          const rec = content.recordBreaking || {};
+          const isVerified = rec.verificationStatus === "VERIFIED";
+
+          return (
+            <section key="recordBreaking" id="recordBreaking" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--e3-midnight)]">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="p-8 md:p-12 rounded-3xl border border-[var(--e3-royal-blue)]/40 bg-gradient-to-br from-[var(--e3-deep-blue)]/80 to-[var(--e3-midnight)] shadow-[0_0_50px_rgba(26,31,214,0.2)]">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)]">
+                          {isAr ? rec.eyebrowAr : rec.eyebrowEn}
+                        </span>
+                        {isVerified && (
+                          <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase flex items-center gap-1 border border-emerald-500/40">
+                            <ShieldCheck className="w-3 h-3" /> Official Verified Record
+                          </span>
+                        )}
+                      </div>
+
+                      <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-4">
+                        {isAr ? rec.titleAr : rec.titleEn}
+                      </h2>
+
+                      <p className="text-base text-[var(--text-secondary)] leading-relaxed mb-6 font-medium">
+                        {isAr ? rec.summaryAr : rec.summaryEn}
+                      </p>
+
+                      {rec.ctaDestination && (
+                        <a 
+                          href={rec.ctaDestination}
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--e3-royal-blue)] text-white font-bold text-xs uppercase tracking-wider hover:bg-[var(--e3-royal-blue)]/80 transition-colors"
+                        >
+                          {isAr ? rec.ctaLabelAr : rec.ctaLabelEn || "View Case Study"}
+                          <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="text-center p-8 rounded-2xl bg-[var(--surface-default)]/30 border border-[var(--border-level-2)]">
+                      <div className="text-6xl md:text-8xl font-black font-display text-[var(--e3-royal-blue)] mb-2 tracking-tighter">
+                        {rec.measurementValue}
+                      </div>
+                      <div className="text-lg font-bold uppercase tracking-widest text-[var(--text-primary)] mb-2 font-mono">
+                        {isAr ? rec.measurementUnitAr : rec.measurementUnitEn}
+                      </div>
+                      <div className="text-xs text-[var(--text-secondary)] font-mono">
+                        {isAr ? rec.officialRecordTitleAr : rec.officialRecordTitleEn}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // 7. BOOKINGQUBE SPOTLIGHT SECTION
+        if (sectionKey === "bookingQube" && content.bookingQube?.enabled !== false) {
+          const bq = content.bookingQube || {};
+          const features = Array.isArray(bq.featureItems) ? bq.featureItems : [];
+          const steps = Array.isArray(bq.journeySteps) ? bq.journeySteps : [];
+
+          return (
+            <section key="bookingQube" id="bookingQube" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <span className="text-xs font-bold text-[var(--e3-royal-blue)] tracking-widest uppercase font-mono mb-2 block">
+                    {isAr ? bq.eyebrowAr : bq.eyebrowEn || "PROPRIETARY ECOSYSTEM TECH"}
+                  </span>
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
+                    {isAr ? bq.headingAr : bq.headingEn || "Powered By BookingQube™"}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-sm font-medium">
+                    {isAr ? bq.summaryAr : bq.summaryEn}
+                  </p>
+                </div>
+
+                <B2CGrid columns={3} gap="lg" className="mb-16">
+                  {features.map((item: any) => (
+                    <InteractiveCard key={item.id} className="p-6" glowColor="rgba(26, 31, 214, 0.3)">
+                      <Smartphone className="w-8 h-8 text-[var(--e3-royal-blue)] mb-4" />
+                      <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
+                        {isAr ? item.titleAr : item.titleEn}
+                      </h3>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                        {isAr ? item.descriptionAr : item.descriptionEn}
+                      </p>
+                    </InteractiveCard>
+                  ))}
+                </B2CGrid>
+
+                {/* Journey Flow */}
+                <div className="p-8 rounded-2xl bg-[var(--surface-default)]/40 border border-[var(--border-level-2)]">
+                  <h3 className="text-xs font-mono font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-6 text-center">
+                    {isAr ? "مسار الزائر السلس" : "Seamless Guest Journey Flow"}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    {steps.map((step: any) => (
+                      <div key={step.id} className="space-y-2">
+                        <div className="text-sm font-bold text-[var(--e3-royal-blue)] uppercase font-display">
+                          {isAr ? step.titleAr : step.titleEn}
+                        </div>
+                        <p className="text-xs text-[var(--text-secondary)] font-medium">
+                          {isAr ? step.descriptionAr : step.descriptionEn}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // 8. CONNECT GATEWAYS SECTION
+        if (sectionKey === "connect" && content.connect?.enabled !== false) {
+          const conn = content.connect || {};
+          const items = Array.isArray(conn.items) ? conn.items : [];
+
+          return (
+            <section key="connect" id="connect" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/40">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <span className="text-xs font-bold text-[var(--e3-magenta)] tracking-widest uppercase font-mono mb-2 block">
+                    {isAr ? conn.eyebrowAr : conn.eyebrowEn || "OPPORTUNITIES & COLLABORATION"}
+                  </span>
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
+                    {isAr ? conn.headingAr : conn.headingEn || "Connect With The E3 Ecosystem"}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-sm font-medium">
+                    {isAr ? conn.descriptionAr : conn.descriptionEn}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {items.map((item: any) => (
+                    <InteractiveCard key={item.id} className="p-8 flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
+                      <div>
+                        <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase block mb-2">
+                          {isAr ? item.tabLabelAr : item.tabLabelEn}
+                        </span>
+                        <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 font-display uppercase">
+                          {isAr ? item.titleAr : item.titleEn}
+                        </h3>
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-6 font-medium">
+                          {isAr ? item.descriptionAr : item.descriptionEn}
+                        </p>
+                      </div>
+
+                      <a 
+                        href={item.customUrl || "#"} 
+                        className="w-full py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors text-center flex items-center justify-center gap-2"
+                      >
+                        {isAr ? item.ctaLabelAr : item.ctaLabelEn}
+                        <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+                      </a>
+                    </InteractiveCard>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // 11. FAQS SECTION
+        if (sectionKey === "faqs" && content.faqs?.enabled !== false) {
+          const faq = content.faqs || {};
+          const faqsList = Array.isArray(faq.faqsList) ? faq.faqsList : [];
+
+          return (
+            <section key="faqs" id="faqs" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
+              <div className="max-w-4xl mx-auto px-4 md:px-8">
+                <div className="text-center mb-16">
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
+                    {isAr ? faq.headingAr : faq.headingEn || "Frequently Asked Questions"}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-sm font-medium">
+                    {isAr ? faq.descriptionAr : faq.descriptionEn}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {faqsList.map((item: any, index: number) => {
+                    const isOpen = openFaqIndex === index;
+                    return (
+                      <div key={item.id} className="rounded-xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)] overflow-hidden">
+                        <button
+                          onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                          className="w-full p-5 text-left flex justify-between items-center gap-4 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+                        >
+                          <span>{isAr ? item.questionAr : item.questionEn}</span>
+                          <span className="text-lg font-mono text-[var(--e3-royal-blue)]">{isOpen ? "−" : "+"}</span>
+                        </button>
+                        {isOpen && (
+                          <div className="p-5 pt-0 text-xs text-[var(--text-secondary)] leading-relaxed font-medium border-t border-[var(--border-level-2)]/50 pt-4">
+                            {isAr ? item.answerAr : item.answerEn}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // 12. FINAL GATEWAY SECTION
+        if (sectionKey === "finalGateway" && content.finalGateway?.enabled !== false) {
+          const fg = content.finalGateway || {};
+          const items = Array.isArray(fg.gatewayItems) ? fg.gatewayItems : [];
+
+          return (
+            <section key="finalGateway" id="finalGateway" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--e3-midnight)] text-center">
+              <div className="max-w-5xl mx-auto px-4 md:px-8">
+                <h2 className="text-4xl md:text-6xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-6">
+                  {isAr ? fg.headingAr : fg.headingEn || "Ready To Bring Your Experience To Life?"}
+                </h2>
+                <p className="text-[var(--text-secondary)] text-base max-w-2xl mx-auto mb-12 font-medium">
+                  {isAr ? fg.descriptionAr : fg.descriptionEn}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {items.map((item: any) => (
+                    <InteractiveCard key={item.id} className="p-8 text-center" glowColor="rgba(26, 31, 214, 0.4)">
+                      <h3 className="text-xl font-bold font-display uppercase text-[var(--text-primary)] mb-3">
+                        {isAr ? item.titleAr : item.titleEn}
+                      </h3>
+                      <p className="text-xs text-[var(--text-secondary)] mb-6 font-medium">
+                        {isAr ? item.descriptionAr : item.descriptionEn}
+                      </p>
+                      <a 
+                        href={item.customUrl || "#"}
+                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform"
+                      >
+                        {isAr ? item.ctaLabelAr : item.ctaLabelEn}
+                        <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                      </a>
+                    </InteractiveCard>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        return null;
+      })}
     </div>
-  );
-}
-
-function BookingForm({ type, accentColor = "purple" }: { type: string, accentColor?: "purple" | "rose" }) {
-  const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
-  const { theme } = useB2CTheme();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("submitting");
-    setTimeout(() => setStatus("success"), 1500);
-  };
-
-  const isRose = accentColor === "rose";
-  const _accentHex = isRose ? "var(--e3-magenta)" : "var(--e3-royal-blue)";
-  const alertBg = isRose ? "bg-[var(--e3-magenta)]/10 border-[var(--e3-magenta)]/30" : "bg-[var(--e3-royal-blue)]/10 border-[var(--e3-royal-blue)]/30";
-  const textClass = isRose ? "text-[var(--e3-magenta)]" : "text-[var(--e3-royal-blue)]";
-
-  if (status === "success") {
-    return (
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className={`${alertBg} border rounded-2xl p-8 text-center flex flex-col items-center justify-center`}
-      >
-        <CheckCircle2 className={`w-12 h-12 ${textClass} mb-4`} />
-        <h4 className={`text-xl font-bold uppercase tracking-wide font-display ${textClass} mb-2`}>Inquiry Received</h4>
-        <p className="text-sm text-[var(--text-secondary)] font-medium">Our {type.toLowerCase()} concierge will contact you within 24 hours.</p>
-        <B2CButton variant="outline" size="sm" className="mt-6" onClick={() => setStatus("idle")}>
-          Submit Another
-        </B2CButton>
-      </motion.div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-5 text-start">
-      <div className="grid grid-cols-2 gap-5">
-        <B2CInput 
-          required 
-          label="First Name" 
-          placeholder="First name"
-        />
-        <B2CInput 
-          required 
-          label="Last Name" 
-          placeholder="Last name"
-        />
-      </div>
-      <B2CInput 
-        type="email" 
-        required 
-        label="Email Address" 
-        placeholder="your@email.com"
-      />
-      <B2CInput 
-        type="date" 
-        required 
-        label="Preferred Date" 
-        style={{ colorScheme: theme }}
-      />
-      <B2CInput 
-        type="number" 
-        min="10" 
-        required 
-        label="Guest Count" 
-        placeholder="Minimum 10 guests"
-      />
-      
-      <div className="pt-4 w-full">
-        <MagneticButton 
-          type="submit" 
-          variant={isRose ? "secondary" : "primary"} 
-          className="w-full flex items-center justify-center gap-2 uppercase font-black tracking-wider text-base py-4"
-          disabled={status === "submitting"}
-        >
-          {status === "submitting" ? "Processing..." : "Submit Inquiry"} 
-          <ChevronRight className="w-5 h-5 ms-2 rtl:-scale-x-100" />
-        </MagneticButton>
-      </div>
-    </form>
   );
 }

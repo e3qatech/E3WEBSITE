@@ -1,46 +1,28 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 
 export async function GET() {
   try {
-    const setting = await prisma.setting.findUnique({
-      where: { key: "B2C_DISCOVER_PAGE_SETTINGS" }
+    let content: any = null;
+    const page = await prisma.pages.findUnique({
+      where: { slug: "b2c-discover" }
     });
 
-    if (!setting) {
-      // Default structure
-      return NextResponse.json({
-        hero: {
-          titleEn: "The \"Wow & How\" Philosophy",
-          titleAr: "فلسفة الإبهار والتميز",
-          subtitleEn: "Fusing the physical \"Wow\" of immersive entertainment with the transparent operational \"How\" of Qatari execution engineering.",
-          subtitleAr: "نجمع بين الإبهار المادي للترفيه الغامر والتميز الهندسي لدولة قطر",
-          mediaType: "ORBS", // IMAGE, VIDEO, ORBS
-          mediaUrl: ""
-        },
-        heritage: {
-          title: "Our Heritage",
-          description: "Deeply rooted in Qatar, E3 has delivered the nation's most iconic tourist landmarks. From the Guinness-certified 1,055-meter InflataRun track to the Doha Balloon Parade hosting over 760,000 attendees, our legacy is built on monumental execution.",
-          vision: "Delivering results-oriented marketing programs and interactive FECs globally.",
-          mission: "Inspiring fun and everlasting memories through groundbreaking live events.",
-          values: "Honesty, direct relationships, and unyielding commitment to delivering on promises."
-        },
-        team: [
-          { name: "Abdullah Al Kubaisi", role: "Chairman", desc: "National alignment & strategic partnerships." },
-          { name: "Adil Ahmed", role: "Managing Director & CEO", desc: "Global resources & operations." },
-          { name: "Mohammad Ali Awada", role: "General Manager", desc: "Directing physical landmark properties." },
-          { name: "Ebrahim Karolia", role: "Sr. Project Manager", desc: "AV rigging, fabrication, custom builds." }
-        ],
-        careers: {
-          title: "Join the Crew",
-          description: "E3 is expanding. We are currently actively seeking freelance event crew staffing and scaling our Lusail corporate office.",
-          nlpText: "Our automated NLP system extracts structural skills (AV logistics, rigging, etc.) and pushes them directly to our Talent database."
-        }
+    if (page && page.content) {
+      content = page.content;
+    } else {
+      const setting = await prisma.setting.findUnique({
+        where: { key: "B2C_DISCOVER_PAGE_SETTINGS" }
       });
+      if (setting && setting.value) {
+        content = typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value;
+      }
     }
 
-    return NextResponse.json(typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value);
+    const merged = getMergedCMSPageContent("b2c-discover", content);
+    return NextResponse.json(merged);
   } catch (error) {
     console.error("Failed to fetch discover settings", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -56,13 +38,32 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
-    const setting = await prisma.setting.upsert({
-      where: { key: "B2C_DISCOVER_PAGE_SETTINGS" },
-      update: { value: data },
-      create: { key: "B2C_DISCOVER_PAGE_SETTINGS", value: data }
+    const page = await prisma.pages.upsert({
+      where: { slug: "b2c-discover" },
+      update: {
+        content: data.content || data,
+        seo: data.seo || {},
+        status: "PUBLISHED",
+        updatedAt: new Date()
+      },
+      create: {
+        slug: "b2c-discover",
+        title: { en: "Discover E3 Qatar", ar: "استكشف إي ثري قطر" },
+        content: data.content || data,
+        seo: data.seo || {},
+        status: "PUBLISHED",
+        portal: "B2C"
+      }
     });
 
-    return NextResponse.json({ success: true, setting });
+    // Also mirror to setting table for backward compatibility
+    await prisma.setting.upsert({
+      where: { key: "B2C_DISCOVER_PAGE_SETTINGS" },
+      update: { value: data.content || data },
+      create: { key: "B2C_DISCOVER_PAGE_SETTINGS", value: data.content || data }
+    });
+
+    return NextResponse.json({ success: true, page });
   } catch (error) {
     console.error("Failed to save discover settings", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

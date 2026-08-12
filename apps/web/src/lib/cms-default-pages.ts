@@ -621,60 +621,432 @@ export const DEFAULT_B2C_PACKAGES_CONTENT = {
   }
 };
 
+export const DEFAULT_B2C_DISCOVER_CONTENT = {
+  sectionOrder: [
+    "hero",
+    "about",
+    "leadership",
+    "visionMissionValues",
+    "recordBreaking",
+    "impactMilestones",
+    "bookingQube",
+    "connect",
+    "trustedAcrossQatar",
+    "latestInsights",
+    "faqs",
+    "finalGateway"
+  ],
+  hero: {
+    id: "hero",
+    enabled: true,
+    eyebrowEn: "E3 CORPORATE STORY & ECOSYSTEM",
+    eyebrowAr: "قصة إي ثري الترفيهية والتنفيذية",
+    titleEn: "The Wow & The How",
+    titleAr: "الإبهار والتنفيذ الاحترافي",
+    subtitleEn: "Pioneering landmark entertainment, kinetic staging, and Qatar's premier spatial technology ecosystem.",
+    subtitleAr: "نبتكر تجارب ترفيهية استثنائية، عروض حية، ومنظومة تكنولوجية متكاملة في قطر.",
+    supportingTextEn: "From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.",
+    supportingTextAr: "من الفكرة الإبداعية إلى التصنيع، التذاكر، إدارة الجماهير، والعمليات الحية.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    posterUrl: "",
+    altEn: "E3 Qatar Immersive Entertainment",
+    altAr: "إي ثري قطر للترفيه الغامر",
+    contentAlignment: "CENTER",
+    minimumHeight: "MIN_SCREEN",
+    motionPreset: "FADE_UP",
+    motionIntensity: "MEDIUM",
+    theme: "DARK",
+    primaryCta: {
+      labelEn: "Explore Ecosystem",
+      labelAr: "استكشف المنظومة",
+      destinationType: "INTERNAL",
+      customUrl: "#about"
+    },
+    secondaryCta: {
+      labelEn: "Leadership Message",
+      labelAr: "كلمة القيادة",
+      destinationType: "INTERNAL",
+      customUrl: "#leadership"
+    },
+    scrollIndicatorEnabled: true
+  },
+  about: {
+    id: "about",
+    enabled: true,
+    eyebrowEn: "ABOUT E3",
+    eyebrowAr: "عن إي ثري",
+    headingEn: "Transforming Ideas Into Living Landmarks",
+    headingAr: "تحويل الأفكار إلى معالم واقعية حية",
+    summaryEn: "Founded in Doha, E3 designs, builds, operates, and scales world-class spatial entertainment experiences across Qatar.",
+    summaryAr: "تأسست إي ثري في الدوحة لابتكار وتنفيذ وتشغيل أكبر الوجهات الترفيهية والفعاليات الغامرة في قطر.",
+    fullStoryEn: "Deeply rooted in Qatar's Vision, E3 bridges creative imagination with rigorous operational engineering. We handle every aspect of entertainment landmark creation from conceptual design to live operations.",
+    fullStoryAr: "انطلاقاً من رؤية قطر الوطنية، تجمع إي ثري بين الإبداع الفني والهندسة التشغيلية الدقيقة في تقديم الوجهات الترفيهية.",
+    establishedYear: 2020,
+    ownershipStatementEn: "100% Qatari Owned & Operated",
+    ownershipStatementAr: "ملكية قطرية ١٠٠٪ وإدارة وطنية",
+    headquartersEn: "Lusail City, Qatar",
+    headquartersAr: "مدينة لوسيل، قطر",
+    marketsServed: ["Qatar", "GCC", "International"],
+    companyProfileFileUrl: "",
+    companyProfileLabelEn: "Download Corporate Profile",
+    companyProfileLabelAr: "تحميل الملف التعريفي للشركة",
+    factItems: [
+      { id: "f1", value: "50+", labelEn: "Years Combined Experience", labelAr: "سنوات من الخبرة المشتركة", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 1 },
+      { id: "f2", value: "9+", labelEn: "Core Specializations", labelAr: "التخصصات الأساسية", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 2 },
+      { id: "f3", value: "100%", labelEn: "Qatari Owned", labelAr: "ملكية قطرية 100%", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 3 },
+      { id: "f4", value: "3+", labelEn: "Regional Markets", labelAr: "أسواق إقليمية", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 4 }
+    ],
+    theme: "INHERIT"
+  },
+  leadership: {
+    id: "leadership",
+    enabled: true,
+    eyebrowEn: "LEADERSHIP PERSPECTIVES",
+    eyebrowAr: "رؤية القيادة",
+    headingEn: "Guided By Vision & Engineering Mastery",
+    headingAr: "قيادة طموحة ورؤية استراتيجية",
+    introductionEn: "Hear directly from E3's executive leadership on national alignment, global standards, and operational excellence.",
+    introductionAr: "تعرف على كلمة القيادة التنفيذية في إي ثري ورؤيتنا للتطوير المستمر.",
+    messages: [
+      {
+        id: "msg-chairman",
+        teamMemberId: "",
+        messageType: "CHAIRMAN_PERSPECTIVE",
+        messageTitleEn: "Chairman's Perspective",
+        messageTitleAr: "رؤية رئيس مجلس الإدارة",
+        pullQuoteEn: "Aligning creative spatial entertainment with Qatar's strategic tourism vision.",
+        pullQuoteAr: "نحقق التناغم بين الترفيه الإبداعي ورؤية قطر السياحية الاستراتيجية.",
+        shortMessageEn: "Our mission is to build everlasting entertainment landmarks that elevate Qatar's regional profile.",
+        shortMessageAr: "مهمتنا هي ابتكار وجهات ترفيهية استثنائية تعزز مكانة قطر الإقليمية.",
+        fullMessageEn: "At E3, we believe entertainment is an infrastructure of joy. By coupling national alignment with world-class engineering, we deliver physical landmarks that inspire memories.",
+        fullMessageAr: "في إي ثري، نؤمن بأن الترفيه هو بنية تحتية للسعادة والابتكار.",
+        ctaLabelEn: "Learn More",
+        ctaLabelAr: "اقرأ المزيد",
+        enabled: true,
+        sortOrder: 1,
+        publishStatus: "PUBLISHED"
+      },
+      {
+        id: "msg-ceo",
+        teamMemberId: "",
+        messageType: "FROM_THE_CEO",
+        messageTitleEn: "From the CEO's Desk",
+        messageTitleAr: "كلمة الرئيس التنفيذي",
+        pullQuoteEn: "Operational engineering is what turns ambitious sketches into safe, flawless guest experiences.",
+        pullQuoteAr: "الهندسة التشغيلية هي المفتاح لتحويل الأفكار الجريئة إلى واقع ملموس وآمن.",
+        shortMessageEn: "Every E3 attraction is engineered for crowd safety, flow precision, and unforgettable guest moments.",
+        shortMessageAr: "تُصمم كل وجهة في إي ثري بدقة عالية لضمان السلامة وأعلى مستويات الجودة.",
+        fullMessageEn: "Execution is our signature. We manage every detail—from custom AV rigging to real-time ticketing—ensuring our partners and guests experience pure magic without operational friction.",
+        fullMessageAr: "التنفيذ هو توقيعنا الخاص. ندير كافة التفاصيل الدقيقة لتقديم أفضل التجارب.",
+        ctaLabelEn: "Read Strategy",
+        ctaLabelAr: "اقرأ الاستراتيجية",
+        enabled: true,
+        sortOrder: 2,
+        publishStatus: "PUBLISHED"
+      }
+    ],
+    theme: "DARK"
+  },
+  visionMissionValues: {
+    id: "visionMissionValues",
+    enabled: true,
+    sectionTitleEn: "Our Core Spine",
+    sectionTitleAr: "ركائزنا الأساسية",
+    sectionDescriptionEn: "The principles guiding every project, event, and spatial creation across the E3 ecosystem.",
+    sectionDescriptionAr: "المبادئ التي توجه كل مشروع وحدث وابتكار في منظومة إي ثري.",
+    vision: {
+      titleEn: "Vision",
+      titleAr: "الرؤية",
+      descriptionEn: "To be the premier spatial technology and landmark entertainment engineering powerhouse in the MENA region.",
+      descriptionAr: "أن نكون القوة الرائدة في تقنيات الفعاليات وتصاميم الترفيه التفاعلي في المنطقة.",
+      icon: "Target",
+      enabled: true
+    },
+    mission: {
+      titleEn: "Mission",
+      titleAr: "المهمة",
+      descriptionEn: "Delivering safe, world-class kinetic attractions, seamless ticketing technology, and everlasting memories.",
+      descriptionAr: "تقديم وجهات ترفيهية آمنة عالمية المستوى وتقنيات تذاكر متكاملة وذكريات تدوم.",
+      icon: "Building",
+      enabled: true
+    },
+    values: [
+      { id: "v1", titleEn: "Spatial Excellence", titleAr: "التميز الفضائي والهندسي", descriptionEn: "Mastering light, rigging, scale, and sound.", descriptionAr: "إتقان الضوء والإضاءة والمساحة والصوت.", icon: "Sparkles", accentToken: "BLUE", enabled: true, sortOrder: 1 },
+      { id: "v2", titleEn: "Uncompromising Safety", titleAr: "السلامة المطلقة", descriptionEn: "Adhering to strict international safety and structural standards.", descriptionAr: "الالتزام بأعلى معايير السلامة والأمان العالمية.", icon: "ShieldCheck", accentToken: "PURPLE", enabled: true, sortOrder: 2 },
+      { id: "v3", titleEn: "Operational Integrity", titleAr: "النزاهة التشغيلية", descriptionEn: "Direct relationships and transparent execution.", descriptionAr: "الشفافية الكاملة والتنفيذ الاحترافي المباشر.", icon: "CheckCircle2", accentToken: "CYAN", enabled: true, sortOrder: 3 }
+    ],
+    theme: "INHERIT"
+  },
+  recordBreaking: {
+    id: "recordBreaking",
+    enabled: true,
+    eyebrowEn: "GUINNESS WORLD RECORDS™ MILESTONE",
+    eyebrowAr: "إنجاز عالمي مسجل رسميًا",
+    titleEn: "1,055-Metre Guinness World Records™ Achievement",
+    titleAr: "إنجاز غينيس للأرقام القياسية بطول ١,٠٥٥ متراً",
+    summaryEn: "E3 engineered and operated InflataRUN, setting the official world record for the longest inflatable obstacle course.",
+    summaryAr: "صممت ونفذت إي ثري إنفلاتا ران، محققة الرقم القياسي العالمي لأطول مضمار ألعاب مطاطية.",
+    fullDescriptionEn: "Welcoming over 760,000 attendees, this landmark spatial project showcased E3's capabilities in custom fabrication, crowd management, and international event logistics.",
+    fullDescriptionAr: "استقبلت الفعالية مئات الآلاف من الزوار، مستعرضة قدرات إي ثري في التصنيع والتدفق الجماهيري.",
+    officialRecordTitleEn: "Longest Inflatable Obstacle Course",
+    officialRecordTitleAr: "أطول مضمار ألعاب مطاطية في العالم",
+    measurementValue: "1,055",
+    measurementUnitEn: "Metres",
+    measurementUnitAr: "متر",
+    achievementDate: "2023-03-15",
+    locationEn: "Doha, Qatar",
+    locationAr: "الدوحة، قطر",
+    verificationStatus: "VERIFIED",
+    verifiedBy: "Guinness World Records Ltd",
+    verifiedAt: "2023-03-15",
+    ctaLabelEn: "View Case Study",
+    ctaLabelAr: "عرض دراسة الحالة",
+    ctaDestination: "/en/b2b/case-studies/inflatarun",
+    theme: "DARK"
+  },
+  impactMilestones: {
+    id: "impactMilestones",
+    enabled: true,
+    eyebrowEn: "PROVEN METRICS & JOURNEY",
+    eyebrowAr: "أرقام وإنجازات موثقة",
+    headingEn: "Measuring E3's National Impact",
+    headingAr: "قياس أثر إي ثري على المستوى الوطني",
+    descriptionEn: "Key operational figures verified across E3's tourism, festival, and attraction developments.",
+    descriptionAr: "إحصائيات تشغيلية موثقة في مشاريع وفعاليات إي ثري.",
+    metrics: [
+      { id: "m1", value: "760K+", labelEn: "Total Event Attendees", labelAr: "إجمالي زوار الفعاليات", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 1 },
+      { id: "m2", value: "1,055m", labelEn: "Record Course Length", labelAr: "طول المضمار القياسي", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 2 },
+      { id: "m3", value: "100%", labelEn: "Safety Compliance", labelAr: "نسبة الالتزام بالسلامة", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 3 },
+      { id: "m4", value: "15+", labelEn: "Major Landmark Events", labelAr: "فعاليات كبرى منفذة", verifiedAt: "2026-01-01", verificationStatus: "VERIFIED", enabled: true, sortOrder: 4 }
+    ],
+    milestones: [
+      { id: "ms1", yearOrDate: "2021", titleEn: "Company Foundation", titleAr: "تأسيس الشركة", descriptionEn: "E3 established in Lusail City to pioneer kinetic entertainment.", descriptionAr: "تأسيس إي ثري في لوسيل لتطوير الترفيه التفاعلي.", enabled: true, sortOrder: 1 },
+      { id: "ms2", yearOrDate: "2023", titleEn: "Guinness World Record™", titleAr: "رقم غينيس القياسي", descriptionEn: "InflataRUN 1,055m course verified globally.", descriptionAr: "توثيق مضمار إنفلاتا ران عالمياً.", enabled: true, sortOrder: 2 },
+      { id: "ms3", yearOrDate: "2024", titleEn: "BookingQube Platform Launch", titleAr: "إطلاق منصة بوكينج كيوب", descriptionEn: "Proprietary ticketing and access control ecosystem deployed.", descriptionAr: "إطلاق منصة التذاكر وإدارة الدخول الذكية.", enabled: true, sortOrder: 3 }
+    ],
+    theme: "INHERIT"
+  },
+  bookingQube: {
+    id: "bookingQube",
+    enabled: true,
+    eyebrowEn: "PROPRIETARY ECOSYSTEM TECH",
+    eyebrowAr: "تكنولوجيا المنظومة الخاصة",
+    headingEn: "Powered By BookingQube™",
+    headingAr: "مدعوم بنظام بوكينج كيوب™",
+    summaryEn: "BookingQube is E3's intelligent ticketing, registration, gate access, and crowd analytics platform.",
+    summaryAr: "منصة بوكينج كيوب هي النظام الذكي لإصدار التذاكر وإدارة البوابات والتحليلات.",
+    fullDescriptionEn: "Engineered specifically for high-capacity physical venues and festivals, BookingQube provides seamless digital passes, VIP wristbands, POS integration, and real-time attendance dashboards.",
+    fullDescriptionAr: "صُممت المنصة خصيصاً للمرافق والفعاليات ذات السعة العالية لتقديم تجربة دخول سلسة ومتابعة مباشرة.",
+    websiteUrl: "https://bookingqube.com",
+    featureItems: [
+      { id: "bq1", titleEn: "Instant Mobile Ticketing", titleAr: "تذاكر رقمية فورية", descriptionEn: "QR & NFC entry passes with apple wallet support.", descriptionAr: "تذاكر عبر الهاتف تدعم المحفظة الرقمية.", icon: "Smartphone", enabled: true, sortOrder: 1 },
+      { id: "bq2", titleEn: "Turnstile & Gate Control", titleAr: "إدارة البوابات والدخول", descriptionEn: "Sub-second scan validation for thousands of guests per hour.", descriptionAr: "تحقق سريع للغاية للآلاف من الزوار.", icon: "ShieldCheck", enabled: true, sortOrder: 2 },
+      { id: "bq3", titleEn: "Live Capacity Analytics", titleAr: "تحليلات السعة المباشرة", descriptionEn: "Real-time crowd heatmaps and operational alerts.", descriptionAr: "خرائط حرارية وتنبيهات تشغيلية مباشرة.", icon: "BarChart3", enabled: true, sortOrder: 3 }
+    ],
+    journeySteps: [
+      { id: "js1", titleEn: "1. Select Attraction", titleAr: "١. اختيار الوجهة", descriptionEn: "Guest chooses experience & time slot.", descriptionAr: "يقوم الزائر باختيار التوقيت والفعالية.", enabled: true, sortOrder: 1 },
+      { id: "js2", titleEn: "2. Instant Pass", titleAr: "٢. التذكرة الفورية", descriptionEn: "Receive QR pass with zero friction.", descriptionAr: "استلام التذكرة مباشرة دون تعقيد.", enabled: true, sortOrder: 2 },
+      { id: "js3", titleEn: "3. Fast Turnstile Access", titleAr: "٣. الدخول السريع", descriptionEn: "Tap and enter the arena seamlessly.", descriptionAr: "مسح التذكرة والدخول السلس.", enabled: true, sortOrder: 3 }
+    ],
+    theme: "DARK"
+  },
+  connect: {
+    id: "connect",
+    enabled: true,
+    eyebrowEn: "OPPORTUNITIES & COLLABORATION",
+    eyebrowAr: "فرص التعاون والشراكة",
+    headingEn: "Connect With The E3 Ecosystem",
+    headingAr: "تواصل مع منظومة إي ثري",
+    descriptionEn: "Whether you are planning a corporate buyout, hiring equipment, or joining our team—discover your gateway below.",
+    descriptionAr: "سواء كنت تخطط لفعالية شركات، تأجير معدات، أو الانضمام لفريقنا—اختر مسارك التالي.",
+    items: [
+      {
+        id: "c1",
+        connectionType: "ORGANISER",
+        tabLabelEn: "Organise With E3",
+        tabLabelAr: "تنظيم الفعاليات",
+        titleEn: "School Trips, Group Buyouts & Corporate Hospitality",
+        titleAr: "رحلات المدارس، حجز الفعاليات، وضيافة الشركات",
+        descriptionEn: "Partner with E3 to host custom group experiences, VIP birthday buyouts, or private brand activations.",
+        descriptionAr: "شريكك المثالي لتنظيم الفعاليات الجماعية والخاصة وحفلات الشركات.",
+        ctaLabelEn: "Visit Organiser Portal",
+        ctaLabelAr: "زيارة بوابة التنظيم",
+        customUrl: "/en/b2c/packages",
+        enabled: true,
+        sortOrder: 1
+      },
+      {
+        id: "c2",
+        connectionType: "RENTALS",
+        tabLabelEn: "E3 Rentals",
+        tabLabelAr: "تأجير المعدات",
+        titleEn: "AV Rigging, Kinetic Lighting & Inflatable Structures",
+        titleAr: "تأجير الإضاءة، الشاشات، والمطاطيات الترفيهية",
+        descriptionEn: "Rent professional stage production equipment, inflatable obstacle courses, and kinetic lighting rigs.",
+        descriptionAr: "معدات إنتاج المسارح الاحترافية والشاشات التفاعلية المتاحة للتأجير.",
+        ctaLabelEn: "Explore Rental Catalogue",
+        ctaLabelAr: "استكشف كتالوج التأجير",
+        customUrl: "/en/b2b/services",
+        enabled: true,
+        sortOrder: 2
+      },
+      {
+        id: "c3",
+        connectionType: "CAREERS",
+        tabLabelEn: "Join The Crew",
+        tabLabelAr: "انضم للفريق",
+        titleEn: "Event Staffing, Production Engineers & Talent Pool",
+        titleAr: "فرص العمل، مهندسو الإنتاج، وفريق الفعاليات",
+        descriptionEn: "E3 is expanding. Join our freelance event database or apply for corporate roles in Lusail.",
+        descriptionAr: "انضم لشبكة مواهب وخبراء الفعاليات لدى إي ثري في قطر.",
+        ctaLabelEn: "View Open Careers",
+        ctaLabelAr: "عرض الوظائف المتاحة",
+        customUrl: "/en/careers",
+        enabled: true,
+        sortOrder: 3
+      }
+    ],
+    theme: "INHERIT"
+  },
+  trustedAcrossQatar: {
+    id: "trustedAcrossQatar",
+    enabled: true,
+    eyebrowEn: "CLIENTS & PARTNERS",
+    eyebrowAr: "شركاؤنا في النجاح",
+    headingEn: "Trusted Across Qatar",
+    headingAr: "ثقة كبرى المؤسسات في قطر",
+    descriptionEn: "We collaborate with leading government entities, venue developers, and global brands.",
+    descriptionAr: "نتعاون مع أبرز الجهات الحكومية والشركات الوطنية والعالمية.",
+    selectedPartnerIds: [],
+    selectedClientIds: [],
+    logoTreatment: "ORIGINAL",
+    ctaLabelEn: "View All Partners",
+    ctaLabelAr: "عرض جميع الشركاء",
+    ctaDestination: "/en/b2b/clients",
+    theme: "INHERIT"
+  },
+  latestInsights: {
+    id: "latestInsights",
+    enabled: true,
+    eyebrowEn: "E3 INSIGHTS & CASE STUDIES",
+    eyebrowAr: "أحدث الأخبار ودراسات الحالة",
+    headingEn: "Latest From E3",
+    headingAr: "جديد إي ثري",
+    descriptionEn: "Discover our recent project breakdowns, event recaps, and spatial engineering articles.",
+    descriptionAr: "اقرأ أحدث المقالات والتقارير عن مشاريعنا وفعالياتنا الترفيهية.",
+    sourceMode: "LATEST",
+    maximumPosts: 3,
+    selectedArticleIds: [],
+    ctaLabelEn: "Explore All Articles",
+    ctaLabelAr: "عرض كافة المقالات",
+    ctaDestination: "/en/b2b/case-studies",
+    theme: "INHERIT"
+  },
+  faqs: {
+    id: "faqs",
+    enabled: true,
+    eyebrowEn: "DISCOVER ANSWERS",
+    eyebrowAr: "أسئلة شائعة",
+    headingEn: "Frequently Asked Questions",
+    headingAr: "الأسئلة الأكثر تكراراً",
+    descriptionEn: "Clear answers regarding E3 operations, corporate buyouts, and technology.",
+    descriptionAr: "إجابات ملموسة حول عمليات إي ثري وحجوزات الشركات والتكنولوجيا.",
+    faqsList: [
+      { id: "faq1", questionEn: "What is E3's core business in Qatar?", questionAr: "ما هو النشاط الأساسي لـ إي ثري في قطر؟", answerEn: "E3 is a spatial entertainment engineering firm that designs, fabricates, operates, and scales landmark attractions and festivals.", answerAr: "إي ثري هي شركة متخصصة في هندسة وتنفيذ وتوزيع والتشغيل المباشر للوجهات والفعاليات الترفيهية.", enabled: true, sortOrder: 1 },
+      { id: "faq2", questionEn: "How does BookingQube integrate with E3 attractions?", questionAr: "كيف يتكامل نظام بوكينج كيوب مع وجهات إي ثري؟", answerEn: "BookingQube handles ticketing, NFC pass issuance, turnstile gates, and real-time crowd analytics for all E3 properties.", answerAr: "يدير بوكينج كيوب التذاكر، البوابات الإلكترونية، والتحليلات المباشرة لحضور الزوار.", enabled: true, sortOrder: 2 },
+      { id: "faq3", questionEn: "Can corporate groups or schools book private sessions?", questionAr: "هل يمكن للمدارس والشركات حجز جلسات خاصة؟", answerEn: "Yes, E3 offers full venue buyouts, VIP birthday packages, and corporate hospitality across all our attractions.", answerAr: "نعم، توفر إي ثري باقات حجز كامل للوجهات وحفلات المدارس والشركات.", enabled: true, sortOrder: 3 }
+    ],
+    theme: "INHERIT"
+  },
+  finalGateway: {
+    id: "finalGateway",
+    enabled: true,
+    eyebrowEn: "NEXT STEPS",
+    eyebrowAr: "الخطوة التالية",
+    headingEn: "Ready To Bring Your Experience To Life?",
+    headingAr: "جاهز لتحويل فكرتك إلى واقع ترفيهي؟",
+    descriptionEn: "Select a pathway below to explore attractions or launch a commercial project with E3.",
+    descriptionAr: "اختر المسار الذي يناسبك لاستكشاف الوجهات أو بدء مشروعك القادم.",
+    gatewayItems: [
+      { id: "g1", titleEn: "Explore Attractions", titleAr: "استكشف الوجهات", descriptionEn: "Browse all active E3 entertainment worlds in Qatar.", descriptionAr: "تصفح جميع عوالم وتجارب إي ثري في قطر.", ctaLabelEn: "View Attractions", ctaLabelAr: "عرض الوجهات", customUrl: "/en/b2c/attractions", enabled: true, sortOrder: 1 },
+      { id: "g2", titleEn: "Start a Commercial Project", titleAr: "ابدأ مشروعاً تجارياً", descriptionEn: "Work with E3 on spatial design, fabrication, or operation.", descriptionAr: "تعاون معنا لتصميم وتنفيذ وجهتك الترفيهية.", ctaLabelEn: "Contact B2B Team", ctaLabelAr: "تواصل مع فريق الأعمال", customUrl: "/en/b2b/contact", enabled: true, sortOrder: 2 }
+    ],
+    theme: "DARK"
+  },
+  seo: {
+    metaTitleEn: "Discover E3 Qatar | Immersive Entertainment & Engineering",
+    metaTitleAr: "استكشف إي ثري قطر | الهندسة والترفيه التفاعلي الغامر",
+    metaDescriptionEn: "Discover the E3 story, leadership, record-breaking InflataRUN achievement, BookingQube tech, and group packages in Qatar.",
+    metaDescriptionAr: "تعرف على قصة إي ثري قطر، قيادتها، رقم غينيس القياسي، وتكنولوجيا بوكينج كيوب والفعاليات.",
+    indexingDirective: "INDEX",
+    followDirective: "FOLLOW"
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
  */
 export function getMergedCMSPageContent(slug: string, rawContent?: any) {
-  if (slug === 'b2c-packages') {
-    const defaults = DEFAULT_B2C_PACKAGES_CONTENT;
+  if (slug === 'b2c-discover' || slug === 'discover') {
+    const discoverDefaults = DEFAULT_B2C_DISCOVER_CONTENT;
     const raw = rawContent || {};
     return {
-      ...defaults,
+      ...discoverDefaults,
       ...raw,
       hero: {
-        ...defaults.hero,
-        ...(raw.hero || {}),
+        ...discoverDefaults.hero,
+        ...(raw.hero || {})
       },
-      packages: (raw.packages && raw.packages.length > 0) ? raw.packages : defaults.packages,
-      inquiryForm: {
-        ...defaults.inquiryForm,
-        ...(raw.inquiryForm || {}),
+      about: {
+        ...discoverDefaults.about,
+        ...(raw.about || raw.heritage || {})
+      },
+      leadership: {
+        ...discoverDefaults.leadership,
+        ...(raw.leadership || {})
+      },
+      visionMissionValues: {
+        ...discoverDefaults.visionMissionValues,
+        ...(raw.visionMissionValues || {})
+      },
+      recordBreaking: {
+        ...discoverDefaults.recordBreaking,
+        ...(raw.recordBreaking || {})
+      },
+      impactMilestones: {
+        ...discoverDefaults.impactMilestones,
+        ...(raw.impactMilestones || {})
+      },
+      bookingQube: {
+        ...discoverDefaults.bookingQube,
+        ...(raw.bookingQube || {})
+      },
+      connect: {
+        ...discoverDefaults.connect,
+        ...(raw.connect || {})
+      },
+      trustedAcrossQatar: {
+        ...discoverDefaults.trustedAcrossQatar,
+        ...(raw.trustedAcrossQatar || {})
+      },
+      latestInsights: {
+        ...discoverDefaults.latestInsights,
+        ...(raw.latestInsights || {})
+      },
+      faqs: {
+        ...discoverDefaults.faqs,
+        ...(raw.faqs || {})
+      },
+      finalGateway: {
+        ...discoverDefaults.finalGateway,
+        ...(raw.finalGateway || {})
+      },
+      seo: {
+        ...discoverDefaults.seo,
+        ...(raw.seo || {})
       }
-    };
-  }
-
-  if (slug === 'pulse-orbit' || slug === 'b2c-pulse-orbit' || slug === 'b2b-pulse-orbit') {
-    const isB2B = slug === 'b2b-pulse-orbit';
-    const defaults = isB2B ? DEFAULT_B2B_PULSE_ORBIT_CONTENT : DEFAULT_PULSE_ORBIT_CONTENT;
-    const raw = rawContent || {};
-    const rawDestinations = Array.isArray(raw.destinations) && raw.destinations.length > 0
-      ? raw.destinations
-      : defaults.destinations;
-
-    const mergedDestinations = rawDestinations.map((rawDest: any, idx: number) => {
-      const match = defaults.destinations.find((d: any) => d.id === rawDest.id) || defaults.destinations[idx] || {};
-      return {
-        id: rawDest.id || match.id || `dest-${idx}`,
-        labelEn: (rawDest.labelEn !== undefined && rawDest.labelEn !== null) ? rawDest.labelEn : (match.labelEn || ""),
-        labelAr: (rawDest.labelAr !== undefined && rawDest.labelAr !== null) ? rawDest.labelAr : (match.labelAr || ""),
-        href: (rawDest.href !== undefined && rawDest.href !== null) ? rawDest.href : (match.href || ""),
-        descEn: (rawDest.descEn !== undefined && rawDest.descEn !== null) ? rawDest.descEn : (match.descEn || ""),
-        descAr: (rawDest.descAr !== undefined && rawDest.descAr !== null) ? rawDest.descAr : (match.descAr || ""),
-        mediaUrl: (rawDest.mediaUrl !== undefined && rawDest.mediaUrl !== null && String(rawDest.mediaUrl).trim() !== "") ? String(rawDest.mediaUrl).trim() : (match.mediaUrl || ""),
-        enabled: rawDest.enabled !== undefined ? Boolean(rawDest.enabled) : (match.enabled ?? true),
-      };
-    });
-
-    return {
-      ...defaults,
-      ...raw,
-      titleEn: (raw.titleEn !== undefined && raw.titleEn !== null && String(raw.titleEn).trim() !== '') ? raw.titleEn : defaults.titleEn,
-      titleAr: (raw.titleAr !== undefined && raw.titleAr !== null && String(raw.titleAr).trim() !== '') ? raw.titleAr : defaults.titleAr,
-      navButtonTextEn: (raw.navButtonTextEn !== undefined && raw.navButtonTextEn !== null && String(raw.navButtonTextEn).trim() !== '') ? raw.navButtonTextEn : (defaults as any).navButtonTextEn,
-      navButtonTextAr: (raw.navButtonTextAr !== undefined && raw.navButtonTextAr !== null && String(raw.navButtonTextAr).trim() !== '') ? raw.navButtonTextAr : (defaults as any).navButtonTextAr,
-      logoUrl: (raw.logoUrl !== undefined && raw.logoUrl !== null) ? raw.logoUrl : (defaults as any).logoUrl,
-      destinations: mergedDestinations,
     };
   }
 
