@@ -35,21 +35,35 @@ export function UniversalMediaRenderer({
   controls = false,
   poster
 }: UniversalMediaProps) {
+  const [hasError, setHasError] = React.useState(false)
   
-  if (!src) return null
+  if (!src || hasError) {
+    if (poster) {
+      return (
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
+          <img src={poster} alt={alt} className="w-full h-full object-cover" />
+        </div>
+      )
+    }
+    return (
+      <div className={cn("relative w-full h-full bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-zinc-950 flex items-center justify-center", className)}>
+        <div className="w-12 h-12 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 flex items-center justify-center font-bold text-xs text-[var(--e3-royal-blue)]">
+          E3
+        </div>
+      </div>
+    )
+  }
 
   switch (type) {
     case 'IMAGE':
       return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
-          <Image 
+          <img 
             key={src}
             src={src}
             alt={alt}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={false} // Allow overrides via props if needed in future
+            onError={() => setHasError(true)}
+            className="w-full h-full object-cover"
           />
         </div>
       )
@@ -66,19 +80,20 @@ export function UniversalMediaRenderer({
             muted={muted}
             controls={controls}
             playsInline
+            onError={() => setHasError(true)}
             className="w-full h-full object-cover"
           />
         </div>
       )
       
     case 'IFRAME':
-      // Basic sanitization/check for allowed domains could be added here
       return (
         <div className={cn("relative w-full h-full", className)}>
           <iframe 
             key={src}
             src={src}
             title={alt}
+            onError={() => setHasError(true)}
             className="w-full h-full border-0"
             allow="autoplay; fullscreen; picture-in-picture"
             loading="lazy"
@@ -106,7 +121,7 @@ export function UniversalMediaRenderer({
               )}
             </div>
           }>
-            <SplineViewer scene={src} onError={(err) => console.warn('[UniversalMediaRenderer] Spline load error fallback:', err)} />
+            <SplineViewer scene={src} onError={() => setHasError(true)} />
           </Suspense>
         </div>
       )
@@ -124,7 +139,7 @@ export function UniversalMediaRenderer({
                 )}
               </div>
             }>
-              <SplineViewer scene={src} onError={(err) => console.warn('[UniversalMediaRenderer] Spline load error fallback:', err)} />
+              <SplineViewer scene={src} onError={() => setHasError(true)} />
             </Suspense>
           </div>
         )

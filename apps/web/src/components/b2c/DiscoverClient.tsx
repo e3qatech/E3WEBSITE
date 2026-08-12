@@ -12,7 +12,8 @@ import {
   Download, 
   ArrowRight, 
   FileText,
-  Award
+  Award,
+  X
 } from "lucide-react";
 
 import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
@@ -51,6 +52,7 @@ export function DiscoverClient({
   useB2CTheme();
 
   const [_activeConnectTab, _setActiveConnectTab] = useState<number>(0);
+  const [activeLeaderModal, setActiveLeaderModal] = useState<any | null>(null);
 
   const content = initialSettings || {};
   const sectionOrder: string[] = content.sectionOrder || [
@@ -229,19 +231,20 @@ export function DiscoverClient({
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {messages.map((msg: any) => {
                     const profile = msg.teamMemberId ? employeeProfileMap.get(msg.teamMemberId) : null;
                     const portrait = profile?.profileImage || msg.mediaOverrideUrl || msg.imageUrl || msg.avatarUrl;
                     const name = isAr ? (msg.nameAr || (profile ? `${profile.firstName} ${profile.lastName}` : msg.nameEn)) : (profile ? `${profile.firstName} ${profile.lastName}` : msg.nameEn);
                     const title = isAr ? (msg.messageTitleAr || msg.messageTitleEn || profile?.designation) : (msg.messageTitleEn || profile?.designation);
+                    const fullMsgText = isAr ? (msg.fullMessageAr || msg.fullMessageEn) : (msg.fullMessageEn || msg.fullMessageAr);
 
                     return (
-                      <InteractiveCard key={msg.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Side Image Placeholder Area */}
-                        <div className="relative w-full md:w-5/12 h-64 md:h-auto bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-black overflow-hidden flex items-center justify-center shrink-0">
+                      <InteractiveCard key={msg.id} className="overflow-hidden flex flex-col md:flex-row items-stretch border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl p-6 md:p-8 gap-6 md:gap-8" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* Side Portrait Frame Area */}
+                        <div className="relative w-full md:w-5/12 aspect-[4/5] md:aspect-auto md:min-h-[280px] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-black shrink-0 shadow-lg flex items-center justify-center">
                           {portrait ? (
-                            <img src={portrait} alt={name || "Leader"} className="w-full h-full object-cover" />
+                            <img src={portrait} alt={name || "Leader"} className="w-full h-full object-cover object-top" />
                           ) : (
                             <div className="relative w-full h-full flex items-center justify-center bg-[var(--e3-deep-blue)]/80">
                               <div className="w-20 h-20 rounded-full bg-[var(--e3-royal-blue)]/30 border border-[var(--e3-royal-blue)]/60 flex items-center justify-center font-bold text-2xl text-[var(--e3-royal-blue)] shadow-2xl">
@@ -249,15 +252,15 @@ export function DiscoverClient({
                               </div>
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area beside Image */}
-                        <div className="p-6 md:p-8 w-full md:w-7/12 flex-1 flex flex-col justify-between space-y-4">
-                          <div className="space-y-4">
+                        {/* Content Area beside Image */}
+                        <div className="w-full md:w-7/12 flex flex-col justify-between space-y-4">
+                          <div className="space-y-3">
                             <div className="flex items-center gap-3">
                               {portrait && (
-                                <img src={portrait} alt={name || "Leader"} className="w-10 h-10 rounded-full object-cover border border-[var(--e3-royal-blue)] shadow-md" />
+                                <img src={portrait} alt={name || "Leader"} className="w-9 h-9 rounded-full object-cover border border-[var(--e3-royal-blue)] shadow-md" />
                               )}
                               <div>
                                 <h3 className="font-extrabold text-base md:text-lg text-[var(--text-primary)] font-display uppercase">{name}</h3>
@@ -271,10 +274,19 @@ export function DiscoverClient({
                               </blockquote>
                             )}
 
-                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
-                              {isAr ? (msg.fullMessageAr || msg.fullMessageEn) : (msg.fullMessageEn || msg.fullMessageAr)}
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium line-clamp-3">
+                              {fullMsgText}
                             </p>
                           </div>
+
+                          {/* Practical Read Full Perspective Popup Trigger Button */}
+                          <button
+                            onClick={() => setActiveLeaderModal({ ...msg, portrait, name, title, fullMsgText })}
+                            className="inline-flex items-center gap-2 self-start px-4 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-[11px] font-bold uppercase tracking-wider transition-all shadow-md group"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover:text-white transition-colors" />
+                            <span>{isAr ? "اقرأ الكلمة كاملة" : "Read Full Perspective"}</span>
+                          </button>
                         </div>
                       </InteractiveCard>
                     );
@@ -715,6 +727,53 @@ export function DiscoverClient({
 
         return null;
       })}
+
+      {/* Leadership Full Message Popup Modal */}
+      {activeLeaderModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn" onClick={() => setActiveLeaderModal(null)}>
+          <div className="relative w-full max-w-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden text-left rtl:text-right space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setActiveLeaderModal(null)}
+              className="absolute top-6 right-6 rtl:left-6 rtl:right-auto p-2 rounded-full bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-white border border-[var(--border-level-2)] transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b border-[var(--border-level-2)]">
+              {activeLeaderModal.portrait ? (
+                <img src={activeLeaderModal.portrait} alt={activeLeaderModal.name} className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover border-2 border-[var(--e3-royal-blue)] shadow-xl shrink-0" />
+              ) : (
+                <div className="w-24 h-24 rounded-2xl bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)] flex items-center justify-center font-bold text-3xl text-[var(--e3-royal-blue)] shrink-0">
+                  {activeLeaderModal.name?.charAt(0) || "E3"}
+                </div>
+              )}
+              <div className="space-y-1 text-center md:text-left rtl:md:text-right">
+                <h3 className="text-2xl font-black text-[var(--text-primary)] font-display uppercase">{activeLeaderModal.name}</h3>
+                <p className="text-sm font-mono font-bold text-[var(--e3-royal-blue)] uppercase tracking-wider">{activeLeaderModal.title}</p>
+              </div>
+            </div>
+
+            {(activeLeaderModal.pullQuoteEn || activeLeaderModal.pullQuoteAr) && (
+              <blockquote className="text-sm md:text-base font-semibold italic text-[var(--e3-royal-blue)] border-l-4 rtl:border-l-0 rtl:border-r-4 border-[var(--e3-royal-blue)] pl-4 rtl:pl-0 rtl:pr-4 py-2 bg-[var(--surface-hover)]/40 rounded-r-xl rtl:rounded-r-none rtl:rounded-l-xl">
+                &ldquo;{isAr ? (activeLeaderModal.pullQuoteAr || activeLeaderModal.pullQuoteEn) : (activeLeaderModal.pullQuoteEn || activeLeaderModal.pullQuoteAr)}&rdquo;
+              </blockquote>
+            )}
+
+            <div className="space-y-4 text-sm text-[var(--text-secondary)] leading-relaxed font-medium whitespace-pre-line">
+              {activeLeaderModal.fullMsgText}
+            </div>
+
+            <div className="pt-6 border-t border-[var(--border-level-2)] flex justify-end">
+              <button
+                onClick={() => setActiveLeaderModal(null)}
+                className="px-6 py-2.5 rounded-xl bg-[var(--e3-royal-blue)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity shadow-lg"
+              >
+                {isAr ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

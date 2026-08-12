@@ -374,12 +374,23 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     </select>
                   </div>
                   <div className="col-span-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Desktop Media URL</label>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Media Picker (File Upload / Asset Browser)</label>
                     <AdminMediaPicker
                       value={data.hero?.mediaUrl || ""}
                       onChange={url => updateSectionField("hero", "mediaUrl", url)}
                       accept="image/*,video/*"
                     />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Or Paste 3D Scene / Spline / Iframe Embed URL</label>
+                    <input
+                      type="text"
+                      value={data.hero?.mediaUrl || ""}
+                      onChange={e => updateSectionField("hero", "mediaUrl", e.target.value)}
+                      placeholder="https://my.spline.design/... or https://prod.spline.design/.../scene.splinecode"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none font-mono"
+                    />
+                    <p className="text-[10px] text-text-secondary opacity-70 mt-1">Paste any Spline 3D link, YouTube/Vimeo Iframe URL, or GLB 3D model path directly.</p>
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-text-secondary uppercase">Mobile Fallback Media URL</label>
@@ -392,7 +403,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Video Poster Media URL</label>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Video / 3D Fallback Poster Image</label>
                     <input
                       type="text"
                       value={data.hero?.posterMediaUrl || ""}
