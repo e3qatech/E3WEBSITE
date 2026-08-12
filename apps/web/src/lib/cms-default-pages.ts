@@ -236,6 +236,8 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     ]
   },
   guestMemories: {
+    badgeEn: "EVERLASTING MEMORIES — GPU PARALLAX",
+    badgeAr: "ذكريات لا تُنسى — EVERLASTING MEMORIES",
     headlineEn: "The Moment Becomes a Memory",
     headlineAr: "اللحظة تتحول إلى ذكرى تدوم",
     subtextEn: "Real smiles, real reactions, and everlasting memories captured at E3 Qatar destinations.",

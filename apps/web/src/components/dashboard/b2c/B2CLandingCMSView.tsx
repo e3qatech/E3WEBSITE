@@ -7,6 +7,7 @@ import { Save, Sparkles, Users, CheckCircle, UserCheck, ShieldCheck } from 'luci
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { resolveMediaType } from '@/lib/media-resolver'
+import { EverlastingMemoriesManager } from './content/EverlastingMemoriesManager'
 
 interface B2CLandingCMSViewProps {
   initialData?: any
@@ -444,6 +445,9 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
           )}
         </div>
       </div>
+
+      {/* Everlasting Memories Section Manager */}
+      <EverlastingMemoriesManager />
 
       {/* Universal Footer Media Section */}
       <UniversalMediaSectionEditor
