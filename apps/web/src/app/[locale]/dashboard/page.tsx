@@ -1,4 +1,4 @@
-import { Plus, Calendar, ArrowRight, Activity, CheckCircle2 } from "lucide-react"
+import { Plus, Calendar, ArrowRight, Activity, CheckCircle2, MapPin } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { StatsGrid, StatItem } from "@/components/dashboard/StatsGrid"
 import { KanbanBoard, Lead } from "@/components/dashboard/KanbanBoard"
@@ -147,6 +147,11 @@ export default async function DashboardOverviewPage() {
         </div>
         
         <div className="relative z-10 flex flex-wrap items-center gap-3">
+          <Link href="/dashboard/b2c/locations">
+            <AdminButton variant="outline" leftIcon={<MapPin className="w-4 h-4 text-[var(--e3-royal-blue)]" />}>
+              Locations & Map GIS
+            </AdminButton>
+          </Link>
           <Link href="/dashboard/b2c/calendar">
             <AdminButton variant="outline" leftIcon={<Calendar className="w-4 h-4" />}>
               Calendar
