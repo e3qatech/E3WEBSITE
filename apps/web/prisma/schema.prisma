@@ -686,6 +686,7 @@ model EmployeeProfile {
   lastNameAr        String?
   availability      AvailabilitySlot[]
   caseStudies       CaseStudyTeamMember[]
+  insights          Insight[]
 
   @@index([department])
   @@index([isActive])
@@ -697,6 +698,7 @@ enum RoleType {
   SUPPORT_ADMIN
   STAFF
   CLIENT
+  CANDIDATE
 }
 
 enum PageStatus {
@@ -732,6 +734,8 @@ enum LeadStatus {
   CONTACTED
   QUALIFIED
   PROPOSAL
+  PROPOSAL_SENT
+  NEGOTIATING
   WON
   LOST
 }
@@ -929,4 +933,73 @@ model BrandPlacement {
   locations    Location[]
 
   @@unique([brandId, attractionId, role])
+}
+
+model Insight {
+  id                      String           @id @default(cuid())
+  contentType             String           @default("ARTICLE") // ARTICLE, NEWS, PRESS_RELEASE, EVENT_RECAP, TECHNICAL_INSIGHT, ANNOUNCEMENT, MEDIA_UPDATE
+  titleEn                 String
+  titleAr                 String?
+  slugEn                  String           @unique
+  slugAr                  String?          @unique
+  excerptEn               String?
+  excerptAr               String?
+  bodyEn                  String?
+  bodyAr                  String?
+  featuredMediaId         String?
+  mobileMediaId           String?
+  galleryMediaIds         Json?
+  videoMediaId            String?
+  authorEmployeeProfileId String?
+  categoryId              String?
+  tagIds                  Json?
+  relatedProjectIds       Json?
+  relatedCaseStudyIds     Json?
+  relatedServiceIds       Json?
+  relatedAttractionIds    Json?
+  relatedPartnerIds       Json?
+  relatedClientIds        Json?
+  sourceLabel             String?
+  sourceUrl               String?
+  publishStatus           String           @default("DRAFT") // DRAFT, IN_REVIEW, SCHEDULED, PUBLISHED, ARCHIVED
+  publishedAt             DateTime?
+  scheduledAt             DateTime?
+  expiresAt               DateTime?
+  featured                Boolean          @default(false)
+  restricted              Boolean          @default(false)
+  sortOrder               Int              @default(0)
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  createdBy               String?
+  updatedBy               String?
+
+  // SEO Fields
+  metaTitleEn             String?
+  metaTitleAr             String?
+  metaDescriptionEn       String?
+  metaDescriptionAr       String?
+  canonicalUrlEn          String?
+  canonicalUrlAr          String?
+  ogTitleEn               String?
+  ogTitleAr               String?
+  ogDescriptionEn         String?
+  ogDescriptionAr         String?
+  ogImageMediaId          String?
+  twitterTitleEn          String?
+  twitterTitleAr          String?
+  twitterDescriptionEn    String?
+  twitterDescriptionAr    String?
+  twitterImageMediaId     String?
+  indexingDirective       String?          @default("INDEX_FOLLOW")
+  focusTopicEn            String?
+  focusTopicAr            String?
+  secondaryTopicsEn       Json?
+  secondaryTopicsAr       Json?
+
+  author                  EmployeeProfile? @relation(fields: [authorEmployeeProfileId], references: [id])
+
+  @@index([publishStatus])
+  @@index([contentType])
+  @@index([publishedAt])
+  @@index([featured])
 }

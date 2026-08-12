@@ -23,8 +23,9 @@ import {
   Users,
   Building2,
   FileText,
-  HelpCircle,
-  Link as LinkIcon
+  Link as LinkIcon,
+  CheckCircle2,
+  Info
 } from "lucide-react"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
@@ -42,9 +43,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       connect: { ...DEFAULT_B2C_DISCOVER_CONTENT.connect, ...(initialData?.connect || {}) },
       trustedAcrossQatar: { ...DEFAULT_B2C_DISCOVER_CONTENT.trustedAcrossQatar, ...(initialData?.trustedAcrossQatar || {}) },
       latestInsights: { ...DEFAULT_B2C_DISCOVER_CONTENT.latestInsights, ...(initialData?.latestInsights || {}) },
-      faqs: { ...DEFAULT_B2C_DISCOVER_CONTENT.faqs, ...(initialData?.faqs || {}) },
       finalGateway: { ...DEFAULT_B2C_DISCOVER_CONTENT.finalGateway, ...(initialData?.finalGateway || {}) },
-      sectionOrder: initialData?.sectionOrder || DEFAULT_B2C_DISCOVER_CONTENT.sectionOrder,
+      sectionOrder: initialData?.sectionOrder || [
+        "hero", "about", "leadership", "visionMissionValues", "recordBreaking", 
+        "impactMilestones", "bookingQube", "connect", "trustedAcrossQatar", 
+        "latestInsights", "finalGateway"
+      ],
     }
   })
 
@@ -53,47 +57,43 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
-  // References for multi-select pickers
+  // Dynamic references
   const [teamMembers, setTeamMembers] = useState<any[]>([])
   const [partners, setPartners] = useState<any[]>([])
   const [clients, setClients] = useState<any[]>([])
-  const [caseStudies, setCaseStudies] = useState<any[]>([])
+  const [insights, setInsights] = useState<any[]>([])
 
   useEffect(() => {
-    // Fetch Team Members
-    fetch('/api/cms/team')
+    fetch('/api/team')
       .then(res => res.json())
       .then(resData => {
         if (Array.isArray(resData)) setTeamMembers(resData)
         else if (resData.team) setTeamMembers(resData.team)
       })
-      .catch(() => {})
+      .catch(console.error)
 
-    // Fetch Partners
     fetch('/api/partners')
       .then(res => res.json())
       .then(resData => {
         if (Array.isArray(resData)) setPartners(resData)
+        else if (resData.data) setPartners(resData.data)
       })
-      .catch(() => {})
+      .catch(console.error)
 
-    // Fetch Clients
     fetch('/api/crm/clients')
       .then(res => res.json())
       .then(resData => {
         if (Array.isArray(resData)) setClients(resData)
         else if (resData.clients) setClients(resData.clients)
       })
-      .catch(() => {})
+      .catch(console.error)
 
-    // Fetch Case Studies
-    fetch('/api/b2b/cases')
+    fetch('/api/insights')
       .then(res => res.json())
       .then(resData => {
-        if (Array.isArray(resData)) setCaseStudies(resData)
-        else if (resData.caseStudies) setCaseStudies(resData.caseStudies)
+        if (Array.isArray(resData.data)) setInsights(resData.data)
       })
-      .catch(() => {})
+      .catch(console.error)
   }, [])
 
   const handleSave = async () => {
@@ -136,7 +136,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
 
   const moveSectionOrder = (index: number, direction: 'up' | 'down') => {
     setData((prev: any) => {
-      const newOrder = [...(prev.sectionOrder || DEFAULT_B2C_DISCOVER_CONTENT.sectionOrder)]
+      const currentOrder = prev.sectionOrder || [
+        "hero", "about", "leadership", "visionMissionValues", "recordBreaking", 
+        "impactMilestones", "bookingQube", "connect", "trustedAcrossQatar", 
+        "latestInsights", "finalGateway"
+      ]
+      const newOrder = [...currentOrder]
       const targetIndex = direction === 'up' ? index - 1 : index + 1
       if (targetIndex < 0 || targetIndex >= newOrder.length) return prev
       const temp = newOrder[index]
@@ -157,8 +162,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     { id: "connect", label: "8. Connect Gateways" },
     { id: "trustedAcrossQatar", label: "9. Clients & Partners" },
     { id: "latestInsights", label: "10. Insights & News" },
-    { id: "faqs", label: "11. FAQs" },
-    { id: "finalGateway", label: "12. Final Gateway" },
+    { id: "finalGateway", label: "11. Final Gateway" },
     { id: "ordering", label: "Section Ordering" },
     { id: "seo", label: "SEO & AEO Settings" }
   ]
@@ -167,7 +171,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     <div className="flex flex-col gap-6 h-full p-6 max-w-6xl mx-auto">
       <AdminPageHeader 
         title="B2C Discover Page Manager"
-        description="Configure the complete E3 corporate story, leadership perspectives, BookingQube tech, and opportunity gateways."
+        description="Configure E3 corporate story, leadership, record achievements, BookingQube tech, and opportunity gateways."
         action={
           <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save Discover Page"}
@@ -181,10 +185,10 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
               activeTab === tab.id 
-                ? "bg-primary text-white" 
-                : "bg-surface-hover text-text-secondary hover:text-text-primary"
+                ? "bg-color-primary text-white" 
+                : "bg-surface-subtle text-text-secondary hover:text-text-primary"
             }`}
           >
             {tab.label}
@@ -193,111 +197,71 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       </div>
 
       <AdminFormLayout>
-
-        {/* 1. HERO SECTION */}
+        {/* 1. HERO TAB */}
         {activeTab === "hero" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-border-default">
-              <h2 className="text-lg font-bold text-text-primary">1. Discover Hero Section</h2>
-              <button 
-                onClick={() => toggleSectionEnabled("hero")}
-                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
-                  data.hero?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
-                }`}
-              >
-                {data.hero?.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {data.hero?.enabled ? "Enabled" : "Disabled"}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (En)</label>
+            <h2 className="text-lg font-bold text-text-primary">1. Hero Section</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Headline (En)</label>
                 <input 
                   type="text" 
-                  value={data.hero?.eyebrowEn || ""} 
-                  onChange={e => updateSectionField("hero", "eyebrowEn", e.target.value)}
+                  value={data.hero?.headlineEn || ""} 
+                  onChange={e => updateSectionField("hero", "headlineEn", e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (Ar)</label>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Headline (Ar)</label>
                 <input 
                   type="text" 
                   dir="rtl"
-                  value={data.hero?.eyebrowAr || ""} 
-                  onChange={e => updateSectionField("hero", "eyebrowAr", e.target.value)}
+                  value={data.hero?.headlineAr || ""} 
+                  onChange={e => updateSectionField("hero", "headlineAr", e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Title (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.titleEn || ""} 
-                  onChange={e => updateSectionField("hero", "titleEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Title (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero?.titleAr || ""} 
-                  onChange={e => updateSectionField("hero", "titleAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Subtitle (En)</label>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Subtext (En)</label>
                 <textarea 
-                  value={data.hero?.subtitleEn || ""} 
-                  onChange={e => updateSectionField("hero", "subtitleEn", e.target.value)}
-                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                  rows={2}
+                  value={data.hero?.subtextEn || ""} 
+                  onChange={e => updateSectionField("hero", "subtextEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Subtitle (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.hero?.subtitleAr || ""} 
-                  onChange={e => updateSectionField("hero", "subtitleAr", e.target.value)}
-                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
-                />
-              </div>
-
-              <div className="col-span-2 space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Hero Media</label>
-                <AdminMediaPicker 
-                  value={data.hero?.mediaUrl || ""} 
-                  onChange={url => updateSectionField("hero", "mediaUrl", url)} 
-                />
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase block mb-1">Hero Media (Image / Video / 3D Model / Iframe)</label>
+                <div className="flex gap-4 items-center">
+                  <select
+                    value={data.hero?.mediaType || "IMAGE"}
+                    onChange={e => updateSectionField("hero", "mediaType", e.target.value)}
+                    className="bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none cursor-pointer"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="MODEL_3D">3D Model</option>
+                    <option value="IFRAME">Iframe</option>
+                  </select>
+                  <div className="flex-1">
+                    <AdminMediaPicker
+                      value={data.hero?.mediaUrl || ""}
+                      onChange={url => updateSectionField("hero", "mediaUrl", url)}
+                      accept="image/*,video/*"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* 2. ABOUT E3 SECTION */}
+        {/* 2. ABOUT E3 TAB */}
         {activeTab === "about" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-border-default">
-              <h2 className="text-lg font-bold text-text-primary">2. About E3 Section</h2>
-              <button 
-                onClick={() => toggleSectionEnabled("about")}
-                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
-                  data.about?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
-                }`}
-              >
-                {data.about?.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {data.about?.enabled ? "Enabled" : "Disabled"}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <h2 className="text-lg font-bold text-text-primary">2. About E3 & Corporate Profile Link</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
                 <input 
                   type="text" 
@@ -306,7 +270,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
-              <div className="space-y-2">
+              <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
                 <input 
                   type="text" 
@@ -317,53 +281,56 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Summary (En)</label>
-                <textarea 
-                  value={data.about?.summaryEn || ""} 
-                  onChange={e => updateSectionField("about", "summaryEn", e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Summary (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.about?.summaryAr || ""} 
-                  onChange={e => updateSectionField("about", "summaryAr", e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
-                />
-              </div>
+              <div className="col-span-2 p-4 bg-surface-subtle rounded-xl border border-border-default space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-text-primary uppercase flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-color-primary" /> Editable Corporate Profile Download Link
+                  </span>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={data.about?.companyProfileEnabled ?? true}
+                      onChange={e => updateSectionField("about", "companyProfileEnabled", e.target.checked)}
+                      className="rounded text-color-primary"
+                    />
+                    <span className="text-xs font-bold text-text-primary">Enable Link</span>
+                  </label>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Established Year</label>
-                <input 
-                  type="number" 
-                  value={data.about?.establishedYear || 2020} 
-                  onChange={e => updateSectionField("about", "establishedYear", parseInt(e.target.value) || 2020)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Headquarters (En)</label>
-                <input 
-                  type="text" 
-                  value={data.about?.headquartersEn || ""} 
-                  onChange={e => updateSectionField("about", "headquartersEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-
-              <div className="col-span-2 space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Corporate Profile PDF URL</label>
-                <input 
-                  type="text" 
-                  value={data.about?.companyProfileFileUrl || ""} 
-                  onChange={e => updateSectionField("about", "companyProfileFileUrl", e.target.value)}
-                  placeholder="https://blob.vercel-storage.com/e3-profile.pdf"
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Label (En)</label>
+                    <input
+                      type="text"
+                      value={data.about?.companyProfileLabelEn || "Download Corporate Profile (PDF)"}
+                      onChange={e => updateSectionField("about", "companyProfileLabelEn", e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Label (Ar)</label>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      value={data.about?.companyProfileLabelAr || "تحميل الملف التعريفي للشركة (PDF)"}
+                      onChange={e => updateSectionField("about", "companyProfileLabelAr", e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Profile Document URL</label>
+                    <input
+                      type="text"
+                      value={data.about?.companyProfileUrl || data.about?.companyProfileFileUrl || ""}
+                      onChange={e => {
+                        updateSectionField("about", "companyProfileUrl", e.target.value)
+                        updateSectionField("about", "companyProfileFileUrl", e.target.value)
+                      }}
+                      placeholder="https://e3.qa/downloads/E3_Corporate_Profile_2024.pdf"
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -385,8 +352,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
                 <input 
                   type="text" 
@@ -395,7 +362,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
-              <div className="space-y-2">
+              <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
                 <input 
                   type="text" 
@@ -410,7 +377,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
             {/* Messages Repeater */}
             <div className="space-y-4 pt-4 border-t border-border-default">
               <div className="flex justify-between items-center">
-                <h3 className="text-sm font-bold text-text-primary">Leadership Editorial Messages</h3>
+                <h3 className="text-sm font-bold text-text-primary">Leadership Messages (Linked to EmployeeProfile)</h3>
                 <AdminButton 
                   variant="secondary" 
                   size="sm"
@@ -419,8 +386,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     newMsgs.push({
                       id: `msg-${Date.now()}`,
                       teamMemberId: "",
-                      messageTitleEn: "Executive Note",
-                      messageTitleAr: "كلمة تنفيذية",
+                      messageTitleEn: "Executive Perspective",
+                      messageTitleAr: "رؤية تنفيذية",
                       pullQuoteEn: "",
                       pullQuoteAr: "",
                       fullMessageEn: "",
@@ -452,7 +419,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-text-secondary uppercase">Link Team Member (EmployeeProfile)</label>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Link Active Team Member (EmployeeProfile)</label>
                       <select
                         value={msg.teamMemberId || ""}
                         onChange={e => {
@@ -460,19 +427,19 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                           newMsgs[idx].teamMemberId = e.target.value
                           updateSectionField("leadership", "messages", newMsgs)
                         }}
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
                       >
                         <option value="">-- Select Team Member --</option>
                         {teamMembers.map((m: any) => (
                           <option key={m.id} value={m.id}>
-                            {m.firstName} {m.lastName} ({m.designation})
+                            {m.firstName} {m.lastName} ({m.designation || "Team"})
                           </option>
                         ))}
                       </select>
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-text-secondary uppercase">Title (En)</label>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Message Title (En)</label>
                       <input 
                         type="text" 
                         value={msg.messageTitleEn || ""} 
@@ -481,7 +448,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                           newMsgs[idx].messageTitleEn = e.target.value
                           updateSectionField("leadership", "messages", newMsgs)
                         }}
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
 
@@ -495,7 +462,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                           newMsgs[idx].pullQuoteEn = e.target.value
                           updateSectionField("leadership", "messages", newMsgs)
                         }}
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -509,7 +476,10 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         {activeTab === "recordBreaking" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
             <div className="flex justify-between items-center pb-4 border-b border-border-default">
-              <h2 className="text-lg font-bold text-text-primary">5. Guinness World Record™ Achievement</h2>
+              <div>
+                <h2 className="text-lg font-bold text-text-primary">5. Guinness World Record™ Achievement & Evidence</h2>
+                <p className="text-xs text-text-secondary">E3 InflataRUN 1,055m statement is published. Logo and certificate require evidence approval below.</p>
+              </div>
               <button 
                 onClick={() => toggleSectionEnabled("recordBreaking")}
                 className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
@@ -521,34 +491,23 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Verification Status</label>
-                <select
-                  value={data.recordBreaking?.verificationStatus || "VERIFIED"}
-                  onChange={e => updateSectionField("recordBreaking", "verificationStatus", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none font-bold"
-                >
-                  <option value="DRAFT">DRAFT (Hidden Badges & Unverified)</option>
-                  <option value="EVIDENCE_UPLOADED">EVIDENCE_UPLOADED</option>
-                  <option value="UNDER_REVIEW">UNDER_REVIEW</option>
-                  <option value="VERIFIED">VERIFIED (Public Badges Approved)</option>
-                  <option value="PUBLISHED">PUBLISHED</option>
-                  <option value="ARCHIVED">ARCHIVED</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Official Record Title (En)</label>
-                <input 
-                  type="text" 
-                  value={data.recordBreaking?.officialRecordTitleEn || ""} 
-                  onChange={e => updateSectionField("recordBreaking", "officialRecordTitleEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+            <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl space-y-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.recordBreaking?.brandingUsageApproved ?? false}
+                  onChange={e => updateSectionField("recordBreaking", "brandingUsageApproved", e.target.checked)}
+                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
                 />
-              </div>
+                <div>
+                  <span className="text-sm font-extrabold text-text-primary">Guinness World Records™ Official Branding & Logo Approved</span>
+                  <p className="text-xs text-text-secondary">When enabled, renders official badge, certificate image, and structured-data award.</p>
+                </div>
+              </label>
+            </div>
 
-              <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Measurement Value</label>
                 <input 
                   type="text" 
@@ -557,8 +516,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none font-mono"
                 />
               </div>
-
-              <div className="space-y-2">
+              <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Measurement Unit (En)</label>
                 <input 
                   type="text" 
@@ -567,14 +525,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
-
-              <div className="col-span-2 space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Case Study CTA Destination</label>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Official Record Title (En)</label>
                 <input 
                   type="text" 
-                  value={data.recordBreaking?.ctaDestination || ""} 
-                  onChange={e => updateSectionField("recordBreaking", "ctaDestination", e.target.value)}
-                  placeholder="/en/b2b/case-studies/inflatarun"
+                  value={data.recordBreaking?.officialRecordTitleEn || ""} 
+                  onChange={e => updateSectionField("recordBreaking", "officialRecordTitleEn", e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
@@ -585,39 +541,98 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         {/* 9. CLIENTS & PARTNERS */}
         {activeTab === "trustedAcrossQatar" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-border-default">
-              <h2 className="text-lg font-bold text-text-primary">9. Trusted Across Qatar (Clients & Partners)</h2>
-              <button 
-                onClick={() => toggleSectionEnabled("trustedAcrossQatar")}
-                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
-                  data.trustedAcrossQatar?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
-                }`}
-              >
-                {data.trustedAcrossQatar?.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {data.trustedAcrossQatar?.enabled ? "Enabled" : "Disabled"}
-              </button>
-            </div>
+            <h2 className="text-lg font-bold text-text-primary">9. Trusted Across Qatar (Clients & Partners)</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Select Partners (from Database)</label>
+                <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-48 overflow-y-auto space-y-1">
+                  {partners.map(p => {
+                    const selected = (data.trustedAcrossQatar?.selectedPartnerIds || []).includes(p.id)
+                    return (
+                      <label key={p.id} className="flex items-center gap-2 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={e => {
+                            const cur = [...(data.trustedAcrossQatar?.selectedPartnerIds || [])]
+                            const updated = e.target.checked ? [...cur, p.id] : cur.filter(id => id !== p.id)
+                            updateSectionField("trustedAcrossQatar", "selectedPartnerIds", updated)
+                          }}
+                        />
+                        <span>{p.name}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
-                <input 
-                  type="text" 
-                  value={data.trustedAcrossQatar?.headingEn || ""} 
-                  onChange={e => updateSectionField("trustedAcrossQatar", "headingEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Select Clients (from Database)</label>
+                <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-48 overflow-y-auto space-y-1">
+                  {clients.map(c => {
+                    const selected = (data.trustedAcrossQatar?.selectedClientIds || []).includes(c.id)
+                    return (
+                      <label key={c.id} className="flex items-center gap-2 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={e => {
+                            const cur = [...(data.trustedAcrossQatar?.selectedClientIds || [])]
+                            const updated = e.target.checked ? [...cur, c.id] : cur.filter(id => id !== c.id)
+                            updateSectionField("trustedAcrossQatar", "selectedClientIds", updated)
+                          }}
+                        />
+                        <span>{c.company}</span>
+                      </label>
+                    )
+                  })}
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.trustedAcrossQatar?.headingAr || ""} 
-                  onChange={e => updateSectionField("trustedAcrossQatar", "headingAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
+            </div>
+          </div>
+        )}
+
+        {/* 10. INSIGHTS & NEWS */}
+        {activeTab === "latestInsights" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-text-primary">10. Latest Insights & News Connection</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Source Mode</label>
+                <select
+                  value={data.latestInsights?.sourceMode || "LATEST"}
+                  onChange={e => updateSectionField("latestInsights", "sourceMode", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-xs text-text-primary focus:outline-none"
+                >
+                  <option value="LATEST">Automatic Latest Articles</option>
+                  <option value="SELECTED">Manually Selected Articles</option>
+                </select>
               </div>
+
+              {data.latestInsights?.sourceMode === "SELECTED" && (
+                <div>
+                  <label className="text-xs font-bold text-text-secondary uppercase">Choose Articles from Central Insights Portal</label>
+                  <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-48 overflow-y-auto space-y-1 mt-1">
+                    {insights.map(ins => {
+                      const selected = (data.latestInsights?.selectedArticleIds || []).includes(ins.id)
+                      return (
+                        <label key={ins.id} className="flex items-center gap-2 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={e => {
+                              const cur = [...(data.latestInsights?.selectedArticleIds || [])]
+                              const updated = e.target.checked ? [...cur, ins.id] : cur.filter(id => id !== ins.id)
+                              updateSectionField("latestInsights", "selectedArticleIds", updated)
+                            }}
+                          />
+                          <span>{ins.titleEn} ({ins.contentType})</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -629,7 +644,11 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
             <p className="text-xs text-text-secondary">Reorder the Discover page sections dynamically.</p>
 
             <div className="space-y-2">
-              {(data.sectionOrder || DEFAULT_B2C_DISCOVER_CONTENT.sectionOrder).map((secKey: string, idx: number) => (
+              {(data.sectionOrder || [
+                "hero", "about", "leadership", "visionMissionValues", "recordBreaking", 
+                "impactMilestones", "bookingQube", "connect", "trustedAcrossQatar", 
+                "latestInsights", "finalGateway"
+              ]).map((secKey: string, idx: number) => (
                 <div key={secKey} className="flex justify-between items-center p-3 bg-surface-hover border border-border-default rounded-lg">
                   <span className="text-sm font-bold text-text-primary">{idx + 1}. {secKey}</span>
                   <div className="flex gap-2">
@@ -641,7 +660,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                       <ArrowUp className="w-4 h-4 text-text-primary" />
                     </button>
                     <button 
-                      disabled={idx === (data.sectionOrder?.length || 12) - 1} 
+                      disabled={idx === (data.sectionOrder?.length || 11) - 1} 
                       onClick={() => moveSectionOrder(idx, 'down')}
                       className="p-1 rounded bg-surface-default hover:bg-surface-hover disabled:opacity-30"
                     >
@@ -657,12 +676,11 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         {activeTab === "seo" && (
           <AdminSeoCustomizer 
             formData={{ seo }}
-            setFormData={(data: any) => setSeo(data.seo || data)}
+            setFormData={(d: any) => setSeo(d.seo || d)}
             seo={seo}
             setSeo={setSeo}
           />
         )}
-
       </AdminFormLayout>
     </div>
   )

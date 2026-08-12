@@ -18,10 +18,10 @@ import {
   ArrowRight, 
   Users, 
   Briefcase, 
-  HelpCircle,
   Globe,
   Flame,
-  Layers
+  Layers,
+  FileText
 } from "lucide-react";
 
 import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
@@ -39,7 +39,8 @@ export function DiscoverClient({
   clients = [],
   caseStudies = [],
   services = [],
-  jobs = []
+  jobs = [],
+  insights = []
 }: {
   locale: string;
   initialSettings: any;
@@ -49,12 +50,12 @@ export function DiscoverClient({
   caseStudies?: any[];
   services?: any[];
   jobs?: any[];
+  insights?: any[];
 }) {
   const isAr = locale === "ar";
   useB2CTheme();
 
   const [activeConnectTab, setActiveConnectTab] = useState<number>(0);
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const content = initialSettings || {};
   const sectionOrder: string[] = content.sectionOrder || [
@@ -68,12 +69,13 @@ export function DiscoverClient({
     "connect",
     "trustedAcrossQatar",
     "latestInsights",
-    "faqs",
     "finalGateway"
   ];
 
   // Helper map to match EmployeeProfiles to Leadership Messages
   const employeeProfileMap = new Map(employeeProfiles.map(e => [e.id, e]));
+  const partnersMap = new Map(partners.map(p => [p.id, p]));
+  const clientsMap = new Map(clients.map(c => [c.id, c]));
 
   return (
     <div 
@@ -99,55 +101,37 @@ export function DiscoverClient({
           return (
             <section key="hero" id="hero" className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
               <ImmersiveCanvas />
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-[var(--bg-level-1)] pointer-events-none" />
               
-              <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-8 text-center">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center">
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  transition={{ duration: 0.8 }}
+                  className="space-y-6 max-w-4xl mx-auto"
                 >
-                  {hero.eyebrowEn && (
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 text-[var(--e3-royal-blue)] font-mono text-xs tracking-widest uppercase mb-6 font-bold">
-                      {isAr ? hero.eyebrowAr : hero.eyebrowEn}
-                    </span>
-                  )}
-                  
-                  <AnimatedText 
-                    as="h1" 
-                    text={isAr ? hero.titleAr : hero.titleEn || "The Wow & The How"}
-                    className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] font-display uppercase justify-center"
-                  />
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)]">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {isAr ? "منظومة إي ثري الترفيهية" : "The E3 Qatar Ecosystem"}
+                  </span>
 
-                  <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-3xl mx-auto leading-relaxed font-medium mb-8">
-                    {isAr ? hero.subtitleAr : hero.subtitleEn}
+                  <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05]">
+                    <AnimatedText text={isAr ? hero.headlineAr : hero.headlineEn || "Transforming Spatial Ideas Into Living Landmarks"} />
+                  </h1>
+
+                  <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed">
+                    {isAr ? hero.subtextAr : hero.subtextEn}
                   </p>
 
-                  {hero.supportingTextEn && (
-                    <p className="text-sm text-[var(--text-secondary)]/80 max-w-2xl mx-auto mb-10 font-mono">
-                      {isAr ? hero.supportingTextAr : hero.supportingTextEn}
-                    </p>
+                  {hero.mediaUrl && (
+                    <div className="mt-8 rounded-2xl overflow-hidden border border-[var(--border-level-2)] max-w-3xl mx-auto shadow-2xl">
+                      <UniversalMediaRenderer
+                        src={hero.mediaUrl}
+                        type={(hero.mediaType as any) || "IMAGE"}
+                        alt={isAr ? hero.headlineAr : hero.headlineEn}
+                        className="w-full h-[400px] object-cover"
+                      />
+                    </div>
                   )}
-
-                  <div className="flex flex-wrap gap-4 justify-center">
-                    {hero.primaryCta?.labelEn && (
-                      <a 
-                        href={hero.primaryCta.customUrl || "#about"} 
-                        className="px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-sm tracking-wide uppercase shadow-[0_0_20px_rgba(26,31,214,0.4)] hover:scale-105 transition-all flex items-center gap-2"
-                      >
-                        {isAr ? hero.primaryCta.labelAr : hero.primaryCta.labelEn}
-                        <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
-                      </a>
-                    )}
-                    {hero.secondaryCta?.labelEn && (
-                      <a 
-                        href={hero.secondaryCta.customUrl || "#leadership"} 
-                        className="px-8 py-4 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/60 text-[var(--text-primary)] font-bold text-sm tracking-wide uppercase hover:bg-[var(--surface-hover)] transition-all"
-                      >
-                        {isAr ? hero.secondaryCta.labelAr : hero.secondaryCta.labelEn}
-                      </a>
-                    )}
-                  </div>
                 </motion.div>
               </div>
             </section>
@@ -156,60 +140,53 @@ export function DiscoverClient({
 
         // 2. ABOUT E3 SECTION
         if (sectionKey === "about" && content.about?.enabled !== false) {
-          const about = content.about || {};
-          return (
-            <section key="about" id="about" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/40 backdrop-blur-sm">
-              <div className="max-w-7xl mx-auto px-4 md:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-16">
-                  <div>
-                    <span className="text-xs font-bold text-[var(--e3-royal-blue)] tracking-widest uppercase font-mono mb-2 block">
-                      {isAr ? about.eyebrowAr : about.eyebrowEn || "ABOUT E3"}
-                    </span>
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-6 font-display uppercase">
-                      {isAr ? about.headingAr : about.headingEn || "Transforming Ideas Into Living Landmarks"}
-                    </h2>
-                    <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6 font-medium">
-                      {isAr ? about.summaryAr : about.summaryEn}
-                    </p>
-                    <p className="text-[var(--text-secondary)]/80 text-sm leading-relaxed mb-8">
-                      {isAr ? about.fullStoryAr : about.fullStoryEn}
-                    </p>
+          const abt = content.about || {};
+          const profileUrl = abt.companyProfileUrl || abt.companyProfileFileUrl;
+          const profileEnabled = abt.companyProfileEnabled !== false && !!profileUrl;
 
-                    <div className="flex flex-wrap gap-6 items-center">
-                      {about.establishedYear && (
-                        <div className="px-4 py-2 rounded-xl bg-[var(--e3-midnight)] border border-[var(--e3-royal-blue)]/30 text-xs font-mono">
-                          <span className="text-[var(--text-secondary)]">{isAr ? "سنة التأسيس: " : "Est. Year: "}</span>
-                          <strong className="text-[var(--e3-royal-blue)] font-bold">{about.establishedYear}</strong>
-                        </div>
-                      )}
-                      {about.headquartersEn && (
-                        <div className="px-4 py-2 rounded-xl bg-[var(--e3-midnight)] border border-[var(--e3-purple)]/30 text-xs font-mono">
-                          <span className="text-[var(--text-secondary)]">{isAr ? "المقر الرئيسي: " : "HQ: "}</span>
-                          <strong className="text-[var(--e3-purple)] font-bold">{isAr ? about.headquartersAr : about.headquartersEn}</strong>
-                        </div>
-                      )}
-                      {about.companyProfileFileUrl && (
-                        <a 
-                          href={about.companyProfileFileUrl} 
-                          target="_blank" 
+          return (
+            <section key="about" id="about" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                  <div className="space-y-6">
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)]">
+                      {isAr ? abt.eyebrowAr : abt.eyebrowEn || "ABOUT E3"}
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
+                      {isAr ? abt.headingAr : abt.headingEn}
+                    </h2>
+                    <p className="text-base text-[var(--text-secondary)] leading-relaxed font-medium">
+                      {isAr ? abt.summaryAr : abt.summaryEn}
+                    </p>
+                    {abt.fullStoryEn && (
+                      <p className="text-xs text-[var(--text-tertiary)] leading-relaxed font-medium">
+                        {isAr ? abt.fullStoryAr : abt.fullStoryEn}
+                      </p>
+                    )}
+
+                    {profileEnabled && (
+                      <div className="pt-2">
+                        <a
+                          href={profileUrl}
+                          target={abt.openInNewTab !== false ? "_blank" : "_self"}
                           rel="noopener noreferrer"
-                          className="px-6 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors flex items-center gap-2"
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-all shadow-sm"
                         >
-                          <Download className="w-4 h-4 text-[var(--e3-royal-blue)]" />
-                          {isAr ? about.companyProfileLabelAr : about.companyProfileLabelEn || "Download Profile"}
+                          <FileText className="w-4 h-4 text-[var(--e3-royal-blue)]" />
+                          {isAr ? (abt.companyProfileLabelAr || "تحميل الملف التعريفي للشركة") : (abt.companyProfileLabelEn || "Download Corporate Profile")}
+                          <Download className="w-3.5 h-3.5 opacity-70 ml-1" />
                         </a>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Fact Cards */}
                   <div className="grid grid-cols-2 gap-4">
-                    {Array.isArray(about.factItems) && about.factItems.map((fact: any) => (
-                      <InteractiveCard key={fact.id} className="p-6 text-center" glowColor="rgba(26, 31, 214, 0.2)">
+                    {(abt.factItems || []).map((fact: any) => (
+                      <InteractiveCard key={fact.id} className="p-6 text-center" glowColor="rgba(26, 31, 214, 0.3)">
                         <div className="text-3xl md:text-4xl font-black font-display text-[var(--e3-royal-blue)] mb-2">
                           {fact.value}
                         </div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] mb-1">
+                        <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] font-mono">
                           {isAr ? fact.labelAr : fact.labelEn}
                         </div>
                       </InteractiveCard>
@@ -223,73 +200,55 @@ export function DiscoverClient({
 
         // 3. LEADERSHIP PERSPECTIVES SECTION
         if (sectionKey === "leadership" && content.leadership?.enabled !== false) {
-          const lead = content.leadership || {};
-          const messages = Array.isArray(lead.messages) ? lead.messages : [];
+          const ldr = content.leadership || {};
+          const messages = Array.isArray(ldr.messages) ? ldr.messages : [];
 
           return (
-            <section key="leadership" id="leadership" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
+            <section key="leadership" id="leadership" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-2)]">
               <div className="max-w-7xl mx-auto px-4 md:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                  <span className="text-xs font-bold text-[var(--e3-magenta)] tracking-widest uppercase font-mono mb-2 block">
-                    {isAr ? lead.eyebrowAr : lead.eyebrowEn || "LEADERSHIP PERSPECTIVES"}
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-2 block">
+                    {isAr ? ldr.eyebrowAr : ldr.eyebrowEn || "LEADERSHIP PERSPECTIVES"}
                   </span>
                   <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
-                    {isAr ? lead.headingAr : lead.headingEn || "Guided By Vision & Engineering Mastery"}
+                    {isAr ? ldr.headingAr : ldr.headingEn || "Guided By Vision & Engineering Mastery"}
                   </h2>
-                  <p className="text-[var(--text-secondary)] text-sm font-medium">
-                    {isAr ? lead.introductionAr : lead.introductionEn}
-                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {messages.map((msg: any) => {
-                    const linkedProfile = msg.teamMemberId ? employeeProfileMap.get(msg.teamMemberId) : null;
-                    const name = linkedProfile 
-                      ? (isAr ? `${linkedProfile.firstNameAr || linkedProfile.firstName} ${linkedProfile.lastNameAr || linkedProfile.lastName}` : `${linkedProfile.firstName} ${linkedProfile.lastName}`)
-                      : (isAr ? "قيادة إي ثري" : "E3 Leadership");
-                    const role = linkedProfile 
-                      ? (isAr ? linkedProfile.designationAr || linkedProfile.designation : linkedProfile.designation)
-                      : (isAr ? msg.messageTitleAr : msg.messageTitleEn);
+                    const profile = msg.teamMemberId ? employeeProfileMap.get(msg.teamMemberId) : null;
+                    const portrait = profile?.profileImage || msg.mediaOverrideUrl;
+                    const name = profile ? `${profile.firstName} ${profile.lastName}` : (isAr ? msg.nameAr : msg.nameEn);
+                    const title = profile?.designation || (isAr ? msg.messageTitleAr : msg.messageTitleEn);
 
                     return (
-                      <InteractiveCard key={msg.id} className="p-8 flex flex-col justify-between" glowColor="rgba(75, 0, 143, 0.3)">
-                        <div>
-                          <div className="flex items-center gap-4 mb-6">
-                            {linkedProfile?.profileImage ? (
-                              <img 
-                                src={linkedProfile.profileImage} 
-                                alt={name} 
-                                className="w-14 h-14 rounded-full object-cover border-2 border-[var(--e3-royal-blue)]"
-                              />
+                      <InteractiveCard key={msg.id} className="p-8 flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            {portrait ? (
+                              <img src={portrait} alt={name} className="w-14 h-14 rounded-full object-cover border border-[var(--border-level-2)]" />
                             ) : (
-                              <div className="w-14 h-14 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)] flex items-center justify-center font-bold text-lg text-[var(--e3-royal-blue)]">
-                                E3
+                              <div className="w-14 h-14 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 flex items-center justify-center font-bold text-lg text-[var(--e3-royal-blue)]">
+                                {name?.charAt(0) || "E3"}
                               </div>
                             )}
                             <div>
-                              <h3 className="text-lg font-bold text-[var(--text-primary)]">{name}</h3>
-                              <p className="text-xs font-mono text-[var(--e3-royal-blue)] uppercase">{role}</p>
+                              <h3 className="font-extrabold text-base text-[var(--text-primary)]">{name}</h3>
+                              <p className="text-xs text-[var(--text-secondary)] font-mono">{title}</p>
                             </div>
                           </div>
 
-                          <blockquote className="text-base font-semibold italic text-[var(--text-primary)] mb-4 border-l-2 border-[var(--e3-royal-blue)] pl-4">
-                            "{isAr ? msg.pullQuoteAr : msg.pullQuoteEn}"
-                          </blockquote>
+                          {msg.pullQuoteEn && (
+                            <blockquote className="text-sm font-semibold italic text-[var(--e3-royal-blue)] border-l-2 border-[var(--e3-royal-blue)] pl-3 py-1">
+                              "{isAr ? msg.pullQuoteAr : msg.pullQuoteEn}"
+                            </blockquote>
+                          )}
 
-                          <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-6 font-medium">
+                          <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
                             {isAr ? msg.fullMessageAr : msg.fullMessageEn}
                           </p>
                         </div>
-
-                        {linkedProfile?.slug && (
-                          <Link 
-                            href={`/${locale}/b2c/team/${linkedProfile.slug}`}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--e3-royal-blue)] hover:underline"
-                          >
-                            {isAr ? "عرض الملف الشخصي" : "View Full Profile"}
-                            <ChevronRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-                          </Link>
-                        )}
                       </InteractiveCard>
                     );
                   })}
@@ -363,7 +322,7 @@ export function DiscoverClient({
         // 5. RECORD BREAKING GUINNESS SECTION
         if (sectionKey === "recordBreaking" && content.recordBreaking?.enabled !== false) {
           const rec = content.recordBreaking || {};
-          const isVerified = rec.verificationStatus === "VERIFIED";
+          const isGuinnessApproved = rec.brandingUsageApproved === true;
 
           return (
             <section key="recordBreaking" id="recordBreaking" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--e3-midnight)]">
@@ -375,9 +334,9 @@ export function DiscoverClient({
                         <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)]">
                           {isAr ? rec.eyebrowAr : rec.eyebrowEn}
                         </span>
-                        {isVerified && (
-                          <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase flex items-center gap-1 border border-emerald-500/40">
-                            <ShieldCheck className="w-3 h-3" /> Official Verified Record
+                        {isGuinnessApproved && (
+                          <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold uppercase flex items-center gap-1 border border-purple-500/40">
+                            <ShieldCheck className="w-3 h-3" /> Official Guinness World Records™ Verified
                           </span>
                         )}
                       </div>
@@ -403,7 +362,7 @@ export function DiscoverClient({
 
                     <div className="text-center p-8 rounded-2xl bg-[var(--surface-default)]/30 border border-[var(--border-level-2)]">
                       <div className="text-6xl md:text-8xl font-black font-display text-[var(--e3-royal-blue)] mb-2 tracking-tighter">
-                        {rec.measurementValue}
+                        {rec.measurementValue || "1,055"}
                       </div>
                       <div className="text-lg font-bold uppercase tracking-widest text-[var(--text-primary)] mb-2 font-mono">
                         {isAr ? rec.measurementUnitAr : rec.measurementUnitEn}
@@ -453,25 +412,6 @@ export function DiscoverClient({
                     </InteractiveCard>
                   ))}
                 </B2CGrid>
-
-                {/* Journey Flow */}
-                <div className="p-8 rounded-2xl bg-[var(--surface-default)]/40 border border-[var(--border-level-2)]">
-                  <h3 className="text-xs font-mono font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-6 text-center">
-                    {isAr ? "مسار الزائر السلس" : "Seamless Guest Journey Flow"}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                    {steps.map((step: any) => (
-                      <div key={step.id} className="space-y-2">
-                        <div className="text-sm font-bold text-[var(--e3-royal-blue)] uppercase font-display">
-                          {isAr ? step.titleAr : step.titleEn}
-                        </div>
-                        <p className="text-xs text-[var(--text-secondary)] font-medium">
-                          {isAr ? step.descriptionAr : step.descriptionEn}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </section>
           );
@@ -527,50 +467,82 @@ export function DiscoverClient({
           );
         }
 
-        // 11. FAQS SECTION
-        if (sectionKey === "faqs" && content.faqs?.enabled !== false) {
-          const faq = content.faqs || {};
-          const faqsList = Array.isArray(faq.faqsList) ? faq.faqsList : [];
+        // 9. TRUSTED ACROSS QATAR
+        if (sectionKey === "trustedAcrossQatar" && content.trustedAcrossQatar?.enabled !== false) {
+          const taq = content.trustedAcrossQatar || {};
+          const selPartners = (taq.selectedPartnerIds || []).map((id: string) => partnersMap.get(id)).filter(Boolean);
+          const selClients = (taq.selectedClientIds || []).map((id: string) => clientsMap.get(id)).filter(Boolean);
+          const displayLogos = [...selPartners, ...selClients];
 
           return (
-            <section key="faqs" id="faqs" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
-              <div className="max-w-4xl mx-auto px-4 md:px-8">
-                <div className="text-center mb-16">
-                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
-                    {isAr ? faq.headingAr : faq.headingEn || "Frequently Asked Questions"}
-                  </h2>
-                  <p className="text-[var(--text-secondary)] text-sm font-medium">
-                    {isAr ? faq.descriptionAr : faq.descriptionEn}
-                  </p>
+            <section key="trustedAcrossQatar" id="trustedAcrossQatar" className="relative py-20 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+                <h2 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-8">
+                  {isAr ? taq.headingAr : taq.headingEn || "Trusted Across Qatar"}
+                </h2>
+
+                {displayLogos.length > 0 ? (
+                  <div className="flex flex-wrap items-center justify-center gap-8 opacity-80">
+                    {displayLogos.map((item: any, i: number) => (
+                      <div key={item.id || i} className="px-4 py-2 font-bold text-sm text-[var(--text-secondary)]">
+                        {item.name || item.company}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-[var(--text-secondary)]">Leading government entities & global brands across Qatar.</p>
+                )}
+              </div>
+            </section>
+          );
+        }
+
+        // 10. LATEST INSIGHTS & NEWS
+        if (sectionKey === "latestInsights" && content.latestInsights?.enabled !== false) {
+          const li = content.latestInsights || {};
+          const displayList = insights.length > 0 ? insights.slice(0, li.maximumPosts || 3) : [];
+
+          return (
+            <section key="latestInsights" id="latestInsights" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-2)]">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+                  <div>
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-2 block">
+                      {isAr ? li.eyebrowAr : li.eyebrowEn || "E3 INSIGHTS & PRESS"}
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] font-display uppercase">
+                      {isAr ? li.headingAr : li.headingEn || "Latest From E3"}
+                    </h2>
+                  </div>
+                  <a href="/en/dashboard/insights" className="text-xs font-bold uppercase text-[var(--e3-royal-blue)] flex items-center gap-1">
+                    {isAr ? li.ctaLabelAr : li.ctaLabelEn || "Explore All Insights"}
+                    <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+                  </a>
                 </div>
 
-                <div className="space-y-4">
-                  {faqsList.map((item: any, index: number) => {
-                    const isOpen = openFaqIndex === index;
-                    return (
-                      <div key={item.id} className="rounded-xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)] overflow-hidden">
-                        <button
-                          onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                          className="w-full p-5 text-left flex justify-between items-center gap-4 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
-                        >
-                          <span>{isAr ? item.questionAr : item.questionEn}</span>
-                          <span className="text-lg font-mono text-[var(--e3-royal-blue)]">{isOpen ? "−" : "+"}</span>
-                        </button>
-                        {isOpen && (
-                          <div className="p-5 pt-0 text-xs text-[var(--text-secondary)] leading-relaxed font-medium border-t border-[var(--border-level-2)]/50 pt-4">
-                            {isAr ? item.answerAr : item.answerEn}
-                          </div>
-                        )}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {displayList.map((ins: any) => (
+                    <InteractiveCard key={ins.id} className="p-6 flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
+                      <div>
+                        <span className="px-2 py-0.5 text-[10px] font-extrabold rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block">
+                          {ins.contentType}
+                        </span>
+                        <h3 className="font-extrabold text-base text-[var(--text-primary)] mb-2 line-clamp-2">
+                          {isAr ? ins.titleAr : ins.titleEn}
+                        </h3>
+                        <p className="text-xs text-[var(--text-secondary)] line-clamp-3">
+                          {isAr ? ins.excerptAr : ins.excerptEn || ins.bodyEn?.slice(0, 120)}
+                        </p>
                       </div>
-                    );
-                  })}
+                    </InteractiveCard>
+                  ))}
                 </div>
               </div>
             </section>
           );
         }
 
-        // 12. FINAL GATEWAY SECTION
+        // 11. FINAL GATEWAY SECTION
         if (sectionKey === "finalGateway" && content.finalGateway?.enabled !== false) {
           const fg = content.finalGateway || {};
           const items = Array.isArray(fg.gatewayItems) ? fg.gatewayItems : [];

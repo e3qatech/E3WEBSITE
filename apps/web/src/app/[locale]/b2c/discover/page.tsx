@@ -95,9 +95,10 @@ export default async function DiscoverPage(props: {
   let caseStudies: any[] = [];
   let services: any[] = [];
   let jobs: any[] = [];
+  let insights: any[] = [];
 
   try {
-    [employeeProfiles, partners, clients, caseStudies, services, jobs] = await Promise.all([
+    [employeeProfiles, partners, clients, caseStudies, services, jobs, insights] = await Promise.all([
       db.employeeProfile.findMany({
         where: { isActive: true },
         orderBy: { order: "asc" }
@@ -118,6 +119,11 @@ export default async function DiscoverPage(props: {
       }).catch(() => []),
       db.job.findMany({
         where: { isPublished: true },
+        take: 6
+      }).catch(() => []),
+      db.insight.findMany({
+        where: { publishStatus: "PUBLISHED" },
+        orderBy: { publishedAt: "desc" },
         take: 6
       }).catch(() => [])
     ]);
@@ -184,28 +190,6 @@ export default async function DiscoverPage(props: {
     }
   ];
 
-  // Add FAQ Schema if enabled and FAQs exist
-  if (content.faqs?.enabled && Array.isArray(content.faqs?.faqsList) && content.faqs.faqsList.length > 0) {
-    const faqItems = content.faqs.faqsList
-      .filter((f: any) => f.enabled !== false)
-      .map((f: any) => ({
-        "@type": "Question",
-        "name": isAr ? f.questionAr : f.questionEn,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": isAr ? f.answerAr : f.answerEn
-        }
-      }));
-
-    if (faqItems.length > 0) {
-      jsonLdData.push({
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": faqItems
-      });
-    }
-  }
-
   return (
     <>
       <script
@@ -221,6 +205,7 @@ export default async function DiscoverPage(props: {
         caseStudies={caseStudies}
         services={services}
         jobs={jobs}
+        insights={insights}
       />
     </>
   );

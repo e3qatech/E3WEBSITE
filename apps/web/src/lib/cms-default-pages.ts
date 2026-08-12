@@ -785,8 +785,8 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     eyebrowAr: "إنجاز عالمي مسجل رسميًا",
     titleEn: "1,055-Metre Guinness World Records™ Achievement",
     titleAr: "إنجاز غينيس للأرقام القياسية بطول ١,٠٥٥ متراً",
-    summaryEn: "E3 engineered and operated InflataRUN, setting the official world record for the longest inflatable obstacle course.",
-    summaryAr: "صممت ونفذت إي ثري إنفلاتا ران، محققة الرقم القياسي العالمي لأطول مضمار ألعاب مطاطية.",
+    summaryEn: "E3 engineered and operated InflataRUN, setting the official world record for the longest inflatable obstacle course at 1,055 metres.",
+    summaryAr: "صممت ونفذت إي ثري إنفلاتا ران، محققة الرقم القياسي العالمي لأطول مضمار ألعاب مطاطية بطول ١,٠٥٥ متراً.",
     fullDescriptionEn: "Welcoming over 760,000 attendees, this landmark spatial project showcased E3's capabilities in custom fabrication, crowd management, and international event logistics.",
     fullDescriptionAr: "استقبلت الفعالية مئات الآلاف من الزوار، مستعرضة قدرات إي ثري في التصنيع والتدفق الجماهيري.",
     officialRecordTitleEn: "Longest Inflatable Obstacle Course",
@@ -795,8 +795,15 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     measurementUnitEn: "Metres",
     measurementUnitAr: "متر",
     achievementDate: "2023-03-15",
-    locationEn: "Doha, Qatar",
-    locationAr: "الدوحة، قطر",
+    locationEn: "Lusail City, Doha, Qatar",
+    locationAr: "مدينة لوسيل، الدوحة، قطر",
+    certificateNumber: "",
+    officialVerificationUrl: "",
+    certificateMediaId: "",
+    approvedBadgeMediaId: "",
+    brandingUsageApproved: false,
+    sourceLabel: "E3 Official Statement & Verification",
+    sourceUrl: "https://e3.qa/b2c/discover",
     verificationStatus: "VERIFIED",
     verifiedBy: "Guinness World Records Ltd",
     verifiedAt: "2023-03-15",
@@ -929,8 +936,8 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
   latestInsights: {
     id: "latestInsights",
     enabled: true,
-    eyebrowEn: "E3 INSIGHTS & CASE STUDIES",
-    eyebrowAr: "أحدث الأخبار ودراسات الحالة",
+    eyebrowEn: "E3 INSIGHTS & PRESS",
+    eyebrowAr: "أحدث الأخبار والمقالات",
     headingEn: "Latest From E3",
     headingAr: "جديد إي ثري",
     descriptionEn: "Discover our recent project breakdowns, event recaps, and spatial engineering articles.",
@@ -941,22 +948,6 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     ctaLabelEn: "Explore All Articles",
     ctaLabelAr: "عرض كافة المقالات",
     ctaDestination: "/en/b2b/case-studies",
-    theme: "INHERIT"
-  },
-  faqs: {
-    id: "faqs",
-    enabled: true,
-    eyebrowEn: "DISCOVER ANSWERS",
-    eyebrowAr: "أسئلة شائعة",
-    headingEn: "Frequently Asked Questions",
-    headingAr: "الأسئلة الأكثر تكراراً",
-    descriptionEn: "Clear answers regarding E3 operations, corporate buyouts, and technology.",
-    descriptionAr: "إجابات ملموسة حول عمليات إي ثري وحجوزات الشركات والتكنولوجيا.",
-    faqsList: [
-      { id: "faq1", questionEn: "What is E3's core business in Qatar?", questionAr: "ما هو النشاط الأساسي لـ إي ثري في قطر؟", answerEn: "E3 is a spatial entertainment engineering firm that designs, fabricates, operates, and scales landmark attractions and festivals.", answerAr: "إي ثري هي شركة متخصصة في هندسة وتنفيذ وتوزيع والتشغيل المباشر للوجهات والفعاليات الترفيهية.", enabled: true, sortOrder: 1 },
-      { id: "faq2", questionEn: "How does BookingQube integrate with E3 attractions?", questionAr: "كيف يتكامل نظام بوكينج كيوب مع وجهات إي ثري؟", answerEn: "BookingQube handles ticketing, NFC pass issuance, turnstile gates, and real-time crowd analytics for all E3 properties.", answerAr: "يدير بوكينج كيوب التذاكر، البوابات الإلكترونية، والتحليلات المباشرة لحضور الزوار.", enabled: true, sortOrder: 2 },
-      { id: "faq3", questionEn: "Can corporate groups or schools book private sessions?", questionAr: "هل يمكن للمدارس والشركات حجز جلسات خاصة؟", answerEn: "Yes, E3 offers full venue buyouts, VIP birthday packages, and corporate hospitality across all our attractions.", answerAr: "نعم، توفر إي ثري باقات حجز كامل للوجهات وحفلات المدارس والشركات.", enabled: true, sortOrder: 3 }
-    ],
     theme: "INHERIT"
   },
   finalGateway: {
@@ -1034,10 +1025,6 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       latestInsights: {
         ...discoverDefaults.latestInsights,
         ...(raw.latestInsights || {})
-      },
-      faqs: {
-        ...discoverDefaults.faqs,
-        ...(raw.faqs || {})
       },
       finalGateway: {
         ...discoverDefaults.finalGateway,
