@@ -29,9 +29,7 @@ import {
   Compass,
   Zap,
   TrendingUp,
-  Image as ImageIcon,
-  MoveUp,
-  MoveDown
+  Image as ImageIcon
 } from "lucide-react"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
@@ -239,7 +237,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (En)</label>
                 <input 
                   type="text" 
-                  value={data.hero?.eyebrowEn || ""} 
+                  value={data.hero?.eyebrowEn || "The E3 Qatar Ecosystem"} 
                   onChange={e => updateSectionField("hero", "eyebrowEn", e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
@@ -249,7 +247,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 <input 
                   type="text" 
                   dir="rtl"
-                  value={data.hero?.eyebrowAr || ""} 
+                  value={data.hero?.eyebrowAr || "منظومة إي ثري الترفيهية"} 
                   onChange={e => updateSectionField("hero", "eyebrowAr", e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
@@ -293,7 +291,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
 
-              {/* CTAs */}
+              {/* Primary & Secondary CTAs */}
               <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (En)</label>
                 <input 
@@ -304,13 +302,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (Ar)</label>
+                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Destination</label>
                 <input 
                   type="text" 
-                  dir="rtl"
-                  value={data.hero?.primaryCtaLabelAr || "استكشف المنظومة"} 
-                  onChange={e => updateSectionField("hero", "primaryCtaLabelAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                  value={data.hero?.primaryCtaUrl || "#about"} 
+                  onChange={e => updateSectionField("hero", "primaryCtaUrl", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none font-mono"
                 />
               </div>
 

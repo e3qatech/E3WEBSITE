@@ -122,6 +122,18 @@ export function DiscoverClient({
                     {isAr ? hero.subtextAr : hero.subtextEn}
                   </p>
 
+                  {(hero.primaryCtaUrl || hero.primaryCtaLabelEn) && (
+                    <div className="pt-4 flex justify-center gap-4">
+                      <a
+                        href={hero.primaryCtaUrl || "#about"}
+                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform"
+                      >
+                        {isAr ? (hero.primaryCtaLabelAr || "استكشف المنظومة") : (hero.primaryCtaLabelEn || "Explore Ecosystem")}
+                        <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                      </a>
+                    </div>
+                  )}
+
                   {hero.mediaUrl && (
                     <div className="mt-8 rounded-2xl overflow-hidden border border-[var(--border-level-2)] max-w-3xl mx-auto shadow-2xl">
                       <UniversalMediaRenderer
