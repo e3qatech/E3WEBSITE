@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
+import { FALLBACK_ATTRACTIONS } from '@/components/b2c/AttractionsDirectory';
 
 const _QATAR_TZ = 'Asia/Qatar';
 
@@ -30,8 +31,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(JSON.parse(cached));
     }
 
-    // We are now fetching directly from attractions instead of eventSchedules
-    // to populate the calendar with the main attractions
+    // Fetch directly from database attractions
     const attractionsWhere: any = { isPublished: true, isHidden: false };
     
     if (attractionIds && attractionIds.length > 0) {
@@ -42,11 +42,11 @@ export async function GET(req: NextRequest) {
       attractionsWhere.offers = { some: {} };
     }
 
-    const attractions = await db.attraction.findMany({
+    let attractions = await db.attraction.findMany({
       where: attractionsWhere,
       include: {
         offers: { select: { id: true } },
-        gallery: { take: 1 },
+        gallery: { orderBy: { orderIndex: 'asc' }, take: 1 },
         pricing: {
           orderBy: { price: 'asc' },
           take: 1
@@ -55,57 +55,76 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
+    // If database query returns empty array, seed with canonical FALLBACK_ATTRACTIONS
+    if (!attractions || attractions.length === 0) {
+      attractions = FALLBACK_ATTRACTIONS as any;
+    }
+
     const result = attractions.map((attraction: any) => {
-      const thumbnail = attraction.gallery?.[0]?.url || attraction.heroThumbnailUrl || attraction.heroMediaUrl || null;
-      const lowestPrice = attraction.pricing?.[0] ? `${attraction.pricing[0].currency} ${attraction.pricing[0].price}` : null;
+      const ops = attraction.operations || {};
+      const fallbackObj = FALLBACK_ATTRACTIONS.find((f) => 
+        f.id === attraction.id || 
+        f.slug === attraction.slug || 
+        f.nameEn.toLowerCase().includes((attraction.nameEn || '').toLowerCase())
+      );
+
+      // Prioritize heroMediaUrl -> heroThumbnailUrl -> gallery[0] -> fallback image
+      const thumbnail =
+        attraction.heroMediaUrl ||
+        attraction.heroThumbnailUrl ||
+        attraction.gallery?.[0]?.url ||
+        attraction.logoUrl ||
+        fallbackObj?.heroMediaUrl ||
+        'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop';
+
+      const lowestPrice = attraction.pricing?.[0]
+        ? `${attraction.pricing[0].currency || 'QAR'} ${attraction.pricing[0].price}`
+        : attraction.price 
+        ? `QAR ${attraction.price}` 
+        : 'QAR 25';
       
-      const temporalRules = attraction.temporalStatus as any;
-      let startTime = new Date();
-      let endTime = new Date();
-      endTime.setMonth(endTime.getMonth() + 1); // default 1 month long if permanent
+      const locationNameEn = ops.locationNameEn || attraction.venue?.nameEn || fallbackObj?.operations?.locationNameEn || 'Lusail Boulevard, Qatar';
+      const locationNameAr = ops.locationNameAr || attraction.venue?.nameAr || fallbackObj?.operations?.locationNameAr || 'شارع لوسيل التجاري، قطر';
+      
+      const openTimeStr = ops.openingTime || fallbackObj?.operations?.openingTime || '14:00';
+      const closeTimeStr = ops.closingTime || fallbackObj?.operations?.closingTime || '23:00';
 
-      if (temporalRules?.startDate) {
-        startTime = new Date(temporalRules.startDate);
-      }
-      if (temporalRules?.endDate) {
-        endTime = new Date(temporalRules.endDate);
-      }
+      const now = new Date();
+      const [openH, openM] = openTimeStr.split(':').map(Number);
+      const [closeH, closeM] = closeTimeStr.split(':').map(Number);
 
-      // Filter by requested dates if not "availableNow"
-      if (!availableNow && startDate && endDate) {
-         // simple overlap check: event starts before requested end AND ends after requested start
-         const _reqStart = new Date(startDate);
-         const _reqEnd = new Date(endDate);
-         // If it doesn't overlap, we could skip it, but for B2C calendar we'll let the frontend filter if needed,
-         // or we can just return it if it's a permanent attraction.
-      }
+      const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), openH || 14, openM || 0);
+      const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), closeH || 23, closeM || 0);
 
       return {
         id: attraction.id,
         attractionId: attraction.id,
-        attractionNameEn: attraction.nameEn,
-        attractionNameAr: attraction.nameAr,
-        attractionSlug: attraction.slug,
-        ticketingUrl: attraction.ticketingUrl,
-        title: attraction.nameEn,
-        description: attraction.descriptionEn,
+        attractionNameEn: attraction.nameEn || attraction.name?.en || 'Flagship Attraction',
+        attractionNameAr: attraction.nameAr || attraction.name?.ar || 'وجهة ترفيهية',
+        attractionSlug: attraction.slug || 'attractions',
+        ticketingUrl: attraction.ticketingUrl || fallbackObj?.ticketingUrl || `/en/b2c/calendar`,
+        title: attraction.nameEn || attraction.name?.en || 'Flagship Attraction',
+        description: attraction.taglineEn || attraction.descriptionEn || 'World-class entertainment world in Qatar',
         thumbnail,
-        startTime,
-        endTime,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
         eventType: "REGULAR",
         price: lowestPrice,
-        capacityGate: 100,
-        currentCount: 0,
+        capacityGate: attraction.capacity || 100,
+        currentCount: attraction.currentOccupancy || 0,
         isAvailable: true,
-        hasOffer: attraction.offers?.length > 0
+        hasOffer: attraction.offers?.length > 0,
+        locationNameEn,
+        locationNameAr,
+        openingTime: openTimeStr,
+        closingTime: closeTimeStr
       };
     });
 
     if (availableNow) {
-      // If asking for available now, strictly return those with capacity
       const filtered = result.filter((r: any) => r.isAvailable);
       try {
-        await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60); // 1 min cache for live availability
+        await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60);
       } catch (e: any) {
         console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
       }
@@ -113,7 +132,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300); // 5 min cache for generic calendars
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
     } catch (e: any) {
       console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
     }
