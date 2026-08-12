@@ -104,15 +104,15 @@ export function DiscoverClient({
                 >
                   <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)]">
                     <Sparkles className="w-3.5 h-3.5" />
-                    {isAr ? "منظومة إي ثري الترفيهية" : "The E3 Qatar Ecosystem"}
+                    {isAr ? (hero.eyebrowAr || "منظومة إي ثري الترفيهية") : (hero.eyebrowEn || "The E3 Qatar Ecosystem")}
                   </span>
 
                   <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05]">
-                    <AnimatedText text={isAr ? hero.headlineAr : hero.headlineEn || "Transforming Spatial Ideas Into Living Landmarks"} />
+                    <AnimatedText text={isAr ? (hero.headlineAr || "تحويل الأفكار المكانية إلى معالم حية") : (hero.headlineEn || "Transforming Spatial Ideas Into Living Landmarks")} />
                   </h1>
 
                   <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed">
-                    {isAr ? hero.subtextAr : hero.subtextEn}
+                    {isAr ? (hero.subtextAr || "منظومة قطرية متكاملة لابتكار وإدارة التجارب والفعاليات") : (hero.subtextEn || "Integrated Qatari ecosystem for pioneering events and destinations.")}
                   </p>
 
                   {(hero.primaryCtaUrl || hero.primaryCtaLabelEn) && (

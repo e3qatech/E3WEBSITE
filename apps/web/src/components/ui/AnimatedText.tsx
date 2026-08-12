@@ -22,8 +22,9 @@ export function AnimatedText({ text, className, once = true, delay = 0, as = 'di
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once, margin: '-10% 0px' });
 
-  // Split text into words for staggered reveal
-  const words = text.split(' ');
+  // Split text into words for staggered reveal safely
+  const safeText = typeof text === 'string' ? text : '';
+  const words = safeText ? safeText.split(' ') : [];
 
   const container = {
     hidden: { opacity: 0 },
