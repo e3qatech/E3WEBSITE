@@ -237,36 +237,36 @@ export function DiscoverClient({
                     const title = isAr ? (msg.messageTitleAr || msg.messageTitleEn || profile?.designation) : (msg.messageTitleEn || profile?.designation);
 
                     return (
-                      <InteractiveCard key={msg.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Image Cover Area */}
-                        <div className="relative h-56 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-black overflow-hidden flex items-center justify-center">
+                      <InteractiveCard key={msg.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Side Image Placeholder Area */}
+                        <div className="relative w-full md:w-5/12 h-64 md:h-auto bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-black overflow-hidden flex items-center justify-center shrink-0">
                           {portrait ? (
                             <img src={portrait} alt={name || "Leader"} className="w-full h-full object-cover" />
                           ) : (
                             <div className="relative w-full h-full flex items-center justify-center bg-[var(--e3-deep-blue)]/80">
-                              <div className="w-24 h-24 rounded-full bg-[var(--e3-royal-blue)]/30 border border-[var(--e3-royal-blue)]/60 flex items-center justify-center font-bold text-3xl text-[var(--e3-royal-blue)] shadow-2xl">
+                              <div className="w-20 h-20 rounded-full bg-[var(--e3-royal-blue)]/30 border border-[var(--e3-royal-blue)]/60 flex items-center justify-center font-bold text-2xl text-[var(--e3-royal-blue)] shadow-2xl">
                                 {name?.charAt(0) || "E3"}
                               </div>
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-90" />
+                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area */}
-                        <div className="p-8 flex-1 flex flex-col justify-between space-y-4">
+                        {/* 60% Text Content Area beside Image */}
+                        <div className="p-6 md:p-8 w-full md:w-7/12 flex-1 flex flex-col justify-between space-y-4">
                           <div className="space-y-4">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3">
                               {portrait && (
-                                <img src={portrait} alt={name || "Leader"} className="w-12 h-12 rounded-full object-cover border border-[var(--e3-royal-blue)] shadow-md" />
+                                <img src={portrait} alt={name || "Leader"} className="w-10 h-10 rounded-full object-cover border border-[var(--e3-royal-blue)] shadow-md" />
                               )}
                               <div>
-                                <h3 className="font-extrabold text-lg text-[var(--text-primary)] font-display uppercase">{name}</h3>
+                                <h3 className="font-extrabold text-base md:text-lg text-[var(--text-primary)] font-display uppercase">{name}</h3>
                                 <p className="text-xs text-[var(--e3-royal-blue)] font-mono font-bold uppercase tracking-wider">{title}</p>
                               </div>
                             </div>
 
                             {(msg.pullQuoteEn || msg.pullQuoteAr) && (
-                              <blockquote className="text-sm font-semibold italic text-[var(--e3-royal-blue)] border-l-2 border-[var(--e3-royal-blue)] pl-3 py-1">
+                              <blockquote className="text-xs md:text-sm font-semibold italic text-[var(--e3-royal-blue)] border-l-2 rtl:border-l-0 rtl:border-r-2 border-[var(--e3-royal-blue)] pl-3 rtl:pl-0 rtl:pr-3 py-1">
                                 &ldquo;{isAr ? (msg.pullQuoteAr || msg.pullQuoteEn) : (msg.pullQuoteEn || msg.pullQuoteAr)}&rdquo;
                               </blockquote>
                             )}
@@ -442,13 +442,13 @@ export function DiscoverClient({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {features.map((item: any) => {
                     const itemImg = item.imageUrl || item.mediaUrl;
                     return (
-                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Image Cover Area */}
-                        <div className="relative h-44 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center">
+                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Side Image Placeholder Area */}
+                        <div className="relative h-48 md:h-auto w-full md:w-5/12 bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center shrink-0">
                           {itemImg ? (
                             <img src={itemImg} alt={item.titleEn} className="w-full h-full object-cover" />
                           ) : (
@@ -456,11 +456,11 @@ export function DiscoverClient({
                               <Smartphone className="w-12 h-12 text-[var(--e3-royal-blue)]" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-80" />
+                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area */}
-                        <div className="p-6 flex-1 flex flex-col justify-between">
+                        {/* 60% Text Content Area beside Image */}
+                        <div className="p-6 w-full md:w-7/12 flex-1 flex flex-col justify-between">
                           <div>
                             <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
                               {isAr ? item.titleAr : item.titleEn}
@@ -499,13 +499,13 @@ export function DiscoverClient({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {items.map((item: any) => {
                     const cardImg = item.imageUrl || item.mediaUrl;
                     return (
-                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Cover Image Area */}
-                        <div className="relative h-48 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center">
+                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Side Image Placeholder Area */}
+                        <div className="relative h-48 md:h-auto w-full md:w-5/12 bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center shrink-0">
                           {cardImg ? (
                             <img src={cardImg} alt={item.titleEn} className="w-full h-full object-cover" />
                           ) : (
@@ -513,11 +513,11 @@ export function DiscoverClient({
                               <Sparkles className="w-10 h-10 text-[var(--e3-purple)]" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-90" />
+                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Content Area */}
-                        <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        {/* 60% Text Content Area beside Image */}
+                        <div className="p-6 w-full md:w-7/12 flex-1 flex flex-col justify-between space-y-4">
                           <div>
                             <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase block mb-2">
                               {isAr ? item.tabLabelAr : item.tabLabelEn}
@@ -634,13 +634,13 @@ export function DiscoverClient({
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {displayList.map((ins: any) => {
                     const postImg = ins.mediaUrl || ins.imageUrl || ins.coverImage;
                     return (
-                      <InteractiveCard key={ins.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
-                        {/* 40% Image Banner Area */}
-                        <div className="relative h-44 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center">
+                      <InteractiveCard key={ins.id} className="overflow-hidden flex flex-col md:flex-row h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Side Image Placeholder Area */}
+                        <div className="relative h-48 md:h-auto w-full md:w-5/12 bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center shrink-0">
                           {postImg ? (
                             <img src={postImg} alt={ins.titleEn} className="w-full h-full object-cover" />
                           ) : (
@@ -648,11 +648,11 @@ export function DiscoverClient({
                               <Sparkles className="w-8 h-8 text-[var(--e3-royal-blue)]" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-80" />
+                          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-transparent via-transparent to-[var(--surface-default)] opacity-60 pointer-events-none" />
                         </div>
 
-                        {/* 60% Text Area */}
-                        <div className="p-6 flex-1 flex flex-col justify-between">
+                        {/* 60% Text Content Area beside Image */}
+                        <div className="p-6 w-full md:w-7/12 flex-1 flex flex-col justify-between">
                           <div>
                             <span className="px-2 py-0.5 text-[10px] font-extrabold rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block font-mono">
                               {ins.contentType}
