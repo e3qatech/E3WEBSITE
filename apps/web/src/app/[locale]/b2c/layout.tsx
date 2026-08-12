@@ -5,6 +5,8 @@ import { PulseOrbitNav } from "@/components/b2c/nav/PulseOrbitNav";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import db from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function B2CLayout({
   children,
   params
