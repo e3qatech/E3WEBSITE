@@ -17,9 +17,14 @@ export default async function PackagesPage(props: {
   let settings: any = null;
 
   try {
-    const page = await db.pages.findUnique({
-      where: { slug: "b2c-packages" }
+    let page = await db.pages.findUnique({
+      where: { slug: "b2c-packages-page" }
     });
+    if (!page) {
+      page = await db.pages.findUnique({
+        where: { slug: "b2c-packages" }
+      });
+    }
     if (page && page.content) {
       settings = page.content;
     }

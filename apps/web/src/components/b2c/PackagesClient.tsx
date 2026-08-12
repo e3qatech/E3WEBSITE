@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/Button"
 import { InteractiveCard } from "@/components/ui/InteractiveCard"
 import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
 import { SmartPackageFinderModal } from "@/components/b2c/SmartPackageFinderModal"
+import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer"
 import { cn } from "@/lib/utils"
 
 export function PackagesClient({
@@ -103,6 +104,28 @@ export function PackagesClient({
     { id: "CUSTOM", labelEn: "Custom Experiences", labelAr: "تجارب حسب الطلب" }
   ]
 
+  const heroEyebrow = isAr
+    ? (initialSettings?.eyebrowAr || initialSettings?.hero?.badgeAr || "باقات الفعاليات والمناسبات الاستثنائية")
+    : (initialSettings?.eyebrowEn || initialSettings?.hero?.badgeEn || "E3 Celebration & Group Packages")
+
+  const heroTitle = isAr
+    ? (initialSettings?.titleAr || initialSettings?.hero?.titleAr || "لحظاتكم الكبيرة تستحق تجارب استثنائية")
+    : (initialSettings?.titleEn || initialSettings?.hero?.titleEn || "Big Moments Deserve Bigger Experiences")
+
+  const heroDesc = isAr
+    ? (initialSettings?.descAr || initialSettings?.hero?.subtitleAr || "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية بقطر.")
+    : (initialSettings?.descEn || initialSettings?.hero?.subtitleEn || "Discover birthday celebrations, group adventures, school experiences and corporate packages across E3's entertainment destinations.")
+
+  const primaryCta = isAr
+    ? (initialSettings?.primaryCtaAr || "اختر باقتك")
+    : (initialSettings?.primaryCtaEn || "Find Your Package")
+
+  const secondaryCta = isAr
+    ? (initialSettings?.secondaryCtaAr || "خطط لفعاليتك الخاصة")
+    : (initialSettings?.secondaryCtaEn || "Plan a Custom Event")
+
+  const heroMedia = initialSettings?.heroMedia
+
   return (
     <div className="min-h-screen text-[var(--text-primary)] font-poppins pb-24" dir={isAr ? "rtl" : "ltr"}>
       {/* 1. HERO SECTION */}
@@ -110,28 +133,37 @@ export function PackagesClient({
         <div className="max-w-4xl mx-auto space-y-6 relative z-10">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--e3-royal-blue)]/10 text-[var(--e3-royal-blue)] border border-[var(--e3-royal-blue)]/20 text-xs font-mono font-extrabold uppercase tracking-widest">
             <Sparkles className="w-3.5 h-3.5" />
-            {isAr ? "باقات الفعاليات والمناسبات الاستثنائية" : "E3 Celebration & Group Packages"}
+            {heroEyebrow}
           </span>
 
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight font-display uppercase leading-[1.05]">
-            {isAr ? "لحظاتكم الكبيرة تستحق تجارب استثنائية" : "Big Moments Deserve Bigger Experiences"}
+            {heroTitle}
           </h1>
 
           <p className="text-base sm:text-lg text-[var(--text-secondary)] font-medium max-w-2xl mx-auto">
-            {isAr 
-              ? "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية بقطر." 
-              : "Discover birthday celebrations, group adventures, school experiences and corporate packages across E3's entertainment destinations."}
+            {heroDesc}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <Button onClick={() => setIsFinderOpen(true)} className="gap-2 shadow-lg">
               <Sparkles className="w-4 h-4" />
-              {isAr ? "مستكشف الباقات الذكي" : "Find Your Package Quiz"}
+              {primaryCta}
             </Button>
             <Button variant="outline" onClick={() => { setSelectedPackageForEnquiry(null); setIsEnquiryOpen(true); }} className="gap-2">
-              {isAr ? "خطط لفعاليتك الخاصة" : "Plan a Custom Event"}
+              {secondaryCta}
             </Button>
           </div>
+
+          {heroMedia?.mediaUrl && (
+            <div className="mt-8 rounded-3xl overflow-hidden border border-[var(--border-level-2)] shadow-2xl max-w-3xl mx-auto max-h-[350px]">
+              <UniversalMediaRenderer
+                src={heroMedia.mediaUrl}
+                type={(heroMedia.mediaType as any) || "IMAGE"}
+                alt={heroTitle}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
         </div>
       </section>
 
