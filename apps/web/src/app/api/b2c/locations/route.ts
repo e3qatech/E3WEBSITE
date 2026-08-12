@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
       pinColorToken = 'CYAN',
       featured = false,
       mapVisible = true,
+      isPrimary = false,
       attractionId,
     } = body;
 
@@ -101,37 +102,48 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const created = await db.location.create({
-      data: {
-        nameEn,
-        nameAr,
-        slug: slug || null,
-        venueEn: venueEn || null,
-        venueAr: venueAr || null,
-        addressEn: addressEn || null,
-        addressAr: addressAr || null,
-        shortDescriptionEn: shortDescriptionEn || null,
-        shortDescriptionAr: shortDescriptionAr || null,
-        latitude: lat,
-        longitude: lng,
-        locationType,
-        operationalStatus,
-        publicationStatus,
-        googleMapsUrl: googleMapsUrl || null,
-        directionsUrl: directionsUrl || null,
-        ticketingUrl: ticketingUrl || null,
-        phone: phone || null,
-        email: email || null,
-        whatsapp: whatsapp || null,
-        coverMediaUrl: coverMediaUrl || null,
-        thumbnailMediaId: thumbnailMediaId || null,
-        mapPinMediaId: mapPinMediaId || null,
-        pinColorToken,
-        featured: Boolean(featured),
-        mapVisible: Boolean(mapVisible),
-        isPublished: publicationStatus === 'PUBLISHED',
-        attractionId: attractionId || null,
-      },
+    // Single Primary Location Invariant Enforcement via Transaction
+    const created = await db.$transaction(async (tx: any) => {
+      if (isPrimary && attractionId) {
+        await tx.location.updateMany({
+          where: { attractionId },
+          data: { isPrimary: false }
+        });
+      }
+
+      return await tx.location.create({
+        data: {
+          nameEn,
+          nameAr,
+          slug: slug || null,
+          venueEn: venueEn || null,
+          venueAr: venueAr || null,
+          addressEn: addressEn || null,
+          addressAr: addressAr || null,
+          shortDescriptionEn: shortDescriptionEn || null,
+          shortDescriptionAr: shortDescriptionAr || null,
+          latitude: lat,
+          longitude: lng,
+          locationType,
+          operationalStatus,
+          publicationStatus,
+          googleMapsUrl: googleMapsUrl || null,
+          directionsUrl: directionsUrl || null,
+          ticketingUrl: ticketingUrl || null,
+          phone: phone || null,
+          email: email || null,
+          whatsapp: whatsapp || null,
+          coverMediaUrl: coverMediaUrl || null,
+          thumbnailMediaId: thumbnailMediaId || null,
+          mapPinMediaId: mapPinMediaId || null,
+          pinColorToken,
+          featured: Boolean(featured),
+          mapVisible: Boolean(mapVisible),
+          isPrimary: Boolean(isPrimary),
+          isPublished: publicationStatus === 'PUBLISHED',
+          attractionId: attractionId || null,
+        },
+      });
     });
 
     return NextResponse.json({ data: created }, { status: 201 });
