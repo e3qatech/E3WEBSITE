@@ -3,7 +3,7 @@
 import { CoreTeamRecord, DEFAULT_CORE_TEAM } from '@/lib/cms-team'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Users } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 
 interface CoreTeamPeopleSectionProps {
@@ -15,6 +15,19 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
   const isAr = locale === 'ar'
   const teamSectionData = content?.coreTeam || {}
 
+  const [dbTeamMembers, setDbTeamMembers] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch('/api/team')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbTeamMembers(data)
+        }
+      })
+      .catch(console.error)
+  }, [])
+
   const heading = isAr
     ? (teamSectionData.headlineAr || "الفريق الذي يصنع التجربة")
     : (teamSectionData.headlineEn || "The people behind the experience")
@@ -23,15 +36,41 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     ? (teamSectionData.subtextAr || "المبدعون والمهندسون والمصممون القائمون على ابتكار وتشغيل وجهات إي ثري الترفيهية.")
     : (teamSectionData.subtextEn || "The visionary directors, spatial designers, and operational leaders bringing E3 experiences to life.")
 
-  const teamMembers: CoreTeamRecord[] = teamSectionData.members && teamSectionData.members.length > 0
-    ? teamSectionData.members
-    : DEFAULT_CORE_TEAM
+  const selectedIds: string[] = Array.isArray(teamSectionData.selectedMemberIds)
+    ? teamSectionData.selectedMemberIds
+    : []
+
+  // Filter db team members matching selectedIds if provided
+  const matchedDbMembers = dbTeamMembers.length > 0 && selectedIds.length > 0
+    ? dbTeamMembers.filter(m => selectedIds.includes(m.id))
+    : []
+
+  const mappedDbMembers: any[] = matchedDbMembers.map(m => ({
+    id: m.id,
+    slug: m.slug || m.id,
+    nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+    nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+    roleEn: m.designation || "Executive",
+    roleAr: m.designationAr || m.designation || "قيادي",
+    bioEn: m.aboutSummary || m.tagline || "",
+    bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+    portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+    showProfileLink: true,
+    profileCtaLabelEn: "View Profile",
+    profileCtaLabelAr: "عرض الملف"
+  }))
+
+  const teamMembers: CoreTeamRecord[] = mappedDbMembers.length > 0
+    ? mappedDbMembers
+    : ((teamSectionData.members && teamSectionData.members.length > 0)
+        ? teamSectionData.members
+        : DEFAULT_CORE_TEAM)
 
   const [activeMemberId, setActiveMemberId] = useState(teamMembers[0]?.id || DEFAULT_CORE_TEAM[0].id)
   const activeMember = teamMembers.find(m => m.id === activeMemberId) || teamMembers[0] || DEFAULT_CORE_TEAM[0]
 
   return (
-    <section id="core-team" className="relative py-28 bg-[#060111] text-white border-b border-purple-950/40 overflow-hidden">
+    <section id="core-team" className="relative py-28 bg-[#060111] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Project Footage / Glow Layer */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
         {activeMember.backgroundFootage && (
@@ -111,10 +150,10 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                   </p>
 
                   {member.showProfileLink && (
-                    <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300">
+                    <a href={`/${locale}/b2c/team/${member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300">
                       <span>{isAr ? (member.profileCtaLabelAr || "عرض الملف التفصيلي") : (member.profileCtaLabelEn || "View Profile")}</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
-                    </div>
+                    </a>
                   )}
                 </div>
               </motion.div>

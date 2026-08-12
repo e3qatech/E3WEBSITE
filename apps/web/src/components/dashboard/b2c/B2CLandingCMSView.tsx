@@ -3,7 +3,7 @@
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { UniversalMediaConfig, UniversalMediaSectionEditor } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
-import { Save, Sparkles } from 'lucide-react'
+import { Save, Sparkles, Users, CheckCircle, UserCheck, ShieldCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { resolveMediaType } from '@/lib/media-resolver'
@@ -16,8 +16,8 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [content, setContent] = useState<any>(initialData || DEFAULT_B2C_LANDING_CONTENT)
+  const [availableTeamMembers, setAvailableTeamMembers] = useState<any[]>([])
 
   const fetchLatestData = async () => {
     try {
@@ -31,12 +31,25 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
     } catch (_e) {}
   };
 
+  const fetchTeamMembers = async () => {
+    try {
+      const res = await fetch('/api/team');
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json)) {
+          setAvailableTeamMembers(json);
+        }
+      }
+    } catch (_e) {}
+  };
+
   useEffect(() => {
     if (initialData) {
-// eslint-disable-next-line react-hooks/set-state-in-effect
       setContent(initialData);
     }
     fetchLatestData();
+    fetchTeamMembers();
+
     window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestData);
     let bc: BroadcastChannel | null = null;
     try {
@@ -65,6 +78,55 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
     setContent((prev: any) => ({
       ...prev,
       act2Curtain: { ...prev.act2Curtain, [field]: val }
+    }))
+  }
+
+  const handleCoreTeamChange = (field: string, val: any) => {
+    setContent((prev: any) => ({
+      ...prev,
+      coreTeam: { ...prev.coreTeam, [field]: val }
+    }))
+  }
+
+  const toggleTeamMemberSelection = (member: any) => {
+    const currentCoreTeam = content.coreTeam || {}
+    const currentSelectedIds: string[] = Array.isArray(currentCoreTeam.selectedMemberIds)
+      ? currentCoreTeam.selectedMemberIds
+      : (Array.isArray(currentCoreTeam.members) ? currentCoreTeam.members.map((m: any) => m.id) : [])
+
+    const isSelected = currentSelectedIds.includes(member.id)
+    let newSelectedIds: string[]
+
+    if (isSelected) {
+      newSelectedIds = currentSelectedIds.filter(id => id !== member.id)
+    } else {
+      newSelectedIds = [...currentSelectedIds, member.id]
+    }
+
+    // Map selected member objects for immediate preview & persistence
+    const selectedObjects = availableTeamMembers
+      .filter(m => newSelectedIds.includes(m.id))
+      .map(m => ({
+        id: m.id,
+        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+        roleEn: m.designation || "Executive",
+        roleAr: m.designationAr || m.designation || "قيادي",
+        bioEn: m.aboutSummary || m.tagline || "",
+        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف"
+      }))
+
+    setContent((prev: any) => ({
+      ...prev,
+      coreTeam: {
+        ...prev.coreTeam,
+        selectedMemberIds: newSelectedIds,
+        members: selectedObjects
+      }
     }))
   }
 
@@ -98,104 +160,93 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         },
         act1Hero: {
           ...act1Hero,
-          ...heroMedia,
-          titleEn: act1Hero.titleEn || content.hero?.headerEn,
-          titleAr: act1Hero.titleAr || content.hero?.headerAr,
-          subtextEn: act1Hero.subtextEn || content.hero?.subHeaderEn,
-          subtextAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
           mediaUrl: mediaUrlResolved,
-          desktopVideoUrl: mediaUrlResolved,
           mediaType: mediaTypeResolved,
-        },
-      }
-
-      const jsonBody = JSON.stringify({ content: updatedContent })
-      if (jsonBody.length > 3.5 * 1024 * 1024) {
-        throw new Error('Payload Too Large. One or more of your section media items contains a large embedded file. Please compress images/videos or paste direct CDN URLs.')
+        }
       }
 
       const res = await fetch('/api/cms/pages/b2c-landing', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: jsonBody
+        body: JSON.stringify({
+          data: {
+            content: updatedContent,
+            published: true,
+          }
+        }),
       })
 
       if (!res.ok) {
-        if (res.status === 413) {
-          throw new Error('Payload Too Large (HTTP 413). Please compress uploaded media files or paste direct video URLs.')
-        }
-        const errorJson = await res.json().catch(() => null);
-        throw new Error(errorJson?.error || `Failed to save CMS configuration (HTTP ${res.status})`);
+        throw new Error('Failed to save landing page changes')
       }
 
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
-        try {
-          const bc = new BroadcastChannel('e3_cms_sync')
-          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
-          bc.close()
-        } catch (_bcErr) {}
-      }
+      try {
+        const bc = new BroadcastChannel('e3_cms_sync');
+        bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() });
+        bc.close();
+      } catch (_e) {}
 
-      await fetchLatestData()
-      toast('B2C Landing Story saved successfully!', 'success')
+      window.dispatchEvent(new Event('e3_cms_b2c_landing_updated'));
+
+      toast('CMS Page Saved Successfully: Landing Page content and team selection saved to database.')
       router.refresh()
-    } catch (err: any) {
-      console.error(err)
-      toast(err?.message || 'Error saving CMS configuration', 'error')
+    } catch (error: any) {
+      toast(`Error Saving CMS Page: ${error.message || 'Could not update page'}`)
     } finally {
       setSaving(false)
     }
   }
 
+  const selectedIds: string[] = Array.isArray(content.coreTeam?.selectedMemberIds)
+    ? content.coreTeam.selectedMemberIds
+    : (Array.isArray(content.coreTeam?.members) ? content.coreTeam.members.map((m: any) => m.id) : [])
+
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8 text-[var(--text-primary)]">
+    <div className="space-y-8 max-w-5xl mx-auto pb-24">
       {/* Header Bar */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-level-1)] shadow-sm">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[var(--surface-selected)] text-[var(--color-primary)] border border-[var(--color-primary)]/30">
-              B2C PAGE EDITOR
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-[var(--color-primary)]" />
-              <span>Landing Page Layout & Section Editor</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage page layout, hero titles, main headlines, and section visibility. Use Content Managers for detailed item rosters.
-          </p>
+          <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Landing Page CMS Editor</h1>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage acts, media configurations, and team members displayed on the landing page.</p>
         </div>
 
         <button
           onClick={handleSave}
-          disabled={saving || uploading}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-extrabold transition-all shadow-md cursor-pointer disabled:opacity-50"
+          disabled={saving}
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-bold text-sm rounded-xl hover:opacity-90 transition-all shadow-md disabled:opacity-50 cursor-pointer"
         >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : uploading ? 'Uploading Media...' : 'Save Page Layout'}</span>
+          {saving ? (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
+          <span>{saving ? 'Saving...' : 'Save All Changes'}</span>
         </button>
       </div>
 
-      {/* Single Unified Hero Media Editor */}
+      {/* Hero Media Settings */}
       <UniversalMediaSectionEditor
-        title="Landing Hero Media & Cover Settings"
-        subtitle="Single unified hero media editor supporting Image, Video, 3D GLB Models, Embed IFrames, and Poster Fallbacks."
-        value={content.heroMedia || { mediaType: content.hero?.mediaType || 'IMAGE', mediaUrl: content.hero?.mediaUrl || content.act1Hero?.desktopVideoUrl }}
-        onUploadStatusChange={setUploading}
+        title="Landing Hero Media Settings"
+        subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
+        value={content.heroMedia || {
+          mediaType: content.act1Hero?.desktopVideoUrl?.match(/\.(mp4|webm)$/i) ? 'VIDEO' : 'IMAGE',
+          mediaUrl: content.act1Hero?.desktopVideoUrl || content.hero?.mediaUrl || '',
+          fallbackImage: content.act1Hero?.mobileVideoUrl || content.hero?.posterUrl || '',
+          posterUrl: content.act1Hero?.mobileVideoUrl || content.hero?.posterUrl || '',
+        }}
         onChange={(heroMedia: UniversalMediaConfig) => setContent((prev: any) => ({
           ...prev,
           heroMedia,
-          hero: {
-            ...(prev.hero || {}),
-            mediaUrl: heroMedia.mediaUrl,
-            mediaType: heroMedia.mediaType,
-            posterUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
-          },
           act1Hero: {
-            ...(prev.act1Hero || {}),
+            ...prev.act1Hero,
             mediaUrl: heroMedia.mediaUrl,
             desktopVideoUrl: heroMedia.mediaUrl,
+            mediaType: heroMedia.mediaType,
+            mobileVideoUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
+          },
+          hero: {
+            ...prev.hero,
+            mediaUrl: heroMedia.mediaUrl,
             mediaType: heroMedia.mediaType,
             posterUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
           }
@@ -289,6 +340,108 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Core Team & Leadership Selector Section */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-level-1)] pb-4">
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <Users className="w-5 h-5 text-purple-500" />
+              <span>Core Team & Leadership Display Selector</span>
+            </h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+              Select which team members from <code className="text-purple-400 bg-purple-950/40 px-1.5 py-0.5 rounded">/dashboard/team</code> will be showcased on the landing page.
+            </p>
+          </div>
+
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+            {selectedIds.length} Members Selected
+          </span>
+        </div>
+
+        {/* Section Headline Inputs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Team Section Title (English)</label>
+            <input
+              type="text"
+              value={content.coreTeam?.headlineEn || 'The people behind the experience'}
+              onChange={(e) => handleCoreTeamChange('headlineEn', e.target.value)}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Team Section Title (Arabic)</label>
+            <input
+              type="text"
+              dir="rtl"
+              value={content.coreTeam?.headlineAr || 'الفريق الذي يصنع التجربة'}
+              onChange={(e) => handleCoreTeamChange('headlineAr', e.target.value)}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+            />
+          </div>
+        </div>
+
+        {/* Team Members Grid Selection Picker */}
+        <div className="space-y-3 pt-2">
+          <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+            Select Team Members from Database Profiles (/dashboard/team):
+          </label>
+
+          {availableTeamMembers.length === 0 ? (
+            <div className="p-8 text-center border border-dashed border-[var(--border-level-1)] rounded-2xl bg-[var(--bg-level-1)]">
+              <Users className="w-8 h-8 text-[var(--text-secondary)] mx-auto mb-2 opacity-50" />
+              <p className="text-xs text-[var(--text-secondary)]">No team members registered yet in database.</p>
+              <a href="/dashboard/team" className="text-xs font-bold text-purple-400 hover:underline mt-2 inline-block">
+                Manage Team Profiles under /dashboard/team ↗
+              </a>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {availableTeamMembers.map((member) => {
+                const isSelected = selectedIds.includes(member.id)
+                const fullName = `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Team Member'
+
+                return (
+                  <div
+                    key={member.id}
+                    onClick={() => toggleTeamMemberSelection(member)}
+                    className={`relative p-4 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 select-none ${
+                      isSelected
+                        ? 'border-purple-500 bg-purple-500/10 shadow-md'
+                        : 'border-[var(--border-level-1)] bg-[var(--bg-level-1)] hover:border-purple-500/40'
+                    }`}
+                  >
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-zinc-900 shrink-0 border border-white/10">
+                      {member.profileImage ? (
+                        <img src={member.profileImage} alt={fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-bold text-sm text-purple-400">
+                          {member.firstName?.[0] || 'E'}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">{fullName}</h4>
+                      <p className="text-xs text-purple-400 truncate">{member.designation || member.department || 'Executive'}</p>
+                    </div>
+
+                    <div className="shrink-0">
+                      {isSelected ? (
+                        <UserCheck className="w-5 h-5 text-purple-400 fill-purple-500/20" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-[var(--border-level-1)]" />
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
 

@@ -2,6 +2,19 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 
+export async function GET(request: Request) {
+  try {
+    const teamMembers = await db.employeeProfile.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" }
+    })
+    return NextResponse.json(teamMembers)
+  } catch (error: any) {
+    console.error("[TEAM_GET_ERROR]", error)
+    return NextResponse.json({ error: error.message || "Failed to fetch team members" }, { status: 500 })
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth()
@@ -58,18 +71,17 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get("id")
-
+    const url = new URL(request.url)
+    const id = url.searchParams.get("id")
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 })
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 })
     }
 
     await db.employeeProfile.delete({
       where: { id }
     })
 
-    return NextResponse.json({ success: true, message: "Member deleted" })
+    return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error("[TEAM_DELETE_ERROR]", error)
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
