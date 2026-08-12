@@ -18,7 +18,7 @@ import {
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-const DEFAULT_STYLE_URL = process.env.NEXT_PUBLIC_MAP_STYLE_URL || 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+import { DARK_MAP_STYLE } from '@/components/map/map-config';
 
 export function LocationManager() {
   const [locations, setLocations] = useState<any[]>([]);
@@ -108,7 +108,7 @@ export function LocationManager() {
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: DEFAULT_STYLE_URL,
+      style: DARK_MAP_STYLE,
       center: [initialLng, initialLat],
       zoom: 12
     });

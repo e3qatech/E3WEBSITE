@@ -1,14 +1,69 @@
+import type { StyleSpecification } from 'maplibre-gl';
+
 export const ALLOWED_MAP_STYLE_ORIGINS = [
   'tiles.openfreemap.org',
   'demotiles.maplibre.org',
-  'basemaps.cartocdn.com'
+  'basemaps.cartocdn.com',
+  'a.basemaps.cartocdn.com',
+  'b.basemaps.cartocdn.com',
+  'c.basemaps.cartocdn.com',
+  'd.basemaps.cartocdn.com'
 ];
 
-export const DEFAULT_MAP_STYLE_DARK = process.env.NEXT_PUBLIC_MAP_STYLE_DARK || 'https://tiles.openfreemap.org/styles/dark';
-export const DEFAULT_MAP_STYLE_LIGHT = process.env.NEXT_PUBLIC_MAP_STYLE_LIGHT || 'https://tiles.openfreemap.org/styles/positron';
+export const DARK_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    'carto-dark': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+      ],
+      tileSize: 256,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }
+  },
+  layers: [
+    {
+      id: 'carto-dark-layer',
+      type: 'raster',
+      source: 'carto-dark',
+      minzoom: 0,
+      maxzoom: 22
+    }
+  ]
+};
 
-export function validateMapStyleUrl(url?: string): string {
-  if (!url) return DEFAULT_MAP_STYLE_DARK;
+export const LIGHT_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    'carto-light': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+      ],
+      tileSize: 256,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }
+  },
+  layers: [
+    {
+      id: 'carto-light-layer',
+      type: 'raster',
+      source: 'carto-light',
+      minzoom: 0,
+      maxzoom: 22
+    }
+  ]
+};
+
+export function validateMapStyleUrl(url?: string): string | StyleSpecification {
+  if (!url) return DARK_MAP_STYLE;
 
   try {
     const parsed = new URL(url);
@@ -20,5 +75,5 @@ export function validateMapStyleUrl(url?: string): string {
     console.warn(`[MAP_CONFIG_WARN] Invalid map style URL format: ${url}. Falling back to default dark style.`);
   }
 
-  return DEFAULT_MAP_STYLE_DARK;
+  return DARK_MAP_STYLE;
 }

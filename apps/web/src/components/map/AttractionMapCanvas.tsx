@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapGeoJSONCollection, MapLocationProperties } from './map-types';
-import { validateMapStyleUrl, DEFAULT_MAP_STYLE_DARK, DEFAULT_MAP_STYLE_LIGHT } from './map-config';
+import { DARK_MAP_STYLE, LIGHT_MAP_STYLE } from './map-config';
 import { MapUnavailableFallback } from './MapUnavailableFallback';
 import { Compass, Layers } from 'lucide-react';
 
@@ -19,7 +19,7 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
 
-  const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE_DARK);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [pitch3d, setPitch3d] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
@@ -33,12 +33,12 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
       mapInstanceRef.current = null;
     }
 
-    const safeStyle = validateMapStyleUrl(currentStyle);
+    const mapStyle = isDarkTheme ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
 
     try {
       const map = new maplibregl.Map({
         container: mapContainerRef.current,
-        style: safeStyle,
+        style: mapStyle,
         center: [51.48, 25.35], // Center Qatar
         zoom: 10.5,
         pitch: pitch3d ? 45 : 0,
@@ -55,14 +55,11 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
       map.on('load', () => {
         setMapLoaded(true);
         setMapError(false);
+        map.resize();
       });
 
       map.on('error', (e) => {
         console.warn('[MAPLIBRE_TILE_ERROR]', e);
-        // Only set error fallback if map failed to load essential style/tiles
-        if (!map.isStyleLoaded()) {
-          setMapError(true);
-        }
       });
 
       mapInstanceRef.current = map;
@@ -77,7 +74,7 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
         mapInstanceRef.current = null;
       }
     };
-  }, [currentStyle]);
+  }, [isDarkTheme]);
 
   // Update Vector GeoJSON Source & Pin Layers
   useEffect(() => {
@@ -137,7 +134,6 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
         filter: ['has', 'point_count'],
         layout: {
           'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           'text-size': 12
         },
         paint: {
@@ -223,8 +219,7 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
   };
 
   const toggleStyle = () => {
-    const nextStyle = currentStyle === DEFAULT_MAP_STYLE_DARK ? DEFAULT_MAP_STYLE_LIGHT : DEFAULT_MAP_STYLE_DARK;
-    setCurrentStyle(nextStyle);
+    setIsDarkTheme(!isDarkTheme);
   };
 
   const resetCenter = () => {
@@ -271,9 +266,9 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
         </button>
       </div>
 
-      {/* OpenFreeMap Attribution */}
+      {/* Map Attribution */}
       <div className="absolute bottom-2 start-2 z-10 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[9px] font-mono text-zinc-400">
-        &copy; <a href="https://openfreemap.org" target="_blank" rel="noreferrer" className="underline hover:text-white">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline hover:text-white">OpenStreetMap</a>
+        &copy; <a href="https://carto.com" target="_blank" rel="noreferrer" className="underline hover:text-white">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline hover:text-white">OpenStreetMap</a>
       </div>
     </div>
   );
