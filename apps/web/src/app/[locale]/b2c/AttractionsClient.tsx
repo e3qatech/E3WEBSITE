@@ -8,6 +8,7 @@ import { usePointerIntent } from '@/lib/usePointerIntent';
 
 // Master Narrative Story Components
 import { CinematicHeroUniversal } from '@/components/b2c/story/CinematicHeroUniversal';
+import { AttractionsDirectory } from '@/components/b2c/AttractionsDirectory';
 import { IdeasToLifeComparison } from '@/components/b2c/story/IdeasToLifeComparison';
 import { StoryTaxonomyPortals } from '@/components/b2c/story/StoryTaxonomyPortals';
 import { ExperienceWorldsStage } from '@/components/b2c/story/ExperienceWorldsStage';
@@ -18,7 +19,6 @@ import { CoreTeamPeopleSection } from '@/components/b2c/story/CoreTeamPeopleSect
 import { SocialFeedSection } from '@/components/b2c/story/SocialFeedSection';
 import { HorizontalGPUParallaxGallery } from '@/components/b2c/story/HorizontalGPUParallaxGallery';
 import { TactileDigitalTicket } from '@/components/b2c/story/TactileDigitalTicket';
-import { Footer } from '@/components/layout/Footer';
 import { StoryTrailControl } from '@/components/b2c/story/StoryTrailControl';
 
 export function AttractionsClient({
@@ -119,6 +119,9 @@ export function AttractionsClient({
     <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
       {/* 1. Cinematic Universal Hero */}
       <CinematicHeroUniversal content={liveCmsContent} locale={locale} />
+
+      {/* 2. Attractions Directory & Interactive Map */}
+      <AttractionsDirectory initialAttractions={initialAttractions.length > 0 ? initialAttractions : (_attractions as any)} locale={locale} />
 
       {/* 2. From Idea to Reality (Ideas to Life) */}
       <IdeasToLifeComparison content={liveCmsContent} locale={locale} />
