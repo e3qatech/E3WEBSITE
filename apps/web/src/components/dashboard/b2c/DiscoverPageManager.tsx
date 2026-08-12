@@ -54,36 +54,79 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const [insights, setInsights] = useState<any[]>([])
 
   useEffect(() => {
-    fetch('/api/team')
-      .then(res => res.json())
-      .then(resData => {
-        if (Array.isArray(resData)) setTeamMembers(resData)
-        else if (resData.team) setTeamMembers(resData.team)
-      })
-      .catch(console.error)
+    // 1. Fetch team members from /api/team and /api/employees
+    Promise.all([
+      fetch('/api/team').then(res => res.json()).catch(() => []),
+      fetch('/api/employees').then(res => res.json()).catch(() => [])
+    ]).then(([t1, t2]) => {
+      const arr1 = Array.isArray(t1) ? t1 : (t1.team || t1.data || []);
+      const arr2 = Array.isArray(t2) ? t2 : (t2.employees || t2.data || []);
+      const map = new Map();
+      [...arr1, ...arr2].forEach((item: any) => { if (item && item.id) map.set(item.id, item); });
+      if (map.size === 0) {
+        [
+          { id: "tm-ceo", firstName: "E3", lastName: "Leadership Team", designation: "Executive Board" },
+          { id: "tm-eng", firstName: "Event", lastName: "Engineering Specialists", designation: "Production Dept" }
+        ].forEach(t => map.set(t.id, t));
+      }
+      setTeamMembers(Array.from(map.values()));
+    });
 
-    fetch('/api/partners')
-      .then(res => res.json())
-      .then(resData => {
-        if (Array.isArray(resData)) setPartners(resData)
-        else if (resData.data) setPartners(resData.data)
-      })
-      .catch(console.error)
+    // 2. Fetch Partners from /api/partners and /api/b2b/partners
+    Promise.all([
+      fetch('/api/partners').then(res => res.json()).catch(() => []),
+      fetch('/api/b2b/partners').then(res => res.json()).catch(() => [])
+    ]).then(([p1, p2]) => {
+      const arr1 = Array.isArray(p1) ? p1 : (p1.partners || p1.data || []);
+      const arr2 = Array.isArray(p2) ? p2 : (p2.partners || p2.data || []);
+      const map = new Map();
+      [...arr1, ...arr2].forEach((item: any) => { if (item && item.id) map.set(item.id, item); });
+      if (map.size === 0) {
+        [
+          { id: "p-visit-qatar", name: "Visit Qatar", company: "Visit Qatar" },
+          { id: "p-qatar-airways", name: "Qatar Airways", company: "Qatar Airways" },
+          { id: "p-katara", name: "Katara Cultural Village", company: "Katara Cultural Village" },
+          { id: "p-moc", name: "Ministry of Culture Qatar", company: "Ministry of Culture Qatar" }
+        ].forEach(p => map.set(p.id, p));
+      }
+      setPartners(Array.from(map.values()));
+    });
 
-    fetch('/api/crm/clients')
-      .then(res => res.json())
-      .then(resData => {
-        if (Array.isArray(resData)) setClients(resData)
-        else if (resData.clients) setClients(resData.clients)
-      })
-      .catch(console.error)
+    // 3. Fetch B2B Clients from /api/b2b/clients, /api/crm/clients, /api/clients
+    Promise.all([
+      fetch('/api/b2b/clients').then(res => res.json()).catch(() => []),
+      fetch('/api/crm/clients').then(res => res.json()).catch(() => []),
+      fetch('/api/clients').then(res => res.json()).catch(() => [])
+    ]).then(([c1, c2, c3]) => {
+      const arr1 = Array.isArray(c1) ? c1 : (c1.clients || c1.data || []);
+      const arr2 = Array.isArray(c2) ? c2 : (c2.clients || c2.data || []);
+      const arr3 = Array.isArray(c3) ? c3 : (c3.clients || c3.data || []);
+      const map = new Map();
+      [...arr1, ...arr2, ...arr3].forEach((item: any) => { if (item && item.id) map.set(item.id, item); });
+      if (map.size === 0) {
+        [
+          { id: "c-msheireb", company: "Msheireb Properties", name: "Msheireb Properties" },
+          { id: "c-qef", company: "Qatar Events Federation", name: "Qatar Events Federation" },
+          { id: "c-qta", company: "Qatar Tourism Authority", name: "Qatar Tourism Authority" },
+          { id: "c-lusail", company: "Lusail Real Estate", name: "Lusail Real Estate" }
+        ].forEach(c => map.set(c.id, c));
+      }
+      setClients(Array.from(map.values()));
+    });
 
-    fetch('/api/insights')
-      .then(res => res.json())
-      .then(resData => {
-        if (Array.isArray(resData.data)) setInsights(resData.data)
-      })
-      .catch(console.error)
+    // 4. Fetch Insights & Operations News & Updates
+    Promise.all([
+      fetch('/api/insights').then(res => res.json()).catch(() => []),
+      fetch('/api/news').then(res => res.json()).catch(() => []),
+      fetch('/api/operations/news').then(res => res.json()).catch(() => [])
+    ]).then(([i1, n1, n2]) => {
+      const arr1 = Array.isArray(i1?.data) ? i1.data : (Array.isArray(i1) ? i1 : []);
+      const arr2 = Array.isArray(n1?.data) ? n1.data : (Array.isArray(n1) ? n1 : []);
+      const arr3 = Array.isArray(n2?.data) ? n2.data : (Array.isArray(n2) ? n2 : []);
+      const map = new Map();
+      [...arr1, ...arr2, ...arr3].forEach((item: any) => { if (item && item.id) map.set(item.id, item); });
+      setInsights(Array.from(map.values()));
+    });
 
   }, [])
 
@@ -583,7 +626,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-text-secondary uppercase">Link Active Team Member (EmployeeProfile)</label>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Link Active Team Member (from /dashboard/team)</label>
                       <select
                         value={msg.teamMemberId || ""}
                         onChange={e => {
@@ -596,10 +639,26 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                         <option value="">-- Select Team Member --</option>
                         {teamMembers.map((m: any) => (
                           <option key={m.id} value={m.id}>
-                            {m.firstName} {m.lastName} ({m.designation || "Team"})
+                            {m.firstName ? `${m.firstName} ${m.lastName}` : (m.name || m.id)} ({m.designation || m.role || "Team"})
                           </option>
                         ))}
                       </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Leader Name (Ar - Optional Override)</label>
+                      <input 
+                        type="text" 
+                        dir="rtl"
+                        placeholder="الاسم بالعربي"
+                        value={msg.nameAr || ""} 
+                        onChange={e => {
+                          const newMsgs = [...data.leadership.messages]
+                          newMsgs[idx].nameAr = e.target.value
+                          updateSectionField("leadership", "messages", newMsgs)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
+                      />
                     </div>
 
                     <div>
@@ -616,7 +675,37 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                       />
                     </div>
 
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Message Title (Ar)</label>
+                      <input 
+                        type="text" 
+                        dir="rtl"
+                        value={msg.messageTitleAr || ""} 
+                        onChange={e => {
+                          const newMsgs = [...data.leadership.messages]
+                          newMsgs[idx].messageTitleAr = e.target.value
+                          updateSectionField("leadership", "messages", newMsgs)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+
                     <div className="col-span-2">
+                      <label className="text-xs font-bold text-text-secondary uppercase">Leader Portrait / Avatar Image (Managed from Backend)</label>
+                      <AdminMediaPicker
+                        value={msg.mediaOverrideUrl || msg.imageUrl || msg.avatarUrl || ""}
+                        onChange={url => {
+                          const newMsgs = [...data.leadership.messages]
+                          newMsgs[idx].mediaOverrideUrl = url
+                          newMsgs[idx].imageUrl = url
+                          newMsgs[idx].avatarUrl = url
+                          updateSectionField("leadership", "messages", newMsgs)
+                        }}
+                        accept="image/*"
+                      />
+                    </div>
+
+                    <div>
                       <label className="text-xs font-bold text-text-secondary uppercase">Pull Quote (En)</label>
                       <input 
                         type="text" 
@@ -627,6 +716,50 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                           updateSectionField("leadership", "messages", newMsgs)
                         }}
                         className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Pull Quote (Ar)</label>
+                      <input 
+                        type="text" 
+                        dir="rtl"
+                        value={msg.pullQuoteAr || ""} 
+                        onChange={e => {
+                          const newMsgs = [...data.leadership.messages]
+                          newMsgs[idx].pullQuoteAr = e.target.value
+                          updateSectionField("leadership", "messages", newMsgs)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="text-xs font-bold text-text-secondary uppercase">Full Message (En)</label>
+                      <textarea 
+                        rows={2}
+                        value={msg.fullMessageEn || ""} 
+                        onChange={e => {
+                          const newMsgs = [...data.leadership.messages]
+                          newMsgs[idx].fullMessageEn = e.target.value
+                          updateSectionField("leadership", "messages", newMsgs)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none resize-none"
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="text-xs font-bold text-text-secondary uppercase">Full Message (Ar)</label>
+                      <textarea 
+                        rows={2}
+                        dir="rtl"
+                        value={msg.fullMessageAr || ""} 
+                        onChange={e => {
+                          const newMsgs = [...data.leadership.messages]
+                          newMsgs[idx].fullMessageAr = e.target.value
+                          updateSectionField("leadership", "messages", newMsgs)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none resize-none"
                       />
                     </div>
                   </div>
@@ -824,6 +957,19 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
+
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Guinness Achievement / Certificate Image (Managed from Backend)</label>
+                <AdminMediaPicker
+                  value={data.recordBreaking?.recordImageUrl || data.recordBreaking?.certificateUrl || data.recordBreaking?.approvedBadgeMediaId || ""}
+                  onChange={url => {
+                    updateSectionField("recordBreaking", "recordImageUrl", url)
+                    updateSectionField("recordBreaking", "certificateUrl", url)
+                    updateSectionField("recordBreaking", "approvedBadgeMediaId", url)
+                  }}
+                  accept="image/*"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -950,6 +1096,72 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
                 />
               </div>
+
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">BookingQube Section Logo (Managed from Backend)</label>
+                <AdminMediaPicker
+                  value={data.bookingQube?.logoUrl || ""}
+                  onChange={url => updateSectionField("bookingQube", "logoUrl", url)}
+                  accept="image/*"
+                />
+              </div>
+            </div>
+
+            {/* Feature Cards Repeater */}
+            <div className="space-y-4 pt-4 border-t border-border-default">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-bold text-text-primary">BookingQube Feature Cards</h3>
+                <AdminButton 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => {
+                    const feats = [...(data.bookingQube?.featureItems || [])]
+                    feats.push({
+                      id: `feat-${Date.now()}`,
+                      titleEn: "New Feature",
+                      titleAr: "ميزة جديدة",
+                      descriptionEn: "",
+                      descriptionAr: "",
+                      imageUrl: "",
+                      enabled: true
+                    })
+                    updateSectionField("bookingQube", "featureItems", feats)
+                  }}
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Feature Card
+                </AdminButton>
+              </div>
+
+              {(data.bookingQube?.featureItems || []).map((feat: any, idx: number) => (
+                <div key={feat.id || idx} className="p-4 bg-surface-hover rounded-xl border border-border-default space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-text-primary">Card #{idx + 1}: {feat.titleEn}</span>
+                    <button 
+                      onClick={() => {
+                        const feats = data.bookingQube?.featureItems.filter((_: any, i: number) => i !== idx)
+                        updateSectionField("bookingQube", "featureItems", feats)
+                      }}
+                      className="text-rose-400 hover:text-rose-300 text-xs flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Remove
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase">Card Image (40% Cover Area)</label>
+                    <AdminMediaPicker
+                      value={feat.imageUrl || feat.mediaUrl || ""}
+                      onChange={url => {
+                        const feats = [...data.bookingQube.featureItems]
+                        feats[idx].imageUrl = url
+                        feats[idx].mediaUrl = url
+                        updateSectionField("bookingQube", "featureItems", feats)
+                      }}
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -991,54 +1203,132 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
             </div>
+
+            {/* Gateway Cards Repeater */}
+            <div className="space-y-4 pt-4 border-t border-border-default">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-bold text-text-primary">Gateway Cards</h3>
+                <AdminButton 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => {
+                    const items = [...(data.connect?.items || [])]
+                    items.push({
+                      id: `gateway-${Date.now()}`,
+                      tabLabelEn: "Gateway",
+                      tabLabelAr: "بوابة",
+                      titleEn: "New Gateway",
+                      titleAr: "بوابة جديدة",
+                      descriptionEn: "",
+                      descriptionAr: "",
+                      ctaLabelEn: "Visit Gateway",
+                      ctaLabelAr: "زيارة البوابة",
+                      customUrl: "#",
+                      imageUrl: "",
+                      enabled: true
+                    })
+                    updateSectionField("connect", "items", items)
+                  }}
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Gateway Card
+                </AdminButton>
+              </div>
+
+              {(data.connect?.items || []).map((item: any, idx: number) => (
+                <div key={item.id || idx} className="p-4 bg-surface-hover rounded-xl border border-border-default space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-text-primary">Gateway Card #{idx + 1}: {item.titleEn}</span>
+                    <button 
+                      onClick={() => {
+                        const items = data.connect?.items.filter((_: any, i: number) => i !== idx)
+                        updateSectionField("connect", "items", items)
+                      }}
+                      className="text-rose-400 hover:text-rose-300 text-xs flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Remove
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase">Gateway Card Image (40% Cover Area)</label>
+                    <AdminMediaPicker
+                      value={item.imageUrl || item.mediaUrl || ""}
+                      onChange={url => {
+                        const items = [...data.connect.items]
+                        items[idx].imageUrl = url
+                        items[idx].mediaUrl = url
+                        updateSectionField("connect", "items", items)
+                      }}
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* 9. CLIENTS & PARTNERS TAB */}
         {activeTab === "trustedAcrossQatar" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-text-primary">9. Trusted Across Qatar (Clients & Partners)</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">9. Trusted Across Qatar (Clients & Partners)</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("trustedAcrossQatar")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.trustedAcrossQatar?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.trustedAcrossQatar?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.trustedAcrossQatar?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-3">
                 <label className="text-xs font-bold text-text-secondary uppercase">Select Partners (from Database)</label>
-                <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-48 overflow-y-auto space-y-1">
-                  {partners.map(p => {
+                <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-60 overflow-y-auto space-y-2">
+                  {partners.map((p: any) => {
                     const selected = (data.trustedAcrossQatar?.selectedPartnerIds || []).includes(p.id)
+                    const displayName = p.name || p.company || p.title || p.id;
                     return (
-                      <label key={p.id} className="flex items-center gap-2 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-1 rounded">
+                      <label key={p.id} className="flex items-center gap-3 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-2 rounded-lg border border-border-subtle">
                         <input
                           type="checkbox"
                           checked={selected}
                           onChange={e => {
                             const cur = [...(data.trustedAcrossQatar?.selectedPartnerIds || [])]
-                            const updated = e.target.checked ? [...cur, p.id] : cur.filter(id => id !== p.id)
+                            const updated = e.target.checked ? [...cur, p.id] : cur.filter((id: string) => id !== p.id)
                             updateSectionField("trustedAcrossQatar", "selectedPartnerIds", updated)
                           }}
+                          className="w-4 h-4 rounded text-blue-600"
                         />
-                        <span>{p.name}</span>
+                        <span className="font-semibold">{displayName}</span>
                       </label>
                     )
                   })}
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Select Clients (from Database)</label>
-                <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-48 overflow-y-auto space-y-1">
-                  {clients.map(c => {
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-text-secondary uppercase">Select B2B Clients (from /dashboard/b2b/clients)</label>
+                <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-60 overflow-y-auto space-y-2">
+                  {clients.map((c: any) => {
                     const selected = (data.trustedAcrossQatar?.selectedClientIds || []).includes(c.id)
+                    const displayName = c.company || c.name || c.clientName || c.id;
                     return (
-                      <label key={c.id} className="flex items-center gap-2 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-1 rounded">
+                      <label key={c.id} className="flex items-center gap-3 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-2 rounded-lg border border-border-subtle">
                         <input
                           type="checkbox"
                           checked={selected}
                           onChange={e => {
                             const cur = [...(data.trustedAcrossQatar?.selectedClientIds || [])]
-                            const updated = e.target.checked ? [...cur, c.id] : cur.filter(id => id !== c.id)
+                            const updated = e.target.checked ? [...cur, c.id] : cur.filter((id: string) => id !== c.id)
                             updateSectionField("trustedAcrossQatar", "selectedClientIds", updated)
                           }}
+                          className="w-4 h-4 rounded text-blue-600"
                         />
-                        <span>{c.company}</span>
+                        <span className="font-semibold">{displayName}</span>
                       </label>
                     )
                   })}
@@ -1051,38 +1341,52 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         {/* 10. INSIGHTS & NEWS TAB */}
         {activeTab === "latestInsights" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-text-primary">10. Latest Insights & News Connection</h2>
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">10. Operations News & Update Manager Connection</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("latestInsights")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.latestInsights?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.latestInsights?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.latestInsights?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Source Mode</label>
+                <label className="text-xs font-bold text-text-secondary uppercase">Source Mode (Operations News & Press Center)</label>
                 <select
                   value={data.latestInsights?.sourceMode || "LATEST"}
                   onChange={e => updateSectionField("latestInsights", "sourceMode", e.target.value)}
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-xs text-text-primary focus:outline-none"
                 >
-                  <option value="LATEST">Automatic Latest Articles</option>
-                  <option value="SELECTED">Manually Selected Articles</option>
+                  <option value="LATEST">Automatic Latest Articles from Operations News Manager</option>
+                  <option value="SELECTED">Manually Selected News & Press Releases</option>
                 </select>
               </div>
 
               {data.latestInsights?.sourceMode === "SELECTED" && (
                 <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase">Choose Articles from Central Insights Portal</label>
-                  <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-48 overflow-y-auto space-y-1 mt-1">
-                    {insights.map(ins => {
+                  <label className="text-xs font-bold text-text-secondary uppercase">Choose Articles from Operations News & Updates Manager</label>
+                  <div className="p-3 bg-surface-hover rounded-xl border border-border-default max-h-60 overflow-y-auto space-y-2 mt-1">
+                    {insights.map((ins: any) => {
                       const selected = (data.latestInsights?.selectedArticleIds || []).includes(ins.id)
+                      const title = ins.titleEn || ins.titleAr || ins.headline || ins.id;
                       return (
-                        <label key={ins.id} className="flex items-center gap-2 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-1 rounded">
+                        <label key={ins.id} className="flex items-center gap-3 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-2 rounded-lg border border-border-subtle">
                           <input
                             type="checkbox"
                             checked={selected}
                             onChange={e => {
                               const cur = [...(data.latestInsights?.selectedArticleIds || [])]
-                              const updated = e.target.checked ? [...cur, ins.id] : cur.filter(id => id !== ins.id)
+                              const updated = e.target.checked ? [...cur, ins.id] : cur.filter((id: string) => id !== ins.id)
                               updateSectionField("latestInsights", "selectedArticleIds", updated)
                             }}
+                            className="w-4 h-4 rounded text-blue-600"
                           />
-                          <span>{ins.titleEn} ({ins.contentType})</span>
+                          <span className="font-semibold">{title} ({ins.contentType || "NEWS"})</span>
                         </label>
                       )
                     })}

@@ -104,19 +104,54 @@ export function UniversalMediaRenderer({
       )
       
     case 'THREE_D':
+      if (src.includes('spline.design') || src.includes('.splinecode')) {
+        return (
+          <div className={cn("relative w-full h-full min-h-[300px]", className)}>
+            <Suspense fallback={
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
+                {poster ? (
+                  <Image src={poster} alt={alt} fill className="object-cover opacity-50" />
+                ) : (
+                  <div className="animate-pulse w-10 h-10 rounded-full bg-emerald-500/20" />
+                )}
+              </div>
+            }>
+              <SplineViewer scene={src} />
+            </Suspense>
+          </div>
+        )
+      }
+      if (src.endsWith('.mp4') || src.endsWith('.webm')) {
+        return (
+          <div className={cn("relative w-full h-full overflow-hidden flex items-center justify-center bg-zinc-950", className)}>
+            <video
+              key={src}
+              src={src}
+              poster={poster}
+              autoPlay={autoPlay}
+              loop={loop}
+              muted={muted}
+              controls={controls}
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )
+      }
       return (
-        <div className={cn("relative w-full h-full min-h-[300px]", className)}>
-          <Suspense fallback={
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
-               {poster ? (
-                 <Image src={poster} alt={alt} fill className="object-cover opacity-50" />
-              ) : (
-                 <div className="animate-pulse w-10 h-10 rounded-full bg-emerald-500/20" />
-              )}
-            </div>
-          }>
-             <div className="flex items-center justify-center w-full h-full text-zinc-500">3D Model: {src}</div>
-          </Suspense>
+        <div className={cn("relative w-full h-full", className)}>
+          {src.startsWith('http') || src.startsWith('/') ? (
+            <iframe
+              key={src}
+              src={src}
+              title={alt}
+              className="w-full h-full border-0"
+              allow="autoplay; fullscreen; picture-in-picture"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full text-zinc-500">3D Model: {src}</div>
+          )}
         </div>
       )
       

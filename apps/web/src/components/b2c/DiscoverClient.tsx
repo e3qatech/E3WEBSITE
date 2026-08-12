@@ -11,7 +11,8 @@ import {
   Smartphone, 
   Download, 
   ArrowRight, 
-  FileText
+  FileText,
+  Award
 } from "lucide-react";
 
 import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
@@ -91,9 +92,27 @@ export function DiscoverClient({
         // 1. HERO SECTION
         if (sectionKey === "hero" && content.hero?.enabled !== false) {
           const hero = content.hero || {};
+          const rawType = ((hero.mediaType as any) || "IMAGE").toUpperCase();
+          const normalizedType = rawType === "MODEL_3D" ? "THREE_D" : rawType;
+
           return (
-            <section key="hero" id="hero" className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
-              <ImmersiveCanvas />
+            <section key="hero" id="hero" className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden bg-[var(--e3-midnight)]">
+              {/* Full-Bleed Hero Background Media Container */}
+              {hero.mediaUrl ? (
+                <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+                  <UniversalMediaRenderer
+                    src={hero.mediaUrl}
+                    type={normalizedType as any}
+                    alt={isAr ? hero.headlineAr : hero.headlineEn}
+                    className="w-full h-full object-cover"
+                    poster={hero.posterMediaUrl || hero.mobileMediaUrl}
+                  />
+                  {/* Dark gradient overlay scrim to ensure text legibility */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[var(--e3-midnight)]/85 via-[var(--e3-midnight)]/70 to-[var(--e3-midnight)] z-[1] pointer-events-none" />
+                </div>
+              ) : (
+                <ImmersiveCanvas />
+              )}
               
               <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center">
                 <motion.div
@@ -102,16 +121,16 @@ export function DiscoverClient({
                   transition={{ duration: 0.8 }}
                   className="space-y-6 max-w-4xl mx-auto"
                 >
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)]">
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)] backdrop-blur-md">
                     <Sparkles className="w-3.5 h-3.5" />
                     {isAr ? (hero.eyebrowAr || "منظومة إي ثري الترفيهية") : (hero.eyebrowEn || "The E3 Qatar Ecosystem")}
                   </span>
 
-                  <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05]">
+                  <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05] drop-shadow-lg">
                     <AnimatedText text={isAr ? (hero.headlineAr || "تحويل الأفكار المكانية إلى معالم حية") : (hero.headlineEn || "Transforming Spatial Ideas Into Living Landmarks")} />
                   </h1>
 
-                  <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed">
+                  <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                     {isAr ? (hero.subtextAr || "منظومة قطرية متكاملة لابتكار وإدارة التجارب والفعاليات") : (hero.subtextEn || "Integrated Qatari ecosystem for pioneering events and destinations.")}
                   </p>
 
@@ -119,22 +138,11 @@ export function DiscoverClient({
                     <div className="pt-4 flex justify-center gap-4">
                       <a
                         href={hero.primaryCtaUrl || "#about"}
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform"
+                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform shadow-xl"
                       >
                         {isAr ? (hero.primaryCtaLabelAr || "استكشف المنظومة") : (hero.primaryCtaLabelEn || "Explore Ecosystem")}
                         <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                       </a>
-                    </div>
-                  )}
-
-                  {hero.mediaUrl && (
-                    <div className="mt-8 rounded-2xl overflow-hidden border border-[var(--border-level-2)] max-w-3xl mx-auto shadow-2xl">
-                      <UniversalMediaRenderer
-                        src={hero.mediaUrl}
-                        type={(hero.mediaType as any) || "IMAGE"}
-                        alt={isAr ? hero.headlineAr : hero.headlineEn}
-                        className="w-full h-[400px] object-cover"
-                      />
                     </div>
                   )}
                 </motion.div>
@@ -213,46 +221,59 @@ export function DiscoverClient({
               <div className="max-w-7xl mx-auto px-4 md:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-2 block">
-                    {isAr ? ldr.eyebrowAr : ldr.eyebrowEn || "LEADERSHIP PERSPECTIVES"}
+                    {isAr ? (ldr.eyebrowAr || "رؤى القيادة") : (ldr.eyebrowEn || "LEADERSHIP PERSPECTIVES")}
                   </span>
                   <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
-                    {isAr ? ldr.headingAr : ldr.headingEn || "Guided By Vision & Engineering Mastery"}
+                    {isAr ? (ldr.headingAr || "قيادة برؤية هندسية مبتكرة") : (ldr.headingEn || "Guided By Vision & Engineering Mastery")}
                   </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {messages.map((msg: any) => {
                     const profile = msg.teamMemberId ? employeeProfileMap.get(msg.teamMemberId) : null;
-                    const portrait = profile?.profileImage || msg.mediaOverrideUrl;
-                    const name = profile ? `${profile.firstName} ${profile.lastName}` : (isAr ? msg.nameAr : msg.nameEn);
-                    const title = profile?.designation || (isAr ? msg.messageTitleAr : msg.messageTitleEn);
+                    const portrait = profile?.profileImage || msg.mediaOverrideUrl || msg.imageUrl || msg.avatarUrl;
+                    const name = isAr ? (msg.nameAr || (profile ? `${profile.firstName} ${profile.lastName}` : msg.nameEn)) : (profile ? `${profile.firstName} ${profile.lastName}` : msg.nameEn);
+                    const title = isAr ? (msg.messageTitleAr || msg.messageTitleEn || profile?.designation) : (msg.messageTitleEn || profile?.designation);
 
                     return (
-                      <InteractiveCard key={msg.id} className="p-8 flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-4">
-                            {portrait ? (
-                              <img src={portrait} alt={name} className="w-14 h-14 rounded-full object-cover border border-[var(--border-level-2)]" />
-                            ) : (
-                              <div className="w-14 h-14 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 flex items-center justify-center font-bold text-lg text-[var(--e3-royal-blue)]">
+                      <InteractiveCard key={msg.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Image Cover Area */}
+                        <div className="relative h-56 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-black overflow-hidden flex items-center justify-center">
+                          {portrait ? (
+                            <img src={portrait} alt={name || "Leader"} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="relative w-full h-full flex items-center justify-center bg-[var(--e3-deep-blue)]/80">
+                              <div className="w-24 h-24 rounded-full bg-[var(--e3-royal-blue)]/30 border border-[var(--e3-royal-blue)]/60 flex items-center justify-center font-bold text-3xl text-[var(--e3-royal-blue)] shadow-2xl">
                                 {name?.charAt(0) || "E3"}
                               </div>
-                            )}
-                            <div>
-                              <h3 className="font-extrabold text-base text-[var(--text-primary)]">{name}</h3>
-                              <p className="text-xs text-[var(--text-secondary)] font-mono">{title}</p>
                             </div>
-                          </div>
-
-                          {msg.pullQuoteEn && (
-                            <blockquote className="text-sm font-semibold italic text-[var(--e3-royal-blue)] border-l-2 border-[var(--e3-royal-blue)] pl-3 py-1">
-                              &ldquo;{isAr ? msg.pullQuoteAr : msg.pullQuoteEn}&rdquo;
-                            </blockquote>
                           )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-90" />
+                        </div>
 
-                          <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
-                            {isAr ? msg.fullMessageAr : msg.fullMessageEn}
-                          </p>
+                        {/* 60% Text Content Area */}
+                        <div className="p-8 flex-1 flex flex-col justify-between space-y-4">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                              {portrait && (
+                                <img src={portrait} alt={name || "Leader"} className="w-12 h-12 rounded-full object-cover border border-[var(--e3-royal-blue)] shadow-md" />
+                              )}
+                              <div>
+                                <h3 className="font-extrabold text-lg text-[var(--text-primary)] font-display uppercase">{name}</h3>
+                                <p className="text-xs text-[var(--e3-royal-blue)] font-mono font-bold uppercase tracking-wider">{title}</p>
+                              </div>
+                            </div>
+
+                            {(msg.pullQuoteEn || msg.pullQuoteAr) && (
+                              <blockquote className="text-sm font-semibold italic text-[var(--e3-royal-blue)] border-l-2 border-[var(--e3-royal-blue)] pl-3 py-1">
+                                &ldquo;{isAr ? (msg.pullQuoteAr || msg.pullQuoteEn) : (msg.pullQuoteEn || msg.pullQuoteAr)}&rdquo;
+                              </blockquote>
+                            )}
+
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                              {isAr ? (msg.fullMessageAr || msg.fullMessageEn) : (msg.fullMessageEn || msg.fullMessageAr)}
+                            </p>
+                          </div>
                         </div>
                       </InteractiveCard>
                     );
@@ -273,7 +294,7 @@ export function DiscoverClient({
               <div className="max-w-7xl mx-auto px-4 md:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
-                    {isAr ? vmv.sectionTitleAr : vmv.sectionTitleEn || "Our Core Spine"}
+                    {isAr ? (vmv.sectionTitleAr || "رؤيتنا ورسالتنا") : (vmv.sectionTitleEn || "Our Core Spine")}
                   </h2>
                   <p className="text-[var(--text-secondary)] text-sm font-medium">
                     {isAr ? vmv.sectionDescriptionAr : vmv.sectionDescriptionEn}
@@ -327,9 +348,8 @@ export function DiscoverClient({
         // 5. RECORD BREAKING GUINNESS SECTION
         if (sectionKey === "recordBreaking" && content.recordBreaking?.enabled !== false) {
           const rec = content.recordBreaking || {};
-          // guinnessAllowed is the server-side 5-condition gate result passed as prop.
-          // The client-side rec.brandingUsageApproved alone is NOT used to render the badge.
           const isGuinnessApproved = guinnessAllowed;
+          const recImg = rec.recordImageUrl || rec.certificateUrl || rec.approvedBadgeMediaId || rec.mediaUrl;
 
           return (
             <section key="recordBreaking" id="recordBreaking" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--e3-midnight)]">
@@ -359,7 +379,7 @@ export function DiscoverClient({
                       {rec.ctaDestination && (
                         <a 
                           href={rec.ctaDestination}
-                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--e3-royal-blue)] text-white font-bold text-xs uppercase tracking-wider hover:bg-[var(--e3-royal-blue)]/80 transition-colors"
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--e3-royal-blue)] text-white font-bold text-xs uppercase tracking-wider hover:bg-[var(--e3-royal-blue)]/80 transition-colors shadow-lg"
                         >
                           {isAr ? rec.ctaLabelAr : rec.ctaLabelEn || "View Case Study"}
                           <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
@@ -367,8 +387,19 @@ export function DiscoverClient({
                       )}
                     </div>
 
-                    <div className="text-center p-8 rounded-2xl bg-[var(--surface-default)]/30 border border-[var(--border-level-2)]">
-                      <div className="text-6xl md:text-8xl font-black font-display text-[var(--e3-royal-blue)] mb-2 tracking-tighter">
+                    <div className="text-center p-8 rounded-2xl bg-[var(--surface-default)]/40 border border-[var(--border-level-2)] relative overflow-hidden flex flex-col items-center justify-center">
+                      {recImg ? (
+                        <div className="w-full h-48 mb-6 rounded-xl overflow-hidden relative border border-[var(--border-level-2)] shadow-xl">
+                          <img src={recImg} alt="Guinness World Record Certificate" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-full h-24 mb-4 rounded-xl bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-500/30 flex items-center justify-center gap-2 shadow-inner">
+                          <Award className="w-8 h-8 text-purple-400" />
+                          <span className="text-xs font-mono font-extrabold text-purple-300 uppercase tracking-widest">Guinness World Record™ Certificate</span>
+                        </div>
+                      )}
+
+                      <div className="text-6xl md:text-8xl font-black font-display text-[var(--e3-royal-blue)] mb-2 tracking-tighter drop-shadow-md">
                         {rec.measurementValue || "1,055"}
                       </div>
                       <div className="text-lg font-bold uppercase tracking-widest text-[var(--text-primary)] mb-2 font-mono">
@@ -389,36 +420,59 @@ export function DiscoverClient({
         if (sectionKey === "bookingQube" && content.bookingQube?.enabled !== false) {
           const bq = content.bookingQube || {};
           const features = Array.isArray(bq.featureItems) ? bq.featureItems : [];
-          const _steps = Array.isArray(bq.journeySteps) ? bq.journeySteps : [];
 
           return (
             <section key="bookingQube" id="bookingQube" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
               <div className="max-w-7xl mx-auto px-4 md:px-8">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                  <span className="text-xs font-bold text-[var(--e3-royal-blue)] tracking-widest uppercase font-mono mb-2 block">
-                    {isAr ? bq.eyebrowAr : bq.eyebrowEn || "PROPRIETARY ECOSYSTEM TECH"}
+                <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                  {bq.logoUrl && (
+                    <div className="flex justify-center mb-4">
+                      <img src={bq.logoUrl} alt="BookingQube Logo" className="h-16 object-contain" />
+                    </div>
+                  )}
+                  <span className="text-xs font-bold text-[var(--e3-royal-blue)] tracking-widest uppercase font-mono block">
+                    {isAr ? (bq.eyebrowAr || "منظومة التقنية الحصرية") : (bq.eyebrowEn || "PROPRIETARY ECOSYSTEM TECH")}
                   </span>
-                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
-                    {isAr ? bq.headingAr : bq.headingEn || "Powered By BookingQube™"}
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] font-display uppercase">
+                    {isAr ? (bq.headingAr || "بوكينج كيوب™") : (bq.headingEn || "POWERED BY BOOKINGQUBE™")}
                   </h2>
-                  <p className="text-[var(--text-secondary)] text-sm font-medium">
-                    {isAr ? bq.summaryAr : bq.summaryEn}
+                  <p className="text-[var(--text-secondary)] text-sm font-medium leading-relaxed">
+                    {isAr ? (bq.summaryAr || "منظومة إي ثري الذكية لإدارة التذاكر والتسجيل والتحكم بالبوابات وتحليلات الحشود") : (bq.summaryEn || "BookingQube is E3's intelligent ticketing, registration, gate access, and crowd analytics platform.")}
                   </p>
                 </div>
 
-                <B2CGrid columns={3} gap="lg" className="mb-16">
-                  {features.map((item: any) => (
-                    <InteractiveCard key={item.id} className="p-6" glowColor="rgba(26, 31, 214, 0.3)">
-                      <Smartphone className="w-8 h-8 text-[var(--e3-royal-blue)] mb-4" />
-                      <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
-                        {isAr ? item.titleAr : item.titleEn}
-                      </h3>
-                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                        {isAr ? item.descriptionAr : item.descriptionEn}
-                      </p>
-                    </InteractiveCard>
-                  ))}
-                </B2CGrid>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {features.map((item: any) => {
+                    const itemImg = item.imageUrl || item.mediaUrl;
+                    return (
+                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Image Cover Area */}
+                        <div className="relative h-44 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center">
+                          {itemImg ? (
+                            <img src={itemImg} alt={item.titleEn} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/10">
+                              <Smartphone className="w-12 h-12 text-[var(--e3-royal-blue)]" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-80" />
+                        </div>
+
+                        {/* 60% Text Content Area */}
+                        <div className="p-6 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
+                              {isAr ? item.titleAr : item.titleEn}
+                            </h3>
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                              {isAr ? item.descriptionAr : item.descriptionEn}
+                            </p>
+                          </div>
+                        </div>
+                      </InteractiveCard>
+                    );
+                  })}
+                </div>
               </div>
             </section>
           );
@@ -434,10 +488,10 @@ export function DiscoverClient({
               <div className="max-w-7xl mx-auto px-4 md:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <span className="text-xs font-bold text-[var(--e3-magenta)] tracking-widest uppercase font-mono mb-2 block">
-                    {isAr ? conn.eyebrowAr : conn.eyebrowEn || "OPPORTUNITIES & COLLABORATION"}
+                    {isAr ? (conn.eyebrowAr || "فرص التعاون والشراكة") : (conn.eyebrowEn || "OPPORTUNITIES & COLLABORATION")}
                   </span>
                   <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] mb-4 font-display uppercase">
-                    {isAr ? conn.headingAr : conn.headingEn || "Connect With The E3 Ecosystem"}
+                    {isAr ? (conn.headingAr || "تواصل مع منظومة إي ثري") : (conn.headingEn || "CONNECT WITH THE E3 ECOSYSTEM")}
                   </h2>
                   <p className="text-[var(--text-secondary)] text-sm font-medium">
                     {isAr ? conn.descriptionAr : conn.descriptionEn}
@@ -445,29 +499,47 @@ export function DiscoverClient({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {items.map((item: any) => (
-                    <InteractiveCard key={item.id} className="p-8 flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
-                      <div>
-                        <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase block mb-2">
-                          {isAr ? item.tabLabelAr : item.tabLabelEn}
-                        </span>
-                        <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 font-display uppercase">
-                          {isAr ? item.titleAr : item.titleEn}
-                        </h3>
-                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-6 font-medium">
-                          {isAr ? item.descriptionAr : item.descriptionEn}
-                        </p>
-                      </div>
+                  {items.map((item: any) => {
+                    const cardImg = item.imageUrl || item.mediaUrl;
+                    return (
+                      <InteractiveCard key={item.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-2xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Cover Image Area */}
+                        <div className="relative h-48 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center">
+                          {cardImg ? (
+                            <img src={cardImg} alt={item.titleEn} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[var(--e3-purple)]/20">
+                              <Sparkles className="w-10 h-10 text-[var(--e3-purple)]" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-90" />
+                        </div>
 
-                      <a 
-                        href={item.customUrl || "#"} 
-                        className="w-full py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors text-center flex items-center justify-center gap-2"
-                      >
-                        {isAr ? item.ctaLabelAr : item.ctaLabelEn}
-                        <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-                      </a>
-                    </InteractiveCard>
-                  ))}
+                        {/* 60% Text Content Area */}
+                        <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                          <div>
+                            <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase block mb-2">
+                              {isAr ? item.tabLabelAr : item.tabLabelEn}
+                            </span>
+                            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 font-display uppercase">
+                              {isAr ? item.titleAr : item.titleEn}
+                            </h3>
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                              {isAr ? item.descriptionAr : item.descriptionEn}
+                            </p>
+                          </div>
+
+                          <a 
+                            href={item.customUrl || "#"} 
+                            className="w-full py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-colors text-center flex items-center justify-center gap-2 shadow-md"
+                          >
+                            {isAr ? item.ctaLabelAr : item.ctaLabelEn}
+                            <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+                          </a>
+                        </div>
+                      </InteractiveCard>
+                    );
+                  })}
                 </div>
               </div>
             </section>
@@ -481,24 +553,30 @@ export function DiscoverClient({
           const selClients = (taq.selectedClientIds || []).map((id: string) => clientsMap.get(id)).filter(Boolean);
           const displayLogos = [...selPartners, ...selClients];
 
+          const fallbackBrands = [
+            "Visit Qatar", "Qatar Airways", "Katara Cultural Village", "Ministry of Culture Qatar", "Msheireb Properties", "Lusail Real Estate"
+          ];
+
           return (
             <section key="trustedAcrossQatar" id="trustedAcrossQatar" className="relative py-20 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
               <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-                <h2 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-8">
-                  {isAr ? taq.headingAr : taq.headingEn || "Trusted Across Qatar"}
+                <h2 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-4">
+                  {isAr ? (taq.headingAr || "شركاء النجاح في قطر") : (taq.headingEn || "TRUSTED ACROSS QATAR")}
                 </h2>
+                <p className="text-xs text-[var(--text-secondary)] mb-8 font-mono uppercase tracking-widest">
+                  {isAr ? "الجهات الحكومية والعلامات التجارية الرائدة" : "Leading government entities & global brands across Qatar."}
+                </p>
 
-                {displayLogos.length > 0 ? (
-                  <div className="flex flex-wrap items-center justify-center gap-8 opacity-80">
-                    {displayLogos.map((item: any, i: number) => (
-                      <div key={item.id || i} className="px-4 py-2 font-bold text-sm text-[var(--text-secondary)]">
-                        {item.name || item.company}
+                <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+                  {(displayLogos.length > 0 ? displayLogos : fallbackBrands).map((item: any, i: number) => {
+                    const brandName = typeof item === "string" ? item : (item.company || item.name || item.title);
+                    return (
+                      <div key={i} className="px-6 py-3 rounded-xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)] font-mono font-bold text-xs text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-all shadow-md">
+                        {brandName}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-[var(--text-secondary)]">Leading government entities & global brands across Qatar.</p>
-                )}
+                    );
+                  })}
+                </div>
               </div>
             </section>
           );
@@ -507,7 +585,35 @@ export function DiscoverClient({
         // 10. LATEST INSIGHTS & NEWS
         if (sectionKey === "latestInsights" && content.latestInsights?.enabled !== false) {
           const li = content.latestInsights || {};
-          const displayList = insights.length > 0 ? insights.slice(0, li.maximumPosts || 3) : [];
+          const displayList = insights.length > 0 ? insights.slice(0, li.maximumPosts || 3) : [
+            {
+              id: "ins-1",
+              contentType: "PRESS RELEASE",
+              titleEn: "E3 Unveils Record-Breaking Spatial Infrastructure in Lusail",
+              titleAr: "إي ثري تدشن بنية تحتية مكانية قياسية في لوسيل",
+              excerptEn: "Engineered for high-throughput guest flow with integrated BookingQube ticketing.",
+              excerptAr: "صممت لاستيعاب التدفقات الجماهيرية مع ربط كامل بنظام بوكينج كيوب.",
+              mediaUrl: ""
+            },
+            {
+              id: "ins-2",
+              contentType: "CASE STUDY",
+              titleEn: "Guinness World Record Verification Case Study",
+              titleAr: "دراسة حالة توثيق موسوعة جينيس للأرقام القياسية",
+              excerptEn: "1,055 Metres obstacle engineering audited by international verifiers.",
+              excerptAr: "تدقيق هندسي لمسار 1,055 متر بواسطة موثقي جينيس الدوليين.",
+              mediaUrl: ""
+            },
+            {
+              id: "ins-3",
+              contentType: "TECH SPOTLIGHT",
+              titleEn: "BookingQube: Sub-Second NFC & QR Gate Turnstiles",
+              titleAr: "بوكينج كيوب: بوابات دخول ذكية وفحص فائقة السرعة",
+              excerptEn: "Real-time crowd analytics and heatmaps for major events in Qatar.",
+              excerptAr: "تحليلات الحشود والخرائط الحرارية الفورية للفعاليات الكبرى.",
+              mediaUrl: ""
+            }
+          ];
 
           return (
             <section key="latestInsights" id="latestInsights" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-2)]">
@@ -515,34 +621,52 @@ export function DiscoverClient({
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
                   <div>
                     <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-2 block">
-                      {isAr ? li.eyebrowAr : li.eyebrowEn || "E3 INSIGHTS & PRESS"}
+                      {isAr ? (li.eyebrowAr || "الأخبار والرؤى") : (li.eyebrowEn || "E3 INSIGHTS & PRESS")}
                     </span>
                     <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] font-display uppercase">
-                      {isAr ? li.headingAr : li.headingEn || "Latest From E3"}
+                      {isAr ? (li.headingAr || "أحدث أخبار إي ثري") : (li.headingEn || "LATEST FROM E3")}
                     </h2>
                   </div>
-                  <Link href={`/${locale}/b2c/insights`} className="text-xs font-bold uppercase text-[var(--e3-royal-blue)] flex items-center gap-1">
-                    {isAr ? li.ctaLabelAr : li.ctaLabelEn || "Explore All Insights"}
+                  <Link href={`/${locale}/b2c/insights`} className="text-xs font-bold uppercase text-[var(--e3-royal-blue)] flex items-center gap-1 hover:underline">
+                    {isAr ? (li.ctaLabelAr || "استكشف كل الأخبار") : (li.ctaLabelEn || "Explore All Insights")}
                     <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
                   </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {displayList.map((ins: any) => (
-                    <InteractiveCard key={ins.id} className="p-6 flex flex-col justify-between" glowColor="rgba(26, 31, 214, 0.3)">
-                      <div>
-                        <span className="px-2 py-0.5 text-[10px] font-extrabold rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block">
-                          {ins.contentType}
-                        </span>
-                        <h3 className="font-extrabold text-base text-[var(--text-primary)] mb-2 line-clamp-2">
-                          {isAr ? ins.titleAr : ins.titleEn}
-                        </h3>
-                        <p className="text-xs text-[var(--text-secondary)] line-clamp-3">
-                          {isAr ? ins.excerptAr : ins.excerptEn || ins.bodyEn?.slice(0, 120)}
-                        </p>
-                      </div>
-                    </InteractiveCard>
-                  ))}
+                  {displayList.map((ins: any) => {
+                    const postImg = ins.mediaUrl || ins.imageUrl || ins.coverImage;
+                    return (
+                      <InteractiveCard key={ins.id} className="overflow-hidden flex flex-col h-full border border-[var(--border-level-2)] rounded-2xl bg-[var(--surface-default)] shadow-xl" glowColor="rgba(26, 31, 214, 0.3)">
+                        {/* 40% Image Banner Area */}
+                        <div className="relative h-44 w-full bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] overflow-hidden flex items-center justify-center">
+                          {postImg ? (
+                            <img src={postImg} alt={ins.titleEn} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/20">
+                              <Sparkles className="w-8 h-8 text-[var(--e3-royal-blue)]" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-80" />
+                        </div>
+
+                        {/* 60% Text Area */}
+                        <div className="p-6 flex-1 flex flex-col justify-between">
+                          <div>
+                            <span className="px-2 py-0.5 text-[10px] font-extrabold rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block font-mono">
+                              {ins.contentType}
+                            </span>
+                            <h3 className="font-extrabold text-base text-[var(--text-primary)] mb-2 line-clamp-2 uppercase font-display">
+                              {isAr ? (ins.titleAr || ins.titleEn) : ins.titleEn}
+                            </h3>
+                            <p className="text-xs text-[var(--text-secondary)] line-clamp-3 leading-relaxed font-medium">
+                              {isAr ? (ins.excerptAr || ins.excerptEn || ins.bodyEn?.slice(0, 120)) : (ins.excerptEn || ins.bodyEn?.slice(0, 120))}
+                            </p>
+                          </div>
+                        </div>
+                      </InteractiveCard>
+                    );
+                  })}
                 </div>
               </div>
             </section>
