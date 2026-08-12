@@ -1,67 +1,41 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Search, 
   MapPin, 
   Clock, 
-  Compass, 
-  Locate, 
+  Calendar as CalendarIcon, 
   Sparkles, 
-  ArrowRight, 
   Ticket, 
-  ChevronRight,
-  Map as MapIcon
+  ArrowRight,
+  Map as MapIcon,
+  Search,
+  SlidersHorizontal,
+  Compass,
+  Navigation
 } from 'lucide-react';
 import Link from 'next/link';
-import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas';
-import { AttractionMapFilters } from '@/components/map/AttractionMapFilters';
-import { AttractionLocationCard } from '@/components/map/AttractionLocationCard';
+import { Attraction } from '@/store/useAttractionsStore';
+import { AttractionMapCanvas } from '../map/AttractionMapCanvas';
+import { AttractionMapFilters } from '../map/AttractionMapFilters';
+import { AttractionLocationCard } from '../map/AttractionLocationCard';
 import { useNearestLocations } from '@/hooks/useNearestLocations';
-import { MapGeoJSONCollection, MapLocationProperties } from '@/components/map/map-types';
-
-export interface AttractionItem {
-  id: string;
-  slug: string;
-  nameEn: string;
-  nameAr: string;
-  taglineEn?: string;
-  taglineAr?: string;
-  descriptionEn?: string;
-  descriptionAr?: string;
-  heroMediaUrl?: string;
-  logoUrl?: string;
-  ticketingUrl?: string;
-  mapUrl?: string;
-  coordinates?: { lat: number; lng: number };
-  operations?: {
-    openingTime?: string;
-    closingTime?: string;
-    locationNameEn?: string;
-    locationNameAr?: string;
-    is247?: boolean;
-    openingSoon?: boolean;
-    lat?: number;
-    lng?: number;
-  };
-  features?: string[];
-  category?: string;
-}
+import { MapGeoJSONCollection, MapGeoJSONFeature } from '../map/map-types';
 
 interface AttractionsDirectoryProps {
-  initialAttractions: AttractionItem[];
+  initialAttractions: Attraction[];
   locale: string;
 }
 
-export const FALLBACK_ATTRACTIONS: AttractionItem[] = [
+export const FALLBACK_ATTRACTIONS: any[] = [
   {
     id: "attr-inflatarun",
-    slug: "inflatarun",
-    nameEn: "InflataRUN World Record Course",
-    nameAr: "مسار إنفلاتا ران للأرقام القياسية",
-    taglineEn: "Guinness World Record 1,055m Inflatable Obstacle Course",
-    taglineAr: "مسار العقبات المنفوخة الأطول في العالم بموسوعة جينيس",
+    slug: "inflatarun-lusail",
+    nameEn: "InflataRUN Lusail Boulevard",
+    nameAr: "إنفلاتا ران شارع لوسيل التجاري",
+    taglineEn: "World's Longest Inflatable Obstacle Challenge",
+    taglineAr: "أطول مضمار عقبات قابل للنفخ في العالم",
     category: "INFLATABLE & OBSTACLE",
     heroMediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
     ticketingUrl: "/en/b2c/calendar",
@@ -73,26 +47,6 @@ export const FALLBACK_ATTRACTIONS: AttractionItem[] = [
       locationNameAr: "شارع لوسيل التجاري، قطر",
       lat: 25.4180,
       lng: 51.5305
-    }
-  },
-  {
-    id: "attr-kidscity",
-    slug: "kids-city-driving-school",
-    nameEn: "Kids City Driving Academy",
-    nameAr: "أكاديمية قيادة مدينة الأطفال",
-    taglineEn: "Interactive Junior Transport Simulation World",
-    taglineAr: "عالم المحاكاة التفاعلية لقيادة الصغار في قطر",
-    category: "THEME PARK & CARNIVAL",
-    heroMediaUrl: "https://images.unsplash.com/photo-1566454825485-6923f545f111?q=80&w=1200&auto=format&fit=crop",
-    ticketingUrl: "/en/b2c/calendar",
-    coordinates: { lat: 25.3855, lng: 51.4550 },
-    operations: {
-      openingTime: "10:00",
-      closingTime: "22:00",
-      locationNameEn: "Doha Festival City, Qatar",
-      locationNameAr: "دوحة فستيفال سيتي، قطر",
-      lat: 25.3855,
-      lng: 51.4550
     }
   },
   {
@@ -178,281 +132,175 @@ export const FALLBACK_ATTRACTIONS: AttractionItem[] = [
 ];
 
 export function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371;
+  const R = 6371; // Earth radius in km
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
-  const a =
+  const a = 
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * (Math.PI / 180)) *
-      Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c * 10) / 10;
 }
 
-export function getTimingStatus(attraction: AttractionItem, isAr: boolean) {
-  const ops = attraction.operations || {};
-  const openTime = ops.openingTime || "14:00";
-  const closeTime = ops.closingTime || "23:00";
-  const is24h = ops.is247 || (openTime === "00:00" && closeTime === "23:59");
-  const openingSoon = ops.openingSoon;
-
-  if (openingSoon) {
-    return {
-      status: "OPENING_SOON",
-      label: isAr ? "افتتاح قريباً" : "OPENING SOON",
-      badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
-      dotClass: "bg-purple-400"
-    };
-  }
-
-  if (is24h) {
-    return {
-      status: "ALWAYS_OPEN",
-      label: isAr ? "متاح ٢٤/٧" : "OPEN 24/7",
-      badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-      dotClass: "bg-emerald-400 animate-ping"
-    };
-  }
-
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  const [openH, openM] = openTime.split(":").map(Number);
-  const [closeH, closeM] = closeTime.split(":").map(Number);
-  
-  const openMinutes = (openH || 14) * 60 + (openM || 0);
-  const closeMinutes = (closeH || 23) * 60 + (closeM || 0);
-
-  const formattedOpen = new Date(2000, 0, 1, openH || 14, openM || 0).toLocaleTimeString(
-    isAr ? 'ar-QA' : 'en-US', 
-    { hour: 'numeric', minute: '2-digit' }
-  );
-
-  if (currentMinutes >= openMinutes && currentMinutes <= closeMinutes) {
-    const minutesLeft = closeMinutes - currentMinutes;
-    if (minutesLeft <= 90) {
-      return {
-        status: "CLOSING_SOON",
-        label: isAr ? `يغلق قريباً (${Math.max(10, minutesLeft)} دقيقة)` : `CLOSING SOON (${Math.max(10, minutesLeft)}m left)`,
-        badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-        dotClass: "bg-amber-400 animate-pulse"
-      };
-    }
-    return {
-      status: "OPEN_NOW",
-      label: isAr ? "مفتوح الآن" : "OPEN NOW",
-      badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-      dotClass: "bg-emerald-400 animate-ping"
-    };
-  } else {
-    return {
-      status: "OPENS_AT",
-      label: isAr ? `يفتح اليوم في ${formattedOpen}` : `OPENS AT ${formattedOpen}`,
-      badgeClass: "bg-sky-500/20 text-sky-300 border-sky-500/40",
-      dotClass: "bg-sky-400"
-    };
-  }
-}
-
 // -------------------------------------------------------------
-// SECTION 2: ALL ATTRACTIONS AVAILABLE GRID SECTION
+// SECTION 2: AVAILABLE ATTRACTIONS GRID
 // -------------------------------------------------------------
 export function AttractionsGridSection({ initialAttractions, locale }: AttractionsDirectoryProps) {
   const isAr = locale === 'ar';
-  const list = initialAttractions.length > 0 ? initialAttractions : FALLBACK_ATTRACTIONS;
-
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [locating, setLocating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const categories = [
-    { id: 'ALL', labelEn: 'All Attractions', labelAr: 'جميع الوجهات' },
-    { id: 'INFLATABLE & OBSTACLE', labelEn: 'Inflatable & Obstacle', labelAr: 'عقبات منفوخة' },
-    { id: 'THEME PARK & CARNIVAL', labelEn: 'Theme Parks & Cities', labelAr: 'مدن ترفيهية' },
-    { id: 'VR & CYBERSPORT', labelEn: 'VR & Esports', labelAr: 'واقع افتراضي وألعاب' },
-    { id: 'KARTING & RACING', labelEn: 'Karting & Racing', labelAr: 'كارتينج وسباقات' },
-    { id: 'WATER & SPLASH', labelEn: 'Water & Splash', labelAr: 'ألعاب مائية' }
-  ];
+  const displayList = useMemo(() => {
+    return (initialAttractions && initialAttractions.length > 0) ? initialAttractions : FALLBACK_ATTRACTIONS;
+  }, [initialAttractions]);
 
-  const handleRequestLocation = () => {
-    if (!navigator.geolocation) {
-      alert(isAr ? "خدمة تحديد الموقع غير مدعومة في متصفحك" : "Geolocation is not supported by your browser.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
-        setLocating(false);
-      },
-      (err) => {
-        console.warn("Geolocation denied or error:", err);
-        setLocating(false);
-      }
-    );
-  };
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    displayList.forEach(a => { if ((a as any).category) set.add((a as any).category); });
+    return ['ALL', ...Array.from(set)];
+  }, [displayList]);
 
   const filteredAttractions = useMemo(() => {
-    return list.filter((item) => {
-      const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
+    return displayList.filter(item => {
+      const matchCategory = selectedCategory === 'ALL' || (item as any).category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
-      const nameEn = (item.nameEn || '').toLowerCase();
-      const nameAr = (item.nameAr || '').toLowerCase();
-      const tagEn = (item.taglineEn || '').toLowerCase();
-      const tagAr = (item.taglineAr || '').toLowerCase();
-      const locEn = (item.operations?.locationNameEn || '').toLowerCase();
-      const locAr = (item.operations?.locationNameAr || '').toLowerCase();
+      const matchSearch = !q || 
+        (item.nameEn || '').toLowerCase().includes(q) ||
+        (item.nameAr || '').toLowerCase().includes(q) ||
+        (item.taglineEn || '').toLowerCase().includes(q) ||
+        (item.taglineAr || '').toLowerCase().includes(q);
 
-      const matchSearch =
-        !q ||
-        nameEn.includes(q) ||
-        nameAr.includes(q) ||
-        tagEn.includes(q) ||
-        tagAr.includes(q) ||
-        locEn.includes(q) ||
-        locAr.includes(q);
-
-      return matchCat && matchSearch;
+      return matchCategory && matchSearch;
     });
-  }, [list, selectedCategory, searchQuery]);
+  }, [displayList, selectedCategory, searchQuery]);
 
   return (
-    <section id="all-attractions-grid" className="relative py-20 bg-[var(--bg-level-1)] text-white border-t border-[var(--border-level-2)]">
+    <section className="relative py-16 bg-[#05020c] border-b border-[var(--border-level-2)]">
       <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-10">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-8">
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
-              <Compass className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
-              <span>{isAr ? "دليل وجهات إي ثري قطر" : "E3 QATAR ATTRACTIONS DIRECTORY"}</span>
+              <Sparkles className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
+              <span>{isAr ? "جميع الوجهات والفعاليات" : "EXPLORE ALL ATTRACTIONS"}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
-              {isAr ? "الوجهات والفعاليات المتاحة" : "Available Attractions & Worlds"}
+              {isAr ? "الوجهات الترفيهية المتاحة" : "Available Entertainment Worlds"}
             </h2>
             <p className="text-sm text-[var(--text-secondary)] font-medium max-w-2xl mt-2">
               {isAr
-                ? "تصفح كافة الوجهات الترفيهية الحية، ساعات العمل، المسافة من موقعك، وحجز التذاكر المباشر."
-                : "Explore all active attraction worlds, live operating hours, visitor distance, and direct ticketing."}
+                ? "تصفح أحدث تجارب إي ثري الترفيهية والتفاعلية في قطر واكتشف المواعيد والأسعار والتفاصيل."
+                : "Discover cutting-edge interactive entertainment, inflatable obstacle courses, VR arenas, and karting tracks."}
             </p>
           </div>
 
-          <button
-            onClick={handleRequestLocation}
-            disabled={locating}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-mono font-extrabold uppercase tracking-wider text-[var(--text-primary)] transition-all shadow-md cursor-pointer disabled:opacity-50"
-          >
-            <Locate className={`w-4 h-4 text-[var(--e3-royal-blue)] ${locating ? 'animate-spin' : ''}`} />
-            <span>
-              {locating
-                ? (isAr ? "جاري التحديد..." : "Locating...")
-                : userCoords
-                ? (isAr ? "موقعك نشط" : "Location Active")
-                : (isAr ? "تحديد موقعي" : "Near Me")}
-            </span>
-          </button>
+          <div className="flex items-center gap-2 font-mono text-xs text-[var(--text-tertiary)] bg-[var(--surface-default)] px-4 py-2 rounded-xl border border-[var(--border-level-2)]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{filteredAttractions.length} {isAr ? "وجهة نشطة" : "Active Worlds"}</span>
+          </div>
         </div>
 
-        {/* Category Pills & Search Filter */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+        {/* Filter Toolbar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-level-2)]">
+          {/* Search Box */}
+          <div className="relative w-full md:w-80">
+            <Search className="w-4 h-4 absolute top-3 start-3.5 text-[var(--text-tertiary)]" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isAr ? "بحث عن وجهة أو تجربة..." : "Search attractions..."}
+              className="w-full ps-10 pe-4 py-2.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors"
+            />
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
             {categories.map((cat) => {
-              const isActive = selectedCategory === cat.id;
+              const active = selectedCategory === cat;
               return (
                 <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg'
-                      : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-white'
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${
+                    active
+                      ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg shadow-[var(--e3-royal-blue)]/20'
+                      : 'bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-white border border-[var(--border-level-2)]'
                   }`}
                 >
-                  {isAr ? cat.labelAr : cat.labelEn}
+                  {cat === 'ALL' ? (isAr ? 'الكل' : 'ALL WORLDS') : cat}
                 </button>
               );
             })}
           </div>
-
-          <div className="relative min-w-[260px] md:w-72 shrink-0">
-            <Search className="w-4 h-4 absolute top-3 start-3 text-[var(--text-tertiary)]" />
-            <input
-              type="text"
-              placeholder={isAr ? "ابحث عن وجهة أو موقع..." : "Search attraction or venue..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] placeholder:text-[var(--text-tertiary)] shadow-inner"
-            />
-          </div>
         </div>
 
-        {/* Attractions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Attractions Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredAttractions.map((attr) => {
-            const timing = getTimingStatus(attr, isAr);
+            const name = isAr ? attr.nameAr : attr.nameEn;
+            const tagline = isAr ? attr.taglineAr : attr.taglineEn;
             const ops = attr.operations || {};
-            const lat = ops.lat || attr.coordinates?.lat || 25.418;
-            const lng = ops.lng || attr.coordinates?.lng || 51.530;
-            
-            const dist = userCoords 
-              ? `${calculateDistanceKm(userCoords.lat, userCoords.lng, lat, lng)} km`
-              : (isAr ? (ops.locationNameAr || "قطر") : (ops.locationNameEn || "Qatar"));
+            const locationName = (isAr ? ops.locationNameAr : ops.locationNameEn) || ops.locationNameEn || "Lusail, Qatar";
 
             return (
               <motion.div
                 key={attr.id}
-                layout
-                className="group relative rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-[var(--e3-royal-blue)]/60 transition-all cursor-pointer shadow-xl flex flex-col justify-between"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="group relative rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-xl hover:border-[var(--e3-royal-blue)] transition-all flex flex-col justify-between"
               >
-                <div className="relative w-full aspect-[16/10] overflow-hidden bg-gradient-to-br from-[var(--e3-deep-blue)] to-black shrink-0">
-                  {attr.heroMediaUrl ? (
-                    <img 
-                      src={attr.heroMediaUrl} 
-                      alt={attr.nameEn} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/20">
-                      <Sparkles className="w-10 h-10 text-[var(--e3-royal-blue)]" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-                  <div className={`absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-mono font-extrabold uppercase backdrop-blur-md shadow-md z-10 ${timing.badgeClass}`}>
-                    <span className={`w-2 h-2 rounded-full ${timing.dotClass}`} />
-                    <span>{timing.label}</span>
+                {/* Media Image Holder */}
+                <div className="relative h-60 w-full overflow-hidden bg-black">
+                  <img
+                    src={attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176'}
+                    alt={name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-black/20 to-transparent" />
+                  
+                  {/* Category Badge */}
+                  <div className="absolute top-4 start-4 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold uppercase text-[var(--e3-royal-blue)]">
+                    {(attr as any).category || "ATTRACTION"}
                   </div>
 
-                  <div className="absolute top-4 end-4 px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[10px] font-mono font-bold text-white uppercase backdrop-blur-md">
-                    {attr.category?.split('&')[0] || "E3 WORLD"}
+                  {/* Status Indicator */}
+                  <div className="absolute top-4 end-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-[10px] font-mono font-bold uppercase text-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>{isAr ? "مفتوح الآن" : "OPEN NOW"}</span>
                   </div>
                 </div>
 
+                {/* Content Details */}
                 <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-[var(--text-primary)] font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors">
-                      {isAr ? attr.nameAr : attr.nameEn}
+                    <h3 className="text-xl font-bold font-display uppercase tracking-tight text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors">
+                      {name}
                     </h3>
-                    <p className="text-xs text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed">
-                      {isAr ? (attr.taglineAr || attr.descriptionAr) : (attr.taglineEn || attr.descriptionEn)}
-                    </p>
+                    {tagline && (
+                      <p className="text-xs text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed">
+                        {tagline}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="pt-3 border-t border-[var(--border-level-2)] flex items-center justify-between text-xs text-[var(--text-secondary)] font-mono">
-                    <div className="flex items-center gap-1.5 font-bold text-[var(--e3-royal-blue)]">
-                      <MapPin className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate max-w-[160px]">{dist}</span>
+                  {/* Operational Details Bar */}
+                  <div className="pt-3 border-t border-[var(--border-level-2)] grid grid-cols-2 gap-2 text-[11px] font-mono text-[var(--text-tertiary)]">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <MapPin className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] shrink-0" />
+                      <span className="truncate">{locationName}</span>
                     </div>
-                    <div className="flex items-center gap-1 font-bold text-[var(--text-tertiary)]">
-                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <span>{ops.openingTime || "14:00"} - {ops.closingTime || "23:00"}</span>
                     </div>
                   </div>
 
                   <Link
-                    href={attr.ticketingUrl || `/en/b2c/calendar`}
+                    href={attr.ticketingUrl || `/${locale}/b2c/calendar`}
                     className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group/btn"
                   >
                     <Ticket className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover/btn:text-white transition-colors" />
@@ -483,23 +331,63 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
 
   useEffect(() => {
     async function loadMapData() {
+      const attractionsList = (initialAttractions && initialAttractions.length > 0) ? initialAttractions : FALLBACK_ATTRACTIONS;
+
       try {
         const res = await fetch(`/api/public/locations/map?locale=${locale}`);
         if (res.ok) {
           const json = await res.json();
-          if (json?.features) {
+          if (json?.features && json.features.length > 0) {
             setGeoJson(json);
-            if (json.features.length > 0 && !selectedLocationId) {
+            if (!selectedLocationId) {
               setSelectedLocationId(json.features[0].properties.locationId);
             }
+            return;
           }
         }
       } catch (e) {
         console.error('Failed to load public map GeoJSON', e);
       }
+
+      // Guaranteed Fallback: Construct GeoJSON from attractions list so pins ALWAYS render
+      const fallbackFeatures: MapGeoJSONFeature[] = attractionsList.map((attr, idx) => ({
+        type: 'Feature',
+        id: attr.id || `attr-${idx}`,
+        geometry: {
+          type: 'Point',
+          coordinates: [
+            attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
+            attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01)
+          ]
+        },
+        properties: {
+          locationId: attr.id || `attr-${idx}`,
+          slug: attr.slug || 'attraction',
+          name: (locale === 'ar' ? attr.nameAr : attr.nameEn) || attr.nameEn || 'Attraction',
+          nameEn: attr.nameEn || 'Attraction',
+          nameAr: attr.nameAr || 'وجهة ترفيهية',
+          venue: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || attr.operations?.locationNameEn || 'Qatar',
+          address: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || 'Qatar',
+          locationType: 'PERMANENT_ATTRACTION',
+          operationalStatus: 'OPEN',
+          thumbnailUrl: attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
+          pinColorToken: idx === 0 ? 'CYAN' : idx === 1 ? 'GOLD' : idx === 2 ? 'PURPLE' : 'AMBER',
+          featured: true,
+          attractionCount: 1,
+          latitude: attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01),
+          longitude: attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
+          ticketingUrl: attr.ticketingUrl || `/${locale}/b2c/calendar`,
+          googleMapsUrl: `https://maps.google.com/?q=${attr.operations?.lat || 25.4180},${attr.operations?.lng || 51.5305}`
+        }
+      }));
+
+      setGeoJson({ type: 'FeatureCollection', features: fallbackFeatures });
+      if (fallbackFeatures.length > 0 && !selectedLocationId) {
+        setSelectedLocationId(fallbackFeatures[0].properties.locationId);
+      }
     }
     loadMapData();
-  }, [locale]);
+  }, [locale, initialAttractions]);
 
   const filteredFeatures = useMemo(() => {
     if (!geoJson?.features) return [];
@@ -553,7 +441,7 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
               <MapIcon className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
-              <span>{isAr ? "الخريطة التفاعلية الحية" : "MAPLIBRE & OPENFREEMAP SPATIAL HUB"}</span>
+              <span>{isAr ? "الخريطة التفاعلية الحية" : "INTERACTIVE ATTRACTIONS MAP"}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
               {isAr ? "خريطة الوجهات التفاعلية" : "Interactive Attractions Map"}

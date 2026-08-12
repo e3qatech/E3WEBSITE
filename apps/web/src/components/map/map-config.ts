@@ -10,36 +10,11 @@ export const ALLOWED_MAP_STYLE_ORIGINS = [
   'd.basemaps.cartocdn.com'
 ];
 
-export const DARK_MAP_STYLE: StyleSpecification = {
+// High-contrast, bright, crystal-clear basemap with English international labels
+export const VOYAGER_ENGLISH_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    'carto-dark': {
-      type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-      ],
-      tileSize: 256,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }
-  },
-  layers: [
-    {
-      id: 'carto-dark-layer',
-      type: 'raster',
-      source: 'carto-dark',
-      minzoom: 0,
-      maxzoom: 22
-    }
-  ]
-};
-
-export const LIGHT_MAP_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    'carto-light': {
+    'carto-voyager': {
       type: 'raster',
       tiles: [
         'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
@@ -53,17 +28,20 @@ export const LIGHT_MAP_STYLE: StyleSpecification = {
   },
   layers: [
     {
-      id: 'carto-light-layer',
+      id: 'carto-voyager-layer',
       type: 'raster',
-      source: 'carto-light',
+      source: 'carto-voyager',
       minzoom: 0,
       maxzoom: 22
     }
   ]
 };
 
+export const DARK_MAP_STYLE: StyleSpecification = VOYAGER_ENGLISH_MAP_STYLE;
+export const LIGHT_MAP_STYLE: StyleSpecification = VOYAGER_ENGLISH_MAP_STYLE;
+
 export function validateMapStyleUrl(url?: string): string | StyleSpecification {
-  if (!url) return DARK_MAP_STYLE;
+  if (!url) return VOYAGER_ENGLISH_MAP_STYLE;
 
   try {
     const parsed = new URL(url);
@@ -72,8 +50,8 @@ export function validateMapStyleUrl(url?: string): string | StyleSpecification {
       return url;
     }
   } catch (_e) {
-    console.warn(`[MAP_CONFIG_WARN] Invalid map style URL format: ${url}. Falling back to default dark style.`);
+    console.warn(`[MAP_CONFIG_WARN] Invalid map style URL format: ${url}. Falling back to default English Voyager style.`);
   }
 
-  return DARK_MAP_STYLE;
+  return VOYAGER_ENGLISH_MAP_STYLE;
 }

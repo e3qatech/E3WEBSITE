@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       addressAr: attr.operations?.locationNameAr || "قطر",
       latitude: attr.operations?.lat || attr.coordinates?.lat || 25.418,
       longitude: attr.operations?.lng || attr.coordinates?.lng || 51.530,
-      locationType: attr.category === 'WATER & SPLASH' ? 'SEASONAL_ATTRACTION' : 'PERMANENT_ATTRACTION',
+      locationType: (attr as any).category === 'WATER & SPLASH' ? 'SEASONAL_ATTRACTION' : 'PERMANENT_ATTRACTION',
       operationalStatus: attr.operations?.openingSoon ? 'COMING_SOON' : 'OPEN',
       pinColorToken: 'CYAN',
       featured: true,
