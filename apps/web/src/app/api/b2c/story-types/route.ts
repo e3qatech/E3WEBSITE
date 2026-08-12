@@ -75,8 +75,57 @@ export async function GET(request: Request) {
         }
       })
     }
+
+    // Fetch published attractions to extract JSON features activations
+    const publishedAttractions = await db.attraction.findMany({
+      where: { isPublished: true },
+      select: {
+        id: true,
+        slug: true,
+        nameEn: true,
+        nameAr: true,
+        heroThumbnailUrl: true,
+        heroMediaUrl: true,
+        features: true,
+      }
+    })
+
+    // Attach matching JSON features activations to each story type
+    const enrichedStoryTypes = storyTypes.map((st: any) => {
+      const jsonActivations: any[] = []
+
+      publishedAttractions.forEach((attraction: any) => {
+        const featList = Array.isArray(attraction.features) ? attraction.features : []
+        featList.forEach((feat: any, idx: number) => {
+          const storyTypeIds = Array.isArray(feat.storyTypeIds) 
+            ? feat.storyTypeIds.map((s: string) => s.toLowerCase())
+            : [(feat.storyType || '').toLowerCase()]
+          
+          if (storyTypeIds.includes(st.slug.toLowerCase())) {
+            jsonActivations.push({
+              id: feat.id || `${attraction.id}-feat-${idx}`,
+              titleEn: feat.titleEn || feat.title || attraction.nameEn,
+              titleAr: feat.titleAr || feat.title || attraction.nameAr,
+              descriptionEn: feat.descriptionEn || feat.description || '',
+              descriptionAr: feat.descriptionAr || feat.description || '',
+              highlightType: feat.highlightType || "Activity",
+              iconUrl: feat.iconUrl,
+              imageUrl: feat.imageUrl || attraction.heroThumbnailUrl || attraction.heroMediaUrl,
+              attractionSlug: attraction.slug,
+              attractionNameEn: attraction.nameEn,
+              attractionNameAr: attraction.nameAr
+            })
+          }
+        })
+      })
+
+      return {
+        ...st,
+        activations: jsonActivations
+      }
+    })
     
-    return NextResponse.json(storyTypes)
+    return NextResponse.json(enrichedStoryTypes)
   } catch (error: any) {
     console.error("[STORY_TYPES_GET_ERROR]", error)
     return NextResponse.json({ error: "Failed to fetch story types" }, { status: 500 })
