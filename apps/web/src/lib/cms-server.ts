@@ -117,7 +117,7 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
     }
 
     if (!rawContent) {
-      throw err; // If fallback failed or missing, bubble up the DB error
+      console.warn(`[CMS READ WARN] Primary database read failed for ${slug}, proceeding to secondary fallbacks.`);
     }
   }
 

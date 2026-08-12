@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Sparkles, X } from 'lucide-react'
 
+import { resolveMediaType } from '@/lib/media-resolver'
+
 interface HorizontalGPUParallaxGalleryProps {
   content: any
   locale: string
@@ -16,10 +18,15 @@ export function HorizontalGPUParallaxGallery({ content, locale }: HorizontalGPUP
 
   const [activeLightboxMedia, setActiveLightboxMedia] = useState<any | null>(null)
 
+  const getCleanMediaUrl = (url?: string) => {
+    if (!url) return ''
+    return url.split('#')[0].trim()
+  }
+
   const isVideoMedia = (url?: string, type?: string) => {
     if (!url) return false
     if (type === 'VIDEO') return true
-    return Boolean(url.match(/\.(mp4|webm|mov|m4v|mkv)(\?.*)?$/i)) || url.includes('/video/')
+    return resolveMediaType({ url: getCleanMediaUrl(url), explicitType: type }) === 'VIDEO'
   }
 
   return (
@@ -62,7 +69,7 @@ export function HorizontalGPUParallaxGallery({ content, locale }: HorizontalGPUP
               >
                 {isVid ? (
                   <video
-                    src={moment.mediaUrl}
+                    src={getCleanMediaUrl(moment.mediaUrl)}
                     autoPlay
                     loop
                     muted
@@ -71,7 +78,7 @@ export function HorizontalGPUParallaxGallery({ content, locale }: HorizontalGPUP
                   />
                 ) : (
                   <img
-                    src={moment.mediaUrl || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1200&auto=format&fit=crop'}
+                    src={getCleanMediaUrl(moment.mediaUrl) || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1200&auto=format&fit=crop'}
                     alt={moment.titleEn || "Memory Moment"}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -120,14 +127,14 @@ export function HorizontalGPUParallaxGallery({ content, locale }: HorizontalGPUP
 
               {isVideoMedia(activeLightboxMedia.mediaUrl, activeLightboxMedia.mediaType) ? (
                 <video
-                  src={activeLightboxMedia.mediaUrl}
+                  src={getCleanMediaUrl(activeLightboxMedia.mediaUrl)}
                   controls
                   autoPlay
                   className="w-full max-h-[60vh] object-cover bg-black"
                 />
               ) : (
                 <img
-                  src={activeLightboxMedia.mediaUrl}
+                  src={getCleanMediaUrl(activeLightboxMedia.mediaUrl)}
                   alt={activeLightboxMedia.titleEn}
                   className="w-full max-h-[60vh] object-cover"
                 />
