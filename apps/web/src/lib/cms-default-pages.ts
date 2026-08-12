@@ -1175,11 +1175,18 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     guestMemories: {
       ...defaults.guestMemories,
       ...(raw.guestMemories || {}),
-      moments: (raw.guestMemories?.moments && raw.guestMemories.moments.length > 0)
-        ? raw.guestMemories.moments.map((m: any, idx: number) => {
-            const match = defaults.guestMemories.moments[idx] || {};
-            return { ...match, ...m, mediaUrl: m.mediaUrl !== undefined ? String(m.mediaUrl).trim() : (match.mediaUrl || '') };
-          })
+      moments: Array.isArray(raw.guestMemories?.moments)
+        ? raw.guestMemories.moments.map((m: any, idx: number) => ({
+            id: m.id || `m-${Date.now()}-${idx}`,
+            titleEn: m.titleEn !== undefined ? m.titleEn : '',
+            titleAr: m.titleAr !== undefined ? m.titleAr : '',
+            captionEn: m.captionEn !== undefined ? m.captionEn : '',
+            captionAr: m.captionAr !== undefined ? m.captionAr : '',
+            tagEn: m.tagEn !== undefined ? m.tagEn : 'E3 GUEST MOMENT',
+            tagAr: m.tagAr !== undefined ? m.tagAr : 'لحظات زوار إي ثري',
+            mediaUrl: m.mediaUrl !== undefined ? String(m.mediaUrl).trim() : '',
+            mediaType: m.mediaType || 'IMAGE'
+          }))
         : defaults.guestMemories.moments,
     },
     ourBrands: {

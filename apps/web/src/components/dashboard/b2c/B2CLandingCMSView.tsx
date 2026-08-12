@@ -447,7 +447,10 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       </div>
 
       {/* Everlasting Memories Section Manager */}
-      <EverlastingMemoriesManager />
+      <EverlastingMemoriesManager
+        value={content.guestMemories}
+        onChange={(guestMemories) => setContent((prev: any) => ({ ...prev, guestMemories }))}
+      />
 
       {/* Universal Footer Media Section */}
       <UniversalMediaSectionEditor

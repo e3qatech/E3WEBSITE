@@ -20,24 +20,60 @@ export interface MemoryMomentItem {
   mediaType?: 'IMAGE' | 'VIDEO'
 }
 
-export function EverlastingMemoriesManager() {
+export interface EverlastingMemoriesData {
+  badgeEn?: string
+  badgeAr?: string
+  headlineEn?: string
+  headlineAr?: string
+  subtextEn?: string
+  subtextAr?: string
+  moments?: MemoryMomentItem[]
+}
+
+interface EverlastingMemoriesManagerProps {
+  value?: EverlastingMemoriesData
+  onChange?: (data: EverlastingMemoriesData) => void
+}
+
+export function EverlastingMemoriesManager({ value, onChange }: EverlastingMemoriesManagerProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!value)
   const [saving, setSaving] = useState(false)
   const [fullContent, setFullContent] = useState<any>(null)
 
-  const [memories, setMemories] = useState({
-    badgeEn: 'EVERLASTING MEMORIES — GPU PARALLAX',
-    badgeAr: 'ذكريات لا تُنسى — EVERLASTING MEMORIES',
-    headlineEn: 'The Moment Becomes a Memory',
-    headlineAr: 'اللحظة تتحول إلى ذكرى تدوم',
-    subtextEn: 'Real smiles, real reactions, and everlasting memories captured at E3 Qatar destinations.',
-    subtextAr: 'ابتسامات حقيقية، مشاعر صادقة، وذكريات دائمة من زوار وجهات إي ثري.',
-    moments: [] as MemoryMomentItem[]
-  })
+  const defaultState: Required<EverlastingMemoriesData> = {
+    badgeEn: (value?.badgeEn || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any)?.badgeEn || 'EVERLASTING MEMORIES — GPU PARALLAX'),
+    badgeAr: (value?.badgeAr || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any)?.badgeAr || 'ذكريات لا تُنسى — EVERLASTING MEMORIES'),
+    headlineEn: (value?.headlineEn !== undefined ? value.headlineEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineEn),
+    headlineAr: (value?.headlineAr !== undefined ? value.headlineAr : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineAr),
+    subtextEn: (value?.subtextEn !== undefined ? value.subtextEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.subtextEn),
+    subtextAr: (value?.subtextAr !== undefined ? value.subtextAr : DEFAULT_B2C_LANDING_CONTENT.guestMemories.subtextAr),
+    moments: (Array.isArray(value?.moments) ? value.moments : DEFAULT_B2C_LANDING_CONTENT.guestMemories.moments)
+  }
 
+  const [memories, setMemories] = useState<Required<EverlastingMemoriesData>>(defaultState)
+
+  // Keep local state synced if parent value changes
   useEffect(() => {
+    if (value) {
+      setMemories({
+        badgeEn: value.badgeEn || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any)?.badgeEn || 'EVERLASTING MEMORIES — GPU PARALLAX',
+        badgeAr: value.badgeAr || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any)?.badgeAr || 'ذكريات لا تُنسى — EVERLASTING MEMORIES',
+        headlineEn: value.headlineEn !== undefined ? value.headlineEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineEn,
+        headlineAr: value.headlineAr !== undefined ? value.headlineAr : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineAr,
+        subtextEn: value.subtextEn !== undefined ? value.subtextEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.subtextEn,
+        subtextAr: value.subtextAr !== undefined ? value.subtextAr : DEFAULT_B2C_LANDING_CONTENT.guestMemories.subtextAr,
+        moments: Array.isArray(value.moments) ? value.moments : DEFAULT_B2C_LANDING_CONTENT.guestMemories.moments
+      })
+      setLoading(false)
+    }
+  }, [value])
+
+  // Load from API in standalone mode
+  useEffect(() => {
+    if (value) return
+
     async function loadData() {
       try {
         const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
@@ -47,13 +83,13 @@ export function EverlastingMemoriesManager() {
           setFullContent(data)
           if (data.guestMemories) {
             setMemories({
-              badgeEn: data.guestMemories.badgeEn || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any).badgeEn || 'EVERLASTING MEMORIES — GPU PARALLAX',
-              badgeAr: data.guestMemories.badgeAr || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any).badgeAr || 'ذكريات لا تُنسى — EVERLASTING MEMORIES',
-              headlineEn: data.guestMemories.headlineEn !== undefined ? data.guestMemories.headlineEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineEn,
+              badgeEn: data.guestMemories.badgeEn || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any)?.badgeEn || 'EVERLASTING MEMORIES — GPU PARALLAX',
+              badgeAr: data.guestMemories.badgeAr || (DEFAULT_B2C_LANDING_CONTENT.guestMemories as any)?.badgeAr || 'ذكريات لا تُنسى — EVERLASTING MEMORIES',
+              headlineEn: data.guestMemories.headlineEn !== undefined ? data.guestMemories.headlineEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineAr,
               headlineAr: data.guestMemories.headlineAr !== undefined ? data.guestMemories.headlineAr : DEFAULT_B2C_LANDING_CONTENT.guestMemories.headlineAr,
               subtextEn: data.guestMemories.subtextEn !== undefined ? data.guestMemories.subtextEn : DEFAULT_B2C_LANDING_CONTENT.guestMemories.subtextEn,
               subtextAr: data.guestMemories.subtextAr !== undefined ? data.guestMemories.subtextAr : DEFAULT_B2C_LANDING_CONTENT.guestMemories.subtextAr,
-              moments: (data.guestMemories.moments && data.guestMemories.moments.length > 0)
+              moments: Array.isArray(data.guestMemories.moments)
                 ? data.guestMemories.moments
                 : DEFAULT_B2C_LANDING_CONTENT.guestMemories.moments
             })
@@ -67,25 +103,35 @@ export function EverlastingMemoriesManager() {
       }
     }
     loadData()
-  }, [])
+  }, [value, toast])
 
-  const handleMomentChange = (idx: number, field: string, value: any) => {
+  const updateMemories = (updater: (prev: Required<EverlastingMemoriesData>) => Required<EverlastingMemoriesData>) => {
     setMemories(prev => {
+      const next = updater(prev)
+      if (onChange) {
+        onChange(next)
+      }
+      return next
+    })
+  }
+
+  const handleMomentChange = (idx: number, field: string, val: any) => {
+    updateMemories(prev => {
       const copy = [...prev.moments]
       if (copy[idx]) {
         let updatedMediaProps = {}
         if (field === 'mediaUrl') {
-          const detectedType = resolveMediaType({ url: value, explicitType: undefined })
+          const detectedType = resolveMediaType({ url: val, explicitType: undefined })
           updatedMediaProps = { mediaType: detectedType }
         }
-        copy[idx] = { ...copy[idx], [field]: value, ...updatedMediaProps }
+        copy[idx] = { ...copy[idx], [field]: val, ...updatedMediaProps }
       }
       return { ...prev, moments: copy }
     })
   }
 
   const handleAddMoment = () => {
-    setMemories(prev => ({
+    updateMemories(prev => ({
       ...prev,
       moments: [
         ...prev.moments,
@@ -105,14 +151,14 @@ export function EverlastingMemoriesManager() {
   }
 
   const handleDeleteMoment = (idx: number) => {
-    setMemories(prev => ({
+    updateMemories(prev => ({
       ...prev,
       moments: prev.moments.filter((_, i) => i !== idx)
     }))
   }
 
   const handleMoveMoment = (idx: number, direction: 'up' | 'down') => {
-    setMemories(prev => {
+    updateMemories(prev => {
       const newMoments = [...prev.moments]
       const targetIdx = direction === 'up' ? idx - 1 : idx + 1
       if (targetIdx < 0 || targetIdx >= newMoments.length) return prev
@@ -126,8 +172,17 @@ export function EverlastingMemoriesManager() {
   const handleSave = async () => {
     setSaving(true)
     try {
+      let currentFull = fullContent
+      if (!currentFull) {
+        const fetchRes = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
+        if (fetchRes.ok) {
+          const json = await fetchRes.json()
+          currentFull = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
+        }
+      }
+
       const updatedFullContent = {
-        ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),
+        ...(currentFull || DEFAULT_B2C_LANDING_CONTENT),
         guestMemories: {
           ...memories
         }
@@ -216,7 +271,7 @@ export function EverlastingMemoriesManager() {
             <input
               type="text"
               value={memories.badgeEn}
-              onChange={(e) => setMemories(prev => ({ ...prev, badgeEn: e.target.value }))}
+              onChange={(e) => updateMemories(prev => ({ ...prev, badgeEn: e.target.value }))}
               placeholder="e.g. EVERLASTING MEMORIES — GPU PARALLAX"
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-pink-500"
             />
@@ -230,7 +285,7 @@ export function EverlastingMemoriesManager() {
               type="text"
               dir="rtl"
               value={memories.badgeAr}
-              onChange={(e) => setMemories(prev => ({ ...prev, badgeAr: e.target.value }))}
+              onChange={(e) => updateMemories(prev => ({ ...prev, badgeAr: e.target.value }))}
               placeholder="مثال: ذكريات لا تُنسى — EVERLASTING MEMORIES"
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-pink-500"
             />
@@ -243,7 +298,7 @@ export function EverlastingMemoriesManager() {
             <input
               type="text"
               value={memories.headlineEn}
-              onChange={(e) => setMemories(prev => ({ ...prev, headlineEn: e.target.value }))}
+              onChange={(e) => updateMemories(prev => ({ ...prev, headlineEn: e.target.value }))}
               placeholder="e.g. The Moment Becomes a Memory"
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-pink-500"
             />
@@ -257,7 +312,7 @@ export function EverlastingMemoriesManager() {
               type="text"
               dir="rtl"
               value={memories.headlineAr}
-              onChange={(e) => setMemories(prev => ({ ...prev, headlineAr: e.target.value }))}
+              onChange={(e) => updateMemories(prev => ({ ...prev, headlineAr: e.target.value }))}
               placeholder="مثال: اللحظة تتحول إلى ذكرى تدوم"
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-pink-500"
             />
@@ -270,7 +325,7 @@ export function EverlastingMemoriesManager() {
             <textarea
               rows={3}
               value={memories.subtextEn}
-              onChange={(e) => setMemories(prev => ({ ...prev, subtextEn: e.target.value }))}
+              onChange={(e) => updateMemories(prev => ({ ...prev, subtextEn: e.target.value }))}
               placeholder="Enter English section subtext..."
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-pink-500"
             />
@@ -284,7 +339,7 @@ export function EverlastingMemoriesManager() {
               rows={3}
               dir="rtl"
               value={memories.subtextAr}
-              onChange={(e) => setMemories(prev => ({ ...prev, subtextAr: e.target.value }))}
+              onChange={(e) => updateMemories(prev => ({ ...prev, subtextAr: e.target.value }))}
               placeholder="أدخل الوصف الفرعي بالعربية..."
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-pink-500"
             />

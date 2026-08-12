@@ -37,6 +37,7 @@ const sidebarConfig = [
     { label: "Our Brands", href: "/dashboard/b2c/content/brands" },
     { label: "Explore E3 Across Qatar", href: "/dashboard/b2c/content/qatar-map" },
     { label: "Live Feed", href: "/dashboard/b2c/content/live-feed" },
+    { label: "Everlasting Memories", href: "/dashboard/b2c/content/memories" },
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
     { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },

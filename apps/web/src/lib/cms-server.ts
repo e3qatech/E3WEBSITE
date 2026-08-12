@@ -33,24 +33,9 @@ export function deepMergeCMSContent(target: any, source: any): any {
     return source;
   }
 
-  // Array handling: preserve item content by stable ID, support deliberate removal & reordering
+  // Array handling: incoming array data replaces target array directly to support addition, reordering, and item editing
   if (Array.isArray(target) || Array.isArray(source)) {
     if (!Array.isArray(source)) return target;
-    if (!Array.isArray(target)) return source;
-    
-    // If source array items have stable IDs, merge matching items by ID while respecting source order
-    const hasStableIds = source.some((item: any) => item && typeof item === 'object' && item.id !== undefined);
-    if (hasStableIds) {
-      return source.map((srcItem: any) => {
-        if (srcItem && typeof srcItem === 'object' && srcItem.id !== undefined) {
-          const matchingTarget = target.find((t: any) => t && t.id === srcItem.id);
-          return matchingTarget ? deepMergeCMSContent(matchingTarget, srcItem) : srcItem;
-        }
-        return srcItem;
-      });
-    }
-    
-    // Fallback for arrays without IDs
     return source;
   }
 
