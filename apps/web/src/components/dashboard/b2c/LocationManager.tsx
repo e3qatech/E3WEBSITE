@@ -114,10 +114,19 @@ export function LocationManager() {
     });
 
     const el = document.createElement('div');
-    el.className = 'w-7 h-7 rounded-full bg-[var(--e3-royal-blue)] border-2 border-white shadow-xl flex items-center justify-center cursor-grab';
-    el.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></div>';
+    el.className = 'group relative cursor-grab z-30 transition-transform hover:scale-125';
+    el.innerHTML = `
+      <div class="flex flex-col items-center">
+        <div class="px-2.5 py-1 rounded-full bg-slate-900 text-amber-300 border border-amber-400 text-[11px] font-bold shadow-2xl backdrop-blur-md mb-1 whitespace-nowrap">
+          📍 Drag or Click Location Pin
+        </div>
+        <div class="relative w-8 h-8 rounded-full bg-blue-600 border-2 border-white shadow-xl shadow-blue-500/50 flex items-center justify-center text-white">
+          <div class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></div>
+        </div>
+      </div>
+    `;
 
-    const marker = new maplibregl.Marker({ element: el, draggable: true })
+    const marker = new maplibregl.Marker({ element: el, draggable: true, anchor: 'bottom' })
       .setLngLat([initialLng, initialLat])
       .addTo(map);
 
