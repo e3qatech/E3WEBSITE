@@ -207,19 +207,38 @@ export function CalendarPageManager() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Heading Title</label>
+                  <label className="text-sm font-bold text-[var(--text-primary)]">Heading Title (English)</label>
                   <input
                     type="text"
-                    value={pageSettings.title}
+                    value={pageSettings.title || ""}
                     onChange={e => setPageSettings({ ...pageSettings, title: e.target.value })}
                     className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Sub-heading (Tagline)</label>
+                  <label className="text-sm font-bold text-[var(--text-primary)]">Heading Title (Arabic)</label>
+                  <input
+                    type="text"
+                    dir="rtl"
+                    value={(pageSettings as any).titleAr || ""}
+                    onChange={e => setPageSettings({ ...pageSettings, titleAr: e.target.value } as any)}
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[var(--text-primary)]">Sub-heading / Tagline (English)</label>
                   <textarea
-                    value={pageSettings.tagline}
+                    value={pageSettings.tagline || ""}
                     onChange={e => setPageSettings({ ...pageSettings, tagline: e.target.value })}
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[var(--text-primary)]">Sub-heading / Tagline (Arabic)</label>
+                  <textarea
+                    dir="rtl"
+                    value={(pageSettings as any).taglineAr || ""}
+                    onChange={e => setPageSettings({ ...pageSettings, taglineAr: e.target.value } as any)}
                     className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
                   />
                 </div>

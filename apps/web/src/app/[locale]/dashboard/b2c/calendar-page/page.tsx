@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
-import { CalendarPageEditor } from '@/components/dashboard/b2c/CalendarPageEditor'
+import { CalendarPageManager } from '@/components/dashboard/b2c/CalendarPageManager'
 
 export const metadata: Metadata = {
-  title: 'Calendar Page Editor | E3 CMS',
+  title: 'Calendar Page Settings | E3 CMS',
 }
 
 export default function CalendarPageEditorPage() {
-  return <CalendarPageEditor />
+  return <CalendarPageManager />
 }
