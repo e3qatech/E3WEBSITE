@@ -7,14 +7,12 @@ import {
   MapPin, 
   Clock, 
   Compass, 
-  Grid, 
-  Map as MapIcon, 
   Locate, 
   Sparkles, 
   ArrowRight, 
   Ticket, 
-  SlidersHorizontal,
-  ChevronRight
+  ChevronRight,
+  Map as MapIcon
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,7 +22,7 @@ declare global {
   }
 }
 
-interface AttractionItem {
+export interface AttractionItem {
   id: string;
   slug: string;
   nameEn: string;
@@ -58,7 +56,7 @@ interface AttractionsDirectoryProps {
 }
 
 // Fallback attraction data for Qatar if database list is empty
-const FALLBACK_ATTRACTIONS: AttractionItem[] = [
+export const FALLBACK_ATTRACTIONS: AttractionItem[] = [
   {
     id: "attr-inflatarun",
     slug: "inflatarun",
@@ -181,7 +179,7 @@ const FALLBACK_ATTRACTIONS: AttractionItem[] = [
   }
 ];
 
-function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -195,7 +193,7 @@ function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: num
   return Math.round(R * c * 10) / 10;
 }
 
-function getTimingStatus(attraction: AttractionItem, isAr: boolean) {
+export function getTimingStatus(attraction: AttractionItem, isAr: boolean) {
   const ops = attraction.operations || {};
   const openTime = ops.openingTime || "14:00";
   const closeTime = ops.closingTime || "23:00";
@@ -260,21 +258,17 @@ function getTimingStatus(attraction: AttractionItem, isAr: boolean) {
   }
 }
 
-export function AttractionsDirectory({ initialAttractions, locale }: AttractionsDirectoryProps) {
+// -------------------------------------------------------------
+// SECTION 2: ALL ATTRACTIONS AVAILABLE GRID SECTION
+// -------------------------------------------------------------
+export function AttractionsGridSection({ initialAttractions, locale }: AttractionsDirectoryProps) {
   const isAr = locale === 'ar';
   const list = initialAttractions.length > 0 ? initialAttractions : FALLBACK_ATTRACTIONS;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [viewMode, setViewMode] = useState<'GRID' | 'MAP' | 'SPLIT'>('SPLIT');
-  const [selectedAttrId, setSelectedAttrId] = useState<string>(list[0]?.id || '');
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
-  const [leafletLoaded, setLeafletLoaded] = useState(false);
-
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
 
   const categories = [
     { id: 'ALL', labelEn: 'All Attractions', labelAr: 'جميع الوجهات' },
@@ -285,7 +279,218 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
     { id: 'WATER & SPLASH', labelEn: 'Water & Splash', labelAr: 'ألعاب مائية' }
   ];
 
-  // Dynamically load Leaflet JS & CSS for real interactive map cartography
+  const handleRequestLocation = () => {
+    if (!navigator.geolocation) {
+      alert(isAr ? "خدمة تحديد الموقع غير مدعومة في متصفحك" : "Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setLocating(false);
+      },
+      (err) => {
+        console.warn("Geolocation denied or error:", err);
+        setLocating(false);
+      }
+    );
+  };
+
+  const filteredAttractions = useMemo(() => {
+    return list.filter((item) => {
+      const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
+      const q = searchQuery.toLowerCase().trim();
+      const nameEn = (item.nameEn || '').toLowerCase();
+      const nameAr = (item.nameAr || '').toLowerCase();
+      const tagEn = (item.taglineEn || '').toLowerCase();
+      const tagAr = (item.taglineAr || '').toLowerCase();
+      const locEn = (item.operations?.locationNameEn || '').toLowerCase();
+      const locAr = (item.operations?.locationNameAr || '').toLowerCase();
+
+      const matchSearch =
+        !q ||
+        nameEn.includes(q) ||
+        nameAr.includes(q) ||
+        tagEn.includes(q) ||
+        tagAr.includes(q) ||
+        locEn.includes(q) ||
+        locAr.includes(q);
+
+      return matchCat && matchSearch;
+    });
+  }, [list, selectedCategory, searchQuery]);
+
+  return (
+    <section id="all-attractions-grid" className="relative py-20 bg-[var(--bg-level-1)] text-white border-t border-[var(--border-level-2)]">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-10">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
+              <Compass className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
+              <span>{isAr ? "دليل وجهات إي ثري قطر" : "E3 QATAR ATTRACTIONS DIRECTORY"}</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
+              {isAr ? "الوجهات والفعاليات المتاحة" : "Available Attractions & Worlds"}
+            </h2>
+            <p className="text-sm text-[var(--text-secondary)] font-medium max-w-2xl mt-2">
+              {isAr
+                ? "تصفح كافة الوجهات الترفيهية الحية، ساعات العمل، المسافة من موقعك، وحجز التذاكر المباشر."
+                : "Explore all active attraction worlds, live operating hours, visitor distance, and direct ticketing."}
+            </p>
+          </div>
+
+          <button
+            onClick={handleRequestLocation}
+            disabled={locating}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-mono font-extrabold uppercase tracking-wider text-[var(--text-primary)] transition-all shadow-md cursor-pointer disabled:opacity-50"
+          >
+            <Locate className={`w-4 h-4 text-[var(--e3-royal-blue)] ${locating ? 'animate-spin' : ''}`} />
+            <span>
+              {locating
+                ? (isAr ? "جاري التحديد..." : "Locating...")
+                : userCoords
+                ? (isAr ? "موقعك نشط" : "Location Active")
+                : (isAr ? "تحديد موقعي" : "Near Me")}
+            </span>
+          </button>
+        </div>
+
+        {/* Category Pills & Search Filter */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg'
+                      : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-white'
+                  }`}
+                >
+                  {isAr ? cat.labelAr : cat.labelEn}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative min-w-[260px] md:w-72 shrink-0">
+            <Search className="w-4 h-4 absolute top-3 start-3 text-[var(--text-tertiary)]" />
+            <input
+              type="text"
+              placeholder={isAr ? "ابحث عن وجهة أو موقع..." : "Search attraction or venue..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] placeholder:text-[var(--text-tertiary)] shadow-inner"
+            />
+          </div>
+        </div>
+
+        {/* Attractions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAttractions.map((attr) => {
+            const timing = getTimingStatus(attr, isAr);
+            const ops = attr.operations || {};
+            const lat = ops.lat || attr.coordinates?.lat || 25.418;
+            const lng = ops.lng || attr.coordinates?.lng || 51.530;
+            
+            const dist = userCoords 
+              ? `${calculateDistanceKm(userCoords.lat, userCoords.lng, lat, lng)} km`
+              : (isAr ? (ops.locationNameAr || "قطر") : (ops.locationNameEn || "Qatar"));
+
+            return (
+              <motion.div
+                key={attr.id}
+                layout
+                className="group relative rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-[var(--e3-royal-blue)]/60 transition-all cursor-pointer shadow-xl flex flex-col justify-between"
+              >
+                <div className="relative w-full aspect-[16/10] overflow-hidden bg-gradient-to-br from-[var(--e3-deep-blue)] to-black shrink-0">
+                  {attr.heroMediaUrl ? (
+                    <img 
+                      src={attr.heroMediaUrl} 
+                      alt={attr.nameEn} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/20">
+                      <Sparkles className="w-10 h-10 text-[var(--e3-royal-blue)]" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                  <div className={`absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-mono font-extrabold uppercase backdrop-blur-md shadow-md z-10 ${timing.badgeClass}`}>
+                    <span className={`w-2 h-2 rounded-full ${timing.dotClass}`} />
+                    <span>{timing.label}</span>
+                  </div>
+
+                  <div className="absolute top-4 end-4 px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[10px] font-mono font-bold text-white uppercase backdrop-blur-md">
+                    {attr.category?.split('&')[0] || "E3 WORLD"}
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-[var(--text-primary)] font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors">
+                      {isAr ? attr.nameAr : attr.nameEn}
+                    </h3>
+                    <p className="text-xs text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed">
+                      {isAr ? (attr.taglineAr || attr.descriptionAr) : (attr.taglineEn || attr.descriptionEn)}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-[var(--border-level-2)] flex items-center justify-between text-xs text-[var(--text-secondary)] font-mono">
+                    <div className="flex items-center gap-1.5 font-bold text-[var(--e3-royal-blue)]">
+                      <MapPin className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate max-w-[160px]">{dist}</span>
+                    </div>
+                    <div className="flex items-center gap-1 font-bold text-[var(--text-tertiary)]">
+                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                      <span>{ops.openingTime || "14:00"} - {ops.closingTime || "23:00"}</span>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={attr.ticketingUrl || `/en/b2c/calendar`}
+                    className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group/btn"
+                  >
+                    <Ticket className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover/btn:text-white transition-colors" />
+                    <span>{isAr ? "حجز التذاكر والمواعيد" : "Book Passes & Tickets"}</span>
+                    <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+                  </Link>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// -------------------------------------------------------------
+// SECTION 3: REAL LEAFLET INTERACTIVE MAP OF QATAR SECTION
+// -------------------------------------------------------------
+export function AttractionsMapSection({ initialAttractions, locale }: AttractionsDirectoryProps) {
+  const isAr = locale === 'ar';
+  const list = initialAttractions.length > 0 ? initialAttractions : FALLBACK_ATTRACTIONS;
+
+  const [selectedAttrId, setSelectedAttrId] = useState<string>(list[0]?.id || '');
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+
+  const selectedAttraction = useMemo(() => {
+    return list.find((a) => a.id === selectedAttrId) || list[0];
+  }, [list, selectedAttrId]);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -331,34 +536,6 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
     );
   };
 
-  const filteredAttractions = useMemo(() => {
-    return list.filter((item) => {
-      const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
-      const q = searchQuery.toLowerCase().trim();
-      const nameEn = (item.nameEn || '').toLowerCase();
-      const nameAr = (item.nameAr || '').toLowerCase();
-      const tagEn = (item.taglineEn || '').toLowerCase();
-      const tagAr = (item.taglineAr || '').toLowerCase();
-      const locEn = (item.operations?.locationNameEn || '').toLowerCase();
-      const locAr = (item.operations?.locationNameAr || '').toLowerCase();
-
-      const matchSearch =
-        !q ||
-        nameEn.includes(q) ||
-        nameAr.includes(q) ||
-        tagEn.includes(q) ||
-        tagAr.includes(q) ||
-        locEn.includes(q) ||
-        locAr.includes(q);
-
-      return matchCat && matchSearch;
-    });
-  }, [list, selectedCategory, searchQuery]);
-
-  const selectedAttraction = useMemo(() => {
-    return list.find((a) => a.id === selectedAttrId) || filteredAttractions[0] || list[0];
-  }, [list, filteredAttractions, selectedAttrId]);
-
   // Initialize Leaflet Map Instance
   useEffect(() => {
     if (!leafletLoaded || !mapContainerRef.current || !window.L) return;
@@ -389,7 +566,7 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
         mapInstanceRef.current = null;
       }
     };
-  }, [leafletLoaded, viewMode]);
+  }, [leafletLoaded]);
 
   // Update Markers on Leaflet Map
   useEffect(() => {
@@ -401,7 +578,7 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    filteredAttractions.forEach((attr) => {
+    list.forEach((attr) => {
       const ops = attr.operations || {};
       const lat = ops.lat || attr.coordinates?.lat || 25.418;
       const lng = ops.lng || attr.coordinates?.lng || 51.530;
@@ -413,7 +590,7 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
 
       const customIcon = L.divIcon({
         className: 'custom-map-pin',
-        html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;"><div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bgColor}; border: 2px solid ${bdColor}; display: flex; items-center: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: all 0.3s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div></div>`,
+        html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;"><div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bgColor}; border: 2px solid ${bdColor}; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: all 0.3s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div></div>`,
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2]
       });
@@ -445,269 +622,103 @@ export function AttractionsDirectory({ initialAttractions, locale }: Attractions
 
       markersRef.current.push(marker);
     });
-  }, [filteredAttractions, selectedAttraction, leafletLoaded, isAr]);
+  }, [list, selectedAttraction, leafletLoaded, isAr]);
 
   return (
-    <section id="attractions-directory" className="relative py-20 bg-[var(--bg-level-1)] text-white border-t border-[var(--border-level-2)]">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-10">
-        {/* Header & Controls Bar */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-8">
+    <section id="interactive-attractions-map" className="relative py-20 bg-[var(--bg-level-2)] text-white border-t border-[var(--border-level-2)]">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
-              <Compass className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
-              <span>{isAr ? "دليل وجهات إي ثري قطر" : "E3 QATAR ATTRACTIONS DIRECTORY"}</span>
+              <MapIcon className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
+              <span>{isAr ? "الخريطة الحية للوجهات" : "LIVE ATTRACTION MAP OF QATAR"}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
-              {isAr ? "دليل الوجهات الخريطة التفاعلية" : "Attractions & Interactive Map"}
+              {isAr ? "خريطة الوجهات التفاعلية" : "Interactive Attractions Map"}
             </h2>
             <p className="text-sm text-[var(--text-secondary)] font-medium max-w-2xl mt-2">
               {isAr
-                ? "تصفح كافة الوجهات الترفيهية الحية، ساعات العمل، المسافة من موقعك، وحجز التذاكر المباشر."
-                : "Explore all active attraction worlds, live operating hours, visitor distance, and direct ticketing."}
+                ? "تتبع مواقع الوجهات الحية عبر قطر وانقر على الدبابيس للاطلاع على التفاصيل والتذاكر."
+                : "Locate active attractions across Qatar and tap pins to preview details and book passes."}
             </p>
           </div>
 
-          {/* View Toggle & Geolocation Action */}
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={handleRequestLocation}
-              disabled={locating}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-mono font-extrabold uppercase tracking-wider text-[var(--text-primary)] transition-all shadow-md cursor-pointer disabled:opacity-50"
+          <button
+            onClick={handleRequestLocation}
+            disabled={locating}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-mono font-extrabold uppercase tracking-wider text-[var(--text-primary)] transition-all shadow-md cursor-pointer disabled:opacity-50"
+          >
+            <Locate className={`w-4 h-4 text-[var(--e3-royal-blue)] ${locating ? 'animate-spin' : ''}`} />
+            <span>
+              {locating
+                ? (isAr ? "جاري التحديد..." : "Locating...")
+                : userCoords
+                ? (isAr ? "موقعك نشط" : "Location Active")
+                : (isAr ? "تحديد موقعي" : "Near Me")}
+            </span>
+          </button>
+        </div>
+
+        {/* Real Leaflet Map Container */}
+        <div className="relative aspect-[16/9] md:aspect-[21/9] min-h-[440px] rounded-3xl border border-[var(--border-level-2)] bg-[#050110] overflow-hidden shadow-2xl">
+          <div ref={mapContainerRef} className="w-full h-full min-h-[440px] z-0" />
+
+          {selectedAttraction && (
+            <motion.div 
+              key={selectedAttraction.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 rounded-2xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] backdrop-blur-md shadow-2xl flex items-center justify-between gap-4 absolute bottom-4 left-4 right-4 z-10 max-w-xl mx-auto"
             >
-              <Locate className={`w-4 h-4 text-[var(--e3-royal-blue)] ${locating ? 'animate-spin' : ''}`} />
-              <span>
-                {locating
-                  ? (isAr ? "جاري التحديد..." : "Locating...")
-                  : userCoords
-                  ? (isAr ? "موقعك نشط" : "Location Active")
-                  : (isAr ? "تحديد موقعي" : "Near Me")}
-              </span>
-            </button>
-
-            <div className="flex items-center p-1 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-md">
-              <button
-                onClick={() => setViewMode('SPLIT')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === 'SPLIT' ? 'bg-[var(--e3-royal-blue)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
-                }`}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>{isAr ? "مزدوج" : "Split View"}</span>
-              </button>
-              <button
-                onClick={() => setViewMode('GRID')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === 'GRID' ? 'bg-[var(--e3-royal-blue)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
-                }`}
-              >
-                <Grid className="w-3.5 h-3.5" />
-                <span>{isAr ? "شبكة" : "Grid"}</span>
-              </button>
-              <button
-                onClick={() => setViewMode('MAP')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === 'MAP' ? 'bg-[var(--e3-royal-blue)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
-                }`}
-              >
-                <MapIcon className="w-3.5 h-3.5" />
-                <span>{isAr ? "خريطة" : "Map"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Category Pills & Search Filter */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-            {categories.map((cat) => {
-              const isActive = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg'
-                      : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-white'
-                  }`}
-                >
-                  {isAr ? cat.labelAr : cat.labelEn}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Search Bar Input */}
-          <div className="relative min-w-[260px] md:w-72 shrink-0">
-            <Search className="w-4 h-4 absolute top-3 start-3 text-[var(--text-tertiary)]" />
-            <input
-              type="text"
-              placeholder={isAr ? "ابحث عن وجهة أو موقع..." : "Search attraction or venue..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] placeholder:text-[var(--text-tertiary)] shadow-inner"
-            />
-          </div>
-        </div>
-
-        {/* Main Content Layout (Grid vs Split vs Map) */}
-        <div className="w-full">
-          {filteredAttractions.length === 0 ? (
-            <div className="p-16 text-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] space-y-4">
-              <Compass className="w-12 h-12 text-[var(--text-tertiary)] mx-auto animate-bounce" />
-              <h3 className="text-lg font-bold text-[var(--text-primary)] font-display uppercase">
-                {isAr ? "لم نجد وجهات مطابقة للبحث" : "No Matching Attractions Found"}
-              </h3>
-              <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto font-medium">
-                {isAr ? "جرب تصفية الفئات الأخرى أو البحث بكلمات مختلفة." : "Try clearing your search query or selecting another category filter above."}
-              </p>
-              <button
-                onClick={() => { setSearchQuery(''); setSelectedCategory('ALL'); }}
-                className="px-5 py-2.5 rounded-xl bg-[var(--e3-royal-blue)] text-white text-xs font-bold uppercase tracking-wider"
-              >
-                {isAr ? "إعادة ضبط الفلاتر" : "Reset Filters"}
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Left Column: Attraction Cards Grid */}
-              {(viewMode === 'GRID' || viewMode === 'SPLIT') && (
-                <div className={`${viewMode === 'GRID' ? 'lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'lg:col-span-6 grid grid-cols-1 gap-6'}`}>
-                  {filteredAttractions.map((attr) => {
-                    const timing = getTimingStatus(attr, isAr);
-                    const ops = attr.operations || {};
-                    const lat = ops.lat || attr.coordinates?.lat || 25.418;
-                    const lng = ops.lng || attr.coordinates?.lng || 51.530;
-                    
-                    const dist = userCoords 
-                      ? `${calculateDistanceKm(userCoords.lat, userCoords.lng, lat, lng)} km`
-                      : (isAr ? (ops.locationNameAr || "قطر") : (ops.locationNameEn || "Qatar"));
-
-                    const isSelected = attr.id === selectedAttraction?.id;
-
-                    return (
-                      <motion.div
-                        key={attr.id}
-                        layout
-                        onClick={() => setSelectedAttrId(attr.id)}
-                        className={`group relative rounded-3xl overflow-hidden border transition-all cursor-pointer shadow-xl flex flex-col justify-between ${
-                          isSelected 
-                            ? 'border-[var(--e3-royal-blue)] bg-[var(--surface-hover)] ring-2 ring-[var(--e3-royal-blue)]/50'
-                            : 'border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-[var(--e3-royal-blue)]/60'
-                        }`}
-                      >
-                        {/* Cover Image */}
-                        <div className="relative w-full aspect-[16/10] overflow-hidden bg-gradient-to-br from-[var(--e3-deep-blue)] to-black shrink-0">
-                          {attr.heroMediaUrl ? (
-                            <img 
-                              src={attr.heroMediaUrl} 
-                              alt={attr.nameEn} 
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/20">
-                              <Sparkles className="w-10 h-10 text-[var(--e3-royal-blue)]" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-                          {/* Dynamic Timing Status Badge */}
-                          <div className={`absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-mono font-extrabold uppercase backdrop-blur-md shadow-md z-10 ${timing.badgeClass}`}>
-                            <span className={`w-2 h-2 rounded-full ${timing.dotClass}`} />
-                            <span>{timing.label}</span>
-                          </div>
-
-                          {/* Category Tag */}
-                          <div className="absolute top-4 end-4 px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[10px] font-mono font-bold text-white uppercase backdrop-blur-md">
-                            {attr.category?.split('&')[0] || "E3 WORLD"}
-                          </div>
-                        </div>
-
-                        {/* Card Info Body */}
-                        <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <h3 className="text-lg font-bold text-[var(--text-primary)] font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors">
-                              {isAr ? attr.nameAr : attr.nameEn}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed">
-                              {isAr ? (attr.taglineAr || attr.descriptionAr) : (attr.taglineEn || attr.descriptionEn)}
-                            </p>
-                          </div>
-
-                          {/* Location / Geolocation Visitor Distance */}
-                          <div className="pt-3 border-t border-[var(--border-level-2)] flex items-center justify-between text-xs text-[var(--text-secondary)] font-mono">
-                            <div className="flex items-center gap-1.5 font-bold text-[var(--e3-royal-blue)]">
-                              <MapPin className="w-3.5 h-3.5 shrink-0" />
-                              <span className="truncate max-w-[160px]">{dist}</span>
-                            </div>
-                            <div className="flex items-center gap-1 font-bold text-[var(--text-tertiary)]">
-                              <Clock className="w-3.5 h-3.5 shrink-0" />
-                              <span>{ops.openingTime || "14:00"} - {ops.closingTime || "23:00"}</span>
-                            </div>
-                          </div>
-
-                          {/* Action Button */}
-                          <Link
-                            href={attr.ticketingUrl || `/en/b2c/calendar`}
-                            className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group/btn"
-                          >
-                            <Ticket className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover/btn:text-white transition-colors" />
-                            <span>{isAr ? "حجز التذاكر والمواعيد" : "Book Passes & Tickets"}</span>
-                            <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-                          </Link>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+              <div className="flex items-center gap-3">
+                {selectedAttraction.heroMediaUrl && (
+                  <img 
+                    src={selectedAttraction.heroMediaUrl} 
+                    alt={selectedAttraction.nameEn} 
+                    className="w-14 h-14 rounded-xl object-cover border border-[var(--border-level-2)] shrink-0" 
+                  />
+                )}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase block">SELECTED MAP ATTRACTION</span>
+                  <h4 className="text-sm font-bold text-[var(--text-primary)] font-display uppercase">{isAr ? selectedAttraction.nameAr : selectedAttraction.nameEn}</h4>
+                  <p className="text-[11px] text-[var(--text-secondary)] font-medium truncate max-w-[220px]">{selectedAttraction.operations?.locationNameEn || "Qatar"}</p>
                 </div>
-              )}
+              </div>
 
-              {/* Right Column: Real Leaflet Interactive Map Container */}
-              {(viewMode === 'MAP' || viewMode === 'SPLIT') && (
-                <div className={`${viewMode === 'MAP' ? 'lg:col-span-12' : 'lg:col-span-6'} sticky top-24`}>
-                  <div className="relative aspect-[4/3] rounded-3xl border border-[var(--border-level-2)] bg-[#050110] overflow-hidden shadow-2xl flex flex-col justify-between">
-                    {/* Actual Leaflet Map Canvas Container */}
-                    <div ref={mapContainerRef} className="w-full h-full min-h-[420px] z-0" />
-
-                    {/* Selected Attraction Floating Info Card */}
-                    {selectedAttraction && (
-                      <motion.div 
-                        key={selectedAttraction.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-4 rounded-2xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] backdrop-blur-md shadow-2xl flex items-center justify-between gap-4 absolute bottom-4 left-4 right-4 z-10"
-                      >
-                        <div className="flex items-center gap-3">
-                          {selectedAttraction.heroMediaUrl && (
-                            <img 
-                              src={selectedAttraction.heroMediaUrl} 
-                              alt={selectedAttraction.nameEn} 
-                              className="w-14 h-14 rounded-xl object-cover border border-[var(--border-level-2)] shrink-0" 
-                            />
-                          )}
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase block">SELECTED MAP PIN</span>
-                            <h4 className="text-sm font-bold text-[var(--text-primary)] font-display uppercase">{isAr ? selectedAttraction.nameAr : selectedAttraction.nameEn}</h4>
-                            <p className="text-[11px] text-[var(--text-secondary)] font-medium truncate max-w-[200px]">{selectedAttraction.operations?.locationNameEn || "Qatar"}</p>
-                          </div>
-                        </div>
-
-                        <Link
-                          href={selectedAttraction.ticketingUrl || "/en/b2c/calendar"}
-                          className="px-4 py-2 rounded-xl bg-[var(--e3-royal-blue)] text-white text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0 flex items-center gap-1.5 shadow-md"
-                        >
-                          <span>{isAr ? "حجز" : "Book Pass"}</span>
-                          <ChevronRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-                        </Link>
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+              <Link
+                href={selectedAttraction.ticketingUrl || "/en/b2c/calendar"}
+                className="px-4 py-2 rounded-xl bg-[var(--e3-royal-blue)] text-white text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0 flex items-center gap-1.5 shadow-md"
+              >
+                <span>{isAr ? "حجز التذاكر" : "Book Pass"}</span>
+                <ChevronRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+              </Link>
+            </motion.div>
           )}
         </div>
       </div>
+
+      <style jsx global>{`
+        .e3-leaflet-popup .leaflet-popup-content-wrapper {
+          background: #090314 !important;
+          border: 1px solid rgba(255, 255, 255, 0.15) !important;
+          border-radius: 16px !important;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8) !important;
+          color: #fff !important;
+        }
+        .e3-leaflet-popup .leaflet-popup-tip {
+          background: #090314 !important;
+        }
+      `}</style>
     </section>
+  );
+}
+
+// Backward compatibility export
+export function AttractionsDirectory(props: AttractionsDirectoryProps) {
+  return (
+    <>
+      <AttractionsGridSection {...props} />
+      <AttractionsMapSection {...props} />
+    </>
   );
 }

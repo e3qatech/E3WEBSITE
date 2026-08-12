@@ -8,9 +8,9 @@ import { usePointerIntent } from '@/lib/usePointerIntent';
 
 // Dedicated Attraction Page Components
 import { CinematicHeroUniversal } from '@/components/b2c/story/CinematicHeroUniversal';
-import { AttractionsDirectory } from '@/components/b2c/AttractionsDirectory';
-import { ExperienceWorldsStage } from '@/components/b2c/story/ExperienceWorldsStage';
+import { AttractionsGridSection, AttractionsMapSection } from '@/components/b2c/AttractionsDirectory';
 import { TactileDigitalTicket } from '@/components/b2c/story/TactileDigitalTicket';
+import { ExperienceWorldsStage } from '@/components/b2c/story/ExperienceWorldsStage';
 
 export function AttractionsClient({
   locale,
@@ -33,7 +33,6 @@ export function AttractionsClient({
 
   useEffect(() => {
     if (cmsData) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLiveCmsContent(cmsData);
     }
   }, [cmsData]);
@@ -103,19 +102,24 @@ export function AttractionsClient({
     }
   }, [setAttractions, initialAttractions]);
 
+  const activeAttractions = initialAttractions.length > 0 ? initialAttractions : (_attractions as any);
+
   return (
     <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
-      {/* 1. Cinematic Universal Hero Banner for Attractions */}
+      {/* 1. HERO SECTION */}
       <CinematicHeroUniversal content={liveCmsContent} locale={locale} />
 
-      {/* 2. Attractions Directory & Real Leaflet Interactive Cartography Map */}
-      <AttractionsDirectory initialAttractions={initialAttractions.length > 0 ? initialAttractions : (_attractions as any)} locale={locale} />
+      {/* 2. SHOW ALL THE ATTRACTIONS AVAILABLE */}
+      <AttractionsGridSection initialAttractions={activeAttractions} locale={locale} />
 
-      {/* 3. Featured Attraction Worlds */}
-      <ExperienceWorldsStage content={liveCmsContent} locale={locale} />
+      {/* 3. SHOW THE MAP WITH ATTRACTION PINS */}
+      <AttractionsMapSection initialAttractions={activeAttractions} locale={locale} />
 
-      {/* 4. Direct Ticket Booking CTA */}
+      {/* 4. MAKE TODAY THE STORY SECTION */}
       <TactileDigitalTicket content={liveCmsContent} locale={locale} />
+
+      {/* 5. FLAGSHIP ENTERTAINMENT WORLDS */}
+      <ExperienceWorldsStage content={liveCmsContent} locale={locale} />
     </div>
   );
 }
