@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/Button"
 import { InteractiveCard } from "@/components/ui/InteractiveCard"
 import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
+import { Footer } from "@/components/layout/Footer"
 import { SmartPackageFinderModal } from "@/components/b2c/SmartPackageFinderModal"
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer"
 import { cn } from "@/lib/utils"
@@ -323,6 +324,16 @@ export function PackagesClient({
         onClose={() => { setIsEnquiryOpen(false); setSelectedPackageForEnquiry(null); }}
         locale={locale}
         selectedPackage={selectedPackageForEnquiry}
+      />
+
+      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
+      <Footer 
+        portal="b2c" 
+        settings={{ 
+          footerMediaUrl: initialSettings?.footerMedia?.mediaUrl || initialSettings?.footerMediaUrl, 
+          footerMediaType: initialSettings?.footerMedia?.mediaType || initialSettings?.footerMediaType, 
+          footerPosterUrl: initialSettings?.footerMedia?.posterMediaUrl || initialSettings?.footerPosterUrl 
+        }} 
       />
     </div>
   )

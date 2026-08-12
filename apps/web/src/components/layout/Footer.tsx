@@ -69,21 +69,31 @@ export function Footer({ portal, settings = {} }: FooterProps) {
     }
   };
 
-  const backgroundMedia = settings.backgroundMedia ? (typeof settings.backgroundMedia === "string" ? JSON.parse(settings.backgroundMedia) : settings.backgroundMedia) : null;
-  const _foregroundMedia = settings.foregroundMedia ? (typeof settings.foregroundMedia === "string" ? JSON.parse(settings.foregroundMedia) : settings.foregroundMedia) : null;
+  const footerMediaObj: any = typeof settings.footerMedia === "object" ? settings.footerMedia : null;
+  const backgroundMediaObj: any = settings.backgroundMedia ? (typeof settings.backgroundMedia === "string" ? (settings.backgroundMedia.startsWith("{") ? JSON.parse(settings.backgroundMedia) : { mediaUrl: settings.backgroundMedia }) : settings.backgroundMedia) : null;
+  
+  const bgMediaUrl = settings.footerMediaUrl || settings.footerBackgroundMediaUrl || settings.backgroundMediaUrl || (typeof settings.footerMedia === "string" ? settings.footerMedia : footerMediaObj?.mediaUrl || footerMediaObj?.url) || backgroundMediaObj?.mediaUrl || backgroundMediaObj?.url;
+  const rawType = (settings.footerMediaType || settings.backgroundMediaType || settings.mediaType || footerMediaObj?.mediaType || backgroundMediaObj?.mediaType || "IMAGE").toString().toUpperCase();
+  const bgMediaType = rawType === "MODEL_3D" ? "THREE_D" : rawType;
+  const bgPosterUrl = settings.footerPosterUrl || settings.backgroundPosterUrl || footerMediaObj?.posterMediaUrl || footerMediaObj?.posterUrl || backgroundMediaObj?.posterMediaUrl || backgroundMediaObj?.posterUrl;
 
   return (
     <footer className="relative bg-[var(--surface-default)] border-t border-[var(--border-level-2)] pt-16 pb-8 overflow-hidden">
-      {backgroundMedia?.mediaUrl && (
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+      {/* Full-Bleed Footer Background Media Container (Image, Video, Iframe, 3D) */}
+      {bgMediaUrl ? (
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
           <UniversalMediaRenderer
-            src={backgroundMedia.mediaUrl}
-            type={(backgroundMedia.mediaType as any) || "IMAGE"}
-            alt="Footer Background"
+            src={bgMediaUrl}
+            type={bgMediaType as any}
+            alt="Footer Background Media"
             className="w-full h-full object-cover"
+            poster={bgPosterUrl}
           />
+          {/* Dark gradient overlay scrim to guarantee 100% text & link legibility */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface-default)]/90 via-[var(--surface-default)]/85 to-[var(--surface-default)] z-[1] pointer-events-none" />
         </div>
-      )}
+      ) : null}
+      
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         
         {/* 4-Column Grid */}

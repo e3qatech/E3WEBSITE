@@ -205,7 +205,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     { id: "latestInsights", label: "10. Insights & News" },
     { id: "finalGateway", label: "11. Final Gateway" },
     { id: "ordering", label: "12. Section Ordering" },
-    { id: "seo", label: "13. SEO & AEO Settings" }
+    { id: "seo", label: "13. SEO & AEO Settings" },
+    { id: "footer", label: "14. Footer Background Media" }
   ]
 
   return (
@@ -1481,6 +1482,59 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
             seo={seo}
             setSeo={setSeo}
           />
+        )}
+
+        {/* 14. FOOTER BACKGROUND MEDIA TAB */}
+        {activeTab === "footer" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-text-primary">14. Footer Background Media Settings</h2>
+            <p className="text-xs text-text-secondary">Configure background media for the B2C Footer on this page. Supports Image, Video (.mp4/.webm), Iframe, and 3D Spline/GLB models.</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Footer Background Media URL (Image, Video, Iframe, 3D)</label>
+                <AdminMediaPicker
+                  value={data.footer?.backgroundMediaUrl || data.footerMediaUrl || ""}
+                  onChange={url => {
+                    updateSectionField("footer", "backgroundMediaUrl", url);
+                    setData((prev: any) => ({ ...prev, footerMediaUrl: url }));
+                  }}
+                  accept="image/*,video/*"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-text-secondary uppercase">Media Format / Type</label>
+                  <select
+                    value={data.footer?.backgroundMediaType || data.footerMediaType || "IMAGE"}
+                    onChange={e => {
+                      updateSectionField("footer", "backgroundMediaType", e.target.value);
+                      setData((prev: any) => ({ ...prev, footerMediaType: e.target.value }));
+                    }}
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-xs text-text-primary focus:outline-none"
+                  >
+                    <option value="IMAGE">Image (JPG / PNG / WebP)</option>
+                    <option value="VIDEO">Video (MP4 / WebM)</option>
+                    <option value="IFRAME">Iframe Embed (YouTube / Vimeo)</option>
+                    <option value="THREE_D">3D Scene (Spline / GLB)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-text-secondary uppercase">Poster / Fallback Image URL</label>
+                  <AdminMediaPicker
+                    value={data.footer?.backgroundPosterUrl || data.footerPosterUrl || ""}
+                    onChange={url => {
+                      updateSectionField("footer", "backgroundPosterUrl", url);
+                      setData((prev: any) => ({ ...prev, footerPosterUrl: url }));
+                    }}
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </AdminFormLayout>
     </div>

@@ -9,17 +9,21 @@ import { TicketSelectionModal } from './TicketSelectionModal';
 import { BulkBookingModal } from './BulkBookingModal';
 import { CalendarEvent } from './EventCard';
 import { HeroViewer } from '@/components/attractions/detail/HeroViewer';
+import { Footer } from '@/components/layout/Footer';
 
 interface CalendarViewProps {
   initialAttractions: { id: string; nameEn: string; nameAr: string }[];
   heroMediaType?: string;
   heroMediaUrl?: string;
+  footerMediaType?: string;
+  footerMediaUrl?: string;
+  footerPosterUrl?: string;
   title?: string;
   tagline?: string;
   discounts?: any[];
 }
 
-export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, title, tagline, discounts = [] }: CalendarViewProps) {
+export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, footerMediaType, footerMediaUrl, footerPosterUrl, title, tagline, discounts = [] }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedAttractions, setSelectedAttractions] = useState<string[]>([]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<EventType[]>([]);
@@ -217,6 +221,16 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
           attractions={initialAttractions}
         />
       </div>
+
+      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
+      <Footer 
+        portal="b2c" 
+        settings={{ 
+          footerMediaUrl: footerMediaUrl || "", 
+          footerMediaType: footerMediaType || "IMAGE", 
+          footerPosterUrl: footerPosterUrl || "" 
+        }} 
+      />
     </div>
     </>
   );

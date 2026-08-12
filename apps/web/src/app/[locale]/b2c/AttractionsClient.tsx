@@ -18,6 +18,7 @@ import { CoreTeamPeopleSection } from '@/components/b2c/story/CoreTeamPeopleSect
 import { SocialFeedSection } from '@/components/b2c/story/SocialFeedSection';
 import { HorizontalGPUParallaxGallery } from '@/components/b2c/story/HorizontalGPUParallaxGallery';
 import { TactileDigitalTicket } from '@/components/b2c/story/TactileDigitalTicket';
+import { Footer } from '@/components/layout/Footer';
 import { StoryTrailControl } from '@/components/b2c/story/StoryTrailControl';
 
 export function AttractionsClient({
@@ -160,6 +161,16 @@ export function AttractionsClient({
         currentWorldNameEn="Kids City Driving School"
         currentWorldNameAr="مدينة قيادة الأطفال"
         locale={locale}
+      />
+
+      {/* Page-Specific B2C Footer with Background Media (Image, Video, Iframe, 3D) */}
+      <Footer 
+        portal="b2c" 
+        settings={{ 
+          footerMediaUrl: liveCmsContent?.footerMedia?.mediaUrl || liveCmsContent?.footerMediaUrl, 
+          footerMediaType: liveCmsContent?.footerMedia?.mediaType || liveCmsContent?.footerMediaType, 
+          footerPosterUrl: liveCmsContent?.footerMedia?.posterMediaUrl || liveCmsContent?.footerPosterUrl 
+        }} 
       />
     </div>
   );

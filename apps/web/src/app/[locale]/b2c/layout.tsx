@@ -61,6 +61,24 @@ export default async function B2CLayout({
     }
   }
 
+  let landingPage: any = null;
+  try {
+    landingPage = await db.pages.findUnique({
+      where: { slug: "b2c-landing" }
+    });
+  } catch (e) {
+    console.warn("[B2C LAYOUT NOTICE] Failed to query b2c-landing page:", e);
+  }
+  const landingContent = getMergedCMSPageContent("b2c-landing", landingPage?.content);
+  const footerMediaConfig = landingContent?.footerMedia || {};
+
+  const mergedFooterSettings = {
+    ...settingsMap,
+    footerMediaUrl: settingsMap.footerMediaUrl || settingsMap.footerBackgroundMediaUrl || footerMediaConfig.mediaUrl || footerMediaConfig.url,
+    footerMediaType: settingsMap.footerMediaType || settingsMap.footerBackgroundMediaType || footerMediaConfig.mediaType,
+    footerPosterUrl: settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl || footerMediaConfig.posterMediaUrl || footerMediaConfig.posterUrl
+  };
+
   const orbitData = getMergedCMSPageContent("b2c-pulse-orbit", orbitPage?.content);
 
   return (
@@ -72,7 +90,7 @@ export default async function B2CLayout({
           <main className="flex-1 pt-20 relative z-10">
             <B2CRouteTransition>{children}</B2CRouteTransition>
           </main>
-          <Footer portal="b2c" />
+          <Footer portal="b2c" settings={mergedFooterSettings} />
         </B2CPageShell>
       </B2CThemeProvider>
     </B2CExperienceProvider>
