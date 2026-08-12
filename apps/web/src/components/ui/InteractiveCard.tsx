@@ -55,7 +55,7 @@ export function InteractiveCard({
       ref={cardRef}
       className={cn(
         'relative rounded-2xl bg-[var(--surface-primary)] border border-[var(--border-primary)]',
-        'overflow-hidden transform-gpu will-change-transform',
+        'overflow-hidden transform-gpu will-change-transform flex flex-col',
         className
       )}
       style={{
@@ -80,7 +80,7 @@ export function InteractiveCard({
         }}
       />
       
-      <div className={cn("relative z-10 h-full w-full flex flex-col", className)}>
+      <div className="relative z-10 h-full w-full flex flex-col flex-1">
         {children}
       </div>
     </motion.div>

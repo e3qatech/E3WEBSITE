@@ -1159,8 +1159,94 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     </button>
                   </div>
 
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-text-secondary uppercase">Title (En)</label>
+                      <input 
+                        type="text"
+                        value={feat.titleEn || ""}
+                        onChange={e => {
+                          const feats = [...data.bookingQube.featureItems]
+                          feats[idx].titleEn = e.target.value
+                          updateSectionField("bookingQube", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-text-secondary uppercase">Title (Ar)</label>
+                      <input 
+                        type="text"
+                        dir="rtl"
+                        value={feat.titleAr || ""}
+                        onChange={e => {
+                          const feats = [...data.bookingQube.featureItems]
+                          feats[idx].titleAr = e.target.value
+                          updateSectionField("bookingQube", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-bold text-text-secondary uppercase">Short Description (En)</label>
+                      <textarea
+                        rows={2}
+                        value={feat.descriptionEn || ""}
+                        onChange={e => {
+                          const feats = [...data.bookingQube.featureItems]
+                          feats[idx].descriptionEn = e.target.value
+                          updateSectionField("bookingQube", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none resize-none"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-bold text-text-secondary uppercase">Short Description (Ar)</label>
+                      <textarea
+                        rows={2}
+                        dir="rtl"
+                        value={feat.descriptionAr || ""}
+                        onChange={e => {
+                          const feats = [...data.bookingQube.featureItems]
+                          feats[idx].descriptionAr = e.target.value
+                          updateSectionField("bookingQube", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none resize-none"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-bold text-text-secondary uppercase">Detailed Popup Specification Text (En)</label>
+                      <textarea
+                        rows={3}
+                        value={feat.detailedTextEn || ""}
+                        placeholder="Detailed technical specifications, sub-second telemetry, gate access architecture..."
+                        onChange={e => {
+                          const feats = [...data.bookingQube.featureItems]
+                          feats[idx].detailedTextEn = e.target.value
+                          updateSectionField("bookingQube", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none resize-none"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-bold text-text-secondary uppercase">Detailed Popup Specification Text (Ar)</label>
+                      <textarea
+                        rows={3}
+                        dir="rtl"
+                        value={feat.detailedTextAr || ""}
+                        placeholder="تفاصيل المواصفات التقنية الكاملة والتحليلات والبروتوكولات..."
+                        onChange={e => {
+                          const feats = [...data.bookingQube.featureItems]
+                          feats[idx].detailedTextAr = e.target.value
+                          updateSectionField("bookingQube", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none resize-none"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-text-secondary uppercase">Card Image (40% Cover Area)</label>
+                    <label className="text-xs font-bold text-text-secondary uppercase">Card Image (Header Cover)</label>
                     <AdminMediaPicker
                       value={feat.imageUrl || feat.mediaUrl || ""}
                       onChange={url => {
