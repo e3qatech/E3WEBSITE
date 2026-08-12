@@ -174,16 +174,26 @@ async function getAttractionData(slug: string) {
 
 export async function generateMetadata(props: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {
   const params = await props.params
-  const attraction = await db.attraction.findUnique({
-    where: { slug: params.slug },
-    select: { nameEn: true, descriptionEn: true }
+  const baseSlugKey = (params.slug || "").split('-')[0] || params.slug;
+  const attraction = await db.attraction.findFirst({
+    where: {
+      OR: [
+        { slug: params.slug },
+        { slug: { startsWith: params.slug } },
+        { slug: { contains: baseSlugKey, mode: 'insensitive' } }
+      ]
+    },
+    select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true }
   })
   
   if (!attraction) return { title: "Attraction Not Found" }
 
+  const displayName = params.locale === "ar" ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr)
+  const displayDesc = params.locale === "ar" ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr)
+
   return {
-    title: `${attraction.nameEn || "Attraction"} | E3 Qatar`,
-    description: attraction.descriptionEn || "",
+    title: `${displayName || "Attraction"} | E3 Qatar`,
+    description: displayDesc || "",
   }
 }
 
