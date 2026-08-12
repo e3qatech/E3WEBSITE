@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { DiscoverClient } from "@/components/b2c/DiscoverClient";
 import db from "@/lib/db";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
+import { isGuinnessPublicationAllowed } from "@/lib/guinness-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -107,7 +108,7 @@ export default async function DiscoverPage(props: {
         where: { isVisible: true },
         orderBy: { orderIndex: "asc" }
       }).catch(() => []),
-      db.client.findMany().catch(() => []),
+      db.client.findMany({ where: { isVisible: true } }).catch(() => []),
       db.caseStudy.findMany({
         where: { isPublished: true },
         orderBy: { createdAt: "desc" },
@@ -129,6 +130,13 @@ export default async function DiscoverPage(props: {
     ]);
   } catch (err) {
     console.warn("[DISCOVER BATCH FETCH NOTICE] Safe fallback for references:", err);
+  }
+
+  // Server-side Guinness publication gate — evaluated before rendering
+  const guinnessGate = isGuinnessPublicationAllowed(content.recordBreaking);
+  const guinnessAllowed = guinnessGate.allowed;
+  if (!guinnessAllowed) {
+    console.info(`[DISCOVER GUINNESS GATE] Badge suppressed: ${guinnessGate.reason}`);
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://e3.qa";
@@ -206,6 +214,7 @@ export default async function DiscoverPage(props: {
         services={services}
         jobs={jobs}
         insights={insights}
+        guinnessAllowed={guinnessAllowed}
       />
     </>
   );

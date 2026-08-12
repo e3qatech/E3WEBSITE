@@ -15,21 +15,7 @@ import {
   ArrowDown, 
   Plus, 
   Trash2, 
-  ShieldCheck, 
-  Sparkles, 
-  ExternalLink,
-  Layers,
-  Award,
-  Users,
-  Building2,
-  FileText,
-  Link as LinkIcon,
-  CheckCircle2,
-  Info,
-  Compass,
-  Zap,
-  TrendingUp,
-  Image as ImageIcon
+  FileText
 } from "lucide-react"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
@@ -66,7 +52,6 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const [partners, setPartners] = useState<any[]>([])
   const [clients, setClients] = useState<any[]>([])
   const [insights, setInsights] = useState<any[]>([])
-  const [services, setServices] = useState<any[]>([])
 
   useEffect(() => {
     fetch('/api/team')
@@ -100,12 +85,6 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       })
       .catch(console.error)
 
-    fetch('/api/b2b/services')
-      .then(res => res.json())
-      .then(resData => {
-        if (Array.isArray(resData.data)) setServices(resData.data)
-      })
-      .catch(console.error)
   }, [])
 
   const handleSave = async () => {
@@ -291,7 +270,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
 
-              {/* Primary & Secondary CTAs */}
+              {/* Primary CTA — EN label, AR label, destination URL */}
               <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (En)</label>
                 <input 
@@ -302,7 +281,17 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Destination</label>
+                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (Ar)</label>
+                <input 
+                  type="text"
+                  dir="rtl"
+                  value={data.hero?.primaryCtaLabelAr || "استكشف المنظومة"} 
+                  onChange={e => updateSectionField("hero", "primaryCtaLabelAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Destination (internal route, #anchor, or https://)</label>
                 <input 
                   type="text" 
                   value={data.hero?.primaryCtaUrl || "#about"} 

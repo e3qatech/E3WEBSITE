@@ -272,6 +272,9 @@ export async function PUT(
       revalidatePath('/b2c', 'layout');
       revalidatePath('/b2b', 'layout');
       revalidatePath('/[locale]/b2c/attractions', 'layout');
+      revalidatePath('/[locale]/b2c/discover', 'page');
+      revalidatePath('/en/b2c/discover', 'page');
+      revalidatePath('/ar/b2c/discover', 'page');
       revalidatePath('/[locale]/dashboard/b2c/pulse-orbit', 'page');
       revalidatePath('/[locale]/dashboard/b2b/pulse-orbit', 'page');
       revalidatePath('/[locale]/dashboard/settings/pulse-orbit', 'page');

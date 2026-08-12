@@ -6,21 +6,11 @@ import Link from "next/link";
 import { 
   Target, 
   Building, 
-  Award, 
   Sparkles, 
   ShieldCheck, 
-  CheckCircle2, 
-  BarChart3, 
   Smartphone, 
-  ChevronRight, 
   Download, 
-  ExternalLink, 
   ArrowRight, 
-  Users, 
-  Briefcase, 
-  Globe,
-  Flame,
-  Layers,
   FileText
 } from "lucide-react";
 
@@ -37,10 +27,11 @@ export function DiscoverClient({
   employeeProfiles = [],
   partners = [],
   clients = [],
-  caseStudies = [],
-  services = [],
-  jobs = [],
-  insights = []
+  caseStudies: _caseStudies = [],
+  services: _services = [],
+  jobs: _jobs = [],
+  insights = [],
+  guinnessAllowed = false
 }: {
   locale: string;
   initialSettings: any;
@@ -51,11 +42,13 @@ export function DiscoverClient({
   services?: any[];
   jobs?: any[];
   insights?: any[];
+  /** Server-evaluated 5-condition Guinness publication gate result */
+  guinnessAllowed?: boolean;
 }) {
   const isAr = locale === "ar";
   useB2CTheme();
 
-  const [activeConnectTab, setActiveConnectTab] = useState<number>(0);
+  const [_activeConnectTab, _setActiveConnectTab] = useState<number>(0);
 
   const content = initialSettings || {};
   const sectionOrder: string[] = content.sectionOrder || [
@@ -253,7 +246,7 @@ export function DiscoverClient({
 
                           {msg.pullQuoteEn && (
                             <blockquote className="text-sm font-semibold italic text-[var(--e3-royal-blue)] border-l-2 border-[var(--e3-royal-blue)] pl-3 py-1">
-                              "{isAr ? msg.pullQuoteAr : msg.pullQuoteEn}"
+                              &ldquo;{isAr ? msg.pullQuoteAr : msg.pullQuoteEn}&rdquo;
                             </blockquote>
                           )}
 
@@ -334,7 +327,9 @@ export function DiscoverClient({
         // 5. RECORD BREAKING GUINNESS SECTION
         if (sectionKey === "recordBreaking" && content.recordBreaking?.enabled !== false) {
           const rec = content.recordBreaking || {};
-          const isGuinnessApproved = rec.brandingUsageApproved === true;
+          // guinnessAllowed is the server-side 5-condition gate result passed as prop.
+          // The client-side rec.brandingUsageApproved alone is NOT used to render the badge.
+          const isGuinnessApproved = guinnessAllowed;
 
           return (
             <section key="recordBreaking" id="recordBreaking" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--e3-midnight)]">
@@ -394,7 +389,7 @@ export function DiscoverClient({
         if (sectionKey === "bookingQube" && content.bookingQube?.enabled !== false) {
           const bq = content.bookingQube || {};
           const features = Array.isArray(bq.featureItems) ? bq.featureItems : [];
-          const steps = Array.isArray(bq.journeySteps) ? bq.journeySteps : [];
+          const _steps = Array.isArray(bq.journeySteps) ? bq.journeySteps : [];
 
           return (
             <section key="bookingQube" id="bookingQube" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
@@ -526,10 +521,10 @@ export function DiscoverClient({
                       {isAr ? li.headingAr : li.headingEn || "Latest From E3"}
                     </h2>
                   </div>
-                  <a href="/en/dashboard/insights" className="text-xs font-bold uppercase text-[var(--e3-royal-blue)] flex items-center gap-1">
+                  <Link href={`/${locale}/b2c/insights`} className="text-xs font-bold uppercase text-[var(--e3-royal-blue)] flex items-center gap-1">
                     {isAr ? li.ctaLabelAr : li.ctaLabelEn || "Explore All Insights"}
                     <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
