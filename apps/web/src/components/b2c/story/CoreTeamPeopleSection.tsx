@@ -43,19 +43,33 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     locale
   )
 
-  const hasExplicitSelection = (Array.isArray(teamSectionData.selectedMemberIds) && teamSectionData.selectedMemberIds.length > 0)
-    || (Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0)
+  // Check if explicit team selection configuration exists in CMS
+  const hasSelectedIdsProp = Array.isArray(teamSectionData.selectedMemberIds)
+  const hasMembersProp = Array.isArray(teamSectionData.members)
+  const isSelectionConfigured = hasSelectedIdsProp || hasMembersProp
 
-  const selectedIds: string[] = Array.isArray(teamSectionData.selectedMemberIds) && teamSectionData.selectedMemberIds.length > 0
+  // Extract selected IDs list from CMS configuration
+  const selectedIds: string[] = hasSelectedIdsProp
     ? teamSectionData.selectedMemberIds
-    : (Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0
-        ? teamSectionData.members.map((m: any) => m.id)
-        : [])
+    : (hasMembersProp ? teamSectionData.members.map((m: any) => m.id) : [])
 
-  // 1. Live selected members from database preserving selected order
-  const liveSelectedMembers = (selectedIds.length > 0 && dbTeamMembers.length > 0)
-    ? selectedIds
-        .map(id => dbTeamMembers.find(m => m.id === id || m.slug === id))
+  let teamMembers: CoreTeamRecord[] = []
+
+  if (isSelectionConfigured) {
+    if (selectedIds.length === 0) {
+      // User explicitly selected 0 team members in CMS editor -> hide section
+      return null
+    }
+
+    // 1. Resolve selected members from live database profiles
+    if (dbTeamMembers.length > 0) {
+      teamMembers = selectedIds
+        .map(id => dbTeamMembers.find(m => 
+          m.id === id || 
+          m.slug === id || 
+          `team-${m.slug}` === id || 
+          (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
+        ))
         .filter(Boolean)
         .map(m => ({
           id: m.id,
@@ -69,53 +83,44 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
           showProfileLink: true,
           profileCtaLabelEn: "View Profile",
-          profileCtaLabelAr: "عرض الملف"
+          profileCtaLabelAr: "عرض الملف",
+          featureOnB2CLanding: true,
+          isCoreTeam: true,
+          b2cOrder: 1,
+          b2cVisibility: true,
+          status: 'PUBLISHED' as const
         }))
-    : []
+    }
 
-  // 2. CMS-saved members object fallback (when offline or before API loads)
-  const cmsSavedMembers = Array.isArray(teamSectionData.members) && teamSectionData.members.length > 0
-    ? teamSectionData.members.map((m: any) => ({
-        id: m.id,
-        slug: m.slug || m.id,
-        nameEn: m.nameEn || `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-        nameAr: m.nameAr || (m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : m.nameEn),
-        roleEn: m.roleEn || m.designation || "Executive",
-        roleAr: m.roleAr || m.designationAr || m.roleEn || "قيادي",
-        bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
-        bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || "",
-        portrait: m.portrait || m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-        showProfileLink: true,
-        profileCtaLabelEn: "View Profile",
-        profileCtaLabelAr: "عرض الملف"
-      }))
-    : []
-
-  // 3. Fallback to DB members ONLY if no selection configuration exists in CMS
-  const allDbMembersMapped = (!hasExplicitSelection && dbTeamMembers.length > 0)
-    ? dbTeamMembers.map(m => ({
-        id: m.id,
-        slug: m.slug || m.id,
-        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
-        roleEn: m.designation || "Executive",
-        roleAr: m.designationAr || m.designation || "قيادي",
-        bioEn: m.aboutSummary || m.tagline || "",
-        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-        showProfileLink: true,
-        profileCtaLabelEn: "View Profile",
-        profileCtaLabelAr: "عرض الملف"
-      }))
-    : []
-
-  const teamMembers: CoreTeamRecord[] = liveSelectedMembers.length > 0
-    ? liveSelectedMembers
-    : (cmsSavedMembers.length > 0
-        ? cmsSavedMembers
-        : (hasExplicitSelection
-            ? []
-            : (allDbMembersMapped.length > 0 ? allDbMembersMapped : DEFAULT_CORE_TEAM)))
+    // 2. Fallback to CMS-saved member objects (filtered strictly by selectedIds)
+    if (teamMembers.length === 0 && hasMembersProp && teamSectionData.members.length > 0) {
+      teamMembers = teamSectionData.members
+        .filter((m: any) => selectedIds.length === 0 || selectedIds.includes(m.id) || selectedIds.includes(m.slug))
+        .map((m: any) => ({
+          id: m.id,
+          slug: m.slug || m.id,
+          nameEn: m.nameEn || `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+          nameAr: m.nameAr || (m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : m.nameEn),
+          roleEn: m.roleEn || m.designation || "Executive",
+          roleAr: m.roleAr || m.designationAr || m.roleEn || "قيادي",
+          bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
+          bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || "",
+          portrait: m.portrait || m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+          showProfileLink: true,
+          profileCtaLabelEn: "View Profile",
+          profileCtaLabelAr: "عرض الملف",
+          featureOnB2CLanding: true,
+          isCoreTeam: true,
+          b2cOrder: 1,
+          b2cVisibility: true,
+          status: 'PUBLISHED' as const
+        }))
+    }
+  } else {
+    // Selection has NEVER been configured in CMS (unconfigured seed state):
+    // Fall back to executive leadership defaults
+    teamMembers = DEFAULT_CORE_TEAM
+  }
 
   const [activeMemberId, setActiveMemberId] = useState(teamMembers[0]?.id || DEFAULT_CORE_TEAM[0].id)
 

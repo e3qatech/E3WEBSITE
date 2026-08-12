@@ -248,6 +248,14 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       { id: "m5", titleEn: "Unforgettable Birthdays", titleAr: "أعياد ميلاد لا تُنسى", captionEn: "VIP party room celebrations", captionAr: "احتفالات خاصة في غرف VIP", mediaUrl: "" }
     ]
   },
+  coreTeam: {
+    headlineEn: "The people behind the experience",
+    headlineAr: "الفريق الذي يصنع التجربة",
+    subtextEn: "The visionary directors, spatial designers, and operational leaders bringing E3 experiences to life.",
+    subtextAr: "المبدعون والمهندسون والمصممون القائمون على ابتكار وتشغيل وجهات إي ثري الترفيهية.",
+    selectedMemberIds: [],
+    members: []
+  },
   act7Ticket: {
     headlineEn: "Your next story is waiting.",
     headlineAr: "حكايتك القادمة بانتظارك.",

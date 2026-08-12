@@ -402,7 +402,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {availableTeamMembers.map((member) => {
-                const isSelected = selectedIds.includes(member.id)
+                const isSelected = selectedIds.some(id => id === member.id || id === member.slug || `team-${member.slug}` === id)
                 const fullName = `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Team Member'
 
                 return (
