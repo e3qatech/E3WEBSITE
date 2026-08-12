@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { encryptSecret, maskSecret, isMaskedString } from '@/lib/social-media/encryption';
 import { SocialProviderKey } from '@/lib/social-media/types';
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { isAuthed } = await checkSocialAdminAuth(req, 'MANAGE_CREDENTIALS');
+  if (!isAuthed) {
+    return NextResponse.json({ success: false, error: 'Unauthorized: Missing MANAGE_CREDENTIALS permission.' }, { status: 401 });
+  }
   try {
     const configs = await db.socialProviderConfig.findMany({
       orderBy: { provider: 'asc' },
@@ -26,6 +31,11 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
+    const { isAuthed } = await checkSocialAdminAuth(req, 'MANAGE_CREDENTIALS');
+    if (!isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized: Missing MANAGE_CREDENTIALS permission.' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { provider, name, enabled, appId, secret, apiVersion, callbackUrl, requiredScopes, apiKey } = body;
 

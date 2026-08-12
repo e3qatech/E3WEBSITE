@@ -1,12 +1,6 @@
 const { PrismaClient } = require('@prisma/client')
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: "postgresql://neondb_owner:npg_laoj96QzNhBM@ep-frosty-poetry-atys9iw5-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-    }
-  }
-})
+const prisma = new PrismaClient()
 
 async function audit() {
   console.log('Auditing CMS Pages for Media Type Mismatches...');

@@ -3,9 +3,6 @@ import { decryptSecret } from './encryption';
 import { socialAdapterRegistry } from './adapters/registry';
 import { SocialProviderKey } from './types';
 
-// In-memory sync locking to prevent duplicate concurrent jobs per account
-const activeSyncLocks = new Set<string>();
-
 export interface SyncAccountResult {
   accountId: string;
   provider: SocialProviderKey;
@@ -17,14 +14,42 @@ export interface SyncAccountResult {
   error?: string;
 }
 
+/**
+ * Attempt to acquire a distributed PostgreSQL advisory lock for an account
+ */
+async function acquireDistributedLock(accountId: string): Promise<boolean> {
+  try {
+    const lockKey = `social_sync_${accountId}`;
+    const result: any = await db.$queryRaw`SELECT pg_try_advisory_lock(hashtext(${lockKey})) as acquired`;
+    return Boolean(result?.[0]?.acquired);
+  } catch (err) {
+    console.warn('[DISTRIBUTED_LOCK_WARN] PostgreSQL advisory lock fallback:', err);
+    return true; // Fallthrough if DB lock query unavailable
+  }
+}
+
+/**
+ * Release a distributed PostgreSQL advisory lock for an account
+ */
+async function releaseDistributedLock(accountId: string): Promise<void> {
+  try {
+    const lockKey = `social_sync_${accountId}`;
+    await db.$queryRaw`SELECT pg_advisory_unlock(hashtext(${lockKey}))`;
+  } catch (err) {
+    console.warn('[DISTRIBUTED_LOCK_UNLOCK_WARN] PostgreSQL advisory unlock warning:', err);
+  }
+}
+
 export async function runSocialAccountSync(
   accountId: string,
   triggerType: 'CRON' | 'MANUAL' | 'WEBHOOK' = 'MANUAL'
 ): Promise<SyncAccountResult> {
   const startTime = Date.now();
 
-  // Prevent overlapping sync
-  if (activeSyncLocks.has(accountId)) {
+  // Acquire distributed lock across Vercel serverless instances
+  const lockAcquired = await acquireDistributedLock(accountId);
+
+  if (!lockAcquired) {
     return {
       accountId,
       provider: 'MANUAL',
@@ -33,11 +58,9 @@ export async function runSocialAccountSync(
       recordsUpdated: 0,
       recordsFailed: 0,
       durationMs: Date.now() - startTime,
-      error: 'Account synchronization is currently in progress.',
+      error: 'Account synchronization is currently locked and in progress by another worker.',
     };
   }
-
-  activeSyncLocks.add(accountId);
 
   let syncJobId: string | null = null;
   let providerKey: SocialProviderKey = 'MANUAL';
@@ -238,7 +261,7 @@ export async function runSocialAccountSync(
       error: errorMsg,
     };
   } finally {
-    activeSyncLocks.delete(accountId);
+    await releaseDistributedLock(accountId);
   }
 }
 

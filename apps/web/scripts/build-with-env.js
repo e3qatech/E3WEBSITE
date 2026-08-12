@@ -1,9 +1,10 @@
 const { execSync } = require('child_process');
 
-const fallbackDbUrl = "postgresql://neondb_owner:npg_laoj96QzNhBM@ep-frosty-poetry-atys9iw5-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-const dbUrl = (process.env.DATABASE_URL && process.env.DATABASE_URL.trim().length > 0)
-  ? process.env.DATABASE_URL
-  : fallbackDbUrl;
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
+  console.error("[BUILD ERROR] DATABASE_URL is not set. Please set DATABASE_URL in environment.");
+  process.exit(1);
+}
 
 const env = {
   ...process.env,
