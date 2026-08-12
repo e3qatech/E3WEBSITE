@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
+
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'VIEW_SOCIAL_MANAGER');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     let settings = await db.socialGlobalSettings.findUnique({
       where: { id: 'default' },
     });
@@ -23,6 +30,11 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MANAGE_GLOBAL_SETTINGS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
 
     const updated = await db.socialGlobalSettings.upsert({

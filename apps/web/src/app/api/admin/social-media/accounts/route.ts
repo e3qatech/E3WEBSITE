@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
+
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'VIEW_SOCIAL_MANAGER');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const accounts = await db.socialAccount.findMany({
       include: {
         providerConfig: {
@@ -17,13 +24,14 @@ export async function GET() {
       orderBy: { sortOrder: 'asc' },
     });
 
-    const sanitized = accounts.map((a: any) => ({
-      ...a,
-      encryptedAccessToken: undefined,
-      encryptedRefreshToken: undefined,
-      hasToken: Boolean(a.encryptedAccessToken),
-      hasRefreshToken: Boolean(a.encryptedRefreshToken),
-    }));
+    const sanitized = accounts.map((a: any) => {
+      const { encryptedData, encryptedAccessToken, encryptedRefreshToken, ...rest } = a;
+      return {
+        ...rest,
+        hasToken: Boolean(encryptedAccessToken || encryptedData),
+        hasRefreshToken: Boolean(encryptedRefreshToken),
+      };
+    });
 
     return NextResponse.json({ success: true, data: sanitized });
   } catch (err: any) {
@@ -33,6 +41,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'CONNECT_ACCOUNTS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const { provider, internalName, username, displayName, profileUrl, profileImageUrl, brandId, attractionId, portal } = body;
 
@@ -80,6 +93,11 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'CONNECT_ACCOUNTS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const { id, internalName, brandId, attractionId, portal, autoSyncEnabled, defaultModeration, defaultVisibility, isActive, internalNotes, status } = body;
 
@@ -111,6 +129,11 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'CONNECT_ACCOUNTS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

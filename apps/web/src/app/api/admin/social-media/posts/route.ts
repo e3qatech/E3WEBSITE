@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { SocialModerationStatus, SocialPostStatus, SocialProviderKey } from '@/lib/social-media/types';
 
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
+
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'VIEW_SOCIAL_MANAGER');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
     const provider = searchParams.get('provider') as SocialProviderKey | null;
@@ -68,6 +75,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MODERATE_POSTS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const {
       provider = 'MANUAL',
@@ -137,6 +149,11 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MODERATE_POSTS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const { id, ids, captionEn, captionAr, isPinned, isFeatured, status, moderationStatus, brandId, attractionId, thumbnailUrl, sortPriority } = body;
 
@@ -192,6 +209,11 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MODERATE_POSTS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
@@ -205,4 +227,8 @@ export async function DELETE(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
+}
+
+export async function PATCH(req: NextRequest) {
+  return PUT(req);
 }

@@ -7,9 +7,6 @@ import {
   MessageSquare, 
   Share2, 
   ExternalLink, 
-  Play, 
-  Volume2, 
-  VolumeX, 
   X, 
   Sparkles, 
   Video,
@@ -115,6 +112,8 @@ export function SocialFeed({
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: idx * 0.05 }}
               onClick={() => setLightboxPost(post)}
+              onMouseEnter={() => setActiveVideoId(post.id)}
+              onMouseLeave={() => setActiveVideoId(null)}
               className="group relative rounded-2xl overflow-hidden bg-slate-950 border border-purple-500/20 shadow-xl hover:border-purple-500/60 transition-all duration-300 cursor-pointer flex flex-col justify-between"
             >
               <div className="relative aspect-[4/5] overflow-hidden bg-slate-900">

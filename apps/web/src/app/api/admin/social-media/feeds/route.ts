@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { SocialFeedMode } from '@/lib/social-media/types';
 
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
+
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'VIEW_SOCIAL_MANAGER');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const feeds = await db.socialFeed.findMany({
       include: {
         sources: {
@@ -26,6 +33,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MANAGE_FEEDS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const {
       name,
@@ -113,6 +125,11 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MANAGE_FEEDS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const { id, name, description, isActive, mode, portal, allowedPlatforms, allowedMediaTypes, brandId, attractionId, maxPosts, initialLoadCount, loadMoreEnabled, sortMethod, layout, theme, columnsDesktop, columnsTablet, columnsMobile, enableFollowCta, followCtaTextEn, followCtaTextAr, accountIds } = body;
 
@@ -166,6 +183,11 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MANAGE_FEEDS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

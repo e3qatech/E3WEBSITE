@@ -5,7 +5,8 @@ export class MetaFacebookAdapter extends BaseProviderAdapter {
   providerKey: SocialProviderKey = 'META_FACEBOOK';
 
   getAuthUrl(config: ProviderAdapterConfig, state: string): string {
-    const baseUrl = 'https://www.facebook.com/v19.0/dialog/oauth';
+    const apiVersion = config.apiVersion || 'v21.0';
+    const baseUrl = `https://www.facebook.com/${apiVersion}/dialog/oauth`;
     const params = new URLSearchParams({
       client_id: config.appId || '',
       redirect_uri: config.callbackUrl || '',
@@ -21,7 +22,8 @@ export class MetaFacebookAdapter extends BaseProviderAdapter {
     code: string,
     redirectUri: string
   ) {
-    const tokenUrl = 'https://graph.facebook.com/v19.0/oauth/access_token';
+    const apiVersion = config.apiVersion || 'v21.0';
+    const tokenUrl = `https://graph.facebook.com/${apiVersion}/oauth/access_token`;
     const tokenParams = new URLSearchParams({
       client_id: config.appId || '',
       client_secret: config.appSecret || '',
@@ -37,7 +39,7 @@ export class MetaFacebookAdapter extends BaseProviderAdapter {
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
 
-    const meRes = await fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${accessToken}`);
+    const meRes = await fetch(`https://graph.facebook.com/${apiVersion}/me/accounts?access_token=${accessToken}`);
     const meData = await meRes.json();
     const page = meData.data?.[0] || { id: 'fb_page_default', name: 'E3 Qatar Official' };
 
@@ -58,11 +60,12 @@ export class MetaFacebookAdapter extends BaseProviderAdapter {
     account: { providerAccountId: string; accessToken: string },
     options?: { cursor?: string; limit?: number }
   ): Promise<FetchPostsResult> {
-    const limit = options?.limit || 12;
-    const fields = 'id,message,created_time,full_picture,permalink_url,shares,reactions.summary(total_count),comments.summary(total_count)';
+    const apiVersion = config.apiVersion || 'v21.0';
+    const limit = options?.limit || 10;
+    const fields = 'id,message,created_time,full_picture,permalink_url,shares,reactions.summary(true),comments.summary(true)';
     
     try {
-      const apiUrl = `https://graph.facebook.com/v19.0/${account.providerAccountId}/posts?fields=${fields}&limit=${limit}&access_token=${account.accessToken}`;
+      const apiUrl = `https://graph.facebook.com/${apiVersion}/${account.providerAccountId}/posts?fields=${fields}&limit=${limit}&access_token=${account.accessToken}`;
       const res = await fetch(apiUrl);
       
       if (!res.ok) {

@@ -2,21 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { encryptSecret, maskSecret, isMaskedString } from '@/lib/social-media/encryption';
 import { SocialProviderKey } from '@/lib/social-media/types';
+import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authCheck = await checkSocialAdminAuth(req, 'VIEW_SOCIAL_MANAGER');
+  if (!authCheck.isAuthed) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+  }
   try {
     const configs = await db.socialProviderConfig.findMany({
       orderBy: { provider: 'asc' },
     });
 
-    // Mask secret values in response
-    const sanitized = configs.map((c: any) => ({
-      ...c,
-      encryptedSecret: c.encryptedSecret ? maskSecret(c.encryptedSecret) : '',
-      apiKey: c.apiKey ? maskSecret(c.apiKey) : '',
-    }));
+    // Mask secret values in response and omit raw secret properties
+    const sanitized = configs.map((c: any) => {
+      const { appSecret, secret, encryptedSecret, apiKey, ...rest } = c;
+      return {
+        ...rest,
+        encryptedSecret: encryptedSecret ? maskSecret(encryptedSecret) : (appSecret ? maskSecret(appSecret) : (secret ? maskSecret(secret) : '')),
+        apiKey: apiKey ? maskSecret(apiKey) : '',
+      };
+    });
 
     return NextResponse.json({ success: true, data: sanitized });
   } catch (err: any) {
@@ -26,6 +34,11 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
+    const authCheck = await checkSocialAdminAuth(req, 'MANAGE_CREDENTIALS');
+    if (!authCheck.isAuthed) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
+    }
+
     const body = await req.json();
     const { provider, name, enabled, appId, secret, apiVersion, callbackUrl, requiredScopes, apiKey } = body;
 
@@ -92,4 +105,8 @@ export async function PUT(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
+}
+
+export async function POST(req: NextRequest) {
+  return PUT(req);
 }

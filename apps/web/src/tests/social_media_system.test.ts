@@ -1,11 +1,23 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { encryptSecret, decryptSecret, maskSecret, isMaskedString } from '../lib/social-media/encryption';
 import { socialAdapterRegistry } from '../lib/social-media/adapters/registry';
 import { ManualPostAdapter } from '../lib/social-media/adapters/manual';
 
+// Valid 64-hex AES-256 key required by hardened encryption module
+const TEST_KEY = 'a'.repeat(64);
+
 describe('Social Media Manager - System Tests', () => {
 
   describe('Encryption & Secret Masking Security', () => {
+    let prevKey: string | undefined;
+    beforeAll(() => {
+      prevKey = process.env.SOCIAL_CREDENTIALS_ENCRYPTION_KEY;
+      process.env.SOCIAL_CREDENTIALS_ENCRYPTION_KEY = TEST_KEY;
+    });
+    afterAll(() => {
+      process.env.SOCIAL_CREDENTIALS_ENCRYPTION_KEY = prevKey;
+    });
+
     it('encrypts and decrypts secrets using AES-256-GCM', () => {
       const plainSecret = 'meta_app_secret_abc123987';
       const encrypted = encryptSecret(plainSecret);

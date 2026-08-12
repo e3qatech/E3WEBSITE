@@ -5,7 +5,8 @@ export class MetaInstagramAdapter extends BaseProviderAdapter {
   providerKey: SocialProviderKey = 'META_INSTAGRAM';
 
   getAuthUrl(config: ProviderAdapterConfig, state: string): string {
-    const baseUrl = 'https://www.facebook.com/v19.0/dialog/oauth';
+    const apiVersion = config.apiVersion || 'v21.0';
+    const baseUrl = `https://www.facebook.com/${apiVersion}/dialog/oauth`;
     const params = new URLSearchParams({
       client_id: config.appId || '',
       redirect_uri: config.callbackUrl || '',
@@ -21,8 +22,9 @@ export class MetaInstagramAdapter extends BaseProviderAdapter {
     code: string,
     redirectUri: string
   ) {
+    const apiVersion = config.apiVersion || 'v21.0';
     // 1. Exchange authorization code for short-lived access token
-    const tokenUrl = 'https://graph.facebook.com/v19.0/oauth/access_token';
+    const tokenUrl = `https://graph.facebook.com/${apiVersion}/oauth/access_token`;
     const tokenParams = new URLSearchParams({
       client_id: config.appId || '',
       client_secret: config.appSecret || '',
@@ -39,7 +41,7 @@ export class MetaInstagramAdapter extends BaseProviderAdapter {
     const shortAccessToken = tokenData.access_token;
 
     // 2. Exchange for long-lived token (60 days)
-    const longTokenUrl = 'https://graph.facebook.com/v19.0/oauth/access_token';
+    const longTokenUrl = `https://graph.facebook.com/${apiVersion}/oauth/access_token`;
     const longTokenParams = new URLSearchParams({
       grant_type: 'fb_exchange_token',
       client_id: config.appId || '',
@@ -53,7 +55,7 @@ export class MetaInstagramAdapter extends BaseProviderAdapter {
     const expiresIn = longData.expires_in || 5184000; // 60 days in seconds
 
     // 3. Fetch connected Instagram Business / Creator accounts
-    const meRes = await fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${finalAccessToken}`);
+    const meRes = await fetch(`https://graph.facebook.com/${apiVersion}/me/accounts?access_token=${finalAccessToken}`);
     const meData = await meRes.json();
     const page = meData.data?.[0];
     
@@ -62,7 +64,7 @@ export class MetaInstagramAdapter extends BaseProviderAdapter {
     let profileImageUrl = `https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=400&auto=format&fit=crop`;
 
     if (page?.id) {
-      const igRes = await fetch(`https://graph.facebook.com/v19.0/${page.id}?fields=instagram_business_account{id,username,profile_picture_url}&access_token=${finalAccessToken}`);
+      const igRes = await fetch(`https://graph.facebook.com/${apiVersion}/${page.id}?fields=instagram_business_account{id,username,profile_picture_url}&access_token=${finalAccessToken}`);
       const igData = await igRes.json();
       if (igData.instagram_business_account) {
         igAccountId = igData.instagram_business_account.id;
@@ -88,11 +90,12 @@ export class MetaInstagramAdapter extends BaseProviderAdapter {
     account: { providerAccountId: string; accessToken: string },
     options?: { cursor?: string; limit?: number }
   ): Promise<FetchPostsResult> {
+    const apiVersion = config.apiVersion || 'v21.0';
     const limit = options?.limit || 12;
     const fields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,children{media_url,media_type}';
     
     try {
-      const apiUrl = `https://graph.facebook.com/v19.0/${account.providerAccountId}/media?fields=${fields}&limit=${limit}&access_token=${account.accessToken}`;
+      const apiUrl = `https://graph.facebook.com/${apiVersion}/${account.providerAccountId}/media?fields=${fields}&limit=${limit}&access_token=${account.accessToken}`;
       const res = await fetch(apiUrl);
       
       if (!res.ok) {

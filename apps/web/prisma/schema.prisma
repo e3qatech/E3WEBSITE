@@ -113,54 +113,54 @@ model VerificationToken {
 }
 
 model Attraction {
-  id               String                   @id @default(cuid())
-  slug             String                   @unique
-  nameEn           String
-  nameAr           String
-  taglineEn        String?
-  taglineAr        String?
-  descriptionEn    String?
-  descriptionAr    String?
-  coordinates      Json?
-  isPublished      Boolean                  @default(false)
-  isFeatured       Boolean                  @default(false)
-  isHidden         Boolean                  @default(false)
-  heroMediaType    String                   @default("IMAGE")
-  heroMediaUrl     String?
-  heroFallbackUrl  String?
-  heroThumbnailUrl String?
-  mapUrl           String?
-  ticketingUrl     String?
-  features         Json?
-  partnerOffers    Json?
-  partners         Json?
-  socialPreviews   Json?
-  newsCoverage     Json?
-  operations       Json?
-  temporalStatus   Json?
-  testimonials     Json?
-  createdAt        DateTime                 @default(now())
-  updatedAt        DateTime                 @updatedAt
-  logoUrl          String?
-  seo              Json?
-  featuresList     AttractionFeature[]
-  faqs             AttractionFaq[]
-  gallery          AttractionGalleryItem[]
-  offers           AttractionOffer[]
-  pricing          AttractionPricing[]
-  socialLinks      AttractionSocialLink[]
-  temporalRules    AttractionTemporalRule[]
-  calendarEvents   CalendarEvent[]
-  caseStudies      CaseStudy[]
-  schedules        EventSchedule[]
-  feedbacks        Feedback[]
-  services         Service[]
-  serviceProjects  ServiceProject[]
-  telemetry        TelemetryLog[]
-  locations        Location[]
+  id                  String                   @id @default(cuid())
+  slug                String                   @unique
+  nameEn              String
+  nameAr              String
+  taglineEn           String?
+  taglineAr           String?
+  descriptionEn       String?
+  descriptionAr       String?
+  coordinates         Json?
+  isPublished         Boolean                  @default(false)
+  isFeatured          Boolean                  @default(false)
+  isHidden            Boolean                  @default(false)
+  heroMediaType       String                   @default("IMAGE")
+  heroMediaUrl        String?
+  heroFallbackUrl     String?
+  heroThumbnailUrl    String?
+  mapUrl              String?
+  ticketingUrl        String?
+  features            Json?
+  partnerOffers       Json?
+  partners            Json?
+  socialPreviews      Json?
+  newsCoverage        Json?
+  operations          Json?
+  temporalStatus      Json?
+  testimonials        Json?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  logoUrl             String?
+  seo                 Json?
+  featuresList        AttractionFeature[]
+  faqs                AttractionFaq[]
+  gallery             AttractionGalleryItem[]
+  offers              AttractionOffer[]
+  pricing             AttractionPricing[]
+  socialLinks         AttractionSocialLink[]
+  temporalRules       AttractionTemporalRule[]
+  calendarEvents      CalendarEvent[]
+  caseStudies         CaseStudy[]
+  schedules           EventSchedule[]
+  feedbacks           Feedback[]
+  services            Service[]
+  serviceProjects     ServiceProject[]
+  telemetry           TelemetryLog[]
+  locations           Location[]
   attractionLocations AttractionLocation[]
-  brandPlacements  BrandPlacement[]
-  packages         Package[]
+  brandPlacements     BrandPlacement[]
+  packages            Package[]
 
   @@index([isPublished, isHidden])
 }
@@ -777,18 +777,18 @@ model AttractionFeature {
   attraction    Attraction  @relation(fields: [attractionId], references: [id], onDelete: Cascade)
   storyTypes    StoryType[]
 
-  iconUrl          String?
-  highlightType    String      @default("ACTIVITY")
-  linkedBrandId    String?
-  linkedBrand      BrandIP?    @relation(fields: [linkedBrandId], references: [id])
-  showBrandLogo    Boolean     @default(false)
-  logoVariant      String      @default("AUTO")
-  ctaLabelEn       String?
-  ctaLabelAr       String?
-  ctaUrl           String?
-  startDate        DateTime?
-  endDate          DateTime?
-  availableAt      Location[]
+  iconUrl       String?
+  highlightType String     @default("ACTIVITY")
+  linkedBrandId String?
+  linkedBrand   BrandIP?   @relation(fields: [linkedBrandId], references: [id])
+  showBrandLogo Boolean    @default(false)
+  logoVariant   String     @default("AUTO")
+  ctaLabelEn    String?
+  ctaLabelAr    String?
+  ctaUrl        String?
+  startDate     DateTime?
+  endDate       DateTime?
+  availableAt   Location[]
 
   @@index([attractionId])
 }
@@ -804,59 +804,59 @@ model BrandCategory {
 }
 
 model BrandRelationshipType {
-  id        String    @id @default(cuid())
-  slug      String    @unique
-  labelEn   String
-  labelAr   String
-  brands    BrandIP[]
+  id      String    @id @default(cuid())
+  slug    String    @unique
+  labelEn String
+  labelAr String
+  brands  BrandIP[]
 }
 
 model BrandIP {
-  id                     String    @id @default(cuid())
-  slug                   String    @unique
-  nameEn                 String
-  nameAr                 String
-  taglineEn              String?
-  taglineAr              String?
-  shortDescriptionEn     String?
-  shortDescriptionAr     String?
-  fullStoryEn            String?
-  fullStoryAr            String?
-  launchYear             Int?
-  parentEntity           String?
-  isActive               Boolean   @default(true)
-  lifecycleStatus        String    @default("ACTIVE") // ACTIVE, COMING_SOON, SEASONAL, INACTIVE, LEGACY
+  id                 String  @id @default(cuid())
+  slug               String  @unique
+  nameEn             String
+  nameAr             String
+  taglineEn          String?
+  taglineAr          String?
+  shortDescriptionEn String?
+  shortDescriptionAr String?
+  fullStoryEn        String?
+  fullStoryAr        String?
+  launchYear         Int?
+  parentEntity       String?
+  isActive           Boolean @default(true)
+  lifecycleStatus    String  @default("ACTIVE") // ACTIVE, COMING_SOON, SEASONAL, INACTIVE, LEGACY
 
   // Logo System
-  primaryLogoUrl         String?
-  lightLogoUrl           String?
-  darkLogoUrl            String?
-  compactLogoUrl         String?
-  logoAltEn              String?
-  logoAltAr              String?
+  primaryLogoUrl String?
+  lightLogoUrl   String?
+  darkLogoUrl    String?
+  compactLogoUrl String?
+  logoAltEn      String?
+  logoAltAr      String?
 
   // Media
-  mediaType              String    @default("IMAGE")
-  primaryMediaUrl        String?
-  coverMediaUrl          String?
-  detailMediaUrl         String?
-  fallbackImageUrl       String?
-  thumbnailUrl           String?
-  mediaGallery           Json?
-  mediaAltEn             String?
-  mediaAltAr             String?
+  mediaType        String  @default("IMAGE")
+  primaryMediaUrl  String?
+  coverMediaUrl    String?
+  detailMediaUrl   String?
+  fallbackImageUrl String?
+  thumbnailUrl     String?
+  mediaGallery     Json?
+  mediaAltEn       String?
+  mediaAltAr       String?
 
   // Taxonomies
-  categoryId             String?
-  category               BrandCategory? @relation(fields: [categoryId], references: [id])
-  relationships          BrandRelationshipType[]
-  primaryRelationshipId  String?
+  categoryId            String?
+  category              BrandCategory?          @relation(fields: [categoryId], references: [id])
+  relationships         BrandRelationshipType[]
+  primaryRelationshipId String?
 
   // B2C Presentation
-  showOnB2C              Boolean   @default(true)
-  showInWorldsCreated    Boolean   @default(true)
-  featureOnB2C           Boolean   @default(false)
-  b2cDisplayOrder        Int       @default(0)
+  showOnB2C              Boolean @default(true)
+  showInWorldsCreated    Boolean @default(true)
+  featureOnB2C           Boolean @default(false)
+  b2cDisplayOrder        Int     @default(0)
   b2cTitleOverrideEn     String?
   b2cTitleOverrideAr     String?
   b2cShortDescOverrideEn String?
@@ -868,30 +868,30 @@ model BrandIP {
   b2cCtaUrl              String?
 
   // B2B Presentation
-  showOnB2B              Boolean   @default(true)
-  showInB2BPortfolio     Boolean   @default(true)
-  featureOnB2B           Boolean   @default(false)
-  b2bDisplayOrder        Int       @default(0)
-  b2bBusinessOverviewEn  String?
-  b2bBusinessOverviewAr  String?
-  b2bBusinessValueEn     String?
-  b2bBusinessValueAr     String?
-  b2bCapabilitiesEn      String?
-  b2bCapabilitiesAr      String?
-  b2bCtaLabelEn          String?
-  b2bCtaLabelAr          String?
-  b2bInquiryUrl          String?
+  showOnB2B             Boolean @default(true)
+  showInB2BPortfolio    Boolean @default(true)
+  featureOnB2B          Boolean @default(false)
+  b2bDisplayOrder       Int     @default(0)
+  b2bBusinessOverviewEn String?
+  b2bBusinessOverviewAr String?
+  b2bBusinessValueEn    String?
+  b2bBusinessValueAr    String?
+  b2bCapabilitiesEn     String?
+  b2bCapabilitiesAr     String?
+  b2bCtaLabelEn         String?
+  b2bCtaLabelAr         String?
+  b2bInquiryUrl         String?
 
-  placements             BrandPlacement[]
-  linkedHighlights       AttractionFeature[]
-  packages               Package[]
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  placements       BrandPlacement[]
+  linkedHighlights AttractionFeature[]
+  packages         Package[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 }
 
 model Location {
-  id                 String               @id @default(cuid())
-  slug               String?              @unique
+  id                 String    @id @default(cuid())
+  slug               String?   @unique
   nameEn             String
   nameAr             String
   venueEn            String?
@@ -904,9 +904,9 @@ model Location {
   directionsUrl      String?
   latitude           Float?
   longitude          Float?
-  locationType       String               @default("PERMANENT_ATTRACTION") // PERMANENT_ATTRACTION, MALL_ACTIVATION, SEASONAL_ATTRACTION, EVENT, ACTIVE_PROJECT, PAST_PROJECT, OFFICE, OTHER
-  operationalStatus  String               @default("OPEN") // OPEN, COMING_SOON, TEMPORARILY_CLOSED, SEASONAL, ENDED, INACTIVE
-  status             String               @default("OPEN")
+  locationType       String    @default("PERMANENT_ATTRACTION") // PERMANENT_ATTRACTION, MALL_ACTIVATION, SEASONAL_ATTRACTION, EVENT, ACTIVE_PROJECT, PAST_PROJECT, OFFICE, OTHER
+  operationalStatus  String    @default("OPEN") // OPEN, COMING_SOON, TEMPORARILY_CLOSED, SEASONAL, ENDED, INACTIVE
+  status             String    @default("OPEN")
   openingDate        DateTime?
   closingDate        DateTime?
   generalHours       Json?
@@ -916,51 +916,51 @@ model Location {
   email              String?
   whatsapp           String?
   chatLink           String?
-  timezone           String               @default("Asia/Qatar")
+  timezone           String    @default("Asia/Qatar")
   coverMediaUrl      String?
   thumbnailMediaId   String?
   mapPinMediaId      String?
-  pinColorToken      String               @default("CYAN")
-  featured           Boolean              @default(false)
-  mapVisible         Boolean              @default(true)
-  publicationStatus  String               @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
-  displayOrder       Int                  @default(0)
-  isPrimary          Boolean              @default(false)
-  isPublished        Boolean              @default(true)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  
-  attractionId       String?
-  attraction         Attraction?          @relation(fields: [attractionId], references: [id])
-  attractionLinks    AttractionLocation[]
-  
-  placements         BrandPlacement[]
+  pinColorToken      String    @default("CYAN")
+  featured           Boolean   @default(false)
+  mapVisible         Boolean   @default(true)
+  publicationStatus  String    @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  displayOrder       Int       @default(0)
+  isPrimary          Boolean   @default(false)
+  isPublished        Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  attractionId    String?
+  attraction      Attraction?          @relation(fields: [attractionId], references: [id])
+  attractionLinks AttractionLocation[]
+
+  placements              BrandPlacement[]
   highlightAvailabilities AttractionFeature[]
-  packages           Package[]
+  packages                Package[]
 
   @@index([locationType, operationalStatus])
   @@index([publicationStatus, mapVisible])
 }
 
 model AttractionLocation {
-  id                    String     @id @default(cuid())
+  id                    String   @id @default(cuid())
   attractionId          String
   locationId            String
-  isPrimary             Boolean    @default(false)
-  mapVisible            Boolean    @default(true)
-  availabilityStatus    String?    @default("AVAILABLE")
+  isPrimary             Boolean  @default(false)
+  mapVisible            Boolean  @default(true)
+  availabilityStatus    String?  @default("AVAILABLE")
   openingHoursOverride  Json?
   bookingUrlOverride    String?
   startingPriceOverride Float?
-  currency              String     @default("QAR")
+  currency              String   @default("QAR")
   shortLabelEn          String?
   shortLabelAr          String?
-  sortOrder             Int        @default(0)
-  createdAt             DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
+  sortOrder             Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
-  attraction            Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
-  location              Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  location   Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@unique([attractionId, locationId])
   @@index([attractionId])
@@ -976,21 +976,21 @@ model BrandPlacement {
   isVisible    Boolean   @default(true)
   startDate    DateTime?
   endDate      DateTime?
-  
-  brand        BrandIP    @relation(fields: [brandId], references: [id])
-  attraction   Attraction @relation(fields: [attractionId], references: [id])
-  locations    Location[]
+
+  brand      BrandIP    @relation(fields: [brandId], references: [id])
+  attraction Attraction @relation(fields: [attractionId], references: [id])
+  locations  Location[]
 
   @@unique([brandId, attractionId, role])
 }
 
 model Insight {
-  id                      String           @id @default(cuid())
-  contentType             String           @default("ARTICLE") // ARTICLE, NEWS, PRESS_RELEASE, EVENT_RECAP, TECHNICAL_INSIGHT, ANNOUNCEMENT, MEDIA_UPDATE
+  id                      String    @id @default(cuid())
+  contentType             String    @default("ARTICLE") // ARTICLE, NEWS, PRESS_RELEASE, EVENT_RECAP, TECHNICAL_INSIGHT, ANNOUNCEMENT, MEDIA_UPDATE
   titleEn                 String
   titleAr                 String?
-  slugEn                  String           @unique
-  slugAr                  String?          @unique
+  slugEn                  String    @unique
+  slugAr                  String?   @unique
   excerptEn               String?
   excerptAr               String?
   bodyEn                  String?
@@ -1010,42 +1010,42 @@ model Insight {
   relatedClientIds        Json?
   sourceLabel             String?
   sourceUrl               String?
-  publishStatus           String           @default("DRAFT") // DRAFT, IN_REVIEW, SCHEDULED, PUBLISHED, ARCHIVED
+  publishStatus           String    @default("DRAFT") // DRAFT, IN_REVIEW, SCHEDULED, PUBLISHED, ARCHIVED
   publishedAt             DateTime?
   scheduledAt             DateTime?
   expiresAt               DateTime?
-  featured                Boolean          @default(false)
-  restricted              Boolean          @default(false)
-  sortOrder               Int              @default(0)
-  createdAt               DateTime         @default(now())
-  updatedAt               DateTime         @updatedAt
+  featured                Boolean   @default(false)
+  restricted              Boolean   @default(false)
+  sortOrder               Int       @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
   createdBy               String?
   updatedBy               String?
 
   // SEO Fields
-  metaTitleEn             String?
-  metaTitleAr             String?
-  metaDescriptionEn       String?
-  metaDescriptionAr       String?
-  canonicalUrlEn          String?
-  canonicalUrlAr          String?
-  ogTitleEn               String?
-  ogTitleAr               String?
-  ogDescriptionEn         String?
-  ogDescriptionAr         String?
-  ogImageMediaId          String?
-  twitterTitleEn          String?
-  twitterTitleAr          String?
-  twitterDescriptionEn    String?
-  twitterDescriptionAr    String?
-  twitterImageMediaId     String?
-  indexingDirective       String?          @default("INDEX_FOLLOW")
-  focusTopicEn            String?
-  focusTopicAr            String?
-  secondaryTopicsEn       Json?
-  secondaryTopicsAr       Json?
+  metaTitleEn          String?
+  metaTitleAr          String?
+  metaDescriptionEn    String?
+  metaDescriptionAr    String?
+  canonicalUrlEn       String?
+  canonicalUrlAr       String?
+  ogTitleEn            String?
+  ogTitleAr            String?
+  ogDescriptionEn      String?
+  ogDescriptionAr      String?
+  ogImageMediaId       String?
+  twitterTitleEn       String?
+  twitterTitleAr       String?
+  twitterDescriptionEn String?
+  twitterDescriptionAr String?
+  twitterImageMediaId  String?
+  indexingDirective    String? @default("INDEX_FOLLOW")
+  focusTopicEn         String?
+  focusTopicAr         String?
+  secondaryTopicsEn    Json?
+  secondaryTopicsAr    Json?
 
-  author                  EmployeeProfile? @relation(fields: [authorEmployeeProfileId], references: [id])
+  author EmployeeProfile? @relation(fields: [authorEmployeeProfileId], references: [id])
 
   @@index([publishStatus])
   @@index([contentType])
@@ -1054,64 +1054,64 @@ model Insight {
 }
 
 model Package {
-  id                    String        @id @default(cuid())
-  slug                  String        @unique
-  code                  String?       @unique
-  titleEn               String
-  titleAr               String?
-  taglineEn             String?
-  taglineAr             String?
-  shortDescriptionEn    String?
-  shortDescriptionAr    String?
-  fullDescriptionEn     String?
-  fullDescriptionAr     String?
-  category              String        @default("BIRTHDAY") // BIRTHDAY, GROUP, SCHOOL, CORPORATE, PRIVATE_EVENT, CUSTOM
-  audienceType          String        @default("KIDS")     // KIDS, TEENS, ADULTS, FAMILIES, CORPORATE, ALL_AGES
-  coverMediaUrl         String?
-  heroMediaUrl          String?
-  heroMediaType         String        @default("IMAGE")
-  brochureUrl           String?
-  startingPrice         Float         @default(0)
-  priceDisplayMode      String        @default("STARTING_FROM") // STARTING_FROM, FIXED, PRICE_ON_REQUEST, PER_GUEST
-  currency              String        @default("QAR")
-  minGuests             Int           @default(10)
-  maxGuests             Int           @default(100)
-  durationMinutes       Int           @default(120)
-  ageSuitabilityEn      String?
-  ageSuitabilityAr      String?
-  indoorOutdoor         String        @default("INDOOR") // INDOOR, OUTDOOR, HYBRID
-  badgeTextEn           String?
-  badgeTextAr           String?
-  availabilityStatus    String        @default("AVAILABLE") // AVAILABLE, LIMITED, SEASONAL, BY_REQUEST
-  bookingType           String        @default("ENQUIRY_REQUIRED") // ENQUIRY_REQUIRED, INSTANT_BOOKING
-  bookingQubeUrl        String?
-  
+  id                 String  @id @default(cuid())
+  slug               String  @unique
+  code               String? @unique
+  titleEn            String
+  titleAr            String?
+  taglineEn          String?
+  taglineAr          String?
+  shortDescriptionEn String?
+  shortDescriptionAr String?
+  fullDescriptionEn  String?
+  fullDescriptionAr  String?
+  category           String  @default("BIRTHDAY") // BIRTHDAY, GROUP, SCHOOL, CORPORATE, PRIVATE_EVENT, CUSTOM
+  audienceType       String  @default("KIDS") // KIDS, TEENS, ADULTS, FAMILIES, CORPORATE, ALL_AGES
+  coverMediaUrl      String?
+  heroMediaUrl       String?
+  heroMediaType      String  @default("IMAGE")
+  brochureUrl        String?
+  startingPrice      Float   @default(0)
+  priceDisplayMode   String  @default("STARTING_FROM") // STARTING_FROM, FIXED, PRICE_ON_REQUEST, PER_GUEST
+  currency           String  @default("QAR")
+  minGuests          Int     @default(10)
+  maxGuests          Int     @default(100)
+  durationMinutes    Int     @default(120)
+  ageSuitabilityEn   String?
+  ageSuitabilityAr   String?
+  indoorOutdoor      String  @default("INDOOR") // INDOOR, OUTDOOR, HYBRID
+  badgeTextEn        String?
+  badgeTextAr        String?
+  availabilityStatus String  @default("AVAILABLE") // AVAILABLE, LIMITED, SEASONAL, BY_REQUEST
+  bookingType        String  @default("ENQUIRY_REQUIRED") // ENQUIRY_REQUIRED, INSTANT_BOOKING
+  bookingQubeUrl     String?
+
   // Relations
-  attractionId          String?
-  attraction            Attraction?   @relation(fields: [attractionId], references: [id])
-  brandId               String?
-  brand                 BrandIP?      @relation(fields: [brandId], references: [id])
-  locationId            String?
-  location              Location?     @relation(fields: [locationId], references: [id])
+  attractionId String?
+  attraction   Attraction? @relation(fields: [attractionId], references: [id])
+  brandId      String?
+  brand        BrandIP?    @relation(fields: [brandId], references: [id])
+  locationId   String?
+  location     Location?   @relation(fields: [locationId], references: [id])
 
   // Complex repeaters stored as JSON
-  tiers                 Json?
-  inclusions            Json?
-  addOns                Json?
-  journeySteps          Json?
-  gallery               Json?
-  testimonials          Json?
-  faqs                  Json?
-  termsConditions       Json?
-  seo                   Json?
+  tiers           Json?
+  inclusions      Json?
+  addOns          Json?
+  journeySteps    Json?
+  gallery         Json?
+  testimonials    Json?
+  faqs            Json?
+  termsConditions Json?
+  seo             Json?
 
-  isFeatured            Boolean       @default(false)
-  isPublished           Boolean       @default(true)
-  sortOrder             Int           @default(0)
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  isFeatured  Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  leads                 PackageLead[]
+  leads PackageLead[]
 
   @@index([category])
   @@index([isPublished])
@@ -1120,61 +1120,61 @@ model Package {
 }
 
 model PackageLead {
-  id                    String        @id @default(cuid())
-  leadId                String        @unique @default(cuid())
-  leadType              String        @default("BIRTHDAY") // BIRTHDAY, GROUP_SCHOOL, CORPORATE, GENERAL
-  
+  id       String @id @default(cuid())
+  leadId   String @unique @default(cuid())
+  leadType String @default("BIRTHDAY") // BIRTHDAY, GROUP_SCHOOL, CORPORATE, GENERAL
+
   // Contact Info
-  customerName          String
-  companyOrOrg          String?
-  email                 String
-  phone                 String?
-  whatsApp              String?
-  contactMethod         String        @default("WHATSAPP") // PHONE, EMAIL, WHATSAPP
+  customerName  String
+  companyOrOrg  String?
+  email         String
+  phone         String?
+  whatsApp      String?
+  contactMethod String  @default("WHATSAPP") // PHONE, EMAIL, WHATSAPP
 
   // Event Details
-  celebrationName       String?
-  ageGroup              String?
-  preferredDate         DateTime?
-  alternativeDate       DateTime?
-  preferredTimeSlot     String?
-  expectedGuests        Int           @default(10)
-  expectedChildren      Int?
-  expectedAdults        Int?
-  estimatedValue        Float?
-  
+  celebrationName   String?
+  ageGroup          String?
+  preferredDate     DateTime?
+  alternativeDate   DateTime?
+  preferredTimeSlot String?
+  expectedGuests    Int       @default(10)
+  expectedChildren  Int?
+  expectedAdults    Int?
+  estimatedValue    Float?
+
   // Package Selection
-  packageId             String?
-  package               Package?      @relation(fields: [packageId], references: [id])
-  selectedTierId        String?
-  selectedTierName      String?
-  selectedAddOns        Json?
-  
+  packageId        String?
+  package          Package? @relation(fields: [packageId], references: [id])
+  selectedTierId   String?
+  selectedTierName String?
+  selectedAddOns   Json?
+
   // Requirements & Notes
-  themePreference       String?
-  cateringRequirements  String?
-  accessibilityReqs     String?
-  specialRequests       String?
-  attachments           Json?
+  themePreference      String?
+  cateringRequirements String?
+  accessibilityReqs    String?
+  specialRequests      String?
+  attachments          Json?
 
   // Status & Tracking
-  status                String        @default("NEW") // NEW, CONTACTED, QUALIFIED, AVAILABILITY_CHECK, QUOTATION_SENT, NEGOTIATION, DEPOSIT_PENDING, CONFIRMED, COMPLETED, LOST, SPAM
-  priority              String        @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
-  assignedToId          String?
-  assignedTo            User?         @relation(fields: [assignedToId], references: [id])
-  internalNotes         Json?
-  sourcePage            String?
-  utmSource             String?
-  utmCampaign           String?
-  locale                String        @default("en")
+  status        String  @default("NEW") // NEW, CONTACTED, QUALIFIED, AVAILABILITY_CHECK, QUOTATION_SENT, NEGOTIATION, DEPOSIT_PENDING, CONFIRMED, COMPLETED, LOST, SPAM
+  priority      String  @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  assignedToId  String?
+  assignedTo    User?   @relation(fields: [assignedToId], references: [id])
+  internalNotes Json?
+  sourcePage    String?
+  utmSource     String?
+  utmCampaign   String?
+  locale        String  @default("en")
 
   // Legal Consents
-  marketingConsent      Boolean       @default(false)
-  termsAccepted         Boolean       @default(true)
-  termsAcceptedAt       DateTime      @default(now())
+  marketingConsent Boolean  @default(false)
+  termsAccepted    Boolean  @default(true)
+  termsAcceptedAt  DateTime @default(now())
 
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([leadType])
@@ -1264,29 +1264,29 @@ enum SocialAuditAction {
 }
 
 model SocialProviderConfig {
-  id                String            @id @default(cuid())
-  provider          SocialProviderKey @unique
-  name              String
-  enabled           Boolean           @default(true)
-  appId             String?
-  encryptedSecret   String?
-  apiVersion        String?           @default("v19.0")
-  authUrl           String?
-  callbackUrl       String?
-  requiredScopes    Json?             // String array
-  webhookToken      String?
-  apiKey            String?
-  instructions      String?
-  updatedBy         String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  accounts          SocialAccount[]
+  id              String            @id @default(cuid())
+  provider        SocialProviderKey @unique
+  name            String
+  enabled         Boolean           @default(true)
+  appId           String?
+  encryptedSecret String?
+  apiVersion      String?           @default("v19.0")
+  authUrl         String?
+  callbackUrl     String?
+  requiredScopes  Json? // String array
+  webhookToken    String?
+  apiKey          String?
+  instructions    String?
+  updatedBy       String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  accounts        SocialAccount[]
 }
 
 model SocialAccount {
-  id                    String              @id @default(cuid())
+  id                    String                 @id @default(cuid())
   providerConfigId      String
-  providerConfig        SocialProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
+  providerConfig        SocialProviderConfig   @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
   provider              SocialProviderKey
   providerAccountId     String
   internalName          String
@@ -1296,27 +1296,27 @@ model SocialAccount {
   profileImageUrl       String?
   brandId               String?
   attractionId          String?
-  portal                PortalType          @default(SHARED)
-  status                SocialAccountStatus @default(CONNECTED)
+  portal                PortalType             @default(SHARED)
+  status                SocialAccountStatus    @default(CONNECTED)
   encryptedAccessToken  String?
   encryptedRefreshToken String?
   tokenExpiresAt        DateTime?
   grantedScopes         Json?
   lastSuccessfulSync    DateTime?
   lastSyncAttempt       DateTime?
-  autoSyncEnabled       Boolean             @default(true)
+  autoSyncEnabled       Boolean                @default(true)
   defaultModeration     SocialModerationStatus @default(APPROVED)
-  defaultVisibility     SocialPostStatus    @default(PUBLISHED)
-  isActive              Boolean             @default(true)
-  sortOrder             Int                 @default(0)
+  defaultVisibility     SocialPostStatus       @default(PUBLISHED)
+  isActive              Boolean                @default(true)
+  sortOrder             Int                    @default(0)
   internalNotes         String?
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 
-  posts                 SocialPost[]
-  feedSources           SocialFeedSource[]
-  syncJobs              SocialSyncJob[]
-  syncErrors            SocialSyncError[]
+  posts       SocialPost[]
+  feedSources SocialFeedSource[]
+  syncJobs    SocialSyncJob[]
+  syncErrors  SocialSyncError[]
 
   @@unique([provider, providerAccountId])
   @@index([provider])
@@ -1325,50 +1325,50 @@ model SocialAccount {
 }
 
 model SocialPost {
-  id                  String                 @id @default(cuid())
-  provider            SocialProviderKey
-  providerPostId      String
-  accountId           String?
-  account             SocialAccount?         @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  brandId             String?
-  attractionId        String?
-  portal              PortalType             @default(SHARED)
-  originalUrl         String
-  authorName          String
-  authorUsername      String
-  authorAvatarUrl     String?
-  captionEn           String?                @db.Text
-  captionAr           String?                @db.Text
-  rawCaption          String?                @db.Text
-  mediaType           SocialPostMediaType    @default(IMAGE)
-  mediaUrl            String
-  thumbnailUrl        String?
-  aspectRatio         Float?
-  width               Int?
-  height              Int?
-  publishedAt         DateTime
-  importedAt          DateTime               @default(now())
-  lastSyncedAt        DateTime               @default(now())
-  likeCount           Int                    @default(0)
-  commentCount        Int                    @default(0)
-  shareCount          Int                    @default(0)
-  viewCount           Int                    @default(0)
-  platformMetadata    Json?
-  isFeatured          Boolean                @default(false)
-  isPinned            Boolean                @default(false)
-  status              SocialPostStatus       @default(PUBLISHED)
-  moderationStatus    SocialModerationStatus @default(APPROVED)
-  sortPriority        Int                    @default(0)
-  contentWarning      Boolean                @default(false)
-  syncStatus          String                 @default("OK")
-  importError         String?
-  createdBy           String?
-  updatedBy           String?
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
+  id               String                 @id @default(cuid())
+  provider         SocialProviderKey
+  providerPostId   String
+  accountId        String?
+  account          SocialAccount?         @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  brandId          String?
+  attractionId     String?
+  portal           PortalType             @default(SHARED)
+  originalUrl      String
+  authorName       String
+  authorUsername   String
+  authorAvatarUrl  String?
+  captionEn        String?                @db.Text
+  captionAr        String?                @db.Text
+  rawCaption       String?                @db.Text
+  mediaType        SocialPostMediaType    @default(IMAGE)
+  mediaUrl         String
+  thumbnailUrl     String?
+  aspectRatio      Float?
+  width            Int?
+  height           Int?
+  publishedAt      DateTime
+  importedAt       DateTime               @default(now())
+  lastSyncedAt     DateTime               @default(now())
+  likeCount        Int                    @default(0)
+  commentCount     Int                    @default(0)
+  shareCount       Int                    @default(0)
+  viewCount        Int                    @default(0)
+  platformMetadata Json?
+  isFeatured       Boolean                @default(false)
+  isPinned         Boolean                @default(false)
+  status           SocialPostStatus       @default(PUBLISHED)
+  moderationStatus SocialModerationStatus @default(APPROVED)
+  sortPriority     Int                    @default(0)
+  contentWarning   Boolean                @default(false)
+  syncStatus       String                 @default("OK")
+  importError      String?
+  createdBy        String?
+  updatedBy        String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
 
-  carouselMedia       SocialPostMedia[]
-  feedPosts           SocialFeedPost[]
+  carouselMedia SocialPostMedia[]
+  feedPosts     SocialFeedPost[]
 
   @@unique([provider, providerPostId])
   @@index([provider])
@@ -1398,44 +1398,44 @@ model SocialPostMedia {
 }
 
 model SocialFeed {
-  id                 String            @id @default(cuid())
-  name               String
-  description        String?
-  isActive           Boolean           @default(true)
-  mode               SocialFeedMode    @default(HYBRID)
-  portal             PortalType        @default(SHARED)
-  allowedPlatforms   Json?             // SocialProviderKey array
-  allowedMediaTypes  Json?             // SocialPostMediaType array
-  brandId            String?
-  attractionId       String?
-  maxPosts           Int               @default(12)
-  initialLoadCount   Int               @default(6)
-  loadMoreEnabled    Boolean           @default(true)
-  dateRangeDays      Int?
-  sortMethod         String            @default("LATEST_FIRST") // LATEST_FIRST, MANUAL, PINNED_FIRST, FEATURED_FIRST, RANDOM
-  showCaptions       Boolean           @default(true)
-  captionLimit       Int               @default(150)
-  showEngagement     Boolean           @default(true)
-  showPlatformBadge  Boolean           @default(true)
-  showAccountName    Boolean           @default(true)
-  showPostDate       Boolean           @default(true)
-  openInNewTab       Boolean           @default(true)
-  enableFollowCta    Boolean           @default(true)
-  followCtaTextEn    String?           @default("Follow E3 Qatar")
-  followCtaTextAr    String?           @default("تابع إي ثري قطر")
-  emptyStateTextEn   String?           @default("No social posts available at the moment.")
-  emptyStateTextAr   String?           @default("لا تتوفر منشورات تواصل حالياً.")
-  theme              String            @default("SYSTEM") // LIGHT, DARK, SYSTEM
-  layout             String            @default("GRID") // GRID, MASONRY, CAROUSEL, FEATURED_HERO
-  columnsDesktop     Int               @default(3)
-  columnsTablet      Int               @default(2)
-  columnsMobile      Int               @default(1)
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  id                String         @id @default(cuid())
+  name              String
+  description       String?
+  isActive          Boolean        @default(true)
+  mode              SocialFeedMode @default(HYBRID)
+  portal            PortalType     @default(SHARED)
+  allowedPlatforms  Json? // SocialProviderKey array
+  allowedMediaTypes Json? // SocialPostMediaType array
+  brandId           String?
+  attractionId      String?
+  maxPosts          Int            @default(12)
+  initialLoadCount  Int            @default(6)
+  loadMoreEnabled   Boolean        @default(true)
+  dateRangeDays     Int?
+  sortMethod        String         @default("LATEST_FIRST") // LATEST_FIRST, MANUAL, PINNED_FIRST, FEATURED_FIRST, RANDOM
+  showCaptions      Boolean        @default(true)
+  captionLimit      Int            @default(150)
+  showEngagement    Boolean        @default(true)
+  showPlatformBadge Boolean        @default(true)
+  showAccountName   Boolean        @default(true)
+  showPostDate      Boolean        @default(true)
+  openInNewTab      Boolean        @default(true)
+  enableFollowCta   Boolean        @default(true)
+  followCtaTextEn   String?        @default("Follow E3 Qatar")
+  followCtaTextAr   String?        @default("تابع إي ثري قطر")
+  emptyStateTextEn  String?        @default("No social posts available at the moment.")
+  emptyStateTextAr  String?        @default("لا تتوفر منشورات تواصل حالياً.")
+  theme             String         @default("SYSTEM") // LIGHT, DARK, SYSTEM
+  layout            String         @default("GRID") // GRID, MASONRY, CAROUSEL, FEATURED_HERO
+  columnsDesktop    Int            @default(3)
+  columnsTablet     Int            @default(2)
+  columnsMobile     Int            @default(1)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
-  sources            SocialFeedSource[]
-  feedPosts          SocialFeedPost[]
-  placements         SocialPlacement[]
+  sources    SocialFeedSource[]
+  feedPosts  SocialFeedPost[]
+  placements SocialPlacement[]
 
   @@index([isActive])
   @@index([portal])
@@ -1455,14 +1455,14 @@ model SocialFeedSource {
 }
 
 model SocialFeedPost {
-  id         String     @id @default(cuid())
-  feedId     String
-  feed       SocialFeed @relation(fields: [feedId], references: [id], onDelete: Cascade)
-  postId     String
-  post       SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  isPinned   Boolean    @default(false)
-  sortOrder  Int        @default(0)
-  addedAt    DateTime   @default(now())
+  id        String     @id @default(cuid())
+  feedId    String
+  feed      SocialFeed @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  postId    String
+  post      SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  isPinned  Boolean    @default(false)
+  sortOrder Int        @default(0)
+  addedAt   DateTime   @default(now())
 
   @@unique([feedId, postId])
   @@index([feedId])
@@ -1508,22 +1508,22 @@ model SocialPlacement {
 }
 
 model SocialSyncJob {
-  id               String           @id @default(cuid())
-  accountId        String?
-  account          SocialAccount?   @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  provider         SocialProviderKey
-  status           SocialSyncStatus @default(IN_PROGRESS)
-  startTime        DateTime         @default(now())
-  endTime          DateTime?
-  durationMs       Int?
-  recordsCreated   Int              @default(0)
-  recordsUpdated   Int              @default(0)
-  recordsFailed    Int              @default(0)
-  recordsSkipped   Int              @default(0)
-  triggerType      String           @default("CRON") // CRON, MANUAL, WEBHOOK
-  logDetails       Json?
-  errorMessage     String?
-  createdAt        DateTime         @default(now())
+  id             String            @id @default(cuid())
+  accountId      String?
+  account        SocialAccount?    @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  provider       SocialProviderKey
+  status         SocialSyncStatus  @default(IN_PROGRESS)
+  startTime      DateTime          @default(now())
+  endTime        DateTime?
+  durationMs     Int?
+  recordsCreated Int               @default(0)
+  recordsUpdated Int               @default(0)
+  recordsFailed  Int               @default(0)
+  recordsSkipped Int               @default(0)
+  triggerType    String            @default("CRON") // CRON, MANUAL, WEBHOOK
+  logDetails     Json?
+  errorMessage   String?
+  createdAt      DateTime          @default(now())
 
   @@index([provider])
   @@index([accountId])
@@ -1532,16 +1532,16 @@ model SocialSyncJob {
 }
 
 model SocialSyncError {
-  id             String            @id @default(cuid())
-  accountId      String?
-  account        SocialAccount?    @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  provider       SocialProviderKey
-  errorCode      String?
-  errorMessage   String
-  isResolved     Boolean           @default(false)
-  resolvedAt     DateTime?
-  resolvedBy     String?
-  createdAt      DateTime          @default(now())
+  id           String            @id @default(cuid())
+  accountId    String?
+  account      SocialAccount?    @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  provider     SocialProviderKey
+  errorCode    String?
+  errorMessage String
+  isResolved   Boolean           @default(false)
+  resolvedAt   DateTime?
+  resolvedBy   String?
+  createdAt    DateTime          @default(now())
 
   @@index([provider])
   @@index([accountId])
@@ -1549,17 +1549,17 @@ model SocialSyncError {
 }
 
 model SocialAuditLog {
-  id             String            @id @default(cuid())
-  userId         String?
-  userName       String?
-  userEmail      String?
-  action         SocialAuditAction
-  targetType     String
-  targetId       String?
-  summary        String
-  details        Json?
-  ipAddress      String?
-  createdAt      DateTime          @default(now())
+  id         String            @id @default(cuid())
+  userId     String?
+  userName   String?
+  userEmail  String?
+  action     SocialAuditAction
+  targetType String
+  targetId   String?
+  summary    String
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime          @default(now())
 
   @@index([action])
   @@index([userId])
@@ -1567,22 +1567,40 @@ model SocialAuditLog {
 }
 
 model SocialGlobalSettings {
-  id                        String   @id @default("default")
-  syncIntervalMinutes       Int      @default(30)
-  defaultModeration         SocialModerationStatus @default(APPROVED)
-  defaultFeedMode           SocialFeedMode   @default(HYBRID)
-  defaultMaxPosts           Int      @default(12)
-  dataRetentionDays         Int      @default(365)
-  showEngagementMetrics     Boolean  @default(true)
-  notifyOnSyncFailure       Boolean  @default(true)
-  notifyOnTokenExpiry       Boolean  @default(true)
-  notificationEmails        Json?    // String array
-  cacheDurationSeconds      Int      @default(300)
-  maxImportedPostsPerAccount Int     @default(100)
-  allowedMediaTypes         Json?    // SocialPostMediaType array
-  fallbackImageUrl          String?
-  enableManualEmbeds        Boolean  @default(true)
-  publicFeedsEnabled        Boolean  @default(true)
-  updatedBy                 String?
-  updatedAt                 DateTime @updatedAt
+  id                         String                 @id @default("default")
+  syncIntervalMinutes        Int                    @default(30)
+  defaultModeration          SocialModerationStatus @default(APPROVED)
+  defaultFeedMode            SocialFeedMode         @default(HYBRID)
+  defaultMaxPosts            Int                    @default(12)
+  dataRetentionDays          Int                    @default(365)
+  showEngagementMetrics      Boolean                @default(true)
+  notifyOnSyncFailure        Boolean                @default(true)
+  notifyOnTokenExpiry        Boolean                @default(true)
+  notificationEmails         Json? // String array
+  cacheDurationSeconds       Int                    @default(300)
+  maxImportedPostsPerAccount Int                    @default(100)
+  allowedMediaTypes          Json? // SocialPostMediaType array
+  fallbackImageUrl           String?
+  enableManualEmbeds         Boolean                @default(true)
+  publicFeedsEnabled         Boolean                @default(true)
+  updatedBy                  String?
+  updatedAt                  DateTime               @updatedAt
+}
+
+/// Database-backed distributed lease lock for serverless-safe sync coordination.
+/// Replaces session-level advisory locks which are incompatible with pooled Neon connections.
+model SocialSyncLock {
+  id          String   @id @default(cuid())
+  lockKey     String   @unique
+  accountId   String?
+  ownerToken  String // Unique unpredictable token; release requires exact match
+  acquiredAt  DateTime @default(now())
+  lockedUntil DateTime // Lease expiry; expired locks are reclaimable by any runner
+  heartbeatAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([lockKey])
+  @@index([lockedUntil])
+  @@index([accountId])
 }
