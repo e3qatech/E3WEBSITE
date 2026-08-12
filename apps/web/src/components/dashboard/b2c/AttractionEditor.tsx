@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { 
   Save, ArrowLeft, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
-  Users, List, Calendar, X
+  Users, List, Calendar, X, Eye, ExternalLink
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -21,6 +21,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   
   const [activeTab, setActiveTab] = useState("general")
   const [isSaving, setIsSaving] = useState(false)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
   
   // 1. Core Details
   const [nameEn, setNameEn] = useState(initialData?.nameEn || "")
@@ -318,7 +319,7 @@ const DEFAULT_STORY_TYPES = [
     { id: "general", label: "Core Details", icon: Settings },
     { id: "hero", label: "Hero Media", icon: ImageIcon },
     { id: "motion", label: "Motion & Experience", icon: Settings },
-    { id: "features", label: "What&apos;s Inside", icon: List },
+    { id: "features", label: "What's Inside", icon: List },
     { id: "pricing", label: "Pricing & Tickets", icon: DollarSign },
     { id: "partners", label: "Partners", icon: Users },
     { id: "social", label: "Social & News", icon: Share2 },
@@ -358,7 +359,27 @@ const DEFAULT_STORY_TYPES = [
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">{nameEn || "Untitled"}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowPreviewModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-white border border-[var(--border-default)] text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer hover:scale-105"
+          >
+            <Eye className="w-4 h-4 text-emerald-400" />
+            <span>Preview Microsite</span>
+          </button>
+
+          <a
+            href={`/en/b2c/attractions/${slug || initialData?.slug || ''}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-slate-800 border border-[var(--border-default)] text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm"
+            title="Open Live Microsite in New Tab"
+          >
+            <ExternalLink className="w-3.5 h-3.5 text-sky-400" />
+            <span>Live Tab</span>
+          </a>
+
           <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-4 py-2 rounded-xl border border-[var(--border-default)]">
             <input 
               type="checkbox" 
@@ -366,7 +387,7 @@ const DEFAULT_STORY_TYPES = [
               onChange={e => setIsPublished(e.target.checked)}
               className="w-4 h-4 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <span className="text-sm font-bold text-[var(--text-primary)]">Published</span>
+            <span className="text-xs font-bold text-[var(--text-primary)]">Published</span>
           </label>
           <Button onClick={handleSave} disabled={isSaving} className="gap-2">
             {isSaving ? <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" /> : <Save className="w-4 h-4" />}
@@ -622,7 +643,7 @@ const DEFAULT_STORY_TYPES = [
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-black text-[var(--text-primary)]">What&apos;s Inside (Experience & Highlights)</h2>
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">What's Inside (Experience & Highlights)</h2>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">Configure bilingual titles, Arabic descriptions, and media covers for attraction highlights.</p>
                 </div>
                 <Button
@@ -1395,7 +1416,7 @@ const DEFAULT_STORY_TYPES = [
                 <div>
                   <h2 className="text-xl font-bold text-[var(--text-primary)]">Media Gallery</h2>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    Upload images and videos for the attraction&apos;s lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
+                    Upload images and videos for the attraction's lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -1646,6 +1667,56 @@ const DEFAULT_STORY_TYPES = [
               <Button type="button" size="sm" disabled={!newBrandNameEn.trim() || isCreatingBrand} onClick={handleQuickCreateBrand}>
                 {isCreatingBrand ? "Creating..." : "Create & Link Brand"}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Live Attraction Microsite Preview Modal */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#080314] border border-purple-900/60 rounded-3xl w-full max-w-6xl h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Bar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider">
+                    Microsite Live Preview: {nameEn || "Attraction"}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    Previewing live routing: /en/b2c/attractions/{slug || initialData?.slug || 'preview'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <a
+                  href={`/en/b2c/attractions/${slug || initialData?.slug || ''}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-extrabold uppercase tracking-wider hover:bg-emerald-500/30 transition-all shadow-md"
+                >
+                  <span>Open Full Window</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(false)}
+                  className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Live iFrame Preview Window */}
+            <div className="flex-1 bg-black overflow-hidden relative">
+              <iframe
+                src={`/en/b2c/attractions/${slug || initialData?.slug || ''}`}
+                className="w-full h-full border-0"
+                title="Attraction Microsite Preview"
+              />
             </div>
           </div>
         </div>
