@@ -71,51 +71,112 @@ export async function POST(request: Request) {
         orderIndex: i
       }))
 
-    const attraction = await db.attraction.create({
-      data: {
-        nameEn: cleanNameEn,
-        nameAr: cleanNameAr,
-        slug: cleanSlug,
-        descriptionEn: descriptionEn || "",
-        descriptionAr: descriptionAr || "",
-        taglineEn: taglineEn || "",
-        taglineAr: taglineAr || "",
-        mapUrl: mapUrl || "",
-        ticketingUrl: ticketingUrl || "",
-        logoUrl: logoUrl || "",
-        heroMediaType: heroMediaType || "IMAGE",
-        heroMediaUrl: heroMediaUrl || "",
-        heroFallbackUrl: heroFallbackUrl || "",
-        heroThumbnailUrl: heroThumbnailUrl || "",
-        isPublished: Boolean(isPublished),
-        isFeatured: Boolean(isFeatured),
-        isHidden: Boolean(isHidden),
-        features: Array.isArray(features) ? features : [],
-        partnerOffers: Array.isArray(partnerOffers) ? partnerOffers : [],
-        partners: Array.isArray(partners) ? partners : [],
-        socialPreviews: Array.isArray(socialPreviews) ? socialPreviews : [],
-        newsCoverage: Array.isArray(newsCoverage) ? newsCoverage : [],
-        operations: mergedOperations,
-        temporalStatus: temporalStatus || {},
-        testimonials: Array.isArray(testimonials) ? testimonials : [],
-        seo: seo || {},
-        pricing: { create: safePricing },
-        faqs: { create: safeFaqs },
-        socialLinks: { create: safeSocialLinks },
-        gallery: { create: safeGallery },
-        featuresList: {
-          create: Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)).map((f: any, i: number) => ({
+    // Extract safeLocations and safeBrandPlacements since we'll process them in the transaction
+    const safeLocations = (body.locations || [])
+      .filter((l: any) => l && (l.nameEn || l.nameAr))
+      .map((l: any) => ({
+        nameEn: (l.nameEn || l.nameAr || "").trim(),
+        nameAr: (l.nameAr || l.nameEn || "").trim(),
+        addressEn: (l.addressEn || "").trim(),
+        addressAr: (l.addressAr || "").trim(),
+        coordinates: l.coordinates || {},
+        bookingUrl: (l.bookingUrl || "").trim()
+      }))
+
+    const safeBrandPlacements = (body.brandPlacements || [])
+      .filter((bp: any) => bp && bp.brandId)
+      .map((bp: any) => ({
+        brandId: bp.brandId,
+        isPrimary: Boolean(bp.isPrimary),
+        type: bp.type || "HOSTED"
+      }))
+
+    let attraction: any;
+    
+    await db.$transaction(async (tx: any) => {
+      attraction = await tx.attraction.create({
+        data: {
+          nameEn: cleanNameEn,
+          nameAr: cleanNameAr,
+          slug: cleanSlug,
+          descriptionEn: descriptionEn || "",
+          descriptionAr: descriptionAr || "",
+          taglineEn: taglineEn || "",
+          taglineAr: taglineAr || "",
+          mapUrl: mapUrl || "",
+          ticketingUrl: ticketingUrl || "",
+          logoUrl: logoUrl || "",
+          heroMediaType: heroMediaType || "IMAGE",
+          heroMediaUrl: heroMediaUrl || "",
+          heroFallbackUrl: heroFallbackUrl || "",
+          heroThumbnailUrl: heroThumbnailUrl || "",
+          isPublished: Boolean(isPublished),
+          isFeatured: Boolean(isFeatured),
+          isHidden: Boolean(isHidden),
+          features: Array.isArray(features) ? features : [],
+          partnerOffers: Array.isArray(partnerOffers) ? partnerOffers : [],
+          partners: Array.isArray(partners) ? partners : [],
+          socialPreviews: Array.isArray(socialPreviews) ? socialPreviews : [],
+          newsCoverage: Array.isArray(newsCoverage) ? newsCoverage : [],
+          operations: mergedOperations,
+          temporalStatus: temporalStatus || {},
+          testimonials: Array.isArray(testimonials) ? testimonials : [],
+          seo: seo || {},
+          pricing: { create: safePricing },
+          faqs: { create: safeFaqs },
+          socialLinks: { create: safeSocialLinks },
+          gallery: { create: safeGallery },
+          brandPlacements: { create: safeBrandPlacements },
+        }
+      })
+
+      // Create locations and store them to reference their IDs
+      const createdLocations: any[] = []
+      for (const loc of safeLocations) {
+        const created = await tx.location.create({
+          data: {
+            ...loc,
+            attractionId: attraction.id
+          }
+        })
+        createdLocations.push(created)
+      }
+
+      // Create features and link to locations
+      const featuresArr = Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)) : []
+      for (let i = 0; i < featuresArr.length; i++) {
+        const f = featuresArr[i]
+        
+        const locationIdsToConnect = Array.isArray(f.locationIndexes) 
+          ? f.locationIndexes
+              .map((idx: number) => createdLocations[idx]?.id)
+              .filter(Boolean)
+          : []
+
+        await tx.attractionFeature.create({
+          data: {
+            attractionId: attraction.id,
             titleEn: (f.titleEn || f.titleAr || "Feature").trim(),
             titleAr: (f.titleAr || f.titleEn || "ميزة").trim(),
             descriptionEn: (f.descriptionEn || "").trim(),
             descriptionAr: (f.descriptionAr || "").trim(),
-            imageUrl: (f.imageUrl || "").trim(),
+            imageUrl: String(f.imageUrl || "").trim(),
+            iconUrl: String(f.iconUrl || "").trim(),
+            highlightType: String(f.highlightType || "ACTIVITY").trim(),
+            linkedBrandId: f.linkedBrandId ? String(f.linkedBrandId).trim() : null,
+            showBrandLogo: Boolean(f.showBrandLogo),
+            logoVariant: String(f.logoVariant || "AUTO").trim(),
             orderIndex: i,
-            storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0 ? {
-              connect: f.storyTypeIds.map((sid: string) => ({ id: sid }))
-            } : undefined
-          })) : []
-        }
+            storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0
+              ? {
+                  connect: f.storyTypeIds.map((sid: string) => ({ id: sid }))
+                }
+              : undefined,
+            availableAt: locationIdsToConnect.length > 0
+              ? { connect: locationIdsToConnect.map((locId: string) => ({ id: locId })) }
+              : undefined
+          }
+        })
       }
     })
 

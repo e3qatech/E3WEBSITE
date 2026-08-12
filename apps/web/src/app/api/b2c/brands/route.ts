@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,13 +43,16 @@ export async function POST(req: NextRequest) {
 
     // Default values mapping
     const slug = data.slug || data.nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const { category, relationships, placements, linkedHighlights, relationshipIds, categoryId, ...brandData } = data;
     
     const brand = await db.brandIP.create({
       data: {
-        nameEn: data.nameEn,
-        nameAr: data.nameAr || data.nameEn,
+        ...brandData,
         slug,
-        categoryId: data.categoryId,
+        categoryId: categoryId || null,
+        relationships: relationshipIds ? {
+            connect: relationshipIds.map((id: string) => ({ id }))
+        } : undefined
       }
     });
 

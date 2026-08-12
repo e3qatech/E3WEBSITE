@@ -4,11 +4,13 @@ import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRender
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
-import { OurBrandsConstellation } from '@/components/b2c/story/OurBrandsConstellation'
+import { B2BBrandPortfolio } from '@/components/b2b/brands/B2BBrandPortfolio'
 
 export default async function B2BHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
+  
+  // ... rest of imports are kept above ...
 
   // Fetch real data from the CMS safely
   let page: any = null
@@ -409,7 +411,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
       {/* Brands & IP Portfolio */}
       {content?.ourBrands?.brands?.length > 0 && (
-        <OurBrandsConstellation content={content} locale={locale} />
+        <B2BBrandPortfolio content={content} locale={locale} />
       )}
 
       {/* 7. Delivery Process */}

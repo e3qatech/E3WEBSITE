@@ -90,6 +90,14 @@ export function BrandEditor({
   const [showInB2BPortfolio, setShowInB2BPortfolio] = useState(initialData?.showInB2BPortfolio ?? true)
   const [featureOnB2B, setFeatureOnB2B] = useState(initialData?.featureOnB2B ?? false)
   const [b2bBusinessOverviewEn, setB2bBusinessOverviewEn] = useState(initialData?.b2bBusinessOverviewEn || "")
+  const [b2bBusinessOverviewAr, setB2bBusinessOverviewAr] = useState(initialData?.b2bBusinessOverviewAr || "")
+  const [b2bBusinessValueEn, setB2bBusinessValueEn] = useState(initialData?.b2bBusinessValueEn || "")
+  const [b2bBusinessValueAr, setB2bBusinessValueAr] = useState(initialData?.b2bBusinessValueAr || "")
+  const [b2bCapabilitiesEn, setB2bCapabilitiesEn] = useState(initialData?.b2bCapabilitiesEn || "")
+  const [b2bCapabilitiesAr, setB2bCapabilitiesAr] = useState(initialData?.b2bCapabilitiesAr || "")
+  const [b2bCtaLabelEn, setB2bCtaLabelEn] = useState(initialData?.b2bCtaLabelEn || "")
+  const [b2bCtaLabelAr, setB2bCtaLabelAr] = useState(initialData?.b2bCtaLabelAr || "")
+  const [b2bInquiryUrl, setB2bInquiryUrl] = useState(initialData?.b2bInquiryUrl || "")
 
   const handleSave = async () => {
     const newErrors = []
@@ -116,7 +124,11 @@ export function BrandEditor({
         relationshipIds,
         showOnB2C, showInWorldsCreated, featureOnB2C,
         b2cTitleOverrideEn, b2cTitleOverrideAr, b2cShortDescOverrideEn, b2cShortDescOverrideAr,
-        showOnB2B, showInB2BPortfolio, featureOnB2B, b2bBusinessOverviewEn
+        showOnB2B, showInB2BPortfolio, featureOnB2B, 
+        b2bBusinessOverviewEn, b2bBusinessOverviewAr, 
+        b2bBusinessValueEn, b2bBusinessValueAr,
+        b2bCapabilitiesEn, b2bCapabilitiesAr,
+        b2bCtaLabelEn, b2bCtaLabelAr, b2bInquiryUrl
       }
       
       const url = isEditing ? `/api/b2c/brands/${initialData.id}` : `/api/b2c/brands`
@@ -334,7 +346,43 @@ export function BrandEditor({
                 </div>
                  <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Business Overview (EN)</label>
-                  <textarea rows={4} value={b2bBusinessOverviewEn} onChange={e => setB2bBusinessOverviewEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                  <textarea rows={3} value={b2bBusinessOverviewEn} onChange={e => setB2bBusinessOverviewEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Business Overview (AR)</label>
+                  <textarea rows={3} dir="rtl" value={b2bBusinessOverviewAr} onChange={e => setB2bBusinessOverviewAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Business Value (EN)</label>
+                  <input type="text" value={b2bBusinessValueEn} onChange={e => setB2bBusinessValueEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Business Value (AR)</label>
+                  <input type="text" dir="rtl" value={b2bBusinessValueAr} onChange={e => setB2bBusinessValueAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Capabilities (EN)</label>
+                  <input type="text" value={b2bCapabilitiesEn} onChange={e => setB2bCapabilitiesEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Capabilities (AR)</label>
+                  <input type="text" dir="rtl" value={b2bCapabilitiesAr} onChange={e => setB2bCapabilitiesAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">CTA Label (EN)</label>
+                  <input type="text" value={b2bCtaLabelEn} onChange={e => setB2bCtaLabelEn(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">CTA Label (AR)</label>
+                  <input type="text" dir="rtl" value={b2bCtaLabelAr} onChange={e => setB2bCtaLabelAr(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Inquiry URL</label>
+                  <input type="text" value={b2bInquiryUrl} onChange={e => setB2bInquiryUrl(e.target.value)} className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" />
                 </div>
               </div>
             </div>

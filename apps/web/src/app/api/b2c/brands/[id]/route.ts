@@ -31,7 +31,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,13 +43,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     // or handle nested writes.
     const { 
         category, relationships, placements, linkedHighlights, 
-        relationshipIds, ...updateData 
+        relationshipIds, categoryId, ...updateData 
     } = data;
 
     const brand = await db.brandIP.update({
       where: { id },
       data: {
         ...updateData,
+        categoryId: categoryId || null,
         relationships: relationshipIds ? {
             set: relationshipIds.map((rid: string) => ({ id: rid }))
         } : undefined
@@ -69,7 +71,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

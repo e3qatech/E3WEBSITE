@@ -99,15 +99,17 @@ export async function PUT(
       }))
 
     // Execute database transaction
-    await db.$transaction([
-      db.attractionPricing.deleteMany({ where: { attractionId: id } }),
-      db.attractionFaq.deleteMany({ where: { attractionId: id } }),
-      db.attractionSocialLink.deleteMany({ where: { attractionId: id } }),
-      db.attractionGalleryItem.deleteMany({ where: { attractionId: id } }),
-      db.attractionFeature.deleteMany({ where: { attractionId: id } }),
-      db.location.deleteMany({ where: { attractionId: id } }),
-      db.brandPlacement.deleteMany({ where: { attractionId: id } }),
-      db.attraction.update({
+    // Execute database transaction
+    await db.$transaction(async (tx: any) => {
+      await tx.attractionPricing.deleteMany({ where: { attractionId: id } })
+      await tx.attractionFaq.deleteMany({ where: { attractionId: id } })
+      await tx.attractionSocialLink.deleteMany({ where: { attractionId: id } })
+      await tx.attractionGalleryItem.deleteMany({ where: { attractionId: id } })
+      await tx.attractionFeature.deleteMany({ where: { attractionId: id } })
+      await tx.location.deleteMany({ where: { attractionId: id } })
+      await tx.brandPlacement.deleteMany({ where: { attractionId: id } })
+      
+      await tx.attraction.update({
         where: { id },
         data: {
           nameEn: cleanNameEn,
@@ -140,31 +142,60 @@ export async function PUT(
           faqs: { create: safeFaqs },
           socialLinks: { create: safeSocialLinks },
           gallery: { create: safeGallery },
-          locations: { create: safeLocations },
           brandPlacements: { create: safeBrandPlacements },
-          featuresList: {
-            create: Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)).map((f: any, i: number) => ({
-              titleEn: (f.titleEn || f.titleAr || "Feature").trim(),
-              titleAr: (f.titleAr || f.titleEn || "ميزة").trim(),
-              descriptionEn: (f.descriptionEn || "").trim(),
-              descriptionAr: (f.descriptionAr || "").trim(),
-              imageUrl: String(f.imageUrl || "").trim(),
-              iconUrl: String(f.iconUrl || "").trim(),
-              highlightType: String(f.highlightType || "ACTIVITY").trim(),
-              linkedBrandId: f.linkedBrandId ? String(f.linkedBrandId).trim() : null,
-              showBrandLogo: Boolean(f.showBrandLogo),
-              logoVariant: String(f.logoVariant || "AUTO").trim(),
-              orderIndex: i,
-              storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0
-                ? {
-                    connect: f.storyTypeIds.map((id: string) => ({ id }))
-                  }
-                : undefined
-            })) : []
-          }
         }
       })
-    ])
+
+      // Create locations and store them to reference their IDs
+      const createdLocations: any[] = []
+      for (const loc of safeLocations) {
+        const created = await tx.location.create({
+          data: {
+            ...loc,
+            attractionId: id
+          }
+        })
+        createdLocations.push(created)
+      }
+
+      // Create features and link to locations
+      const featuresArr = Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)) : []
+      for (let i = 0; i < featuresArr.length; i++) {
+        const f = featuresArr[i]
+        
+        // Find which location IDs this feature should be linked to
+        const locationIdsToConnect = Array.isArray(f.locationIndexes) 
+          ? f.locationIndexes
+              .map((idx: number) => createdLocations[idx]?.id)
+              .filter(Boolean)
+          : []
+
+        await tx.attractionFeature.create({
+          data: {
+            attractionId: id,
+            titleEn: (f.titleEn || f.titleAr || "Feature").trim(),
+            titleAr: (f.titleAr || f.titleEn || "ميزة").trim(),
+            descriptionEn: (f.descriptionEn || "").trim(),
+            descriptionAr: (f.descriptionAr || "").trim(),
+            imageUrl: String(f.imageUrl || "").trim(),
+            iconUrl: String(f.iconUrl || "").trim(),
+            highlightType: String(f.highlightType || "ACTIVITY").trim(),
+            linkedBrandId: f.linkedBrandId ? String(f.linkedBrandId).trim() : null,
+            showBrandLogo: Boolean(f.showBrandLogo),
+            logoVariant: String(f.logoVariant || "AUTO").trim(),
+            orderIndex: i,
+            storyTypes: Array.isArray(f.storyTypeIds) && f.storyTypeIds.length > 0
+              ? {
+                  connect: f.storyTypeIds.map((sid: string) => ({ id: sid }))
+                }
+              : undefined,
+            availableAt: locationIdsToConnect.length > 0
+              ? { connect: locationIdsToConnect.map((locId: string) => ({ id: locId })) }
+              : undefined
+          }
+        })
+      }
+    })
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

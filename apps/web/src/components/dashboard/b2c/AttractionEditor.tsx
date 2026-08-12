@@ -730,13 +730,45 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                                 }}
                                 className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:outline-none"
                               >
-                                <option value="AUTO">Auto (Light/Dark based on theme)</option>
+                                <option value="AUTO">Auto (Logo or Name)</option>
                                 <option value="PRIMARY">Primary Logo</option>
-                                <option value="LIGHT">Light Logo (For dark backgrounds)</option>
-                                <option value="DARK">Dark Logo (For light backgrounds)</option>
-                                <option value="COMPACT">Compact / Monogram</option>
+                                <option value="LIGHT">Light Logo</option>
+                                <option value="DARK">Dark Logo</option>
+                                <option value="COMPACT">Compact / Icon</option>
+                                <option value="TEXT">Text Only</option>
                               </select>
                             )}
+                          </div>
+                        )}
+
+                        {locations.length > 0 && (
+                          <div className="space-y-1.5 md:col-span-2 pt-2">
+                            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Available At Locations</label>
+                            <div className="flex flex-wrap gap-2">
+                              {locations.map((loc: any, locIndex: number) => {
+                                const isSelected = item.locationIndexes?.includes(locIndex);
+                                return (
+                                  <label key={locIndex} className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] border border-[var(--border-default)] px-3 py-1.5 rounded-lg">
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected || false}
+                                      onChange={e => {
+                                        const updated = [...features];
+                                        const currentLocs = updated[index].locationIndexes || [];
+                                        if (e.target.checked) {
+                                          updated[index].locationIndexes = [...currentLocs, locIndex];
+                                        } else {
+                                          updated[index].locationIndexes = currentLocs.filter((i: number) => i !== locIndex);
+                                        }
+                                        setFeatures(updated);
+                                      }}
+                                      className="rounded"
+                                    />
+                                    <span className="text-xs font-bold">{loc.nameEn || `Location ${locIndex + 1}`}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
                           </div>
                         )}
                       </div>
