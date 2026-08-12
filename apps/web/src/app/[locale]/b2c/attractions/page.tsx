@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
 import { getCanonicalAttractions } from '@/lib/cms-attractions'
-import { AttractionsDirectoryClient } from '@/components/b2c/AttractionsDirectoryClient'
+import { AttractionsClient } from '@/app/[locale]/b2c/AttractionsClient'
 import { DEFAULT_OUR_BRANDS } from '@/lib/cms-brands'
+import db from '@/lib/db'
+import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 
 const SEED_FALLBACK_ATTRACTIONS = DEFAULT_OUR_BRANDS.map(b => ({
   id: b.id,
@@ -16,7 +18,15 @@ const SEED_FALLBACK_ATTRACTIONS = DEFAULT_OUR_BRANDS.map(b => ({
   category: 'FAMILY',
   bookingMode: 'EXTERNAL_URL',
   bookingUrl: b.bookingUrl || b.internalRoute,
-  venue: { nameEn: 'Qatar', nameAr: 'قطر' }
+  venue: { nameEn: 'Qatar', nameAr: 'قطر' },
+  operations: {
+    openingTime: "14:00",
+    closingTime: "23:00",
+    locationNameEn: "Qatar",
+    locationNameAr: "قطر",
+    lat: 25.418,
+    lng: 51.530
+  }
 }))
 
 const getBaseUrl = () => {
@@ -31,8 +41,8 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
   const baseUrl = getBaseUrl()
 
   return {
-    title: params.locale === 'ar' ? 'دليل التجارب والوجهات | E3 Qatar' : 'Attractions & Experiences Directory | E3 Qatar',
-    description: params.locale === 'ar' ? 'استكشف واحجز أفضل تجارب الترفيه في قطر حسب الفعالية والموقع.' : 'Search, filter, and book world-class entertainment attractions across Qatar.',
+    title: params.locale === 'ar' ? 'دليل التجارب والوجهات الترفيهية | E3 Qatar' : 'Attractions & Experiences Directory | E3 Qatar',
+    description: params.locale === 'ar' ? 'استكشف واحجز أفضل تجارب الترفيه في قطر حسب الفعالية والموقع والتوفر.' : 'Search, filter, and book world-class entertainment attractions across Qatar.',
     alternates: {
       canonical: `${baseUrl}/b2c/attractions`,
       languages: {
@@ -57,11 +67,16 @@ export default async function AttractionsPage(props: { params: Promise<{ locale:
     dbAttractions = []
   }
 
+  let rawContent: any = null
+  try {
+    const page = await db.pages.findUnique({ where: { slug: "b2c-attractions" } })
+    if (page?.content) rawContent = page.content
+  } catch (_e) {}
+
+  const cmsData = getMergedCMSPageContent("b2c-landing", rawContent)
   const initialAttractions = dbAttractions.length > 0 ? dbAttractions : SEED_FALLBACK_ATTRACTIONS
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white selection:bg-amber-500/30 selection:text-amber-300">
-      <AttractionsDirectoryClient locale={locale} initialAttractions={initialAttractions} />
-    </main>
+    <AttractionsClient locale={locale} cmsData={cmsData} initialAttractions={initialAttractions} />
   )
 }

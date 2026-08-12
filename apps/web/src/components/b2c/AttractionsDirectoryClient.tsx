@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, Filter, MapPin, Calendar, ArrowRight, Check, X, Shield, Compass, Sparkles, Map } from 'lucide-react'
 import { resolveAvailabilityStatus, resolveBookingUrl, filterAttractionsByUrlParams } from '@/lib/cms-attractions'
 import { DynamicSpatialHub } from '@/components/shared/DynamicWrappers'
+import { AttractionsDirectory } from '@/components/b2c/AttractionsDirectory'
 
 interface AttractionsDirectoryClientProps {
   locale: string
@@ -230,8 +231,8 @@ export function AttractionsDirectoryClient({ locale, initialAttractions }: Attra
       {/* 3. Main Results Display Mode */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {viewMode === 'MAP' ? (
-          <div className="rounded-3xl border border-slate-800 overflow-hidden bg-slate-950 h-[650px] shadow-2xl relative">
-            <DynamicSpatialHub attractions={filteredAttractions} />
+          <div className="rounded-3xl border border-slate-800 overflow-hidden bg-slate-950 shadow-2xl relative">
+            <AttractionsDirectory initialAttractions={filteredAttractions} locale={locale} />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

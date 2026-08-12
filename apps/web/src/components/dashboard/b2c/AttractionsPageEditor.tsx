@@ -28,9 +28,18 @@ export function AttractionsPageEditor() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-attractions-page')
-        if (res.ok) {
-          const json = await res.json()
+        const [res1, res2] = await Promise.all([
+          fetch('/api/cms/pages/b2c-attractions').catch(() => null),
+          fetch('/api/cms/pages/b2c-attractions-page').catch(() => null)
+        ])
+
+        if (res1 && res1.ok) {
+          const json = await res1.json()
+          if (json?.data?.content) {
+            setPageConfig(prev => ({ ...prev, ...json.data.content }))
+          }
+        } else if (res2 && res2.ok) {
+          const json = await res2.json()
           if (json?.data?.content) {
             setPageConfig(prev => ({ ...prev, ...json.data.content }))
           }
@@ -47,12 +56,19 @@ export function AttractionsPageEditor() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      const res = await fetch('/api/cms/pages/b2c-attractions-page', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: pageConfig })
-      })
-      if (!res.ok) throw new Error('Failed to save Attractions Page settings')
+      await Promise.all([
+        fetch('/api/cms/pages/b2c-attractions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: pageConfig, title: pageConfig.titleEn || "Experiences & Attractions" })
+        }).catch(() => null),
+        fetch('/api/cms/pages/b2c-attractions-page', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: pageConfig })
+        }).catch(() => null)
+      ])
+
       toast('Attractions Page Editor saved successfully!', 'success')
       router.refresh()
     } catch (err: any) {
