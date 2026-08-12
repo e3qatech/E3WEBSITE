@@ -80,7 +80,7 @@ export function InteractiveCard({
         }}
       />
       
-      <div className="relative z-10 h-full w-full">
+      <div className={cn("relative z-10 h-full w-full flex flex-col", className)}>
         {children}
       </div>
     </motion.div>
