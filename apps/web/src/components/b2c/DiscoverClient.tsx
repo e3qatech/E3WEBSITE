@@ -564,31 +564,79 @@ export function DiscoverClient({
           const taq = content.trustedAcrossQatar || {};
           const selPartners = (taq.selectedPartnerIds || []).map((id: string) => partnersMap.get(id)).filter(Boolean);
           const selClients = (taq.selectedClientIds || []).map((id: string) => clientsMap.get(id)).filter(Boolean);
-          const displayLogos = [...selPartners, ...selClients];
+          
+          let displayLogos = [...selPartners, ...selClients];
+          if (displayLogos.length === 0) {
+            displayLogos = [...partners, ...clients];
+          }
 
           const fallbackBrands = [
-            "Visit Qatar", "Qatar Airways", "Katara Cultural Village", "Ministry of Culture Qatar", "Msheireb Properties", "Lusail Real Estate"
+            "Visit Qatar", 
+            "Qatar Airways", 
+            "beIN Media Group", 
+            "Katara Cultural Village", 
+            "Ministry of Culture Qatar", 
+            "Msheireb Properties", 
+            "Lusail Real Estate",
+            "Place Vendôme Mall",
+            "Ezdan Mall",
+            "Vodafone Qatar",
+            "Qatar National Convention Centre"
           ];
 
+          const itemsToDisplay = displayLogos.length > 0 ? displayLogos : fallbackBrands;
+
           return (
-            <section key="trustedAcrossQatar" id="trustedAcrossQatar" className="relative py-20 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
-              <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-                <h2 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-4">
+            <section key="trustedAcrossQatar" id="trustedAcrossQatar" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)] overflow-hidden">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 text-center mb-12">
+                <h2 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] mb-3">
                   {isAr ? (taq.headingAr || "شركاء النجاح في قطر") : (taq.headingEn || "TRUSTED ACROSS QATAR")}
                 </h2>
-                <p className="text-xs text-[var(--text-secondary)] mb-8 font-mono uppercase tracking-widest">
+                <p className="text-xs text-[var(--text-secondary)] font-mono uppercase tracking-widest">
                   {isAr ? "الجهات الحكومية والعلامات التجارية الرائدة" : "Leading government entities & global brands across Qatar."}
                 </p>
+              </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-                  {(displayLogos.length > 0 ? displayLogos : fallbackBrands).map((item: any, i: number) => {
-                    const brandName = typeof item === "string" ? item : (item.company || item.name || item.title);
-                    return (
-                      <div key={i} className="px-6 py-3 rounded-xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)] font-mono font-bold text-xs text-[var(--text-primary)] hover:border-[var(--e3-royal-blue)] transition-all shadow-md">
-                        {brandName}
-                      </div>
-                    );
-                  })}
+              {/* Infinite Logo Marquee Ticker Reel */}
+              <div className="relative w-full overflow-hidden py-4">
+                {/* Edge gradient mask overlays */}
+                <div className="absolute top-0 bottom-0 left-0 w-24 md:w-44 bg-gradient-to-r from-[var(--bg-level-1)] to-transparent z-20 pointer-events-none" />
+                <div className="absolute top-0 bottom-0 right-0 w-24 md:w-44 bg-gradient-to-l from-[var(--bg-level-1)] to-transparent z-20 pointer-events-none" />
+
+                <div className="flex w-max overflow-hidden">
+                  <motion.div
+                    className="flex items-center gap-6 md:gap-8 shrink-0 pr-6 md:pr-8"
+                    animate={{ x: isAr ? ["0%", "33.333%"] : ["0%", "-33.333%"] }}
+                    transition={{
+                      ease: "linear",
+                      duration: 35,
+                      repeat: Infinity,
+                    }}
+                  >
+                    {[...itemsToDisplay, ...itemsToDisplay, ...itemsToDisplay].map((item: any, idx: number) => {
+                      const logoUrl = typeof item === "object" ? (item.logoUrl || item.logo || item.imageUrl || item.mediaUrl) : null;
+                      const brandName = typeof item === "string" ? item : (item.name || item.company || item.title);
+
+                      return (
+                        <div 
+                          key={`${idx}-${brandName}`}
+                          className="flex items-center justify-center px-6 py-4 rounded-2xl bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] shadow-xl hover:border-[var(--e3-royal-blue)] hover:bg-[var(--surface-hover)] transition-all duration-300 group shrink-0 min-w-[150px] md:min-w-[190px] h-16 md:h-20"
+                        >
+                          {logoUrl ? (
+                            <img 
+                              src={logoUrl} 
+                              alt={brandName} 
+                              className="h-8 md:h-10 w-auto max-w-[130px] md:max-w-[160px] object-contain grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300 filter drop-shadow" 
+                            />
+                          ) : (
+                            <span className="font-mono font-extrabold text-xs md:text-sm text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors whitespace-nowrap uppercase tracking-wider">
+                              {brandName}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </motion.div>
                 </div>
               </div>
             </section>
