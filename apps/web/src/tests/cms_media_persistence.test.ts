@@ -95,7 +95,8 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
       { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.e3.qa/img3.jpg' },
     ];
     const mergedA = deepMergeCMSContent(existingGallery, partialItemUpdate);
-    expect(mergedA[0].mediaUrl || 'https://cdn.e3.qa/img1.jpg').toBe('https://cdn.e3.qa/img1.jpg');
+    expect(mergedA[0].title).toBe('Renamed Item 1');
+    expect(mergedA[0].mediaUrl).toBe('https://cdn.e3.qa/img1.jpg'); // Preserved!
 
     // Case B: Reorder items (item-3 first, then item-1)
     const reordered = [

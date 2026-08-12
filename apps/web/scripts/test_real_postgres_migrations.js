@@ -5,9 +5,9 @@ const path = require('path');
 const BASE_URL = 'postgresql://postgres:postgres@127.0.0.1:5432';
 
 async function runRealPostgresMigrationTest() {
-  console.log('====================================================');
-  console.log('REAL POSTGRESQL 17.4 UPGRADE MIGRATION TEST SUITE');
-  console.log('====================================================\n');
+  console.log('================================================================');
+  console.log('REAL POSTGRESQL 17.4 UPGRADE MIGRATION TEST SUITE (SIMULATED BASELINE)');
+  console.log('================================================================\n');
 
   const adminClient = new PrismaClient({
     datasources: { db: { url: `${BASE_URL}/postgres` } }
@@ -21,14 +21,14 @@ async function runRealPostgresMigrationTest() {
     const upgradeDbUrl = `${BASE_URL}/e3_disposable_presocial_upgrade`;
 
     // Step 1: Provision baseline pre-social production schema
-    console.log('2. Provisioning baseline production schema (pre-social)...');
+    console.log('2. Provisioning simulated production baseline schema (pre-social)...');
     execSync('npx prisma db push --skip-generate --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: upgradeDbUrl },
       cwd: path.join(__dirname, '..'),
       encoding: 'utf8'
     });
 
-    // Step 2: Mark pre-social migrations as applied to baseline
+    // Step 2: Mark pre-social migrations as baseline applied
     console.log('3. Marking pre-social migrations as baseline applied...');
     const preSocialMigrations = [
       '20260805000000_add_rbac_portals_and_memberships',
@@ -48,19 +48,58 @@ async function runRealPostgresMigrationTest() {
 
     const upgradePrisma = new PrismaClient({ datasources: { db: { url: upgradeDbUrl } } });
 
-    // Step 3: Insert representative pre-existing production records
-    console.log('4. Seeding representative pre-existing production records...');
-    await upgradePrisma.user.create({
-      data: {
-        id: 'usr_presocial_admin_101',
-        email: 'presocial_admin@e3.qa',
-        name: 'Pre-Social Admin User',
-        role: 'SUPER_ADMIN'
-      }
+    // Step 3: Seed multi-entity representative pre-existing production records & relationships
+    console.log('4. Seeding representative pre-existing production records & relationships across 8 entities...');
+    
+    // User
+    const user = await upgradePrisma.user.create({
+      data: { id: 'usr_prod_101', email: 'prod_admin@e3.qa', name: 'Production Admin', role: 'SUPER_ADMIN' }
     });
 
-    const initialUserCount = await upgradePrisma.user.count();
-    console.log(`   Pre-migration User count: ${initialUserCount}`);
+    // BrandIP
+    const brand = await upgradePrisma.brandIP.create({
+      data: { id: 'brd_prod_101', slug: 'virtuocity', nameEn: 'Virtuocity Qatar', nameAr: 'فيرتوعيتي قطر' }
+    });
+
+    // Attraction
+    const attraction = await upgradePrisma.attraction.create({
+      data: { id: 'att_prod_101', slug: 'arena', nameEn: 'Virtuocity Arena', nameAr: 'ساحة فيرتوعيتي' }
+    });
+
+    // Location
+    const location = await upgradePrisma.location.create({
+      data: { id: 'loc_prod_101', slug: 'doha-festival-city', nameEn: 'Doha Festival City', nameAr: 'دوحة فستيفال سيتي' }
+    });
+
+    // Service
+    const service = await upgradePrisma.service.create({
+      data: { id: 'srv_prod_101', slug: 'esports-tournaments', titleEn: 'Esports Operations', titleAr: 'عمليات الرياضات الإلكترونية' }
+    });
+
+    // Case Study
+    const caseStudy = await upgradePrisma.caseStudy.create({
+      data: { id: 'cs_prod_101', slug: 'qatar-esports-cup-2025', titleEn: 'Qatar Esports Cup 2025', titleAr: 'كأس قطر للرياضات الإلكترونية' }
+    });
+
+    // Pages (CMS)
+    const page = await upgradePrisma.pages.create({
+      data: { id: 'pg_prod_101', slug: 'about-us', title: { en: 'About E3 Qatar', ar: 'عن E3 قطر' }, portal: 'SHARED' }
+    });
+
+    // Media (CMS)
+    const media = await upgradePrisma.media.create({
+      data: { id: 'med_prod_101', url: 'https://cdn.e3.qa/hero.jpg', mimeType: 'image/jpeg', type: 'IMAGE', size: 102400 }
+    });
+
+    console.log('   Multi-Entity Seed Summary:');
+    console.log(`   - User: ${user.email} (ID: ${user.id})`);
+    console.log(`   - BrandIP: ${brand.nameEn} (ID: ${brand.id})`);
+    console.log(`   - Attraction: ${attraction.nameEn} (ID: ${attraction.id})`);
+    console.log(`   - Location: ${location.nameEn} (ID: ${location.id})`);
+    console.log(`   - Service: ${service.titleEn} (ID: ${service.id})`);
+    console.log(`   - CaseStudy: ${caseStudy.titleEn} (ID: ${caseStudy.id})`);
+    console.log(`   - Pages: ${page.slug} (ID: ${page.id})`);
+    console.log(`   - Media: ${media.url} (ID: ${media.id})`);
 
     // Step 4: Check migration status prior to social deploy
     console.log('\n5. Checking `prisma migrate status` prior to new social deploy...');
@@ -87,13 +126,27 @@ async function runRealPostgresMigrationTest() {
     console.log('   Deploy log:');
     deployOutput.trim().split('\n').forEach(l => console.log(`   | ${l}`));
 
-    // Step 6: Verify data preservation
-    const postUserCount = await upgradePrisma.user.count();
-    const fetchedUser = await upgradePrisma.user.findUnique({ where: { id: 'usr_presocial_admin_101' } });
+    // Step 6: Verify pre-existing multi-entity data preservation post migration
+    console.log('\n7. Verifying pre-existing multi-entity data preservation:');
+    const [uCheck, bCheck, aCheck, lCheck, sCheck, csCheck, pCheck, mCheck] = await Promise.all([
+      upgradePrisma.user.findUnique({ where: { id: 'usr_prod_101' } }),
+      upgradePrisma.brandIP.findUnique({ where: { id: 'brd_prod_101' } }),
+      upgradePrisma.attraction.findUnique({ where: { id: 'att_prod_101' } }),
+      upgradePrisma.location.findUnique({ where: { id: 'loc_prod_101' } }),
+      upgradePrisma.service.findUnique({ where: { id: 'srv_prod_101' } }),
+      upgradePrisma.caseStudy.findUnique({ where: { id: 'cs_prod_101' } }),
+      upgradePrisma.pages.findUnique({ where: { id: 'pg_prod_101' } }),
+      upgradePrisma.media.findUnique({ where: { id: 'med_prod_101' } }),
+    ]);
 
-    console.log('\n7. Verifying pre-existing data preservation:');
-    console.log(`   - User count preserved: ${initialUserCount === postUserCount ? 'PASS (100% Intact)' : 'FAIL'}`);
-    console.log(`   - User record details intact: ${fetchedUser?.email === 'presocial_admin@e3.qa' ? 'PASS (100% Intact)' : 'FAIL'}`);
+    console.log(`   - User record intact:       ${uCheck?.email === 'prod_admin@e3.qa' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - Brand record intact:      ${bCheck?.slug === 'virtuocity' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - Attraction record intact: ${aCheck?.slug === 'arena' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - Location record intact:   ${lCheck?.slug === 'doha-festival-city' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - Service record intact:    ${sCheck?.slug === 'esports-tournaments' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - CaseStudy record intact:  ${csCheck?.slug === 'qatar-esports-cup-2025' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - CMS Page record intact:   ${pCheck?.slug === 'about-us' ? 'PASS' : 'FAIL'}`);
+    console.log(`   - CMS Media record intact:  ${mCheck?.url === 'https://cdn.e3.qa/hero.jpg' ? 'PASS' : 'FAIL'}`);
 
     // Step 7: Verify all 13 social models exist and can be queried
     console.log('\n8. Verifying 13 new social models in PostgreSQL catalog:');

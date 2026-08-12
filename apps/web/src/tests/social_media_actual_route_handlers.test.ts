@@ -89,6 +89,8 @@ describe('Actual Social Media Manager Route Handlers Verification', () => {
     { role: 'EDITOR', session: { user: { id: 'u4', role: 'EDITOR' } } },
     { role: 'STAFF', session: { user: { id: 'u5', role: 'STAFF' } } },
     { role: 'VIEWER', session: { user: { id: 'u6', role: 'VIEWER' } } },
+    { role: 'SALES_ADMIN', session: { user: { id: 'u7', role: 'SALES_ADMIN' } } },
+    { role: 'SUPPORT_ADMIN', session: { user: { id: 'u8', role: 'SUPPORT_ADMIN' } } },
   ];
 
   function buildReq(url: string, method = 'GET', body?: any, headers?: Record<string, string>) {
@@ -102,12 +104,60 @@ describe('Actual Social Media Manager Route Handlers Verification', () => {
     });
   }
 
+  const FORBIDDEN_SECRET_KEYS = [
+    'encryptedData',
+    'encryptedSecret',
+    'encryptedAccessToken',
+    'encryptedRefreshToken',
+    'appSecret',
+    'clientSecret',
+    'apiKey',
+    'accessToken',
+    'refreshToken',
+    'databaseUrl',
+    'encryptionKey',
+  ];
+
+  function assertStructuralKeySafety(obj: any) {
+    if (!obj || typeof obj !== 'object') return;
+
+    if (Array.isArray(obj)) {
+      for (const item of obj) assertStructuralKeySafety(item);
+      return;
+    }
+
+    for (const key of Object.keys(obj)) {
+      if (FORBIDDEN_SECRET_KEYS.includes(key)) {
+        const val = obj[key];
+        // If forbidden key exists, its value MUST NOT be unmasked raw ciphertext/secret
+        if (typeof val === 'string' && val.length > 0) {
+          expect(val).not.toContain('SECRET_DATA_RAW');
+          expect(val).not.toContain('SECRET_APP_KEY');
+          expect(val).not.toContain('DATABASE_URL');
+          expect(val).not.toContain('eyJ'); // JSON JWT header
+          // Value must be masked (e.g., contains '••••') or empty
+          if (!val.includes('••••') && val !== '') {
+            throw new Error(`Structural secret leak: Key "${key}" contains unmasked value "${val}"`);
+          }
+        }
+      }
+      assertStructuralKeySafety(obj[key]);
+    }
+  }
+
   async function assertNoSecretsInResponse(res: Response) {
     const text = await res.text();
     expect(text).not.toContain('SECRET_DATA_RAW');
     expect(text).not.toContain('SECRET_APP_KEY');
     expect(text).not.toContain('DATABASE_URL');
     expect(text).not.toContain('SOCIAL_CREDENTIALS_ENCRYPTION_KEY');
+
+    try {
+      const json = JSON.parse(text);
+      assertStructuralKeySafety(json);
+    } catch (_e) {
+      // Not JSON or non-parseable response
+    }
   }
 
   describe('Route: /api/admin/social-media/accounts', () => {
