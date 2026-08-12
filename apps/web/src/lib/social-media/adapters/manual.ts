@@ -1,5 +1,5 @@
 import { BaseProviderAdapter } from './base';
-import { FetchPostsResult, NormalizedSocialPostInput, ProviderAdapterConfig, SocialProviderKey } from '../types';
+import { FetchPostsResult, NormalizedSocialPostInput, SocialProviderKey } from '../types';
 
 export class ManualPostAdapter extends BaseProviderAdapter {
   providerKey: SocialProviderKey = 'MANUAL';

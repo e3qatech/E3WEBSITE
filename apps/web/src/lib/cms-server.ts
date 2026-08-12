@@ -33,10 +33,20 @@ export function deepMergeCMSContent(target: any, source: any): any {
     return source;
   }
 
-  // Array handling: incoming array data replaces target array directly to support addition, reordering, and item editing
+  // Array handling: if both target and source are arrays, merge elements matching by 'id' if present, otherwise use source items
   if (Array.isArray(target) || Array.isArray(source)) {
     if (!Array.isArray(source)) return target;
-    return source;
+    if (!Array.isArray(target)) return source;
+
+    return source.map((srcItem: any) => {
+      if (srcItem && typeof srcItem === 'object' && srcItem.id) {
+        const matchingTgtItem = target.find((tgtItem: any) => tgtItem && typeof tgtItem === 'object' && tgtItem.id === srcItem.id);
+        if (matchingTgtItem) {
+          return deepMergeCMSContent(matchingTgtItem, srcItem);
+        }
+      }
+      return srcItem;
+    });
   }
 
   const result: Record<string, any> = { ...target };

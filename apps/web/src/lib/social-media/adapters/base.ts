@@ -1,4 +1,4 @@
-import { FetchPostsResult, NormalizedSocialPostInput, ProviderAdapterConfig, SocialProviderKey } from '../types';
+import { FetchPostsResult, ProviderAdapterConfig, SocialProviderKey } from '../types';
 
 export abstract class BaseProviderAdapter {
   abstract providerKey: SocialProviderKey;
@@ -21,8 +21,8 @@ export abstract class BaseProviderAdapter {
   }>;
 
   async refreshToken?(
-    config: ProviderAdapterConfig,
-    currentRefreshToken: string
+    _config: ProviderAdapterConfig,
+    _currentRefreshToken: string
   ): Promise<{
     accessToken: string;
     refreshToken?: string;
