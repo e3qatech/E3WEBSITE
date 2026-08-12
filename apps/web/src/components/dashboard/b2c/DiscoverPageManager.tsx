@@ -25,7 +25,13 @@ import {
   FileText,
   Link as LinkIcon,
   CheckCircle2,
-  Info
+  Info,
+  Compass,
+  Zap,
+  TrendingUp,
+  Image as ImageIcon,
+  MoveUp,
+  MoveDown
 } from "lucide-react"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
@@ -57,11 +63,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
-  // Dynamic references
+  // Dynamic entity sources
   const [teamMembers, setTeamMembers] = useState<any[]>([])
   const [partners, setPartners] = useState<any[]>([])
   const [clients, setClients] = useState<any[]>([])
   const [insights, setInsights] = useState<any[]>([])
+  const [services, setServices] = useState<any[]>([])
 
   useEffect(() => {
     fetch('/api/team')
@@ -94,21 +101,42 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         if (Array.isArray(resData.data)) setInsights(resData.data)
       })
       .catch(console.error)
+
+    fetch('/api/b2b/services')
+      .then(res => res.json())
+      .then(resData => {
+        if (Array.isArray(resData.data)) setServices(resData.data)
+      })
+      .catch(console.error)
   }, [])
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const res = await fetch('/api/cms/pages/b2c-discover', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data, seo })
+      const payload = {
+        slug: "b2c-discover",
+        title: { en: "E3 Discover Page", ar: "صفحة اكتشف إي ثري" },
+        content: {
+          ...data,
+          seo
+        },
+        seo,
+        status: "PUBLISHED"
+      }
+
+      const res = await fetch("/api/cms/pages/b2c-discover", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       })
-      if (!res.ok) throw new Error("Failed to save Discover Page settings")
-      toast("B2C Discover Page updated successfully.", "success")
-    } catch (e: any) {
-      console.error(e)
-      toast(e.message || "Failed to save Discover Page.", "error")
+
+      if (res.ok) {
+        toast("Discover Page configuration published to database successfully!", "success")
+      } else {
+        toast("Could not save Discover Page settings.", "error")
+      }
+    } catch (err: any) {
+      toast(err.message || "An unexpected error occurred while saving.", "error")
     } finally {
       setSaving(false)
     }
@@ -129,26 +157,19 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       ...prev,
       [section]: {
         ...(prev[section] || {}),
-        enabled: !prev[section]?.enabled
+        enabled: !(prev[section]?.enabled ?? true)
       }
     }))
   }
 
   const moveSectionOrder = (index: number, direction: 'up' | 'down') => {
-    setData((prev: any) => {
-      const currentOrder = prev.sectionOrder || [
-        "hero", "about", "leadership", "visionMissionValues", "recordBreaking", 
-        "impactMilestones", "bookingQube", "connect", "trustedAcrossQatar", 
-        "latestInsights", "finalGateway"
-      ]
-      const newOrder = [...currentOrder]
-      const targetIndex = direction === 'up' ? index - 1 : index + 1
-      if (targetIndex < 0 || targetIndex >= newOrder.length) return prev
-      const temp = newOrder[index]
-      newOrder[index] = newOrder[targetIndex]
-      newOrder[targetIndex] = temp
-      return { ...prev, sectionOrder: newOrder }
-    })
+    const order = [...(data.sectionOrder || [])]
+    const targetIdx = direction === 'up' ? index - 1 : index + 1
+    if (targetIdx < 0 || targetIdx >= order.length) return
+    const temp = order[index]
+    order[index] = order[targetIdx]
+    order[targetIdx] = temp
+    setData((prev: any) => ({ ...prev, sectionOrder: order }))
   }
 
   const tabsList = [
@@ -163,12 +184,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     { id: "trustedAcrossQatar", label: "9. Clients & Partners" },
     { id: "latestInsights", label: "10. Insights & News" },
     { id: "finalGateway", label: "11. Final Gateway" },
-    { id: "ordering", label: "Section Ordering" },
-    { id: "seo", label: "SEO & AEO Settings" }
+    { id: "ordering", label: "12. Section Ordering" },
+    { id: "seo", label: "13. SEO & AEO Settings" }
   ]
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6 max-w-6xl mx-auto">
+    <div className="flex flex-col gap-6 h-full p-6 max-w-6xl mx-auto font-poppins">
       <AdminPageHeader 
         title="B2C Discover Page Manager"
         description="Configure E3 corporate story, leadership, record achievements, BookingQube tech, and opportunity gateways."
@@ -200,8 +221,39 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         {/* 1. HERO TAB */}
         {activeTab === "hero" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-text-primary">1. Hero Section</h2>
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">1. Hero Section</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("hero")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.hero?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.hero?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.hero?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (En)</label>
+                <input 
+                  type="text" 
+                  value={data.hero?.eyebrowEn || ""} 
+                  onChange={e => updateSectionField("hero", "eyebrowEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.hero?.eyebrowAr || ""} 
+                  onChange={e => updateSectionField("hero", "eyebrowAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
               <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Headline (En)</label>
                 <input 
@@ -231,23 +283,92 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 />
               </div>
               <div className="col-span-2">
-                <label className="text-xs font-bold text-text-secondary uppercase block mb-1">Hero Media (Image / Video / 3D Model / Iframe)</label>
-                <div className="flex gap-4 items-center">
-                  <select
-                    value={data.hero?.mediaType || "IMAGE"}
-                    onChange={e => updateSectionField("hero", "mediaType", e.target.value)}
-                    className="bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none cursor-pointer"
-                  >
-                    <option value="IMAGE">Image</option>
-                    <option value="VIDEO">Video</option>
-                    <option value="MODEL_3D">3D Model</option>
-                    <option value="IFRAME">Iframe</option>
-                  </select>
-                  <div className="flex-1">
+                <label className="text-xs font-bold text-text-secondary uppercase">Subtext (Ar)</label>
+                <textarea 
+                  rows={2}
+                  dir="rtl"
+                  value={data.hero?.subtextAr || ""} 
+                  onChange={e => updateSectionField("hero", "subtextAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                />
+              </div>
+
+              {/* CTAs */}
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (En)</label>
+                <input 
+                  type="text" 
+                  value={data.hero?.primaryCtaLabelEn || "Explore Ecosystem"} 
+                  onChange={e => updateSectionField("hero", "primaryCtaLabelEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.hero?.primaryCtaLabelAr || "استكشف المنظومة"} 
+                  onChange={e => updateSectionField("hero", "primaryCtaLabelAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+
+              {/* Universal Media Controls */}
+              <div className="col-span-2 p-4 bg-surface-subtle rounded-xl border border-border-default space-y-4">
+                <label className="text-xs font-extrabold text-text-primary uppercase block">Universal Hero Media (Image / Video / 3D Model / Iframe)</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Media Type</label>
+                    <select
+                      value={data.hero?.mediaType || "IMAGE"}
+                      onChange={e => updateSectionField("hero", "mediaType", e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
+                    >
+                      <option value="IMAGE">Image</option>
+                      <option value="VIDEO">Video</option>
+                      <option value="MODEL_3D">3D GLB Model</option>
+                      <option value="IFRAME">Iframe / Embed</option>
+                      <option value="SPLINE">Spline 3D</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Theme</label>
+                    <select
+                      value={data.hero?.theme || "DARK"}
+                      onChange={e => updateSectionField("hero", "theme", e.target.value)}
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
+                    >
+                      <option value="DARK">Dark Cinematic</option>
+                      <option value="LIGHT">Light Clean</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Desktop Media URL</label>
                     <AdminMediaPicker
                       value={data.hero?.mediaUrl || ""}
                       onChange={url => updateSectionField("hero", "mediaUrl", url)}
                       accept="image/*,video/*"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Mobile Fallback Media URL</label>
+                    <input
+                      type="text"
+                      value={data.hero?.mobileMediaUrl || ""}
+                      onChange={e => updateSectionField("hero", "mobileMediaUrl", e.target.value)}
+                      placeholder="https://..."
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-text-secondary uppercase">Video Poster Media URL</label>
+                    <input
+                      type="text"
+                      value={data.hero?.posterMediaUrl || ""}
+                      onChange={e => updateSectionField("hero", "posterMediaUrl", e.target.value)}
+                      placeholder="https://..."
+                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none font-mono"
                     />
                   </div>
                 </div>
@@ -259,8 +380,39 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
         {/* 2. ABOUT E3 TAB */}
         {activeTab === "about" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-text-primary">2. About E3 & Corporate Profile Link</h2>
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">2. About E3 & Corporate Profile Link</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("about")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.about?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.about?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.about?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (En)</label>
+                <input 
+                  type="text" 
+                  value={data.about?.eyebrowEn || "Engineering & Experience Excellence"} 
+                  onChange={e => updateSectionField("about", "eyebrowEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.about?.eyebrowAr || "تميز الترفيه والهندسة"} 
+                  onChange={e => updateSectionField("about", "eyebrowAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
               <div>
                 <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
                 <input 
@@ -280,7 +432,33 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                   className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
                 />
               </div>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Long-Form Story (En)</label>
+                <textarea 
+                  rows={4}
+                  value={data.about?.storyEn || data.about?.descriptionEn || ""} 
+                  onChange={e => {
+                    updateSectionField("about", "storyEn", e.target.value)
+                    updateSectionField("about", "descriptionEn", e.target.value)
+                  }}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Long-Form Story (Ar)</label>
+                <textarea 
+                  rows={4}
+                  dir="rtl"
+                  value={data.about?.storyAr || data.about?.descriptionAr || ""} 
+                  onChange={e => {
+                    updateSectionField("about", "storyAr", e.target.value)
+                    updateSectionField("about", "descriptionAr", e.target.value)
+                  }}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                />
+              </div>
 
+              {/* Corporate Profile Link Box */}
               <div className="col-span-2 p-4 bg-surface-subtle rounded-xl border border-border-default space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-text-primary uppercase flex items-center gap-1.5">
@@ -344,11 +522,11 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               <button 
                 onClick={() => toggleSectionEnabled("leadership")}
                 className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
-                  data.leadership?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                  data.leadership?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
                 }`}
               >
-                {data.leadership?.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {data.leadership?.enabled ? "Enabled" : "Disabled"}
+                {data.leadership?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.leadership?.enabled ?? true ? "Enabled" : "Disabled"}
               </button>
             </div>
 
@@ -472,6 +650,132 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
 
+        {/* 4. VISION & VALUES TAB */}
+        {activeTab === "visionMissionValues" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">4. Vision, Mission & Values</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("visionMissionValues")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.visionMissionValues?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.visionMissionValues?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.visionMissionValues?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Vision Title (En)</label>
+                <input 
+                  type="text" 
+                  value={data.visionMissionValues?.visionTitleEn || "Our Vision"} 
+                  onChange={e => updateSectionField("visionMissionValues", "visionTitleEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Vision Title (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.visionMissionValues?.visionTitleAr || "رؤيتنا"} 
+                  onChange={e => updateSectionField("visionMissionValues", "visionTitleAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Vision Description (En)</label>
+                <textarea 
+                  rows={2}
+                  value={data.visionMissionValues?.visionDescriptionEn || ""} 
+                  onChange={e => updateSectionField("visionMissionValues", "visionDescriptionEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Mission Description (En)</label>
+                <textarea 
+                  rows={2}
+                  value={data.visionMissionValues?.missionDescriptionEn || ""} 
+                  onChange={e => updateSectionField("visionMissionValues", "missionDescriptionEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Values Repeater */}
+            <div className="space-y-4 pt-4 border-t border-border-default">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-bold text-text-primary">Core Corporate Values</h3>
+                <AdminButton 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => {
+                    const vals = [...(data.visionMissionValues?.values || [])]
+                    vals.push({
+                      id: `val-${Date.now()}`,
+                      titleEn: "New Value",
+                      titleAr: "قيمة جديدة",
+                      descriptionEn: "",
+                      descriptionAr: "",
+                      accentToken: "PRIMARY",
+                      enabled: true
+                    })
+                    updateSectionField("visionMissionValues", "values", vals)
+                  }}
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Value
+                </AdminButton>
+              </div>
+
+              {(data.visionMissionValues?.values || []).map((valItem: any, idx: number) => (
+                <div key={valItem.id || idx} className="p-4 bg-surface-hover rounded-xl border border-border-default space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-text-primary">Value #{idx + 1}: {valItem.titleEn}</span>
+                    <button 
+                      onClick={() => {
+                        const vals = data.visionMissionValues?.values.filter((_: any, i: number) => i !== idx)
+                        updateSectionField("visionMissionValues", "values", vals)
+                      }}
+                      className="text-rose-400 hover:text-rose-300 text-xs flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input 
+                      type="text" 
+                      placeholder="Title (En)"
+                      value={valItem.titleEn || ""} 
+                      onChange={e => {
+                        const vals = [...data.visionMissionValues.values]
+                        vals[idx].titleEn = e.target.value
+                        updateSectionField("visionMissionValues", "values", vals)
+                      }}
+                      className="bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                    />
+                    <input 
+                      type="text" 
+                      dir="rtl"
+                      placeholder="Title (Ar)"
+                      value={valItem.titleAr || ""} 
+                      onChange={e => {
+                        const vals = [...data.visionMissionValues.values]
+                        vals[idx].titleAr = e.target.value
+                        updateSectionField("visionMissionValues", "values", vals)
+                      }}
+                      className="bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 5. RECORD BREAKING GUINNESS SECTION */}
         {activeTab === "recordBreaking" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
@@ -483,11 +787,11 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               <button 
                 onClick={() => toggleSectionEnabled("recordBreaking")}
                 className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
-                  data.recordBreaking?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                  data.recordBreaking?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
                 }`}
               >
-                {data.recordBreaking?.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {data.recordBreaking?.enabled ? "Enabled" : "Disabled"}
+                {data.recordBreaking?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.recordBreaking?.enabled ?? true ? "Enabled" : "Disabled"}
               </button>
             </div>
 
@@ -538,7 +842,173 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* 9. CLIENTS & PARTNERS */}
+        {/* 6. IMPACT & MILESTONES TAB */}
+        {activeTab === "impactMilestones" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">6. Impact Metrics & Corporate Milestones</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("impactMilestones")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.impactMilestones?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.impactMilestones?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.impactMilestones?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-bold text-text-primary">Impact Metrics Repeater</h3>
+                <AdminButton 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => {
+                    const metrics = [...(data.impactMilestones?.metrics || [])]
+                    metrics.push({
+                      id: `metric-${Date.now()}`,
+                      value: "100k+",
+                      labelEn: "Visitors Served",
+                      labelAr: "زائر تم خدمتهم",
+                      enabled: true
+                    })
+                    updateSectionField("impactMilestones", "metrics", metrics)
+                  }}
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Metric
+                </AdminButton>
+              </div>
+
+              {(data.impactMilestones?.metrics || []).map((m: any, idx: number) => (
+                <div key={m.id || idx} className="p-3 bg-surface-hover rounded-xl border border-border-default flex items-center gap-4">
+                  <input 
+                    type="text" 
+                    placeholder="Value (e.g. 100k+)"
+                    value={m.value || ""} 
+                    onChange={e => {
+                      const metrics = [...data.impactMilestones.metrics]
+                      metrics[idx].value = e.target.value
+                      updateSectionField("impactMilestones", "metrics", metrics)
+                    }}
+                    className="w-32 bg-surface-default border border-border-default rounded-lg px-3 py-1 text-xs text-text-primary font-bold font-mono"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Label (En)"
+                    value={m.labelEn || ""} 
+                    onChange={e => {
+                      const metrics = [...data.impactMilestones.metrics]
+                      metrics[idx].labelEn = e.target.value
+                      updateSectionField("impactMilestones", "metrics", metrics)
+                    }}
+                    className="flex-1 bg-surface-default border border-border-default rounded-lg px-3 py-1 text-xs text-text-primary"
+                  />
+                  <button 
+                    onClick={() => {
+                      const metrics = data.impactMilestones.metrics.filter((_: any, i: number) => i !== idx)
+                      updateSectionField("impactMilestones", "metrics", metrics)
+                    }}
+                    className="text-rose-400 hover:text-rose-300"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 7. BOOKINGQUBE TECH TAB */}
+        {activeTab === "bookingQube" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">7. BookingQube Technology Spotlight</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("bookingQube")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.bookingQube?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.bookingQube?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.bookingQube?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
+                <input 
+                  type="text" 
+                  value={data.bookingQube?.headingEn || "BookingQube Engine"} 
+                  onChange={e => updateSectionField("bookingQube", "headingEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.bookingQube?.headingAr || "منظومة بوكينج كيوب"} 
+                  onChange={e => updateSectionField("bookingQube", "headingAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase">Summary (En)</label>
+                <textarea 
+                  rows={2}
+                  value={data.bookingQube?.summaryEn || ""} 
+                  onChange={e => updateSectionField("bookingQube", "summaryEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 8. CONNECT GATEWAYS TAB */}
+        {activeTab === "connect" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">8. Connect With E3 Gateways</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("connect")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.connect?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.connect?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.connect?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
+                <input 
+                  type="text" 
+                  value={data.connect?.headingEn || "Connect With E3"} 
+                  onChange={e => updateSectionField("connect", "headingEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.connect?.headingAr || "تواصل مع إي ثري"} 
+                  onChange={e => updateSectionField("connect", "headingAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 9. CLIENTS & PARTNERS TAB */}
         {activeTab === "trustedAcrossQatar" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
             <h2 className="text-lg font-bold text-text-primary">9. Trusted Across Qatar (Clients & Partners)</h2>
@@ -592,7 +1062,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* 10. INSIGHTS & NEWS */}
+        {/* 10. INSIGHTS & NEWS TAB */}
         {activeTab === "latestInsights" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
             <h2 className="text-lg font-bold text-text-primary">10. Latest Insights & News Connection</h2>
@@ -637,10 +1107,50 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* SECTION ORDERING TAB */}
+        {/* 11. FINAL GATEWAY TAB */}
+        {activeTab === "finalGateway" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">11. Selectable Final Gateway</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("finalGateway")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.finalGateway?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.finalGateway?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.finalGateway?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
+                <input 
+                  type="text" 
+                  value={data.finalGateway?.headingEn || "Ready to Shape the Future of Experience?"} 
+                  onChange={e => updateSectionField("finalGateway", "headingEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.finalGateway?.headingAr || "جاهز لصياغة مستقبل الترفيه معنا؟"} 
+                  onChange={e => updateSectionField("finalGateway", "headingAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 12. SECTION ORDERING TAB */}
         {activeTab === "ordering" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-4">
-            <h2 className="text-lg font-bold text-text-primary">Section Display Ordering</h2>
+            <h2 className="text-lg font-bold text-text-primary">12. Section Display Ordering</h2>
             <p className="text-xs text-text-secondary">Reorder the Discover page sections dynamically.</p>
 
             <div className="space-y-2">
@@ -650,19 +1160,19 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 "latestInsights", "finalGateway"
               ]).map((secKey: string, idx: number) => (
                 <div key={secKey} className="flex justify-between items-center p-3 bg-surface-hover border border-border-default rounded-lg">
-                  <span className="text-sm font-bold text-text-primary">{idx + 1}. {secKey}</span>
+                  <span className="text-sm font-bold text-text-primary capitalize">{idx + 1}. {secKey}</span>
                   <div className="flex gap-2">
                     <button 
                       disabled={idx === 0} 
                       onClick={() => moveSectionOrder(idx, 'up')}
-                      className="p-1 rounded bg-surface-default hover:bg-surface-hover disabled:opacity-30"
+                      className="p-1.5 rounded bg-surface-default hover:bg-surface-hover disabled:opacity-30 border border-border-default"
                     >
                       <ArrowUp className="w-4 h-4 text-text-primary" />
                     </button>
                     <button 
                       disabled={idx === (data.sectionOrder?.length || 11) - 1} 
                       onClick={() => moveSectionOrder(idx, 'down')}
-                      className="p-1 rounded bg-surface-default hover:bg-surface-hover disabled:opacity-30"
+                      className="p-1.5 rounded bg-surface-default hover:bg-surface-hover disabled:opacity-30 border border-border-default"
                     >
                       <ArrowDown className="w-4 h-4 text-text-primary" />
                     </button>
@@ -673,6 +1183,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
 
+        {/* 13. SEO & AEO SETTINGS TAB */}
         {activeTab === "seo" && (
           <AdminSeoCustomizer 
             formData={{ seo }}
