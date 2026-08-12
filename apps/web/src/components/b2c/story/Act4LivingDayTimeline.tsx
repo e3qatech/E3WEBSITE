@@ -197,16 +197,4 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
       </div>
     </section>
   )
-}l bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
-                >
-                  <Ticket className="w-3.5 h-3.5" />
-                  <span>{isAr ? "احجز الآن" : "Book Ticket"}</span>
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
 }
