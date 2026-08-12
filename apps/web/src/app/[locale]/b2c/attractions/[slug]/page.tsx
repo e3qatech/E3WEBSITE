@@ -12,6 +12,7 @@ import { FaqAccordion } from "@/components/attractions/detail/FaqAccordion"
 import { PartnersSection } from "@/components/attractions/detail/PartnersSection"
 import { SocialNewsSection } from "@/components/attractions/detail/SocialNewsSection"
 import { RelatedProjects } from "@/components/attractions/detail/RelatedProjects"
+import { AttractionFeedbackContactSection } from "@/components/attractions/detail/AttractionFeedbackContactSection"
 
 import { db } from "@/lib/db"
 import { toZonedTime, format } from "date-fns-tz"
@@ -255,10 +256,12 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         locale={locale} 
       />
 
-      {/* 5. Projects / Case Studies */}
-      <RelatedProjects projects={projects} locale={locale} />
+      {/* Projects Section: Only rendered if published case studies exist */}
+      {Array.isArray(projects) && projects.length > 0 && (
+        <RelatedProjects projects={projects} locale={locale} />
+      )}
 
-      {/* 6. Pricing & Tickets */}
+      {/* 5. Pricing & Tickets */}
       <PricingCards 
         pricing={pricing}
         offers={attraction.offers || []}
@@ -268,13 +271,13 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         locale={locale}
       />
 
-      {/* 7. Partners */}
+      {/* 6. Partners */}
       <PartnersSection 
         partners={(attraction.partners as any) || []}
         locale={locale}
       />
 
-      {/* 8. Social & What People Say */}
+      {/* 7. Social & What People Say ("Everyone is Talking") */}
       <SocialNewsSection 
         socialPreviews={(attraction.socialPreviews as any) || []}
         testimonials={(attraction.testimonials as any) || []}
@@ -282,12 +285,13 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         locale={locale}
       />
 
-      {/* 9. Gallery Lightbox */}
+      {/* 8. Gallery Lightbox */}
       <GalleryLightbox 
         items={gallery}
+        locale={locale}
       />
 
-      {/* 10. Live Booking & Map GIS */}
+      {/* 9. Live GIS Location Map */}
       <LiveBookingCard 
         attractionId={attraction.id}
         name={displayName}
@@ -302,7 +306,14 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         locale={locale}
       />
 
-      {/* 11. FAQ */}
+      {/* 10. Visitor Feedback & Contact Form */}
+      <AttractionFeedbackContactSection
+        attractionId={attraction.id}
+        attractionName={displayName}
+        locale={locale}
+      />
+
+      {/* 11. FAQ Accordion */}
       <FaqAccordion 
         faqs={faq}
       />
