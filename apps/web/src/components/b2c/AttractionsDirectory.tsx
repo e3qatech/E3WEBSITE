@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Search, 
@@ -15,12 +15,11 @@ import {
   Map as MapIcon
 } from 'lucide-react';
 import Link from 'next/link';
-
-declare global {
-  interface Window {
-    L: any;
-  }
-}
+import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas';
+import { AttractionMapFilters } from '@/components/map/AttractionMapFilters';
+import { AttractionLocationCard } from '@/components/map/AttractionLocationCard';
+import { useNearestLocations } from '@/hooks/useNearestLocations';
+import { MapGeoJSONCollection, MapLocationProperties } from '@/components/map/map-types';
 
 export interface AttractionItem {
   id: string;
@@ -55,7 +54,6 @@ interface AttractionsDirectoryProps {
   locale: string;
 }
 
-// Fallback attraction data for Qatar if database list is empty
 export const FALLBACK_ATTRACTIONS: AttractionItem[] = [
   {
     id: "attr-inflatarun",
@@ -472,243 +470,146 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
 }
 
 // -------------------------------------------------------------
-// SECTION 3: REAL LEAFLET INTERACTIVE MAP OF QATAR SECTION
+// SECTION 3: MAPLIBRE GL JS + OPENFREEMAP VECTOR CARTOGRAPHY SECTION
 // -------------------------------------------------------------
 export function AttractionsMapSection({ initialAttractions, locale }: AttractionsDirectoryProps) {
   const isAr = locale === 'ar';
-  const list = initialAttractions.length > 0 ? initialAttractions : FALLBACK_ATTRACTIONS;
+  const { userCoords, loading: locating, requestLocation, calculateDistance } = useNearestLocations();
 
-  const [selectedAttrId, setSelectedAttrId] = useState<string>(list[0]?.id || '');
-  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [locating, setLocating] = useState(false);
-  const [leafletLoaded, setLeafletLoaded] = useState(false);
-
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
-
-  const selectedAttraction = useMemo(() => {
-    return list.find((a) => a.id === selectedAttrId) || list[0];
-  }, [list, selectedAttrId]);
+  const [geoJson, setGeoJson] = useState<MapGeoJSONCollection>({ type: 'FeatureCollection', features: [] });
+  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    if (!document.getElementById('leaflet-css')) {
-      const link = document.createElement('link');
-      link.id = 'leaflet-css';
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-    }
-
-    if (!window.L) {
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      script.async = true;
-      script.onload = () => setLeafletLoaded(true);
-      document.head.appendChild(script);
-    } else {
-      setLeafletLoaded(true);
-    }
-  }, []);
-
-  const handleRequestLocation = () => {
-    if (!navigator.geolocation) {
-      alert(isAr ? "خدمة تحديد الموقع غير مدعومة في متصفحك" : "Geolocation is not supported by your browser.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
-        setUserCoords(coords);
-        setLocating(false);
-
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.flyTo([coords.lat, coords.lng], 12);
+    async function loadMapData() {
+      try {
+        const res = await fetch(`/api/public/locations/map?locale=${locale}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.features) {
+            setGeoJson(json);
+            if (json.features.length > 0 && !selectedLocationId) {
+              setSelectedLocationId(json.features[0].properties.locationId);
+            }
+          }
         }
-      },
-      (err) => {
-        console.warn("Geolocation denied or error:", err);
-        setLocating(false);
+      } catch (e) {
+        console.error('Failed to load public map GeoJSON', e);
       }
-    );
-  };
-
-  // Initialize Leaflet Map Instance
-  useEffect(() => {
-    if (!leafletLoaded || !mapContainerRef.current || !window.L) return;
-
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
-      mapInstanceRef.current = null;
     }
+    loadMapData();
+  }, [locale]);
 
-    const L = window.L;
-    const map = L.map(mapContainerRef.current, {
-      center: [25.35, 51.48],
-      zoom: 11,
-      zoomControl: true,
-      scrollWheelZoom: false
-    });
+  const filteredFeatures = useMemo(() => {
+    if (!geoJson?.features) return [];
+    return geoJson.features.filter((feat) => {
+      const p = feat.properties;
+      const q = searchQuery.toLowerCase().trim();
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
-    }).addTo(map);
+      const matchCategory =
+        selectedCategory === 'ALL' ||
+        (selectedCategory === 'OPEN_NOW' && p.operationalStatus === 'OPEN') ||
+        p.locationType === selectedCategory;
 
-    mapInstanceRef.current = map;
+      const matchSearch =
+        !q ||
+        (p.nameEn || '').toLowerCase().includes(q) ||
+        (p.nameAr || '').toLowerCase().includes(q) ||
+        (p.venue || '').toLowerCase().includes(q) ||
+        (p.address || '').toLowerCase().includes(q);
 
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
+      return matchCategory && matchSearch;
+    }).map((feat) => {
+      if (userCoords) {
+        const dist = calculateDistance(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+        return {
+          ...feat,
+          properties: {
+            ...feat.properties,
+            distanceKm: dist ?? undefined
+          }
+        };
       }
-    };
-  }, [leafletLoaded]);
-
-  // Update Markers on Leaflet Map
-  useEffect(() => {
-    if (!mapInstanceRef.current || !window.L) return;
-
-    const L = window.L;
-    const map = mapInstanceRef.current;
-
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
-
-    list.forEach((attr) => {
-      const ops = attr.operations || {};
-      const lat = ops.lat || attr.coordinates?.lat || 25.418;
-      const lng = ops.lng || attr.coordinates?.lng || 51.530;
-
-      const isSelected = attr.id === selectedAttraction?.id;
-      const bgColor = isSelected ? '#1a1fd6' : 'rgba(9, 3, 20, 0.9)';
-      const bdColor = isSelected ? '#ffffff' : '#8b5cf6';
-      const size = isSelected ? 44 : 36;
-
-      const customIcon = L.divIcon({
-        className: 'custom-map-pin',
-        html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;"><div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bgColor}; border: 2px solid ${bdColor}; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: all 0.3s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div></div>`,
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2]
-      });
-
-      const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
-
-      const title = isAr ? attr.nameAr : attr.nameEn;
-      const locName = isAr ? (ops.locationNameAr || "قطر") : (ops.locationNameEn || "Qatar");
-      const bookText = isAr ? "حجز التذاكر" : "Book Tickets";
-      const ticketUrl = attr.ticketingUrl || "/en/b2c/calendar";
-      const imgHtml = attr.heroMediaUrl ? `<img src="${attr.heroMediaUrl}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" />` : '';
-
-      const popupContent = `
-        <div style="font-family: inherit; padding: 4px; max-width: 200px; text-align: ${isAr ? 'right' : 'left'};">
-          ${imgHtml}
-          <div style="font-weight: 800; font-size: 12px; text-transform: uppercase; color: #fff; margin-bottom: 2px;">${title}</div>
-          <div style="font-size: 10px; color: #94a3b8; margin-bottom: 6px;">${locName}</div>
-          <a href="${ticketUrl}" style="display: block; width: 100%; text-align: center; padding: 5px 10px; background: #1a1fd6; color: #fff; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; text-decoration: none;">${bookText}</a>
-        </div>
-      `;
-
-      marker.bindPopup(popupContent, {
-        className: 'e3-leaflet-popup'
-      });
-
-      marker.on('click', () => {
-        setSelectedAttrId(attr.id);
-      });
-
-      markersRef.current.push(marker);
+      return feat;
     });
-  }, [list, selectedAttraction, leafletLoaded, isAr]);
+  }, [geoJson, searchQuery, selectedCategory, userCoords, calculateDistance]);
+
+  const filteredGeoJson: MapGeoJSONCollection = useMemo(() => ({
+    type: 'FeatureCollection',
+    features: filteredFeatures
+  }), [filteredFeatures]);
+
+  const selectedLocation = useMemo(() => {
+    const feat = filteredFeatures.find((f) => f.properties.locationId === selectedLocationId || f.id === selectedLocationId);
+    return feat ? feat.properties : filteredFeatures[0]?.properties;
+  }, [filteredFeatures, selectedLocationId]);
 
   return (
     <section id="interactive-attractions-map" className="relative py-20 bg-[var(--bg-level-2)] text-white border-t border-[var(--border-level-2)]">
       <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
+        {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
               <MapIcon className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
-              <span>{isAr ? "الخريطة الحية للوجهات" : "LIVE ATTRACTION MAP OF QATAR"}</span>
+              <span>{isAr ? "الخريطة التفاعلية الحية" : "MAPLIBRE & OPENFREEMAP SPATIAL HUB"}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
               {isAr ? "خريطة الوجهات التفاعلية" : "Interactive Attractions Map"}
             </h2>
             <p className="text-sm text-[var(--text-secondary)] font-medium max-w-2xl mt-2">
               {isAr
-                ? "تتبع مواقع الوجهات الحية عبر قطر وانقر على الدبابيس للاطلاع على التفاصيل والتذاكر."
-                : "Locate active attractions across Qatar and tap pins to preview details and book passes."}
+                ? "تتبع كافة الوجهات الحية في قطر عبر الخريطة التفاعلية مع دعم تحديد الموقع وحساب المسافة المباشر."
+                : "Explore all live entertainment destinations across Qatar powered by high-performance vector cartography."}
             </p>
           </div>
-
-          <button
-            onClick={handleRequestLocation}
-            disabled={locating}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-mono font-extrabold uppercase tracking-wider text-[var(--text-primary)] transition-all shadow-md cursor-pointer disabled:opacity-50"
-          >
-            <Locate className={`w-4 h-4 text-[var(--e3-royal-blue)] ${locating ? 'animate-spin' : ''}`} />
-            <span>
-              {locating
-                ? (isAr ? "جاري التحديد..." : "Locating...")
-                : userCoords
-                ? (isAr ? "موقعك نشط" : "Location Active")
-                : (isAr ? "تحديد موقعي" : "Near Me")}
-            </span>
-          </button>
         </div>
 
-        {/* Real Leaflet Map Container */}
-        <div className="relative aspect-[16/9] md:aspect-[21/9] min-h-[440px] rounded-3xl border border-[var(--border-level-2)] bg-[#050110] overflow-hidden shadow-2xl">
-          <div ref={mapContainerRef} className="w-full h-full min-h-[440px] z-0" />
+        {/* Filter Controls */}
+        <AttractionMapFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          onNearMeClick={requestLocation}
+          locating={locating}
+          userCoordsActive={Boolean(userCoords)}
+          locale={locale}
+        />
 
-          {selectedAttraction && (
-            <motion.div 
-              key={selectedAttraction.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-2xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] backdrop-blur-md shadow-2xl flex items-center justify-between gap-4 absolute bottom-4 left-4 right-4 z-10 max-w-xl mx-auto"
-            >
-              <div className="flex items-center gap-3">
-                {selectedAttraction.heroMediaUrl && (
-                  <img 
-                    src={selectedAttraction.heroMediaUrl} 
-                    alt={selectedAttraction.nameEn} 
-                    className="w-14 h-14 rounded-xl object-cover border border-[var(--border-level-2)] shrink-0" 
-                  />
-                )}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase block">SELECTED MAP ATTRACTION</span>
-                  <h4 className="text-sm font-bold text-[var(--text-primary)] font-display uppercase">{isAr ? selectedAttraction.nameAr : selectedAttraction.nameEn}</h4>
-                  <p className="text-[11px] text-[var(--text-secondary)] font-medium truncate max-w-[220px]">{selectedAttraction.operations?.locationNameEn || "Qatar"}</p>
-                </div>
+        {/* Split Grid: Map Canvas Right/Top & Location Cards Left */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Location Cards Side Panel (5 cols) */}
+          <div className="lg:col-span-5 space-y-4 max-h-[640px] overflow-y-auto pe-2 no-scrollbar">
+            {filteredFeatures.length === 0 ? (
+              <div className="p-8 text-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-tertiary)] font-medium">
+                {isAr ? "لا توجد نتائج مطابقة لمحددات البحث." : "No matching location points found."}
               </div>
+            ) : (
+              filteredFeatures.map((feat) => (
+                <AttractionLocationCard
+                  key={feat.properties.locationId}
+                  location={feat.properties}
+                  isSelected={feat.properties.locationId === selectedLocation?.locationId}
+                  onSelect={() => setSelectedLocationId(feat.properties.locationId)}
+                  locale={locale}
+                />
+              ))
+            )}
+          </div>
 
-              <Link
-                href={selectedAttraction.ticketingUrl || "/en/b2c/calendar"}
-                className="px-4 py-2 rounded-xl bg-[var(--e3-royal-blue)] text-white text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0 flex items-center gap-1.5 shadow-md"
-              >
-                <span>{isAr ? "حجز التذاكر" : "Book Pass"}</span>
-                <ChevronRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-              </Link>
-            </motion.div>
-          )}
+          {/* MapLibre GL Vector Canvas (7 cols) */}
+          <div className="lg:col-span-7 h-[640px] sticky top-24">
+            <AttractionMapCanvas
+              geoJson={filteredGeoJson}
+              selectedLocationId={selectedLocation?.locationId}
+              onSelectLocation={(locProps) => setSelectedLocationId(locProps.locationId)}
+              locale={locale}
+            />
+          </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        .e3-leaflet-popup .leaflet-popup-content-wrapper {
-          background: #090314 !important;
-          border: 1px solid rgba(255, 255, 255, 0.15) !important;
-          border-radius: 16px !important;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8) !important;
-          color: #fff !important;
-        }
-        .e3-leaflet-popup .leaflet-popup-tip {
-          background: #090314 !important;
-        }
-      `}</style>
     </section>
   );
 }

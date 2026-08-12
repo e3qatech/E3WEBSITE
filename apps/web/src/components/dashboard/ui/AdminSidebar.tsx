@@ -47,6 +47,7 @@ const sidebarConfig = [
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
     { label: "Pulse Orbit (B2C)", href: "/dashboard/b2c/pulse-orbit" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
+    { label: "Locations & Map GIS", href: "/dashboard/b2c/locations" },
     { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
     { label: "Events & Calendar", href: "/dashboard/b2c/calendar" }
   ] },

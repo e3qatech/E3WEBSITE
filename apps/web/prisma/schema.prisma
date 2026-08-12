@@ -158,6 +158,7 @@ model Attraction {
   serviceProjects  ServiceProject[]
   telemetry        TelemetryLog[]
   locations        Location[]
+  attractionLocations AttractionLocation[]
   brandPlacements  BrandPlacement[]
   packages         Package[]
 
@@ -889,37 +890,81 @@ model BrandIP {
 }
 
 model Location {
-  id               String   @id @default(cuid())
-  nameEn           String
-  nameAr           String
-  venueEn          String?
-  venueAr          String?
-  addressEn        String?
-  addressAr        String?
-  googleMapsUrl    String?
-  latitude         Float?
-  longitude        Float?
-  status           String   @default("OPEN")
-  openingDate      DateTime?
-  closingDate      DateTime?
-  generalHours     Json?
-  timingRules      Json?
-  ticketingUrl     String?
-  phone            String?
-  email            String?
-  whatsapp         String?
-  chatLink         String?
-  coverMediaUrl    String?
-  displayOrder     Int      @default(0)
-  isPrimary        Boolean  @default(false)
-  isPublished      Boolean  @default(true)
+  id                 String               @id @default(cuid())
+  slug               String?              @unique
+  nameEn             String
+  nameAr             String
+  venueEn            String?
+  venueAr            String?
+  addressEn          String?
+  addressAr          String?
+  shortDescriptionEn String?
+  shortDescriptionAr String?
+  googleMapsUrl      String?
+  directionsUrl      String?
+  latitude           Float?
+  longitude          Float?
+  locationType       String               @default("PERMANENT_ATTRACTION") // PERMANENT_ATTRACTION, MALL_ACTIVATION, SEASONAL_ATTRACTION, EVENT, ACTIVE_PROJECT, PAST_PROJECT, OFFICE, OTHER
+  operationalStatus  String               @default("OPEN") // OPEN, COMING_SOON, TEMPORARILY_CLOSED, SEASONAL, ENDED, INACTIVE
+  status             String               @default("OPEN")
+  openingDate        DateTime?
+  closingDate        DateTime?
+  generalHours       Json?
+  timingRules        Json?
+  ticketingUrl       String?
+  phone              String?
+  email              String?
+  whatsapp           String?
+  chatLink           String?
+  timezone           String               @default("Asia/Qatar")
+  coverMediaUrl      String?
+  thumbnailMediaId   String?
+  mapPinMediaId      String?
+  pinColorToken      String               @default("CYAN")
+  featured           Boolean              @default(false)
+  mapVisible         Boolean              @default(true)
+  publicationStatus  String               @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  displayOrder       Int                  @default(0)
+  isPrimary          Boolean              @default(false)
+  isPublished        Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   
-  attractionId     String?
-  attraction       Attraction? @relation(fields: [attractionId], references: [id])
+  attractionId       String?
+  attraction         Attraction?          @relation(fields: [attractionId], references: [id])
+  attractionLinks    AttractionLocation[]
   
-  placements       BrandPlacement[]
+  placements         BrandPlacement[]
   highlightAvailabilities AttractionFeature[]
-  packages         Package[]
+  packages           Package[]
+
+  @@index([locationType, operationalStatus])
+  @@index([publicationStatus, mapVisible])
+}
+
+model AttractionLocation {
+  id                    String     @id @default(cuid())
+  attractionId          String
+  locationId            String
+  isPrimary             Boolean    @default(false)
+  mapVisible            Boolean    @default(true)
+  availabilityStatus    String?    @default("AVAILABLE")
+  openingHoursOverride  Json?
+  bookingUrlOverride    String?
+  startingPriceOverride Float?
+  currency              String     @default("QAR")
+  shortLabelEn          String?
+  shortLabelAr          String?
+  sortOrder             Int        @default(0)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  attraction            Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  location              Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([attractionId, locationId])
+  @@index([attractionId])
+  @@index([locationId])
 }
 
 model BrandPlacement {
