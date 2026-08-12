@@ -1586,3 +1586,22 @@ model SocialGlobalSettings {
   updatedBy                 String?
   updatedAt                 DateTime @updatedAt
 }
+
+/// Database-backed distributed lease lock for serverless-safe sync coordination.
+/// Replaces session-level advisory locks which are incompatible with pooled Neon connections.
+model SocialSyncLock {
+  id           String   @id @default(cuid())
+  lockKey      String   @unique
+  accountId    String?
+  ownerToken   String   // Unique unpredictable token; release requires exact match
+  acquiredAt   DateTime @default(now())
+  lockedUntil  DateTime // Lease expiry; expired locks are reclaimable by any runner
+  heartbeatAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([lockKey])
+  @@index([lockedUntil])
+  @@index([accountId])
+}
+
