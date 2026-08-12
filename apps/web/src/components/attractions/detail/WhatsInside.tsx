@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { formatLocalizedText } from '@/lib/utils';
 
 interface Feature {
@@ -28,11 +29,22 @@ interface WhatsInsideProps {
 }
 
 export function WhatsInside({ description, features, imageUrl, locale = 'en' }: WhatsInsideProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isAr = locale === 'ar';
+
+  const fullText = formatLocalizedText(description, locale) || '';
+  const maxCharLimit = 220;
+  const isLongText = fullText.length > maxCharLimit;
+
+  const displayedText = (isLongText && !isExpanded)
+    ? `${fullText.substring(0, maxCharLimit)}...`
+    : fullText;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.3 }
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
   };
 
@@ -45,16 +57,14 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
     }
   };
 
-  const isAr = locale === 'ar';
-
   return (
-    <section className="py-32 md:py-48 bg-zinc-950 text-white relative overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
-      {/* Background Subtle Glow */}
-      <div className="absolute top-0 start-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-emerald-900/10 blur-[120px] pointer-events-none" />
+    <section className="py-24 md:py-36 bg-zinc-950 text-white relative overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+      {/* Background Glow */}
+      <div className="absolute top-0 start-1/2 -translate-x-1/2 w-full max-w-5xl h-[500px] bg-emerald-900/10 blur-[130px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Intro Description & Image */}
-        <div className={`grid grid-cols-1 ${imageUrl ? 'lg:grid-cols-2' : ''} gap-16 lg:gap-24 items-center mb-32`}>
+        {/* Intro Description & Media Stage */}
+        <div className={`grid grid-cols-1 ${imageUrl ? 'lg:grid-cols-2' : ''} gap-12 lg:gap-20 items-center mb-24`}>
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -62,15 +72,31 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className={`max-w-3xl ${imageUrl ? '' : 'mx-auto text-center'}`}
           >
-            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-3">
-              {isAr ? "نظرة شمولية على الوجهة" : "EXPERIENCE HIGHLIGHTS"}
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isAr ? "نظرة شمولية على الوجهة" : "EXPERIENCE HIGHLIGHTS"}</span>
             </span>
-            <h2 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-[0.9]">
+            <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tighter leading-[0.9] text-white">
               {isAr ? 'التجربة والمعالم' : "What's Inside"}
             </h2>
-            <p className="text-xl md:text-2xl text-zinc-400 font-light leading-relaxed">
-              {formatLocalizedText(description, locale)}
-            </p>
+
+            {/* Expandable Text Container */}
+            <div className="space-y-4">
+              <p className="text-lg md:text-2xl text-zinc-300 font-light leading-relaxed transition-all duration-300">
+                {displayedText}
+              </p>
+
+              {isLongText && (
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/40 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all cursor-pointer shadow-md"
+                >
+                  <span>{isExpanded ? (isAr ? "عرض أقل" : "Show Less") : (isAr ? "اقرأ المزيد" : "Read More")}</span>
+                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+              )}
+            </div>
           </motion.div>
 
           {imageUrl && (
@@ -79,9 +105,9 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
               viewport={{ once: true, margin: '-100px' }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-white/10 group shadow-2xl"
+              className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-white/15 group shadow-2xl"
             >
-              <img src={imageUrl} alt={isAr ? "تفاصيل التجربة" : "What's inside"} className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-1000 ease-out" />
+              <img src={imageUrl} alt={isAr ? "تفاصيل التجربة" : "What's inside"} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-1000 ease-out" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             </motion.div>
           )}
@@ -119,7 +145,7 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className={`relative overflow-hidden group bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-[2rem] flex flex-col justify-end min-h-[320px] transition-all duration-700 hover:bg-white/[0.05] hover:border-emerald-500/40 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] ${isLarge ? 'md:col-span-2' : ''}`}
+                  className={`relative overflow-hidden group bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-[2rem] flex flex-col justify-between min-h-[320px] p-8 transition-all duration-700 hover:bg-white/[0.05] hover:border-emerald-500/40 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] ${isLarge ? 'md:col-span-2' : ''}`}
                 >
                   {feature.imageUrl ? (
                     <div className="absolute inset-0">
@@ -128,9 +154,9 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
                     </div>
                   ) : null}
 
-                  <div className="relative p-8 z-10 flex-1 flex flex-col justify-between">
+                  <div className="relative z-10 flex-1 flex flex-col justify-between space-y-8">
                     {/* Header Icon & Highlight Badge */}
-                    <div className="flex items-center justify-between gap-4 mb-12">
+                    <div className="flex items-center justify-between gap-4">
                       <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 backdrop-blur-md group-hover:scale-110 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 transition-all duration-500 ease-out">
                         {feature.iconUrl ? (
                           <img src={feature.iconUrl} alt={formattedTitle} className="w-6 h-6 object-contain" />
