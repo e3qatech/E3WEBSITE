@@ -2,8 +2,8 @@
 
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { UniversalMediaConfig, UniversalMediaSectionEditor } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
-import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
-import { Save, Sparkles, Users, CheckCircle, UserCheck, ShieldCheck } from 'lucide-react'
+import { DEFAULT_B2C_LANDING_CONTENT, DEFAULT_B2C_SECTION_SEQUENCE, B2CSectionItem } from '@/lib/cms-default-pages'
+import { Save, Sparkles, Users, CheckCircle, UserCheck, ShieldCheck, ListOrdered, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Eye, EyeOff, RotateCcw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { resolveMediaType } from '@/lib/media-resolver'
@@ -206,13 +206,74 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
     ? content.coreTeam.selectedMemberIds
     : (Array.isArray(content.coreTeam?.members) ? content.coreTeam.members.map((m: any) => m.id) : [])
 
+  const sectionSequence: B2CSectionItem[] = (() => {
+    const rawSeq = Array.isArray(content.sectionSequence) ? content.sectionSequence : [];
+    const merged = DEFAULT_B2C_SECTION_SEQUENCE.map((defaultSec) => {
+      const found = rawSeq.find((s: any) => s && s.id === defaultSec.id);
+      if (found) {
+        return {
+          ...defaultSec,
+          ...found,
+          enabled: found.enabled !== undefined ? Boolean(found.enabled) : defaultSec.enabled,
+          order: typeof found.order === 'number' ? Number(found.order) : defaultSec.order,
+        };
+      }
+      return defaultSec;
+    });
+    return merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  })();
+
+  const updateSectionSequence = (newSeq: B2CSectionItem[]) => {
+    const normalized = newSeq.map((sec, index) => ({
+      ...sec,
+      order: index + 1,
+    }));
+    setContent((prev: any) => ({
+      ...prev,
+      sectionSequence: normalized,
+    }));
+  };
+
+  const moveSection = (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    const items = [...sectionSequence];
+    if (direction === 'up' && index > 0) {
+      const temp = items[index];
+      items[index] = items[index - 1];
+      items[index - 1] = temp;
+    } else if (direction === 'down' && index < items.length - 1) {
+      const temp = items[index];
+      items[index] = items[index + 1];
+      items[index + 1] = temp;
+    } else if (direction === 'top' && index > 0) {
+      const [item] = items.splice(index, 1);
+      items.unshift(item);
+    } else if (direction === 'bottom' && index < items.length - 1) {
+      const [item] = items.splice(index, 1);
+      items.push(item);
+    }
+    updateSectionSequence(items);
+  };
+
+  const toggleSectionEnabled = (index: number) => {
+    const items = [...sectionSequence];
+    items[index] = {
+      ...items[index],
+      enabled: !items[index].enabled,
+    };
+    updateSectionSequence(items);
+  };
+
+  const resetSectionSequence = () => {
+    updateSectionSequence(DEFAULT_B2C_SECTION_SEQUENCE);
+  };
+
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-24">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-level-1)] shadow-sm">
         <div>
           <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Landing Page CMS Editor</h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage acts, media configurations, and team members displayed on the landing page.</p>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage acts, section sequence ordering, media configurations, and team members displayed on the landing page.</p>
         </div>
 
         <button
@@ -227,6 +288,146 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
           )}
           <span>{saving ? 'Saving...' : 'Save All Changes'}</span>
         </button>
+      </div>
+
+      {/* B2C Landing Page Section Sequence & Ordering Manager */}
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-level-1)] pb-4">
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <ListOrdered className="w-5 h-5 text-purple-500" />
+              <span>B2C Landing Page Section Sequence Manager</span>
+            </h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+              Reorder sections, toggle visibility, or customize sequence flow for the public B2C landing page (<code className="text-purple-400 bg-purple-950/40 px-1.5 py-0.5 rounded">/b2c</code>).
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+              {sectionSequence.filter(s => s.enabled).length} / {sectionSequence.length} Active Sections
+            </span>
+            <button
+              onClick={resetSectionSequence}
+              type="button"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-level-1)] hover:bg-purple-500/10 text-xs font-semibold text-[var(--text-secondary)] hover:text-purple-400 rounded-xl border border-[var(--border-level-1)] transition-all cursor-pointer"
+              title="Reset to default section ordering"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Order</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {sectionSequence.map((sec, idx) => {
+            const isFirst = idx === 0;
+            const isLast = idx === sectionSequence.length - 1;
+
+            return (
+              <div
+                key={sec.id}
+                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all ${
+                  sec.enabled
+                    ? 'bg-[var(--bg-level-1)] border-[var(--border-level-1)] hover:border-purple-500/30'
+                    : 'bg-zinc-950/40 border-zinc-800/60 opacity-60'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono font-bold text-xs shrink-0">
+                    #{idx + 1}
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
+                        {sec.nameEn}
+                      </h4>
+                      <span className="text-xs font-medium text-[var(--text-tertiary)] font-sans" dir="rtl">
+                        ({sec.nameAr})
+                      </span>
+                      {!sec.enabled && (
+                        <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                          Hidden
+                        </span>
+                      )}
+                    </div>
+                    {sec.descriptionEn && (
+                      <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">
+                        {sec.descriptionEn}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                  {/* Visibility Toggle */}
+                  <button
+                    onClick={() => toggleSectionEnabled(idx)}
+                    type="button"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      sec.enabled
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
+                        : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700'
+                    }`}
+                  >
+                    {sec.enabled ? (
+                      <>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Visible</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5" />
+                        <span>Hidden</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Reorder Buttons */}
+                  <div className="flex items-center bg-[var(--surface-default)] rounded-lg p-1 border border-[var(--border-level-1)] gap-1">
+                    <button
+                      onClick={() => moveSection(idx, 'top')}
+                      disabled={isFirst}
+                      type="button"
+                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
+                      title="Move to Top"
+                    >
+                      <ChevronsUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => moveSection(idx, 'up')}
+                      disabled={isFirst}
+                      type="button"
+                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
+                      title="Move Up"
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => moveSection(idx, 'down')}
+                      disabled={isLast}
+                      type="button"
+                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
+                      title="Move Down"
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => moveSection(idx, 'bottom')}
+                      disabled={isLast}
+                      type="button"
+                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
+                      title="Move to Bottom"
+                    >
+                      <ChevronsDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Hero Media Settings */}

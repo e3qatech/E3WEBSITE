@@ -3,7 +3,120 @@
  * Prevents form clearing / empty text inputs on cold starts, empty DBs, or deployments.
  */
 
+export interface B2CSectionItem {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  enabled: boolean;
+  order: number;
+}
+
+export const DEFAULT_B2C_SECTION_SEQUENCE: B2CSectionItem[] = [
+  {
+    id: "hero",
+    nameEn: "Cinematic Hero (Act 1)",
+    nameAr: "الهيرو السينمائي (الفصل الأول)",
+    descriptionEn: "Main headline, tagline, and immersive hero media",
+    descriptionAr: "العنوان الرئيسي والشعار والوسائط التفاعلية",
+    enabled: true,
+    order: 1
+  },
+  {
+    id: "ideasToLife",
+    nameEn: "Ideas To Life (Act 2)",
+    nameAr: "من الفكرة إلى الواقع (الفصل الثاني)",
+    descriptionEn: "Interactive step-by-step concept-to-reality process comparison",
+    descriptionAr: "مقارنة تفاعلية لمراحل تحويل الأفكار إلى واقع",
+    enabled: true,
+    order: 2
+  },
+  {
+    id: "storyDiscovery",
+    nameEn: "Story Taxonomy & Portals (Act 3)",
+    nameAr: "استكشاف التجارب والوجهات (الفصل الثالث)",
+    descriptionEn: "Filterable portals for attractions, live shows, dining, and play",
+    descriptionAr: "بوابات تصنيف التجارب والأنشطة والفعاليات",
+    enabled: true,
+    order: 3
+  },
+  {
+    id: "ourBrands",
+    nameEn: "Our Brands Constellation",
+    nameAr: "علاماتنا التجارية",
+    descriptionEn: "Showcase of E3 created IP brands and experience concepts",
+    descriptionAr: "استعراض العلامات التجارية والابتكارات المملوكة لإي ثري",
+    enabled: true,
+    order: 4
+  },
+  {
+    id: "experienceWorlds",
+    nameEn: "Featured Attraction Worlds",
+    nameAr: "عوالِم الوجهات المميزة",
+    descriptionEn: "3D interactive stage showcasing top attraction destinations",
+    descriptionAr: "منصة ثلاثية الأبعاد لوجهات وألعاب إي ثري الرئيسية",
+    enabled: true,
+    order: 5
+  },
+  {
+    id: "coreTeam",
+    nameEn: "Core Team & Leadership",
+    nameAr: "فريق العمل والقيادة",
+    descriptionEn: "Spotlight on executive team members shaping the experiences",
+    descriptionAr: "إبراز الكوادر والخبرات البشرية خلف تجارب إي ثري",
+    enabled: true,
+    order: 6
+  },
+  {
+    id: "livingDay",
+    nameEn: "The Living Day (Act 4)",
+    nameAr: "يومك مع إي ثري (الفصل الرابع)",
+    descriptionEn: "Dynamic time-of-day timeline guide for visitors",
+    descriptionAr: "جدول زمني تفاعلي لتجارب اليوم عبر الساعات",
+    enabled: true,
+    order: 7
+  },
+  {
+    id: "qatarMap",
+    nameEn: "Qatar Interactive Map",
+    nameAr: "خريطة قطر التفاعلية",
+    descriptionEn: "Spatial map pinpointing E3 attraction locations in Qatar",
+    descriptionAr: "خريطة تفاعلية لتحديد مواقع وجهات إي ثري في قطر",
+    enabled: true,
+    order: 8
+  },
+  {
+    id: "socialFeed",
+    nameEn: "Happening Now / Social Feed",
+    nameAr: "يحدث الآن / البث الحي",
+    descriptionEn: "Live pulse stream of guest photos, videos and updates",
+    descriptionAr: "تغطية حية وتفاعلية لفعاليات ولحظات الزوار",
+    enabled: true,
+    order: 9
+  },
+  {
+    id: "parallaxGallery",
+    nameEn: "Everlasting Memories Gallery",
+    nameAr: "معرض ذكريات لا تُنسى",
+    descriptionEn: "GPU-accelerated horizontal photo memory wall",
+    descriptionAr: "معرض صور أفقي تفاعلي عالي السرعة للذكريات",
+    enabled: true,
+    order: 10
+  },
+  {
+    id: "digitalTicket",
+    nameEn: "Digital Ticket / Story CTA",
+    nameAr: "التذكرة الرقمية والدعوة للحجز",
+    descriptionEn: "Tactile digital ticket experience and final booking conversion CTA",
+    descriptionAr: "بطاقة التذكرة التفاعلية ودعوة حجز التجارب",
+    enabled: true,
+    order: 11
+  }
+];
+
 export const DEFAULT_B2C_LANDING_CONTENT = {
+  sectionSequence: DEFAULT_B2C_SECTION_SEQUENCE,
   heroMedia: {
     mediaType: "IMAGE",
     mediaUrl: "",
@@ -1239,5 +1352,21 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...(raw.portalSwitcher || {}),
     },
     faqs: (raw.faqs && raw.faqs.length > 0) ? raw.faqs : defaults.faqs,
+    sectionSequence: (() => {
+      const rawSeq: any[] = Array.isArray(raw.sectionSequence) ? raw.sectionSequence : [];
+      const mergedSeq = DEFAULT_B2C_SECTION_SEQUENCE.map((defaultSec) => {
+        const found = rawSeq.find((s: any) => s && s.id === defaultSec.id);
+        if (found) {
+          return {
+            ...defaultSec,
+            ...found,
+            enabled: found.enabled !== undefined ? Boolean(found.enabled) : defaultSec.enabled,
+            order: typeof found.order === 'number' ? Number(found.order) : defaultSec.order,
+          };
+        }
+        return defaultSec;
+      });
+      return mergedSeq.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    })(),
   };
 }

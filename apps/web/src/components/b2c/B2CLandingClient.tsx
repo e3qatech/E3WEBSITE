@@ -6,7 +6,7 @@ import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
 import { useB2CTheme } from '@/components/ui/B2CThemeComponents';
 import { usePointerIntent } from '@/lib/usePointerIntent';
 
-// Master Narrative Story Components for B2C Landing Page
+import { DEFAULT_B2C_SECTION_SEQUENCE, B2CSectionItem } from '@/lib/cms-default-pages';
 import { CinematicHeroUniversal } from '@/components/b2c/story/CinematicHeroUniversal';
 import { IdeasToLifeComparison } from '@/components/b2c/story/IdeasToLifeComparison';
 import { StoryTaxonomyPortals } from '@/components/b2c/story/StoryTaxonomyPortals';
@@ -114,44 +114,53 @@ export function B2CLandingClient({
     }
   }, [setAttractions, initialAttractions]);
 
+  const sectionSequence: B2CSectionItem[] = Array.isArray(liveCmsContent?.sectionSequence) && liveCmsContent.sectionSequence.length > 0
+    ? liveCmsContent.sectionSequence
+    : DEFAULT_B2C_SECTION_SEQUENCE;
+
+  const activeSections = [...sectionSequence]
+    .filter(sec => sec.enabled !== false)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+  const renderSection = (sectionId: string) => {
+    switch (sectionId) {
+      case 'hero':
+        return <CinematicHeroUniversal key="hero" content={liveCmsContent} locale={locale} />;
+      case 'ideasToLife':
+        return <IdeasToLifeComparison key="ideasToLife" content={liveCmsContent} locale={locale} />;
+      case 'storyDiscovery':
+        return (
+          <StoryTaxonomyPortals
+            key="storyDiscovery"
+            content={liveCmsContent}
+            locale={locale}
+            onSelectCategory={(cat) => setFilteredCategory(cat)}
+          />
+        );
+      case 'ourBrands':
+        return <OurBrandsConstellation key="ourBrands" content={liveCmsContent} locale={locale} />;
+      case 'experienceWorlds':
+        return <ExperienceWorldsStage key="experienceWorlds" content={liveCmsContent} locale={locale} />;
+      case 'coreTeam':
+        return <CoreTeamPeopleSection key="coreTeam" content={liveCmsContent} locale={locale} />;
+      case 'livingDay':
+        return <Act4LivingDayTimeline key="livingDay" content={liveCmsContent} locale={locale} />;
+      case 'qatarMap':
+        return <QatarInteractiveMap key="qatarMap" content={liveCmsContent} locale={locale} />;
+      case 'socialFeed':
+        return <SocialFeedSection key="socialFeed" content={liveCmsContent} locale={locale} />;
+      case 'parallaxGallery':
+        return <HorizontalGPUParallaxGallery key="parallaxGallery" content={liveCmsContent} locale={locale} />;
+      case 'digitalTicket':
+        return <TactileDigitalTicket key="digitalTicket" content={liveCmsContent} locale={locale} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
-      {/* 1. HERO SECTION */}
-      <CinematicHeroUniversal content={liveCmsContent} locale={locale} />
-
-      {/* 2. IDEAS TO LIFE */}
-      <IdeasToLifeComparison content={liveCmsContent} locale={locale} />
-
-      {/* 3. STORY DISCOVERY */}
-      <StoryTaxonomyPortals
-        content={liveCmsContent}
-        locale={locale}
-        onSelectCategory={(cat) => setFilteredCategory(cat)}
-      />
-
-      {/* 4. OUR BRANDS — CREATED BY E3 */}
-      <OurBrandsConstellation content={liveCmsContent} locale={locale} />
-
-      {/* 5. E3 FEATURED ATTRACTION WORLDS */}
-      <ExperienceWorldsStage content={liveCmsContent} locale={locale} />
-
-      {/* 6. CORE TEAM — HUMAN PROOF */}
-      <CoreTeamPeopleSection content={liveCmsContent} locale={locale} />
-
-      {/* 7. THE LIVING DAY */}
-      <Act4LivingDayTimeline content={liveCmsContent} locale={locale} />
-
-      {/* 8. EXPLORE E3 ACROSS QATAR */}
-      <QatarInteractiveMap content={liveCmsContent} locale={locale} />
-
-      {/* 9. E3 HAPPENING NOW — LIVE FEED */}
-      <SocialFeedSection content={liveCmsContent} locale={locale} />
-
-      {/* 10. EVERLASTING MEMORIE */}
-      <HorizontalGPUParallaxGallery content={liveCmsContent} locale={locale} />
-
-      {/* 11. MAKE TODAY THE STORY */}
-      <TactileDigitalTicket content={liveCmsContent} locale={locale} />
+      {activeSections.map((sec) => renderSection(sec.id))}
 
       {/* Persistent Story Trail Journey Indicator */}
       <StoryTrailControl

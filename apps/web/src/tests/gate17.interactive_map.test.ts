@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculateHaversineDistanceKm } from '../hooks/useNearestLocations';
 import { validateMapStyleUrl, ALLOWED_MAP_STYLE_ORIGINS } from '../components/map/map-config';
+import { isAttractionActiveByDate } from '../lib/cms-attractions';
 
 describe('Gate 17: E3 Qatar Interactive Map & Location System Verification', () => {
   it('1. should accurately compute straight-line Haversine distance in kilometers', () => {
@@ -120,5 +121,57 @@ describe('Gate 17: E3 Qatar Interactive Map & Location System Verification', () 
     expect(resolveTitle(loc1, 'en')).toBe('Kids City');
     expect(resolveTitle(loc1, 'ar')).toBe('مدينة الأطفال');
     expect(resolveTitle(loc2, 'ar')).toBe('Cyberdome');
+  });
+
+  it('8. should strictly filter active attractions by date (exclude future start dates, expired end dates, and forced inactive overrides)', () => {
+    const activePermanent = {
+      id: 'attr-1',
+      nameEn: 'Kidz Driving School',
+      operationalStatus: 'OPEN',
+      temporalStatus: { isPermanent: true }
+    };
+
+    const activeDateRange = {
+      id: 'attr-2',
+      nameEn: 'Winter Carnival',
+      operationalStatus: 'OPEN',
+      temporalStatus: {
+        startDate: '2026-01-01T00:00:00.000Z',
+        endDate: '2026-12-31T23:59:59.000Z'
+      }
+    };
+
+    const futureComingSoon = {
+      id: 'attr-3',
+      nameEn: 'Future Cyber Park',
+      operationalStatus: 'COMING_SOON',
+      temporalStatus: {
+        startDate: '2027-06-01T00:00:00.000Z',
+        endDate: '2027-12-31T23:59:59.000Z'
+      }
+    };
+
+    const pastExpired = {
+      id: 'attr-4',
+      nameEn: 'Summer Splash 2025',
+      operationalStatus: 'ENDED',
+      temporalStatus: {
+        startDate: '2025-06-01T00:00:00.000Z',
+        endDate: '2025-08-31T23:59:59.000Z'
+      }
+    };
+
+    const forcePastOverride = {
+      id: 'attr-5',
+      nameEn: 'Archived Expo',
+      operationalStatus: 'OPEN',
+      temporalStatus: { statusOverride: 'FORCE_PAST' }
+    };
+
+    expect(isAttractionActiveByDate(activePermanent)).toBe(true);
+    expect(isAttractionActiveByDate(activeDateRange)).toBe(true);
+    expect(isAttractionActiveByDate(futureComingSoon)).toBe(false);
+    expect(isAttractionActiveByDate(pastExpired)).toBe(false);
+    expect(isAttractionActiveByDate(forcePastOverride)).toBe(false);
   });
 });

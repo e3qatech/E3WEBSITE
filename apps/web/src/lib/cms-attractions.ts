@@ -27,6 +27,49 @@ export interface AttractionFilterParams {
 }
 
 /**
+ * Strict active attraction verification by current date
+ */
+export function isAttractionActiveByDate(item: any): boolean {
+  if (!item) return false
+  const now = new Date()
+
+  // 1. Explicit Operational Status Check
+  const status = item.operationalStatus || item.status || item.computedStatus
+  if (status === 'ENDED' || status === 'INACTIVE' || status === 'PAST' || status === 'CLOSED' || status === 'TEMPORARILY_CLOSED') {
+    return false
+  }
+
+  // 2. Temporal Override and Permanent Checks
+  const temporal = item.temporalStatus || item.temporal || {}
+  if (temporal.statusOverride) {
+    if (temporal.statusOverride === 'FORCE_ACTIVE') return true
+    if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') return false
+  }
+
+  if (temporal.isPermanent) return true
+
+  // 3. Date Boundaries Verification (Start Date <= Current Date <= End Date)
+  const startDateStr = temporal.startDate || item.startDate || item.operations?.startDate
+  const endDateStr = temporal.endDate || item.endDate || item.operations?.endDate
+
+  if (startDateStr) {
+    const start = new Date(startDateStr)
+    if (!isNaN(start.getTime()) && now < start) {
+      return false // Not active yet (future event)
+    }
+  }
+
+  if (endDateStr) {
+    const end = new Date(endDateStr)
+    if (!isNaN(end.getTime()) && now > end) {
+      return false // Expired (past event)
+    }
+  }
+
+  return true
+}
+
+/**
  * Calculates availability freshness and honest public display text
  */
 export function resolveAvailabilityStatus(attraction: any): ResolvedAvailability {

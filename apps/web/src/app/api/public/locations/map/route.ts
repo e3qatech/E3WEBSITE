@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     const statusFilter = searchParams.get('status');
     const featuredOnly = searchParams.get('featured') === 'true';
     const openNowOnly = searchParams.get('openNow') === 'true';
+    const activeOnly = searchParams.get('activeOnly') === 'true';
 
     let dbLocations: any[] = [];
     try {
@@ -95,6 +96,31 @@ export async function GET(req: NextRequest) {
       // Open now logic
       let isOpen = loc.operationalStatus === 'OPEN';
       if (openNowOnly && !isOpen) continue;
+
+      // Active by date filter check
+      if (activeOnly) {
+        const now = new Date();
+        const opStatus = loc.operationalStatus || primaryAttr.operationalStatus || primaryAttr.computedStatus;
+        if (opStatus === 'ENDED' || opStatus === 'INACTIVE' || opStatus === 'PAST' || opStatus === 'TEMPORARILY_CLOSED') {
+          continue;
+        }
+
+        const temporal = primaryAttr.temporalStatus || loc.temporalStatus || {};
+        if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') {
+          continue;
+        }
+
+        const startDate = temporal.startDate || loc.startDate || primaryAttr.startDate;
+        const endDate = temporal.endDate || loc.endDate || primaryAttr.endDate;
+
+        if (startDate && !isNaN(new Date(startDate).getTime()) && now < new Date(startDate)) {
+          continue;
+        }
+
+        if (endDate && !isNaN(new Date(endDate).getTime()) && now > new Date(endDate)) {
+          continue;
+        }
+      }
 
       features.push({
         type: "Feature",
