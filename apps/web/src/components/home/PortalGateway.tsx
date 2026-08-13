@@ -173,10 +173,10 @@ export function PortalGateway({
         {/* ============================================================ */}
         {/* 1. FLOATING ISLAND NAVIGATION HEADER */}
         {/* ============================================================ */}
-        <header className="relative z-50 w-full px-4 pt-4 md:px-8 md:pt-6 pointer-events-auto">
-          <div className="max-w-6xl mx-auto flex items-center justify-between p-3 md:px-6 md:py-3.5 rounded-2xl md:rounded-full bg-black/50 border border-white/15 backdrop-blur-2xl shadow-2xl">
+        <header className="relative z-50 w-full px-4 pt-4 md:px-10 md:pt-6 pointer-events-auto">
+          <div className="w-full flex items-center justify-between p-3.5 md:px-8 md:py-4 rounded-2xl md:rounded-full bg-black/60 border border-white/15 backdrop-blur-2xl shadow-2xl">
             
-            {/* Logo */}
+            {/* Logo (Top Left in LTR / Top Right in RTL) */}
             <a
               href={logo?.destinationUrl || "/"}
               onClick={(e) => { if (previewMode) e.preventDefault(); }}
@@ -192,13 +192,13 @@ export function PortalGateway({
             </a>
 
             {/* Center Brand Badge (Desktop) */}
-            <div className="hidden lg:flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono font-bold tracking-widest text-slate-200 uppercase">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+            <div className="hidden lg:flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/15 text-xs md:text-sm font-mono font-bold tracking-widest text-slate-200 uppercase">
+              <span className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse" />
               <span>{headline}</span>
             </div>
 
-            {/* Controls: Language & Theme Switcher */}
-            <div className="flex items-center gap-2 md:gap-3">
+            {/* Controls: Language & Theme Switcher (Top Right in LTR / Top Left in RTL) */}
+            <div className="flex items-center gap-2.5 md:gap-4">
               {/* Language Switcher */}
               <button
                 onClick={() => {
@@ -216,10 +216,10 @@ export function PortalGateway({
                     }
                   }
                 }}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-xs font-bold text-white transition-all cursor-pointer shadow-md"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-xs md:text-sm font-bold text-white transition-all cursor-pointer shadow-md"
               >
-                <Globe className="w-3.5 h-3.5 text-purple-400" />
-                <span>{activeLocale === "en" ? "العربية" : "EN"}</span>
+                <Globe className="w-4 h-4 text-purple-400" />
+                <span>{activeLocale === "en" ? "العربية" : "ENGLISH"}</span>
               </button>
 
               {/* Theme Switcher */}
@@ -232,10 +232,10 @@ export function PortalGateway({
                     setTheme(nextTheme);
                   }
                 }}
-                className="p-2 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-all cursor-pointer shadow-md"
+                className="p-2.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-all cursor-pointer shadow-md"
                 title="Toggle Light/Dark Theme"
               >
-                {isLight ? <Moon className="w-3.5 h-3.5 text-indigo-400" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
+                {isLight ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
               </button>
             </div>
           </div>
@@ -250,7 +250,7 @@ export function PortalGateway({
           
           {/* MOBILE VIEW (< 768px): STACKED HORIZONTAL 50/50 SPLIT */}
           {isMobileViewport ? (
-            <div className="flex flex-col h-[calc(100vh-85px)] w-full relative">
+            <div className="flex flex-col h-[calc(100vh-90px)] w-full relative">
               
               {/* TOP HALF: B2C CONSUMER PORTAL */}
               <div
@@ -265,14 +265,14 @@ export function PortalGateway({
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
 
                 {/* B2C Mobile Overlay Content */}
-                <div className="relative z-30 space-y-2 max-w-md">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-purple-600/40 text-purple-200 border border-purple-400/50 backdrop-blur-md flex items-center gap-1.5">
-                      <Ticket className="w-3 h-3 text-purple-300" />
+                <div className="relative z-30 space-y-2.5 max-w-md w-full">
+                  <div className="w-full flex items-center justify-between gap-3">
+                    <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-purple-600/40 text-purple-200 border border-purple-400/50 backdrop-blur-md flex items-center gap-2">
+                      <Ticket className="w-3.5 h-3.5 text-purple-300" />
                       <span>{b2cLabel}</span>
                     </span>
                     {b2cStat && visual.statisticsVisible !== false && (
-                      <span className="text-[10px] font-mono text-purple-300 font-bold bg-black/60 px-2 py-0.5 rounded-full border border-purple-500/30 backdrop-blur-md">
+                      <span className="text-xs font-mono text-purple-200 font-extrabold bg-black/70 px-3 py-1 rounded-full border border-purple-400/40 backdrop-blur-md">
                         {b2cStat}
                       </span>
                     )}
@@ -315,14 +315,14 @@ export function PortalGateway({
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
 
                 {/* B2B Mobile Overlay Content */}
-                <div className="relative z-30 space-y-2 max-w-md">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-indigo-600/40 text-indigo-200 border border-indigo-400/50 backdrop-blur-md flex items-center gap-1.5">
-                      <Building2 className="w-3 h-3 text-indigo-300" />
+                <div className="relative z-30 space-y-2.5 max-w-md w-full">
+                  <div className="w-full flex items-center justify-between gap-3">
+                    <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-indigo-600/40 text-indigo-200 border border-indigo-400/50 backdrop-blur-md flex items-center gap-2">
+                      <Building2 className="w-3.5 h-3.5 text-indigo-300" />
                       <span>{b2bLabel}</span>
                     </span>
                     {b2bStat && visual.statisticsVisible !== false && (
-                      <span className="text-[10px] font-mono text-indigo-300 font-bold bg-black/60 px-2 py-0.5 rounded-full border border-indigo-500/30 backdrop-blur-md">
+                      <span className="text-xs font-mono text-indigo-200 font-extrabold bg-black/70 px-3 py-1 rounded-full border border-indigo-400/40 backdrop-blur-md">
                         {b2bStat}
                       </span>
                     )}
@@ -381,13 +381,13 @@ export function PortalGateway({
 
                 {/* B2C Double-Bezel Architecture Card */}
                 <div className="absolute bottom-16 start-12 md:start-20 max-w-xl z-30 space-y-4 ring-1 ring-purple-500/30 rounded-3xl bg-black/40 backdrop-blur-2xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-                  <div className="flex items-center gap-3">
-                    <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest bg-purple-600/30 text-purple-200 border border-purple-400/40 backdrop-blur-md flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+                  <div className="w-full flex items-center justify-between gap-4 mb-2">
+                    <span className="px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-widest bg-purple-600/30 text-purple-200 border border-purple-400/40 backdrop-blur-md flex items-center gap-2 shadow-sm">
+                      <Sparkles className="w-4 h-4 text-purple-300" />
                       <span>{b2cLabel}</span>
                     </span>
                     {b2cStat && visual.statisticsVisible !== false && (
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-white/10 text-slate-200 border border-white/15 backdrop-blur-md">
+                      <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold tracking-wider bg-black/70 text-purple-200 border border-purple-400/40 backdrop-blur-md shadow-sm">
                         {b2cStat}
                       </span>
                     )}
@@ -442,13 +442,13 @@ export function PortalGateway({
 
                 {/* B2B Double-Bezel Architecture Card */}
                 <div className="absolute bottom-16 end-12 md:end-20 max-w-xl z-30 space-y-4 ring-1 ring-indigo-500/30 rounded-3xl bg-black/40 backdrop-blur-2xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-                  <div className="flex items-center gap-3">
-                    <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest bg-indigo-600/30 text-indigo-200 border border-indigo-400/40 backdrop-blur-md flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-indigo-300" />
+                  <div className="w-full flex items-center justify-between gap-4 mb-2">
+                    <span className="px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-widest bg-indigo-600/30 text-indigo-200 border border-indigo-400/40 backdrop-blur-md flex items-center gap-2 shadow-sm">
+                      <Building2 className="w-4 h-4 text-indigo-300" />
                       <span>{b2bLabel}</span>
                     </span>
                     {b2bStat && visual.statisticsVisible !== false && (
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-white/10 text-slate-200 border border-white/15 backdrop-blur-md">
+                      <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold tracking-wider bg-black/70 text-indigo-200 border border-indigo-400/40 backdrop-blur-md shadow-sm">
                         {b2bStat}
                       </span>
                     )}
@@ -483,6 +483,7 @@ export function PortalGateway({
             </div>
           )}
         </main>
+
       </div>
     </>
   );
