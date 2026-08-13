@@ -1341,11 +1341,198 @@ export const DEFAULT_B2B_SERVICES_CONTENT = {
   }
 };
 
+export const DEFAULT_B2B_CASES_CONTENT = {
+  hero: {
+    enabled: true,
+    eyebrowEn: "The Vault",
+    eyebrowAr: "سجل الإنجازات",
+    titleEn: "Ideas Are Powerful. Results Make Them Real.",
+    titleAr: "الأفكار تصنع الإمكانات. والنتائج تثبتها.",
+    subtitleEn: "Explore the experiences, destinations and landmark events E3 has transformed from ambitious ideas into measurable impact.",
+    subtitleAr: "اكتشف التجارب والوجهات والفعاليات الاستثنائية التي حولتها إي ثري من أفكار طموحة إلى إنجازات ذات أثر ملموس.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    mobileMediaUrl: "",
+    overlayStrength: 70,
+    primaryCtaEn: "Explore Our Work",
+    primaryCtaAr: "استكشف أعمالنا",
+    primaryLink: "#archive",
+    secondaryCtaEn: "Start a Project",
+    secondaryCtaAr: "ابدأ مشروعك",
+    secondaryLink: "/b2b/contact"
+  },
+  showreel: {
+    enabled: true,
+    eyebrowEn: "CINEMATIC SHOWCASE",
+    eyebrowAr: "عرض مرئي استثنائي",
+    titleEn: "A Glimpse Inside the Experiences We Build",
+    titleAr: "نظرة إلى التجارب التي نصنعها",
+    descriptionEn: "High-definition highlight reel of E3 mega builds, kinetic AV stages, and landmark operations across Qatar.",
+    descriptionAr: "لقطات عالية الدقة لأبرز مشاريع إي ثري، منصات الإضاءة والصوت الحركية، والعمليات التشغيلية المباشرة.",
+    mediaType: "VIDEO",
+    mediaUrl: "",
+    posterImage: "",
+    autoplay: true,
+    muted: true,
+    primaryCtaEn: "Watch Full Showreel",
+    primaryCtaAr: "شاهد العرض الكامل",
+    primaryLink: "/b2b/contact"
+  },
+  factStream: {
+    enabled: true,
+    labelEn: "Did You Know?",
+    labelAr: "هل تعلم؟",
+    titleEn: "Every Project Leaves a Bigger Story Behind.",
+    titleAr: "وراء كل مشروع قصة أكبر من الأرقام.",
+    sourceMode: "CURATED",
+    facts: [
+      { id: "f1", value: "30,000", prefix: "", suffix: " sqm", headlineEn: "Masterplanned Zone Activated", headlineAr: "مساحة مفعلة بالكامل", descEn: "Turnkey spatial engineering, stage rigging, and crowd management for Qatar's flagship entertainment mega builds.", descAr: "هندسة فضائية متكاملة وإدارة حشود وتجهيز منصات لأبرز مشاريع قطر الترفيهية.", mediaType: "IMAGE", mediaUrl: "", caseStudyId: "" },
+      { id: "f2", value: "23M+", prefix: "", suffix: "", headlineEn: "Campaign Impressions Reached", headlineAr: "انطباع وإشعاع إعلامي", descEn: "Global broadcast reach and viral social media engagement across international ceremonies.", descAr: "انتشار عالمي وتغطيات إعلامية للمراسم والفعاليات الوطنية الكبرى.", mediaType: "IMAGE", mediaUrl: "", caseStudyId: "" },
+      { id: "f3", value: "207", prefix: "", suffix: "", headlineEn: "On-Site Production Engineers", headlineAr: "مهندس وفني في الموقع", descEn: "Integrated technical crew handling kinetic rigging, turnstiles, and safety systems in real-time.", descAr: "طاقم فني متكامل يطير بالأنظمة الصوتية والضوئية وبوابات الدخول الذكية.", mediaType: "IMAGE", mediaUrl: "", caseStudyId: "" }
+    ]
+  },
+  featuredCases: {
+    enabled: true,
+    eyebrowEn: "FEATURED LANDMARKS",
+    eyebrowAr: "المشاريع الرئيسية",
+    titleEn: "Landmark Experience Spotlights",
+    titleAr: "إنجازات رئيسية ذات أثر ملموس",
+    descriptionEn: "In-depth case studies demonstrating E3 turnkey execution capacity.",
+    descriptionAr: "استعراض تفصيلي لأبرز المشاريع الوطنية والتجارب الترفيهية.",
+    selectionMode: "FEATURED_FLAG",
+    selectedCaseStudyIds: [],
+    maxItems: 3,
+    cardCtaEn: "Read Case Study",
+    cardCtaAr: "عرض تفاصيل المشروع",
+    viewAllCtaEn: "Explore All Work",
+    viewAllCtaAr: "استكشف كافة الأعمال",
+    viewAllLink: "#archive"
+  },
+  archive: {
+    enabled: true,
+    titleEn: "Explore the Work",
+    titleAr: "استكشف أعمالنا",
+    descriptionEn: "Filter by category, year, client, or service discipline.",
+    descriptionAr: "تصفح حسب الفئة، السنة، العميل، أو التخصص التشغيلي."
+  },
+  teamStories: {
+    enabled: true,
+    eyebrowEn: "Behind the Build",
+    eyebrowAr: "خلف الكواليس",
+    titleEn: "The Stories You Don’t See on Stage.",
+    titleAr: "قصص لا يراها الجمهور على المسرح.",
+    descriptionEn: "Meet the people, decisions and defining moments behind E3’s landmark experiences.",
+    descriptionAr: "تعرّف على الأشخاص والقرارات واللحظات التي تقف خلف أبرز تجارب إي ثري.",
+    selectionMode: "FEATURED",
+    stories: [
+      { id: "ts1", roleEn: "Technical Production Director", roleAr: "مدير الإنتاج الفني", storyTitleEn: "Precision Rigging Under Pressure", storyTitleAr: "الدقة المنصية تحت الضغط الزمنية", storyEn: "Overcoming tight 48-hour assembly windows for national ceremonies required real-time spatial calculations and continuous telemetry.", storyAr: "التغلب على التحديات الزمنية خلال ٤٨ ساعة تطلب حسابات فضائية لحظية وتنسيقاً دقيقاً بين الفرق.", teamMemberName: "E3 Production Team", quoteEn: "Engineering live experiences is about making the impossible look effortless on stage.", quoteAr: "هندسة العروض الحية هي جعل المستحيل يبدو بسيطاً أمام الجمهور.", caseStudyId: "" }
+    ]
+  },
+  timeline: {
+    enabled: true,
+    titleEn: "Timeline of Milestones",
+    titleAr: "محطات الإنجاز والتطور",
+    descriptionEn: "Chronological milestone journey across Qatar landmark projects.",
+    descriptionAr: "مسار زمني حافل بالإنجازات في مختلف مناطق قطر."
+  },
+  transformations: {
+    enabled: true,
+    titleEn: "Before & After Transformations",
+    titleAr: "التحول قبل وبعد التنفيذ",
+    items: []
+  },
+  impactOverview: {
+    enabled: true,
+    titleEn: "Impact You Can Measure",
+    titleAr: "أثر يمكن قياسه",
+    sourceMode: "CURATED",
+    stats: [
+      { id: "i1", value: "1.2M+", prefix: "", suffix: "", labelEn: "Annual Visitors Hosted", labelAr: "زائر سنوياً", descEn: "Seamless crowd control and turnstile management.", descAr: "إدارة تدفق سلسة عبر البوابات الذكية." },
+      { id: "i2", value: "100%", prefix: "", suffix: "", labelEn: "Safety Compliance Rate", labelAr: "التزام بمعايير السلامة", descEn: "Rigorous structural safety auditing across all builds.", descAr: "اعتمادات حكومية وحسابات أحمال معتمدة." },
+      { id: "i3", value: "450+", prefix: "", suffix: "", labelEn: "Corporate Activations", labelAr: "مشروع وتفعيل للشركات", descEn: "Turnkey enterprise activations delivered on schedule.", descAr: "تنفيذ متكامل في الوقت المحدد." }
+    ]
+  },
+  servicesSection: {
+    enabled: true,
+    titleEn: "Services Behind the Work",
+    titleAr: "الخدمات والتخصصات المطبقة",
+    descriptionEn: "Explore which E3 core disciplines powered these landmark projects.",
+    descriptionAr: "تعرف على التخصصات التي ساهمت في إنجاز هذه المشاريع."
+  },
+  cta: {
+    enabled: true,
+    eyebrowEn: "Your Project Could Be Next",
+    eyebrowAr: "قد يكون مشروعك هو القادم",
+    headlineEn: "Let’s Create the Next Landmark Experience.",
+    headlineAr: "لنصنع معاً التجربة الاستثنائية القادمة.",
+    descriptionEn: "Collaborate with E3's turnkey masterplanning, fabrication, and live operations teams in Qatar.",
+    descriptionAr: "تواصل مع فريق الهندسة والتصنيع والتشغيل في إي ثري لبناء وتفعيل تجربتك القادمة.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    primaryCtaEn: "Start a Project",
+    primaryCtaAr: "ابدأ مشروعك",
+    primaryLink: "/b2b/contact",
+    secondaryCtaEn: "Download Company Profile",
+    secondaryCtaAr: "حمّل الملف التعريفي",
+    secondaryLink: "/b2b/contact"
+  },
+  seo: {
+    metaTitleEn: "Case Studies & Landmark Projects — E3 Enterprise",
+    metaTitleAr: "دراسات الحالة والمشاريع — إي ثري لقطاع الأعمال",
+    metaDescriptionEn: "Explore our portfolio of mega events, immersive installations, and landmark entertainment destinations delivered across Qatar.",
+    metaDescriptionAr: "استكشف قائمة الفعاليات الكبرى والوجهات الترفيهية والتجارب الغامرة المنفذة في قطر.",
+    ogTitleEn: "Case Studies & Landmark Projects — E3 Enterprise",
+    ogTitleAr: "دراسات الحالة والمشاريع — إي ثري لقطاع الأعمال",
+    ogDescriptionEn: "Explore our portfolio of mega events, immersive installations, and landmark entertainment destinations delivered across Qatar.",
+    ogDescriptionAr: "استكشف قائمة الفعاليات الكبرى والوجهات الترفيهية والتجارب الغامرة المنفذة في قطر.",
+    ogImage: "",
+    canonicalUrl: "https://e3.qa/b2b/cases"
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
  */
 export function getMergedCMSPageContent(slug: string, rawContent?: any) {
+  if (slug === 'b2b-cases' || slug === 'cases') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_CASES_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      hero: { ...defaults.hero, ...(raw.hero || {}) },
+      showreel: { ...defaults.showreel, ...(raw.showreel || {}) },
+      factStream: { 
+        ...defaults.factStream, 
+        ...(raw.factStream || {}),
+        facts: (raw.factStream?.facts && raw.factStream.facts.length > 0)
+          ? raw.factStream.facts
+          : defaults.factStream.facts
+      },
+      featuredCases: { ...defaults.featuredCases, ...(raw.featuredCases || {}) },
+      archive: { ...defaults.archive, ...(raw.archive || {}) },
+      teamStories: { 
+        ...defaults.teamStories, 
+        ...(raw.teamStories || {}),
+        stories: (raw.teamStories?.stories && raw.teamStories.stories.length > 0)
+          ? raw.teamStories.stories
+          : defaults.teamStories.stories
+      },
+      timeline: { ...defaults.timeline, ...(raw.timeline || {}) },
+      transformations: { ...defaults.transformations, ...(raw.transformations || {}) },
+      impactOverview: { 
+        ...defaults.impactOverview, 
+        ...(raw.impactOverview || {}),
+        stats: (raw.impactOverview?.stats && raw.impactOverview.stats.length > 0)
+          ? raw.impactOverview.stats
+          : defaults.impactOverview.stats
+      },
+      servicesSection: { ...defaults.servicesSection, ...(raw.servicesSection || {}) },
+      cta: { ...defaults.cta, ...(raw.cta || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
   if (slug === 'b2b-services') {
     const raw = rawContent || {};
     const defaults = DEFAULT_B2B_SERVICES_CONTENT;

@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Filter, Search, ArrowRight, Sparkles, Building2, Calendar, Trophy, Layers } from 'lucide-react'
+import { Filter, Search, ArrowRight, Sparkles, Building2, Calendar, Trophy, Layers, Play, Pause, ChevronLeft, ChevronRight, Quote, ShieldCheck, BarChart3, Wrench, CheckCircle2 } from 'lucide-react'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { cn } from '@/lib/utils'
 
@@ -21,38 +21,78 @@ interface CaseStudyItem {
   thumbnailMediaType?: string
   clientLogoUrl?: string
   metrics?: any
+  servicesUsed?: any
 }
 
 interface CaseStudiesIndexClientProps {
   caseStudies: CaseStudyItem[]
-  heroData: {
-    title: string
-    subtitle: string
-    mediaType?: string
-    mediaUrl?: string
-  }
-  ctaData?: {
-    title?: string
-    description?: string
-    primaryCta?: string
-    primaryLink?: string
-    mediaType?: string
-    mediaUrl?: string
-  } | null
+  services?: any[]
+  employeeProfiles?: any[]
+  cmsContent: any
   locale: string
 }
 
 export function CaseStudiesIndexClient({
   caseStudies,
-  heroData,
-  ctaData,
+  services = [],
+  employeeProfiles = [],
+  cmsContent,
   locale
 }: CaseStudiesIndexClientProps) {
   const isAr = locale === 'ar'
+  
+  // Section bindings
+  const hero = cmsContent?.hero || {}
+  const showreel = cmsContent?.showreel || {}
+  const factStream = cmsContent?.factStream || {}
+  const featuredCases = cmsContent?.featuredCases || {}
+  const archiveConfig = cmsContent?.archive || {}
+  const teamStoriesConfig = cmsContent?.teamStories || {}
+  const timelineConfig = cmsContent?.timeline || {}
+  const transformationsConfig = cmsContent?.transformations || {}
+  const impactOverviewConfig = cmsContent?.impactOverview || {}
+  const servicesConfig = cmsContent?.servicesSection || {}
+  const cta = cmsContent?.cta || {}
+
+  // Filter state
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
+  const [selectedYear, setSelectedYear] = useState<string>('ALL')
+  const [selectedServiceId, setSelectedServiceId] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  // Unique categories list
+  // Fact Stream Auto-Rotation State
+  const [factIndex, setFactIndex] = useState<number>(0)
+  const [isFactPaused, setIsFactPaused] = useState<boolean>(false)
+  const factsList = Array.isArray(factStream.facts) ? factStream.facts : []
+
+  useEffect(() => {
+    if (factsList.length <= 1 || isFactPaused) return
+    const interval = setInterval(() => {
+      setFactIndex((prev) => (prev + 1) % factsList.length)
+    }, 6000)
+    return () => clearInterval(interval)
+  }, [factsList.length, isFactPaused])
+
+  // Before & After Slider Handle State
+  const [sliderPosition, setSliderPosition] = useState<number>(50)
+  const isDraggingRef = useRef<boolean>(false)
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.touches[0].clientX - rect.left
+    const pos = Math.max(0, Math.min(100, (x / rect.width) * 100))
+    setSliderPosition(pos)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const pos = Math.max(0, Math.min(100, (x / rect.width) * 100))
+    setSliderPosition(pos)
+  }
+
+  // Categories & Years derived dynamically
   const categories = useMemo(() => {
     const set = new Set<string>()
     caseStudies.forEach(cs => {
@@ -61,7 +101,15 @@ export function CaseStudiesIndexClient({
     return Array.from(set)
   }, [caseStudies])
 
-  // Filtered case studies list
+  const years = useMemo(() => {
+    const set = new Set<number>()
+    caseStudies.forEach(cs => {
+      if (cs.year) set.add(cs.year)
+    })
+    return Array.from(set).sort((a, b) => b - a)
+  }, [caseStudies])
+
+  // Filtered case studies
   const filteredCaseStudies = useMemo(() => {
     return caseStudies.filter(cs => {
       const title = isAr ? (cs.titleAr || cs.titleEn) : cs.titleEn
@@ -71,52 +119,172 @@ export function CaseStudiesIndexClient({
         (cs.category && cs.category.toLowerCase().includes(searchQuery.toLowerCase()))
 
       const matchesCat = selectedCategory === 'ALL' || cs.category === selectedCategory
+      const matchesYr = selectedYear === 'ALL' || (cs.year && cs.year.toString() === selectedYear)
 
-      return matchesSearch && matchesCat
+      let matchesSvc = true
+      if (selectedServiceId !== 'ALL' && Array.isArray(cs.servicesUsed)) {
+        matchesSvc = cs.servicesUsed.includes(selectedServiceId)
+      }
+
+      return matchesSearch && matchesCat && matchesYr && matchesSvc
     })
-  }, [caseStudies, selectedCategory, searchQuery, isAr])
+  }, [caseStudies, selectedCategory, selectedYear, selectedServiceId, searchQuery, isAr])
+
+  // Team stories list
+  const teamStoriesList = Array.isArray(teamStoriesConfig.stories) ? teamStoriesConfig.stories : []
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500 selection:text-zinc-950" dir={isAr ? 'rtl' : 'ltr'}>
       
-      {/* 1. CINEMATIC HERO */}
-      <section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80 pt-24 pb-16">
-        <div className="absolute inset-0 z-0">
-          {heroData.mediaUrl ? (
-            <UniversalMediaRenderer 
-              type={heroData.mediaType as any || "IMAGE"} 
-              src={heroData.mediaUrl}
-              alt="Case Studies Hero"
-              className="w-full h-full object-cover filter brightness-[0.6] contrast-[1.1]"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/50 to-transparent rtl:bg-gradient-to-l" />
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-15 mix-blend-overlay pointer-events-none" />
-        </div>
+      {/* ============================================================ */}
+      {/* 1. CINEMATIC HERO SECTION */}
+      {/* ============================================================ */}
+      {hero.enabled !== false && (
+        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80 pt-32 pb-20">
+          <div className="absolute inset-0 z-0">
+            {hero.mediaUrl ? (
+              <UniversalMediaRenderer 
+                type={hero.mediaType as any || "IMAGE"} 
+                src={hero.mediaUrl}
+                alt="Case Studies Hero"
+                className="w-full h-full object-cover filter brightness-[0.55] contrast-[1.1]"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/50 to-transparent rtl:bg-gradient-to-l" />
+          </div>
 
-        <div className="container relative z-10 mx-auto px-4 md:px-8">
-          <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
-              <Trophy className="w-3.5 h-3.5" />
-              <span>{isAr ? "سجل الإنجازات والنتائج" : "DELIVERED LANDMARK PROOF"}</span>
+          <div className="container relative z-10 mx-auto px-4 md:px-8">
+            <div className="max-w-4xl">
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
+                <Trophy className="w-3.5 h-3.5" />
+                <span>{isAr ? (hero.eyebrowAr || "سجل الإنجازات") : (hero.eyebrowEn || "The Vault")}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{caseStudies.length} {isAr ? "مشروعاً موثقاً" : "Delivered Landmarks"}</span>
+              </div>
+
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-xl">
+                {isAr ? (hero.titleAr || "الأفكار تصنع الإمكانات. والنتائج تثبتها.") : (hero.titleEn || "Ideas Are Powerful. Results Make Them Real.")}
+              </h1>
+
+              <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-3xl leading-relaxed mb-8">
+                {isAr ? (hero.subtitleAr || "اكتشف التجارب والوجهات والفعاليات الاستثنائية التي حولتها إي ثري من أفكار طموحة إلى إنجازات ذات أثر ملموس.") : (hero.subtitleEn || "Explore the experiences, destinations and landmark events E3 has transformed from ambitious ideas into measurable impact.")}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <a 
+                  href={hero.primaryLink || "#archive"} 
+                  className="px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-syne font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] inline-flex items-center gap-2 group"
+                >
+                  <span>{isAr ? (hero.primaryCtaAr || "استكشف أعمالنا") : (hero.primaryCtaEn || "Explore Our Work")}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
+                </a>
+
+                {hero.secondaryCtaEn && (
+                  <Link 
+                    href={hero.secondaryLink || "/b2b/contact"} 
+                    className="px-8 py-4 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 font-syne font-bold text-sm uppercase tracking-widest transition-all duration-300 backdrop-blur-md"
+                  >
+                    {isAr ? (hero.secondaryCtaAr || "ابدأ مشروعك") : hero.secondaryCtaEn}
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================ */}
+      {/* 2. INTERACTIVE SHOWREEL SECTION */}
+      {/* ============================================================ */}
+      {showreel.enabled !== false && showreel.mediaUrl && (
+        <section className="py-20 bg-zinc-950 border-b border-zinc-900 relative">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-900/40 backdrop-blur-md relative group">
+              <UniversalMediaRenderer 
+                type={"VIDEO"} 
+                src={showreel.mediaUrl}
+                poster={showreel.posterImage}
+                autoPlay={showreel.autoplay !== false}
+                muted={showreel.muted !== false}
+                loop
+                className="w-full aspect-video object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12 pointer-events-none">
+                <div className="text-xs font-mono font-bold text-indigo-400 uppercase tracking-widest mb-2">
+                  {isAr ? (showreel.eyebrowAr || "عرض مرئي استثنائي") : (showreel.eyebrowEn || "CINEMATIC SHOWCASE")}
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+                  {isAr ? (showreel.titleAr || "نظرة إلى التجارب التي نصنعها") : (showreel.titleEn || "A Glimpse Inside the Experiences We Build")}
+                </h2>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================ */}
+      {/* 3. "DID YOU KNOW?" INTERACTIVE FACT STREAM */}
+      {/* ============================================================ */}
+      {factStream.enabled !== false && factsList.length > 0 && (
+        <section 
+          className="py-20 bg-zinc-900/40 border-b border-zinc-900 relative"
+          onMouseEnter={() => setIsFactPaused(true)}
+          onMouseLeave={() => setIsFactPaused(false)}
+        >
+          <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+            <div className="text-center mb-10">
+              <span className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs uppercase tracking-widest">
+                {isAr ? (factStream.labelAr || "هل تعلم؟") : (factStream.labelEn || "Did You Know?")}
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black font-syne text-zinc-100 tracking-tight mt-4">
+                {isAr ? (factStream.titleAr || "وراء كل مشروع قصة أكبر من الأرقام.") : (factStream.titleEn || "Every Project Leaves a Bigger Story Behind.")}
+              </h2>
             </div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-xl">
-              {heroData.title}
-            </h1>
+            {/* Fact Carousel Card */}
+            <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 min-h-[220px]">
+              <div className="flex-1 space-y-4">
+                <div className="text-5xl md:text-7xl font-black font-syne text-amber-400 tracking-tight">
+                  {factsList[factIndex]?.prefix}{factsList[factIndex]?.value}{factsList[factIndex]?.suffix}
+                </div>
+                <h3 className="text-2xl font-bold font-syne text-zinc-100">
+                  {isAr ? (factsList[factIndex]?.headlineAr || factsList[factIndex]?.headlineEn) : factsList[factIndex]?.headlineEn}
+                </h3>
+                <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-2xl">
+                  {isAr ? (factsList[factIndex]?.descAr || factsList[factIndex]?.descEn) : factsList[factIndex]?.descEn}
+                </p>
+              </div>
 
-            <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-3xl leading-relaxed">
-              {heroData.subtitle}
-            </p>
+              {/* Navigation & Progress */}
+              <div className="flex items-center gap-4 shrink-0">
+                <button 
+                  onClick={() => setFactIndex((prev) => (prev - 1 + factsList.length) % factsList.length)}
+                  className="w-12 h-12 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-zinc-300 transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
+                </button>
+                <div className="text-xs font-mono font-bold text-zinc-500">
+                  {factIndex + 1} / {factsList.length}
+                </div>
+                <button 
+                  onClick={() => setFactIndex((prev) => (prev + 1) % factsList.length)}
+                  className="w-12 h-12 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-zinc-300 transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 rtl:rotate-180" />
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* 2. FILTERS & SEARCH TOOLBAR */}
-      <section className="py-8 bg-zinc-950/80 sticky top-16 z-30 backdrop-blur-xl border-b border-zinc-900">
+      {/* ============================================================ */}
+      {/* 4. FILTERABLE PROJECT ARCHIVE TOOLBAR & GRID */}
+      {/* ============================================================ */}
+      <section id="archive" className="py-12 bg-zinc-950/80 sticky top-16 z-30 backdrop-blur-xl border-b border-zinc-900">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             
@@ -150,24 +318,39 @@ export function CaseStudiesIndexClient({
               ))}
             </div>
 
-            {/* Search Input */}
-            <div className="relative w-full lg:w-80">
-              <Search className="w-4 h-4 text-zinc-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder={isAr ? "ابحث باسم المشروع أو العميل..." : "Search project or client..."}
-                className="w-full bg-zinc-900/90 border border-zinc-800 rounded-full ps-10 pe-4 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-500 focus:outline-none transition-colors"
-              />
+            {/* Search & Year Select */}
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              {years.length > 0 && (
+                <select
+                  value={selectedYear}
+                  onChange={e => setSelectedYear(e.target.value)}
+                  className="bg-zinc-900/90 border border-zinc-800 rounded-full px-4 py-2 text-xs font-mono text-zinc-200 focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ALL">{isAr ? "كافة السنوات" : "All Years"}</option>
+                  {years.map(y => (
+                    <option key={y} value={y.toString()}>{y}</option>
+                  ))}
+                </select>
+              )}
+
+              <div className="relative flex-1 lg:w-72">
+                <Search className="w-4 h-4 text-zinc-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder={isAr ? "ابحث باسم المشروع أو العميل..." : "Search project or client..."}
+                  className="w-full bg-zinc-900/90 border border-zinc-800 rounded-full ps-10 pe-4 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-500 focus:outline-none transition-colors"
+                />
+              </div>
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* 3. DYNAMIC CASE STUDIES BENTO GRID */}
-      <section className="py-16 md:py-24">
+      {/* ARCHIVE GRID */}
+      <section className="py-16 md:py-24 border-b border-zinc-900">
         <div className="container mx-auto px-4 md:px-8">
           {filteredCaseStudies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -205,7 +388,6 @@ export function CaseStudiesIndexClient({
 
                     {/* Content Overlay */}
                     <div className="relative z-10 h-full flex flex-col justify-between">
-                      {/* Top Badges */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           {cs.category && (
@@ -229,7 +411,6 @@ export function CaseStudiesIndexClient({
                         )}
                       </div>
 
-                      {/* Main Title & Client */}
                       <div className="mt-auto pt-12">
                         {cs.clientName && (
                           <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mb-2">
@@ -242,7 +423,6 @@ export function CaseStudiesIndexClient({
                           {title}
                         </h3>
 
-                        {/* Metric Badge Callout */}
                         {firstMetric && (
                           <div className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-bold mb-6">
                             <span>{firstMetric.valueEn || firstMetric.value}</span>
@@ -251,7 +431,6 @@ export function CaseStudiesIndexClient({
                           </div>
                         )}
 
-                        {/* CTA Arrow */}
                         <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest opacity-80 group-hover:opacity-100 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-all duration-300 pt-2 border-t border-zinc-800/80">
                           <span>{isAr ? "عرض دراسة الحالة كاملة" : "Read Full Case Study"}</span>
                           <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
@@ -272,23 +451,104 @@ export function CaseStudiesIndexClient({
         </div>
       </section>
 
-      {/* 4. FOOTER RFP CTA */}
-      {ctaData && (
+      {/* ============================================================ */}
+      {/* 5. TEAM STORIES — "BEHIND THE BUILD" */}
+      {/* ============================================================ */}
+      {teamStoriesConfig.enabled !== false && teamStoriesList.length > 0 && (
+        <section className="py-24 bg-zinc-900/30 border-b border-zinc-900">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-3xl mb-16">
+              <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest block mb-2">
+                {isAr ? (teamStoriesConfig.eyebrowAr || "خلف الكواليس") : (teamStoriesConfig.eyebrowEn || "Behind the Build")}
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+                {isAr ? (teamStoriesConfig.titleAr || "قصص لا يراها الجمهور على المسرح.") : (teamStoriesConfig.titleEn || "The Stories You Don’t See on Stage.")}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              {teamStoriesList.map((story: any, i: number) => {
+                const role = isAr ? (story.roleAr || story.roleEn) : story.roleEn
+                const quote = isAr ? (story.quoteAr || story.quoteEn) : story.quoteEn
+
+                return (
+                  <div key={i} className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+                    <Quote className="w-12 h-12 text-zinc-900 absolute top-6 end-6 -rotate-6" />
+                    <div className="relative z-10 mb-8">
+                      <div className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest mb-4">{role}</div>
+                      <p className="text-lg md:text-xl text-zinc-200 italic leading-relaxed">&quot;{quote}&quot;</p>
+                    </div>
+
+                    <div className="pt-4 border-t border-zinc-900 flex items-center justify-between relative z-10">
+                      <div className="text-sm font-bold text-zinc-300">{story.teamMemberName || "E3 Production Lead"}</div>
+                      {story.caseStudyId && (
+                        <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">{isAr ? "مشروع مرتبط" : "Linked Project"}</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================ */}
+      {/* 6. IMPACT OVERVIEW / STATISTICS */}
+      {/* ============================================================ */}
+      {impactOverviewConfig.enabled !== false && Array.isArray(impactOverviewConfig.stats) && impactOverviewConfig.stats.length > 0 && (
+        <section className="py-24 bg-zinc-950 border-b border-zinc-900">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">{isAr ? "أثر يمكن قياسه" : "QUANTIFIED PROOF"}</span>
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+                {isAr ? (impactOverviewConfig.titleAr || "أثر يمكنك قياسه بالنتائج") : (impactOverviewConfig.titleEn || "Impact You Can Measure")}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {impactOverviewConfig.stats.map((st: any, i: number) => {
+                const label = isAr ? (st.labelAr || st.labelEn) : st.labelEn
+                return (
+                  <div key={i} className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-8 text-center flex flex-col items-center justify-center">
+                    <div className="text-5xl md:text-6xl font-black font-syne text-emerald-400 mb-3">{st.prefix}{st.value}{st.suffix}</div>
+                    <div className="text-sm font-mono font-bold text-zinc-300 uppercase tracking-wider">{label}</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================ */}
+      {/* 7. FINAL COMMERCIAL CTA */}
+      {/* ============================================================ */}
+      {cta.enabled !== false && (
         <section className="py-24 border-t border-zinc-900 bg-zinc-950 relative overflow-hidden">
           <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl relative z-10">
-            <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-6">
-              {ctaData.title || (isAr ? "هل لديك مشروع تجاري؟" : "Have a Landmark Project in Mind?")}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isAr ? (cta.eyebrowAr || "قد يكون مشروعك هو القادم") : (cta.eyebrowEn || "Your Project Could Be Next")}</span>
+            </div>
+
+            <h2 className="text-4xl md:text-6xl font-black font-syne text-zinc-100 tracking-tight mb-6 leading-tight">
+              {isAr ? (cta.headlineAr || "لنصنع معاً التجربة الاستثنائية القادمة.") : (cta.headlineEn || "Let’s Create the Next Landmark Experience.")}
             </h2>
+
             <p className="text-lg text-zinc-400 mb-10 leading-relaxed">
-              {ctaData.description || (isAr ? "تواصل مع فريق الهندسة والإنتاج في إي ثري لبناء وتفعيل تجربتك القادمة." : "Collaborate with E3's turnkey masterplanning, fabrication, and live operations teams.")}
+              {isAr ? (cta.descriptionAr || "تواصل مع فريق الهندسة والتصنيع والتشغيل في إي ثري لبناء وتفعيل تجربتك القادمة.") : (cta.descriptionEn || "Collaborate with E3's turnkey masterplanning, fabrication, and live operations teams in Qatar.")}
             </p>
-            <Link 
-              href={ctaData.primaryLink || `/${locale}/b2b/contact`}
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-full hover:bg-emerald-400 transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
-            >
-              <span>{ctaData.primaryCta || (isAr ? "اتصل بنا الان" : "Contact Our Team")}</span>
-              <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
-            </Link>
+
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link 
+                href={cta.primaryLink || `/${locale}/b2b/contact`} 
+                className="px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-syne font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] inline-flex items-center gap-2 group"
+              >
+                <span>{isAr ? (cta.primaryCtaAr || "ابدأ مشروعك") : (cta.primaryCtaEn || "Start a Project")}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
+              </Link>
+            </div>
           </div>
         </section>
       )}

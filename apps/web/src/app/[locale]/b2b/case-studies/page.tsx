@@ -1,19 +1,42 @@
 import React from 'react'
 import { db } from "@/lib/db"
+import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
 import { CaseStudiesIndexClient } from '@/components/b2b/CaseStudiesIndexClient'
+import { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Case Studies & Featured Work — E3 Enterprise',
-  description: 'Explore our portfolio of mega events, immersive installations, and landmark entertainment destinations delivered across Qatar and the Middle East.',
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
+  const pageData = await db.pages.findUnique({ where: { slug: 'b2b-cases' } }).catch(() => null);
+  const cms = getMergedCMSPageContent('b2b-cases', pageData?.content);
+
+  const title = isAr 
+    ? (cms.seo?.metaTitleAr || cms.hero?.titleAr || "دراسات الحالة والفعاليات البارزة — E3")
+    : (cms.seo?.metaTitleEn || cms.hero?.titleEn || "Case Studies & Landmark Projects — E3 Enterprise");
+    
+  const description = isAr 
+    ? (cms.seo?.metaDescriptionAr || cms.hero?.subtitleAr || "")
+    : (cms.seo?.metaDescriptionEn || cms.hero?.subtitleEn || "");
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: isAr ? (cms.seo?.ogTitleAr || title) : (cms.seo?.ogTitleEn || title),
+      description: isAr ? (cms.seo?.ogDescriptionAr || description) : (cms.seo?.ogDescriptionEn || description),
+      images: cms.seo?.ogImage ? [{ url: cms.seo.ogImage }] : [],
+    }
+  };
 }
 
 export const dynamic = 'force-dynamic'
 
 export default async function CaseStudiesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const isAr = locale === 'ar';
   
   let caseStudies: any[] = []
+  let services: any[] = []
+  let employeeProfiles: any[] = []
   let pageData: any = null
   
   try {
@@ -23,45 +46,44 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
         orderBy: [
           { isFeatured: 'desc' },
           { year: 'desc' }
-        ]
+        ],
+        include: {
+          teamMembers: {
+            include: {
+              employeeProfile: true
+            }
+          },
+          attraction: true
+        }
       }),
       db.pages.findUnique({
         where: { slug: 'b2b-cases' }
+      }),
+      db.service.findMany({
+        orderBy: { titleEn: 'asc' },
+        select: { id: true, slug: true, titleEn: true, titleAr: true, icon: true }
+      }),
+      db.employeeProfile.findMany({
+        orderBy: { firstName: 'asc' },
+        select: { id: true, firstName: true, lastName: true, designation: true, profileImage: true, department: true }
       })
     ])
     caseStudies = results[0]
     pageData = results[1]
+    services = results[2]
+    employeeProfiles = results[3]
   } catch (error) {
-    console.error("Error fetching b2b case studies:", error)
+    console.error("Error fetching b2b case studies page data:", error)
   }
 
-  const content = pageData?.content as any || {}
-  
-  const hero = {
-    title: isAr 
-      ? (content.hero?.titleAr || content.hero?.title || 'أعمال ومشاريع استثنائية تم تنفيذها') 
-      : (content.hero?.titleEn || content.hero?.title || "Featured Landmark Case Studies."),
-    subtitle: isAr 
-      ? (content.hero?.subtitleAr || content.hero?.subtitle || 'مجموعة مختارة من المشاريع الوطنية والترفيهية البارزة التي توضح قدرة إي ثري على الهندسة والتصنيع والتشغيل الشامل.') 
-      : (content.hero?.subtitleEn || content.hero?.subtitle || "A selection of landmark national ceremonies, summits, and mega entertainment builds demonstrating E3 turnkey execution."),
-    mediaType: content.hero?.mediaType || "IMAGE",
-    mediaUrl: content.hero?.mediaUrl || ""
-  }
-  
-  const cta = content?.cta ? {
-    title: isAr ? (content.cta.titleAr || content.cta.title || 'هل لديك مشروع في قطر؟') : (content.cta.titleEn || content.cta.title || 'Ready to Engineer Your Next Landmark?'),
-    description: isAr ? (content.cta.descriptionAr || content.cta.description || 'تواصل مع فريق الأعمال لتحديد حزمة الخدمات المناسبة.') : (content.cta.descriptionEn || content.cta.description || 'Tell us about your project vision. Our team will engineer the ideal solution.'),
-    primaryCta: isAr ? (content.cta.primaryCtaAr || content.cta.primaryCta || 'اتصل بنا الان') : (content.cta.primaryCtaEn || content.cta.primaryCta || 'Request a Proposal'),
-    primaryLink: content.cta.primaryLink || `/${locale}/b2b/contact`,
-    mediaType: content.cta.mediaType || "IMAGE",
-    mediaUrl: content.cta.mediaUrl || ""
-  } : null;
+  const cmsContent = getMergedCMSPageContent('b2b-cases', pageData?.content)
 
   return (
     <CaseStudiesIndexClient 
       caseStudies={caseStudies}
-      heroData={hero}
-      ctaData={cta}
+      services={services}
+      employeeProfiles={employeeProfiles}
+      cmsContent={cmsContent}
       locale={locale}
     />
   )

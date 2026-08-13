@@ -1,4 +1,4 @@
-import CaseStudiesIndexPage, { metadata } from '../case-studies/page'
+import CaseStudiesIndexPage, { generateMetadata } from '../case-studies/page'
 
-export { metadata }
+export { generateMetadata }
 export default CaseStudiesIndexPage
