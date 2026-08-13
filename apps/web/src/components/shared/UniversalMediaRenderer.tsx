@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 // Types of media supported
-export type UniversalMediaType = 'IMAGE' | 'VIDEO' | 'IFRAME' | 'THREE_D' | 'SPLINE' | 'SLIDES'
+export type UniversalMediaType = 'IMAGE' | 'VIDEO' | 'YOUTUBE' | 'VIMEO' | 'IFRAME' | 'THREE_D' | 'SPLINE' | 'SLIDES'
 
 export interface UniversalMediaProps {
   type: UniversalMediaType
@@ -21,8 +21,32 @@ export interface UniversalMediaProps {
 
 // Lazy load heavy 3D components
 const SplineViewer = lazy(() => import('@splinetool/react-spline'))
-// Assume we have a shared SpatialScene for GLTF/THREE_D
-// const SpatialScene = lazy(() => import('./SpatialScene').then(mod => ({ default: mod.SpatialScene })))
+
+function parseVideoEmbedUrl(url: string, autoPlay = true, muted = true, loop = true): string {
+  if (!url) return '';
+  // YouTube watch link: https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    if (videoIdMatch && videoIdMatch[1]) {
+      const id = videoIdMatch[1];
+      const autoPlayParam = autoPlay ? '1' : '0';
+      const muteParam = muted ? '1' : '0';
+      const loopParam = loop ? `1&playlist=${id}` : '0';
+      return `https://www.youtube-nocookie.com/embed/${id}?autoplay=${autoPlayParam}&mute=${muteParam}&loop=${loopParam}&controls=1&rel=0&modestbranding=1`;
+    }
+  }
+  // Vimeo link: https://vimeo.com/VIDEO_ID
+  if (url.includes('vimeo.com')) {
+    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/);
+    if (vimeoMatch && vimeoMatch[1]) {
+      const id = vimeoMatch[1];
+      const autoPlayParam = autoPlay ? '1' : '0';
+      const muteParam = muted ? '1' : '0';
+      return `https://player.vimeo.com/video/${id}?autoplay=${autoPlayParam}&muted=${muteParam}&loop=${loop ? '1' : '0'}`;
+    }
+  }
+  return url;
+}
 
 export function UniversalMediaRenderer({
   type,
@@ -46,12 +70,32 @@ export function UniversalMediaRenderer({
       )
     }
     return (
-      <div className={cn("relative w-full h-full bg-gradient-to-br from-[var(--e3-deep-blue)] via-[var(--e3-midnight)] to-zinc-950 flex items-center justify-center", className)}>
-        <div className="w-12 h-12 rounded-full bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 flex items-center justify-center font-bold text-xs text-[var(--e3-royal-blue)]">
+      <div className={cn("relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-950 flex items-center justify-center", className)}>
+        <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400 font-syne">
           E3
         </div>
       </div>
     )
+  }
+
+  // Detect YouTube or Vimeo URLs inside VIDEO or IFRAME type
+  const isExternalVideo = src.includes('youtube.com') || src.includes('youtu.be') || src.includes('vimeo.com');
+
+  if (type === 'YOUTUBE' || type === 'VIMEO' || (isExternalVideo && (type === 'VIDEO' || type === 'IFRAME'))) {
+    const embedUrl = parseVideoEmbedUrl(src, autoPlay, muted, loop);
+    return (
+      <div className={cn("relative w-full h-full overflow-hidden bg-zinc-950", className)}>
+        <iframe 
+          key={embedUrl}
+          src={embedUrl}
+          title={alt}
+          onError={() => setHasError(true)}
+          className="w-full h-full border-0 pointer-events-auto"
+          allow="autoplay; fullscreen; picture-in-picture; accelerometer; gyroscope; encrypted-media"
+          loading="lazy"
+        />
+      </div>
+    );
   }
 
   switch (type) {
@@ -102,7 +146,6 @@ export function UniversalMediaRenderer({
       )
       
     case 'SPLINE':
-      // Spline runtime requires valid .splinecode scene binary or prod.spline.design embed URL
       if (!src.includes('.splinecode') && !src.includes('spline.design')) {
         return (
           <div className={cn("relative w-full h-full", className)}>
@@ -179,7 +222,6 @@ export function UniversalMediaRenderer({
       )
       
     case 'SLIDES':
-      // Placeholder for carousel/slider implementation
       return (
         <div className={cn("relative w-full h-full bg-zinc-900 flex items-center justify-center", className)}>
           <p className="text-zinc-500">Slides: {src}</p>

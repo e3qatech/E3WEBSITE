@@ -204,7 +204,7 @@ export function CaseStudiesIndexClient({
           <div className="container mx-auto px-4 md:px-8">
             <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-900/40 backdrop-blur-md relative group">
               <UniversalMediaRenderer 
-                type={"VIDEO"} 
+                type={(showreel.mediaType as any) || (showreel.mediaUrl?.includes('youtube.com') || showreel.mediaUrl?.includes('youtu.be') ? "YOUTUBE" : showreel.mediaUrl?.includes('vimeo.com') ? "VIMEO" : "VIDEO")} 
                 src={showreel.mediaUrl}
                 poster={showreel.posterImage}
                 autoPlay={showreel.autoplay !== false}

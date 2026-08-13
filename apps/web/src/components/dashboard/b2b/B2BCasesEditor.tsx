@@ -426,12 +426,50 @@ export function B2BCasesEditor({
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Showreel Video URL</label>
+
+            <div className="grid grid-cols-3 gap-6 pt-2">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Source Type</label>
+                <select
+                  value={data.showreel?.mediaType || "YOUTUBE"}
+                  onChange={e => handleChange('showreel', 'mediaType', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                >
+                  <option value="YOUTUBE">YouTube Video / Embed URL</option>
+                  <option value="VIMEO">Vimeo Video / Embed URL</option>
+                  <option value="VIDEO">Direct MP4 / Uploaded Video File</option>
+                  <option value="IFRAME">Custom iFrame Embed</option>
+                </select>
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  {['YOUTUBE', 'VIMEO', 'IFRAME'].includes(data.showreel?.mediaType || "YOUTUBE") ? "YouTube / Vimeo / External Video URL" : "Video File / Upload"}
+                </label>
+                {['YOUTUBE', 'VIMEO', 'IFRAME'].includes(data.showreel?.mediaType || "YOUTUBE") ? (
+                  <input 
+                    type="text" 
+                    value={data.showreel?.mediaUrl || ""}
+                    onChange={e => handleChange('showreel', 'mediaUrl', e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  />
+                ) : (
+                  <MediaUploader 
+                    value={data.showreel?.mediaUrl || ""} 
+                    onChange={url => handleChange('showreel', 'mediaUrl', url)} 
+                    accept="video/*"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Cover / Poster Image (Optional Thumbnail)</label>
               <MediaUploader 
-                value={data.showreel?.mediaUrl || ""} 
-                onChange={url => handleChange('showreel', 'mediaUrl', url)} 
-                accept="video/*"
+                value={data.showreel?.posterImage || ""} 
+                onChange={url => handleChange('showreel', 'posterImage', url)} 
+                accept="image/*"
               />
             </div>
           </div>

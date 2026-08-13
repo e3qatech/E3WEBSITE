@@ -117,17 +117,19 @@ export function B2BHomeEditor({
                 className="w-full bg-surface-hover border border-border-default rounded-md px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none mb-2"
               >
                 <option value="IMAGE">Image</option>
-                <option value="VIDEO">Video</option>
+                <option value="VIDEO">Uploaded Video File</option>
+                <option value="YOUTUBE">YouTube Video URL</option>
+                <option value="VIMEO">Vimeo Video URL</option>
                 <option value="IFRAME">External iFrame</option>
                 <option value="SPLINE">Spline / 3D Scene</option>
               </select>
 
-              {(hero.mediaType === 'IFRAME' || hero.mediaType === 'SPLINE') ? (
+              {(hero.mediaType === 'IFRAME' || hero.mediaType === 'SPLINE' || hero.mediaType === 'YOUTUBE' || hero.mediaType === 'VIMEO') ? (
                 <input 
                   type="text" 
                   value={hero.mediaUrl || ''} 
                   onChange={e => setHero({ ...hero, mediaUrl: e.target.value })} 
-                  placeholder="https://..." 
+                  placeholder="https://www.youtube.com/watch?v=... or https://..." 
                   className="w-full bg-surface-hover border border-border-default rounded-md px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
                 />
               ) : (
