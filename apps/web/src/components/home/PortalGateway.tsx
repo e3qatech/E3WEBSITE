@@ -57,6 +57,10 @@ export function PortalGateway({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Mobile Viewport detection (real window OR simulated mobile in preview mode)
+  const isSimulatedMobile = previewMode && simulation?.viewport === 'mobile-390';
+  const effectiveIsMobile = isSimulatedMobile || isMobileViewport;
+
   // In Preview Mode, prefer draft config
   const activeCmsData = previewMode && previewConfig ? previewConfig : initialCmsData;
 
@@ -122,18 +126,24 @@ export function PortalGateway({
   // Active Media resolution
   const activeB2cDesktopMedia = activeCmsData.b2cDesktopMedia;
   const activeB2cMobileMedia = activeCmsData.b2cMobileMedia || activeCmsData.b2cDesktopMedia;
-  const activeB2cMedia = isMobileViewport && activeB2cMobileMedia?.mediaUrl ? activeB2cMobileMedia : activeB2cDesktopMedia;
+  const activeB2cMedia = effectiveIsMobile && activeB2cMobileMedia?.mediaUrl ? activeB2cMobileMedia : activeB2cDesktopMedia;
 
   const activeB2bDesktopMedia = activeCmsData.b2bDesktopMedia;
   const activeB2bMobileMedia = activeCmsData.b2bMobileMedia || activeCmsData.b2bDesktopMedia;
-  const activeB2bMedia = isMobileViewport && activeB2bMobileMedia?.mediaUrl ? activeB2bMobileMedia : activeB2bDesktopMedia;
+  const activeB2bMedia = effectiveIsMobile && activeB2bMobileMedia?.mediaUrl ? activeB2bMobileMedia : activeB2bDesktopMedia;
 
-  // Dynamic panel width percentages for Desktop
-  let b2cWidthPercent = 50;
-  if (hoveredPortal === 'b2c' || focusedPortal === 'b2c') {
-    b2cWidthPercent = 62;
-  } else if (hoveredPortal === 'b2b' || focusedPortal === 'b2b') {
-    b2cWidthPercent = 38;
+  // Dynamic panel width percentages for Desktop & Live Simulation Focus
+  const activeFocus = previewMode && simulation?.portalFocus && simulation.portalFocus !== 'none'
+    ? simulation.portalFocus
+    : hoveredPortal || focusedPortal;
+
+  let b2cWidthPercent = activeCmsData.visual?.initialSplitRatio || 50;
+  const targetExpandWidth = activeCmsData.visual?.selectedPortalWidth || 62;
+
+  if (activeFocus === 'b2c') {
+    b2cWidthPercent = targetExpandWidth;
+  } else if (activeFocus === 'b2b') {
+    b2cWidthPercent = 100 - targetExpandWidth;
   }
 
   return (
@@ -166,8 +176,8 @@ export function PortalGateway({
 
         {/* Ambient Glowing Mesh Background Orbs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          <div className={`absolute top-1/4 start-1/4 w-[600px] h-[600px] rounded-full blur-[140px] transition-opacity duration-1000 ${hoveredPortal === 'b2c' ? 'bg-purple-600/35 opacity-100' : 'bg-purple-600/20 opacity-60'}`} />
-          <div className={`absolute bottom-1/4 end-1/4 w-[600px] h-[600px] rounded-full blur-[140px] transition-opacity duration-1000 ${hoveredPortal === 'b2b' ? 'bg-indigo-600/35 opacity-100' : 'bg-indigo-600/20 opacity-60'}`} />
+          <div className={`absolute top-1/4 start-1/4 w-[600px] h-[600px] rounded-full blur-[140px] transition-opacity duration-1000 ${hoveredPortal === 'b2c' || activeFocus === 'b2c' ? 'bg-purple-600/35 opacity-100' : 'bg-purple-600/20 opacity-60'}`} />
+          <div className={`absolute bottom-1/4 end-1/4 w-[600px] h-[600px] rounded-full blur-[140px] transition-opacity duration-1000 ${hoveredPortal === 'b2b' || activeFocus === 'b2b' ? 'bg-indigo-600/35 opacity-100' : 'bg-indigo-600/20 opacity-60'}`} />
         </div>
 
         {/* ============================================================ */}
@@ -187,7 +197,7 @@ export function PortalGateway({
                 isLight={isLight}
                 lightLogoUrl={isLight ? logo?.lightLogoUrl || logo?.defaultLogoUrl : undefined}
                 darkLogoUrl={!isLight ? logo?.darkLogoUrl || logo?.defaultLogoUrl : undefined}
-                size={isMobileViewport ? "sm" : "md"}
+                size={effectiveIsMobile ? "sm" : "md"}
               />
             </a>
 
@@ -200,43 +210,47 @@ export function PortalGateway({
             {/* Controls: Language & Theme Switcher (Top Right in LTR / Top Left in RTL) */}
             <div className="flex items-center gap-2.5 md:gap-4">
               {/* Language Switcher */}
-              <button
-                onClick={() => {
-                  const nextLocale = activeLocale === "en" ? "ar" : "en";
-                  if (previewMode) {
-                    setLocalPreviewSim((prev) => ({ ...prev, locale: nextLocale }));
-                  } else {
-                    setLocale(nextLocale);
-                    const segments = pathname.split("/");
-                    if (segments[1] === "en" || segments[1] === "ar") {
-                      segments[1] = nextLocale;
-                      router.push(segments.join("/"));
+              {visual.languageSwitcherVisible !== false && (
+                <button
+                  onClick={() => {
+                    const nextLocale = activeLocale === "en" ? "ar" : "en";
+                    if (previewMode) {
+                      setLocalPreviewSim((prev) => ({ ...prev, locale: nextLocale }));
                     } else {
-                      router.push(`/${nextLocale}`);
+                      setLocale(nextLocale);
+                      const segments = pathname.split("/");
+                      if (segments[1] === "en" || segments[1] === "ar") {
+                        segments[1] = nextLocale;
+                        router.push(segments.join("/"));
+                      } else {
+                        router.push(`/${nextLocale}`);
+                      }
                     }
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-xs md:text-sm font-bold text-white transition-all cursor-pointer shadow-md"
-              >
-                <Globe className="w-4 h-4 text-purple-400" />
-                <span>{activeLocale === "en" ? "العربية" : "ENGLISH"}</span>
-              </button>
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-xs md:text-sm font-bold text-white transition-all cursor-pointer shadow-md"
+                >
+                  <Globe className="w-4 h-4 text-purple-400" />
+                  <span>{activeLocale === "en" ? "العربية" : "ENGLISH"}</span>
+                </button>
+              )}
 
               {/* Theme Switcher */}
-              <button
-                onClick={() => {
-                  const nextTheme = isLight ? "dark" : "light";
-                  if (previewMode) {
-                    setLocalPreviewSim((prev) => ({ ...prev, theme: nextTheme }));
-                  } else {
-                    setTheme(nextTheme);
-                  }
-                }}
-                className="p-2.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-all cursor-pointer shadow-md"
-                title="Toggle Light/Dark Theme"
-              >
-                {isLight ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
-              </button>
+              {visual.themeSwitcherVisible !== false && (
+                <button
+                  onClick={() => {
+                    const nextTheme = isLight ? "dark" : "light";
+                    if (previewMode) {
+                      setLocalPreviewSim((prev) => ({ ...prev, theme: nextTheme }));
+                    } else {
+                      setTheme(nextTheme);
+                    }
+                  }}
+                  className="p-2.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-all cursor-pointer shadow-md"
+                  title="Toggle Light/Dark Theme"
+                >
+                  {isLight ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
+                </button>
+              )}
             </div>
           </div>
         </header>
@@ -249,7 +263,7 @@ export function PortalGateway({
         <main className="relative flex-1 w-full h-full overflow-hidden z-10">
           
           {/* MOBILE VIEW (< 768px): STACKED HORIZONTAL 50/50 SPLIT */}
-          {isMobileViewport ? (
+          {effectiveIsMobile ? (
             <div className="flex flex-col h-[calc(100vh-90px)] w-full relative">
               
               {/* TOP HALF: B2C CONSUMER PORTAL */}
@@ -366,7 +380,7 @@ export function PortalGateway({
                 style={{ width: `${b2cWidthPercent}%` }}
                 className={cn(
                   "relative h-full cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden group border-r border-white/10 z-20",
-                  hoveredPortal === "b2c" ? "brightness-110" : hoveredPortal === "b2b" ? "opacity-75 grayscale-[20%]" : "opacity-100"
+                  hoveredPortal === "b2c" || activeFocus === "b2c" ? "brightness-110" : hoveredPortal === "b2b" || activeFocus === "b2b" ? "opacity-75 grayscale-[20%]" : "opacity-100"
                 )}
               >
                 <UniversalMediaHolder
@@ -374,7 +388,7 @@ export function PortalGateway({
                   locale={activeLocale}
                   className={cn(
                     "h-full w-full object-cover transition-all duration-1000 opacity-65",
-                    hoveredPortal === "b2c" ? "scale-105 opacity-90" : "scale-100"
+                    hoveredPortal === "b2c" || activeFocus === "b2c" ? "scale-105 opacity-90" : "scale-100"
                   )}
                 />
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
@@ -427,7 +441,7 @@ export function PortalGateway({
                 style={{ width: `${100 - b2cWidthPercent}%` }}
                 className={cn(
                   "relative h-full cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden group z-10",
-                  hoveredPortal === "b2b" ? "brightness-110 z-20" : hoveredPortal === "b2c" ? "opacity-75 grayscale-[20%]" : "opacity-100"
+                  hoveredPortal === "b2b" || activeFocus === "b2b" ? "brightness-110 z-20" : hoveredPortal === "b2c" || activeFocus === "b2c" ? "opacity-75 grayscale-[20%]" : "opacity-100"
                 )}
               >
                 <UniversalMediaHolder
@@ -435,7 +449,7 @@ export function PortalGateway({
                   locale={activeLocale}
                   className={cn(
                     "h-full w-full object-cover transition-all duration-1000 opacity-65",
-                    hoveredPortal === "b2b" ? "scale-105 opacity-90" : "scale-100"
+                    hoveredPortal === "b2b" || activeFocus === "b2b" ? "scale-105 opacity-90" : "scale-100"
                   )}
                 />
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
@@ -464,7 +478,7 @@ export function PortalGateway({
                   <div className="pt-2">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleSelect("b2b"); }}
-                      className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-widest transition-all shadow-xl shadow-indigo-950/60 group/btn cursor-pointer"
+                      className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-widest transition-all shadow-xl shadow-purple-950/60 group/btn cursor-pointer"
                     >
                       <span>{b2bCta}</span>
                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-1 group-hover/btn:scale-105 transition-all">
@@ -483,7 +497,6 @@ export function PortalGateway({
             </div>
           )}
         </main>
-
       </div>
     </>
   );

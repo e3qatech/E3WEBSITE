@@ -1338,8 +1338,18 @@ export default function GatewayCustomizationPage() {
             </div>
 
             {/* LIVE PREVIEW CANVAS */}
-            <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-2 overflow-hidden shadow-2xl min-h-[600px] flex items-center justify-center">
-              <PortalGateway previewMode={true} previewConfig={formData} simulation={simState} />
+            <div className="w-full rounded-2xl border border-slate-800 bg-slate-950/80 p-4 overflow-hidden shadow-2xl min-h-[650px] flex items-center justify-center">
+              <div
+                className={cn(
+                  'relative transition-all duration-500 overflow-hidden rounded-2xl border border-slate-800 shadow-2xl bg-black h-[720px]',
+                  simState.viewport === 'mobile-390' && 'w-[390px]',
+                  simState.viewport === 'tablet-768' && 'w-[768px]',
+                  simState.viewport === 'laptop-1280' && 'w-[1280px] max-w-full',
+                  simState.viewport === 'desktop-1440' && 'w-full'
+                )}
+              >
+                <PortalGateway previewMode={true} previewConfig={formData} simulation={simState} />
+              </div>
             </div>
           </div>
         )}
