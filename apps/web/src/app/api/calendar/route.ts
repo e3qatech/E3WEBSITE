@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
-import { FALLBACK_ATTRACTIONS } from '@/components/b2c/AttractionsDirectory';
+import { FALLBACK_ATTRACTIONS } from '@/lib/fallback-attractions';
 
 const _QATAR_TZ = 'Asia/Qatar';
 

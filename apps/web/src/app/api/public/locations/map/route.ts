@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
-import { FALLBACK_ATTRACTIONS } from '@/components/b2c/AttractionsDirectory';
+import { FALLBACK_ATTRACTIONS } from '@/lib/fallback-attractions';
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Combine database locations with canonical fallback location points if database empty
-    const itemsToProcess = dbLocations.length > 0 ? dbLocations : FALLBACK_ATTRACTIONS.map(attr => ({
+    const itemsToProcess = dbLocations.length > 0 ? dbLocations : FALLBACK_ATTRACTIONS.map((attr: any, idx: number) => ({
       id: `loc-${attr.id}`,
       slug: attr.slug,
       nameEn: attr.nameEn,

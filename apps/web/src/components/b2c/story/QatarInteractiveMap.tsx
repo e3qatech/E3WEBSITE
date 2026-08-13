@@ -6,7 +6,7 @@ import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas'
 import { AttractionLocationCard } from '@/components/map/AttractionLocationCard'
 import { useNearestLocations } from '@/hooks/useNearestLocations'
 import { MapGeoJSONCollection, MapGeoJSONFeature, MapLocationProperties } from '@/components/map/map-types'
-import { FALLBACK_ATTRACTIONS } from '@/components/b2c/AttractionsDirectory'
+import { FALLBACK_ATTRACTIONS } from '@/lib/fallback-attractions'
 
 interface QatarInteractiveMapProps {
   content?: any
