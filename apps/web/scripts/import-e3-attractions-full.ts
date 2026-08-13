@@ -9,7 +9,23 @@ const __dirname = path.dirname(__filename);
 const isApplyMode = process.argv.includes('--apply');
 const isDryRun = !isApplyMode;
 
-const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public';
+// Automatically parse .env.local if present
+const envLocalPath = path.join(__dirname, '../.env.local');
+if (fs.existsSync(envLocalPath)) {
+  const envContent = fs.readFileSync(envLocalPath, 'utf-8');
+  envContent.split('\n').forEach(line => {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*"(.*)"\s*$/) || line.match(/^\s*([\w.-]+)\s*=\s*(.*)\s*$/);
+    if (match && !process.env[match[1]]) {
+      process.env[match[1]] = match[2];
+    }
+  });
+}
+
+const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
+
+if (!dbUrl) {
+  throw new Error('Database URL is not configured. Set DATABASE_URL, POSTGRES_PRISMA_URL, or POSTGRES_URL.');
+}
 
 const prisma = new PrismaClient({
   datasources: {
@@ -70,9 +86,18 @@ interface InspectionReport {
 }
 
 async function main() {
+  let maskedHost = 'localhost / 127.0.0.1';
+  try {
+    const parsed = new URL(dbUrl);
+    maskedHost = `${parsed.hostname} (DB: ${parsed.pathname.replace('/', '')})`;
+  } catch (e) {
+    maskedHost = dbUrl.split('@')[1] || dbUrl;
+  }
+
   console.log(`=======================================================`);
   console.log(`E3 ATTRACTIONS CMS & DATABASE IMPORT / DRY-RUN ENGINE`);
   console.log(`Mode: ${isDryRun ? 'DRY-RUN (READ-ONLY INSPECTION)' : 'PRODUCTION WRITE (--apply)'}`);
+  console.log(`Target Database Host: ${maskedHost}`);
   console.log(`Timestamp: ${new Date().toISOString()}`);
   console.log(`=======================================================\n`);
 
@@ -335,6 +360,7 @@ async function main() {
         if (dbMatch) {
           // Patch semantics
           const patchData: any = {};
+          if (dbMatch.slug !== slug) patchData.slug = slug;
           if (!dbMatch.nameAr && payload.nameAr) patchData.nameAr = payload.nameAr;
           if (!dbMatch.taglineEn && payload.taglineEn) patchData.taglineEn = payload.taglineEn;
           if (!dbMatch.taglineAr && payload.taglineAr) patchData.taglineAr = payload.taglineAr;

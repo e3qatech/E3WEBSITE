@@ -33,8 +33,14 @@
       "pricing": [],
       "partnerOffers": [],
       "partners": [
-        { "name": "Qatar Tourism", "relationship": "Official Tourism Partner" },
-        { "name": "Supreme Committee for Delivery & Legacy", "relationship": "Strategic Partner" }
+        {
+          "name": "Qatar Tourism",
+          "relationship": "Official Tourism Partner"
+        },
+        {
+          "name": "Supreme Committee for Delivery & Legacy",
+          "relationship": "Strategic Partner"
+        }
       ],
       "socialLinks": [],
       "socialPosts": [],
@@ -62,7 +68,9 @@
         "isPermanent": false,
         "isSpecialEvent": true,
         "isPublished": true,
-        "temporalStatus": { "status": "PAST" }
+        "temporalStatus": {
+          "status": "PAST"
+        }
       },
       "faqs": [
         {
@@ -86,7 +94,6 @@
         "metaDescriptionAr": "استكشف تفاصيل مهرجان الدوحة للمناطيد ٢٠٢٢ المنفذ بواسطة إي ثري على كورنيش الدوحة."
       }
     },
-
     {
       "slug": "lego-shows-qatar-2024",
       "core": {
@@ -145,8 +152,14 @@
       ],
       "partnerOffers": [],
       "partners": [
-        { "name": "Visit Qatar", "relationship": "Official Tourism Partner" },
-        { "name": "Qatar National Convention Centre (QNCC)", "relationship": "Venue Partner" }
+        {
+          "name": "Visit Qatar",
+          "relationship": "Official Tourism Partner"
+        },
+        {
+          "name": "Qatar National Convention Centre (QNCC)",
+          "relationship": "Venue Partner"
+        }
       ],
       "socialLinks": [],
       "socialPosts": [],
@@ -174,7 +187,9 @@
         "isPermanent": false,
         "isSpecialEvent": true,
         "isPublished": true,
-        "temporalStatus": { "status": "PAST" }
+        "temporalStatus": {
+          "status": "PAST"
+        }
       },
       "faqs": [
         {
@@ -192,7 +207,6 @@
         "metaDescriptionAr": "استعرض تفاصيل معرض ليغو قطر ٢٠٢٤، أكبر حدث تفاعلي للمكعبات تم تنفيذه بواسطة إي ثري."
       }
     },
-
     {
       "slug": "lego-shows-qatar-2025",
       "core": {
@@ -203,29 +217,69 @@
         "descriptionEn": "LEGO® Shows Qatar 2025 expands upon the landmark 2024 experience, featuring all-new robotic brick zones, expanded LEGO® Technic mechanics challenges, giant inflatable brick obstacles, and exclusive master builder workshops delivered turnkey by E3.",
         "descriptionAr": "توسع معرض ليغو قطر ٢٠٢٥ في نجاح النسخة الأولى، مقدماً مناطق ريبوتات ومكعبات تفاعلية جديدة، تحديات ميكانيكية متقدمة، عوائق مطاطية ضخمة، وورش عمل مع معامرة البناء."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [
-        { "titleEn": "LEGO® Technic Robotics Challenge", "titleAr": "تحدي روبوتات ليغو تيكنيك", "descriptionEn": "Interactive coding and mechanics building tracks.", "descriptionAr": "مسارات تفاعلية للبرمجة والميكانيكا." },
-        { "titleEn": "Giant LEGO® Brick Sculpture Park", "titleAr": "حديقة مجسمات الليغو الضخمة", "descriptionEn": "Life-sized character statues and landmark replicas.", "descriptionAr": "مجسمات شخصيات ومعالم بحجم طبيعي." }
+        {
+          "titleEn": "LEGO® Technic Robotics Challenge",
+          "titleAr": "تحدي روبوتات ليغو تيكنيك",
+          "descriptionEn": "Interactive coding and mechanics building tracks.",
+          "descriptionAr": "مسارات تفاعلية للبرمجة والميكانيكا."
+        },
+        {
+          "titleEn": "Giant LEGO® Brick Sculpture Park",
+          "titleAr": "حديقة مجسمات الليغو الضخمة",
+          "descriptionEn": "Life-sized character statues and landmark replicas.",
+          "descriptionAr": "مجسمات شخصيات ومعالم بحجم طبيعي."
+        }
       ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Visit Qatar", "relationship": "Official Tourism Partner" } ],
+      "partners": [
+        {
+          "name": "Visit Qatar",
+          "relationship": "Official Tourism Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=QNCC+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Qatar National Convention Centre (QNCC)", "ageGroup": "All Ages" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=QNCC+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Qatar National Convention Centre (QNCC)",
+        "ageGroup": "All Ages"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [
-        { "questionEn": "When is LEGO® Shows Qatar 2025?", "answerEn": "Dates and ticketing details will be announced on E3 official channels.", "questionAr": "متى سيعقد معرض ليغو قطر ٢٠٢٥؟", "answerAr": "سيتم الإعلان عن المواعيد والتذاكر عبر قنوات إي ثري الرسمية." }
+        {
+          "questionEn": "When is LEGO® Shows Qatar 2025?",
+          "answerEn": "Dates and ticketing details will be announced on E3 official channels.",
+          "questionAr": "متى سيعقد معرض ليغو قطر ٢٠٢٥؟",
+          "answerAr": "سيتم الإعلان عن المواعيد والتذاكر عبر قنوات إي ثري الرسمية."
+        }
       ],
       "gallery": [],
-      "seo": { "metaTitleEn": "LEGO® Shows Qatar 2025 | E3 Qatar", "metaDescriptionEn": "Discover upcoming LEGO® Shows Qatar 2025 delivered by E3 in Doha.", "metaTitleAr": "معرض ليغو قطر ٢٠٢٥ | إي ثري قطر", "metaDescriptionAr": "اكتشف فعاليات معرض ليغو قطر ٢٠٢٥ القادم من تنظيم إي ثري." }
+      "seo": {
+        "metaTitleEn": "LEGO® Shows Qatar 2025 | E3 Qatar",
+        "metaDescriptionEn": "Discover upcoming LEGO® Shows Qatar 2025 delivered by E3 in Doha.",
+        "metaTitleAr": "معرض ليغو قطر ٢٠٢٥ | إي ثري قطر",
+        "metaDescriptionAr": "اكتشف فعاليات معرض ليغو قطر ٢٠٢٥ القادم من تنظيم إي ثري."
+      }
     },
-
     {
       "slug": "inflatacity-2024",
       "core": {
@@ -236,30 +290,92 @@
         "descriptionEn": "InflataCity 2024 spanned 30,000 sqm of continuous indoor inflatable attractions at QNCC during Eid Al Adha 2024. Featuring giant obstacle courses, massive slide towers, carnival games, live stage performances, and gourmet food courts, it welcomed over 100,000 visitors.",
         "descriptionAr": "امتدت إنفلاتاسيتي ٢٠٢٤ على مساحة ٣٠٠٠٠ متر مربع من الألعاب المطاطية الداخلية المستمرة في مركز قطر الوطني للمؤتمرات خلال عيد الأضحى ٢٠٢٤. ضمت مسارات عوائق ضخمة، أبراج زحلقات، ألعاب كرنفال، وعروضاً حية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [
-        { "titleEn": "InflataMonster Obstacle Course", "titleAr": "مسار عوائق إنفلاتامونستر", "descriptionEn": "A continuous 500-meter indoor inflatable obstacle challenge.", "descriptionAr": "مسار عوائق مطاطي مستمر بطول ٥٠٠ متر." },
-        { "titleEn": "Mega Slide Drops", "titleAr": "أبراج المنزلقات العملاقة", "descriptionEn": "Multi-lane high-speed inflatable slides.", "descriptionAr": "أبراج منزلقات فائقة السرعة متعددة المسارات." }
+        {
+          "titleEn": "InflataMonster Obstacle Course",
+          "titleAr": "مسار عوائق إنفلاتامونستر",
+          "descriptionEn": "A continuous 500-meter indoor inflatable obstacle challenge.",
+          "descriptionAr": "مسار عوائق مطاطي مستمر بطول ٥٠٠ متر."
+        },
+        {
+          "titleEn": "Mega Slide Drops",
+          "titleAr": "أبراج المنزلقات العملاقة",
+          "descriptionEn": "Multi-lane high-speed inflatable slides.",
+          "descriptionAr": "أبراج منزلقات فائقة السرعة متعددة المسارات."
+        }
       ],
       "pricing": [
-        { "titleEn": "Single Pass", "titleAr": "تذكرة فردية", "price": 75, "currency": "QAR", "type": "GENERAL" },
-        { "titleEn": "VIP Unlimited Pass", "titleAr": "تذكرة كبار الشخصيات", "price": 250, "currency": "QAR", "type": "VIP" }
+        {
+          "titleEn": "Single Pass",
+          "titleAr": "تذكرة فردية",
+          "price": 75,
+          "currency": "QAR",
+          "type": "GENERAL"
+        },
+        {
+          "titleEn": "VIP Unlimited Pass",
+          "titleAr": "تذكرة كبار الشخصيات",
+          "price": 250,
+          "currency": "QAR",
+          "type": "VIP"
+        }
       ],
       "partnerOffers": [],
-      "partners": [ { "name": "Visit Qatar", "relationship": "Official Partner" } ],
+      "partners": [
+        {
+          "name": "Visit Qatar",
+          "relationship": "Official Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=QNCC+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "QNCC Halls 3-9", "hours": "1:00 PM – 11:00 PM" },
-      "timingRules": [ { "ruleTitle": "Eid Al Adha 2024", "startDate": "2024-06-16", "endDate": "2024-06-25", "openTime": "13:00", "closeTime": "23:00" } ],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
-      "faqs": [ { "questionEn": "What was InflataCity 2024?", "answerEn": "A 30,000 sqm indoor inflatable park at QNCC.", "questionAr": "ما هي إنفلاتاسيتي ٢٠٢٤؟", "answerAr": "أكبر مدينة ألعاب مطاطية داخلية بمساحة ٣٠٠٠٠ م٢." } ],
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=QNCC+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "QNCC Halls 3-9",
+        "hours": "1:00 PM – 11:00 PM"
+      },
+      "timingRules": [
+        {
+          "ruleTitle": "Eid Al Adha 2024",
+          "startDate": "2024-06-16",
+          "endDate": "2024-06-25",
+          "openTime": "13:00",
+          "closeTime": "23:00"
+        }
+      ],
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
+      "faqs": [
+        {
+          "questionEn": "What was InflataCity 2024?",
+          "answerEn": "A 30,000 sqm indoor inflatable park at QNCC.",
+          "questionAr": "ما هي إنفلاتاسيتي ٢٠٢٤؟",
+          "answerAr": "أكبر مدينة ألعاب مطاطية داخلية بمساحة ٣٠٠٠٠ م٢."
+        }
+      ],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataCity 2024 | E3 Qatar", "metaDescriptionEn": "Explore InflataCity 2024 indoor inflatable park by E3 at QNCC.", "metaTitleAr": "إنفلاتاسيتي ٢٠٢٤ | إي ثري قطر", "metaDescriptionAr": "استكشف تفاصيل مدينة إنفلاتاسيتي ٢٠٢٤ المطاطية من إي ثري." }
+      "seo": {
+        "metaTitleEn": "InflataCity 2024 | E3 Qatar",
+        "metaDescriptionEn": "Explore InflataCity 2024 indoor inflatable park by E3 at QNCC.",
+        "metaTitleAr": "إنفلاتاسيتي ٢٠٢٤ | إي ثري قطر",
+        "metaDescriptionAr": "استكشف تفاصيل مدينة إنفلاتاسيتي ٢٠٢٤ المطاطية من إي ثري."
+      }
     },
-
     {
       "slug": "inflatacity-2025",
       "core": {
@@ -270,7 +386,10 @@
         "descriptionEn": "InflataCity 2025 returns with an upgraded masterplanned footprint, introducing newly engineered kinetic slide drops, interactive LED-lit inflatable obstacles, and enhanced VIP lounge hospitality.",
         "descriptionAr": "تعود إنفلاتاسيتي ٢٠٢٥ بهندسة وتصميم مطور، مقدماً منزلقات حركية جديدة، عوائق مطاطية مزودة بإضاءات تفاعلية، ومساحات ضيافة ممتازة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [],
       "pricing": [],
       "partnerOffers": [],
@@ -279,15 +398,32 @@
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=QNCC+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "QNCC Doha", "ageGroup": "All Ages" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=QNCC+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "QNCC Doha",
+        "ageGroup": "All Ages"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataCity 2025 | E3 Qatar", "metaDescriptionEn": "Discover InflataCity 2025 upcoming indoor park in Qatar.", "metaTitleAr": "إنفلاتاسيتي ٢٠٢٥ | إي ثري قطر", "metaDescriptionAr": "تابع أحدث أخبار وتفاصيل إنفلاتاسيتي ٢٠٢٥ القادمة." }
+      "seo": {
+        "metaTitleEn": "InflataCity 2025 | E3 Qatar",
+        "metaDescriptionEn": "Discover InflataCity 2025 upcoming indoor park in Qatar.",
+        "metaTitleAr": "إنفلاتاسيتي ٢٠٢٥ | إي ثري قطر",
+        "metaDescriptionAr": "تابع أحدث أخبار وتفاصيل إنفلاتاسيتي ٢٠٢٥ القادمة."
+      }
     },
-
     {
       "slug": "inflatarun-2023",
       "core": {
@@ -298,24 +434,60 @@
         "descriptionEn": "InflataRUN 2023 was the inaugural sprint race held at Education City Stadium district, challenging participants across 10 massive inflatable zones in a timed competitive and fun family format.",
         "descriptionAr": "إنفلاتارن ٢٠٢٣ كان السباق الأول من نوعه في محيط استاد المدينة التعليمية، حيث تحدى المشاركون عبر ١٠ مناطق عوائق مطاطية ضخمة ضمن سباق توقيتي ترفيهي."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "1,180M Inflatable Track", "titleAr": "مضمار مطاطي بطول ١١٨٠ م" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "1,180M Inflatable Track",
+          "titleAr": "مضمار مطاطي بطول ١١٨٠ م"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Qatar Foundation", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Qatar Foundation",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Education+City+Stadium+Doha", "ticketingUrl": "" },
-      "operations": { "venueName": "Education City Stadium District", "ageGroup": "6+ Yrs & Families" },
-      "timingRules": [ { "ruleTitle": "InflataRUN 2023 Dates", "startDate": "2023-03-09", "endDate": "2023-03-18" } ],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Education+City+Stadium+Doha",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Education City Stadium District",
+        "ageGroup": "6+ Yrs & Families"
+      },
+      "timingRules": [
+        {
+          "ruleTitle": "InflataRUN 2023 Dates",
+          "startDate": "2023-03-09",
+          "endDate": "2023-03-18"
+        }
+      ],
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataRUN 2023 | E3 Qatar", "metaDescriptionEn": "Explore InflataRUN 2023, Qatar's inaugural 1,180m inflatable obstacle race.", "metaTitleAr": "إنفلاتارن ٢٠٢٣ | إي ثري قطر", "metaDescriptionAr": "استكشف تفاصيل سباق إنفلاتارن ٢٠٢٣ الأول في قطر." }
+      "seo": {
+        "metaTitleEn": "InflataRUN 2023 | E3 Qatar",
+        "metaDescriptionEn": "Explore InflataRUN 2023, Qatar's inaugural 1,180m inflatable obstacle race.",
+        "metaTitleAr": "إنفلاتارن ٢٠٢٣ | إي ثري قطر",
+        "metaDescriptionAr": "استكشف تفاصيل سباق إنفلاتارن ٢٠٢٣ الأول في قطر."
+      }
     },
-
     {
       "slug": "inflatarun-2024",
       "core": {
@@ -326,8 +498,16 @@
         "descriptionEn": "InflataRUN 2024 featured a record-breaking continuous inflatable obstacle track spanning over 1,180 meters. Thousands of runners, families, and elite obstacle athletes completed sprint challenges across custom-fabricated structures.",
         "descriptionAr": "ضم إنفلاتارن ٢٠٢٤ مضمار عوائق مطاطياً مستمراً وحاصل على رقم قياسي عالمي بطول تجاوز ١١٨٠ متراً، وشهد مشاركة آلاف العدائين والعائلات."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Record-Breaking Track", "titleAr": "مضمار الأرقام القياسية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Record-Breaking Track",
+          "titleAr": "مضمار الأرقام القياسية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
       "partners": [],
@@ -335,15 +515,32 @@
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Education+City+Stadium+Doha", "ticketingUrl": "" },
-      "operations": { "venueName": "Education City Stadium", "hours": "3:00 PM – 10:00 PM" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Education+City+Stadium+Doha",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Education City Stadium",
+        "hours": "3:00 PM – 10:00 PM"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataRUN 2024 | E3 Qatar", "metaDescriptionEn": "Learn about InflataRUN 2024 record-holding inflatable obstacle race.", "metaTitleAr": "إنفلاتارن ٢٠٢٤ | إي ثري قطر", "metaDescriptionAr": "تفاصيل سباق إنفلاتارن ٢٠٢٤ الحاصل على رقم قياسي عالمي." }
+      "seo": {
+        "metaTitleEn": "InflataRUN 2024 | E3 Qatar",
+        "metaDescriptionEn": "Learn about InflataRUN 2024 record-holding inflatable obstacle race.",
+        "metaTitleAr": "إنفلاتارن ٢٠٢٤ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل سباق إنفلاتارن ٢٠٢٤ الحاصل على رقم قياسي عالمي."
+      }
     },
-
     {
       "slug": "inflatarun-2025",
       "core": {
@@ -354,7 +551,10 @@
         "descriptionEn": "InflataRUN 2025 expands the iconic sprint concept with dedicated junior obstacle lanes, corporate team challenge relays, and live telemetry timing boards.",
         "descriptionAr": "يتوسع إنفلاتارن ٢٠٢٥ بمفهوم السباق الشهير، مقدماً مسارات عوائق خاصة للناشئين، تتابع التحدي للشركات، ولوحات توقيت وتغطية حية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [],
       "pricing": [],
       "partnerOffers": [],
@@ -363,15 +563,31 @@
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha, Qatar" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha, Qatar"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataRUN 2025 | E3 Qatar", "metaDescriptionEn": "Upcoming InflataRUN 2025 fitness challenge event.", "metaTitleAr": "إنفلاتارن ٢٠٢٥ | إي ثري قطر", "metaDescriptionAr": "تفاصيل سباق إنفلاتارن ٢٠٢٥ القادم." }
+      "seo": {
+        "metaTitleEn": "InflataRUN 2025 | E3 Qatar",
+        "metaDescriptionEn": "Upcoming InflataRUN 2025 fitness challenge event.",
+        "metaTitleAr": "إنفلاتارن ٢٠٢٥ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل سباق إنفلاتارن ٢٠٢٥ القادم."
+      }
     },
-
     {
       "slug": "le-marche-2024",
       "core": {
@@ -382,8 +598,16 @@
         "descriptionEn": "Le Marché 2024 brought Parisian-style boutique chalets, gourmet bakery pop-ups, artisanal craft displays, live accordion street music, and family workshops to Doha's waterfront.",
         "descriptionAr": "قدم سوق لو مارشيه ٢٠٢٤ أكشاكاً باريسية راقية، خابز ومخبوزات فرنسية، معروضات حرفية، وعروضاً موسيقية حية على واجهة الدوحة البحرية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Artisanal Chalets", "titleAr": "الأكشاك الحرفية الباريسية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Artisanal Chalets",
+          "titleAr": "الأكشاك الحرفية الباريسية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
       "partners": [],
@@ -391,15 +615,31 @@
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Waterfront+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Waterfront Promenade" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Waterfront+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Waterfront Promenade"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Le Marché 2024 | E3 Qatar", "metaDescriptionEn": "Explore Le Marché 2024 French boutique market delivered by E3.", "metaTitleAr": "لو مارشيه ٢٠٢٤ | إي ثري قطر", "metaDescriptionAr": "سوق لو مارشيه ٢٠٢٤ الفرنسي الحرفي المنفذ بواسطة إي ثري." }
+      "seo": {
+        "metaTitleEn": "Le Marché 2024 | E3 Qatar",
+        "metaDescriptionEn": "Explore Le Marché 2024 French boutique market delivered by E3.",
+        "metaTitleAr": "لو مارشيه ٢٠٢٤ | إي ثري قطر",
+        "metaDescriptionAr": "سوق لو مارشيه ٢٠٢٤ الفرنسي الحرفي المنفذ بواسطة إي ثري."
+      }
     },
-
     {
       "slug": "asian-town-sports-carnival",
       "core": {
@@ -410,24 +650,53 @@
         "descriptionEn": "Asian Town Sports Carnival delivered cricket tournaments, kabaddi exhibitions, inflatable games, live musical concerts, and food festivals catering to worker and resident communities in Asian Town, Doha.",
         "descriptionAr": "قدم كرنفال أسيان تاون الرياضي بطولات كريكيت، استعراضات كابادي، ألعاب مطاطية، حفلات موسيقية حية، ومهرجانات غذائية خدم العمال والمقيمين في أسيان تاون."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Cricket Tournament Arena", "titleAr": "ملعب بطولات الكريكيت" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Cricket Tournament Arena",
+          "titleAr": "ملعب بطولات الكريكيت"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Ibn Ajayan Projects", "relationship": "Venue Client" } ],
+      "partners": [
+        {
+          "name": "Ibn Ajayan Projects",
+          "relationship": "Venue Client"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Asian+Town+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Asian Town Cricket Stadium District" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Asian+Town+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Asian Town Cricket Stadium District"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Asian Town Sports Carnival | E3 Qatar", "metaDescriptionEn": "Discover Asian Town Sports Carnival community sports activation by E3.", "metaTitleAr": "كرنفال أسيان تاون الرياضي | إي ثري قطر", "metaDescriptionAr": "تفاصيل كرنفال الرياضة المجتمعي في أسيان تاون." }
+      "seo": {
+        "metaTitleEn": "Asian Town Sports Carnival | E3 Qatar",
+        "metaDescriptionEn": "Discover Asian Town Sports Carnival community sports activation by E3.",
+        "metaTitleAr": "كرنفال أسيان تاون الرياضي | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل كرنفال الرياضة المجتمعي في أسيان تاون."
+      }
     },
-
     {
       "slug": "afc-football-fest-2023",
       "core": {
@@ -438,24 +707,53 @@
         "descriptionEn": "Delivered alongside the AFC Asian Cup Qatar 2023, this fan activation featured precision penalty kick cages, inflatable target arenas, sub-soccer tables, cultural performances, and giant match screening zones.",
         "descriptionAr": "تم تنفيذه تزامناً مع كأس آسيا ٢٠٢٣ في قطر، وضم منصات تسديد ضربات الجزاء، ألعاب الهدف المطاطية، طاولة سب-سوكر، عروضاً ثقاية ومناطق عرض المباريات."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Precision Penalty Shootout", "titleAr": "منصة تسديد الجراء الدقيقة" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Precision Penalty Shootout",
+          "titleAr": "منصة تسديد الجراء الدقيقة"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "AFC Asian Cup Qatar 2023 Local Organizing Committee", "relationship": "Client Partner" } ],
+      "partners": [
+        {
+          "name": "AFC Asian Cup Qatar 2023 Local Organizing Committee",
+          "relationship": "Client Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Stadium Zones" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Stadium Zones"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "AFC Football Fest 2023 | E3 Qatar", "metaDescriptionEn": "Explore AFC Football Fest 2023 fan experience by E3.", "metaTitleAr": "مهرجان كرة القدم الآسيوي ٢٠٢٣ | إي ثري قطر", "metaDescriptionAr": "تفاصيل فعاليات منطقة مشجعي كأس آسيا ٢٠٢٣." }
+      "seo": {
+        "metaTitleEn": "AFC Football Fest 2023 | E3 Qatar",
+        "metaDescriptionEn": "Explore AFC Football Fest 2023 fan experience by E3.",
+        "metaTitleAr": "مهرجان كرة القدم الآسيوي ٢٠٢٣ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل فعاليات منطقة مشجعي كأس آسيا ٢٠٢٣."
+      }
     },
-
     {
       "slug": "world-cup-2022-fanzone",
       "core": {
@@ -466,24 +764,60 @@
         "descriptionEn": "A turnkey 15,000-capacity live fanzone delivered by E3 during FIFA World Cup Qatar 2022. Featuring ultra-large LED screens, high-capacity food plazas, roaming entertainment, and security crowd control infrastructure.",
         "descriptionAr": "منطقة مشجعين متكاملة بطاقة استيعابية تبلغ ١٥٠٠٠ زائر نفذتها إي ثري خلال كأس العالم ٢٠٢٢. ضمت شاشات عرض عملاقة، ساحات مأكولات، عروضاً جوالة، وإدارة حشود."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Giant Match Screen Plaza", "titleAr": "ساحة شاشات العرض العملاقة" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Giant Match Screen Plaza",
+          "titleAr": "ساحة شاشات العرض العملاقة"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Supreme Committee for Delivery & Legacy", "relationship": "Organizing Client" } ],
+      "partners": [
+        {
+          "name": "Supreme Committee for Delivery & Legacy",
+          "relationship": "Organizing Client"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Fan Zone Area", "hours": "12:00 PM – 2:00 AM" },
-      "timingRules": [ { "ruleTitle": "FIFA World Cup 2022 Dates", "startDate": "2022-11-20", "endDate": "2022-12-18" } ],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Fan Zone Area",
+        "hours": "12:00 PM – 2:00 AM"
+      },
+      "timingRules": [
+        {
+          "ruleTitle": "FIFA World Cup 2022 Dates",
+          "startDate": "2022-11-20",
+          "endDate": "2022-12-18"
+        }
+      ],
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "World Cup 2022 Fanzone | E3 Qatar", "metaDescriptionEn": "Discover FIFA World Cup 2022 Fanzone delivered by E3 in Doha.", "metaTitleAr": "منطقة مشجعي كأس العالم ٢٠٢٢ | إي ثري قطر", "metaDescriptionAr": "تفاصيل منطقة مشجعي كأس العالم ٢٠٢٢ المنفذة بواسطة إي ثري." }
+      "seo": {
+        "metaTitleEn": "World Cup 2022 Fanzone | E3 Qatar",
+        "metaDescriptionEn": "Discover FIFA World Cup 2022 Fanzone delivered by E3 in Doha.",
+        "metaTitleAr": "منطقة مشجعي كأس العالم ٢٠٢٢ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل منطقة مشجعي كأس العالم ٢٠٢٢ المنفذة بواسطة إي ثري."
+      }
     },
-
     {
       "slug": "udc-national-sport-day-2026",
       "core": {
@@ -494,24 +828,53 @@
         "descriptionEn": "Organized in collaboration with United Development Company (UDC), this island-wide activation transforms Porto Arabia and Costa Malaz into high-energy fitness challenge zones, water sports exhibitions, and healthy lifestyle hubs.",
         "descriptionAr": "بالتعاون مع الشركة المتحدة للتنمية، تحول هذه الفعالية جزيرة اللؤلؤة إلى مناطق تحديات رياضية، عروض ألعاب مائية، ومنصات أسلوب الحياة الصحي."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Porto Arabia Fitness Arena", "titleAr": "ساحة اللياقة في بورتو أرابيا" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Porto Arabia Fitness Arena",
+          "titleAr": "ساحة اللياقة في بورتو أرابيا"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "United Development Company (UDC)", "relationship": "Client Partner" } ],
+      "partners": [
+        {
+          "name": "United Development Company (UDC)",
+          "relationship": "Client Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=The+Pearl+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "The Pearl-Qatar (Porto Arabia & Costa Malaz)" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=The+Pearl+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "The Pearl-Qatar (Porto Arabia & Costa Malaz)"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "UDC National Sport Day 2026 | E3 Qatar", "metaDescriptionEn": "Upcoming UDC National Sport Day 2026 at The Pearl-Qatar by E3.", "metaTitleAr": "اليوم الرياضي للدولة في اللؤلؤة ٢٠٢٦ | إي ثري قطر", "metaDescriptionAr": "فعاليات اليوم الرياضي للدولة ٢٠٢٦ في جزيرة اللؤلؤة." }
+      "seo": {
+        "metaTitleEn": "UDC National Sport Day 2026 | E3 Qatar",
+        "metaDescriptionEn": "Upcoming UDC National Sport Day 2026 at The Pearl-Qatar by E3.",
+        "metaTitleAr": "اليوم الرياضي للدولة في اللؤلؤة ٢٠٢٦ | إي ثري قطر",
+        "metaDescriptionAr": "فعاليات اليوم الرياضي للدولة ٢٠٢٦ في جزيرة اللؤلؤة."
+      }
     },
-
     {
       "slug": "summer-entertainment-city",
       "core": {
@@ -522,24 +885,62 @@
         "descriptionEn": "Spanning 29,000 sqm at Doha Exhibition and Convention Center (DECC), Summer Entertainment City featured over 75 rides, giant amusement arcades, skill games, international circus shows, and retail pop-ups.",
         "descriptionAr": "امتدت مدينة الصيف الترفيهية على مساحة ٢٩٠٠٠ متر مربع في مركز الدوحة للمعارض والمؤتمرات، وضمت أكثر من ٧٥ لعبة، وصالات ألعاب، وسيركاً عالمياً."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "75+ Amusement Rides & Arcades", "titleAr": "أكثر من ٧٥ لعبة وصالة أركيد" } ],
-      "pricing": [ { "titleEn": "General Entry", "titleAr": "دخول عام", "price": 15, "currency": "QAR", "type": "GENERAL" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "75+ Amusement Rides & Arcades",
+          "titleAr": "أكثر من ٧٥ لعبة وصالة أركيد"
+        }
+      ],
+      "pricing": [
+        {
+          "titleEn": "General Entry",
+          "titleAr": "دخول عام",
+          "price": 15,
+          "currency": "QAR",
+          "type": "GENERAL"
+        }
+      ],
       "partnerOffers": [],
-      "partners": [ { "name": "Qatar Tourism", "relationship": "Strategic Partner" } ],
+      "partners": [
+        {
+          "name": "Qatar Tourism",
+          "relationship": "Strategic Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=DECC+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Exhibition and Convention Center (DECC)", "hours": "1:00 PM – 11:00 PM" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=DECC+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Exhibition and Convention Center (DECC)",
+        "hours": "1:00 PM – 11:00 PM"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Summer Entertainment City | E3 Qatar", "metaDescriptionEn": "Explore Summer Entertainment City delivered by E3 at DECC.", "metaTitleAr": "مدينة الصيف الترفيهية | إي ثري قطر", "metaDescriptionAr": "تفاصيل مدينة الصيف الترفيهية في مركز الدوحة للمعارض والمؤتمرات." }
+      "seo": {
+        "metaTitleEn": "Summer Entertainment City | E3 Qatar",
+        "metaDescriptionEn": "Explore Summer Entertainment City delivered by E3 at DECC.",
+        "metaTitleAr": "مدينة الصيف الترفيهية | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل مدينة الصيف الترفيهية في مركز الدوحة للمعارض والمؤتمرات."
+      }
     },
-
     {
       "slug": "winter-at-the-port",
       "core": {
@@ -550,24 +951,53 @@
         "descriptionEn": "Winter at the Port transformed Mina District at Old Doha Port into a maritime winter village, featuring traditional dhow parades, seafood markets, outdoor cinema, and children's craft chalets.",
         "descriptionAr": "حول شتاء الميناء حي المينا في ميناء الدوحة القديم إلى قرية شتوية بحرية، مقدماً عروض المحامل التقليدية، أسماك ومأكولات بحرية، وسينما خارجية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Maritime Waterfront Promenade", "titleAr": "ممر الواجهة البحرية للميناء" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Maritime Waterfront Promenade",
+          "titleAr": "ممر الواجهة البحرية للميناء"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Old Doha Port Authority", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Old Doha Port Authority",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Old+Doha+Port+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Old Doha Port (Mina District)" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Old+Doha+Port+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Old Doha Port (Mina District)"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "UPCOMING"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Winter at the Port | E3 Qatar", "metaDescriptionEn": "Discover Winter at the Port maritime winter festival at Old Doha Port.", "metaTitleAr": "شتاء الميناء | إي ثري قطر", "metaDescriptionAr": "تفاصيل مهرجان شتاء الميناء في ميناء الدوحة القديم." }
+      "seo": {
+        "metaTitleEn": "Winter at the Port | E3 Qatar",
+        "metaDescriptionEn": "Discover Winter at the Port maritime winter festival at Old Doha Port.",
+        "metaTitleAr": "شتاء الميناء | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل مهرجان شتاء الميناء في ميناء الدوحة القديم."
+      }
     },
-
     {
       "slug": "urban-arena-doha-mall",
       "core": {
@@ -578,30 +1008,81 @@
         "descriptionEn": "Urban Arena is a permanent indoor family entertainment center (FEC) at Doha Mall operated by E3. Features wall-to-wall trampolines, ninja warrior courses, foam pits, dodgeball arenas, and birthday celebration suites.",
         "descriptionAr": "أوربان أرينا هو مركز ترفيه عائلي دائم في دوحة مول تديره إي ثري. يضم ترامبولين، مسارات نينجا، حفر إسفنج، ملاعب كرة المراوغة، وأجنحة أعياد الميلاد."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [
-        { "titleEn": "Wall-to-Wall Trampoline Arena", "titleAr": "منطقة الترامبولين الرئيسية" },
-        { "titleEn": "Ninja Warrior Course", "titleAr": "مسار عوائق النينجا" }
+        {
+          "titleEn": "Wall-to-Wall Trampoline Arena",
+          "titleAr": "منطقة الترامبولين الرئيسية"
+        },
+        {
+          "titleEn": "Ninja Warrior Course",
+          "titleAr": "مسار عوائق النينجا"
+        }
       ],
       "pricing": [
-        { "titleEn": "1-Hour Jump Pass", "titleAr": "تذكرة القفز لمدة ساعة", "price": 80, "currency": "QAR", "type": "GENERAL" },
-        { "titleEn": "2-Hour Jump Pass", "titleAr": "تذكرة القفز لمدة ساعتين", "price": 130, "currency": "QAR", "type": "GENERAL" }
+        {
+          "titleEn": "1-Hour Jump Pass",
+          "titleAr": "تذكرة القفز لمدة ساعة",
+          "price": 80,
+          "currency": "QAR",
+          "type": "GENERAL"
+        },
+        {
+          "titleEn": "2-Hour Jump Pass",
+          "titleAr": "تذكرة القفز لمدة ساعتين",
+          "price": 130,
+          "currency": "QAR",
+          "type": "GENERAL"
+        }
       ],
       "partnerOffers": [],
-      "partners": [ { "name": "Doha Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Doha Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Mall+Abu+Hamour+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Mall, Abu Hamour", "ageGroup": "3+ Yrs to Adults", "hours": "Daily: 10:00 AM – 10:00 PM" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Mall+Abu+Hamour+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Mall, Abu Hamour",
+        "ageGroup": "3+ Yrs to Adults",
+        "hours": "Daily: 10:00 AM – 10:00 PM"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
-      "faqs": [ { "questionEn": "Is Urban Arena open daily?", "answerEn": "Yes, Urban Arena operates daily inside Doha Mall during mall opening hours.", "questionAr": "هل يعمل أوربان أرينا يومياً؟", "answerAr": "نعم، يعمل أوربان أرينا يومياً داخل دوحة مول خلال ساعات عمل المول." } ],
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
+      "faqs": [
+        {
+          "questionEn": "Is Urban Arena open daily?",
+          "answerEn": "Yes, Urban Arena operates daily inside Doha Mall during mall opening hours.",
+          "questionAr": "هل يعمل أوربان أرينا يومياً؟",
+          "answerAr": "نعم، يعمل أوربان أرينا يومياً داخل دوحة مول خلال ساعات عمل المول."
+        }
+      ],
       "gallery": [],
-      "seo": { "metaTitleEn": "Urban Arena - Doha Mall | E3 Qatar", "metaDescriptionEn": "Visit Urban Arena FEC trampoline and ninja park at Doha Mall by E3.", "metaTitleAr": "أوربان أرينا – دوحة مول | إي ثري قطر", "metaDescriptionAr": "زر أوربان أرينا للترامبولين والمغامرات في دوحة مول." }
+      "seo": {
+        "metaTitleEn": "Urban Arena - Doha Mall | E3 Qatar",
+        "metaDescriptionEn": "Visit Urban Arena FEC trampoline and ninja park at Doha Mall by E3.",
+        "metaTitleAr": "أوربان أرينا – دوحة مول | إي ثري قطر",
+        "metaDescriptionAr": "زر أوربان أرينا للترامبولين والمغامرات في دوحة مول."
+      }
     },
-
     {
       "slug": "inflatapark-city-center-doha",
       "core": {
@@ -612,24 +1093,62 @@
         "descriptionEn": "InflataPark at City Center Doha is a 2,500 sqm permanent indoor inflatable theme park designed and operated by E3. Features multi-lane slide towers, climbing walls, obstacle runs, and toddler play zones.",
         "descriptionAr": "إنفلاتابارك في سيتي سنتر الدوحة هي حديقة ألعاب مطاطية دائم على مساحة ٢٥٠٠ متر مربع صممتها وتديرها إي ثري. تضم أبراج منزلقات متعددة، جدران تسلق، ومناطق للصغار."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Multi-Lane Slide Tower", "titleAr": "برج منزلقات متعددة" } ],
-      "pricing": [ { "titleEn": "Standard Admission", "titleAr": "تذكرة دخول قياسية", "price": 65, "currency": "QAR", "type": "GENERAL" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Multi-Lane Slide Tower",
+          "titleAr": "برج منزلقات متعددة"
+        }
+      ],
+      "pricing": [
+        {
+          "titleEn": "Standard Admission",
+          "titleAr": "تذكرة دخول قياسية",
+          "price": 65,
+          "currency": "QAR",
+          "type": "GENERAL"
+        }
+      ],
       "partnerOffers": [],
-      "partners": [ { "name": "City Center Doha", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "City Center Doha",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=City+Center+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "City Center Doha Mall", "hours": "10:00 AM – 10:00 PM" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=City+Center+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "City Center Doha Mall",
+        "hours": "10:00 AM – 10:00 PM"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataPark - City Center Doha | E3 Qatar", "metaDescriptionEn": "Experience InflataPark permanent indoor inflatable park at City Center Doha by E3.", "metaTitleAr": "إنفلاتابارك – سيتي سنتر الدوحة | إي ثري قطر", "metaDescriptionAr": "استمتع بألعاب إنفلاتابارك المطاطية الدائمة في سيتي سنتر الدوحة." }
+      "seo": {
+        "metaTitleEn": "InflataPark - City Center Doha | E3 Qatar",
+        "metaDescriptionEn": "Experience InflataPark permanent indoor inflatable park at City Center Doha by E3.",
+        "metaTitleAr": "إنفلاتابارك – سيتي سنتر الدوحة | إي ثري قطر",
+        "metaDescriptionAr": "استمتع بألعاب إنفلاتابارك المطاطية الدائمة في سيتي سنتر الدوحة."
+      }
     },
-
     {
       "slug": "kids-city-driving-school",
       "core": {
@@ -640,8 +1159,16 @@
         "descriptionEn": "Kids City Driving School is an edutainment concept operated by E3 where children learn traffic rules, road signs, and safe driving habits before taking the wheel of mini electric cars on a realistic street grid.",
         "descriptionAr": "مدرسة قيادة مدينة الأطفال هي مفهوم تعليمي ترفيهي تدار بواسطة إي ثري، يكتشف فيها الأطفال قواعد المرور وإشارات الطريق وقيادة السيارات الكهربائية الصغيرة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Mini Electric Driving Track", "titleAr": "مضمار قيادة السيارات الكهربائية الصغيرة" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Mini Electric Driving Track",
+          "titleAr": "مضمار قيادة السيارات الكهربائية الصغيرة"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
       "partners": [],
@@ -649,15 +1176,32 @@
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha, Qatar", "ageGroup": "3–10 Yrs" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha, Qatar",
+        "ageGroup": "3–10 Yrs"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Kids City Driving School | E3 Qatar", "metaDescriptionEn": "Discover Kids City Driving School edutainment attraction operated by E3.", "metaTitleAr": "مدرسة قيادة مدينة الأطفال | إي ثري قطر", "metaDescriptionAr": "تعرف على مدرسة قيادة مدينة الأطفال التفاعلية من إي ثري." }
+      "seo": {
+        "metaTitleEn": "Kids City Driving School | E3 Qatar",
+        "metaDescriptionEn": "Discover Kids City Driving School edutainment attraction operated by E3.",
+        "metaTitleAr": "مدرسة قيادة مدينة الأطفال | إي ثري قطر",
+        "metaDescriptionAr": "تعرف على مدرسة قيادة مدينة الأطفال التفاعلية من إي ثري."
+      }
     },
-
     {
       "slug": "crayons-bricks-doha-mall",
       "core": {
@@ -668,24 +1212,53 @@
         "descriptionEn": "Crayons & Bricks at Doha Mall is a colourful creative play studio combining Lego brick building, canvas colouring, playdough crafting, and face painting in a safe mall environment.",
         "descriptionAr": "كرايونز آند بريكس في دوحة مول هو استوديو لعب إبداعي يجمع بين بناء مكعبات الليغو، الرسم، تشكيل العجين، والرسم على الوجه."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Brick Building Zone", "titleAr": "منطقة بناء المكعبات" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Brick Building Zone",
+          "titleAr": "منطقة بناء المكعبات"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Doha Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Doha Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Mall" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Mall"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Crayons & Bricks - Doha Mall | E3 Qatar", "metaDescriptionEn": "Visit Crayons & Bricks art and Lego studio at Doha Mall by E3.", "metaTitleAr": "كرايونز آند بريكس – دوحة مول | إي ثري قطر", "metaDescriptionAr": "زر استوديو كرايونز آند بريكس للإبداع في دوحة مول." }
+      "seo": {
+        "metaTitleEn": "Crayons & Bricks - Doha Mall | E3 Qatar",
+        "metaDescriptionEn": "Visit Crayons & Bricks art and Lego studio at Doha Mall by E3.",
+        "metaTitleAr": "كرايونز آند بريكس – دوحة مول | إي ثري قطر",
+        "metaDescriptionAr": "زر استوديو كرايونز آند بريكس للإبداع في دوحة مول."
+      }
     },
-
     {
       "slug": "crayons-bricks-place-vendome",
       "core": {
@@ -696,24 +1269,53 @@
         "descriptionEn": "Crayons & Bricks – Place Vendôme is a colourful indoor children's activation designed to inspire creativity, hands-on learning, and family play inside Place Vendôme Mall.",
         "descriptionAr": "كرايونز آند بريكس – بلاس فاندوم هي تجربة داخلية ملونة مخصصة للأطفال، تهدف إلى تحفيز الإبداع والتعلم العملي داخل مول بلاس فاندوم."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Art & Dough Station", "titleAr": "محطة الرسم والعجين الإبداعي" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Art & Dough Station",
+          "titleAr": "محطة الرسم والعجين الإبداعي"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Place Vendôme Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Place Vendôme Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Place+Vendome+Lusail+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Place Vendôme Mall, Lusail" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Place+Vendome+Lusail+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Place Vendôme Mall, Lusail"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Crayons & Bricks - Place Vendôme | E3 Qatar", "metaDescriptionEn": "Explore Crayons & Bricks at Place Vendôme Lusail operated by E3.", "metaTitleAr": "كرايونز آند بريكس – بلاس فاندوم | إي ثري قطر", "metaDescriptionAr": "استكشف كرايونز آند بريكس في بلاس فاندوم لوسيل." }
+      "seo": {
+        "metaTitleEn": "Crayons & Bricks - Place Vendôme | E3 Qatar",
+        "metaDescriptionEn": "Explore Crayons & Bricks at Place Vendôme Lusail operated by E3.",
+        "metaTitleAr": "كرايونز آند بريكس – بلاس فاندوم | إي ثري قطر",
+        "metaDescriptionAr": "استكشف كرايونز آند بريكس في بلاس فاندوم لوسيل."
+      }
     },
-
     {
       "slug": "crayons-bricks-ezdan-mall",
       "core": {
@@ -724,24 +1326,48 @@
         "descriptionEn": "Crayons & Bricks at Ezdan Mall offers a cozy, hands-on workshop environment for children to engage in structured art projects, brick building challenges, and sensory play.",
         "descriptionAr": "يوفر كرايونز آند بريكس في إزدان مول بيئة ورش عمل مريحة للأطفال للمشاركة في مشاريع فنية وبناء مكعبات ولعب حسي."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Ezdan Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Ezdan Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Ezdan+Mall+Gharaffa+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Ezdan Mall, Al Gharaffa" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Ezdan+Mall+Gharaffa+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Ezdan Mall, Al Gharaffa"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Crayons & Bricks - Ezdan Mall | E3 Qatar", "metaDescriptionEn": "Visit Crayons & Bricks studio at Ezdan Mall by E3.", "metaTitleAr": "كرايونز آند بريكس – إزدان مول | إي ثري قطر", "metaDescriptionAr": "زر استوديو كرايونز آند بريكس في إزدان مول." }
+      "seo": {
+        "metaTitleEn": "Crayons & Bricks - Ezdan Mall | E3 Qatar",
+        "metaDescriptionEn": "Visit Crayons & Bricks studio at Ezdan Mall by E3.",
+        "metaTitleAr": "كرايونز آند بريكس – إزدان مول | إي ثري قطر",
+        "metaDescriptionAr": "زر استوديو كرايونز آند بريكس في إزدان مول."
+      }
     },
-
     {
       "slug": "crayons-bricks-mall-of-qatar",
       "core": {
@@ -752,24 +1378,48 @@
         "descriptionEn": "Located at Mall of Qatar, this flagship Crayons & Bricks installation features expanded building tables, digital brick animation stations, and private birthday party creative suites.",
         "descriptionAr": "يقع هذا الاستوديو الرئيسي في مول قطر، ويتميز بطاولات بناء موسعة، محطات متحركة رقمية، وأجنحة أعياد ميلاد إبداعية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Mall of Qatar", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Mall of Qatar",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Mall+of+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Mall of Qatar" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Mall+of+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Mall of Qatar"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Crayons & Bricks - Mall of Qatar | E3 Qatar", "metaDescriptionEn": "Experience flagship Crayons & Bricks studio at Mall of Qatar by E3.", "metaTitleAr": "كرايونز آند بريكس – مول قطر | إي ثري قطر", "metaDescriptionAr": "استكشف استوديو كرايونز آند بريكس الرئيسي في مول قطر." }
+      "seo": {
+        "metaTitleEn": "Crayons & Bricks - Mall of Qatar | E3 Qatar",
+        "metaDescriptionEn": "Experience flagship Crayons & Bricks studio at Mall of Qatar by E3.",
+        "metaTitleAr": "كرايونز آند بريكس – مول قطر | إي ثري قطر",
+        "metaDescriptionAr": "استكشف استوديو كرايونز آند بريكس الرئيسي في مول قطر."
+      }
     },
-
     {
       "slug": "space-tribe-place-vendome",
       "core": {
@@ -780,24 +1430,53 @@
         "descriptionEn": "Space Tribe at Place Vendôme immerses kids in a cosmic adventure featuring glow-in-the-dark climbing obstacles, space rover simulators, laser maze challenges, and alien mission briefings.",
         "descriptionAr": "تأخذ سبيس ترايب في بلاس فاندوم الأطفال في مغامرة فضائية مستقبلي، تضم تسلقاً مضيئاً في الظلام، محاكيات مركبات فضائية، ومتاهة ليزر."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Cosmic Laser Maze", "titleAr": "متاهة الليزر الفضائية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Cosmic Laser Maze",
+          "titleAr": "متاهة الليزر الفضائية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Place Vendôme Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Place Vendôme Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Place+Vendome+Lusail+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Place Vendôme Mall, Lusail" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Place+Vendome+Lusail+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Place Vendôme Mall, Lusail"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Space Tribe - Place Vendôme | E3 Qatar", "metaDescriptionEn": "Discover Space Tribe futuristic adventure zone at Place Vendôme by E3.", "metaTitleAr": "سبيس ترايب – بلاس فاندوم | إي ثري قطر", "metaDescriptionAr": "استكشف مغامرة سبيس ترايب الفضائية في بلاس فاندوم." }
+      "seo": {
+        "metaTitleEn": "Space Tribe - Place Vendôme | E3 Qatar",
+        "metaDescriptionEn": "Discover Space Tribe futuristic adventure zone at Place Vendôme by E3.",
+        "metaTitleAr": "سبيس ترايب – بلاس فاندوم | إي ثري قطر",
+        "metaDescriptionAr": "استكشف مغامرة سبيس ترايب الفضائية في بلاس فاندوم."
+      }
     },
-
     {
       "slug": "space-tribe-doha-mall",
       "core": {
@@ -808,24 +1487,48 @@
         "descriptionEn": "Space Tribe at Doha Mall offers zero-gravity style trampoline pods, interactive starship play structures, and space flight simulators managed by E3 operations.",
         "descriptionAr": "تقدم سبيس ترايب في دوحة مول منصات ترامبولين فضائي، هياكل سفن فضائية تفاعلية، ومحاكيات طيران تفاعلية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
       "whatsInside": [],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Doha Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Doha Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Mall" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Mall+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Mall"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Space Tribe - Doha Mall | E3 Qatar", "metaDescriptionEn": "Experience Space Tribe VR & space attraction at Doha Mall by E3.", "metaTitleAr": "سبيس ترايب – دوحة مول | إي ثري قطر", "metaDescriptionAr": "زر عالم سبيس ترايب الفضائي في دوحة مول." }
+      "seo": {
+        "metaTitleEn": "Space Tribe - Doha Mall | E3 Qatar",
+        "metaDescriptionEn": "Experience Space Tribe VR & space attraction at Doha Mall by E3.",
+        "metaTitleAr": "سبيس ترايب – دوحة مول | إي ثري قطر",
+        "metaDescriptionAr": "زر عالم سبيس ترايب الفضائي في دوحة مول."
+      }
     },
-
     {
       "slug": "inflatasplash-doha-sands",
       "core": {
@@ -836,24 +1539,53 @@
         "descriptionEn": "InflataSplash at Doha Sands Beach is an offshore floating water park featuring giant sea slides, balance beams, water trampolines, and obstacle courses anchored off West Bank beach.",
         "descriptionAr": "إنفلاتاسبلاش في شاطئ الدوحة سايندز هي حديقة مائية عائمة تضم منزلقات بحرية ضخمة، منصات توازن، وترامبولين مائي."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Floating Sea Obstacles", "titleAr": "مسارات العوائق البحرية العائمة" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Floating Sea Obstacles",
+          "titleAr": "مسارات العوائق البحرية العائمة"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Doha Sands Beach", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Doha Sands Beach",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Sands+West+Bay+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Sands Beach, West Bay" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Sands+West+Bay+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Sands Beach, West Bay"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "InflataSplash - Doha Sands | E3 Qatar", "metaDescriptionEn": "Discover InflataSplash offshore floating water park at Doha Sands Beach by E3.", "metaTitleAr": "إنفلاتاسبلاش – دوحة سايندز | إي ثري قطر", "metaDescriptionAr": "تفاصيل حديقة إنفلاتاسبلاش المائية العائمة في شاطئ الدوحة." }
+      "seo": {
+        "metaTitleEn": "InflataSplash - Doha Sands | E3 Qatar",
+        "metaDescriptionEn": "Discover InflataSplash offshore floating water park at Doha Sands Beach by E3.",
+        "metaTitleAr": "إنفلاتاسبلاش – دوحة سايندز | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل حديقة إنفلاتاسبلاش المائية العائمة في شاطئ الدوحة."
+      }
     },
-
     {
       "slug": "lagoona-racing",
       "core": {
@@ -864,24 +1596,53 @@
         "descriptionEn": "Lagoona Racing is a precision indoor electric karting experience designed for kids and teens, featuring responsive steering, safety telemetry, and digital lap timing at Lagoona Mall.",
         "descriptionAr": "سباق لاجونا هي تجربة كارتينج كهربائية مخصصة للأطفال والناشئين، تتميز بتحكم دقيق، وأنظمة توقيت رقمية في لاجونا مول."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Electric Mini Kart Track", "titleAr": "حلبة الكارتينج الكهربائية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Electric Mini Kart Track",
+          "titleAr": "حلبة الكارتينج الكهربائية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Lagoona Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Lagoona Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Lagoona+Mall+Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Lagoona Mall, West Bay Lagoon" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Lagoona+Mall+Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Lagoona Mall, West Bay Lagoon"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Lagoona Racing | E3 Qatar", "metaDescriptionEn": "Visit Lagoona Racing indoor electric karting at Lagoona Mall by E3.", "metaTitleAr": "سباق لاجونا | إي ثري قطر", "metaDescriptionAr": "استمتع بسباق لاجونا كارتينج الكهربائي في لاجونا مول." }
+      "seo": {
+        "metaTitleEn": "Lagoona Racing | E3 Qatar",
+        "metaDescriptionEn": "Visit Lagoona Racing indoor electric karting at Lagoona Mall by E3.",
+        "metaTitleAr": "سباق لاجونا | إي ثري قطر",
+        "metaDescriptionAr": "استمتع بسباق لاجونا كارتينج الكهربائي في لاجونا مول."
+      }
     },
-
     {
       "slug": "tudor-pit-stop-challenge-2025",
       "core": {
@@ -892,24 +1653,53 @@
         "descriptionEn": "Delivered for Swiss luxury watchmaker TUDOR during Formula 1 Qatar GP week, this activation challenged visitors to complete real F1-style tire swaps against digital precision timers.",
         "descriptionAr": "تم تنفيذه لصالح شركة الساعات السويسرية الفاخرة تودور خلال أسبوع فورمولا 1 في قطر، حيث تحدى الزوار في تبديل إطارات الفورمولا 1 باستخدام أنظمة توقيت دقيقة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "F1 Pit Stop Tire Rig", "titleAr": "منصة تبديل إطارات الفورمولا ١" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "F1 Pit Stop Tire Rig",
+          "titleAr": "منصة تبديل إطارات الفورمولا ١"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "TUDOR Watches", "relationship": "Brand Client" } ],
+      "partners": [
+        {
+          "name": "TUDOR Watches",
+          "relationship": "Brand Client"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Lusail+Circuit+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Lusail International Circuit / Fan Zone" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Lusail+Circuit+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Lusail International Circuit / Fan Zone"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "TUDOR Pit Stop Challenge 2025 | E3 Qatar", "metaDescriptionEn": "Explore TUDOR Pit Stop Challenge activation produced by E3.", "metaTitleAr": "تحدي توقيف الصيانة تودور ٢٠٢٥ | إي ثري قطر", "metaDescriptionAr": "تفاصيل فعالية تحدي توقيف الصيانة تودور ٢٠٢٥." }
+      "seo": {
+        "metaTitleEn": "TUDOR Pit Stop Challenge 2025 | E3 Qatar",
+        "metaDescriptionEn": "Explore TUDOR Pit Stop Challenge activation produced by E3.",
+        "metaTitleAr": "تحدي توقيف الصيانة تودور ٢٠٢٥ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل فعالية تحدي توقيف الصيانة تودور ٢٠٢٥."
+      }
     },
-
     {
       "slug": "panda-house-operations-activations",
       "core": {
@@ -920,24 +1710,53 @@
         "descriptionEn": "E3 delivers guest flow management, panda-themed carnival skill games, souvenir photo booths, caricature artists, and seasonal cultural activations at Al Khor Panda Park.",
         "descriptionAr": "تقدم إي ثري إدارة تدفق الزوار، ألعاب الكرنفال المستوحاة من الباندا، استوديوهات التصوير التذكاري، والفنانين الكاريكاتيريين في منتزه الباندا في الخور."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Panda Carnival Skill Games", "titleAr": "ألعاب مهارات الكرنفال للباندا" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Panda Carnival Skill Games",
+          "titleAr": "ألعاب مهارات الكرنفال للباندا"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Ministry of Municipality", "relationship": "Government Client" } ],
+      "partners": [
+        {
+          "name": "Ministry of Municipality",
+          "relationship": "Government Client"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Al+Khor+Panda+Park+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Al Khor Panda Park, Qatar" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Al+Khor+Panda+Park+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Al Khor Panda Park, Qatar"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": true, "isSpecialEvent": false, "isPublished": true, "temporalStatus": { "status": "ACTIVE" } },
+      "visibility": {
+        "isPermanent": true,
+        "isSpecialEvent": false,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "ACTIVE"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Panda House Operations & Activations | E3 Qatar", "metaDescriptionEn": "Discover E3 guest operations and activations at Panda House Al Khor.", "metaTitleAr": "تشغيل وفعاليات بيت الباندا | إي ثري قطر", "metaDescriptionAr": "تفاصيل تشغيل وفعاليات بيت الباندا في الخور من إي ثري." }
+      "seo": {
+        "metaTitleEn": "Panda House Operations & Activations | E3 Qatar",
+        "metaDescriptionEn": "Discover E3 guest operations and activations at Panda House Al Khor.",
+        "metaTitleAr": "تشغيل وفعاليات بيت الباندا | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل تشغيل وفعاليات بيت الباندا في الخور من إي ثري."
+      }
     },
-
     {
       "slug": "batabit-quad-bike-arena",
       "core": {
@@ -948,24 +1767,53 @@
         "descriptionEn": "Delivered in partnership with Batabit (Qatar Center for Motorcycles), this activation features guided desert quad biking tracks, obstacle ramps, and rider safety briefings.",
         "descriptionAr": "تم تنفيذه بالتعاون مع مركز بطابط للدراجات النارية، وتضم حلبات قيادة الدراجات الرباعية الصحراوية، مسارات العوائق، وإرشادات السلامة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Off-Road Quad Track", "titleAr": "مضمار الدراجات الرباعية الصحراوية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Off-Road Quad Track",
+          "titleAr": "مضمار الدراجات الرباعية الصحراوية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Batabit Qatar Motorcycle Center", "relationship": "Partner" } ],
+      "partners": [
+        {
+          "name": "Batabit Qatar Motorcycle Center",
+          "relationship": "Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Sealine+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Sealine Desert District" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Sealine+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Sealine Desert District"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "UPCOMING" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "UPCOMING"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Batabit Quad Bike Arena | E3 Qatar", "metaDescriptionEn": "Explore Batabit Quad Bike Arena off-road activation by E3.", "metaTitleAr": "حلبة بطابط لدراجات الكواد | إي ثري قطر", "metaDescriptionAr": "تفاصيل حلبة بطابط للدراجات الرباعية في قطر." }
+      "seo": {
+        "metaTitleEn": "Batabit Quad Bike Arena | E3 Qatar",
+        "metaDescriptionEn": "Explore Batabit Quad Bike Arena off-road activation by E3.",
+        "metaTitleAr": "حلبة بطابط لدراجات الكواد | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل حلبة بطابط للدراجات الرباعية في قطر."
+      }
     },
-
     {
       "slug": "national-sports-day-2022",
       "core": {
@@ -976,8 +1824,16 @@
         "descriptionEn": "E3 delivered multi-location sports activation zones across Qatar for National Sports Day 2022, featuring inflatable obstacle runs, basketball shootout cages, and athletic telemetry.",
         "descriptionAr": "نفذت إي ثري مناطق أنشطة رياضية متعددة المواقع في قطر لليوم الرياضي للدولة ٢٠٢٢، ضمت سباقات عوائق مطاطية وملاعب كرة سلة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Inflatable Sports Challenge", "titleAr": "تحديات الألعاب الرياضية المطاطية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Inflatable Sports Challenge",
+          "titleAr": "تحديات الألعاب الرياضية المطاطية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
       "partners": [],
@@ -985,15 +1841,31 @@
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha & Lusail Locations" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha & Lusail Locations"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "National Sports Day 2022 | E3 Qatar", "metaDescriptionEn": "Discover National Sports Day 2022 fitness activations by E3.", "metaTitleAr": "اليوم الرياضي للدولة ٢٠٢٢ | إي ثري قطر", "metaDescriptionAr": "تفاصيل فعاليات اليوم الرياضي للدولة ٢٠٢٢." }
+      "seo": {
+        "metaTitleEn": "National Sports Day 2022 | E3 Qatar",
+        "metaDescriptionEn": "Discover National Sports Day 2022 fitness activations by E3.",
+        "metaTitleAr": "اليوم الرياضي للدولة ٢٠٢٢ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل فعاليات اليوم الرياضي للدولة ٢٠٢٢."
+      }
     },
-
     {
       "slug": "festival-inflatapark-dfc",
       "core": {
@@ -1004,24 +1876,53 @@
         "descriptionEn": "Festival InflataPark was a pop-up indoor inflatable wonderland hosted inside Doha Festival City, featuring 15 custom-built bouncy castles, giant slides, and obstacle fun.",
         "descriptionAr": "كان مهرجان إنفلاتابارك تجربة مؤقتة للألعاب المطاطية داخل دوحة فستيفال سيتي، وضم ١٥ قلعة قفز مطاطية ومنزلقات ضخمة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Mega Bouncy Village", "titleAr": "قرية القفز المطاطية الكبرى" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Mega Bouncy Village",
+          "titleAr": "قرية القفز المطاطية الكبرى"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Doha Festival City", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Doha Festival City",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Festival+City+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha Festival City Centre Court" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Festival+City+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha Festival City Centre Court"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Festival InflataPark - DFC | E3 Qatar", "metaDescriptionEn": "Explore Festival InflataPark pop-up inflatable event at Doha Festival City by E3.", "metaTitleAr": "مهرجان إنفلاتابارك – دوحة فستيفال سيتي | إي ثري قطر", "metaDescriptionAr": "تفاصيل مهرجان إنفلاتابارك في دوحة فستيفال سيتي." }
+      "seo": {
+        "metaTitleEn": "Festival InflataPark - DFC | E3 Qatar",
+        "metaDescriptionEn": "Explore Festival InflataPark pop-up inflatable event at Doha Festival City by E3.",
+        "metaTitleAr": "مهرجان إنفلاتابارك – دوحة فستيفال سيتي | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل مهرجان إنفلاتابارك في دوحة فستيفال سيتي."
+      }
     },
-
     {
       "slug": "formula-1-roaming-entertainment",
       "core": {
@@ -1032,24 +1933,53 @@
         "descriptionEn": "E3 curated and managed over 40 international roaming acts, stilt walkers, LED drum ensembles, and acrobat troops across Lusail International Circuit during F1 Qatar Grand Prix.",
         "descriptionAr": "قامت إي ثري بتقييم وإدارة أكثر من ٤٠ فرقة استعراضية جوالة، فنانين على السيقان الخشبية، ومجموعات طبول LED في حلبة لوسيل الدولية."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "LED Drum & Stilt Parades", "titleAr": "استعراضات الطبول والإضاءة الجوالة" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "LED Drum & Stilt Parades",
+          "titleAr": "استعراضات الطبول والإضاءة الجوالة"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Lusail International Circuit", "relationship": "Client Partner" } ],
+      "partners": [
+        {
+          "name": "Lusail International Circuit",
+          "relationship": "Client Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Lusail+Circuit+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Lusail International Circuit" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Lusail+Circuit+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Lusail International Circuit"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Formula 1 Roaming Entertainment | E3 Qatar", "metaDescriptionEn": "Discover E3 roaming entertainment production for F1 Qatar Grand Prix.", "metaTitleAr": "العروض الاستعراضية الجوالة لفورمولا ١ | إي ثري قطر", "metaDescriptionAr": "تفاصيل العروض الاستعراضية الجوالة لفورمولا ١." }
+      "seo": {
+        "metaTitleEn": "Formula 1 Roaming Entertainment | E3 Qatar",
+        "metaDescriptionEn": "Discover E3 roaming entertainment production for F1 Qatar Grand Prix.",
+        "metaTitleAr": "العروض الاستعراضية الجوالة لفورمولا ١ | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل العروض الاستعراضية الجوالة لفورمولا ١."
+      }
     },
-
     {
       "slug": "influencer-cup-dinner-gala",
       "core": {
@@ -1060,24 +1990,53 @@
         "descriptionEn": "E3 produced the official VIP Gala Dinner for the international Influencer Cup in Doha, featuring custom kinetic light rigging, 3D projection mapping, and award staging.",
         "descriptionAr": "أنتجت إي ثري حفل العشاء الرسمي لكأس المؤثرين في الدوحة، مع إضاءات حركية مخصصة، عروض بروجكشن ثلاثية الأبعاد، ومنصات تكريم."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Kinetic Projection Stage", "titleAr": "مسرح البروجكشن والإضاءة الحركية" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Kinetic Projection Stage",
+          "titleAr": "مسرح البروجكشن والإضاءة الحركية"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Qatar Airways / Visit Qatar", "relationship": "Client" } ],
+      "partners": [
+        {
+          "name": "Qatar Airways / Visit Qatar",
+          "relationship": "Client"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Doha+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Doha VIP Ballroom" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Doha+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Doha VIP Ballroom"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Influencer Cup Dinner Gala | E3 Qatar", "metaDescriptionEn": "Explore Influencer Cup Dinner Gala production by E3 in Doha.", "metaTitleAr": "حفل عشاء كأس المؤثرين | إي ثري قطر", "metaDescriptionAr": "تفاصيل حفل عشاء كأس المؤثرين المنفذ من قبل إي ثري." }
+      "seo": {
+        "metaTitleEn": "Influencer Cup Dinner Gala | E3 Qatar",
+        "metaDescriptionEn": "Explore Influencer Cup Dinner Gala production by E3 in Doha.",
+        "metaTitleAr": "حفل عشاء كأس المؤثرين | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل حفل عشاء كأس المؤثرين المنفذ من قبل إي ثري."
+      }
     },
-
     {
       "slug": "winter-activation-place-vendome",
       "core": {
@@ -1088,22 +2047,52 @@
         "descriptionEn": "A festive winter promenade activation along the Place Vendôme canal, featuring illuminated ice-themed archways, synthetic ice skating, hot chocolate chalets, and live carolers.",
         "descriptionAr": "فعالية شتوية احتفالية على ممر قناة بلاس فاندوم، ضمت أقواساً مضيئة، تزلجاً على الجليد الصناعي، وأكشاك الشوكولاتة الساخنة."
       },
-      "hero": { "mediaType": "IMAGE", "mediaUrl": "" },
-      "whatsInside": [ { "titleEn": "Illuminated Canal Promenade", "titleAr": "ممر القناة المضيء" } ],
+      "hero": {
+        "mediaType": "IMAGE",
+        "mediaUrl": ""
+      },
+      "whatsInside": [
+        {
+          "titleEn": "Illuminated Canal Promenade",
+          "titleAr": "ممر القناة المضيء"
+        }
+      ],
       "pricing": [],
       "partnerOffers": [],
-      "partners": [ { "name": "Place Vendôme Mall", "relationship": "Venue Partner" } ],
+      "partners": [
+        {
+          "name": "Place Vendôme Mall",
+          "relationship": "Venue Partner"
+        }
+      ],
       "socialLinks": [],
       "socialPosts": [],
       "news": [],
       "feedback": [],
-      "booking": { "mapUrl": "https://maps.google.com/?q=Place+Vendome+Lusail+Qatar", "ticketingUrl": "" },
-      "operations": { "venueName": "Place Vendôme Canal District" },
+      "booking": {
+        "mapUrl": "https://maps.google.com/?q=Place+Vendome+Lusail+Qatar",
+        "ticketingUrl": ""
+      },
+      "operations": {
+        "venueName": "Place Vendôme Canal District"
+      },
       "timingRules": [],
-      "visibility": { "isPermanent": false, "isSpecialEvent": true, "isPublished": true, "temporalStatus": { "status": "PAST" } },
+      "visibility": {
+        "isPermanent": false,
+        "isSpecialEvent": true,
+        "isPublished": true,
+        "temporalStatus": {
+          "status": "PAST"
+        }
+      },
       "faqs": [],
       "gallery": [],
-      "seo": { "metaTitleEn": "Winter Activation - Place Vendôme | E3 Qatar", "metaDescriptionEn": "Discover Place Vendôme winter promenade activation produced by E3.", "metaTitleAr": "فعاليات الشتاء – بلاس فاندوم | إي ثري قطر", "metaDescriptionAr": "تفاصيل فعاليات الشتاء في بلاس فاندوم لوسيل." }
+      "seo": {
+        "metaTitleEn": "Winter Activation - Place Vendôme | E3 Qatar",
+        "metaDescriptionEn": "Discover Place Vendôme winter promenade activation produced by E3.",
+        "metaTitleAr": "فعاليات الشتاء – بلاس فاندوم | إي ثري قطر",
+        "metaDescriptionAr": "تفاصيل فعاليات الشتاء في بلاس فاندوم لوسيل."
+      }
     }
   ]
 }

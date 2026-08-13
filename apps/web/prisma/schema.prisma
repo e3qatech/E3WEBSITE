@@ -143,6 +143,25 @@ model Attraction {
   updatedAt           DateTime                 @updatedAt
   logoUrl             String?
   seo                 Json?
+
+  // B2B Portfolio & Case Study Extensions
+  isB2bVisible        Boolean                  @default(true)
+  b2bCategory         String?
+  projectType         String?
+  clientName          String?
+  year                Int?
+  attendance          String?
+  areaSize            String?
+  servicesDelivered   Json?
+  operationalScope    String?
+  challengeEn         String?
+  challengeAr         String?
+  solutionEn          String?
+  solutionAr          String?
+  resultEn            String?
+  resultAr            String?
+  downloadableProfile String?
+
   featuresList        AttractionFeature[]
   faqs                AttractionFaq[]
   gallery             AttractionGalleryItem[]
@@ -163,6 +182,7 @@ model Attraction {
   packages            Package[]
 
   @@index([isPublished, isHidden])
+  @@index([isB2bVisible])
 }
 
 model AttractionPricing {

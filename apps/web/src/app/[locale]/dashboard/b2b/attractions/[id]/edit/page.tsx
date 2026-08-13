@@ -1,13 +1,13 @@
 import { db } from "@/lib/db"
-import { AttractionEditor } from "@/components/dashboard/b2c/AttractionEditor"
+import { B2BAttractionEditor } from "@/components/dashboard/b2b/B2BAttractionEditor"
 import { auth } from "@/lib/auth"
 import { redirect, notFound } from "next/navigation"
 
 export const metadata = {
-  title: "Edit Attraction | E3 Admin",
+  title: "Edit B2B Project & Attraction | E3 Admin",
 }
 
-export default async function EditAttractionPage({
+export default async function EditB2BAttractionPage({
   params
 }: {
   params: Promise<{ id: string }>
@@ -18,7 +18,7 @@ export default async function EditAttractionPage({
   }
 
   const { id } = await params
-  
+
   const attraction = await db.attraction.findUnique({
     where: { id },
     include: {
@@ -42,5 +42,5 @@ export default async function EditAttractionPage({
     notFound()
   }
 
-  return <AttractionEditor initialData={attraction} />
+  return <B2BAttractionEditor initialData={attraction} />
 }
