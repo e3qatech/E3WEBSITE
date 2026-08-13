@@ -1189,11 +1189,187 @@ export const DEFAULT_B2B_HOME_CONTENT = {
   featuredCaseStudyIds: []
 };
 
+export const DEFAULT_B2B_SERVICES_CONTENT = {
+  hero: {
+    enabled: true,
+    eyebrowEn: "E3 ENTERPRISE CAPABILITIES",
+    eyebrowAr: "قدرات إي ثري لقطاع الأعمال",
+    titleEn: "Services That Build Living Experience Landmarks.",
+    titleAr: "كل ما تحتاجه لبناء تجارب استثنائية",
+    subtitleEn: "From feasibility, strategy and spatial design to fabrication, ticketing, technical production and live operations, E3 brings every layer of the experience together.",
+    subtitleAr: "من الجدوى والتخطيط الاستراتيجي والتصميم الفضائي إلى التصنيع والتذاكر والإنتاج الحي والعمليات التشغيلية.",
+    descriptionEn: "We don't outsource the hard parts. E3 retains in-house expertise across creative, engineering, fabrication, and operations to ensure flawless delivery.",
+    descriptionAr: "نحن لا نستعين بمصادر خارجية للأجزاء الصعبة. نحتفظ بالخبرات الداخلية لتصميم وتنفيذ وتشغيل المشاريع الكبرى.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    mobileMediaUrl: "",
+    overlayStrength: 70,
+    primaryCtaEn: "Explore Capabilities",
+    primaryCtaAr: "استكشف القدرات",
+    primaryLink: "#capability-navigator",
+    secondaryCtaEn: "Start a Project",
+    secondaryCtaAr: "ابدأ مشروعاً",
+    secondaryLink: "/b2b/contact"
+  },
+  capabilityCount: {
+    enabled: true,
+    templateEn: "{{count}} Specialised Capabilities. One Integrated Partner.",
+    templateAr: "{{count}} قدرات تخصصية متكاملة. شريك واحد."
+  },
+  philosophy: {
+    enabled: true,
+    eyebrowEn: "OUR PHILOSOPHY",
+    eyebrowAr: "فلسفة التنفيذ",
+    titleEn: "Creative Ideas Need Operational Engineering.",
+    titleAr: "الأفكار الإبداعية تتطلب هندسة تشغيلية",
+    subtitleEn: "We don't just sketch concepts—we masterplan, fabricate, staff, operate, and continuously monitor physical assets.",
+    subtitleAr: "نحن لا نصمم التجارب فحسب — بل نخططها ونبنيها ونوظف طواقمها ونشغلها ونضمن أعلى مستويات السلامة.",
+    creativeTitleEn: "Creative Vision",
+    creativeTitleAr: "التصميم وسرد القصص",
+    creativeSubEn: "CREATIVE CONCEPTUALIZATION",
+    creativeSubAr: "الابتكار الإبداعي",
+    creativeBullets: [
+      { id: "c1", textEn: "Immersive Masterplanning", textAr: "المفاهيم الفضائية المبتكرة" },
+      { id: "c2", textEn: "Spatial Concept Design", textAr: "الهوية المرئية الغامرة" },
+      { id: "c3", textEn: "Entertainment Storytelling", textAr: "سرد القصص الترفيهية" },
+      { id: "c4", textEn: "Kinetic Environment Architecture", textAr: "التجارب التفاعلية" }
+    ],
+    engineeringTitleEn: "Operational Engineering",
+    engineeringTitleAr: "التصنيع والعمليات",
+    engineeringSubEn: "OPERATIONAL STAGING",
+    engineeringSubAr: "الهندسة والتشغيل",
+    engineeringBullets: [
+      { id: "e1", textEn: "Structural Safety & Feasibility", textAr: "دراسات الجدوى والسلامة" },
+      { id: "e2", textEn: "Turnkey Fabrication & Rigging", textAr: "التصنيع والإخراج المنصي" },
+      { id: "e3", textEn: "Kinetic AV & Systems Integration", textAr: "التأجير والأنظمة الصوتية والضوئية" },
+      { id: "e4", textEn: "Crowd Analytics & Live Operations", textAr: "إدارة الحشود والعمليات المباشرة" }
+    ]
+  },
+  navigator: {
+    enabled: true,
+    eyebrowEn: "CAPABILITY NAVIGATOR",
+    eyebrowAr: "استكشف كافة الخدمات",
+    titleEn: "Specialised Capabilities",
+    titleAr: "دليل القدرات التخصصية",
+    descriptionEn: "Explore turnkey event engineering, kinetic AV, spatial fabrication, and live crowd management.",
+    descriptionAr: "تصفح كافة حلول الإنتاج والتشغيل المصممة للمشاريع الكبرى في قطر والمنطقة.",
+    sourceMode: "ALL",
+    selectedServiceIds: [],
+    manualOrdering: [],
+    cardCtaEn: "Explore Capability",
+    cardCtaAr: "عرض التفاصيل والخدمات",
+    viewAllCtaEn: "View All Services",
+    viewAllCtaAr: "عرض كافة الخدمات",
+    viewAllLink: "/b2b/services"
+  },
+  featuredSpotlights: {
+    enabled: true,
+    eyebrowEn: "FEATURED SPOTLIGHTS",
+    eyebrowAr: "القدرات المميزة",
+    titleEn: "Landmark Discipline Spotlights",
+    titleAr: "تخصصات الاستجابة الفورية",
+    descriptionEn: "Deep dives into E3 flagship operational disciplines.",
+    descriptionAr: "استعراض تفصيلي لأبرز تخصصات إي ثري التشغيلية.",
+    selectionMode: "FEATURED_FLAG",
+    selectedServiceIds: [],
+    spotlightCtaEn: "View Service Scope",
+    spotlightCtaAr: "عرض تفاصيل الخدمة",
+    requestCtaEn: "Request This Discipline",
+    requestCtaAr: "اطلب هذا التخصص"
+  },
+  deliveryMethodology: {
+    enabled: true,
+    eyebrowEn: "DELIVERY PIPELINE",
+    eyebrowAr: "منهجية التنفيذ",
+    titleEn: "End-to-End Delivery Methodology",
+    titleAr: "خطوات التسليم التنفيذي",
+    descriptionEn: "Our 5-stage framework ensuring safety, precision, and operational excellence.",
+    descriptionAr: "إطار عملنا المكون من 5 مراحل لضمان السلامة والدقة والتميز التشغيلي.",
+    steps: [
+      { id: "s1", stepNumber: "01", nameEn: "Discover & Define", nameAr: "اكتشاف وتحديد", descEn: "Strategic feasibility, safety compliance audit & commercial objective mapping", descAr: "دراسات الجدوى الاستراتيجية وتحديد متطلبات السلامة والأهداف التجارية" },
+      { id: "s2", stepNumber: "02", nameEn: "Research & Design", nameAr: "بحث وتصميم", descEn: "3D spatial masterplanning, kinetic AV integration & architectural blueprints", descAr: "التخطيط الفضائي ثلاثي الأبعاد والخرائط المعمارية وأنظمة الإضاءة والصوت" },
+      { id: "s3", stepNumber: "03", nameEn: "Engineer & Plan", nameAr: "هندسة وتخطيط", descEn: "Load calculations, structural engineering & regulatory safety certification", descAr: "حسابات الأحمال، التراخيص الحكومية واعتمادات الهياكل القابلة للنفخ والتركيب" },
+      { id: "s4", stepNumber: "04", nameEn: "Build & Activate", nameAr: "بناء وتفعيل", descEn: "Turnkey fabrication, stage rigging, gate turnstiles & system commissioning", descAr: "التصنيع الشامل، التركيبات المنصية، واختبار الأنظمة الذكية للتذاكر والبوابات" },
+      { id: "s5", stepNumber: "05", nameEn: "Operate & Optimize", nameAr: "تشغيل وتحسين", descEn: "Live crowd flow, staffing, real-time ticketing telemetry & post-event scaling", descAr: "التوظيف المباشر، إدارة تدفق الزوار، والتحليلات الفورية لتحسين العائد" }
+    ]
+  },
+  caseStudies: {
+    enabled: true,
+    eyebrowEn: "VERIFIED PROOF",
+    eyebrowAr: "نتائج تنفيذية موثقة",
+    titleEn: "Delivered Case Studies",
+    titleAr: "مشاريع ودراسات حالة حية",
+    descriptionEn: "Real case studies demonstrating E3 execution capabilities.",
+    descriptionAr: "دراسات حالة حقيقية تم تسليمها في جميع أنحاء المنطقة.",
+    selectionMode: "LATEST",
+    selectedCaseStudyIds: [],
+    maxItems: 3,
+    viewAllCtaEn: "View All Case Studies",
+    viewAllCtaAr: "عرض جميع المشاريع",
+    viewAllLink: "/b2b/cases"
+  },
+  partnerRibbon: {
+    enabled: true,
+    titleEn: "Trusted by Industry Leaders",
+    titleAr: "شركاء النجاح"
+  },
+  cta: {
+    enabled: true,
+    eyebrowEn: "COMMERCIAL PROPOSALS",
+    eyebrowAr: "تقديم طلبات المشاريع",
+    titleEn: "Ready to Bring Your Experience to Life?",
+    titleAr: "مستعد لبناء تجربتك القادمة؟",
+    descriptionEn: "Tell us what you are planning. We will assemble the right combination of strategy, creativity, technology, production and operations.",
+    descriptionAr: "تواصل مع فريق الأعمال لتحديد الحزمة المناسبة لمشروعك.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    primaryCtaEn: "Request a Proposal",
+    primaryCtaAr: "طلب عرض سعر (RFP)",
+    primaryLink: "/b2b/contact"
+  },
+  seo: {
+    metaTitleEn: "Services & Capabilities — E3 Enterprise Atelier",
+    metaTitleAr: "الخدمات والقدرات — إي ثري لقطاع الأعمال",
+    metaDescriptionEn: "Turnkey spatial design, event engineering, kinetic AV, live production, and landmark attraction operations in Qatar.",
+    metaDescriptionAr: "خدمات التصميم الفضائي، هندسة الفعاليات، الأنظمة الصوتية والضوئية، والإنتاج الحي في قطر.",
+    ogTitleEn: "Services & Capabilities — E3 Enterprise Atelier",
+    ogTitleAr: "الخدمات والقدرات — إي ثري لقطاع الأعمال",
+    ogDescriptionEn: "Turnkey spatial design, event engineering, kinetic AV, live production, and landmark attraction operations in Qatar.",
+    ogDescriptionAr: "خدمات التصميم الفضائي، هندسة الفعاليات، الأنظمة الصوتية والضوئية، والإنتاج الحي في قطر.",
+    ogImage: "",
+    canonicalUrl: "https://e3.qa/b2b/services"
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
  */
 export function getMergedCMSPageContent(slug: string, rawContent?: any) {
+  if (slug === 'b2b-services') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_SERVICES_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      hero: { ...defaults.hero, ...(raw.hero || {}) },
+      capabilityCount: { ...defaults.capabilityCount, ...(raw.capabilityCount || {}) },
+      philosophy: { ...defaults.philosophy, ...(raw.philosophy || {}) },
+      navigator: { ...defaults.navigator, ...(raw.navigator || {}) },
+      featuredSpotlights: { ...defaults.featuredSpotlights, ...(raw.featuredSpotlights || {}) },
+      deliveryMethodology: { 
+        ...defaults.deliveryMethodology, 
+        ...(raw.deliveryMethodology || {}),
+        steps: (raw.deliveryMethodology?.steps && raw.deliveryMethodology.steps.length > 0)
+          ? raw.deliveryMethodology.steps
+          : defaults.deliveryMethodology.steps
+      },
+      caseStudies: { ...defaults.caseStudies, ...(raw.caseStudies || {}) },
+      partnerRibbon: { ...defaults.partnerRibbon, ...(raw.partnerRibbon || {}) },
+      cta: { ...defaults.cta, ...(raw.cta || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
   if (slug === 'b2c-discover' || slug === 'discover') {
     const discoverDefaults = DEFAULT_B2C_DISCOVER_CONTENT;
     const raw = rawContent || {};
