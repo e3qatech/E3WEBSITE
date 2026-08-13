@@ -60,6 +60,9 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
       )
       await Promise.all(promises)
       setToast(true)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("e3_general_settings_updated", { detail: data }))
+      }
       setTimeout(() => setToast(false), 3000)
       router.refresh()
     } catch (error) {

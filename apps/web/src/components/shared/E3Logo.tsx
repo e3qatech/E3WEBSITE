@@ -16,9 +16,14 @@ interface E3LogoProps {
 let globalSettingsLogoCache: { lightLogoUrl?: string; darkLogoUrl?: string } | null = null;
 let globalSettingsFetchPromise: Promise<{ lightLogoUrl?: string; darkLogoUrl?: string }> | null = null;
 
-async function fetchGeneralLogos() {
-  if (globalSettingsLogoCache) return globalSettingsLogoCache;
-  if (!globalSettingsFetchPromise) {
+export function invalidateGeneralLogoCache() {
+  globalSettingsLogoCache = null;
+  globalSettingsFetchPromise = null;
+}
+
+async function fetchGeneralLogos(force = false) {
+  if (globalSettingsLogoCache && !force) return globalSettingsLogoCache;
+  if (!globalSettingsFetchPromise || force) {
     globalSettingsFetchPromise = fetch("/api/settings?type=GENERAL")
       .then((res) => (res.ok ? res.json() : {}))
       .then((json) => {
@@ -48,17 +53,38 @@ export function E3Logo({
   );
 
   useEffect(() => {
-    if (!propLightUrl && !propDarkUrl && !globalSettingsLogoCache) {
-      fetchGeneralLogos().then((logos) => {
-        setFetchedLogos(logos);
-      });
-    }
-  }, [propLightUrl, propDarkUrl]);
+    fetchGeneralLogos().then((logos) => {
+      setFetchedLogos(logos);
+    });
 
-  const lightLogoUrl = propLightUrl || fetchedLogos.lightLogoUrl;
-  const darkLogoUrl = propDarkUrl || fetchedLogos.darkLogoUrl;
+    const handleSettingsUpdated = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      if (detail && (detail.lightLogoUrl !== undefined || detail.darkLogoUrl !== undefined)) {
+        const updated = {
+          lightLogoUrl: detail.lightLogoUrl || undefined,
+          darkLogoUrl: detail.darkLogoUrl || undefined,
+        };
+        globalSettingsLogoCache = updated;
+        setFetchedLogos(updated);
+      } else {
+        invalidateGeneralLogoCache();
+        fetchGeneralLogos(true).then((logos) => {
+          setFetchedLogos(logos);
+        });
+      }
+    };
 
-  // If explicit image URLs are provided via CMS, props, or settings
+    window.addEventListener("e3_general_settings_updated", handleSettingsUpdated);
+    return () => {
+      window.removeEventListener("e3_general_settings_updated", handleSettingsUpdated);
+    };
+  }, []);
+
+  // Prefer global settings logos from en/dashboard/settings/general; fall back to props
+  const lightLogoUrl = fetchedLogos.lightLogoUrl || propLightUrl;
+  const darkLogoUrl = fetchedLogos.darkLogoUrl || propDarkUrl;
+
+  // Change logo dynamically as per theme (isLight vs dark mode)
   const activeLogoUrl = isLight ? (lightLogoUrl || darkLogoUrl) : (darkLogoUrl || lightLogoUrl);
 
   if (activeLogoUrl) {

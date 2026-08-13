@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 
 import { PulseOrbitDropdown } from '@/components/b2c/nav/PulseOrbitDropdown';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
+import { E3Logo } from '@/components/shared/E3Logo';
 
 export function B2BHeader({ settings = {} }: { settings?: Record<string, string> }) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -67,7 +68,6 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
 
   const lightLogoUrl = settings.lightLogoUrl;
   const darkLogoUrl = settings.darkLogoUrl;
-  const siteName = isAr ? (settings.siteNameAr || "إي ثري للشركات") : (settings.siteNameEn || "E3 Corporate");
 
   return (
     <header
@@ -83,20 +83,12 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
         {/* Logo & Portal Switcher */}
         <div className="flex items-center gap-4">
           <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-3 z-50">
-            {(lightLogoUrl || darkLogoUrl) ? (
-              <img
-                src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)}
-                alt={`${siteName} Logo`}
-                className="h-9 w-auto object-contain"
-              />
-            ) : (
-              <div className="w-10 h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center font-black text-white tracking-tighter shadow-sm">
-                E3
-              </div>
-            )}
-            <span className="font-bold text-lg tracking-tight hidden sm:block text-[var(--text-primary)]">
-              {!(lightLogoUrl || darkLogoUrl) ? (isAr ? "للشركات" : "Corporate") : ""}
-            </span>
+            <E3Logo
+              isLight={theme === 'light'}
+              lightLogoUrl={lightLogoUrl}
+              darkLogoUrl={darkLogoUrl}
+              size="md"
+            />
           </Link>
         </div>
 

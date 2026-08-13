@@ -327,21 +327,13 @@ export function PulseOrbitNav({
               className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
             >
-              {currentOrbitData?.logoUrl ? (
-                <img
-                  src={currentOrbitData.logoUrl}
-                  alt="Pulse Orbit Logo"
-                  className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
-                />
-              ) : (
-                <E3Logo
-                  lightLogoUrl={lightLogoUrl}
-                  darkLogoUrl={darkLogoUrl}
-                  isLight={currentTheme === 'light'}
-                  showText={false}
-                  size="md"
-                />
-              )}
+              <E3Logo
+                lightLogoUrl={lightLogoUrl}
+                darkLogoUrl={darkLogoUrl}
+                isLight={currentTheme === 'light'}
+                showText={false}
+                size="md"
+              />
             </Link>
           </div>
 
