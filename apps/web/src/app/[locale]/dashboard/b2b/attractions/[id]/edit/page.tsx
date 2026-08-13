@@ -3,6 +3,8 @@ import { B2BAttractionEditor } from "@/components/dashboard/b2b/B2BAttractionEdi
 import { auth } from "@/lib/auth"
 import { redirect, notFound } from "next/navigation"
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Edit B2B Project & Attraction | E3 Admin",
 }
