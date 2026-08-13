@@ -5,6 +5,8 @@ import { format } from 'date-fns';
 import { Loader2, CalendarX2 } from 'lucide-react';
 import { EventCard, CalendarEvent } from './EventCard';
 
+import { getBentoCardSpan } from '@/lib/bento-grid';
+
 interface EventListProps {
   currentDate: Date;
   events: CalendarEvent[];
@@ -18,9 +20,6 @@ export function EventList({
   loading,
   onSelectTickets
 }: EventListProps) {
-
-
-
   // Group events by day, ONLY for the currentDate
   const targetDayStr = format(currentDate, 'yyyy-MM-dd');
   
@@ -70,6 +69,15 @@ export function EventList({
         const [year, month, day] = dayStr.split('-');
         const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
         
+        const groupedByAttraction = Object.values(
+          dayEvents.reduce((acc, ev) => {
+            if (!acc[ev.attractionId]) acc[ev.attractionId] = [];
+            acc[ev.attractionId].push(ev);
+            return acc;
+          }, {} as Record<string, CalendarEvent[]>)
+        );
+        const totalAttractions = groupedByAttraction.length;
+
         return (
           <div key={dayStr} className="space-y-6">
             <div className="flex items-center gap-4">
@@ -79,20 +87,19 @@ export function EventList({
               <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
             </div>
             
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {Object.values(
-                dayEvents.reduce((acc, ev) => {
-                  if (!acc[ev.attractionId]) acc[ev.attractionId] = [];
-                  acc[ev.attractionId].push(ev);
-                  return acc;
-                }, {} as Record<string, CalendarEvent[]>)
-              ).map(groupedEvents => (
-                <EventCard 
-                  key={groupedEvents[0].id} 
-                  events={groupedEvents} 
-                  onSelectTickets={onSelectTickets} 
-                />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-stretch">
+              {groupedByAttraction.map((groupedEvents, idx) => {
+                const { spanClass, isFeatured } = getBentoCardSpan(idx, totalAttractions);
+                return (
+                  <EventCard 
+                    key={groupedEvents[0].id} 
+                    events={groupedEvents} 
+                    onSelectTickets={onSelectTickets} 
+                    isFeatured={isFeatured}
+                    spanClass={spanClass}
+                  />
+                );
+              })}
             </div>
           </div>
         );

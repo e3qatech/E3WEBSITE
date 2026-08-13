@@ -131,22 +131,21 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
 
       // Build DOM Pin Element
       const el = document.createElement('div');
-      el.className = `group relative cursor-pointer z-20 transition-transform duration-300 ${isSelected ? 'scale-125 z-30' : 'hover:scale-115'}`;
+      el.className = `group relative cursor-pointer z-20 transition-all duration-300 ${isSelected ? 'z-40 scale-110' : 'hover:z-30 hover:scale-105'}`;
 
       const titleText = isAr ? (props.nameAr || props.nameEn) : (props.nameEn || props.nameAr);
-      const venueText = isAr ? (props.venue || props.address) : (props.venue || props.address);
 
       el.innerHTML = `
         <div class="flex flex-col items-center">
-          <!-- Label Pill Badge -->
-          <div class="px-2.5 py-1 rounded-full bg-slate-900/90 text-white border border-white/20 text-[11px] font-bold font-sans tracking-wide shadow-2xl backdrop-blur-md mb-1.5 whitespace-nowrap flex items-center gap-1.5 ${isSelected ? 'ring-2 ring-amber-400 text-amber-300' : ''}">
-            <span class="w-2 h-2 rounded-full ${accentBg}"></span>
-            <span>${titleText}</span>
+          <!-- Compact Non-Overlapping Label Pill Badge -->
+          <div class="px-2.5 py-1 rounded-full bg-slate-900/95 text-white border border-white/20 text-[10px] font-bold font-sans tracking-wide shadow-2xl backdrop-blur-md mb-1 flex items-center gap-1.5 max-w-[130px] group-hover:max-w-[200px] transition-all duration-300 ${isSelected ? 'ring-2 ring-amber-400 text-amber-300 max-w-[200px]' : ''}">
+            <span class="w-2 h-2 rounded-full ${accentBg} shrink-0"></span>
+            <span class="truncate">${titleText}</span>
           </div>
 
           <!-- Pin Pointer Circle -->
-          <div class="relative w-9 h-9 rounded-full ${accentBg} border-2 border-white shadow-xl ${shadowGlow} flex items-center justify-center text-white">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="relative w-8 h-8 rounded-full ${accentBg} border-2 border-white shadow-xl ${shadowGlow} flex items-center justify-center text-white shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
@@ -209,36 +208,37 @@ export function AttractionMapCanvas({ geoJson, selectedLocationId, onSelectLocat
       {/* MapLibre WebGL Canvas */}
       <div ref={mapContainerRef} className="w-full h-full min-h-[500px] z-0" />
 
-      {/* Top Action Bar: Show All Pins & 3D Toggle */}
-      <div className="absolute top-4 start-4 z-20 flex items-center gap-2">
-        <button
-          onClick={fitAllLocations}
-          className="px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-[var(--e3-royal-blue)] text-white text-xs font-bold uppercase tracking-wider border border-white/20 backdrop-blur-md transition-all shadow-xl flex items-center gap-2 cursor-pointer"
-        >
-          <Eye className="w-4 h-4 text-amber-400" />
-          <span>{isAr ? "عرض كافة الوجهات على الخريطة" : "Show All Locations on Map"}</span>
-        </button>
+      {/* Top Non-Overlapping Action Bar */}
+      <div className="absolute top-3 start-3 end-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
+        <div className="flex items-center gap-2 flex-wrap pointer-events-auto">
+          <button
+            onClick={fitAllLocations}
+            className="px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-[var(--e3-royal-blue)] text-white text-[11px] font-bold uppercase tracking-wider border border-white/20 backdrop-blur-md transition-all shadow-xl flex items-center gap-1.5 cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>{isAr ? "عرض الكل" : "Show All Pins"}</span>
+          </button>
 
-        <button
-          onClick={toggle3D}
-          className={`px-3.5 py-2 rounded-xl border backdrop-blur-md transition-all shadow-xl flex items-center gap-1.5 text-xs font-mono font-bold cursor-pointer ${
-            pitch3d ? 'bg-[var(--e3-royal-blue)] text-white border-[var(--e3-royal-blue)]' : 'bg-slate-900/90 text-zinc-300 border-white/20'
-          }`}
-        >
-          <Box className="w-4 h-4" />
-          <span>{pitch3d ? '3D Active' : '2D Flat'}</span>
-        </button>
-      </div>
+          <button
+            onClick={toggle3D}
+            className={`px-3 py-1.5 rounded-xl border backdrop-blur-md transition-all shadow-xl flex items-center gap-1 text-[11px] font-mono font-bold cursor-pointer ${
+              pitch3d ? 'bg-[var(--e3-royal-blue)] text-white border-[var(--e3-royal-blue)]' : 'bg-slate-900/90 text-zinc-300 border-white/20'
+            }`}
+          >
+            <Box className="w-3.5 h-3.5 shrink-0" />
+            <span>{pitch3d ? '3D' : '2D'}</span>
+          </button>
+        </div>
 
-      {/* Floating Controls Right */}
-      <div className="absolute top-4 end-4 z-20 flex flex-col gap-2">
-        <button
-          onClick={fitAllLocations}
-          title="Fit All Locations Bounds"
-          className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-[var(--e3-royal-blue)] text-white border border-white/20 backdrop-blur-md transition-all shadow-lg cursor-pointer"
-        >
-          <Maximize className="w-4 h-4 text-amber-400" />
-        </button>
+        <div className="pointer-events-auto">
+          <button
+            onClick={fitAllLocations}
+            title={isAr ? "إعادة ضبط المعاينة" : "Fit All Locations Bounds"}
+            className="p-2 rounded-xl bg-slate-900/90 hover:bg-[var(--e3-royal-blue)] text-white border border-white/20 backdrop-blur-md transition-all shadow-lg cursor-pointer"
+          >
+            <Maximize className="w-3.5 h-3.5 text-amber-400" />
+          </button>
+        </div>
       </div>
 
       {/* Map Attribution */}

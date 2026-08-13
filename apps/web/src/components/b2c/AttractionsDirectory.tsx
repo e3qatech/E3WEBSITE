@@ -22,6 +22,7 @@ import { AttractionMapFilters } from '../map/AttractionMapFilters';
 import { AttractionLocationCard } from '../map/AttractionLocationCard';
 import { useNearestLocations } from '@/hooks/useNearestLocations';
 import { MapGeoJSONCollection, MapGeoJSONFeature } from '../map/map-types';
+import { getBentoCardSpan } from '@/lib/bento-grid';
 
 interface AttractionsDirectoryProps {
   initialAttractions: Attraction[];
@@ -137,12 +138,14 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
         </div>
 
         {/* Attractions Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredAttractions.map((attr) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 items-stretch">
+          {filteredAttractions.map((attr, idx) => {
             const name = isAr ? attr.nameAr : attr.nameEn;
             const tagline = isAr ? attr.taglineAr : attr.taglineEn;
             const ops = attr.operations || {};
             const locationName = (isAr ? ops.locationNameAr : ops.locationNameEn) || ops.locationNameEn || "Lusail, Qatar";
+            const { spanClass, isFeatured } = getBentoCardSpan(idx, filteredAttractions.length);
+            const isWide = isFeatured || spanClass.includes('col-span-3') || spanClass.includes('col-span-4') || spanClass.includes('col-span-6');
 
             return (
               <motion.div
@@ -150,10 +153,10 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="group relative rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-xl hover:border-[var(--e3-royal-blue)] transition-all flex flex-col justify-between"
+                className={`group relative rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-xl hover:border-[var(--e3-royal-blue)] transition-all flex flex-col justify-between ${spanClass} ${isFeatured ? 'ring-1 ring-[var(--e3-royal-blue)]/40 bg-gradient-to-br from-[var(--surface-default)] via-black/40 to-[var(--surface-default)]' : ''}`}
               >
                 {/* Media Image Holder */}
-                <div className="relative h-60 w-full overflow-hidden bg-black">
+                <div className={`relative w-full overflow-hidden bg-black ${isWide ? 'h-64 lg:h-72' : 'h-60'}`}>
                   <img
                     src={attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176'}
                     alt={name}
@@ -161,9 +164,16 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-black/20 to-transparent" />
                   
-                  {/* Category Badge */}
-                  <div className="absolute top-4 start-4 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold uppercase text-[var(--e3-royal-blue)]">
-                    {(attr as any).category || "ATTRACTION"}
+                  {/* Category & Featured Badge */}
+                  <div className="absolute top-4 start-4 flex items-center gap-2">
+                    <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold uppercase text-[var(--e3-royal-blue)]">
+                      {(attr as any).category || "ATTRACTION"}
+                    </div>
+                    {isFeatured && (
+                      <div className="px-3 py-1 rounded-full bg-[var(--e3-royal-blue)]/30 backdrop-blur-md border border-[var(--e3-royal-blue)]/50 text-[10px] font-mono font-bold uppercase text-white">
+                        {isAr ? "وجهة مميزة" : "FEATURED WORLD"}
+                      </div>
+                    )}
                   </div>
 
                   {/* Status Indicator */}
@@ -176,7 +186,7 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                 {/* Content Details */}
                 <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold font-display uppercase tracking-tight text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors">
+                    <h3 className={`font-bold font-display uppercase tracking-tight text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors ${isFeatured ? 'text-2xl lg:text-3xl' : 'text-xl'}`}>
                       {name}
                     </h3>
                     {tagline && (
@@ -231,58 +241,101 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
   useEffect(() => {
     async function loadMapData() {
       const attractionsList = (initialAttractions && initialAttractions.length > 0) ? initialAttractions : FALLBACK_ATTRACTIONS;
+      let mapFeatures: MapGeoJSONFeature[] = [];
 
       try {
         const res = await fetch(`/api/public/locations/map?locale=${locale}`);
         if (res.ok) {
           const json = await res.json();
           if (json?.features && json.features.length > 0) {
-            setGeoJson(json);
-            if (!selectedLocationId) {
-              setSelectedLocationId(json.features[0].properties.locationId);
-            }
-            return;
+            mapFeatures = json.features;
           }
         }
       } catch (e) {
         console.error('Failed to load public map GeoJSON', e);
       }
 
-      // Guaranteed Fallback: Construct GeoJSON from attractions list so pins ALWAYS render
-      const fallbackFeatures: MapGeoJSONFeature[] = attractionsList.map((attr, idx) => ({
-        type: 'Feature',
-        id: attr.id || `attr-${idx}`,
-        geometry: {
-          type: 'Point',
-          coordinates: [
-            attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
-            attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01)
-          ]
-        },
-        properties: {
-          locationId: attr.id || `attr-${idx}`,
-          slug: attr.slug || 'attraction',
-          name: (locale === 'ar' ? attr.nameAr : attr.nameEn) || attr.nameEn || 'Attraction',
-          nameEn: attr.nameEn || 'Attraction',
-          nameAr: attr.nameAr || 'وجهة ترفيهية',
-          venue: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || attr.operations?.locationNameEn || 'Qatar',
-          address: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || 'Qatar',
-          locationType: 'PERMANENT_ATTRACTION',
-          operationalStatus: 'OPEN',
-          thumbnailUrl: attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
-          pinColorToken: idx === 0 ? 'CYAN' : idx === 1 ? 'GOLD' : idx === 2 ? 'PURPLE' : 'AMBER',
-          featured: true,
-          attractionCount: 1,
-          latitude: attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01),
-          longitude: attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
-          ticketingUrl: attr.ticketingUrl || `/${locale}/b2c/calendar`,
-          googleMapsUrl: `https://maps.google.com/?q=${attr.operations?.lat || 25.4180},${attr.operations?.lng || 51.5305}`
-        }
-      }));
+      // Guaranteed Fallback: Construct GeoJSON from attractions list if API returns empty
+      if (mapFeatures.length === 0) {
+        mapFeatures = attractionsList.map((attr, idx) => ({
+          type: 'Feature',
+          id: attr.id || `attr-${idx}`,
+          geometry: {
+            type: 'Point',
+            coordinates: [
+              attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
+              attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01)
+            ]
+          },
+          properties: {
+            locationId: attr.id || `attr-${idx}`,
+            slug: attr.slug || 'attraction',
+            name: (locale === 'ar' ? attr.nameAr : attr.nameEn) || attr.nameEn || 'Attraction',
+            nameEn: attr.nameEn || 'Attraction',
+            nameAr: attr.nameAr || 'وجهة ترفيهية',
+            venue: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || attr.operations?.locationNameEn || 'Qatar',
+            address: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || 'Qatar',
+            locationType: 'PERMANENT_ATTRACTION',
+            operationalStatus: 'OPEN',
+            thumbnailUrl: attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
+            pinColorToken: idx === 0 ? 'CYAN' : idx === 1 ? 'GOLD' : idx === 2 ? 'PURPLE' : 'AMBER',
+            featured: true,
+            attractionCount: 1,
+            latitude: attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01),
+            longitude: attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
+            ticketingUrl: attr.ticketingUrl || `/${locale}/b2c/calendar`,
+            googleMapsUrl: `https://maps.google.com/?q=${attr.operations?.lat || 25.4180},${attr.operations?.lng || 51.5305}`
+          }
+        }));
+      }
 
-      setGeoJson({ type: 'FeatureCollection', features: fallbackFeatures });
-      if (fallbackFeatures.length > 0 && !selectedLocationId) {
-        setSelectedLocationId(fallbackFeatures[0].properties.locationId);
+      // Fetch active calendar events to guarantee all active scheduled events display as map pins
+      try {
+        const calRes = await fetch(`/api/calendar?availableNow=true`);
+        if (calRes.ok) {
+          const calEvents = await calRes.json();
+          if (Array.isArray(calEvents)) {
+            const existingIds = new Set(mapFeatures.map(f => f.properties.locationId || f.id));
+            calEvents.forEach((ev: any, idx: number) => {
+              if (!existingIds.has(ev.id) && !existingIds.has(ev.attractionId)) {
+                mapFeatures.push({
+                  type: 'Feature',
+                  id: `ev-${ev.id || idx}`,
+                  geometry: {
+                    type: 'Point',
+                    coordinates: [51.5320 + (idx * 0.008), 25.4190 - (idx * 0.005)]
+                  },
+                  properties: {
+                    locationId: `ev-${ev.id}`,
+                    slug: ev.attractionSlug || 'calendar',
+                    name: (locale === 'ar' ? ev.attractionNameAr : ev.attractionNameEn) || ev.title,
+                    nameEn: ev.attractionNameEn || ev.title,
+                    nameAr: ev.attractionNameAr || ev.title,
+                    venue: (locale === 'ar' ? ev.locationNameAr : ev.locationNameEn) || 'Qatar',
+                    address: (locale === 'ar' ? ev.locationNameAr : ev.locationNameEn) || 'Qatar',
+                    locationType: 'EVENT',
+                    operationalStatus: 'OPEN',
+                    thumbnailUrl: ev.thumbnail || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
+                    pinColorToken: 'GOLD',
+                    featured: true,
+                    attractionCount: 1,
+                    latitude: 25.4190 - (idx * 0.005),
+                    longitude: 51.5320 + (idx * 0.008),
+                    ticketingUrl: ev.ticketingUrl || `/${locale}/b2c/calendar`,
+                    directionsUrl: `https://maps.google.com/?q=25.4190,51.5320`
+                  }
+                });
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Calendar events map fetch notice:', e);
+      }
+
+      setGeoJson({ type: 'FeatureCollection', features: mapFeatures });
+      if (mapFeatures.length > 0 && !selectedLocationId) {
+        setSelectedLocationId(mapFeatures[0].properties.locationId);
       }
     }
     loadMapData();
@@ -297,6 +350,7 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
       const matchCategory =
         selectedCategory === 'ALL' ||
         (selectedCategory === 'OPEN_NOW' && p.operationalStatus === 'OPEN') ||
+        (selectedCategory === 'EVENT' && (p.locationType === 'EVENT' || p.locationType === 'SEASONAL_ATTRACTION')) ||
         p.locationType === selectedCategory;
 
       const matchSearch =
