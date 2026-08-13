@@ -58,10 +58,16 @@ export default async function B2BAttractionsPage() {
     let venue = "N/A"
     if (typeof ops.venueName === "string" && ops.venueName.trim()) {
       venue = ops.venueName.trim()
+    } else if (ops.venueName && typeof ops.venueName === "object") {
+      venue = ops.venueName.en || ops.venueName.ar || "N/A"
     } else if (typeof ops.venue === "string" && ops.venue.trim()) {
       venue = ops.venue.trim()
+    } else if (ops.venue && typeof ops.venue === "object") {
+      venue = ops.venue.en || ops.venue.ar || "N/A"
     } else if (typeof ops.location === "string" && ops.location.trim()) {
       venue = ops.location.trim()
+    } else if (ops.location && typeof ops.location === "object") {
+      venue = ops.location.en || ops.location.ar || "N/A"
     }
 
     // Extract temporal status

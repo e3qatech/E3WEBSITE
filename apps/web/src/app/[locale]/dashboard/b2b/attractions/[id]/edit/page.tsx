@@ -44,5 +44,5 @@ export default async function EditB2BAttractionPage({
     notFound()
   }
 
-  return <B2BAttractionEditor initialData={attraction} />
+  return <B2BAttractionEditor initialData={JSON.parse(JSON.stringify(attraction))} />
 }
