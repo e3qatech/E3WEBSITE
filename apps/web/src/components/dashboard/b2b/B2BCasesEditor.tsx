@@ -231,6 +231,49 @@ export function B2BCasesEditor({
     })
   }
 
+  const toggleFeaturedCaseSelection = (caseStudyId: string) => {
+    setData((prev: any) => {
+      const currentIds: string[] = Array.isArray(prev.featuredCases?.selectedCaseStudyIds)
+        ? prev.featuredCases.selectedCaseStudyIds.map(String)
+        : [];
+      
+      const newIds = currentIds.includes(caseStudyId)
+        ? currentIds.filter(id => id !== caseStudyId)
+        : [...currentIds, caseStudyId];
+
+      return {
+        ...prev,
+        featuredCases: {
+          ...prev.featuredCases,
+          selectedCaseStudyIds: newIds
+        }
+      };
+    });
+  };
+
+  const moveFeaturedCaseOrder = (index: number, direction: 'up' | 'down') => {
+    setData((prev: any) => {
+      const currentIds: string[] = Array.isArray(prev.featuredCases?.selectedCaseStudyIds)
+        ? [...prev.featuredCases.selectedCaseStudyIds.map(String)]
+        : [];
+
+      const targetIdx = direction === 'up' ? index - 1 : index + 1;
+      if (targetIdx < 0 || targetIdx >= currentIds.length) return prev;
+
+      const temp = currentIds[index];
+      currentIds[index] = currentIds[targetIdx];
+      currentIds[targetIdx] = temp;
+
+      return {
+        ...prev,
+        featuredCases: {
+          ...prev.featuredCases,
+          selectedCaseStudyIds: currentIds
+        }
+      };
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6 h-full p-6 text-text-primary">
       <AdminPageHeader 
@@ -274,6 +317,7 @@ export function B2BCasesEditor({
           </div>
 
           <div className="space-y-4">
+            {/* Eyebrow */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Eyebrow (En)</label>
@@ -296,6 +340,7 @@ export function B2BCasesEditor({
               </div>
             </div>
 
+            {/* Headline */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Headline (En)</label>
@@ -318,69 +363,177 @@ export function B2BCasesEditor({
               </div>
             </div>
 
+            {/* Subtitle */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
+                <textarea 
+                  value={data.hero?.subtitleEn || ""}
+                  onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
+                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
+                <textarea 
+                  dir="rtl"
+                  value={data.hero?.subtitleAr || ""}
+                  onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
+                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Detailed Description */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
                 <textarea 
-                  value={data.hero?.subtitleEn || ""}
-                  onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                  value={data.hero?.descriptionEn || ""}
+                  onChange={e => handleChange('hero', 'descriptionEn', e.target.value)}
+                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
                 <textarea 
                   dir="rtl"
-                  value={data.hero?.subtitleAr || ""}
-                  onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                  value={data.hero?.descriptionAr || ""}
+                  onChange={e => handleChange('hero', 'descriptionAr', e.target.value)}
+                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 pt-4 border-t border-border-default">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
-                <select 
-                  value={data.hero?.mediaType || "IMAGE"}
-                  onChange={e => handleChange('hero', 'mediaType', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                >
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                  <option value="SPLINE">Spline / 3D Scene</option>
-                  <option value="IFRAME">iFrame Embed</option>
-                </select>
+            {/* Media Controls */}
+            <div className="space-y-4 pt-4 border-t border-border-default">
+              <div className="grid grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Hero Media Type</label>
+                  <select 
+                    value={data.hero?.mediaType || "IMAGE"}
+                    onChange={e => handleChange('hero', 'mediaType', e.target.value)}
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="IFRAME">iFrame Embed</option>
+                    <option value="SPLINE">Spline 3D Scene</option>
+                    <option value="THREE_D">3D Model (GLTF)</option>
+                  </select>
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Desktop Media URL & Upload</label>
+                  <MediaUploader 
+                    value={data.hero?.mediaUrl || ""} 
+                    onChange={url => handleChange('hero', 'mediaUrl', url)} 
+                    accept={data.hero?.mediaType === 'VIDEO' ? "video/*" : "image/*"}
+                  />
+                </div>
               </div>
-              <div className="space-y-2 col-span-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Desktop Media URL</label>
-                <MediaUploader 
-                  value={data.hero?.mediaUrl || ""} 
-                  onChange={url => handleChange('hero', 'mediaUrl', url)} 
-                  accept={data.hero?.mediaType === 'VIDEO' ? "video/*" : "image/*"}
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Mobile Media URL & Upload (Optional Fallback)</label>
+                  <MediaUploader 
+                    value={data.hero?.mobileMediaUrl || ""} 
+                    onChange={url => handleChange('hero', 'mobileMediaUrl', url)} 
+                    accept={data.hero?.mediaType === 'VIDEO' ? "video/*" : "image/*"}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Poster / Fallback Image URL & Upload</label>
+                  <MediaUploader 
+                    value={data.hero?.posterImage || ""} 
+                    onChange={url => handleChange('hero', 'posterImage', url)} 
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2 w-72">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Overlay Darkening Strength ({data.hero?.overlayStrength ?? 70}%)</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={data.hero?.overlayStrength ?? 70} 
+                  onChange={e => handleChange('hero', 'overlayStrength', parseInt(e.target.value))}
+                  className="w-full h-2 bg-surface-hover rounded-lg appearance-none cursor-pointer accent-emerald-500"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Text (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.primaryCtaEn || ""}
-                  onChange={e => handleChange('hero', 'primaryCtaEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
+            {/* CTAs */}
+            <div className="space-y-4 pt-4 border-t border-border-default">
+              <div className="grid grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Text (En)</label>
+                  <input 
+                    type="text" 
+                    value={data.hero?.primaryCtaEn || ""}
+                    onChange={e => handleChange('hero', 'primaryCtaEn', e.target.value)}
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Text (Ar)</label>
+                  <input 
+                    type="text" 
+                    dir="rtl"
+                    value={data.hero?.primaryCtaAr || ""}
+                    onChange={e => handleChange('hero', 'primaryCtaAr', e.target.value)}
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary Destination Link</label>
+                  <input 
+                    type="text" 
+                    value={data.hero?.primaryLink || ""}
+                    onChange={e => handleChange('hero', 'primaryLink', e.target.value)}
+                    placeholder="/b2b/contact, #archive, or https://..."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                  {data.hero?.primaryLink && !['/', '#', 'http'].some(prefix => data.hero.primaryLink.trim().startsWith(prefix)) && (
+                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with '/', '#', or 'https://'</div>
+                  )}
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Text (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero?.primaryCtaAr || ""}
-                  onChange={e => handleChange('hero', 'primaryCtaAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
+
+              <div className="grid grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Secondary CTA Text (En)</label>
+                  <input 
+                    type="text" 
+                    value={data.hero?.secondaryCtaEn || ""}
+                    onChange={e => handleChange('hero', 'secondaryCtaEn', e.target.value)}
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Secondary CTA Text (Ar)</label>
+                  <input 
+                    type="text" 
+                    dir="rtl"
+                    value={data.hero?.secondaryCtaAr || ""}
+                    onChange={e => handleChange('hero', 'secondaryCtaAr', e.target.value)}
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Secondary Destination Link</label>
+                  <input 
+                    type="text" 
+                    value={data.hero?.secondaryLink || ""}
+                    onChange={e => handleChange('hero', 'secondaryLink', e.target.value)}
+                    placeholder="/b2b/contact, #archive, or https://..."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                  {data.hero?.secondaryLink && !['/', '#', 'http'].some(prefix => data.hero.secondaryLink.trim().startsWith(prefix)) && (
+                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with '/', '#', or 'https://'</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -475,12 +628,12 @@ export function B2BCasesEditor({
           </div>
         </div>
 
-        {/* 3. FACT STREAM SECTION */}
+        {/* 3. VERIFIED FACT STREAM (AUTOMATICALLY FETCHED FROM CASESTUDY METRICS) */}
         <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Sparkles className="w-5 h-5 text-amber-400" />
-              <h2 className="text-lg font-bold text-text-primary">3. "Did You Know?" Fact Stream</h2>
+              <h2 className="text-lg font-bold text-text-primary">3. Verified "Did You Know?" Fact Stream</h2>
             </div>
             <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
               <input 
@@ -493,127 +646,120 @@ export function B2BCasesEditor({
             </label>
           </div>
 
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-2">
+            <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+              <CheckSquare className="w-4 h-4" />
+              <span>Automated Canonical Data Source</span>
+            </div>
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              Fact cards are generated automatically from verified impact metrics stored inside published CaseStudy database records.
+            </p>
+            {!caseStudies.some(cs => cs.isPublished && Array.isArray(cs.metrics) && cs.metrics.length > 0) && (
+              <div className="mt-2 text-xs font-bold text-red-400 bg-red-950/60 p-2.5 rounded-lg border border-red-800/60">
+                ⚠️ No verified impact metrics are available. Add impact metrics to published case studies under Dashboard &gt; B2B Case Studies.
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Heading (En)</label>
-                <input 
-                  type="text" 
-                  value={data.factStream?.titleEn || ""}
-                  onChange={e => handleChange('factStream', 'titleEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Eyebrow (En / Ar)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    value={data.factStream?.labelEn || ""}
+                    onChange={e => handleChange('factStream', 'labelEn', e.target.value)}
+                    placeholder="Did You Know?"
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                  <input 
+                    type="text" 
+                    dir="rtl"
+                    value={data.factStream?.labelAr || ""}
+                    onChange={e => handleChange('factStream', 'labelAr', e.target.value)}
+                    placeholder="هل تعلم؟"
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                </div>
               </div>
+
               <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Heading (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.factStream?.titleAr || ""}
-                  onChange={e => handleChange('factStream', 'titleAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Heading (En / Ar)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    value={data.factStream?.titleEn || ""}
+                    onChange={e => handleChange('factStream', 'titleEn', e.target.value)}
+                    placeholder="Every Project Leaves a Bigger Story Behind."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                  <input 
+                    type="text" 
+                    dir="rtl"
+                    value={data.factStream?.titleAr || ""}
+                    onChange={e => handleChange('factStream', 'titleAr', e.target.value)}
+                    placeholder="وراء كل مشروع قصة أكبر من الأرقام."
+                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Fact List */}
-            <div className="space-y-4 pt-4 border-t border-border-default">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-text-primary">Verified Fact Cards</h3>
-                <AdminButton variant="secondary" onClick={addFact} className="flex items-center gap-1.5 text-xs">
-                  <Plus className="w-4 h-4" />
-                  <span>Add Fact Card</span>
-                </AdminButton>
+            <div className="grid grid-cols-4 gap-6 pt-2">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Max Facts Limit</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="20"
+                  value={data.factStream?.maxFacts ?? 5}
+                  onChange={e => handleChange('factStream', 'maxFacts', parseInt(e.target.value))}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                />
               </div>
 
-              {(data.factStream?.facts || []).map((fact: any, index: number) => (
-                <div key={fact.id || index} className="p-4 bg-surface-hover border border-border-default rounded-xl space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-amber-400 uppercase">Fact #{index + 1}</span>
-                    <button 
-                      onClick={() => removeFact(index)}
-                      className="text-red-400 hover:text-red-300 text-xs font-bold flex items-center gap-1 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span>Remove</span>
-                    </button>
-                  </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Slide Duration (Sec)</label>
+                <input 
+                  type="number" 
+                  min="2" 
+                  max="30"
+                  value={data.factStream?.rotationDuration ?? 5}
+                  onChange={e => handleChange('factStream', 'rotationDuration', parseInt(e.target.value))}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                />
+              </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-xs text-text-secondary font-bold uppercase">Numeric Value</label>
-                      <input 
-                        type="text"
-                        value={fact.value || ""}
-                        onChange={e => updateFact(index, 'value', e.target.value)}
-                        placeholder="30,000"
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-text-secondary font-bold uppercase">Prefix</label>
-                      <input 
-                        type="text"
-                        value={fact.prefix || ""}
-                        onChange={e => updateFact(index, 'prefix', e.target.value)}
-                        placeholder="+"
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-text-secondary font-bold uppercase">Suffix</label>
-                      <input 
-                        type="text"
-                        value={fact.suffix || ""}
-                        onChange={e => updateFact(index, 'suffix', e.target.value)}
-                        placeholder="sqm"
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
-                      />
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Ordering Strategy</label>
+                <select
+                  value={data.factStream?.displayOrder || "FEATURED_FIRST"}
+                  onChange={e => handleChange('factStream', 'displayOrder', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                >
+                  <option value="FEATURED_FIRST">Featured Projects First</option>
+                  <option value="NEWEST_FIRST">Newest Projects First</option>
+                  <option value="MANUAL">Selected Case Studies Only</option>
+                </select>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs text-text-secondary font-bold uppercase">Headline (En)</label>
-                      <input 
-                        type="text"
-                        value={fact.headlineEn || ""}
-                        onChange={e => updateFact(index, 'headlineEn', e.target.value)}
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-text-secondary font-bold uppercase">Headline (Ar)</label>
-                      <input 
-                        type="text"
-                        dir="rtl"
-                        value={fact.headlineAr || ""}
-                        onChange={e => updateFact(index, 'headlineAr', e.target.value)}
-                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-text-secondary font-bold uppercase">Link to Case Study</label>
-                    <select
-                      value={fact.caseStudyId || ""}
-                      onChange={e => updateFact(index, 'caseStudyId', e.target.value)}
-                      className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
-                    >
-                      <option value="">-- No Linked Case Study --</option>
-                      {caseStudies.map(cs => (
-                        <option key={cs.id} value={cs.id}>{cs.titleEn} ({cs.clientName || 'General'})</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              ))}
+              <div className="space-y-2 flex flex-col justify-end">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-text-primary mb-2">
+                  <input 
+                    type="checkbox" 
+                    checked={data.factStream?.showProjectTitle !== false}
+                    onChange={e => handleChange('factStream', 'showProjectTitle', e.target.checked)}
+                    className="rounded bg-surface-hover border-border-default text-amber-500"
+                  />
+                  <span>Show Project Title Badge</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 4. FEATURED CASE STUDIES */}
+        {/* 4. FEATURED CASE STUDIES (EXPLICIT MANUAL SELECTION & ORDERING) */}
         <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
@@ -639,7 +785,7 @@ export function B2BCasesEditor({
                   type="text" 
                   value={data.featuredCases?.titleEn || ""}
                   onChange={e => handleChange('featuredCases', 'titleEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -649,22 +795,148 @@ export function B2BCasesEditor({
                   dir="rtl"
                   value={data.featuredCases?.titleAr || ""}
                   onChange={e => handleChange('featuredCases', 'titleAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Selection Mode</label>
-              <select
-                value={data.featuredCases?.selectionMode || "FEATURED_FLAG"}
-                onChange={e => handleChange('featuredCases', 'selectionMode', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-              >
-                <option value="FEATURED_FLAG">Automatic (Use database isFeatured flag)</option>
-                <option value="MANUAL">Manual Selection</option>
-              </select>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Selection Mode</label>
+                <select
+                  value={data.featuredCases?.selectionMode || "FEATURED_FLAG"}
+                  onChange={e => handleChange('featuredCases', 'selectionMode', e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary font-bold"
+                >
+                  <option value="FEATURED_FLAG">Automatic (Use database isFeatured flag)</option>
+                  <option value="MANUAL">Manual Selection &amp; Ordering</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Max Display Limit</label>
+                <input 
+                  type="number"
+                  min="1"
+                  max="12"
+                  value={data.featuredCases?.maxItems ?? 3}
+                  onChange={e => handleChange('featuredCases', 'maxItems', parseInt(e.target.value))}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
+                />
+              </div>
             </div>
+
+            {/* MANUAL SELECTION CONTROLS */}
+            {data.featuredCases?.selectionMode === 'MANUAL' && (
+              <div className="space-y-6 pt-4 border-t border-border-default">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-bold text-text-primary">Manual Case Study Selector</h3>
+                    <p className="text-xs text-text-secondary">Select published projects to feature and adjust their exact display sequence.</p>
+                  </div>
+                  <div className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
+                    {(data.featuredCases?.selectedCaseStudyIds || []).length} Selected
+                  </div>
+                </div>
+
+                {(data.featuredCases?.selectedCaseStudyIds || []).length === 0 && (
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs font-bold text-amber-300">
+                    ⚠️ No case studies selected. No featured cards will be rendered publicly in Manual Mode.
+                  </div>
+                )}
+
+                {/* ORDERED SELECTED LIST */}
+                {(data.featuredCases?.selectedCaseStudyIds || []).length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Ordered Selected List (Top = First Card)</label>
+                    <div className="space-y-2">
+                      {(data.featuredCases?.selectedCaseStudyIds || []).map((id: string, idx: number) => {
+                        const cs = caseStudies.find(c => String(c.id) === String(id));
+                        return (
+                          <div key={id || idx} className="flex items-center justify-between p-3 bg-surface-hover border border-border-default rounded-xl">
+                            <div className="flex items-center gap-3">
+                              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center">
+                                {idx + 1}
+                              </span>
+                              {cs ? (
+                                <div>
+                                  <div className="text-sm font-bold text-text-primary">{cs.titleEn}</div>
+                                  <div className="text-xs text-text-secondary font-mono">{cs.clientName || 'General Client'} • {cs.year}</div>
+                                </div>
+                              ) : (
+                                <div className="text-xs font-bold text-red-400">
+                                  ⚠️ Saved Case Study ID [{id}] no longer resolves to a published record.
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button 
+                                type="button"
+                                onClick={() => moveFeaturedCaseOrder(idx, 'up')}
+                                disabled={idx === 0}
+                                className="p-1.5 hover:bg-surface-active rounded-lg text-text-secondary disabled:opacity-30"
+                                title="Move Up"
+                              >
+                                ↑
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => moveFeaturedCaseOrder(idx, 'down')}
+                                disabled={idx === (data.featuredCases?.selectedCaseStudyIds || []).length - 1}
+                                className="p-1.5 hover:bg-surface-active rounded-lg text-text-secondary disabled:opacity-30"
+                                title="Move Down"
+                              >
+                                ↓
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => toggleFeaturedCaseSelection(id)}
+                                className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg ml-2"
+                                title="Remove Selection"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* PUBLISHED PROJECTS CHECKBOX SELECTOR */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Available Published Projects</label>
+                  <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto p-3 bg-surface-hover rounded-xl border border-border-default scrollbar-thin">
+                    {caseStudies.map(cs => {
+                      const isSelected = (data.featuredCases?.selectedCaseStudyIds || []).includes(String(cs.id));
+                      return (
+                        <label 
+                          key={cs.id} 
+                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                            isSelected 
+                              ? 'bg-emerald-500/10 border-emerald-500/50 text-text-primary' 
+                              : 'bg-surface-default border-border-default text-text-secondary hover:text-text-primary'
+                          }`}
+                        >
+                          <input 
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleFeaturedCaseSelection(String(cs.id))}
+                            className="rounded border-border-default text-emerald-500 focus:ring-0"
+                          />
+                          <div className="truncate text-xs font-bold">
+                            <div>{cs.titleEn}</div>
+                            <div className="text-[10px] font-mono text-zinc-500">{cs.clientName || 'General'} • {cs.year}</div>
+                          </div>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

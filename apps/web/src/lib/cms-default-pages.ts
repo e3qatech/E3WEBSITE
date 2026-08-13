@@ -1350,9 +1350,12 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     titleAr: "الأفكار تصنع الإمكانات. والنتائج تثبتها.",
     subtitleEn: "Explore the experiences, destinations and landmark events E3 has transformed from ambitious ideas into measurable impact.",
     subtitleAr: "اكتشف التجارب والوجهات والفعاليات الاستثنائية التي حولتها إي ثري من أفكار طموحة إلى إنجازات ذات أثر ملموس.",
+    descriptionEn: "Masterplanned zones, kinetic staging, and turnkey live operations delivered across Qatar.",
+    descriptionAr: "هندسة فضائية متكاملة وإدارة حشود وتجهيز منصات لأبرز المشاريع الترفيهية.",
     mediaType: "IMAGE",
     mediaUrl: "",
     mobileMediaUrl: "",
+    posterImage: "",
     overlayStrength: 70,
     primaryCtaEn: "Explore Our Work",
     primaryCtaAr: "استكشف أعمالنا",
@@ -1369,7 +1372,7 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     titleAr: "نظرة إلى التجارب التي نصنعها",
     descriptionEn: "High-definition highlight reel of E3 mega builds, kinetic AV stages, and landmark operations across Qatar.",
     descriptionAr: "لقطات عالية الدقة لأبرز مشاريع إي ثري، منصات الإضاءة والصوت الحركية، والعمليات التشغيلية المباشرة.",
-    mediaType: "VIDEO",
+    mediaType: "YOUTUBE",
     mediaUrl: "",
     posterImage: "",
     autoplay: true,
@@ -1384,8 +1387,14 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     labelAr: "هل تعلم؟",
     titleEn: "Every Project Leaves a Bigger Story Behind.",
     titleAr: "وراء كل مشروع قصة أكبر من الأرقام.",
-    sourceMode: "CURATED",
-    facts: []
+    descriptionEn: "Live performance telemetry and spatial engineering metrics derived from published projects.",
+    descriptionAr: "مؤشرات حية وتغطية استثنائية لأبرز المشاريع.",
+    maxFacts: 5,
+    rotationDuration: 5,
+    showProjectTitle: true,
+    showProjectMedia: true,
+    displayOrder: "FEATURED_FIRST",
+    selectedCaseStudyIds: []
   },
   featuredCases: {
     enabled: true,
@@ -1496,9 +1505,17 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       factStream: { 
         ...defaults.factStream, 
         ...(raw.factStream || {}),
-        facts: Array.isArray(raw.factStream?.facts) ? raw.factStream.facts : []
+        selectedCaseStudyIds: Array.isArray(raw.factStream?.selectedCaseStudyIds)
+          ? raw.factStream.selectedCaseStudyIds
+          : (defaults.factStream?.selectedCaseStudyIds || [])
       },
-      featuredCases: { ...defaults.featuredCases, ...(raw.featuredCases || {}) },
+      featuredCases: { 
+        ...defaults.featuredCases, 
+        ...(raw.featuredCases || {}),
+        selectedCaseStudyIds: Array.isArray(raw.featuredCases?.selectedCaseStudyIds)
+          ? raw.featuredCases.selectedCaseStudyIds
+          : (defaults.featuredCases?.selectedCaseStudyIds || [])
+      },
       archive: { ...defaults.archive, ...(raw.archive || {}) },
       teamStories: { 
         ...defaults.teamStories, 
