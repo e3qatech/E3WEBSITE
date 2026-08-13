@@ -278,8 +278,8 @@ export function PortalGateway({
                   config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2cMedia}
                   locale={activeLocale}
                   className={cn(
-                    "absolute inset-0 h-full w-full object-cover opacity-95 transition-all duration-700",
-                    !isReducedMotion && "group-hover:scale-105 group-hover:opacity-100"
+                    "absolute inset-0 h-full w-full object-cover opacity-100 transition-all duration-700",
+                    !isReducedMotion && "group-hover:scale-105"
                   )}
                 />
                 <div
@@ -403,8 +403,8 @@ export function PortalGateway({
                   config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2cMedia}
                   locale={activeLocale}
                   className={cn(
-                    "h-full w-full object-cover opacity-90 transition-all duration-700",
-                    !isReducedMotion && (hoveredPortal === "b2c" || activeFocus === "b2c") ? "scale-105 opacity-100" : "scale-100"
+                    "h-full w-full object-cover opacity-100 transition-all duration-700",
+                    !isReducedMotion && (hoveredPortal === "b2c" || activeFocus === "b2c") ? "scale-105" : "scale-100"
                   )}
                 />
                 <div
@@ -468,8 +468,8 @@ export function PortalGateway({
                   config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2bMedia}
                   locale={activeLocale}
                   className={cn(
-                    "h-full w-full object-cover opacity-90 transition-all duration-700",
-                    !isReducedMotion && (hoveredPortal === "b2b" || activeFocus === "b2b") ? "scale-105 opacity-100" : "scale-100"
+                    "h-full w-full object-cover opacity-100 transition-all duration-700",
+                    !isReducedMotion && (hoveredPortal === "b2b" || activeFocus === "b2b") ? "scale-105" : "scale-100"
                   )}
                 />
                 <div

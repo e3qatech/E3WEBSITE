@@ -51,6 +51,7 @@ export function UniversalMediaHolder({
 }: UniversalMediaHolderProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const altText = locale === 'ar' ? config.altAr || config.altEn : config.altEn || config.altAr;
@@ -58,6 +59,13 @@ export function UniversalMediaHolder({
   const fallbackUrl = config.fallbackImageUrl || config.mediaUrl;
 
   const effectiveMediaType = resolveMediaType({ url: config.mediaUrl, explicitType: config.mediaType });
+
+  // Handle cached image checks on mount
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setIsLoaded(true);
+    }
+  }, [config.mediaUrl]);
 
   // Iframe Domain Security Check
   const isValidIframeUrl = React.useMemo(() => {
@@ -84,7 +92,6 @@ export function UniversalMediaHolder({
             el.pause();
           } else if (config.autoplay && !forceReducedMotion) {
             el.play().catch(() => {
-              // Autoplay blocked fallback handling
               console.warn('[MEDIA_HOLDER] Video autoplay blocked by browser policy');
             });
           }
@@ -126,7 +133,7 @@ export function UniversalMediaHolder({
           src={fallbackUrl}
           alt={altText || 'Media Fallback Asset'}
           style={focalStyle}
-          className="w-full h-full opacity-100 transition-opacity duration-300"
+          className="w-full h-full object-cover opacity-100 filter contrast-[1.05] brightness-[0.95]"
           loading={config.loadingStrategy}
           onError={() => console.error('[MEDIA_HOLDER] Fallback image load error')}
         />
@@ -136,10 +143,11 @@ export function UniversalMediaHolder({
           {effectiveMediaType === 'IMAGE' && (
             <img
               key={config.mediaUrl}
+              ref={imgRef}
               src={config.mediaUrl}
               alt={altText || 'E3 Media Image'}
               style={focalStyle}
-              className="w-full h-full opacity-100 transition-opacity duration-300"
+              className="w-full h-full object-cover opacity-100 filter contrast-[1.05] brightness-[0.95] transition-opacity duration-300"
               loading={config.loadingStrategy}
               onLoad={() => setIsLoaded(true)}
               onError={() => setHasError(true)}
@@ -159,7 +167,7 @@ export function UniversalMediaHolder({
               playsInline
               preload="metadata"
               style={focalStyle}
-              className="w-full h-full object-cover opacity-100 transition-opacity duration-300"
+              className="w-full h-full object-cover opacity-100 filter contrast-[1.05] brightness-[0.95] transition-opacity duration-300"
               onLoadedData={() => setIsLoaded(true)}
               onCanPlay={() => setIsLoaded(true)}
               onError={(e) => {
@@ -192,19 +200,6 @@ export function UniversalMediaHolder({
               onLoad={() => setIsLoaded(true)}
               onError={() => setHasError(true)}
             />
-          )}
-
-          {/* Loading Overlay Spinner until primary media renders */}
-          {!isLoaded && config.mediaType !== 'MODEL_3D' && (
-            <div className="absolute inset-0 bg-zinc-950/80 flex items-center justify-center pointer-events-none transition-opacity duration-300">
-              <img
-                src={fallbackUrl}
-                alt="Loading poster placeholder"
-                style={focalStyle}
-                className="w-full h-full opacity-40 absolute inset-0 blur-sm"
-              />
-              <div className="relative z-10 w-8 h-8 rounded-full border-2 border-white/20 border-t-[var(--color-primary)] animate-spin" />
-            </div>
           )}
         </>
       )}
