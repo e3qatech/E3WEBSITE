@@ -227,7 +227,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   const ctaVal = formatLocalizedText(isAr ? (currentWorld.ctaAr || "احجز التذكرة") : (currentWorld.ctaEn || "Book Pass & Ticket"), locale)
 
   return (
-    <section id="attraction-worlds" className="relative min-h-screen py-20 bg-[#080214] text-white flex flex-col justify-center overflow-hidden border-b border-purple-950/40" dir={isAr ? "rtl" : "ltr"}>
+    <section id="attraction-worlds" className="relative min-h-screen pt-28 pb-20 bg-[#080214] text-white flex flex-col justify-center overflow-hidden border-b border-purple-950/40" dir={isAr ? "rtl" : "ltr"}>
       {/* Dynamic Background Material Accent Glow */}
       <div
         className="absolute inset-0 opacity-25 transition-colors duration-1000 pointer-events-none"

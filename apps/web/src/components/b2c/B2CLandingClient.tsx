@@ -118,9 +118,8 @@ export function B2CLandingClient({
     ? liveCmsContent.sectionSequence
     : DEFAULT_B2C_SECTION_SEQUENCE;
 
-  const activeSections = [...sectionSequence]
-    .filter(sec => sec.enabled !== false)
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const activeSections = sectionSequence
+    .filter(sec => sec && sec.enabled !== false);
 
   const renderSection = (sectionId: string) => {
     switch (sectionId) {

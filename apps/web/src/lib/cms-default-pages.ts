@@ -1354,19 +1354,36 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     faqs: (raw.faqs && raw.faqs.length > 0) ? raw.faqs : defaults.faqs,
     sectionSequence: (() => {
       const rawSeq: any[] = Array.isArray(raw.sectionSequence) ? raw.sectionSequence : [];
-      const mergedSeq = DEFAULT_B2C_SECTION_SEQUENCE.map((defaultSec) => {
-        const found = rawSeq.find((s: any) => s && s.id === defaultSec.id);
-        if (found) {
-          return {
+      if (rawSeq.length === 0) return DEFAULT_B2C_SECTION_SEQUENCE;
+
+      const userOrdered: B2CSectionItem[] = [];
+      const seenIds = new Set<string>();
+
+      for (let i = 0; i < rawSeq.length; i++) {
+        const item = rawSeq[i];
+        if (item && typeof item.id === 'string' && !seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          const defaultSec = DEFAULT_B2C_SECTION_SEQUENCE.find((d) => d.id === item.id) || {};
+          userOrdered.push({
             ...defaultSec,
-            ...found,
-            enabled: found.enabled !== undefined ? Boolean(found.enabled) : defaultSec.enabled,
-            order: typeof found.order === 'number' ? Number(found.order) : defaultSec.order,
-          };
+            ...item,
+            id: item.id,
+            enabled: item.enabled !== undefined ? Boolean(item.enabled) : (defaultSec.enabled ?? true),
+            order: userOrdered.length + 1,
+          });
         }
-        return defaultSec;
+      }
+
+      DEFAULT_B2C_SECTION_SEQUENCE.forEach((defaultSec) => {
+        if (!seenIds.has(defaultSec.id)) {
+          userOrdered.push({
+            ...defaultSec,
+            order: userOrdered.length + 1,
+          });
+        }
       });
-      return mergedSeq.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      return userOrdered;
     })(),
   };
 }
