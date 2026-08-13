@@ -1,9 +1,26 @@
 const { execSync } = require('child_process');
 
-const dbUrl = process.env.DATABASE_URL;
+let dbUrl = process.env.DATABASE_URL;
 if (!dbUrl) {
   console.error("[BUILD ERROR] DATABASE_URL is not set. Please set DATABASE_URL in environment.");
   process.exit(1);
+}
+
+try {
+  if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {
+    const parsedUrl = new URL(dbUrl);
+    if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
+      const parts = parsedUrl.hostname.split('.');
+      parts[0] = parts[0] + '-pooler';
+      parsedUrl.hostname = parts.join('.');
+    }
+    if (parsedUrl.hostname.includes('-pooler')) {
+      parsedUrl.searchParams.set('pgbouncer', 'true');
+    }
+    dbUrl = parsedUrl.toString();
+  }
+} catch (e) {
+  // Ignore URL parse errors
 }
 
 const env = {

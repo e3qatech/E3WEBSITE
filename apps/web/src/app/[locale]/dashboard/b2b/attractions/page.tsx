@@ -50,16 +50,6 @@ export default async function B2BAttractionsPage() {
     }
   })
 
-  const totalAttractions = await db.attraction.count()
-  const b2bVisible = await db.attraction.count({
-    where: { isB2bVisible: true }
-  })
-  console.log("=== B2B ATTRACTIONS SERVER DEBUG ===")
-  console.log(`totalAttractions = ${totalAttractions}`)
-  console.log(`b2bVisible = ${b2bVisible}`)
-  console.log(`queryResultLength = ${attractions.length}`)
-  console.log("====================================")
-
   const formattedAttractions: B2BAttractionItem[] = attractions.map((a: any) => {
     const ops = (a.operations as any) || {}
     const temp = (a.temporalStatus as any) || {}
