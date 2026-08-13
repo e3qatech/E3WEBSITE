@@ -186,6 +186,51 @@ export function B2BCasesEditor({
     })
   }
 
+  // Transformations repeatable actions
+  const addTransformation = () => {
+    const newItem = {
+      id: `tr_${Date.now()}`,
+      enabled: true,
+      caseStudyId: "",
+      beforeUrl: "",
+      afterUrl: "",
+      beforeLabelEn: "Before Build",
+      beforeLabelAr: "قبل التنفيذ",
+      afterLabelEn: "Live Activation",
+      afterLabelAr: "التشغيل الحي",
+      captionEn: "Transformation Showcase",
+      captionAr: "استعراض التحول قبل وبعد"
+    }
+    setData((prev: any) => ({
+      ...prev,
+      transformations: {
+        ...prev.transformations,
+        items: [...(prev.transformations?.items || []), newItem]
+      }
+    }))
+  }
+
+  const removeTransformation = (index: number) => {
+    setData((prev: any) => ({
+      ...prev,
+      transformations: {
+        ...prev.transformations,
+        items: (prev.transformations?.items || []).filter((_: any, i: number) => i !== index)
+      }
+    }))
+  }
+
+  const updateTransformation = (index: number, field: string, value: any) => {
+    setData((prev: any) => {
+      const items = [...(prev.transformations?.items || [])]
+      items[index] = { ...items[index], [field]: value }
+      return {
+        ...prev,
+        transformations: { ...prev.transformations, items }
+      }
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6 h-full p-6 text-text-primary">
       <AdminPageHeader 
@@ -667,11 +712,146 @@ export function B2BCasesEditor({
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-text-secondary font-bold uppercase">Select Team Member (Database Profile)</label>
+                    <select
+                      value={story.employeeProfileId || ""}
+                      onChange={e => updateTeamStory(index, 'employeeProfileId', e.target.value)}
+                      className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
+                    >
+                      <option value="">-- Select Team Member Profile --</option>
+                      {employeeProfiles.map(ep => (
+                        <option key={ep.id} value={ep.id}>{ep.firstName} {ep.lastName} ({ep.designation || 'Specialist'})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-text-secondary font-bold uppercase">Associated Case Study</label>
+                    <select
+                      value={story.caseStudyId || ""}
+                      onChange={e => updateTeamStory(index, 'caseStudyId', e.target.value)}
+                      className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
+                    >
+                      <option value="">-- No Linked Case Study --</option>
+                      {caseStudies.map(cs => (
+                        <option key={cs.id} value={cs.id}>{cs.titleEn} ({cs.clientName || 'General'})</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* BEFORE & AFTER TRANSFORMATIONS */}
+        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+          <div className="flex items-center justify-between border-b border-border-default pb-4">
+            <div className="flex items-center gap-2.5">
+              <Flame className="w-5 h-5 text-amber-400" />
+              <h2 className="text-lg font-bold text-text-primary">Before & After Transformations</h2>
+            </div>
+            <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={data.transformations?.enabled !== false} 
+                onChange={e => handleChange('transformations', 'enabled', e.target.checked)}
+                className="rounded bg-surface-hover border-border-default text-amber-500 focus:ring-0"
+              />
+              <span>SECTION ENABLED</span>
+            </label>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-text-primary">Transformation Cards</h3>
+              <AdminButton variant="secondary" onClick={addTransformation} className="flex items-center gap-1.5 text-xs">
+                <Plus className="w-4 h-4" />
+                <span>Add Transformation Pair</span>
+              </AdminButton>
+            </div>
+
+            {(data.transformations?.items || []).map((tr: any, index: number) => (
+              <div key={tr.id || index} className="p-4 bg-surface-hover border border-border-default rounded-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold text-amber-400 uppercase">Pair #{index + 1}</span>
+                  <button 
+                    onClick={() => removeTransformation(index)}
+                    className="text-red-400 hover:text-red-300 text-xs font-bold flex items-center gap-1 p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Remove Pair</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-text-secondary font-bold uppercase">Before Image URL</label>
+                    <MediaUploader 
+                      value={tr.beforeUrl || ""} 
+                      onChange={url => updateTransformation(index, 'beforeUrl', url)} 
+                      accept="image/*"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-text-secondary font-bold uppercase">After Image URL</label>
+                    <MediaUploader 
+                      value={tr.afterUrl || ""} 
+                      onChange={url => updateTransformation(index, 'afterUrl', url)} 
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-text-secondary font-bold uppercase">Before Label (En / Ar)</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input 
+                        type="text"
+                        value={tr.beforeLabelEn || ""}
+                        onChange={e => updateTransformation(index, 'beforeLabelEn', e.target.value)}
+                        placeholder="Before Build"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
+                      />
+                      <input 
+                        type="text"
+                        dir="rtl"
+                        value={tr.beforeLabelAr || ""}
+                        onChange={e => updateTransformation(index, 'beforeLabelAr', e.target.value)}
+                        placeholder="قبل التنفيذ"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-text-secondary font-bold uppercase">After Label (En / Ar)</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input 
+                        type="text"
+                        value={tr.afterLabelEn || ""}
+                        onChange={e => updateTransformation(index, 'afterLabelEn', e.target.value)}
+                        placeholder="Live Activation"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
+                      />
+                      <input 
+                        type="text"
+                        dir="rtl"
+                        value={tr.afterLabelAr || ""}
+                        onChange={e => updateTransformation(index, 'afterLabelAr', e.target.value)}
+                        placeholder="التشغيل الحي"
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-xs text-text-secondary font-bold uppercase">Associated Case Study</label>
                   <select
-                    value={story.caseStudyId || ""}
-                    onChange={e => updateTeamStory(index, 'caseStudyId', e.target.value)}
+                    value={tr.caseStudyId || ""}
+                    onChange={e => updateTransformation(index, 'caseStudyId', e.target.value)}
                     className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary"
                   >
                     <option value="">-- No Linked Case Study --</option>

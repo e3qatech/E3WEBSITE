@@ -452,6 +452,66 @@ export function CaseStudiesIndexClient({
       </section>
 
       {/* ============================================================ */}
+      {/* BEFORE & AFTER TRANSFORMATIONS */}
+      {/* ============================================================ */}
+      {transformationsConfig.enabled !== false && Array.isArray(transformationsConfig.items) && transformationsConfig.items.length > 0 && (
+        <section className="py-24 bg-zinc-950 border-b border-zinc-900">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest block mb-2">{isAr ? "قبل وبعد التنفيذ" : "SPATIAL EVOLUTION"}</span>
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+                {isAr ? (transformationsConfig.titleAr || "التحول الفضائي قبل وبعد التنفيذ") : (transformationsConfig.titleEn || "Before & After Transformations")}
+              </h2>
+            </div>
+
+            <div className="max-w-5xl mx-auto space-y-12">
+              {transformationsConfig.items.filter((tr: any) => tr.beforeUrl && tr.afterUrl).map((tr: any, i: number) => {
+                const beforeLabel = isAr ? (tr.beforeLabelAr || tr.beforeLabelEn || "قبل التنفيذ") : (tr.beforeLabelEn || "Before Build")
+                const afterLabel = isAr ? (tr.afterLabelAr || tr.afterLabelEn || "التشغيل الحي") : (tr.afterLabelEn || "Live Activation")
+                const caption = isAr ? (tr.captionAr || tr.captionEn) : tr.captionEn
+
+                return (
+                  <div key={i} className="space-y-4">
+                    <div 
+                      className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-800 cursor-ew-resize select-none touch-none"
+                      onTouchMove={handleTouchMove}
+                      onMouseDown={() => { isDraggingRef.current = true }}
+                      onMouseUp={() => { isDraggingRef.current = false }}
+                      onMouseLeave={() => { isDraggingRef.current = false }}
+                      onMouseMove={handleMouseMove}
+                    >
+                      <img src={tr.afterUrl} alt={afterLabel} className="absolute inset-0 w-full h-full object-cover" />
+                      <div className="absolute top-4 end-4 px-3 py-1 bg-emerald-500/90 text-zinc-950 font-mono font-bold text-xs rounded-full uppercase tracking-wider backdrop-blur-md">
+                        {afterLabel}
+                      </div>
+
+                      <div 
+                        className="absolute inset-0 overflow-hidden border-e-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        style={{ width: `${sliderPosition}%` }}
+                      >
+                        <img src={tr.beforeUrl} alt={beforeLabel} className="w-full h-full object-cover" style={{ width: '100%', height: '100%' }} />
+                        <div className="absolute top-4 start-4 px-3 py-1 bg-zinc-900/90 text-amber-400 font-mono font-bold text-xs rounded-full uppercase tracking-wider border border-amber-400/30 backdrop-blur-md">
+                          {beforeLabel}
+                        </div>
+                      </div>
+
+                      <div 
+                        className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-emerald-500 text-zinc-950 flex items-center justify-center font-bold text-xs shadow-xl pointer-events-none"
+                        style={{ left: `calc(${sliderPosition}% - 18px)` }}
+                      >
+                        ↔
+                      </div>
+                    </div>
+                    {caption && <div className="text-xs font-mono text-zinc-400 text-center">{caption}</div>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================ */}
       {/* 5. TEAM STORIES — "BEHIND THE BUILD" */}
       {/* ============================================================ */}
       {teamStoriesConfig.enabled !== false && teamStoriesList.length > 0 && (
@@ -471,18 +531,54 @@ export function CaseStudiesIndexClient({
                 const role = isAr ? (story.roleAr || story.roleEn) : story.roleEn
                 const quote = isAr ? (story.quoteAr || story.quoteEn) : story.quoteEn
 
+                const linkedEmployee = story.employeeProfileId 
+                  ? employeeProfiles.find(ep => ep.id === story.employeeProfileId)
+                  : null;
+
+                const linkedCaseStudy = story.caseStudyId
+                  ? caseStudies.find(cs => cs.id === story.caseStudyId)
+                  : null;
+
+                const memberName = linkedEmployee 
+                  ? `${linkedEmployee.firstName} ${linkedEmployee.lastName}`
+                  : (story.teamMemberName || "E3 Execution Specialist");
+
+                const caseTitle = linkedCaseStudy 
+                  ? (isAr ? (linkedCaseStudy.titleAr || linkedCaseStudy.titleEn) : linkedCaseStudy.titleEn)
+                  : null;
+
                 return (
                   <div key={i} className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors">
                     <Quote className="w-12 h-12 text-zinc-900 absolute top-6 end-6 -rotate-6" />
                     <div className="relative z-10 mb-8">
-                      <div className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest mb-4">{role}</div>
-                      <p className="text-lg md:text-xl text-zinc-200 italic leading-relaxed">&quot;{quote}&quot;</p>
+                      <div className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest mb-2">{role || linkedEmployee?.designation}</div>
+                      {story.storyTitleEn && (
+                        <h4 className="text-lg font-bold font-syne text-zinc-100 mb-3">
+                          {isAr ? (story.storyTitleAr || story.storyTitleEn) : story.storyTitleEn}
+                        </h4>
+                      )}
+                      <p className="text-base text-zinc-300 italic leading-relaxed">&quot;{quote}&quot;</p>
                     </div>
 
                     <div className="pt-4 border-t border-zinc-900 flex items-center justify-between relative z-10">
-                      <div className="text-sm font-bold text-zinc-300">{story.teamMemberName || "E3 Production Lead"}</div>
-                      {story.caseStudyId && (
-                        <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">{isAr ? "مشروع مرتبط" : "Linked Project"}</span>
+                      <div className="flex items-center gap-3">
+                        {linkedEmployee?.profileImage && (
+                          <img src={linkedEmployee.profileImage} alt={memberName} className="w-9 h-9 rounded-full object-cover border border-zinc-800" />
+                        )}
+                        <div>
+                          <div className="text-sm font-bold text-zinc-200">{memberName}</div>
+                          {linkedEmployee?.department && <div className="text-[10px] font-mono text-zinc-500 uppercase">{linkedEmployee.department}</div>}
+                        </div>
+                      </div>
+
+                      {linkedCaseStudy && (
+                        <Link 
+                          href={`/${locale}/b2b/cases/${linkedCaseStudy.slug}`}
+                          className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-purple-400 hover:text-purple-300 uppercase tracking-wider group/link"
+                        >
+                          <span>{caseTitle}</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 rtl:group-hover/link:-translate-x-1 rtl:-scale-x-100 transition-transform" />
+                        </Link>
                       )}
                     </div>
                   </div>

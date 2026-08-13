@@ -1385,11 +1385,7 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     titleEn: "Every Project Leaves a Bigger Story Behind.",
     titleAr: "وراء كل مشروع قصة أكبر من الأرقام.",
     sourceMode: "CURATED",
-    facts: [
-      { id: "f1", value: "30,000", prefix: "", suffix: " sqm", headlineEn: "Masterplanned Zone Activated", headlineAr: "مساحة مفعلة بالكامل", descEn: "Turnkey spatial engineering, stage rigging, and crowd management for Qatar's flagship entertainment mega builds.", descAr: "هندسة فضائية متكاملة وإدارة حشود وتجهيز منصات لأبرز مشاريع قطر الترفيهية.", mediaType: "IMAGE", mediaUrl: "", caseStudyId: "" },
-      { id: "f2", value: "23M+", prefix: "", suffix: "", headlineEn: "Campaign Impressions Reached", headlineAr: "انطباع وإشعاع إعلامي", descEn: "Global broadcast reach and viral social media engagement across international ceremonies.", descAr: "انتشار عالمي وتغطيات إعلامية للمراسم والفعاليات الوطنية الكبرى.", mediaType: "IMAGE", mediaUrl: "", caseStudyId: "" },
-      { id: "f3", value: "207", prefix: "", suffix: "", headlineEn: "On-Site Production Engineers", headlineAr: "مهندس وفني في الموقع", descEn: "Integrated technical crew handling kinetic rigging, turnstiles, and safety systems in real-time.", descAr: "طاقم فني متكامل يطير بالأنظمة الصوتية والضوئية وبوابات الدخول الذكية.", mediaType: "IMAGE", mediaUrl: "", caseStudyId: "" }
-    ]
+    facts: []
   },
   featuredCases: {
     enabled: true,
@@ -1424,9 +1420,7 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     descriptionEn: "Meet the people, decisions and defining moments behind E3’s landmark experiences.",
     descriptionAr: "تعرّف على الأشخاص والقرارات واللحظات التي تقف خلف أبرز تجارب إي ثري.",
     selectionMode: "FEATURED",
-    stories: [
-      { id: "ts1", roleEn: "Technical Production Director", roleAr: "مدير الإنتاج الفني", storyTitleEn: "Precision Rigging Under Pressure", storyTitleAr: "الدقة المنصية تحت الضغط الزمنية", storyEn: "Overcoming tight 48-hour assembly windows for national ceremonies required real-time spatial calculations and continuous telemetry.", storyAr: "التغلب على التحديات الزمنية خلال ٤٨ ساعة تطلب حسابات فضائية لحظية وتنسيقاً دقيقاً بين الفرق.", teamMemberName: "E3 Production Team", quoteEn: "Engineering live experiences is about making the impossible look effortless on stage.", quoteAr: "هندسة العروض الحية هي جعل المستحيل يبدو بسيطاً أمام الجمهور.", caseStudyId: "" }
-    ]
+    stories: []
   },
   timeline: {
     enabled: true,
@@ -1446,11 +1440,7 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     titleEn: "Impact You Can Measure",
     titleAr: "أثر يمكن قياسه",
     sourceMode: "CURATED",
-    stats: [
-      { id: "i1", value: "1.2M+", prefix: "", suffix: "", labelEn: "Annual Visitors Hosted", labelAr: "زائر سنوياً", descEn: "Seamless crowd control and turnstile management.", descAr: "إدارة تدفق سلسة عبر البوابات الذكية." },
-      { id: "i2", value: "100%", prefix: "", suffix: "", labelEn: "Safety Compliance Rate", labelAr: "التزام بمعايير السلامة", descEn: "Rigorous structural safety auditing across all builds.", descAr: "اعتمادات حكومية وحسابات أحمال معتمدة." },
-      { id: "i3", value: "450+", prefix: "", suffix: "", labelEn: "Corporate Activations", labelAr: "مشروع وتفعيل للشركات", descEn: "Turnkey enterprise activations delivered on schedule.", descAr: "تنفيذ متكامل في الوقت المحدد." }
-    ]
+    stats: []
   },
   servicesSection: {
     enabled: true,
@@ -1506,27 +1496,25 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       factStream: { 
         ...defaults.factStream, 
         ...(raw.factStream || {}),
-        facts: (raw.factStream?.facts && raw.factStream.facts.length > 0)
-          ? raw.factStream.facts
-          : defaults.factStream.facts
+        facts: Array.isArray(raw.factStream?.facts) ? raw.factStream.facts : []
       },
       featuredCases: { ...defaults.featuredCases, ...(raw.featuredCases || {}) },
       archive: { ...defaults.archive, ...(raw.archive || {}) },
       teamStories: { 
         ...defaults.teamStories, 
         ...(raw.teamStories || {}),
-        stories: (raw.teamStories?.stories && raw.teamStories.stories.length > 0)
-          ? raw.teamStories.stories
-          : defaults.teamStories.stories
+        stories: Array.isArray(raw.teamStories?.stories) ? raw.teamStories.stories : []
       },
       timeline: { ...defaults.timeline, ...(raw.timeline || {}) },
-      transformations: { ...defaults.transformations, ...(raw.transformations || {}) },
+      transformations: { 
+        ...defaults.transformations, 
+        ...(raw.transformations || {}),
+        items: Array.isArray(raw.transformations?.items) ? raw.transformations.items : []
+      },
       impactOverview: { 
         ...defaults.impactOverview, 
         ...(raw.impactOverview || {}),
-        stats: (raw.impactOverview?.stats && raw.impactOverview.stats.length > 0)
-          ? raw.impactOverview.stats
-          : defaults.impactOverview.stats
+        stats: Array.isArray(raw.impactOverview?.stats) ? raw.impactOverview.stats : []
       },
       servicesSection: { ...defaults.servicesSection, ...(raw.servicesSection || {}) },
       cta: { ...defaults.cta, ...(raw.cta || {}) },
