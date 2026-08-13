@@ -1,6 +1,6 @@
 const { execSync } = require('child_process');
 
-let dbUrl = process.env.DATABASE_URL;
+let dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
 if (!dbUrl) {
   console.error("[BUILD ERROR] DATABASE_URL is not set. Please set DATABASE_URL in environment.");
   process.exit(1);
@@ -9,6 +9,9 @@ if (!dbUrl) {
 try {
   if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {
     const parsedUrl = new URL(dbUrl);
+    if (parsedUrl.hostname.includes('ep-snowy-hall-atkbimek')) {
+      parsedUrl.hostname = 'ep-frosty-poetry-atys9iw5-pooler.c-9.us-east-1.aws.neon.tech';
+    }
     if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
       const parts = parsedUrl.hostname.split('.');
       parts[0] = parts[0] + '-pooler';
@@ -26,7 +29,9 @@ try {
 
 const env = {
   ...process.env,
-  DATABASE_URL: dbUrl
+  DATABASE_URL: dbUrl,
+  POSTGRES_PRISMA_URL: dbUrl,
+  POSTGRES_URL: dbUrl
 };
 
 console.log("[BUILD] Ensuring DATABASE_URL environment variable is present...");
