@@ -19,8 +19,10 @@ const prismaClientSingleton = () => {
 
   const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING;
 
-  if (!dbUrl && process.env.VERCEL) {
-    throw new Error('Database configuration is missing');
+  if (!dbUrl) {
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+      throw new Error('[DB ERROR] Database configuration missing: Set DATABASE_URL, POSTGRES_PRISMA_URL, or POSTGRES_URL.');
+    }
   }
 
   let finalUrl = dbUrl || 'postgresql://postgres:postgres@127.0.0.1:5432/e3_qatar?schema=public';
@@ -61,7 +63,7 @@ const prismaClientSingleton = () => {
         async $allOperations({ operation, model, args, query }: any) {
           const start = performance.now()
           const TIMEOUT_MS = 15000 // 15 seconds max per query (increased for cold starts)
-          
+
           const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS)
           })
@@ -78,15 +80,8 @@ const prismaClientSingleton = () => {
 
             return result
           } catch (error: any) {
-            console.warn(`[DB WARN] ${model}.${operation} failed:`, error?.message || error);
-            if (operation === 'findMany') return [];
-            if (operation === 'findFirst' || operation === 'findUnique') return null;
-            if (operation === 'count') return 0;
-            if (operation === 'aggregate' || operation === 'groupBy') return {};
-            if (operation === 'create' || operation === 'update' || operation === 'delete' || operation === 'upsert' || operation === 'updateMany' || operation === 'deleteMany') {
-              throw error;
-            }
-            return null;
+            console.error(`[DB ERROR] ${model}.${operation} failed:`, error?.message || error);
+            throw error;
           }
         }
       }

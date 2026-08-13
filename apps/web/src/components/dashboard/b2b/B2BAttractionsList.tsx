@@ -285,7 +285,7 @@ export function B2BAttractionsList({ initialAttractions }: { initialAttractions:
       {filteredAttractions.length === 0 ? (
         <div className="text-center py-16 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)]">
           <Building2 className="w-12 h-12 mx-auto text-[var(--text-tertiary)] opacity-40 mb-3" />
-          <h3 className="text-base font-semibold text-[var(--text-primary)]">No matching B2B project records found</h3>
+          <h3 className="text-base font-semibold text-[var(--text-primary)]">No attractions match the current filters.</h3>
           <p className="text-sm text-[var(--text-secondary)] mt-1">Try adjusting your search queries or filter dropdown options.</p>
         </div>
       ) : (
