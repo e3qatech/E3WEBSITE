@@ -41,11 +41,11 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
     async function fetchEvents() {
       setLoading(true);
       try {
-        const { startOfMonth, endOfMonth } = await import('date-fns');
+        const { startOfDay, endOfDay } = await import('date-fns');
         
         const queryParams = new URLSearchParams();
-        queryParams.append('startDate', startOfMonth(currentDate).toISOString());
-        queryParams.append('endDate', endOfMonth(currentDate).toISOString());
+        queryParams.append('startDate', startOfDay(currentDate).toISOString());
+        queryParams.append('endDate', endOfDay(currentDate).toISOString());
         
         selectedAttractions.forEach(id => queryParams.append('attractions', id));
         selectedEventTypes.forEach(type => queryParams.append('types', type));

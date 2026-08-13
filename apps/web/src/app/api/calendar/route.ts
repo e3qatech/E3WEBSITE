@@ -89,12 +89,14 @@ export async function GET(req: NextRequest) {
       const openTimeStr = ops.openingTime || fallbackObj?.operations?.openingTime || '14:00';
       const closeTimeStr = ops.closingTime || fallbackObj?.operations?.closingTime || '23:00';
 
-      const now = new Date();
+      const targetDateStr = searchParams.get('startDate');
+      const targetDate = targetDateStr ? new Date(targetDateStr) : new Date();
+      
       const [openH, openM] = openTimeStr.split(':').map(Number);
       const [closeH, closeM] = closeTimeStr.split(':').map(Number);
 
-      const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), openH || 14, openM || 0);
-      const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), closeH || 23, closeM || 0);
+      const startTime = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), openH || 14, openM || 0);
+      const endTime = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), closeH || 23, closeM || 0);
 
       return {
         id: attraction.id,

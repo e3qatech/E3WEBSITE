@@ -534,6 +534,79 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
             />
           </div>
         </div>
+
+        <div className="border-t border-[var(--border-level-1)] pt-4 mt-2">
+          <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4">Hero Tabs / Action Buttons</h3>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 1 Label (English)</label>
+                <input
+                  type="text"
+                  value={content.act1Hero?.tab1LabelEn || content.hero?.tab1LabelEn || ''}
+                  onChange={(e) => handleAct1Change('tab1LabelEn', e.target.value)}
+                  placeholder="e.g. EXPLORE ENTERTAINMENT WORLDS"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 1 Label (Arabic)</label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={content.act1Hero?.tab1LabelAr || content.hero?.tab1LabelAr || ''}
+                  onChange={(e) => handleAct1Change('tab1LabelAr', e.target.value)}
+                  placeholder="مثال: استكشف الوجهات الترفيهية"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 1 URL</label>
+                <input
+                  type="text"
+                  value={content.act1Hero?.tab1Url || content.hero?.tab1Url || ''}
+                  onChange={(e) => handleAct1Change('tab1Url', e.target.value)}
+                  placeholder="e.g. /{locale}/b2c/attractions"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 2 Label (English)</label>
+                <input
+                  type="text"
+                  value={content.act1Hero?.tab2LabelEn || content.hero?.tab2LabelEn || ''}
+                  onChange={(e) => handleAct1Change('tab2LabelEn', e.target.value)}
+                  placeholder="e.g. LIVE EVENTS & CALENDAR"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 2 Label (Arabic)</label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={content.act1Hero?.tab2LabelAr || content.hero?.tab2LabelAr || ''}
+                  onChange={(e) => handleAct1Change('tab2LabelAr', e.target.value)}
+                  placeholder="مثال: جدول الفعاليات والتذاكر"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 2 URL</label>
+                <input
+                  type="text"
+                  value={content.act1Hero?.tab2Url || content.hero?.tab2Url || ''}
+                  onChange={(e) => handleAct1Change('tab2Url', e.target.value)}
+                  placeholder="e.g. /{locale}/b2c/calendar"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Act 2: Brand Manifesto */}

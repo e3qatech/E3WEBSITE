@@ -168,19 +168,19 @@ export function MaskedVideoHero({
             className="flex flex-wrap items-center gap-4 pt-2 z-30"
           >
             <Link
-              href={`/${locale}/b2c/attractions`}
+              href={(heroConfig.tab1Url || maskedConfig.tab1Url || `/${locale}/b2c/attractions`).replace('{locale}', locale)}
               className="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-slate-950 font-black text-xs shadow-xl hover:opacity-95 transition-all uppercase tracking-wider min-h-[48px] flex items-center justify-center cursor-pointer select-none gap-2"
             >
-              <span>{isAr ? 'استكشف كافة التجارب' : 'EXPLORE ATTRACTIONS'}</span>
+              <span>{isAr ? (heroConfig.tab1LabelAr || maskedConfig.tab1LabelAr || 'استكشف كافة التجارب') : (heroConfig.tab1LabelEn || maskedConfig.tab1LabelEn || 'EXPLORE ATTRACTIONS')}</span>
               <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
             </Link>
 
             <Link
-              href={`/${locale}/b2c/calendar`}
+              href={(heroConfig.tab2Url || maskedConfig.tab2Url || `/${locale}/b2c/calendar`).replace('{locale}', locale)}
               className="px-8 py-4 rounded-full border border-slate-700 bg-slate-900/80 text-white hover:border-slate-500 font-bold text-xs shadow-md transition-all uppercase tracking-wider min-h-[48px] flex items-center justify-center cursor-pointer select-none gap-2 backdrop-blur-md"
             >
               <Calendar className="w-4 h-4 text-emerald-400" />
-              <span>{isAr ? 'جدول الفعاليات والباقات' : 'EVENTS & PACKAGES'}</span>
+              <span>{isAr ? (heroConfig.tab2LabelAr || maskedConfig.tab2LabelAr || 'جدول الفعاليات والباقات') : (heroConfig.tab2LabelEn || maskedConfig.tab2LabelEn || 'EVENTS & PACKAGES')}</span>
             </Link>
           </motion.div>
 

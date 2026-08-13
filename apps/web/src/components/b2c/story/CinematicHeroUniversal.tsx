@@ -162,19 +162,19 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
           className="flex flex-wrap items-center justify-center gap-4 pt-4"
         >
           <Link
-            href={`/${locale}/b2c/attractions`}
+            href={(act1Hero.tab1Url || hero.tab1Url || `/${locale}/b2c/attractions`).replace('{locale}', locale)}
             className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-purple-900/40 hover:shadow-purple-700/60 transition-all scale-100 hover:scale-105 cursor-pointer"
           >
-            <span>{isAr ? "استكشف الوجهات الترفيهية" : "EXPLORE ENTERTAINMENT WORLDS"}</span>
+            <span>{isAr ? (act1Hero.tab1LabelAr || hero.tab1LabelAr || "استكشف الوجهات الترفيهية") : (act1Hero.tab1LabelEn || hero.tab1LabelEn || "EXPLORE ENTERTAINMENT WORLDS")}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
 
           <Link
-            href={`/${locale}/b2c/calendar`}
+            href={(act1Hero.tab2Url || hero.tab2Url || `/${locale}/b2c/calendar`).replace('{locale}', locale)}
             className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/30 text-purple-200 font-bold text-sm backdrop-blur-md transition-all cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-purple-400" />
-            <span>{isAr ? "جدول الفعاليات والتذاكر" : "LIVE EVENTS & CALENDAR"}</span>
+            <span>{isAr ? (act1Hero.tab2LabelAr || hero.tab2LabelAr || "جدول الفعاليات والتذاكر") : (act1Hero.tab2LabelEn || hero.tab2LabelEn || "LIVE EVENTS & CALENDAR")}</span>
           </Link>
 
           {isVideo && (
