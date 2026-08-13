@@ -145,7 +145,8 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
             const ops = attr.operations || {};
             const locationName = (isAr ? ops.locationNameAr : ops.locationNameEn) || ops.locationNameEn || "Lusail, Qatar";
             const { spanClass, isFeatured } = getBentoCardSpan(idx, filteredAttractions.length);
-            const isWide = isFeatured || spanClass.includes('col-span-3') || spanClass.includes('col-span-4') || spanClass.includes('col-span-6');
+            const isWide = spanClass.includes('col-span-4') || spanClass.includes('col-span-6');
+            const isHalfRow = spanClass.includes('col-span-3');
 
             return (
               <motion.div
@@ -156,7 +157,7 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                 className={`group relative rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-xl hover:border-[var(--e3-royal-blue)] transition-all flex flex-col justify-between ${spanClass} ${isFeatured ? 'ring-1 ring-[var(--e3-royal-blue)]/40 bg-gradient-to-br from-[var(--surface-default)] via-black/40 to-[var(--surface-default)]' : ''}`}
               >
                 {/* Media Image Holder */}
-                <div className={`relative w-full overflow-hidden bg-black ${isWide ? 'h-64 lg:h-72' : 'h-60'}`}>
+                <div className={`relative w-full overflow-hidden bg-black ${isWide ? 'h-64 lg:h-72' : isHalfRow ? 'h-52 md:h-56' : 'h-48 md:h-52'}`}>
                   <img
                     src={attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176'}
                     alt={name}
@@ -184,9 +185,9 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                 </div>
 
                 {/* Content Details */}
-                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <div className="p-5 md:p-6 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <h3 className={`font-bold font-display uppercase tracking-tight text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors ${isFeatured ? 'text-2xl lg:text-3xl' : 'text-xl'}`}>
+                    <h3 className={`font-bold font-display uppercase tracking-tight text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors ${isWide ? 'text-2xl lg:text-3xl' : isHalfRow ? 'text-xl' : 'text-lg'}`}>
                       {name}
                     </h3>
                     {tagline && (

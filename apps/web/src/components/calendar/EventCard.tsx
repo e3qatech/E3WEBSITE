@@ -73,7 +73,9 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
   const coverImg = event.thumbnail || DEFAULT_COVER_IMAGE;
   const locationText = event.locationNameEn || 'Lusail Boulevard, Qatar';
 
-  const isWide = isFeatured || spanClass.includes('col-span-3') || spanClass.includes('col-span-4') || spanClass.includes('col-span-6');
+  // Only wide hero banners (spanning 4 or 6 columns) use side-by-side flex layout on desktop.
+  // 50% width cards (col-span-3) and 33% width cards (col-span-2) use clean vertical stacked layout so text never gets squeezed.
+  const isWide = spanClass.includes('col-span-4') || spanClass.includes('col-span-6');
 
   return (
     <div className={`group relative bg-[#1A1A2E]/80 backdrop-blur-xl border border-zinc-800 rounded-3xl overflow-hidden transition-all duration-300 hover:border-zinc-600 hover:shadow-2xl hover:shadow-emerald-500/10 flex flex-col justify-between ${spanClass} ${isFeatured ? 'ring-1 ring-emerald-500/30 bg-gradient-to-br from-[#1A1A2E]/90 via-[#121226] to-[#1A1A2E]' : ''}`}>
@@ -92,7 +94,7 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
 
       <div className={`flex flex-col ${isWide ? 'lg:flex-row' : 'flex-col'} h-full min-h-[220px]`}>
         {/* Thumbnail Image & Date Block */}
-        <div className={`relative shrink-0 bg-[#0F0F23] overflow-hidden ${isWide ? 'w-full lg:w-72 h-60 lg:h-auto' : 'w-full h-52'}`}>
+        <div className={`relative shrink-0 bg-[#0F0F23] overflow-hidden ${isWide ? 'w-full lg:w-80 h-64 lg:h-auto' : 'w-full h-52 md:h-56'}`}>
           <img 
             src={coverImg} 
             alt={event.attractionNameEn || "Attraction"}
@@ -115,11 +117,11 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
         </div>
 
         {/* Right Content Details */}
-        <div className="flex-1 p-6 flex flex-col justify-between relative z-10 bg-gradient-to-b from-transparent to-zinc-950/60">
+        <div className="flex-1 p-5 md:p-6 flex flex-col justify-between relative z-10 bg-gradient-to-b from-transparent to-zinc-950/60">
           <div className="space-y-3">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col">
-                <h3 className={`font-black text-white leading-tight font-satoshi group-hover:text-emerald-400 transition-colors ${isFeatured ? 'text-2xl lg:text-3xl' : 'text-xl'}`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col flex-1 min-w-0">
+                <h3 className={`font-black text-white leading-tight font-satoshi group-hover:text-emerald-400 transition-colors ${isWide ? 'text-2xl lg:text-3xl' : 'text-lg md:text-xl'}`}>
                   {event.attractionNameEn}
                 </h3>
                 {event.description && (
@@ -139,16 +141,16 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
             </div>
 
             <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 font-mono pt-1">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Clock className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{event.openingTime || format(startDate, 'h:mm a')} - {event.closingTime || format(endDate, 'h:mm a')}</span>
               </div>
-              <div className="flex items-center gap-1.5 truncate max-w-[200px]">
+              <div className="flex items-center gap-1.5 truncate max-w-[220px]">
                 <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                 <span className="truncate">{locationText}</span>
               </div>
               {event.price && (
-                <div className="flex items-center gap-1 text-white bg-zinc-800/80 px-2 py-0.5 rounded-lg border border-zinc-700 font-bold">
+                <div className="flex items-center gap-1 text-white bg-zinc-800/80 px-2 py-0.5 rounded-lg border border-zinc-700 font-bold shrink-0">
                   <Tag className="w-3 h-3 text-emerald-400" />
                   <span>{event.price.startsWith('From') ? event.price : `From ${event.price}`}</span>
                 </div>
@@ -156,17 +158,17 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-zinc-800/80 pt-4 mt-4">
+          <div className="flex items-center justify-between border-t border-zinc-800/80 pt-4 mt-4 gap-2 flex-wrap sm:flex-nowrap">
             <Link 
               href={`/en/b2c/attractions/${event.attractionSlug}`}
-              className="px-4 py-2 text-xs font-bold text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700 rounded-xl uppercase tracking-wider transition-all"
+              className="px-4 py-2 text-xs font-bold text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700 rounded-xl uppercase tracking-wider transition-all shrink-0 text-center"
             >
               Explore
             </Link>
 
             <a
               href={event.ticketingUrl || `/en/b2c/calendar`}
-              className="px-5 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all border flex items-center gap-2 bg-emerald-500 text-zinc-950 hover:bg-emerald-400 border-emerald-500 shadow-md shadow-emerald-500/20"
+              className="px-5 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all border flex items-center justify-center gap-2 bg-emerald-500 text-zinc-950 hover:bg-emerald-400 border-emerald-500 shadow-md shadow-emerald-500/20 shrink-0"
             >
               Book Now <ExternalLink className="w-3.5 h-3.5" />
             </a>
