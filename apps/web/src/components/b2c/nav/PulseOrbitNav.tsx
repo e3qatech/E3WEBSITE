@@ -69,41 +69,105 @@ function getSharedAudioContext(): AudioContext | null {
   return sharedAudioCtx;
 }
 
-export function playSpatialHoverSound(panOffset = 0) {
+export type HapticSoundType = 'tab' | 'destination' | 'portal_switch' | 'open' | 'scroll';
+
+export function playSpatialHoverSound(
+  panOffset = 0,
+  soundType: HapticSoundType = 'tab'
+) {
   try {
     const ctx = getSharedAudioContext();
     if (!ctx) return;
 
-    const osc = ctx.createOscillator();
+    const now = ctx.currentTime;
     const gain = ctx.createGain();
     const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
 
-    osc.type = 'sine';
-    const now = ctx.currentTime;
-    
-    // Pitch sweep for futuristic spatial UI hover chime
-    osc.frequency.setValueAtTime(440, now);
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.07);
-
-    // Smooth soft gain envelope
-    gain.gain.setValueAtTime(0.04, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
     if (panner) {
-      const pan = panOffset !== 0 ? panOffset : (Math.random() - 0.5) * 0.8;
+      const pan = Math.max(-1, Math.min(1, panOffset));
       panner.pan.setValueAtTime(pan, now);
-      osc.connect(gain);
       gain.connect(panner);
       panner.connect(ctx.destination);
     } else {
-      osc.connect(gain);
       gain.connect(ctx.destination);
     }
 
-    osc.start(now);
-    osc.stop(now + 0.1);
+    if (soundType === 'portal_switch') {
+      // Futuristic dual-synth portal transition sound
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+
+      osc1.frequency.setValueAtTime(320, now);
+      osc1.frequency.exponentialRampToValueAtTime(740, now + 0.12);
+      osc2.frequency.setValueAtTime(480, now);
+      osc2.frequency.exponentialRampToValueAtTime(960, now + 0.12);
+
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.14);
+      osc2.stop(now + 0.14);
+    } else if (soundType === 'destination') {
+      // Spatial harmonic chime for destination worlds
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.08); // D6
+
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      osc.connect(gain);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } else if (soundType === 'scroll') {
+      // Soft tactile micro-click on scroll
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.03);
+
+      gain.gain.setValueAtTime(0.025, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+      osc.connect(gain);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } else if (soundType === 'open') {
+      // Immersive ascending riser
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+      osc.connect(gain);
+      osc.start(now);
+      osc.stop(now + 0.18);
+    } else {
+      // Default micro-tab hover chime
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.07);
+
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      osc.connect(gain);
+      osc.start(now);
+      osc.stop(now + 0.09);
+    }
   } catch (_e) {
-    // Graceful fallback if Web Audio API is disabled or restricted
+    // Graceful fallback if Web Audio API is disabled
   }
 }
 
@@ -229,6 +293,16 @@ export function PulseOrbitNav({
   );
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
+  // Throttled scroll haptic feedback
+  const lastScrollTimeRef = React.useRef<number>(0);
+  const handleDestinationScrollThrottled = () => {
+    const now = Date.now();
+    if (now - lastScrollTimeRef.current > 80) {
+      lastScrollTimeRef.current = now;
+      playSpatialHoverSound(0, 'scroll');
+    }
+  };
+
   useEffect(() => {
     if (destinationList && destinationList.length > 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -258,12 +332,14 @@ export function PulseOrbitNav({
   const toggleMenu = () => {
     const nextState = !menuOpen;
     setMenuOpen(nextState);
+    playSpatialHoverSound(0, nextState ? 'open' : 'tab');
     if (nextState) {
       trackTelemetry('menu_opened', { locale, type: activePortalTab });
     }
   };
 
   const toggleLanguage = () => {
+    playSpatialHoverSound(0, 'tab');
     const targetLocale = isAr ? 'en' : 'ar';
     document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
     let newPath = pathname || `/${locale}`;
@@ -281,6 +357,7 @@ export function PulseOrbitNav({
   };
 
   const toggleTheme = () => {
+    playSpatialHoverSound(0, 'tab');
     const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
     setCurrentTheme(nextTheme);
     if (typeof document !== 'undefined') {
@@ -320,7 +397,7 @@ export function PulseOrbitNav({
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-          {/* Company Logo / Orbit Logo */}
+          {/* Main Navigation Bar Logo: Always uses Global General Settings Light/Dark Logo */}
           <div className="flex items-center gap-4">
             <Link
               href={`/${locale}${type === 'b2c' ? '/b2c' : '/b2b'}`}
@@ -345,6 +422,11 @@ export function PulseOrbitNav({
                 <Link
                   key={dest.href}
                   href={`/${locale}${dest.href}`}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const pan = ((rect.left + rect.width / 2) / window.innerWidth - 0.5) * 1.5;
+                    playSpatialHoverSound(pan, 'tab');
+                  }}
                   className={cn(
                     'flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold transition-all select-none cursor-pointer',
                     isActive
@@ -363,6 +445,7 @@ export function PulseOrbitNav({
             {/* Language Section Tab in Main Menu Bar */}
             <button
               onClick={toggleLanguage}
+              onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
               className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
               title={isAr ? 'Switch to English' : 'التغيير إلى العربية'}
             >
@@ -373,6 +456,7 @@ export function PulseOrbitNav({
             {/* Theme Toggle Button in Main Menu Bar */}
             <button
               onClick={toggleTheme}
+              onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
               className="hidden sm:inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
               aria-label="Toggle Theme"
               title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -387,6 +471,7 @@ export function PulseOrbitNav({
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : "_self"}
                   rel={openInNewTab ? "noopener noreferrer" : undefined}
+                  onMouseEnter={() => playSpatialHoverSound(0.2, 'tab')}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
                   onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
@@ -397,6 +482,7 @@ export function PulseOrbitNav({
                 <Link
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : undefined}
+                  onMouseEnter={() => playSpatialHoverSound(0.2, 'tab')}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
                   onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
@@ -409,6 +495,7 @@ export function PulseOrbitNav({
             {/* Menu Trigger Button (Pulse Orbit Tab) with Customizable Name */}
             <button
               onClick={toggleMenu}
+              onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
               className={cn(
@@ -439,17 +526,17 @@ export function PulseOrbitNav({
           aria-modal="true"
           aria-label="Pulse Orbit Navigation"
         >
-          {/* Top Bar inside Overlay */}
+          {/* Top Bar inside Overlay - Managed EXCLUSIVELY by Pulse Orbit CMS Hub Logo */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
             <div className="flex items-center gap-3">
               {currentOrbitData?.logoUrl ? (
                 <img
                   src={currentOrbitData.logoUrl}
-                  alt="Pulse Orbit Logo"
-                  className="h-8 w-auto object-contain"
+                  alt="Pulse Orbit Overlay Logo"
+                  className="h-8 w-auto object-contain transition-transform hover:scale-105"
                 />
               ) : (
-                <span className="h-3 w-3 rounded-full bg-emerald-400 animate-ping" />
+                <E3Logo isLight={false} showText={false} size="sm" />
               )}
               <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest font-bold">
                 {isAr ? (currentOrbitData?.titleAr || defaultTitleAr) : (currentOrbitData?.titleEn || defaultTitleEn)}
@@ -460,8 +547,9 @@ export function PulseOrbitNav({
             <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 border border-slate-800 rounded-xl shadow-inner">
               <button
                 type="button"
+                onMouseEnter={() => playSpatialHoverSound(-0.4, 'portal_switch')}
                 onClick={() => {
-                  playSpatialHoverSound();
+                  playSpatialHoverSound(-0.4, 'portal_switch');
                   setActivePortalTab('b2c');
                 }}
                 className={cn(
@@ -476,8 +564,9 @@ export function PulseOrbitNav({
               </button>
               <button
                 type="button"
+                onMouseEnter={() => playSpatialHoverSound(0.4, 'portal_switch')}
                 onClick={() => {
-                  playSpatialHoverSound();
+                  playSpatialHoverSound(0.4, 'portal_switch');
                   setActivePortalTab('b2b');
                 }}
                 className={cn(
@@ -499,6 +588,7 @@ export function PulseOrbitNav({
               {/* Language Switch */}
               <button
                 onClick={toggleLanguage}
+                onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
                 className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer"
               >
                 <Globe className="h-3.5 w-3.5 text-sky-400" />
@@ -508,6 +598,7 @@ export function PulseOrbitNav({
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
+                onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
                 className="p-2 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 cursor-pointer"
                 aria-label="Toggle Theme"
               >
@@ -515,7 +606,11 @@ export function PulseOrbitNav({
               </button>
 
               <button
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  playSpatialHoverSound(0, 'tab');
+                  setMenuOpen(false);
+                }}
+                onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
                 className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-rose-300 hover:bg-rose-900/50 transition-colors cursor-pointer"
                 aria-label="Close menu"
               >
@@ -526,8 +621,11 @@ export function PulseOrbitNav({
 
           {/* Central Grid Split: Left Destinations List, Right Interactive Media Preview */}
           <div className="my-auto grid grid-cols-1 gap-8 lg:grid-cols-12 max-w-7xl mx-auto w-full py-6">
-            {/* DESTINATION WORLDS LIST (7 COLS) */}
-            <div className="lg:col-span-7 space-y-2">
+            {/* DESTINATION WORLDS LIST (7 COLS) WITH HAPTIC SCROLL & HOVER SPATIAL AUDIO */}
+            <div
+              onScroll={handleDestinationScrollThrottled}
+              className="lg:col-span-7 space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar"
+            >
               {destinationList.map((dest: any) => {
                 const Icon = dest.icon;
                 const isSelected = activeDestination?.href === dest.href;
@@ -535,14 +633,16 @@ export function PulseOrbitNav({
                   <Link
                     key={dest.href}
                     href={`/${locale}${dest.href}`}
-                    onMouseEnter={() => {
-                      playSpatialHoverSound();
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const pan = ((rect.left + rect.width / 2) / window.innerWidth - 0.5) * 1.5;
+                      playSpatialHoverSound(pan, 'destination');
                       setActiveDestination(dest);
                       trackTelemetry('destination_selected', { href: dest.href, type: activePortalTab });
                     }}
                     onClick={() => setMenuOpen(false)}
                     className={cn(
-                      'group flex items-center justify-between rounded-2xl border p-4 transition-all duration-300 cursor-pointer',
+                      'group flex items-center justify-between rounded-2xl border p-4 transition-all duration-300 cursor-pointer select-none',
                       isSelected
                         ? 'border-emerald-500/80 bg-emerald-950/30 text-white shadow-xl shadow-emerald-950/50 translate-x-1'
                         : 'border-slate-800/60 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200'
@@ -628,7 +728,8 @@ export function PulseOrbitNav({
                 <Link
                   href={`/${locale}${activeDestination?.href || (activePortalTab === 'b2c' ? '/b2c' : '/b2b')}`}
                   onClick={() => setMenuOpen(false)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition-all cursor-pointer"
+                  onMouseEnter={() => playSpatialHoverSound(0.2, 'destination')}
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition-all cursor-pointer select-none"
                 >
                   <span>{isAr ? 'استكشف الوجهة' : (activePortalTab === 'b2c' ? 'EXPLORE WORLD' : 'DISCOVER SOLUTION')}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -644,15 +745,27 @@ export function PulseOrbitNav({
             </div>
 
             <div className="flex items-center gap-4 font-semibold">
-              <Link href={`/${locale}/b2c`} className="hover:text-emerald-400 transition-colors">
+              <Link
+                href={`/${locale}/b2c`}
+                onMouseEnter={() => playSpatialHoverSound(-0.3, 'tab')}
+                className="hover:text-emerald-400 transition-colors"
+              >
                 {isAr ? 'بوابة الزوار (B2C)' : 'B2C Customer Portal'}
               </Link>
               <span>•</span>
-              <Link href={`/${locale}/b2b`} className="hover:text-emerald-400 transition-colors">
+              <Link
+                href={`/${locale}/b2b`}
+                onMouseEnter={() => playSpatialHoverSound(0.3, 'tab')}
+                className="hover:text-emerald-400 transition-colors"
+              >
                 {isAr ? 'بوابة الشركات (B2B)' : 'B2B Enterprise Portal'}
               </Link>
               <span>•</span>
-              <Link href={`/${locale}/b2c/contact`} className="hover:text-emerald-400 transition-colors">
+              <Link
+                href={`/${locale}/b2c/contact`}
+                onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
+                className="hover:text-emerald-400 transition-colors"
+              >
                 {isAr ? 'مركز الدعم' : 'Support Center'}
               </Link>
             </div>

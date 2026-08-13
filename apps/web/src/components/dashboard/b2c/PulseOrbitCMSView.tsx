@@ -446,10 +446,10 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
         <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
           <ImageIcon className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>{activeTab} Orbit Header Logo Manager</span>
+          <span>{activeTab} Pulse Orbit Dropdown Logo Manager</span>
         </h3>
         <p className="text-xs text-[var(--text-secondary)]">
-          Upload or specify a custom brand logo image to display inside the top-bar header of the {activeTab} Pulse Orbit modal overlay.
+          Upload or specify a custom brand logo image to display exclusively inside the header of the {activeTab} Pulse Orbit dropdown modal overlay. (Note: Main site navigation bar logo is managed globally in General Settings).
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
