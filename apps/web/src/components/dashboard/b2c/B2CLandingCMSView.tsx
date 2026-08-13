@@ -218,12 +218,12 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       const item = rawSeq[i];
       if (item && typeof item.id === 'string' && !seenIds.has(item.id)) {
         seenIds.add(item.id);
-        const defaultSec = DEFAULT_B2C_SECTION_SEQUENCE.find((d) => d.id === item.id) || {};
+        const defaultSec = DEFAULT_B2C_SECTION_SEQUENCE.find((d) => d.id === item.id);
         userOrdered.push({
-          ...defaultSec,
+          ...(defaultSec || {}),
           ...item,
           id: item.id,
-          enabled: item.enabled !== undefined ? Boolean(item.enabled) : (defaultSec.enabled ?? true),
+          enabled: item.enabled !== undefined ? Boolean(item.enabled) : (defaultSec?.enabled ?? true),
           order: userOrdered.length + 1,
         });
       }
