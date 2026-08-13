@@ -141,5 +141,21 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
     rawContent = globalStore?.[slug]?.content || null;
   }
 
-  return getMergedCMSPageContent(slug, rawContent);
+  const mergedContent = getMergedCMSPageContent(slug, rawContent);
+
+  if (slug === 'b2c-landing') {
+    try {
+      const { getLiveB2CBrandsFromDB } = await import('@/lib/cms-brands-db');
+      const liveBrands = await getLiveB2CBrandsFromDB();
+      if (liveBrands.length > 0) {
+        if (!mergedContent.ourBrands) mergedContent.ourBrands = {};
+        mergedContent.ourBrands.brands = liveBrands;
+      }
+    } catch (err) {
+      console.error("[getCMSPageContentServer] Error merging live DB brands:", err);
+    }
+  }
+
+  return mergedContent;
 }
+

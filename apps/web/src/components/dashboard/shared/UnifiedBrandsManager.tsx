@@ -60,6 +60,17 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
     return matchesSearch && matchesPortal && matchesCategory
   })
 
+  const notifyBrandUpdate = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        const bc = new BroadcastChannel('e3_cms_sync')
+        bc.postMessage({ type: 'b2c_landing_updated' })
+        bc.close()
+      }
+    } catch (_e) {}
+  }
+
   const handleToggleB2C = async (brand: any) => {
     try {
       const nextVal = !brand.showOnB2C
@@ -69,6 +80,7 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ showOnB2C: nextVal })
       })
+      notifyBrandUpdate()
     } catch (e) {
       console.error(e)
       fetchBrands()
@@ -84,6 +96,7 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ showOnB2B: nextVal })
       })
+      notifyBrandUpdate()
     } catch (e) {
       console.error(e)
       fetchBrands()
@@ -95,6 +108,7 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
     try {
       await fetch(`/api/b2c/brands/${id}`, { method: 'DELETE' });
       fetchBrands();
+      notifyBrandUpdate();
     } catch (e) {
       console.error(e);
       alert("Failed to archive brand");
@@ -106,7 +120,7 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
       <UnifiedBrandEditor 
         initialData={editingBrand} 
         onClose={() => { setEditingBrand(null); setIsCreating(false); }} 
-        onSave={() => { setEditingBrand(null); setIsCreating(false); fetchBrands(); }} 
+        onSave={() => { setEditingBrand(null); setIsCreating(false); fetchBrands(); notifyBrandUpdate(); }} 
       />
     )
   }

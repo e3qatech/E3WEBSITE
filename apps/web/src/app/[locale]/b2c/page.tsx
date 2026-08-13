@@ -38,10 +38,8 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
 
   let dbBrands: any[] = [];
   try {
-    dbBrands = await db.brandIP.findMany({
-      where: { isActive: true, showOnB2C: true, showInWorldsCreated: true },
-      orderBy: { b2cDisplayOrder: 'asc' }
-    });
+    const { getLiveB2CBrandsFromDB } = await import('@/lib/cms-brands-db');
+    dbBrands = await getLiveB2CBrandsFromDB();
   } catch (error) {
     console.error("[B2C_PAGE_BRANDS_FETCH_ERROR]", error);
   }
@@ -59,27 +57,7 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
   if (cmsData) {
     if (!cmsData.ourBrands) cmsData.ourBrands = {};
     if (dbBrands.length > 0) {
-      cmsData.ourBrands.brands = dbBrands.map(b => ({
-        id: b.id,
-        nameEn: b.b2cTitleOverrideEn || b.nameEn,
-        nameAr: b.b2cTitleOverrideAr || b.nameAr,
-        taglineEn: b.taglineEn || b.b2cShortDescOverrideEn || b.shortDescriptionEn,
-        taglineAr: b.taglineAr || b.b2cShortDescOverrideAr || b.shortDescriptionAr,
-        descriptionEn: b.b2cDetailCopyEn || b.fullStoryEn || b.shortDescriptionEn || b.b2cShortDescOverrideEn,
-        descriptionAr: b.b2cDetailCopyAr || b.fullStoryAr || b.shortDescriptionAr || b.b2cShortDescOverrideAr,
-        logoPrimary: b.primaryLogoUrl,
-        logoLight: b.lightLogoUrl,
-        logoDark: b.darkLogoUrl,
-        logoCompact: b.compactLogoUrl,
-        brandColor: "#7e22ce",
-        relationship: "OWNED",
-        shortDescEn: b.b2cShortDescOverrideEn || b.shortDescriptionEn,
-        shortDescAr: b.b2cShortDescOverrideAr || b.shortDescriptionAr,
-        detailCopyEn: b.b2cDetailCopyEn || b.fullStoryEn,
-        detailCopyAr: b.b2cDetailCopyAr || b.fullStoryAr,
-        primaryMediaUrl: b.primaryMediaUrl,
-        ctaUrl: b.b2cCtaUrl || `/b2c/brands/${b.slug}`
-      }));
+      cmsData.ourBrands.brands = dbBrands;
     }
 
     if (!cmsData.coreTeam) cmsData.coreTeam = {};
