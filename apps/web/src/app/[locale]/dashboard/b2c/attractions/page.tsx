@@ -40,21 +40,28 @@ export default async function AttractionsPage() {
   })
 
   const formattedAttractions = attractions.map((a: any) => ({
-    id: a.id,
-    slug: a.slug,
+    id: String(a.id),
+    slug: String(a.slug || ''),
     name: {
-      en: a.nameEn || "",
-      ar: a.nameAr || ""
+      en: String(a.nameEn || ''),
+      ar: String(a.nameAr || '')
     },
     isPublished: Boolean(a.isPublished),
     isFeatured: Boolean(a.isFeatured),
     isB2bVisible: a.isB2bVisible !== false,
-    heroMediaUrl: a.heroMediaUrl,
-    heroFallbackUrl: a.heroFallbackUrl,
-    heroThumbnailUrl: a.heroThumbnailUrl,
-    heroMediaType: a.heroMediaType,
-    _count: a._count || { pricing: 0, offers: 0, faqs: 0 }
+    heroMediaUrl: a.heroMediaUrl ? String(a.heroMediaUrl) : null,
+    heroFallbackUrl: a.heroFallbackUrl ? String(a.heroFallbackUrl) : null,
+    heroThumbnailUrl: a.heroThumbnailUrl ? String(a.heroThumbnailUrl) : null,
+    heroMediaType: a.heroMediaType ? String(a.heroMediaType) : null,
+    _count: {
+      pricing: Number(a._count?.pricing || 0),
+      offers: Number(a._count?.offers || 0),
+      faqs: Number(a._count?.faqs || 0)
+    }
   }))
 
-  return <AttractionsList initialAttractions={formattedAttractions} />
+  // Explicit JSON DTO serialization to guarantee 100% RSC plain object boundary safety
+  const safeDTO = JSON.parse(JSON.stringify(formattedAttractions))
+
+  return <AttractionsList initialAttractions={safeDTO} />
 }
