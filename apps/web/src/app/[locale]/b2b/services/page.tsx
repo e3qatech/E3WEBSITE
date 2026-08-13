@@ -73,7 +73,6 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
         where: { slug: 'b2b-services' }
       }),
       db.service.findMany({
-        where: { isVisible: true, isPublished: true },
         orderBy: [
           { isFeatured: 'desc' },
           { createdAt: 'desc' }
@@ -130,9 +129,12 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   // Filter services based on CMS selection mode
   let navigatorServices = allServices
   if (nav.sourceMode === 'MANUAL' && Array.isArray(nav.selectedServiceIds) && nav.selectedServiceIds.length > 0) {
-    navigatorServices = nav.selectedServiceIds
+    const selected = nav.selectedServiceIds
       .map((id: string) => allServices.find(s => s.id === id))
       .filter(Boolean)
+    if (selected.length > 0) {
+      navigatorServices = selected
+    }
   }
 
   // 5. FEATURED SPOTLIGHTS DATA
@@ -143,9 +145,12 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
   let spotlightServices = allServices.filter(s => s.isFeatured)
   if (spotlightsConfig.selectionMode === 'MANUAL' && Array.isArray(spotlightsConfig.selectedServiceIds) && spotlightsConfig.selectedServiceIds.length > 0) {
-    spotlightServices = spotlightsConfig.selectedServiceIds
+    const selected = spotlightsConfig.selectedServiceIds
       .map((id: string) => allServices.find(s => s.id === id))
       .filter(Boolean)
+    if (selected.length > 0) {
+      spotlightServices = selected
+    }
   }
 
   // 6. DELIVERY METHODOLOGY DATA
