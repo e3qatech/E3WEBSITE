@@ -71,10 +71,10 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     // 1. Resolve selected members from live database profiles
     if (dbTeamMembers.length > 0) {
       teamMembers = selectedIds
-        .map(id => dbTeamMembers.find(m => 
-          m.id === id || 
-          m.slug === id || 
-          `team-${m.slug}` === id || 
+        .map(id => dbTeamMembers.find(m =>
+          m.id === id ||
+          m.slug === id ||
+          `team-${m.slug}` === id ||
           (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
         ))
         .filter(Boolean)
@@ -124,8 +124,27 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
         }))
     }
 
-    // When selection IS configured, strictly show selected team members. Never fall back to DEFAULT_CORE_TEAM.
-    if (teamMembers.length === 0) {
+    if (teamMembers.length === 0 && dbTeamMembers.length > 0) {
+      teamMembers = dbTeamMembers.map(m => ({
+        id: m.id,
+        slug: m.slug || m.id,
+        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+        roleEn: m.designation || "Executive",
+        roleAr: m.designationAr || m.designation || "قيادي",
+        bioEn: m.aboutSummary || m.tagline || "",
+        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف",
+        featureOnB2CLanding: true,
+        isCoreTeam: true,
+        b2cOrder: 1,
+        b2cVisibility: true,
+        status: 'PUBLISHED' as const
+      }))
+    } else if (teamMembers.length === 0) {
       return null
     }
   } else {

@@ -13,7 +13,7 @@ export const revalidate = 0;
 
 export default async function B2CLandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  
+
   const cmsData = await getCMSPageContentServer("b2c-landing");
 
   let attractions: any[] = [];
@@ -65,44 +65,46 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
       ? cmsData.coreTeam.selectedMemberIds
       : (Array.isArray(cmsData.coreTeam.members) ? cmsData.coreTeam.members.map((m: any) => m.id) : []);
 
-    if (dbEmployees.length > 0 && selectedIds.length > 0) {
-      const selectedEmployees = selectedIds
-        .map(id => dbEmployees.find(m => 
-          m.id === id || 
-          m.slug === id || 
-          `team-${m.slug}` === id || 
-          (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
-        ))
-        .filter(Boolean);
+    if (dbEmployees.length > 0) {
+      const selectedEmployees = selectedIds.length > 0
+        ? selectedIds
+            .map(id => dbEmployees.find(m =>
+              m.id === id ||
+              m.slug === id ||
+              `team-${m.slug}` === id ||
+              (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
+            ))
+            .filter(Boolean)
+        : [];
 
-      if (selectedEmployees.length > 0) {
-        cmsData.coreTeam.members = selectedEmployees.map(m => ({
-          id: m.id,
-          slug: m.slug || m.id,
-          nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-          nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
-          roleEn: m.designation || "Executive",
-          roleAr: m.designationAr || m.designation || "قيادي",
-          bioEn: m.aboutSummary || m.tagline || "",
-          bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-          portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-          showProfileLink: true,
-          profileCtaLabelEn: "View Profile",
-          profileCtaLabelAr: "عرض الملف",
-          featureOnB2CLanding: true,
-          isCoreTeam: true,
-          b2cOrder: 1,
-          b2cVisibility: true,
-          status: 'PUBLISHED'
-        }));
-      }
+      const activeEmployees = selectedEmployees.length > 0 ? selectedEmployees : dbEmployees;
+
+      cmsData.coreTeam.members = activeEmployees.map(m => ({
+        id: m.id,
+        slug: m.slug || m.id,
+        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+        roleEn: m.designation || "Executive",
+        roleAr: m.designationAr || m.designation || "قيادي",
+        bioEn: m.aboutSummary || m.tagline || "",
+        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف",
+        featureOnB2CLanding: true,
+        isCoreTeam: true,
+        b2cOrder: 1,
+        b2cVisibility: true,
+        status: 'PUBLISHED'
+      }));
     }
   }
 
   return (
-    <B2CLandingClient 
-      locale={locale} 
-      cmsData={cmsData} 
+    <B2CLandingClient
+      locale={locale}
+      cmsData={cmsData}
       initialAttractions={attractions as any}
     />
   );
