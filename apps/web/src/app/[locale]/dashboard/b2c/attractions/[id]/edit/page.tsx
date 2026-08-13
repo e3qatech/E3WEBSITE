@@ -3,6 +3,8 @@ import { AttractionEditor } from "@/components/dashboard/b2c/AttractionEditor"
 import { auth } from "@/lib/auth"
 import { redirect, notFound } from "next/navigation"
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Edit Attraction | E3 Admin",
 }
@@ -18,7 +20,7 @@ export default async function EditAttractionPage({
   }
 
   const { id } = await params
-  
+
   const attraction = await db.attraction.findUnique({
     where: { id },
     include: {
@@ -42,5 +44,5 @@ export default async function EditAttractionPage({
     notFound()
   }
 
-  return <AttractionEditor initialData={attraction} />
+  return <AttractionEditor initialData={JSON.parse(JSON.stringify(attraction))} />
 }
