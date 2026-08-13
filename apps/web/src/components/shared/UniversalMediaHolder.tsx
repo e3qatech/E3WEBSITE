@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MediaHolderConfig } from '@/types/gateway-cms';
 import { cn } from '@/lib/utils';
 import { resolveMediaType } from '@/lib/media-resolver';
+import { parseVideoEmbedUrl } from './UniversalMediaRenderer';
 import dynamic from 'next/dynamic';
 
 const ModelViewer3D = dynamic(
@@ -29,7 +30,9 @@ interface UniversalMediaHolderProps {
 const ALLOWED_DOMAINS = [
   'youtube.com',
   'www.youtube.com',
+  'youtu.be',
   'youtube-nocookie.com',
+  'www.youtube-nocookie.com',
   'player.vimeo.com',
   'vimeo.com',
   'spline.design',
@@ -58,7 +61,16 @@ export function UniversalMediaHolder({
   const captionText = locale === 'ar' ? config.captionAr || config.captionEn : config.captionEn || config.captionAr;
   const fallbackUrl = config.fallbackImageUrl || config.mediaUrl;
 
-  const effectiveMediaType = resolveMediaType({ url: config.mediaUrl, explicitType: config.mediaType });
+  const parsedMediaUrl = React.useMemo(() => {
+    return parseVideoEmbedUrl(
+      config.mediaUrl || '',
+      config.autoplay !== false,
+      config.muted ?? true,
+      config.loop !== false
+    );
+  }, [config.mediaUrl, config.autoplay, config.muted, config.loop]);
+
+  const effectiveMediaType = resolveMediaType({ url: parsedMediaUrl || config.mediaUrl, explicitType: config.mediaType });
 
   // Handle cached image checks on mount
   useEffect(() => {
@@ -70,15 +82,16 @@ export function UniversalMediaHolder({
   // Iframe Domain Security Check
   const isValidIframeUrl = React.useMemo(() => {
     if (effectiveMediaType !== 'IFRAME') return true;
-    if (!config.mediaUrl || !config.mediaUrl.startsWith('https://')) return false;
+    const targetUrl = parsedMediaUrl || config.mediaUrl;
+    if (!targetUrl || !targetUrl.startsWith('https://')) return false;
     try {
-      const parsed = new URL(config.mediaUrl);
+      const parsed = new URL(targetUrl);
       const host = parsed.hostname.toLowerCase();
       return ALLOWED_DOMAINS.some((domain) => host === domain || host.endsWith(`.${domain}`));
     } catch (_e) {
       return false;
     }
-  }, [effectiveMediaType, config.mediaUrl]);
+  }, [effectiveMediaType, parsedMediaUrl, config.mediaUrl]);
 
   // Video Viewport Observer (pause when offscreen)
   useEffect(() => {
@@ -189,14 +202,16 @@ export function UniversalMediaHolder({
           )}
 
           {/* 4. IFRAME EMBED TYPE */}
-          {config.mediaType === 'IFRAME' && (
+          {(config.mediaType === 'IFRAME' || effectiveMediaType === 'IFRAME') && (
             <iframe
-              src={config.mediaUrl}
+              key={parsedMediaUrl || config.mediaUrl}
+              src={parsedMediaUrl || config.mediaUrl}
               title={config.mediaTitle || altText || 'Embedded Content'}
               className="w-full h-full border-0"
               loading={config.loadingStrategy}
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              allow="autoplay; fullscreen; vr; xr; accelerometer; gyroscope"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
               onLoad={() => setIsLoaded(true)}
               onError={() => setHasError(true)}
             />

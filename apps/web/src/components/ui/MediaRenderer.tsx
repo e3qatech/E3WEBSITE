@@ -1,6 +1,7 @@
 import React from "react"
 import Image from "next/image"
 import { resolveMediaType } from "@/lib/media-resolver"
+import { parseVideoEmbedUrl } from "@/components/shared/UniversalMediaRenderer"
 
 interface MediaRendererProps {
   url: string | null | undefined
@@ -18,9 +19,10 @@ export function MediaRenderer({ url, type, alt, className, fill }: MediaRenderer
     return <img src="/placeholder.jpg" alt={alt} className={className} />
   }
 
-  const resolvedType = resolveMediaType({ url, explicitType: type || undefined });
+  const embedUrl = parseVideoEmbedUrl(url);
+  const resolvedType = resolveMediaType({ url: embedUrl || url, explicitType: type || undefined });
 
-  if (resolvedType === "VIDEO") {
+  if (resolvedType === "VIDEO" && !embedUrl.includes('youtube.com') && !embedUrl.includes('vimeo.com')) {
     return (
       <video
         key={url}
@@ -35,13 +37,15 @@ export function MediaRenderer({ url, type, alt, className, fill }: MediaRenderer
     )
   }
 
-  if (resolvedType === "IFRAME" || resolvedType === "MODEL_3D") {
+  if (resolvedType === "IFRAME" || resolvedType === "MODEL_3D" || embedUrl.includes('youtube.com') || embedUrl.includes('vimeo.com')) {
     return (
       <iframe
-        key={url}
-        src={url}
+        key={embedUrl}
+        src={embedUrl}
         title={alt}
-        allow="autoplay; fullscreen"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+        allowFullScreen
+        referrerPolicy="strict-origin-when-cross-origin"
         className={className}
         style={fill ? { width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 } : { border: "none" }}
       />

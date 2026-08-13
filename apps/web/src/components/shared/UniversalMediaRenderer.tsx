@@ -22,30 +22,49 @@ export interface UniversalMediaProps {
 // Lazy load heavy 3D components
 const SplineViewer = lazy(() => import('@splinetool/react-spline'))
 
-function parseVideoEmbedUrl(url: string, autoPlay = true, muted = true, loop = true): string {
+export function parseVideoEmbedUrl(url: string, autoPlay = true, muted = true, loop = true): string {
   if (!url) return '';
-  // YouTube watch link: https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID
-  if (url.includes('youtube.com') || url.includes('youtu.be')) {
-    const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  let cleanUrl = url.trim();
+
+  // 1. If administrator pasted a raw <iframe> code snippet, extract the src URL
+  if (cleanUrl.includes('<iframe') && cleanUrl.includes('src=')) {
+    const srcMatch = cleanUrl.match(/src=["']([^"']+)["']/i);
+    if (srcMatch && srcMatch[1]) {
+      cleanUrl = srcMatch[1].trim();
+    }
+  }
+
+  // 2. YouTube Link parsing (supports watch, shorts, share, embed, youtube-nocookie)
+  if (
+    cleanUrl.includes('youtube.com') ||
+    cleanUrl.includes('youtu.be') ||
+    cleanUrl.includes('youtube-nocookie.com')
+  ) {
+    const videoIdMatch = cleanUrl.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=)|youtube-nocookie\.com\/(?:embed\/|v\/))([\w-]{11})/i
+    );
     if (videoIdMatch && videoIdMatch[1]) {
       const id = videoIdMatch[1];
       const autoPlayParam = autoPlay ? '1' : '0';
       const muteParam = muted ? '1' : '0';
       const loopParam = loop ? `1&playlist=${id}` : '0';
-      return `https://www.youtube-nocookie.com/embed/${id}?autoplay=${autoPlayParam}&mute=${muteParam}&loop=${loopParam}&controls=1&rel=0&modestbranding=1`;
+      return `https://www.youtube.com/embed/${id}?autoplay=${autoPlayParam}&mute=${muteParam}&loop=${loopParam}&controls=1&rel=0&modestbranding=1&enablejsapi=1`;
     }
   }
-  // Vimeo link: https://vimeo.com/VIDEO_ID
-  if (url.includes('vimeo.com')) {
-    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/);
+
+  // 3. Vimeo Link parsing (supports vimeo.com/12345, player.vimeo.com/video/12345)
+  if (cleanUrl.includes('vimeo.com')) {
+    const vimeoMatch = cleanUrl.match(/vimeo\.com\/(?:video\/)?([0-9]+)/i);
     if (vimeoMatch && vimeoMatch[1]) {
       const id = vimeoMatch[1];
       const autoPlayParam = autoPlay ? '1' : '0';
       const muteParam = muted ? '1' : '0';
-      return `https://player.vimeo.com/video/${id}?autoplay=${autoPlayParam}&muted=${muteParam}&loop=${loop ? '1' : '0'}`;
+      const loopParam = loop ? '1' : '0';
+      return `https://player.vimeo.com/video/${id}?autoplay=${autoPlayParam}&muted=${muteParam}&loop=${loopParam}`;
     }
   }
-  return url;
+
+  return cleanUrl;
 }
 
 export function UniversalMediaRenderer({
@@ -78,11 +97,22 @@ export function UniversalMediaRenderer({
     )
   }
 
+  let effectiveSrc = src.trim();
+  if (effectiveSrc.includes('<iframe') && effectiveSrc.includes('src=')) {
+    const match = effectiveSrc.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      effectiveSrc = match[1].trim();
+    }
+  }
+
   // Detect YouTube or Vimeo URLs inside VIDEO or IFRAME type
-  const isExternalVideo = src.includes('youtube.com') || src.includes('youtu.be') || src.includes('vimeo.com');
+  const isExternalVideo = effectiveSrc.includes('youtube.com') || 
+                          effectiveSrc.includes('youtu.be') || 
+                          effectiveSrc.includes('youtube-nocookie.com') || 
+                          effectiveSrc.includes('vimeo.com');
 
   if (type === 'YOUTUBE' || type === 'VIMEO' || (isExternalVideo && (type === 'VIDEO' || type === 'IFRAME'))) {
-    const embedUrl = parseVideoEmbedUrl(src, autoPlay, muted, loop);
+    const embedUrl = parseVideoEmbedUrl(effectiveSrc, autoPlay, muted, loop);
     return (
       <div className={cn("relative w-full h-full overflow-hidden bg-zinc-950", className)}>
         <iframe 
@@ -91,7 +121,9 @@ export function UniversalMediaRenderer({
           title={alt}
           onError={() => setHasError(true)}
           className="w-full h-full border-0 pointer-events-auto"
-          allow="autoplay; fullscreen; picture-in-picture; accelerometer; gyroscope; encrypted-media"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
           loading="lazy"
         />
       </div>
