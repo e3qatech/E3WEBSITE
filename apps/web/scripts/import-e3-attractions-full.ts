@@ -21,7 +21,7 @@ if (fs.existsSync(envLocalPath)) {
   });
 }
 
-const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
+const dbUrl: string = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || '';
 
 if (!dbUrl) {
   throw new Error('Database URL is not configured. Set DATABASE_URL, POSTGRES_PRISMA_URL, or POSTGRES_URL.');

@@ -20,6 +20,7 @@ try {
   console.log("[BUILD] Checking database migrations...");
   try {
     execSync("npx prisma migrate resolve --applied 20260805000000_add_rbac_portals_and_memberships --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+    execSync("npx prisma migrate resolve --applied 20260813130000_add_b2b_attraction_fields --schema=prisma/schema.prisma", { stdio: 'inherit', env });
   } catch (e) {
     console.log("[BUILD] Migration resolve step completed.");
   }
