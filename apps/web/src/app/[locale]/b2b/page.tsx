@@ -1,17 +1,19 @@
 import React from 'react'
 import Link from 'next/link'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Sparkles, Layers, ShieldCheck, Cpu, ArrowUpRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
 import { B2BBrandPortfolio } from '@/components/b2b/brands/B2BBrandPortfolio'
+import { DEFAULT_B2B_HOME_CONTENT } from '@/lib/cms-default-pages'
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function B2BHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
   
-  // ... rest of imports are kept above ...
-
   // Fetch real data from the CMS safely
   let page: any = null
   try {
@@ -22,7 +24,28 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     console.error("Error loading b2b-home page:", error)
   }
   
-  const content = (page?.content as any) || {}
+  const rawContent = (page?.content as any) || {}
+  
+  // Deep merge rawContent with DEFAULT_B2B_HOME_CONTENT so no section is ever empty or hardcoded
+  const content = {
+    ...DEFAULT_B2B_HOME_CONTENT,
+    ...rawContent,
+    hero: { ...DEFAULT_B2B_HOME_CONTENT.hero, ...(rawContent.hero || {}) },
+    stats: (rawContent.stats && rawContent.stats.length > 0) ? rawContent.stats : DEFAULT_B2B_HOME_CONTENT.stats,
+    wowAndHow: { ...DEFAULT_B2B_HOME_CONTENT.wowAndHow, ...(rawContent.wowAndHow || {}) },
+    capabilities: { ...DEFAULT_B2B_HOME_CONTENT.capabilities, ...(rawContent.capabilities || {}) },
+    caseStudies: { ...DEFAULT_B2B_HOME_CONTENT.caseStudies, ...(rawContent.caseStudies || {}) },
+    deliveryProcess: { 
+      ...DEFAULT_B2B_HOME_CONTENT.deliveryProcess, 
+      ...(rawContent.deliveryProcess || {}),
+      steps: (rawContent.deliveryProcess?.steps && rawContent.deliveryProcess.steps.length > 0) 
+        ? rawContent.deliveryProcess.steps 
+        : DEFAULT_B2B_HOME_CONTENT.deliveryProcess.steps
+    },
+    partnerRibbon: { ...DEFAULT_B2B_HOME_CONTENT.partnerRibbon, ...(rawContent.partnerRibbon || {}) }
+  }
+
+  // 1. Hero Data
   const hero = {
     title: isAr 
       ? (content.hero?.titleAr || content.hero?.title || "تحويل الأفكار إلى واقع") 
@@ -45,34 +68,74 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     mediaUrl: content.hero?.mediaUrl || ""
   }
 
-  const stats = (content?.stats && content.stats.length > 0) 
-    ? content.stats.map((s: any) => ({
-        value: isAr ? (s.valueAr || s.value) : s.value,
-        label: isAr ? (s.labelAr || s.label) : s.label
-      }))
-    : [
-        { value: '50+', label: isAr ? 'سنوات من الخبرة المشتركة' : 'Years Combined Experience' },
-        { value: '9+', label: isAr ? 'التخصصات الأساسية' : 'Core Specializations' },
-        { value: '100%', label: isAr ? 'ملكية قطرية 100%' : 'Qatari Owned' },
-        { value: '3+', label: isAr ? 'أسواق إقليمية' : 'Regional Markets' },
-      ]
+  // 2. Stats Data
+  const stats = (content?.stats || []).map((s: any) => ({
+    value: isAr ? (s.valueAr || s.value) : s.value,
+    label: isAr ? (s.labelAr || s.label) : s.label
+  }))
 
+  // 3. WOW & HOW Data
   const wowAndHow = {
     title: isAr 
-      ? (content.wowAndHow?.titleAr || content.wowAndHow?.title || "الإبهاار والتنفيذ الاحترافي") 
+      ? (content.wowAndHow?.titleAr || content.wowAndHow?.title || "الإبهار والتنفيذ الاحترافي") 
       : (content.wowAndHow?.titleEn || content.wowAndHow?.title || "The WOW & The HOW"),
     description: isAr 
       ? (content.wowAndHow?.descriptionAr || content.wowAndHow?.description || "الأفكار الإبداعية تتطلب هندسة تشغيلية. نحن لا نصمم التجارب فحسب — بل نبنيها ونوظف طواقمها ونشغلها ونراقبها.") 
       : (content.wowAndHow?.descriptionEn || content.wowAndHow?.description || "Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them."),
     wowBullets: isAr 
       ? (content.wowAndHow?.wowBulletsAr?.length > 0 ? content.wowAndHow.wowBulletsAr : ['المفاهيم الإبداعية', 'الترفيه الغامر', 'البيئات المنسقة', 'سرد القصص'])
-      : (content.wowAndHow?.wowBullets || ['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling']),
+      : (content.wowAndHow?.wowBulletsEn?.length > 0 ? content.wowAndHow.wowBulletsEn : ['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling']),
     howBullets: isAr 
       ? (content.wowAndHow?.howBulletsAr?.length > 0 ? content.wowAndHow.howBulletsAr : ['جدوى وسلامة المشاريع', 'التصنيع والإخراج المنصي', 'تدفق الجماهير والتوظيف', 'العمليات المباشرة والتذاكر'])
-      : (content.wowAndHow?.howBullets || ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing'])
+      : (content.wowAndHow?.howBulletsEn?.length > 0 ? content.wowAndHow.howBulletsEn : ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing'])
   }
 
-  // Determine which Services to show
+  // 4. Capabilities Header Data
+  const capabilities = {
+    title: isAr 
+      ? (content.capabilities?.titleAr || "القدرات الأساسية") 
+      : (content.capabilities?.titleEn || content.capabilities?.title || "Core Capabilities"),
+    description: isAr 
+      ? (content.capabilities?.descriptionAr || "كل ما يلزم لتقديم تجارب استثنائية.") 
+      : (content.capabilities?.descriptionEn || content.capabilities?.description || "Everything required to deliver landmark experiences."),
+    cta: isAr 
+      ? (content.capabilities?.ctaAr || "عرض جميع الخدمات") 
+      : (content.capabilities?.ctaEn || content.capabilities?.cta || "View All Services")
+  }
+
+  // 5. Featured Case Studies Header Data
+  const caseStudiesHeader = {
+    title: isAr 
+      ? (content.caseStudies?.titleAr || "أعمالنا المميزة") 
+      : (content.caseStudies?.titleEn || content.caseStudies?.title || "Featured Work"),
+    description: isAr 
+      ? (content.caseStudies?.descriptionAr || "مشاريع استثنائية تم تسليمها في جميع أنحاء المنطقة.") 
+      : (content.caseStudies?.descriptionEn || content.caseStudies?.description || "Landmark projects delivered across the region."),
+    cta: isAr 
+      ? (content.caseStudies?.ctaAr || "عرض جميع دراسات الحالة") 
+      : (content.caseStudies?.ctaEn || content.caseStudies?.cta || "View All Case Studies")
+  }
+
+  // 6. Delivery Process Data
+  const deliveryProcess = {
+    title: isAr 
+      ? (content.deliveryProcess?.titleAr || "منظومة مرحلية للتسليم التشغيلي") 
+      : (content.deliveryProcess?.titleEn || content.deliveryProcess?.title || "Delivery Process"),
+    steps: (content.deliveryProcess?.steps || []).map((step: any, idx: number) => ({
+      stepNumber: step.stepNumber || String(idx + 1).padStart(2, '0'),
+      name: isAr ? (step.nameAr || step.name) : (step.nameEn || step.name),
+      desc: isAr ? (step.descAr || step.desc) : (step.descEn || step.desc)
+    }))
+  }
+
+  // 7. Partner Ribbon Data
+  const partnerRibbon = {
+    title: isAr 
+      ? (content.partnerRibbon?.titleAr || "شركاء النجاح") 
+      : (content.partnerRibbon?.titleEn || content.partnerRibbon?.title || "Trusted by Industry Leaders")
+  }
+
+  // Fetch Services from Database
   const featuredServiceIds = content?.featuredServiceIds || []
   let dbServices: any[] = []
   try {
@@ -92,7 +155,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     console.error("Error loading services for B2B home:", error)
   }
 
-  // Determine which Case Studies to show
+  // Fetch Case Studies from Database
   const featuredCaseStudyIds = content?.featuredCaseStudyIds || []
   let dbProjects: any[] = []
   try {
@@ -157,61 +220,79 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       logoLight: b.lightLogoUrl,
       logoDark: b.darkLogoUrl,
       logoCompact: b.compactLogoUrl,
-      brandColor: "#10b981", // Emerald default for B2B if not specified
+      brandColor: "#10b981",
       relationship: "OWNED",
       shortDescEn: b.b2bShortDescOverrideEn || b.shortDescriptionEn,
       shortDescAr: b.b2bShortDescOverrideAr || b.shortDescriptionAr,
       detailCopyEn: b.b2bDetailCopyEn || b.fullStoryEn,
       detailCopyAr: b.b2bDetailCopyAr || b.fullStoryAr,
       primaryMediaUrl: b.primaryMediaUrl,
-      ctaUrl: b.b2bCtaUrl || `/${locale}/b2b/contact` // Default CTA
+      ctaUrl: b.b2bCtaUrl || `/${locale}/b2b/contact`
     }));
   }
 
   return (
-    <div className="flex flex-col w-full" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500 selection:text-zinc-950" dir={isAr ? 'rtl' : 'ltr'}>
       
-      {/* 1. Hero: Ideas to Life */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* 1. CINEMATIC HERO SECTION */}
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80">
         <div className="absolute inset-0 z-0">
           <UniversalMediaRenderer 
             type={hero.mediaType || "IMAGE"} 
             src={hero.mediaUrl || (hero as any).backgroundImage || "/hero-b2b.jpg"}
-            alt="Hero Background"
+            alt="E3 Enterprise Hero"
+            className="w-full h-full object-cover filter brightness-[0.7] contrast-[1.1]"
           />
-          {/* Gradients to ensure text readability without purple/blue */}
-          <div className="absolute inset-0 bg-zinc-950/70" />
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/20 via-transparent to-zinc-950" />
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay" />
+          {/* OLED Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/40 to-transparent rtl:bg-gradient-to-l" />
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-15 mix-blend-overlay pointer-events-none" />
         </div>
 
-        <div className="container relative z-10 mx-auto px-4 md:px-8 pt-20">
+        <div className="container relative z-10 mx-auto px-4 md:px-8 pt-24 pb-16">
           <div className="max-w-4xl">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-100 tracking-tighter leading-[1.1] mb-6">
+            {/* Indicator Eyebrow */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span>{isAr ? "منظومة إي ثري لقطاع الأعمال" : "E3 ENTERPRISE ATELIER"}</span>
+            </div>
+
+            {/* Display Headline */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-lg">
               {hero.title}
             </h1>
-            <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-2xl mb-4">
+
+            {/* Subtitle */}
+            <p className="text-xl md:text-2xl text-zinc-200 font-medium max-w-3xl mb-4 leading-relaxed">
               {hero.subtitle}
             </p>
-            <p className="text-lg text-zinc-400 max-w-2xl mb-10">
+
+            {/* Description */}
+            <p className="text-base md:text-lg text-zinc-400 max-w-2xl mb-10 leading-relaxed">
               {hero.description}
             </p>
             
+            {/* CTA Group */}
             <div className="flex flex-wrap items-center gap-4">
               {hero.primaryCta && (
                 <Link 
                   href={hero.primaryLink || `/${locale}/b2b/services`} 
-                  className="px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors"
+                  className="group relative inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-base rounded-full hover:bg-emerald-400 transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] hover:-translate-y-0.5"
                 >
-                  {hero.primaryCta}
+                  <span>{hero.primaryCta}</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
                 </Link>
               )}
               {hero.secondaryCta && (
                 <Link 
                   href={hero.secondaryLink || `/${locale}/b2b/contact`} 
-                  className="px-8 py-4 bg-transparent border-2 border-zinc-700 text-zinc-100 font-bold text-lg rounded-sm hover:border-zinc-500 hover:bg-zinc-800 transition-all"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-zinc-900/80 backdrop-blur-md border border-zinc-700/80 text-zinc-100 font-bold text-base rounded-full hover:border-zinc-500 hover:bg-zinc-800 transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  {hero.secondaryCta}
+                  <span>{hero.secondaryCta}</span>
+                  <ArrowUpRight className="w-5 h-5 text-zinc-400 group-hover:text-zinc-100 transition-colors" />
                 </Link>
               )}
             </div>
@@ -219,62 +300,90 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      {/* 2. Credibility Board */}
-      <section className="py-20 bg-zinc-950 border-b border-zinc-900">
+      {/* 2. CREDIBILITY STATS BOARD */}
+      <section className="py-16 bg-zinc-950/90 border-b border-zinc-900 relative z-10">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat: any, i: number) => (
-              <div key={i} className="flex flex-col border-s border-emerald-500/30 ps-6">
-                <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 mb-2">
-                  {isAr ? (stat.valueAr || stat.value) : stat.value}
-                </span>
-                <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">
-                  {isAr ? (stat.labelAr || stat.label) : stat.label}
-                </span>
+              <div 
+                key={i} 
+                className="group p-6 rounded-2xl bg-gradient-to-b from-zinc-900/50 to-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 transition-all duration-300"
+              >
+                <div className="flex flex-col border-s-2 border-emerald-500/50 ps-4">
+                  <span className="text-4xl md:text-5xl font-black font-syne tracking-tight text-zinc-100 mb-1 group-hover:text-emerald-400 transition-colors">
+                    {stat.value}
+                  </span>
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                    {stat.label}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. Wow & How Split */}
-      <section className="py-24 md:py-32 bg-zinc-950 relative">
-        <div className="container mx-auto px-4 md:px-8">
+      {/* 3. THE WOW & THE HOW PILLAR SPLIT */}
+      <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden">
+        <div className="absolute top-1/2 start-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 end-0 w-[500px] h-[500px] bg-amber-500/5 blur-[160px] rounded-full pointer-events-none" />
+
+        <div className="container relative z-10 mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-xs uppercase tracking-widest mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{isAr ? "منهجية إي ثري" : "E3 METHODOLOGY"}</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black font-syne text-zinc-100 tracking-tight mb-6">
               {wowAndHow.title}
             </h2>
-            <p className="text-lg text-zinc-400">
+            <p className="text-lg text-zinc-400 leading-relaxed">
               {wowAndHow.description}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
-            {/* WOW */}
-            <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
-              <h3 className="text-3xl font-black text-emerald-400 tracking-tight mb-8">
-                {isAr ? "الإبهار (The WOW)" : "The WOW"}
-              </h3>
-              <ul className="space-y-6">
-                {(wowAndHow.wowBullets || []).map((item: string) => (
-                  <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
-                    {item}
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            {/* The WOW */}
+            <div className="group p-8 md:p-12 rounded-3xl bg-zinc-900/60 border border-zinc-800/80 hover:border-emerald-500/50 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-xs font-mono text-emerald-400 uppercase tracking-widest">{isAr ? "الرؤية الإبداعية" : "CREATIVE VISION"}</span>
+                  <h3 className="text-3xl font-black font-syne text-emerald-400 tracking-tight">
+                    {isAr ? "الإبهار (The WOW)" : "The WOW"}
+                  </h3>
+                </div>
+              </div>
+              <ul className="space-y-5">
+                {(wowAndHow.wowBullets || []).map((item: string, i: number) => (
+                  <li key={i} className="flex items-center gap-4 text-lg font-medium text-zinc-300">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* HOW */}
-            <div className="p-10 rounded-lg bg-zinc-900 border border-zinc-800">
-              <h3 className="text-3xl font-black text-amber-500 tracking-tight mb-8">
-                {isAr ? "التنفيذ (The HOW)" : "The HOW"}
-              </h3>
-              <ul className="space-y-6">
-                {(wowAndHow.howBullets || []).map((item: string) => (
-                  <li key={item} className="flex items-center gap-4 text-xl font-medium text-zinc-300">
-                    <CheckCircle2 className="w-6 h-6 text-amber-500 shrink-0" />
-                    {item}
+            {/* The HOW */}
+            <div className="group p-8 md:p-12 rounded-3xl bg-zinc-900/60 border border-zinc-800/80 hover:border-amber-500/50 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_50px_rgba(245,158,11,0.1)]">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                  <Layers className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-xs font-mono text-amber-400 uppercase tracking-widest">{isAr ? "الهندسة التشغيلية" : "OPERATIONAL ENGINEERING"}</span>
+                  <h3 className="text-3xl font-black font-syne text-amber-400 tracking-tight">
+                    {isAr ? "التنفيذ (The HOW)" : "The HOW"}
+                  </h3>
+                </div>
+              </div>
+              <ul className="space-y-5">
+                {(wowAndHow.howBullets || []).map((item: string, i: number) => (
+                  <li key={i} className="flex items-center gap-4 text-lg font-medium text-zinc-300">
+                    <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0" />
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -283,41 +392,53 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      {/* 4. Core Capabilities Preview */}
-      <section className="py-24 bg-zinc-900 border-y border-zinc-800">
+      {/* 4. CORE CAPABILITIES BENTO GRID */}
+      <section className="py-24 bg-zinc-900/40 border-y border-zinc-800/80">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">{isAr ? "القدرات الأساسية" : "Core Capabilities"}</h2>
-              <p className="text-lg text-zinc-400">{isAr ? "كل ما يلزم لتقديم تجارب استثنائية." : "Everything required to deliver landmark experiences."}</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
+                <Cpu className="w-3.5 h-3.5" />
+                <span>{isAr ? "الخدمات والحلول" : "SOLUTIONS & SERVICES"}</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+                {capabilities.title}
+              </h2>
+              <p className="text-lg text-zinc-400 max-w-xl">
+                {capabilities.description}
+              </p>
             </div>
-            <Link href="/b2b/services" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
-              {isAr ? "عرض جميع الخدمات" : "View All Services"} <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
+            <Link 
+              href={`/${locale}/b2b/services`} 
+              className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
+            >
+              <span>{capabilities.cta}</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {dbServices.length > 0 ? (
               dbServices.map((service, i) => {
                 const name = isAr ? (service.titleAr || service.titleEn || service.slug) : (service.titleEn || service.slug)
-                const desc = isAr ? (service.taglineAr || service.contentAr?.substring(0, 150) || service.taglineEn || service.contentEn?.substring(0, 150) || "Premium entertainment service") : (service.taglineEn || service.contentEn?.substring(0, 150) || "Premium entertainment service")
+                const desc = isAr ? (service.taglineAr || service.contentAr?.substring(0, 150) || service.taglineEn || service.contentEn?.substring(0, 150) || "خدمات إنتاج ترفيهي متكاملة") : (service.taglineEn || service.contentEn?.substring(0, 150) || "Turnkey entertainment production service")
                 return (
                   <Link 
                     key={i} 
-                    href={`/b2b/services/${service.slug}`}
+                    href={`/${locale}/b2b/services/${service.slug}`}
                     className={cn(
-                      "group relative rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all overflow-hidden flex flex-col justify-between",
-                      i === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "min-h-[250px]"
+                      "group relative rounded-3xl bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-8 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]",
+                      i === 0 ? "md:col-span-2 md:row-span-2 min-h-[440px]" : "min-h-[280px]"
                     )}
                   >
-                    {/* Thumbnail Background */}
+                    {/* Media Thumbnail Background */}
                     <div className="absolute inset-0 z-0">
                       {service.thumbnail ? (
                         <UniversalMediaRenderer 
                           type="IMAGE"
                           src={service.thumbnail}
                           alt={name}
-                          className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105"
+                          className="w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-700 group-hover:scale-105"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-950" />
@@ -325,127 +446,150 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
                     </div>
 
-                    <div className="relative z-10 p-8 h-full flex flex-col justify-end">
-                      <div className="mb-4">
+                    <div className="relative z-10 h-full flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
                         {service.category && (
-                          <div className="inline-block px-3 py-1 mb-4 text-[10px] font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full backdrop-blur-sm">
+                          <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full backdrop-blur-md">
                             {service.category}
-                          </div>
+                          </span>
                         )}
-                        <h3 className={cn("font-black text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-400 transition-colors", i === 0 ? "text-3xl" : "text-xl")}>
+                        <ArrowUpRight className="w-6 h-6 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+                      </div>
+
+                      <div className="mt-auto pt-8">
+                        <h3 className={cn("font-black font-syne text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-400 transition-colors", i === 0 ? "text-3xl" : "text-xl")}>
                           {name}
                         </h3>
-                        <p className={cn("text-zinc-400 font-medium line-clamp-2", i === 0 ? "text-lg" : "text-sm")}>
+                        <p className={cn("text-zinc-400 font-medium line-clamp-2 leading-relaxed", i === 0 ? "text-base" : "text-xs")}>
                           {desc}
                         </p>
-                      </div>
-                      
-                      {/* CTA */}
-                      <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-all duration-300">
-                        {service.ctaPrimary || (isAr ? "استكشف القدرات" : "Explore Capability")} <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                       </div>
                     </div>
                   </Link>
                 )
               })
             ) : (
-              <div className="col-span-4 text-center py-12 border border-zinc-800 rounded-lg text-zinc-500">
-                No featured services yet. Add them in the Dashboard!
+              <div className="col-span-4 text-center py-16 border border-zinc-800/80 rounded-3xl text-zinc-500">
+                {isAr ? "لم يتم إضافة خدمات مميزة بعد. قم بإضافتها عبر لوحة التحكم!" : "No featured services configured yet. Add them in the Dashboard!"}
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* 5. Featured Case Studies */}
+      {/* 5. FEATURED CASE STUDIES */}
       <section className="py-24 bg-zinc-950">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-black text-zinc-100 tracking-tight mb-4">{isAr ? "أعمالنا المميزة" : "Featured Work"}</h2>
-              <p className="text-lg text-zinc-400">{isAr ? "مشاريع استثنائية تم تسليمها في جميع أنحاء المنطقة." : "Landmark projects delivered across the region."}</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-xs uppercase tracking-widest mb-3">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{isAr ? "دراسات الحالة والنتائج" : "PROVEN PORTFOLIO"}</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+                {caseStudiesHeader.title}
+              </h2>
+              <p className="text-lg text-zinc-400 max-w-xl">
+                {caseStudiesHeader.description}
+              </p>
             </div>
-            <Link href="/b2b/case-studies" className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
-              {isAr ? "عرض جميع دراسات الحالة" : "View All Case Studies"} <ArrowRight className="w-5 h-5 rtl:-scale-x-100" />
+            <Link 
+              href={`/${locale}/b2b/case-studies`} 
+              className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
+            >
+              <span>{caseStudiesHeader.cta}</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {dbProjects.length > 0 ? (
               dbProjects.map((project, i) => {
                 const title = isAr ? (project.titleAr || project.titleEn || project.slug) : (project.titleEn || project.slug)
                 return (
-                  <Link key={i} href={`/b2b/case-studies/${project.slug}`} className="group block">
-                    <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-zinc-900 mb-6">
+                  <Link key={i} href={`/${locale}/b2b/case-studies/${project.slug}`} className="group block">
+                    <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 mb-6 border border-zinc-800/80 group-hover:border-emerald-500/50 transition-all duration-500">
                       {(project.thumbnailUrl || project.heroImageUrl) ? (
                         <UniversalMediaRenderer 
                           type={project.thumbnailMediaType || project.heroMediaType || "IMAGE"}
                           src={project.thumbnailUrl || project.heroImageUrl}
                           alt={title}
-                          className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-all duration-700"
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600 font-medium">
-                          [Cover: {title}]
+                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600 font-medium">
+                          [Case Study Cover: {title}]
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                      
+                      <div className="absolute top-4 end-4">
+                        <span className="px-3 py-1 text-xs font-mono font-bold bg-zinc-950/80 border border-zinc-800 text-emerald-400 rounded-full backdrop-blur-md">
+                          {project.year || '2026'}
+                        </span>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-zinc-100 mb-2">{title}</h3>
-                    <div className="flex items-center gap-4 text-sm font-medium text-zinc-400">
-                      <span>{project.clientName}</span>
-                      <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                      <span className="text-emerald-400">{project.year}</span>
+                    <h3 className="text-2xl font-bold font-syne text-zinc-100 group-hover:text-emerald-400 transition-colors mb-2">{title}</h3>
+                    <div className="flex items-center gap-3 text-sm font-mono text-zinc-400">
+                      <span>{project.clientName || 'E3 Project'}</span>
                     </div>
                   </Link>
                 )
               })
             ) : (
-              <div className="col-span-3 text-center py-12 border border-zinc-800 rounded-lg text-zinc-500">
-                No featured case studies yet. Publish some from the Dashboard!
+              <div className="col-span-3 text-center py-16 border border-zinc-800/80 rounded-3xl text-zinc-500">
+                {isAr ? "لم يتم إضافة دراسات حالة بعد." : "No featured case studies yet. Publish some from the Dashboard!"}
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* Brands & IP Portfolio */}
+      {/* 6. BRANDS & IP PORTFOLIO */}
       {content?.ourBrands?.brands?.length > 0 && (
         <B2BBrandPortfolio content={content} locale={locale} />
       )}
 
-      {/* 7. Delivery Process */}
-      <section className="py-24 bg-zinc-900 border-y border-zinc-800">
+      {/* 7. INTERACTIVE 5-STEP DELIVERY PIPELINE */}
+      <section className="py-24 md:py-32 bg-zinc-900/40 border-y border-zinc-800/80">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-4xl font-black text-zinc-100 tracking-tight mb-16 text-center">{isAr ? "عملية التسليم" : "Delivery Process"}</h2>
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">{isAr ? "خطوات العمل والتشغيل" : "OPERATIONAL PIPELINE"}</span>
+            <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+              {deliveryProcess.title}
+            </h2>
+          </div>
           
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-4 relative">
-            {/* Connecting Line */}
-            <div className="hidden md:block absolute top-12 start-0 end-0 h-0.5 bg-zinc-800 -z-10" />
-            
-            {(isAr ? ['اكتشاف', 'تصميم', 'بناء', 'تشغيل', 'تقرير'] : ['Discover', 'Design', 'Build', 'Operate', 'Report']).map((step, i) => (
-              <div key={i} className="flex flex-col items-center text-center w-full md:w-auto">
-                <div className="w-24 h-24 rounded-full bg-zinc-950 border-4 border-zinc-900 flex items-center justify-center font-black text-2xl text-emerald-500 mb-6">
-                  {i + 1}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
+            {deliveryProcess.steps.map((step: any, i: number) => (
+              <div key={i} className="group relative p-6 rounded-3xl bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-6">
+                  <span className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-400">
+                    {step.stepNumber}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-600">STAGE 0{i + 1}</span>
                 </div>
-                <h3 className="text-xl font-bold text-zinc-100">{step}</h3>
+                <div>
+                  <h3 className="text-xl font-bold font-syne text-zinc-100 group-hover:text-emerald-400 transition-colors mb-2">{step.name}</h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-medium">{step.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 8. Partner Ribbon */}
+      {/* 8. PARTNER MARQUEE RIBBON */}
       <section className="py-16 bg-zinc-950 overflow-hidden border-b border-zinc-900">
-        <div className="container mx-auto px-4 md:px-8 mb-8 text-center">
-          <span className="text-sm font-bold text-zinc-500 uppercase tracking-wide">
-            {isAr ? "شركاء النجاح" : "Trusted by Industry Leaders"}
+        <div className="container mx-auto px-4 md:px-8 mb-10 text-center">
+          <span className="text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest">
+            {partnerRibbon.title}
           </span>
         </div>
         
         <div className="flex w-[200%] animate-marquee">
-          <div className="flex flex-1 justify-around items-center gap-8 px-4">
-            {partnersList.map((p, idx) => (
+          <div className="flex flex-1 justify-around items-center gap-12 px-4">
+            {partnersList.map((p: any, idx: number) => (
               <div key={p.id || idx} className="flex items-center justify-center shrink-0 mx-6">
                 {p.logoUrl ? (
                   <img 
@@ -454,15 +598,15 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                     className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                   />
                 ) : (
-                  <span className="text-2xl font-bold text-zinc-700 whitespace-nowrap hover:text-zinc-300 transition-colors">
+                  <span className="text-xl md:text-2xl font-mono font-bold text-zinc-600 whitespace-nowrap hover:text-zinc-300 transition-colors">
                     {p.name}
                   </span>
                 )}
               </div>
             ))}
           </div>
-          <div className="flex flex-1 justify-around items-center gap-8 px-4">
-            {partnersList.map((p, idx) => (
+          <div className="flex flex-1 justify-around items-center gap-12 px-4">
+            {partnersList.map((p: any, idx: number) => (
               <div key={`clone-${p.id || idx}`} className="flex items-center justify-center shrink-0 mx-6">
                 {p.logoUrl ? (
                   <img 
@@ -471,7 +615,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                     className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                   />
                 ) : (
-                  <span className="text-2xl font-bold text-zinc-700 whitespace-nowrap hover:text-zinc-300 transition-colors">
+                  <span className="text-xl md:text-2xl font-mono font-bold text-zinc-600 whitespace-nowrap hover:text-zinc-300 transition-colors">
                     {p.name}
                   </span>
                 )}

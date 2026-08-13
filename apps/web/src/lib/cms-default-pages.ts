@@ -1121,6 +1121,74 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
   }
 };
 
+export const DEFAULT_B2B_HOME_CONTENT = {
+  hero: {
+    titleEn: "Ideas to Life",
+    titleAr: "تحويل الأفكار إلى واقع",
+    subtitleEn: "We design, build, operate, and scale immersive entertainment experiences across Qatar.",
+    subtitleAr: "نحن نصمم ونبني ونشغل ونوسع تجارب الترفيه الغامرة في جميع أنحاء قطر.",
+    descriptionEn: "From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.",
+    descriptionAr: "من المفاهيم الإبداعية إلى تدفق الجماهير والتصنيع وإصدار التذاكر والتوظيف والعمليات المباشرة.",
+    primaryCtaEn: "Explore Services",
+    primaryCtaAr: "استكشف الخدمات",
+    primaryLink: "/b2b/services",
+    secondaryCtaEn: "Start a Project",
+    secondaryCtaAr: "ابدأ مشروعاً",
+    secondaryLink: "/b2b/contact",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  },
+  stats: [
+    { value: '50+', labelEn: 'Years Combined Experience', labelAr: 'سنوات من الخبرة المشتركة' },
+    { value: '9+', labelEn: 'Core Specializations', labelAr: 'التخصصات الأساسية' },
+    { value: '100%', labelEn: 'Qatari Owned', labelAr: 'ملكية قطرية 100%' },
+    { value: '3+', labelEn: 'Regional Markets', labelAr: 'أسواق إقليمية' }
+  ],
+  wowAndHow: {
+    titleEn: "The WOW & The HOW",
+    titleAr: "الإبهار والتنفيذ الاحترافي",
+    descriptionEn: "Creative ideas need operational engineering. We don't just design experiences—we build, staff, operate, and monitor them.",
+    descriptionAr: "الأفكار الإبداعية تتطلب هندسة تشغيلية. نحن لا نصمم التجارب فحسب — بل نبنيها ونوظف طواقمها ونشغلها ونراقبها.",
+    wowBulletsEn: ['Creative concepts', 'Immersive entertainment', 'Themed environments', 'Storytelling'],
+    wowBulletsAr: ['المفاهيم الإبداعية', 'الترفيه الغامر', 'البيئات المنسقة', 'سرد القصص'],
+    howBulletsEn: ['Feasibility & Safety', 'Fabrication & Staging', 'Crowd flow & Staffing', 'Live Operations & Ticketing'],
+    howBulletsAr: ['جدوى وسلامة المشاريع', 'التصنيع والإخراج المنصي', 'تدفق الجماهير والتوظيف', 'العمليات المباشرة والتذاكر']
+  },
+  capabilities: {
+    titleEn: "Core Capabilities",
+    titleAr: "القدرات الأساسية",
+    descriptionEn: "Everything required to deliver landmark experiences.",
+    descriptionAr: "كل ما يلزم لتقديم تجارب ترفيهية وإخراج مسرحي استثنائي.",
+    ctaEn: "View All Services",
+    ctaAr: "عرض جميع الخدمات"
+  },
+  caseStudies: {
+    titleEn: "Featured Work",
+    titleAr: "أعمالنا المميزة",
+    descriptionEn: "Landmark projects delivered across the region.",
+    descriptionAr: "مشاريع استثنائية تم تسليمها في جميع أنحاء المنطقة.",
+    ctaEn: "View All Case Studies",
+    ctaAr: "عرض جميع دراسات الحالة"
+  },
+  deliveryProcess: {
+    titleEn: "Delivery Process",
+    titleAr: "منظومة مرحلية للتسليم التشغيلي",
+    steps: [
+      { stepNumber: "01", nameEn: "Discover", nameAr: "اكتشاف", descEn: "Strategic feasibility, concept development & risk audit", descAr: "دراسات الجدوى الاستراتيجية، تطوير المفاهيم وتدقيق المخاطر" },
+      { stepNumber: "02", nameEn: "Design", nameAr: "تصميم", descEn: "3D spatial masterplanning, kinetic AV & architectural blueprints", descAr: "التخطيط الفضائي ثلاثي الأبعاد والخرائط المعمارية الهندسية" },
+      { stepNumber: "03", nameEn: "Build", nameAr: "بناء", descEn: "Turnkey fabrication, stage rigging & safety certification", descAr: "التصنيع الشامل، التركيبات المنصية واعتمادات السلامة" },
+      { stepNumber: "04", nameEn: "Operate", nameAr: "تشغيل", descEn: "Live crowd control, staffing, ticketing & real-time telemetry", descAr: "إدارة الحشود الحية، التوظيف، التذاكر والتحليلات المباشرة" },
+      { stepNumber: "05", nameEn: "Report", nameAr: "تقرير", descEn: "Post-event reconciliation, ROI analysis & continuous scaling", descAr: "تقارير ما بعد الفعالية، تحليل العائد على الاستثمار والتطوير" }
+    ]
+  },
+  partnerRibbon: {
+    titleEn: "Trusted by Industry Leaders",
+    titleAr: "شركاء النجاح"
+  },
+  featuredServiceIds: [],
+  featuredCaseStudyIds: []
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
@@ -1201,6 +1269,45 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
             };
           })
         : defaultDestinations
+    };
+  }
+
+  if (slug === 'b2b-home') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_HOME_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      hero: {
+        ...defaults.hero,
+        ...(raw.hero || {})
+      },
+      stats: (raw.stats && raw.stats.length > 0) ? raw.stats : defaults.stats,
+      wowAndHow: {
+        ...defaults.wowAndHow,
+        ...(raw.wowAndHow || {})
+      },
+      capabilities: {
+        ...defaults.capabilities,
+        ...(raw.capabilities || {})
+      },
+      caseStudies: {
+        ...defaults.caseStudies,
+        ...(raw.caseStudies || {})
+      },
+      deliveryProcess: {
+        ...defaults.deliveryProcess,
+        ...(raw.deliveryProcess || {}),
+        steps: (raw.deliveryProcess?.steps && raw.deliveryProcess.steps.length > 0)
+          ? raw.deliveryProcess.steps
+          : defaults.deliveryProcess.steps
+      },
+      partnerRibbon: {
+        ...defaults.partnerRibbon,
+        ...(raw.partnerRibbon || {})
+      },
+      featuredServiceIds: raw.featuredServiceIds || defaults.featuredServiceIds,
+      featuredCaseStudyIds: raw.featuredCaseStudyIds || defaults.featuredCaseStudyIds,
     };
   }
 

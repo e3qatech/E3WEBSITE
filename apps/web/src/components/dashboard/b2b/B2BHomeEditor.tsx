@@ -30,6 +30,10 @@ export function B2BHomeEditor({
   const [hero, setHero] = React.useState(initialData.content?.hero || {})
   const [stats, setStats] = React.useState<any[]>(initialData.content?.stats || [])
   const [wowAndHow, setWowAndHow] = React.useState(initialData.content?.wowAndHow || {})
+  const [capabilities, setCapabilities] = React.useState(initialData.content?.capabilities || {})
+  const [caseStudiesSection, setCaseStudiesSection] = React.useState(initialData.content?.caseStudies || initialData.content?.caseStudiesSection || {})
+  const [deliveryProcess, setDeliveryProcess] = React.useState(initialData.content?.deliveryProcess || {})
+  const [partnerRibbon, setPartnerRibbon] = React.useState(initialData.content?.partnerRibbon || {})
   const [featuredServiceIds, setFeaturedServiceIds] = React.useState<string[]>(initialData.content?.featuredServiceIds || [])
   const [featuredCaseStudyIds, setFeaturedCaseStudyIds] = React.useState<string[]>(initialData.content?.featuredCaseStudyIds || [])
   const [seo, setSeo] = React.useState<any>(initialData.seo || {})
@@ -45,6 +49,10 @@ export function B2BHomeEditor({
             hero, 
             stats, 
             wowAndHow,
+            capabilities,
+            caseStudies: caseStudiesSection,
+            deliveryProcess,
+            partnerRibbon,
             featuredServiceIds,
             featuredCaseStudyIds
           },
@@ -54,9 +62,9 @@ export function B2BHomeEditor({
 
       if (!res.ok) throw new Error("Failed to save")
       
-      toast("Homepage content updated successfully", "success")
+      toast("B2B Homepage content updated successfully", "success")
     } catch {
-      toast("Failed to update homepage content", "error")
+      toast("Failed to update B2B homepage content", "error")
     } finally {
       setIsSaving(false)
     }
@@ -337,61 +345,217 @@ export function B2BHomeEditor({
           </AdminFormGrid>
         </AdminFormSection>
 
-        {/* FEATURED CONTENT */}
-        <AdminFormSection id="featured" title="Featured Content" description="Select which services and case studies to feature on the homepage.">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-text-primary">Core Capabilities (Services)</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 border border-border-default rounded-md bg-surface-default">
-                {services?.map(service => (
-                  <label key={service.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-surface-hover rounded-md transition-colors">
-                    <input 
-                      type="checkbox"
-                      checked={featuredServiceIds.includes(service.id)}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          setFeaturedServiceIds([...featuredServiceIds, service.id])
-                        } else {
-                          setFeaturedServiceIds(featuredServiceIds.filter(id => id !== service.id))
-                        }
-                      }}
-                      className="w-4 h-4 rounded border-border-default text-primary focus:ring-primary"
-                    />
-                    <span className="text-sm text-text-primary">{service.titleEn || service.slug}</span>
-                  </label>
-                ))}
-                {(!services || services.length === 0) && (
-                  <p className="text-sm text-text-tertiary">No services available.</p>
-                )}
-              </div>
+        {/* CORE CAPABILITIES SECTION HEADERS & SELECTION */}
+        <AdminFormSection id="capabilities" title="Core Capabilities (Services)" description="Customize the capabilities section headers and select featured services.">
+          <AdminFormGrid>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Capabilities Section Title" 
+                value={activeLang === 'en' ? (capabilities.titleEn || capabilities.title || "") : (capabilities.titleAr || "")} 
+                onChange={e => setCapabilities({ ...capabilities, [activeLang === 'en' ? 'titleEn' : 'titleAr']: e.target.value })} 
+                placeholder="e.g. Core Capabilities"
+              />
             </div>
-
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-text-primary">Featured Work (Case Studies)</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 border border-border-default rounded-md bg-surface-default">
-                {caseStudies?.map(cs => (
-                  <label key={cs.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-surface-hover rounded-md transition-colors">
-                    <input 
-                      type="checkbox"
-                      checked={featuredCaseStudyIds.includes(cs.id)}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          setFeaturedCaseStudyIds([...featuredCaseStudyIds, cs.id])
-                        } else {
-                          setFeaturedCaseStudyIds(featuredCaseStudyIds.filter(id => id !== cs.id))
-                        }
-                      }}
-                      className="w-4 h-4 rounded border-border-default text-primary focus:ring-primary"
-                    />
-                    <span className="text-sm text-text-primary">{cs.titleEn || cs.slug}</span>
-                  </label>
-                ))}
-                {(!caseStudies || caseStudies.length === 0) && (
-                  <p className="text-sm text-text-tertiary">No case studies available.</p>
-                )}
-              </div>
+            <div className="sm:col-span-2">
+              <AdminTextarea 
+                label="Capabilities Section Description" 
+                value={activeLang === 'en' ? (capabilities.descriptionEn || capabilities.description || "") : (capabilities.descriptionAr || "")} 
+                onChange={e => setCapabilities({ ...capabilities, [activeLang === 'en' ? 'descriptionEn' : 'descriptionAr']: e.target.value })} 
+                rows={2}
+                placeholder="e.g. Everything required to deliver landmark experiences."
+              />
+            </div>
+            <AdminInput 
+              label="View All Services CTA Label" 
+              value={activeLang === 'en' ? (capabilities.ctaEn || "") : (capabilities.ctaAr || "")} 
+              onChange={e => setCapabilities({ ...capabilities, [activeLang === 'en' ? 'ctaEn' : 'ctaAr']: e.target.value })} 
+              placeholder="e.g. View All Services"
+            />
+          </AdminFormGrid>
+          
+          <div className="mt-6 space-y-3">
+            <h4 className="text-sm font-semibold text-text-primary">Featured Services Grid Selection</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 border border-border-default rounded-md bg-surface-default">
+              {services?.map(service => (
+                <label key={service.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-surface-hover rounded-md transition-colors">
+                  <input 
+                    type="checkbox"
+                    checked={featuredServiceIds.includes(service.id)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setFeaturedServiceIds([...featuredServiceIds, service.id])
+                      } else {
+                        setFeaturedServiceIds(featuredServiceIds.filter(id => id !== service.id))
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-border-default text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm text-text-primary">{service.titleEn || service.slug}</span>
+                </label>
+              ))}
+              {(!services || services.length === 0) && (
+                <p className="text-sm text-text-tertiary">No services available.</p>
+              )}
             </div>
           </div>
+        </AdminFormSection>
+
+        {/* FEATURED WORK / CASE STUDIES SECTION HEADERS & SELECTION */}
+        <AdminFormSection id="caseStudies" title="Featured Work (Case Studies)" description="Customize the case studies section headers and select featured projects.">
+          <AdminFormGrid>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Case Studies Section Title" 
+                value={activeLang === 'en' ? (caseStudiesSection.titleEn || caseStudiesSection.title || "") : (caseStudiesSection.titleAr || "")} 
+                onChange={e => setCaseStudiesSection({ ...caseStudiesSection, [activeLang === 'en' ? 'titleEn' : 'titleAr']: e.target.value })} 
+                placeholder="e.g. Featured Work"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AdminTextarea 
+                label="Case Studies Section Description" 
+                value={activeLang === 'en' ? (caseStudiesSection.descriptionEn || caseStudiesSection.description || "") : (caseStudiesSection.descriptionAr || "")} 
+                onChange={e => setCaseStudiesSection({ ...caseStudiesSection, [activeLang === 'en' ? 'descriptionEn' : 'descriptionAr']: e.target.value })} 
+                rows={2}
+                placeholder="e.g. Landmark projects delivered across the region."
+              />
+            </div>
+            <AdminInput 
+              label="View All Case Studies CTA Label" 
+              value={activeLang === 'en' ? (caseStudiesSection.ctaEn || "") : (caseStudiesSection.ctaAr || "")} 
+              onChange={e => setCaseStudiesSection({ ...caseStudiesSection, [activeLang === 'en' ? 'ctaEn' : 'ctaAr']: e.target.value })} 
+              placeholder="e.g. View All Case Studies"
+            />
+          </AdminFormGrid>
+
+          <div className="mt-6 space-y-3">
+            <h4 className="text-sm font-semibold text-text-primary">Featured Case Studies Selection</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 border border-border-default rounded-md bg-surface-default">
+              {caseStudies?.map(cs => (
+                <label key={cs.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-surface-hover rounded-md transition-colors">
+                  <input 
+                    type="checkbox"
+                    checked={featuredCaseStudyIds.includes(cs.id)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setFeaturedCaseStudyIds([...featuredCaseStudyIds, cs.id])
+                      } else {
+                        setFeaturedCaseStudyIds(featuredCaseStudyIds.filter(id => id !== cs.id))
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-border-default text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm text-text-primary">{cs.titleEn || cs.slug}</span>
+                </label>
+              ))}
+              {(!caseStudies || caseStudies.length === 0) && (
+                <p className="text-sm text-text-tertiary">No case studies available.</p>
+              )}
+            </div>
+          </div>
+        </AdminFormSection>
+
+        {/* DELIVERY PROCESS PIPELINE */}
+        <AdminFormSection id="deliveryProcess" title="Delivery Process Pipeline" description="Manage the 5-step operational delivery methodology pipeline.">
+          <AdminFormGrid>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Delivery Section Title" 
+                value={activeLang === 'en' ? (deliveryProcess.titleEn || deliveryProcess.title || "") : (deliveryProcess.titleAr || "")} 
+                onChange={e => setDeliveryProcess({ ...deliveryProcess, [activeLang === 'en' ? 'titleEn' : 'titleAr']: e.target.value })} 
+                placeholder="e.g. Delivery Process"
+              />
+            </div>
+          </AdminFormGrid>
+
+          <div className="mt-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="text-sm font-semibold text-text-primary">Pipeline Steps</h4>
+              <button 
+                type="button"
+                onClick={() => {
+                  const currentSteps = deliveryProcess.steps || []
+                  const num = String(currentSteps.length + 1).padStart(2, '0')
+                  setDeliveryProcess({
+                    ...deliveryProcess,
+                    steps: [...currentSteps, { stepNumber: num, nameEn: '', nameAr: '', descEn: '', descAr: '' }]
+                  })
+                }}
+                className="text-xs font-bold bg-primary text-white px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
+              >
+                + Add Step
+              </button>
+            </div>
+
+            {(deliveryProcess.steps || []).map((step: any, idx: number) => (
+              <div key={idx} className="p-4 border border-border-default rounded-md bg-surface-active space-y-3 relative">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const newSteps = [...(deliveryProcess.steps || [])]
+                    newSteps.splice(idx, 1)
+                    setDeliveryProcess({ ...deliveryProcess, steps: newSteps })
+                  }}
+                  className="absolute top-2 end-2 text-text-tertiary hover:text-error transition-colors"
+                >
+                  &times;
+                </button>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <AdminInput 
+                      label="Step Number" 
+                      value={step.stepNumber || String(idx + 1).padStart(2, '0')} 
+                      onChange={e => {
+                        const newSteps = [...(deliveryProcess.steps || [])]
+                        newSteps[idx].stepNumber = e.target.value
+                        setDeliveryProcess({ ...deliveryProcess, steps: newSteps })
+                      }} 
+                      placeholder="01"
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <AdminInput 
+                      label="Step Name" 
+                      value={activeLang === 'en' ? (step.nameEn || step.name || "") : (step.nameAr || step.name || "")} 
+                      onChange={e => {
+                        const newSteps = [...(deliveryProcess.steps || [])]
+                        newSteps[idx][activeLang === 'en' ? 'nameEn' : 'nameAr'] = e.target.value
+                        setDeliveryProcess({ ...deliveryProcess, steps: newSteps })
+                      }} 
+                      placeholder="e.g. Discover"
+                    />
+                  </div>
+                </div>
+
+                <AdminTextarea 
+                  label="Step Description" 
+                  value={activeLang === 'en' ? (step.descEn || step.desc || "") : (step.descAr || step.desc || "")} 
+                  onChange={e => {
+                    const newSteps = [...(deliveryProcess.steps || [])]
+                    newSteps[idx][activeLang === 'en' ? 'descEn' : 'descAr'] = e.target.value
+                    setDeliveryProcess({ ...deliveryProcess, steps: newSteps })
+                  }} 
+                  rows={2}
+                  placeholder="Short description of this delivery milestone..."
+                />
+              </div>
+            ))}
+          </div>
+        </AdminFormSection>
+
+        {/* PARTNER RIBBON */}
+        <AdminFormSection id="partnerRibbon" title="Partner Ribbon Header" description="Heading for the client & partner marquee ribbon.">
+          <AdminFormGrid>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Partner Ribbon Section Title" 
+                value={activeLang === 'en' ? (partnerRibbon.titleEn || partnerRibbon.title || "") : (partnerRibbon.titleAr || "")} 
+                onChange={e => setPartnerRibbon({ ...partnerRibbon, [activeLang === 'en' ? 'titleEn' : 'titleAr']: e.target.value })} 
+                placeholder="e.g. Trusted by Industry Leaders"
+              />
+            </div>
+          </AdminFormGrid>
         </AdminFormSection>
 
         {/* SEO */}
