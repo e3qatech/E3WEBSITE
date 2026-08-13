@@ -146,6 +146,12 @@ export function PortalGateway({
     b2cWidthPercent = 100 - targetExpandWidth;
   }
 
+  // Motion Settings
+  const isReducedMotion = simulation?.reducedMotion || visual?.reducedMotionDefault || false;
+
+  // Mobile Order
+  const isB2bFirst = visual?.mobilePortalOrder === 'b2b_first';
+
   return (
     <>
       {/* High-End Agency Google Fonts: Syne & Plus Jakarta Sans */}
@@ -164,20 +170,17 @@ export function PortalGateway({
         role="region"
         aria-label={seo.ariaGatewayLabelEn || "E3 Qatar Portal Selection Gateway"}
       >
+        {/* Optional 3D Wireframe Background */}
+        {visual.backgroundStyle === 'wireframe' && <WireframeBackground />}
+
         {/* Subtle Industrial Grain Texture Overlay */}
-        <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
+        <div className="pointer-events-none fixed inset-0 z-40 opacity-[0.02] mix-blend-overlay">
           <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
             <filter id="noise-gateway">
               <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
             </filter>
             <rect width="100%" height="100%" filter="url(#noise-gateway)" />
           </svg>
-        </div>
-
-        {/* Ambient Glowing Mesh Background Orbs */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          <div className={`absolute top-1/4 start-1/4 w-[600px] h-[600px] rounded-full blur-[140px] transition-opacity duration-1000 ${hoveredPortal === 'b2c' || activeFocus === 'b2c' ? 'bg-purple-600/35 opacity-100' : 'bg-purple-600/20 opacity-60'}`} />
-          <div className={`absolute bottom-1/4 end-1/4 w-[600px] h-[600px] rounded-full blur-[140px] transition-opacity duration-1000 ${hoveredPortal === 'b2b' || activeFocus === 'b2b' ? 'bg-indigo-600/35 opacity-100' : 'bg-indigo-600/20 opacity-60'}`} />
         </div>
 
         {/* ============================================================ */}
@@ -203,7 +206,7 @@ export function PortalGateway({
 
             {/* Center Brand Badge (Desktop) */}
             <div className="hidden lg:flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/15 text-xs md:text-sm font-mono font-bold tracking-widest text-slate-200 uppercase">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse" />
+              <span className={cn("w-2.5 h-2.5 rounded-full bg-purple-400", !isReducedMotion && "animate-pulse")} />
               <span>{headline}</span>
             </div>
 
@@ -264,9 +267,9 @@ export function PortalGateway({
           
           {/* MOBILE VIEW (< 768px): STACKED HORIZONTAL 50/50 SPLIT */}
           {effectiveIsMobile ? (
-            <div className="flex flex-col h-[calc(100vh-90px)] w-full relative">
+            <div className={cn("flex w-full relative h-[calc(100vh-90px)]", isB2bFirst ? "flex-col-reverse" : "flex-col")}>
               
-              {/* TOP HALF: B2C CONSUMER PORTAL */}
+              {/* B2C CONSUMER PORTAL HALF */}
               <div
                 onClick={() => handleSelect("b2c")}
                 className="relative h-1/2 w-full overflow-hidden flex flex-col justify-end p-5 cursor-pointer group"
@@ -274,9 +277,15 @@ export function PortalGateway({
                 <UniversalMediaHolder
                   config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2cMedia}
                   locale={activeLocale}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 opacity-75 group-hover:scale-105"
+                  className={cn(
+                    "absolute inset-0 h-full w-full object-cover opacity-95 transition-all duration-700",
+                    !isReducedMotion && "group-hover:scale-105 group-hover:opacity-100"
+                  )}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none"
+                  style={{ opacity: visual?.overlayStrength ?? 0.4 }}
+                />
 
                 {/* B2C Mobile Overlay Content */}
                 <div className="relative z-30 space-y-2.5 max-w-md w-full">
@@ -286,7 +295,7 @@ export function PortalGateway({
                       <span>{b2cLabel}</span>
                     </span>
                     {b2cStat && visual.statisticsVisible !== false && (
-                      <span className="text-xs font-mono text-purple-200 font-extrabold bg-black/70 px-3 py-1 rounded-full border border-purple-400/40 backdrop-blur-md">
+                      <span className="text-xs font-mono text-purple-200 font-extrabold bg-black/80 px-3 py-1 rounded-full border border-purple-400/40 backdrop-blur-md">
                         {b2cStat}
                       </span>
                     )}
@@ -305,7 +314,7 @@ export function PortalGateway({
                       className="w-full py-3 px-5 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl shadow-purple-950/60 flex items-center justify-between group/mbtn cursor-pointer"
                     >
                       <span>{b2cCta}</span>
-                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover/mbtn:translate-x-1 transition-all">
+                      <div className={cn("w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/mbtn:translate-x-1")}>
                         {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                       </div>
                     </button>
@@ -316,7 +325,7 @@ export function PortalGateway({
               {/* GLOWING HORIZONTAL SEAM DIVIDER FOR MOBILE */}
               <div className="relative z-40 w-full h-[2px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_20px_rgba(168,85,247,0.9)]" />
 
-              {/* BOTTOM HALF: B2B CORPORATE PORTAL */}
+              {/* B2B CORPORATE PORTAL HALF */}
               <div
                 onClick={() => handleSelect("b2b")}
                 className="relative h-1/2 w-full overflow-hidden flex flex-col justify-end p-5 cursor-pointer group"
@@ -324,9 +333,15 @@ export function PortalGateway({
                 <UniversalMediaHolder
                   config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2bMedia}
                   locale={activeLocale}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 opacity-75 group-hover:scale-105"
+                  className={cn(
+                    "absolute inset-0 h-full w-full object-cover opacity-95 transition-all duration-700",
+                    !isReducedMotion && "group-hover:scale-105 group-hover:opacity-100"
+                  )}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none"
+                  style={{ opacity: visual?.overlayStrength ?? 0.4 }}
+                />
 
                 {/* B2B Mobile Overlay Content */}
                 <div className="relative z-30 space-y-2.5 max-w-md w-full">
@@ -336,7 +351,7 @@ export function PortalGateway({
                       <span>{b2bLabel}</span>
                     </span>
                     {b2bStat && visual.statisticsVisible !== false && (
-                      <span className="text-xs font-mono text-indigo-200 font-extrabold bg-black/70 px-3 py-1 rounded-full border border-indigo-400/40 backdrop-blur-md">
+                      <span className="text-xs font-mono text-indigo-200 font-extrabold bg-black/80 px-3 py-1 rounded-full border border-indigo-400/40 backdrop-blur-md">
                         {b2bStat}
                       </span>
                     )}
@@ -355,7 +370,7 @@ export function PortalGateway({
                       className="w-full py-3 px-5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl shadow-indigo-950/60 flex items-center justify-between group/mbtn cursor-pointer"
                     >
                       <span>{b2bCta}</span>
-                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover/mbtn:translate-x-1 transition-all">
+                      <div className={cn("w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/mbtn:translate-x-1")}>
                         {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                       </div>
                     </button>
@@ -379,29 +394,33 @@ export function PortalGateway({
                 aria-label={b2cAria || b2cTitle}
                 style={{ width: `${b2cWidthPercent}%` }}
                 className={cn(
-                  "relative h-full cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden group border-r border-white/10 z-20",
-                  hoveredPortal === "b2c" || activeFocus === "b2c" ? "brightness-110" : hoveredPortal === "b2b" || activeFocus === "b2b" ? "opacity-75 grayscale-[20%]" : "opacity-100"
+                  "relative h-full cursor-pointer overflow-hidden group border-r border-white/10 z-20",
+                  !isReducedMotion && "transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                  hoveredPortal === "b2c" || activeFocus === "b2c" ? "brightness-105" : hoveredPortal === "b2b" || activeFocus === "b2b" ? "opacity-80" : "opacity-100"
                 )}
               >
                 <UniversalMediaHolder
                   config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2cMedia}
                   locale={activeLocale}
                   className={cn(
-                    "h-full w-full object-cover transition-all duration-1000 opacity-65",
-                    hoveredPortal === "b2c" || activeFocus === "b2c" ? "scale-105 opacity-90" : "scale-100"
+                    "h-full w-full object-cover opacity-90 transition-all duration-700",
+                    !isReducedMotion && (hoveredPortal === "b2c" || activeFocus === "b2c") ? "scale-105 opacity-100" : "scale-100"
                   )}
                 />
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                <div
+                  className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/90 via-black/20 to-transparent"
+                  style={{ opacity: visual?.overlayStrength ?? 0.4 }}
+                />
 
                 {/* B2C Double-Bezel Architecture Card */}
-                <div className="absolute bottom-16 start-12 md:start-20 max-w-xl z-30 space-y-4 ring-1 ring-purple-500/30 rounded-3xl bg-black/40 backdrop-blur-2xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                <div className="absolute bottom-16 start-12 md:start-20 max-w-xl z-30 space-y-4 ring-1 ring-purple-500/30 rounded-3xl bg-black/50 backdrop-blur-2xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
                   <div className="w-full flex items-center justify-between gap-4 mb-2">
                     <span className="px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-widest bg-purple-600/30 text-purple-200 border border-purple-400/40 backdrop-blur-md flex items-center gap-2 shadow-sm">
                       <Sparkles className="w-4 h-4 text-purple-300" />
                       <span>{b2cLabel}</span>
                     </span>
                     {b2cStat && visual.statisticsVisible !== false && (
-                      <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold tracking-wider bg-black/70 text-purple-200 border border-purple-400/40 backdrop-blur-md shadow-sm">
+                      <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold tracking-wider bg-black/80 text-purple-200 border border-purple-400/40 backdrop-blur-md shadow-sm">
                         {b2cStat}
                       </span>
                     )}
@@ -420,7 +439,7 @@ export function PortalGateway({
                       className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold uppercase tracking-widest transition-all shadow-xl shadow-purple-950/60 group/btn cursor-pointer"
                     >
                       <span>{b2cCta}</span>
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-1 group-hover/btn:scale-105 transition-all">
+                      <div className={cn("w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/btn:translate-x-1 group-hover/btn:scale-105")}>
                         {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                       </div>
                     </button>
@@ -440,29 +459,33 @@ export function PortalGateway({
                 aria-label={b2bAria || b2bTitle}
                 style={{ width: `${100 - b2cWidthPercent}%` }}
                 className={cn(
-                  "relative h-full cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden group z-10",
-                  hoveredPortal === "b2b" || activeFocus === "b2b" ? "brightness-110 z-20" : hoveredPortal === "b2c" || activeFocus === "b2c" ? "opacity-75 grayscale-[20%]" : "opacity-100"
+                  "relative h-full cursor-pointer overflow-hidden group z-10",
+                  !isReducedMotion && "transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                  hoveredPortal === "b2b" || activeFocus === "b2b" ? "brightness-105 z-20" : hoveredPortal === "b2c" || activeFocus === "b2c" ? "opacity-80" : "opacity-100"
                 )}
               >
                 <UniversalMediaHolder
                   config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: 'IMAGE' } : activeB2bMedia}
                   locale={activeLocale}
                   className={cn(
-                    "h-full w-full object-cover transition-all duration-1000 opacity-65",
-                    hoveredPortal === "b2b" || activeFocus === "b2b" ? "scale-105 opacity-90" : "scale-100"
+                    "h-full w-full object-cover opacity-90 transition-all duration-700",
+                    !isReducedMotion && (hoveredPortal === "b2b" || activeFocus === "b2b") ? "scale-105 opacity-100" : "scale-100"
                   )}
                 />
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                <div
+                  className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/90 via-black/20 to-transparent"
+                  style={{ opacity: visual?.overlayStrength ?? 0.4 }}
+                />
 
                 {/* B2B Double-Bezel Architecture Card */}
-                <div className="absolute bottom-16 end-12 md:end-20 max-w-xl z-30 space-y-4 ring-1 ring-indigo-500/30 rounded-3xl bg-black/40 backdrop-blur-2xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                <div className="absolute bottom-16 end-12 md:end-20 max-w-xl z-30 space-y-4 ring-1 ring-indigo-500/30 rounded-3xl bg-black/50 backdrop-blur-2xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
                   <div className="w-full flex items-center justify-between gap-4 mb-2">
                     <span className="px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-widest bg-indigo-600/30 text-indigo-200 border border-indigo-400/40 backdrop-blur-md flex items-center gap-2 shadow-sm">
                       <Building2 className="w-4 h-4 text-indigo-300" />
                       <span>{b2bLabel}</span>
                     </span>
                     {b2bStat && visual.statisticsVisible !== false && (
-                      <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold tracking-wider bg-black/70 text-indigo-200 border border-indigo-400/40 backdrop-blur-md shadow-sm">
+                      <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold tracking-wider bg-black/80 text-indigo-200 border border-indigo-400/40 backdrop-blur-md shadow-sm">
                         {b2bStat}
                       </span>
                     )}
@@ -481,7 +504,7 @@ export function PortalGateway({
                       className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-widest transition-all shadow-xl shadow-purple-950/60 group/btn cursor-pointer"
                     >
                       <span>{b2bCta}</span>
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-1 group-hover/btn:scale-105 transition-all">
+                      <div className={cn("w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/btn:translate-x-1 group-hover/btn:scale-105")}>
                         {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                       </div>
                     </button>
@@ -492,7 +515,10 @@ export function PortalGateway({
               {/* DESKTOP DYNAMIC VERTICAL LASER SEAM LINE */}
               <div
                 style={{ left: `${b2cWidthPercent}%` }}
-                className="absolute top-0 bottom-0 z-30 w-1.5 -skew-x-6 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] bg-gradient-to-b from-purple-400 via-indigo-400 to-cyan-400 shadow-[0_0_30px_rgba(168,85,247,1)]"
+                className={cn(
+                  "absolute top-0 bottom-0 z-30 w-1.5 -skew-x-6 pointer-events-none bg-gradient-to-b from-purple-400 via-indigo-400 to-cyan-400 shadow-[0_0_30px_rgba(168,85,247,1)]",
+                  !isReducedMotion && "transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                )}
               />
             </div>
           )}

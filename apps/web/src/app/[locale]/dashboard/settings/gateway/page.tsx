@@ -168,7 +168,15 @@ export default function GatewayCustomizationPage() {
       }
 
       if (json.data) {
-        setFormData(json.data);
+        setFormData({
+          ...DEFAULT_GATEWAY_CMS_PAYLOAD,
+          ...json.data,
+          english: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.english, ...(json.data.english || {}) },
+          arabic: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.arabic, ...(json.data.arabic || {}) },
+          logo: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.logo, ...(json.data.logo || {}) },
+          visual: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.visual, ...(json.data.visual || {}) },
+          seoAccess: { ...DEFAULT_GATEWAY_CMS_PAYLOAD.seoAccess, ...(json.data.seoAccess || {}) },
+        });
       }
       showToast(`Successfully rolled back to version #${versionNum}`, 'success');
 
