@@ -39,6 +39,7 @@ const prismaClientSingleton = () => {
       if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
       }
+      parsedUrl.searchParams.delete('channel_binding');
       finalUrl = parsedUrl.toString();
     }
   } catch (e) {

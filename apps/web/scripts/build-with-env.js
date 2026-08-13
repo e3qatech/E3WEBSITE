@@ -17,6 +17,7 @@ try {
     if (parsedUrl.hostname.includes('-pooler')) {
       parsedUrl.searchParams.set('pgbouncer', 'true');
     }
+    parsedUrl.searchParams.delete('channel_binding');
     dbUrl = parsedUrl.toString();
   }
 } catch (e) {
