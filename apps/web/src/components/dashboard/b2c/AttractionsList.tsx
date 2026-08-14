@@ -15,14 +15,19 @@ import {
   Trash2,
   Filter,
   Layers,
-  ImageOff
+  ImageOff,
+  ExternalLink,
+  Briefcase,
+  Sparkles
 } from "lucide-react"
 import {
   DashboardPageShell,
   DashboardPageHeader,
-} from "@/components/dashboard/ui";
+} from "@/components/dashboard/ui"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { Badge } from "@/components/ui/Badge"
+import { useLocale } from "@/components/layout/LocaleProvider"
+import { localizeHref } from "@/lib/url-helper"
 
 type Attraction = {
   id: string
@@ -44,8 +49,21 @@ type Attraction = {
 
 export function AttractionsList({ initialAttractions }: { initialAttractions: Attraction[] }) {
   const router = useRouter()
+  let locale: 'en' | 'ar' = 'en'
+  let dir: 'ltr' | 'rtl' = 'ltr'
+  try {
+    const localeCtx = useLocale()
+    if (localeCtx) {
+      locale = (localeCtx.locale as 'en' | 'ar') || 'en'
+      dir = localeCtx.dir || (locale === 'ar' ? 'rtl' : 'ltr')
+    }
+  } catch {
+    // Fallback
+  }
+
+  const isAr = locale === 'ar'
   const [search, setSearch] = useState("")
-  const [attractions, setAttractions] = useState(initialAttractions)
+  const [attractions, setAttractions] = useState(initialAttractions || [])
 
   // Filter States
   const [publicationFilter, setPublicationFilter] = useState<string>("ALL")
@@ -88,236 +106,322 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
       ))
       router.refresh()
     } catch {
-      alert(`Failed to update ${field}`)
+      alert(isAr ? `فشل تحديث ${field}` : `Failed to update ${field}`)
     }
   }
 
   const deleteAttraction = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this attraction? This action cannot be undone.")) return;
+    if (!confirm(isAr ? "هل أنت متأكد من حذف هذه الوجهة؟ لا يمكن التراجع عن هذا الإجراء." : "Are you sure you want to delete this attraction? This action cannot be undone.")) return
 
     try {
       const res = await fetch(`/api/b2c/attractions/${id}`, {
         method: "DELETE",
       })
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to delete attraction");
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || (isAr ? "فشل حذف الوجهة" : "Failed to delete attraction"))
       }
 
       setAttractions(prev => prev.filter(a => a.id !== id))
       router.refresh()
     } catch (err: any) {
-      alert(err.message || "Failed to delete attraction")
+      alert(err.message || (isAr ? "فشل حذف الوجهة" : "Failed to delete attraction"))
     }
   }
 
   return (
     <DashboardPageShell variant="wide">
-      <DashboardPageHeader
-        title="B2C Attractions Roster"
-        description="Manage consumer entertainment worlds, ticketing rules, VIP pricing tiers, and FAQ rosters."
-        breadcrumbs={[
-          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
-          { label: "Attractions Roster" }
-        ]}
-        badge={{ label: `${attractions.length} Destinations`, variant: "purple" }}
-        primaryAction={{
-          label: "New Attraction",
-          href: "/dashboard/b2c/attractions/new",
-          icon: <Plus className="w-4 h-4" />,
-        }}
-      />
+      <div dir={dir} className="space-y-6">
+        <DashboardPageHeader
+          title={isAr ? "قائمة وجهات B2C الجماهيرية" : "B2C Attractions Roster"}
+          description={
+            isAr
+              ? "إدارة وجهات الترفيه العائلية، قواعد التذاكر، باقات VIP، وقوائم الأسئلة الشائعة."
+              : "Manage consumer entertainment worlds, ticketing rules, VIP pricing tiers, and FAQ rosters."
+          }
+          breadcrumbs={[
+            { label: isAr ? "محتوى B2C" : "B2C Content", href: "/dashboard/b2c/attractions" },
+            { label: isAr ? "قائمة الوجهات" : "Attractions Roster" }
+          ]}
+          badge={{ 
+            label: isAr ? `${attractions.length} وجهة وفعالية` : `${attractions.length} Destinations`, 
+            variant: "purple" 
+          }}
+          primaryAction={{
+            label: isAr ? "إضافة وجهة جديدة" : "New Attraction",
+            href: "/dashboard/b2c/attractions/new",
+            icon: <Plus className="w-4 h-4" />,
+          }}
+        />
 
-      {/* Control Bar: Search & Multi-Filters */}
-      <div className="bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-default)] shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
-            <input
-              type="text"
-              placeholder="Search attractions by name or slug..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="ps-9 pe-4 py-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-primary)] w-full shadow-sm"
-            />
+        {/* Canonical Architecture Notice Banner */}
+        <div
+          dir={dir}
+          data-testid="b2c-attraction-canonical-banner"
+          className="bg-purple-950/20 border border-purple-500/30 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
+        >
+          <div className="flex items-start gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs font-bold text-white flex items-center gap-2">
+                <span>
+                  {isAr ? 'الهوية الموحدة لوجهات ومشاريع E3' : 'Unified Canonical Attraction Architecture'}
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-mono uppercase">
+                  {isAr ? 'معرّف موحد' : 'Canonical ID'}
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400 max-w-2xl leading-relaxed">
+                {isAr ? (
+                  <>
+                    تشترك الوجهات والمشاريع في <strong className="text-zinc-200">سجل هوية موحد داخل قاعدة البيانات</strong>.
+                    لإدارة بيانات الاعتماد المؤسسية، النطاق الهندسي، وربط دراسات الحالة، يمكنك الانتقال إلى دليل مشاريع B2B.
+                  </>
+                ) : (
+                  <>
+                    Venues and projects share a <strong>single unified identity record in the database</strong>.
+                    To manage enterprise client credentials, engineering scope, and case study links, navigate to the B2B Projects Directory.
+                  </>
+                )}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Scope Filter */}
-            <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-              <Layers className="w-3.5 h-3.5" />
-              <select
-                value={scopeFilter}
-                onChange={e => setScopeFilter(e.target.value)}
-                className="bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none"
-              >
-                <option value="ALL">All Records ({attractions.length})</option>
-                <option value="CANONICAL">Canonical E3 ({canonicalCount})</option>
-                <option value="LEGACY">Legacy / Test ({legacyCount})</option>
-              </select>
+          <Link
+            href={localizeHref('/dashboard/b2b/attractions', locale)}
+            data-testid="b2c-to-b2b-attractions-link"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shrink-0 shadow-md"
+          >
+            <span>{isAr ? 'دليل مشاريع B2B' : 'B2B Projects Directory'}</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Control Bar: Search & Multi-Filters */}
+        <div className="bg-surface-default p-4 rounded-2xl border border-border-default shadow-sm space-y-4">
+          <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+              <input
+                type="text"
+                placeholder={isAr ? "البحث بالاسم أو المسار..." : "Search attractions by name or slug..."}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="ps-9 pe-4 py-2 bg-surface-subtle border border-border-default rounded-xl text-sm focus:outline-none focus:border-primary w-full shadow-sm text-text-primary"
+              />
             </div>
 
-            {/* Publication Filter */}
-            <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-              <Filter className="w-3.5 h-3.5" />
-              <select
-                value={publicationFilter}
-                onChange={e => setPublicationFilter(e.target.value)}
-                className="bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="PUBLISHED">Published (Live)</option>
-                <option value="DRAFT">Draft</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Counter Badge Header */}
-        <div className="flex items-center justify-between border-t border-[var(--border-default)] pt-3 text-xs text-[var(--text-secondary)]">
-          <div>
-            Showing <strong className="text-[var(--text-primary)]">{filtered.length}</strong> of <strong className="text-[var(--text-primary)]">{attractions.length}</strong> Attractions
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
-              {canonicalCount} Canonical E3
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
-              {legacyCount} Legacy/Test
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid View */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-16 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)]">
-          <MapPin className="w-12 h-12 mx-auto text-[var(--text-tertiary)] opacity-40 mb-3" />
-          <h3 className="text-base font-semibold text-[var(--text-primary)]">No attractions match the current filters</h3>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Try adjusting your search terms or filter dropdowns.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map(attraction => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              key={attraction.id}
-              className="group flex flex-col bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] shadow-sm hover:border-[var(--color-primary)] transition-colors overflow-hidden"
-            >
-              {/* Hero Image / Media Preview */}
-              <div className="relative aspect-video bg-[var(--surface-subtle)] overflow-hidden">
-                {(() => {
-                  const isIframe = attraction.heroMediaType === 'IFRAME';
-                  const imgSrc = attraction.heroThumbnailUrl || attraction.heroFallbackUrl || (!isIframe ? attraction.heroMediaUrl : null);
-
-                  if (imgSrc) {
-                    return (
-                      <img
-                        src={imgSrc}
-                        alt={attraction.name.en}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          if (e.currentTarget.nextElementSibling) {
-                            (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
-                          }
-                        }}
-                      />
-                    );
-                  }
-
-                  return null;
-                })()}
-
-                {/* Fallback Display (shown if no imgSrc or image fails to load) */}
-                <div
-                  className="w-full h-full flex flex-col items-center justify-center bg-[var(--surface-subtle)] text-[var(--text-tertiary)] gap-1"
-                  style={{ display: attraction.heroThumbnailUrl || attraction.heroFallbackUrl || (!attraction.heroMediaType || attraction.heroMediaType !== 'IFRAME' ? attraction.heroMediaUrl : null) ? 'none' : 'flex' }}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Scope Filter */}
+              <div className="flex items-center gap-1.5 text-xs text-text-secondary">
+                <Layers className="w-3.5 h-3.5" />
+                <select
+                  value={scopeFilter}
+                  onChange={e => setScopeFilter(e.target.value)}
+                  className="bg-surface-subtle border border-border-default rounded-lg px-2.5 py-1.5 text-xs text-text-primary focus:outline-none"
                 >
-                  <ImageOff className="w-6 h-6 opacity-40" />
-                  <span className="text-[10px] font-medium opacity-60">No Hero Media</span>
-                </div>
-
-                {/* Top Badges Overlay */}
-                <div className="absolute top-3 start-3 flex flex-col gap-1">
-                  <Badge variant={attraction.isPublished ? "success" : "default"} className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-zinc-950/90">
-                    {attraction.isPublished ? "Live" : "Draft"}
-                  </Badge>
-                  {attraction.isB2bVisible === false && (
-                    <Badge variant="default" className="shadow-sm backdrop-blur-md bg-amber-500/20 text-amber-700 dark:text-amber-300">
-                      Legacy / Hidden
-                    </Badge>
-                  )}
-                  {attraction.isFeatured && (
-                    <Badge variant="warning" className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-zinc-950/90 gap-1">
-                      <Star className="w-3 h-3 fill-current" /> Featured
-                    </Badge>
-                  )}
-                </div>
+                  <option value="ALL">{isAr ? `كافة السجلات (${attractions.length})` : `All Records (${attractions.length})`}</option>
+                  <option value="CANONICAL">{isAr ? `الوجهات الأساسية (${canonicalCount})` : `Canonical E3 (${canonicalCount})`}</option>
+                  <option value="LEGACY">{isAr ? `السجلات التجريبية / السابقة (${legacyCount})` : `Legacy / Test (${legacyCount})`}</option>
+                </select>
               </div>
 
-              {/* Content */}
-              <div className="p-4 flex-1 flex flex-col">
-                <div className="flex-1">
-                  <h3 className="font-bold text-[var(--text-primary)] mb-1 leading-snug">{attraction.name.en}</h3>
-                  <h4 className="text-sm text-[var(--text-secondary)] font-arabic">{attraction.name.ar}</h4>
-                  <div className="text-[11px] font-mono text-[var(--text-tertiary)] truncate mt-1">/{attraction.slug}</div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 mt-4 py-3 border-y border-[var(--border-default)]">
-                  <div className="text-center">
-                    <div className="text-xs text-[var(--text-tertiary)] mb-0.5">Tiers</div>
-                    <div className="font-mono text-sm font-bold text-[var(--text-primary)]">{attraction._count.pricing}</div>
-                  </div>
-                  <div className="text-center border-x border-[var(--border-default)]">
-                    <div className="text-xs text-[var(--text-tertiary)] mb-0.5">Offers</div>
-                    <div className="font-mono text-sm font-bold text-[var(--text-primary)]">{attraction._count.offers}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs text-[var(--text-tertiary)] mb-0.5">FAQs</div>
-                    <div className="font-mono text-sm font-bold text-[var(--text-primary)]">{attraction._count.faqs}</div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 mt-4">
-                  <Link href={`/dashboard/b2c/attractions/${attraction.id}/edit`} className="flex-1">
-                    <AdminButton variant="outline" className="w-full" leftIcon={<Edit3 className="w-4 h-4" />}>
-                      Edit
-                    </AdminButton>
-                  </Link>
-                  <div className="flex bg-[var(--surface-subtle)] rounded-lg p-1">
-                    <button
-                      title="Toggle Publish Status"
-                      onClick={() => toggleStatus(attraction.id, "isPublished", attraction.isPublished)}
-                      className={`p-2 rounded-md transition-colors ${attraction.isPublished ? 'text-[var(--color-success)] bg-white dark:bg-neutral-800 shadow-sm' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}`}
-                    >
-                      {attraction.isPublished ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </button>
-                    <button
-                      title="Toggle Featured Status"
-                      onClick={() => toggleStatus(attraction.id, "isFeatured", attraction.isFeatured)}
-                      className={`p-2 rounded-md transition-colors ${attraction.isFeatured ? 'text-[var(--color-warning)] bg-white dark:bg-neutral-800 shadow-sm' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}`}
-                    >
-                      <Star className={`w-4 h-4 ${attraction.isFeatured ? 'fill-current' : ''}`} />
-                    </button>
-                    <button
-                      title="Delete Attraction"
-                      onClick={() => deleteAttraction(attraction.id)}
-                      className="p-2 rounded-md transition-colors text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+              {/* Publication Filter */}
+              <div className="flex items-center gap-1.5 text-xs text-text-secondary">
+                <Filter className="w-3.5 h-3.5" />
+                <select
+                  value={publicationFilter}
+                  onChange={e => setPublicationFilter(e.target.value)}
+                  className="bg-surface-subtle border border-border-default rounded-lg px-2.5 py-1.5 text-xs text-text-primary focus:outline-none"
+                >
+                  <option value="ALL">{isAr ? "كافة الحالات" : "All Statuses"}</option>
+                  <option value="PUBLISHED">{isAr ? "منشور (Live)" : "Published (Live)"}</option>
+                  <option value="DRAFT">{isAr ? "مسودة" : "Draft"}</option>
+                </select>
               </div>
-            </motion.div>
-          ))}
+            </div>
+          </div>
+
+          {/* Counter Badge Header */}
+          <div className="flex items-center justify-between border-t border-border-default pt-3 text-xs text-text-secondary">
+            <div>
+              {isAr ? (
+                <>عرض <strong className="text-text-primary">{filtered.length}</strong> من <strong className="text-text-primary">{attractions.length}</strong> وجهة</>
+              ) : (
+                <>Showing <strong className="text-text-primary">{filtered.length}</strong> of <strong className="text-text-primary">{attractions.length}</strong> Attractions</>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-medium">
+                {isAr ? `${canonicalCount} وجهة موحدة` : `${canonicalCount} Canonical E3`}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-medium">
+                {isAr ? `${legacyCount} سجلات أخرى` : `${legacyCount} Legacy/Test`}
+              </span>
+            </div>
+          </div>
         </div>
-      )}
+
+        {/* Grid View */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 bg-surface-default rounded-2xl border border-border-default">
+            <MapPin className="w-12 h-12 mx-auto text-text-tertiary opacity-40 mb-3" />
+            <h3 className="text-base font-semibold text-text-primary">
+              {isAr ? "لم يتم العثور على وجهات تطابق الفلاتر الحالية" : "No attractions match the current filters"}
+            </h3>
+            <p className="text-sm text-text-secondary mt-1">
+              {isAr ? "يرجى تجربة كلمات بحث أخرى أو تعديل خيارات التصفية." : "Try adjusting your search terms or filter dropdowns."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filtered.map(attraction => {
+              const editB2CHref = localizeHref(`/dashboard/b2c/attractions/${attraction.id}/edit`, locale)
+              const editB2BHref = localizeHref(`/dashboard/b2b/attractions/${attraction.id}/edit`, locale)
+
+              return (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  key={attraction.id}
+                  data-testid={`b2c-attraction-card-${attraction.slug}`}
+                  className="group flex flex-col bg-surface-default rounded-2xl border border-border-default shadow-sm hover:border-primary transition-colors overflow-hidden"
+                >
+                  {/* Hero Image / Media Preview */}
+                  <div className="relative aspect-video bg-surface-subtle overflow-hidden">
+                    {(() => {
+                      const isIframe = attraction.heroMediaType === 'IFRAME'
+                      const imgSrc = attraction.heroThumbnailUrl || attraction.heroFallbackUrl || (!isIframe ? attraction.heroMediaUrl : null)
+
+                      if (imgSrc) {
+                        return (
+                          <img
+                            src={imgSrc}
+                            alt={attraction.name.en}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                              if (e.currentTarget.nextElementSibling) {
+                                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'
+                              }
+                            }}
+                          />
+                        )
+                      }
+
+                      return null
+                    })()}
+
+                    {/* Fallback Display */}
+                    <div
+                      className="w-full h-full flex flex-col items-center justify-center bg-surface-subtle text-text-tertiary gap-1"
+                      style={{ display: attraction.heroThumbnailUrl || attraction.heroFallbackUrl || (!attraction.heroMediaType || attraction.heroMediaType !== 'IFRAME' ? attraction.heroMediaUrl : null) ? 'none' : 'flex' }}
+                    >
+                      <ImageOff className="w-6 h-6 opacity-40" />
+                      <span className="text-[10px] font-medium opacity-60">
+                        {isAr ? "لا توجد صورة رئيسية" : "No Hero Media"}
+                      </span>
+                    </div>
+
+                    {/* Top Badges Overlay */}
+                    <div className="absolute top-3 start-3 flex flex-col gap-1">
+                      <Badge variant={attraction.isPublished ? "success" : "default"} className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-zinc-950/90">
+                        {attraction.isPublished ? (isAr ? "منشور Live" : "Live") : (isAr ? "مسودة" : "Draft")}
+                      </Badge>
+                      {attraction.isB2bVisible === false && (
+                        <Badge variant="default" className="shadow-sm backdrop-blur-md bg-amber-500/20 text-amber-400">
+                          {isAr ? "تجريبي / مخفي B2B" : "Legacy / Hidden"}
+                        </Badge>
+                      )}
+                      {attraction.isFeatured && (
+                        <Badge variant="warning" className="shadow-sm backdrop-blur-md bg-white/90 dark:bg-zinc-950/90 gap-1">
+                          <Star className="w-3 h-3 fill-current" /> {isAr ? "مميز" : "Featured"}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-text-primary mb-1 leading-snug">{attraction.name.en}</h3>
+                      <h4 className="text-sm text-text-secondary font-arabic">{attraction.name.ar}</h4>
+                      <div className="text-[11px] font-mono text-text-tertiary truncate mt-1">/{attraction.slug}</div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-2 mt-4 py-3 border-y border-border-default">
+                      <div className="text-center">
+                        <div className="text-xs text-text-tertiary mb-0.5">{isAr ? "الباقات" : "Tiers"}</div>
+                        <div className="font-mono text-sm font-bold text-text-primary">{attraction._count.pricing}</div>
+                      </div>
+                      <div className="text-center border-x border-border-default">
+                        <div className="text-xs text-text-tertiary mb-0.5">{isAr ? "العروض" : "Offers"}</div>
+                        <div className="font-mono text-sm font-bold text-text-primary">{attraction._count.offers}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-text-tertiary mb-0.5">{isAr ? "الأسئلة" : "FAQs"}</div>
+                        <div className="font-mono text-sm font-bold text-text-primary">{attraction._count.faqs}</div>
+                      </div>
+                    </div>
+
+                    {/* Dual Actions */}
+                    <div className="mt-4 pt-1 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Link href={editB2CHref} data-testid={`edit-b2c-btn-${attraction.slug}`} className="flex-1">
+                          <AdminButton variant="outline" className="w-full text-xs" leftIcon={<Edit3 className="w-3.5 h-3.5" />}>
+                            {isAr ? "تعديل B2C" : "Edit B2C"}
+                          </AdminButton>
+                        </Link>
+
+                        <Link 
+                          href={editB2BHref} 
+                          data-testid={`edit-b2b-link-${attraction.slug}`}
+                          title={isAr ? "فتح محرر B2B المؤسسي" : "Open Enterprise B2B Editor"}
+                          className="px-2.5 py-1.5 text-xs font-bold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <Briefcase className="w-3 h-3" />
+                          <span>{isAr ? "محرر B2B" : "B2B Editor"}</span>
+                        </Link>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="flex bg-surface-subtle rounded-lg p-1">
+                          <button
+                            title={isAr ? "تغيير حالة النشر في B2C" : "Toggle Publish Status"}
+                            onClick={() => toggleStatus(attraction.id, "isPublished", attraction.isPublished)}
+                            className={`p-1.5 rounded-md transition-colors ${attraction.isPublished ? 'text-emerald-400 bg-surface-default shadow-sm' : 'text-text-tertiary hover:text-text-primary'}`}
+                          >
+                            {attraction.isPublished ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          </button>
+                          <button
+                            title={isAr ? "تغيير حالة التمييز" : "Toggle Featured Status"}
+                            onClick={() => toggleStatus(attraction.id, "isFeatured", attraction.isFeatured)}
+                            className={`p-1.5 rounded-md transition-colors ${attraction.isFeatured ? 'text-amber-400 bg-surface-default shadow-sm' : 'text-text-tertiary hover:text-text-primary'}`}
+                          >
+                            <Star className={`w-4 h-4 ${attraction.isFeatured ? 'fill-current' : ''}`} />
+                          </button>
+                        </div>
+
+                        <button
+                          title={isAr ? "حذف الوجهة" : "Delete Attraction"}
+                          onClick={() => deleteAttraction(attraction.id)}
+                          className="p-1.5 rounded-md transition-colors text-error hover:bg-error/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </DashboardPageShell>
   )
 }
