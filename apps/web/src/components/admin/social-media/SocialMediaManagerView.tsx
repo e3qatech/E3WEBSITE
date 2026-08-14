@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -12,14 +13,15 @@ import {
   Clock, 
   ShieldAlert, 
   Sliders,
-  RefreshCw,
-  Sparkles
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 import {
   DashboardPageShell,
   DashboardPageHeader,
 } from '@/components/dashboard/ui';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { DashboardAccessDenied } from '@/components/dashboard/ui/DashboardAccessDenied';
 import { OverviewTab } from './tabs/OverviewTab';
 import { PlatformsTab } from './tabs/PlatformsTab';
 import { AccountsTab } from './tabs/AccountsTab';
@@ -32,10 +34,13 @@ import { HealthDiagnosticsTab } from './tabs/HealthDiagnosticsTab';
 import { GlobalSettingsTab } from './tabs/GlobalSettingsTab';
 
 export function SocialMediaManagerView() {
+  const { locale } = useLocale();
+  const isAr = locale === 'ar';
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   const [accounts, setAccounts] = useState<any[]>([]);
   const [providers, setProviders] = useState<any[]>([]);
@@ -48,7 +53,10 @@ export function SocialMediaManagerView() {
     setLoading(true);
     try {
       const [accRes, provRes, feedRes, placeRes, postRes, jobRes] = await Promise.all([
-        fetch('/api/admin/social-media/accounts').then(r => r.json()),
+        fetch('/api/admin/social-media/accounts').then(async r => {
+          if (r.status === 403 || r.status === 401) setAccessDenied(true);
+          return r.json();
+        }),
         fetch('/api/admin/social-media/providers').then(r => r.json()),
         fetch('/api/admin/social-media/feeds').then(r => r.json()),
         fetch('/api/admin/social-media/placements').then(r => r.json()),
@@ -64,7 +72,7 @@ export function SocialMediaManagerView() {
       if (jobRes.success) setSyncJobs(jobRes.data?.recentSyncJobs || []);
     } catch (err: any) {
       console.error('[SOCIAL_MANAGER_FETCH_ERROR]', err);
-      toast('Failed to load social media data', 'error');
+      toast(isAr ? 'تعذر تحميل بيانات التواصل الاجتماعي' : 'Failed to load social media data', 'error');
     } finally {
       setLoading(false);
     }
@@ -73,6 +81,22 @@ export function SocialMediaManagerView() {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  if (accessDenied) {
+    return (
+      <DashboardPageShell variant="wide">
+        <DashboardAccessDenied
+          title={isAr ? "الوصول مقيّد" : "Access Restricted"}
+          message={
+            isAr
+              ? "حسابك الحالي لا يمتلك الصلاحيات الإدارية الكافية للوصول إلى إدارة منصات التواصل الاجتماعي وموجز الأخبار."
+              : "Your current account does not have sufficient permissions to view or manage the Social Media Hub."
+          }
+          requiredPermission="VIEW_SOCIAL_MANAGER"
+        />
+      </DashboardPageShell>
+    );
+  }
 
   const handleRunSync = async (accountId?: string) => {
     setSyncing(true);
@@ -85,44 +109,51 @@ export function SocialMediaManagerView() {
 
       const json = await res.json();
       if (res.ok && json.success) {
-        toast('Synchronization completed successfully!', 'success');
+        toast(isAr ? 'تمت المزامنة بنجاح!' : 'Synchronization completed successfully!', 'success');
         fetchAllData();
       } else {
-        throw new Error(json.error || 'Sync failed.');
+        throw new Error(json.error || (isAr ? 'فشلت المزامنة' : 'Sync failed.'));
       }
     } catch (err: any) {
-      toast(err.message || 'Error running synchronization', 'error');
+      toast(err.message || (isAr ? 'خطأ في تشغيل المزامنة' : 'Error running synchronization'), 'error');
     } finally {
       setSyncing(false);
     }
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'platforms', label: 'Platforms & Credentials', icon: Key },
-    { id: 'accounts', label: 'Connected Accounts', icon: Users },
-    { id: 'feeds', label: 'Feed Manager', icon: Layers },
-    { id: 'library', label: 'Content Library', icon: FileText },
-    { id: 'manual', label: 'Manual & Fetch Link', icon: LinkIcon },
-    { id: 'placements', label: 'Website Placement', icon: MapPin },
-    { id: 'sync', label: 'Sync & Automation', icon: Clock },
-    { id: 'health', label: 'Health & Logs', icon: ShieldAlert },
-    { id: 'settings', label: 'Global Settings', icon: Sliders },
+    { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: LayoutDashboard },
+    { id: 'platforms', label: isAr ? 'المنصات والاعتمادات' : 'Platforms & Credentials', icon: Key },
+    { id: 'accounts', label: isAr ? 'الحسابات المتصلة' : 'Connected Accounts', icon: Users },
+    { id: 'feeds', label: isAr ? 'إدارة الخلاصات' : 'Feed Manager', icon: Layers },
+    { id: 'library', label: isAr ? 'مكتبة المحتوى' : 'Content Library', icon: FileText },
+    { id: 'manual', label: isAr ? 'إضافة يدوية ورابط' : 'Manual & Fetch Link', icon: LinkIcon },
+    { id: 'placements', label: isAr ? 'مواضع العرض' : 'Website Placement', icon: MapPin },
+    { id: 'sync', label: isAr ? 'المزامنة والأتمتة' : 'Sync & Automation', icon: Clock },
+    { id: 'health', label: isAr ? 'حالة النظام والسجلات' : 'Health & Logs', icon: ShieldAlert },
+    { id: 'settings', label: isAr ? 'الإعدادات العامة' : 'Global Settings', icon: Sliders },
   ];
 
   return (
     <DashboardPageShell variant="wide">
       {/* Header Bar */}
       <DashboardPageHeader
-        title="Social Media & Feed Hub"
-        description="Manage official API credentials, account connections, native feeds, content moderation, and website placement."
+        title={isAr ? "إدارة التواصل الاجتماعي وموجز الأخبار" : "Social Media & Feed Hub"}
+        description={
+          isAr
+            ? "إدارة بيانات الاعتماد الرسمية، والحسابات المتصلة، وتنسيق المحتوى والموجز، ومواضع العرض على الموقع."
+            : "Manage official API credentials, account connections, native feeds, content moderation, and website placement."
+        }
         breadcrumbs={[
-          { label: "Marketing", href: "/dashboard/social-media" },
-          { label: "Social Media Manager" },
+          { label: isAr ? "الوسائط العالمية" : "Global Media", href: "/dashboard/cms/media" },
+          { label: isAr ? "إدارة التواصل الاجتماعي" : "Social Media Manager" },
         ]}
-        badge={{ label: `${accounts.length} Accounts`, variant: "purple" }}
+        badge={{
+          label: `${accounts.length} ${isAr ? 'حسابات متصلة' : 'Accounts'}`,
+          variant: "purple",
+        }}
         primaryAction={{
-          label: "Refresh Workspace",
+          label: isAr ? "تحديث البيانات" : "Refresh Workspace",
           onClick: fetchAllData,
           isLoading: loading,
           icon: <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />,

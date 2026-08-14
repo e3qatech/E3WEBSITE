@@ -149,6 +149,18 @@ const nextConfig: NextConfig = {
         destination: '/:locale/b2c/contact',
         permanent: true,
       },
+
+      // 5. Social Media Manager Legacy Route Redirects
+      {
+        source: '/admin/social-media',
+        destination: '/en/dashboard/social-media',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/admin/social-media',
+        destination: '/:locale/dashboard/social-media',
+        permanent: true,
+      },
     ];
   },
   experimental: {

@@ -134,11 +134,12 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "الوسائط العالمية",
     icon: Database,
     href: "/dashboard/cms/media",
-    roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN"],
+    roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "HR_ADMIN", "OPERATIONS_ADMIN"],
     capability: "media.read",
     subItems: [
       { label: "Media Library", labelAr: "مكتبة الوسائط والأصول", href: "/dashboard/cms/media", capability: "media.read" },
       { label: "CMS Pages Index", labelAr: "فهرس صفحات إدارة المحتوى", href: "/dashboard/cms/pages", capability: "b2c.content.read" },
+      { label: "Social Media Hub", labelAr: "إدارة التواصل الاجتماعي", href: "/dashboard/social-media", capability: "media.read", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "HR_ADMIN", "OPERATIONS_ADMIN"] },
     ],
   },
   {

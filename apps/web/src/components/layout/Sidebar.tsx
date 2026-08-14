@@ -39,6 +39,7 @@ const sidebarConfig = [
     { label: "Live Feed", href: "/dashboard/b2c/content/live-feed" },
     { label: "Everlasting Memories", href: "/dashboard/b2c/content/memories" },
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
+    { label: "Social Media Hub", href: "/dashboard/social-media" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
     { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
     { label: "Events & Calendar", href: "/dashboard/b2c/calendar" }
