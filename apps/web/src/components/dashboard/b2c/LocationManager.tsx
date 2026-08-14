@@ -164,9 +164,16 @@ export function LocationManager() {
     return () => {
       clearTimeout(timer);
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+        try {
+          if (typeof mapInstanceRef.current.remove === 'function') {
+            mapInstanceRef.current.remove();
+          }
+        } catch (_e) {
+          // Ignore cleanup errors on unmounted drawer
+        }
         mapInstanceRef.current = null;
       }
+      markerRef.current = null;
     };
   }, [isDrawerOpen]);
 
