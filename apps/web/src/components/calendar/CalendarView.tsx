@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from "framer-motion";
 import { TopFilterBar, EventType } from './TopFilterBar';
 import { EventList } from './EventList';
@@ -12,21 +12,32 @@ import { HeroViewer } from '@/components/attractions/detail/HeroViewer';
 import { useLocale } from '@/components/layout/LocaleProvider';
 
 interface CalendarViewProps {
-  initialAttractions: { id: string; nameEn: string; nameAr: string }[];
+  initialAttractions?: { id: string; nameEn: string; nameAr: string }[];
   heroMediaType?: string;
   heroMediaUrl?: string;
   footerMediaType?: string;
   footerMediaUrl?: string;
   footerPosterUrl?: string;
+  eyebrowEn?: string;
+  eyebrowAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
   title?: string;
   tagline?: string;
   discounts?: any[];
 }
 
 export function CalendarView({
-  initialAttractions,
   heroMediaType,
   heroMediaUrl,
+  eyebrowEn,
+  eyebrowAr,
+  titleEn,
+  titleAr,
+  descriptionEn,
+  descriptionAr,
   title,
   tagline,
   discounts = []
@@ -47,6 +58,7 @@ export function CalendarView({
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch only eligible published events for the selected date in Qatar
   useEffect(() => {
     async function fetchEvents() {
       setLoading(true);
@@ -83,6 +95,29 @@ export function CalendarView({
     return () => clearTimeout(timeoutId);
   }, [currentDate, selectedAttractions, selectedEventTypes, isDiscountActive, locale]);
 
+  // QF-04-C: Only include destinations having at least one eligible published occurrence on visible date
+  const scheduledDestinations = useMemo(() => {
+    const map = new Map<string, { id: string; nameEn: string; nameAr: string }>();
+    events.forEach(ev => {
+      if (ev.attractionId) {
+        const nameEn = ev.attractionNameEn || 'Destination';
+        const nameAr = ev.attractionNameAr || ev.attractionNameEn || 'وجهة';
+        map.set(ev.attractionId, {
+          id: ev.attractionId,
+          nameEn,
+          nameAr,
+        });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.nameEn.localeCompare(b.nameEn));
+  }, [events]);
+
+  const effectiveSelectedAttractions = useMemo(() => {
+    if (selectedAttractions.length === 0 || scheduledDestinations.length === 0) return [];
+    const validIds = new Set(scheduledDestinations.map(d => d.id));
+    return selectedAttractions.filter(id => validIds.has(id));
+  }, [selectedAttractions, scheduledDestinations]);
+
   const toggleAttraction = (id: string) => {
     setSelectedAttractions(prev => 
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
@@ -102,15 +137,18 @@ export function CalendarView({
     setCurrentDate(new Date());
   };
 
-  const defaultTitle = isAr ? (
-    <>جدول <span className="text-[#F43F5E]">الفعاليات</span></>
-  ) : (
-    <>Events <span className="text-[#F43F5E]">Calendar</span></>
-  );
+  // QF-04-C: Resolve strict locale-aware Hero Copy
+  const heroEyebrow = isAr
+    ? (eyebrowAr || "جدول الفعاليات")
+    : (eyebrowEn || "EVENTS CALENDAR");
 
-  const defaultTagline = isAr
-    ? "اكتشف تجاربك القادمة. تصفح الفعاليات الخاصة، والمهرجانات، والجلسات الحصرية في جميع وجهاتنا في قطر."
-    : "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions.";
+  const heroTitle = isAr
+    ? (titleAr || (title && /[\u0600-\u06FF]/.test(title) ? title : null) || "اكتشف تجربتك القادمة مع إي ثري")
+    : (titleEn || title || "Find Your Next E3 Experience");
+
+  const heroDescription = isAr
+    ? (descriptionAr || (tagline && /[\u0600-\u06FF]/.test(tagline) ? tagline : null) || "استكشف الفعاليات القادمة والتجارب العائلية والمهرجانات الموسمية والأنشطة المميزة في قطر.")
+    : (descriptionEn || tagline || "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions.");
 
   return (
     <>
@@ -119,9 +157,9 @@ export function CalendarView({
         .font-righteous { font-family: 'Righteous', cursive; }
         .font-poppins { font-family: 'Poppins', sans-serif; }
       `}} />
-      <div className="min-h-screen font-poppins bg-[#0F0F23] text-zinc-50 relative selection:bg-[#F43F5E]/30 selection:text-zinc-950">
+      <div className="min-h-screen font-poppins bg-[#0F0F23] text-zinc-50 relative selection:bg-[#F43F5E]/30 selection:text-zinc-950" dir={isAr ? 'rtl' : 'ltr'}>
       
-      {/* Interactive Background Orbs */}
+        {/* Interactive Background Orbs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <motion.div
             animate={{
@@ -143,110 +181,123 @@ export function CalendarView({
           />
         </div>
 
-      {/* Dynamic Hero Viewer or Fallback Background */}
-      {heroMediaUrl ? (
-        <div className="absolute inset-0 z-0 h-[100vh] w-full">
-          <HeroViewer 
-            title={title || (isAr ? "جدول الفعاليات" : "Events Calendar")}
-            tagline={tagline || defaultTagline}
-            mediaType={heroMediaType || 'IMAGE'}
-            mediaUrl={heroMediaUrl}
-          />
-        </div>
-      ) : (
-        <>
-          {/* Industrial Grain Texture */}
-          <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <filter id="noise">
-                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-              </filter>
-              <rect width="100%" height="100%" filter="url(#noise)" />
-            </svg>
-          </div>
-
-          <div className="pt-24 pb-8 text-center max-w-4xl mx-auto px-4 relative z-10">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white uppercase tracking-tight mb-6 font-satoshi drop-shadow-lg">
-              {title ? title : defaultTitle}
-            </h1>
-            <p className="text-lg md:text-xl text-zinc-400 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-lg">
-              {tagline || defaultTagline}
-            </p>
-          </div>
-        </>
-      )}
-
-      {/* Main Content Area */}
-      <div className={`relative z-10 ${heroMediaUrl ? 'pt-[70vh]' : ''}`}>
-        <TopFilterBar
-          currentDate={currentDate}
-          onDateChange={setCurrentDate}
-          attractions={initialAttractions}
-          selectedAttractions={selectedAttractions}
-          onAttractionToggle={toggleAttraction}
-          selectedEventTypes={selectedEventTypes}
-          onEventTypeToggle={toggleEventType}
-          isDiscountActive={isDiscountActive}
-          onDiscountToggle={() => setIsDiscountActive(!isDiscountActive)}
-          onResetFilters={resetFilters}
-          onBulkBookingClick={() => setIsBulkBookingOpen(true)}
-        />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-          
-          {/* Partner Discounts Section (Scroll Ticker) */}
-          {discounts && discounts.length > 0 && (
-            <div className="mb-12 w-full overflow-hidden bg-emerald-500/10 border-y border-emerald-500/20 py-4 relative">
-              <div className="absolute start-0 top-0 bottom-0 w-24 bg-gradient-to-r from-zinc-950 to-transparent z-10" />
-              <div className="absolute end-0 top-0 bottom-0 w-24 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
-              <motion.div 
-                className="flex gap-16 w-max px-8"
-                animate={{ x: isAr ? ["0%", "50%"] : ["0%", "-50%"] }}
-                transition={{ ease: "linear", duration: discounts.length * 5, repeat: Infinity }}
-              >
-                {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
-                  <div key={`${discount.id}-${idx}`} className="flex items-center gap-4 shrink-0">
-                    <span className="text-emerald-500 font-bold uppercase tracking-widest">{discount.title}</span>
-                    <span className="text-zinc-600 font-black">/</span>
-                    <span className="text-white font-black text-lg">{discount.discount}</span>
-                    <span className="text-zinc-600 font-black">/</span>
-                    <span className="text-zinc-400 text-sm tracking-wider uppercase">
-                      {isAr ? 'الرمز:' : 'Code:'} <span className="text-white font-mono bg-white/10 px-2 py-1 rounded ms-1 border border-white/20">{discount.promoCode}</span>
-                    </span>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
-
-          <div className="w-full">
-            <EventList 
-              currentDate={currentDate}
-              events={events}
-              loading={loading}
-              onSelectTickets={setSelectedEvent}
+        {/* Dynamic Hero Viewer or Semantic Text Hero */}
+        {heroMediaUrl ? (
+          <div className="absolute inset-0 z-0 h-[100vh] w-full">
+            <HeroViewer 
+              title={heroTitle}
+              tagline={heroDescription}
+              mediaType={heroMediaType || 'IMAGE'}
+              mediaUrl={heroMediaUrl}
             />
           </div>
-          <SubscribeSection />
+        ) : (
+          <>
+            {/* Industrial Grain Texture */}
+            <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
+              <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <filter id="noise">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+                </filter>
+                <rect width="100%" height="100%" filter="url(#noise)" />
+              </svg>
+            </div>
+
+            {/* QF-04-C: Semantic, Accessible Hero Header with Separate Eyebrow, Title & Description */}
+            <header className="pt-28 pb-10 text-center max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+              {/* 1. Semantic Eyebrow Badge */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-5 backdrop-blur-md">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span>{heroEyebrow}</span>
+              </div>
+
+              {/* 2. Semantic Display Headline (H1) */}
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-5 font-syne drop-shadow-xl break-words">
+                {heroTitle}
+              </h1>
+
+              {/* 3. Semantic Descriptive Subtitle */}
+              <p className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-md">
+                {heroDescription}
+              </p>
+            </header>
+          </>
+        )}
+
+        {/* Main Content Area */}
+        <div className={`relative z-10 ${heroMediaUrl ? 'pt-[70vh]' : ''}`}>
+          <TopFilterBar
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
+            attractions={scheduledDestinations}
+            selectedAttractions={effectiveSelectedAttractions}
+            onAttractionToggle={toggleAttraction}
+            selectedEventTypes={selectedEventTypes}
+            onEventTypeToggle={toggleEventType}
+            isDiscountActive={isDiscountActive}
+            onDiscountToggle={() => setIsDiscountActive(!isDiscountActive)}
+            onResetFilters={resetFilters}
+            onBulkBookingClick={() => setIsBulkBookingOpen(true)}
+          />
+
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+            
+            {/* Partner Discounts Section (Scroll Ticker) */}
+            {discounts && discounts.length > 0 && (
+              <div className="mb-10 w-full overflow-hidden bg-emerald-500/10 border-y border-emerald-500/20 py-3.5 relative">
+                <div className="absolute start-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-950 to-transparent z-10 rtl:bg-gradient-to-l" />
+                <div className="absolute end-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-950 to-transparent z-10 rtl:bg-gradient-to-r" />
+                <motion.div 
+                  className="flex gap-16 w-max px-8"
+                  animate={{ x: isAr ? ["0%", "50%"] : ["0%", "-50%"] }}
+                  transition={{ ease: "linear", duration: discounts.length * 5, repeat: Infinity }}
+                >
+                  {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
+                    <div key={`${discount.id}-${idx}`} className="flex items-center gap-4 shrink-0">
+                      <span className="text-emerald-500 font-bold uppercase tracking-widest text-sm">{discount.title}</span>
+                      <span className="text-zinc-600 font-black">/</span>
+                      <span className="text-white font-black text-base">{discount.discount}</span>
+                      <span className="text-zinc-600 font-black">/</span>
+                      <span className="text-zinc-400 text-xs tracking-wider uppercase">
+                        {isAr ? 'الرمز:' : 'Code:'} <span className="text-white font-mono bg-white/10 px-2 py-0.5 rounded ms-1 border border-white/20">{discount.promoCode}</span>
+                      </span>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
+
+            <div className="w-full">
+              <EventList 
+                currentDate={currentDate}
+                events={events}
+                loading={loading}
+                onSelectTickets={setSelectedEvent}
+              />
+            </div>
+            <SubscribeSection />
+          </main>
+
+          <TicketSelectionModal 
+            isOpen={!!selectedEvent} 
+            onClose={() => setSelectedEvent(null)}
+            event={selectedEvent}
+            onOpenBulkBooking={() => {
+              setSelectedEvent(null);
+              setIsBulkBookingOpen(true);
+            }}
+          />
+
+          <BulkBookingModal
+            isOpen={isBulkBookingOpen}
+            onClose={() => setIsBulkBookingOpen(false)}
+            attractions={scheduledDestinations}
+          />
         </div>
-
-        <TicketSelectionModal 
-          isOpen={!!selectedEvent} 
-          onClose={() => setSelectedEvent(null)}
-          event={selectedEvent}
-          onOpenBulkBooking={() => {
-            setSelectedEvent(null);
-            setIsBulkBookingOpen(true);
-          }}
-        />
-
-        <BulkBookingModal
-          isOpen={isBulkBookingOpen}
-          onClose={() => setIsBulkBookingOpen(false)}
-          attractions={initialAttractions}
-        />
       </div>
-    </div>
     </>
   );
 }

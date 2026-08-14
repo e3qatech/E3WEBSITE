@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Tag, Filter, Check, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Tag, Check, Users, MapPin } from 'lucide-react';
 import { 
   format, 
   addMonths, 
@@ -98,16 +98,16 @@ export function TopFilterBar({
           <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
             <button 
               onClick={goToToday}
-              className="flex items-center gap-2 px-4 py-2 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 hover:border-zinc-600 rounded-full text-sm font-bold text-white whitespace-nowrap transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 hover:border-zinc-600 rounded-full text-sm font-bold text-white whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
             >
               <Calendar className="w-4 h-4 text-emerald-500" />
               {isAr ? 'اليوم' : 'Today'}
             </button>
             <button 
               onClick={onDiscountToggle}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-bold whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${
                 isDiscountActive 
-                  ? 'bg-emerald-500 border-emerald-500 text-zinc-950' 
+                  ? 'bg-emerald-500 border-emerald-500 text-zinc-950 font-black' 
                   : 'bg-[#1A1A2E]/80 backdrop-blur-md border-zinc-800 hover:border-zinc-600 text-white'
               }`}
             >
@@ -116,7 +116,7 @@ export function TopFilterBar({
             </button>
             <button 
               onClick={onBulkBookingClick}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 rounded-full text-sm font-bold whitespace-nowrap transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 rounded-full text-sm font-bold whitespace-nowrap transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
             >
               <Users className="w-4 h-4" />
               {isAr ? 'حجز المجموعات' : 'Group Booking'}
@@ -125,7 +125,7 @@ export function TopFilterBar({
             {(selectedAttractions.length > 0 || selectedEventTypes.length > 0 || isDiscountActive) && (
               <button
                 onClick={onResetFilters}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase transition-colors bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white ms-auto"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase transition-colors bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white ms-auto focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
               >
                 {isAr ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}
               </button>
@@ -138,7 +138,7 @@ export function TopFilterBar({
               <button
                 key={type}
                 onClick={() => onEventTypeToggle(type)}
-                className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors border ${
+                className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors border focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${
                   selectedEventTypes.includes(type) 
                     ? 'bg-zinc-100 text-zinc-950 border-zinc-100' 
                     : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
@@ -154,10 +154,10 @@ export function TopFilterBar({
               {format(currentDate, "MMMM yyyy", { locale: dateLocale })}
             </span>
             <div className="flex gap-1">
-              <button onClick={prevMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800" aria-label={isAr ? "الشهر السابق" : "Previous month"}>
+              <button onClick={prevMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none" aria-label={isAr ? "الشهر السابق" : "Previous month"}>
                 <ChevronLeft className="w-4 h-4 text-zinc-300 rtl:rotate-180" />
               </button>
-              <button onClick={nextMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800" aria-label={isAr ? "الشهر التالي" : "Next month"}>
+              <button onClick={nextMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none" aria-label={isAr ? "الشهر التالي" : "Next month"}>
                 <ChevronRight className="w-4 h-4 text-zinc-300 rtl:rotate-180" />
               </button>
             </div>
@@ -184,12 +184,12 @@ export function TopFilterBar({
                   onClick={() => onDateChange(day)}
                   data-selected={isSelected}
                   className={`
-                    flex flex-col items-center justify-center min-w-[64px] h-[72px] rounded-2xl border transition-all shrink-0
+                    flex flex-col items-center justify-center min-w-[64px] h-[72px] rounded-2xl border transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none
                     ${isSelected 
-                      ? 'bg-emerald-500 border-emerald-500 text-zinc-950 scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
+                      ? 'bg-emerald-500 border-emerald-500 text-zinc-950 scale-105 shadow-[0_0_20px_rgba(16,185,129,0.3)] font-bold' 
                       : isTodayDay
-                        ? 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-emerald-500/50 text-emerald-500 hover:bg-zinc-800'
-                        : 'bg-[#1A1A2E]/80 backdrop-blur-md/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700'
+                        ? 'bg-[#1A1A2E]/80 backdrop-blur-md border-emerald-500/50 text-emerald-400 hover:bg-zinc-800'
+                        : 'bg-[#1A1A2E]/80 backdrop-blur-md border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700'
                     }
                   `}
                 >
@@ -205,26 +205,58 @@ export function TopFilterBar({
           </div>
         </div>
 
-        {/* Bottom Row: Attractions Filter */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-          <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest shrink-0 flex items-center gap-2 me-2">
-            <Filter className="w-3 h-3" /> {isAr ? 'الوجهات' : 'Attractions'}
-          </span>
-          {attractions.map(attr => (
+        {/* Bottom Row: QF-04-C Compact, Accessible Destination Filter */}
+        {attractions.length > 0 ? (
+          <div 
+            role="group" 
+            aria-label={isAr ? "فلترة حسب الوجهة" : "Filter by destination"}
+            className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar pt-1"
+          >
+            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider shrink-0 flex items-center gap-1.5 me-2">
+              <MapPin className="w-3.5 h-3.5 text-emerald-400" /> {isAr ? 'الوجهات المجدولة:' : 'Destinations:'}
+            </span>
+
+            {/* All Destinations chip */}
             <button
-              key={attr.id}
-              onClick={() => onAttractionToggle(attr.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors border shrink-0 ${
-                selectedAttractions.includes(attr.id) 
-                  ? 'bg-white text-zinc-950 border-white font-bold' 
+              onClick={() => {
+                // Deselect all attractions
+                attractions.forEach(a => {
+                  if (selectedAttractions.includes(a.id)) {
+                    onAttractionToggle(a.id);
+                  }
+                });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${
+                selectedAttractions.length === 0
+                  ? 'bg-emerald-500 text-zinc-950 border-emerald-500 shadow-sm'
                   : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
               }`}
             >
-              {selectedAttractions.includes(attr.id) && <Check className="w-3 h-3" />}
-              {isAr ? (attr.nameAr || attr.nameEn) : attr.nameEn}
+              {isAr ? 'جميع الوجهات' : 'All Destinations'}
             </button>
-          ))}
-        </div>
+
+            {/* Individual active scheduled destinations */}
+            {attractions.map(attr => {
+              const isSelected = selectedAttractions.includes(attr.id);
+              const label = isAr ? (attr.nameAr || attr.nameEn) : attr.nameEn;
+              return (
+                <button
+                  key={attr.id}
+                  onClick={() => onAttractionToggle(attr.id)}
+                  aria-pressed={isSelected}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${
+                    isSelected 
+                      ? 'bg-white text-zinc-950 border-white shadow-sm' 
+                      : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
+                  }`}
+                >
+                  {isSelected && <Check className="w-3 h-3 text-zinc-950" />}
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
 
       </div>
     </div>
