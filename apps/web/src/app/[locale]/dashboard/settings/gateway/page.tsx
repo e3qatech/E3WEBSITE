@@ -33,6 +33,12 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+  DashboardStickyActions,
+} from '@/components/dashboard/ui';
 
 type TabKey =
   | 'english'
@@ -240,16 +246,11 @@ export default function GatewayCustomizationPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-96 w-full items-center justify-center text-slate-400">
-        <Activity className="h-6 w-6 animate-spin" />
-        <span className="ms-2 font-medium">Loading Gateway Customization CMS...</span>
-      </div>
-    );
+    return <DashboardLoadingState title="Loading Gateway Customization CMS..." type="skeleton" />;
   }
 
   return (
-    <div className="space-y-6 p-6 pb-24 text-slate-100 max-w-7xl mx-auto">
+    <DashboardPageShell variant="wide">
       {/* Toast Notification */}
       {toast && (
         <div
@@ -265,47 +266,36 @@ export default function GatewayCustomizationPage() {
         </div>
       )}
 
-      {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black tracking-tight text-white">Gateway Customization CMS</h1>
-            <span
-              className={cn(
-                'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border',
-                formData.status === 'PUBLISHED'
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                  : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-              )}
-            >
-              {formData.status}
-            </span>
-          </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Configure the original E3 50/50 B2C & B2B gateway experience, media, branding, and localization.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+      {/* Standard Page Header */}
+      <DashboardPageHeader
+        title="Gateway Customization CMS"
+        description="Configure the original E3 50/50 B2C & B2B gateway experience, media, branding, and localization."
+        breadcrumbs={[
+          { label: "Settings", href: "/dashboard/settings/general" },
+          { label: "Gateway Customization" },
+        ]}
+        badge={{
+          label: formData.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+          variant: formData.status === "PUBLISHED" ? "success" : "warning",
+        }}
+        previewUrl="/"
+        primaryAction={{
+          label: publishing ? "Publishing..." : "Publish Gateway",
+          onClick: () => handleSave("publish"),
+          isLoading: publishing,
+          icon: <CheckCircle2 className="h-4 w-4" />,
+        }}
+        secondaryAction={
           <button
-            onClick={() => handleSave('save_draft')}
+            onClick={() => handleSave("save_draft")}
             disabled={saving || publishing}
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-200 shadow-md transition-all hover:bg-slate-700 hover:text-white border border-slate-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--surface-default)] px-4 py-2.5 text-xs font-bold text-[var(--text-secondary)] shadow-sm transition-all hover:text-[var(--text-primary)] border border-[var(--border-level-1)] disabled:opacity-50 cursor-pointer"
           >
             <Save className="h-4 w-4" />
-            <span>{saving ? 'Saving Draft...' : 'Save Draft'}</span>
+            <span>{saving ? "Saving Draft..." : "Save Draft"}</span>
           </button>
-
-          <button
-            onClick={() => handleSave('publish')}
-            disabled={saving || publishing}
-            className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-950/50 transition-all hover:bg-purple-500 disabled:opacity-50"
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            <span>{publishing ? 'Publishing...' : 'Publish Gateway'}</span>
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Tab Navigation */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-slate-800/80">
@@ -1408,6 +1398,6 @@ export default function GatewayCustomizationPage() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardPageShell>
   );
 }

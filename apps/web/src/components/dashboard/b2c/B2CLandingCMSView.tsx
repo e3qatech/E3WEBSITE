@@ -1,40 +1,105 @@
-"use client"
+"use client";
 
-import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { UniversalMediaConfig, UniversalMediaSectionEditor } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
-import { DEFAULT_B2C_LANDING_CONTENT, DEFAULT_B2C_SECTION_SEQUENCE, B2CSectionItem } from '@/lib/cms-default-pages'
-import { Save, Sparkles, Users, CheckCircle, UserCheck, ShieldCheck, ListOrdered, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Eye, EyeOff, RotateCcw } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { resolveMediaType } from '@/lib/media-resolver'
-import { EverlastingMemoriesManager } from './content/EverlastingMemoriesManager'
+import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Save,
+  Sparkles,
+  Users,
+  CheckCircle,
+  UserCheck,
+  ListOrdered,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUp,
+  ChevronsDown,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  ExternalLink,
+  Layers,
+  Heart,
+  ImageIcon,
+  Video,
+  FileText,
+  MousePointerClick,
+  Quote,
+} from "lucide-react";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import { UniversalMediaConfig, UniversalMediaSectionEditor } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
+import { DEFAULT_B2C_LANDING_CONTENT, DEFAULT_B2C_SECTION_SEQUENCE, B2CSectionItem } from "@/lib/cms-default-pages";
+import { resolveMediaType } from "@/lib/media-resolver";
+import { cn } from "@/lib/utils";
+import { EverlastingMemoriesManager } from "./content/EverlastingMemoriesManager";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardLanguageSwitch,
+  DashboardBilingualField,
+  DashboardSectionCard,
+  DashboardFormGrid,
+  DashboardLoadingState,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+  EditorSectionItem,
+  AdminButton,
+} from "@/components/dashboard/ui";
 
 interface B2CLandingCMSViewProps {
-  initialData?: any
+  initialData?: any;
 }
 
+const SECTIONS_CONFIG: EditorSectionItem[] = [
+  { id: "sequence", label: "1. Section Sequence", icon: <ListOrdered className="w-3.5 h-3.5" /> },
+  { id: "hero-media", label: "2. Hero Media", icon: <ImageIcon className="w-3.5 h-3.5" /> },
+  { id: "hero-content", label: "3. Hero Content", icon: <Sparkles className="w-3.5 h-3.5" /> },
+  { id: "hero-actions", label: "4. Hero Actions", icon: <MousePointerClick className="w-3.5 h-3.5" /> },
+  { id: "manifesto", label: "5. Brand Manifesto", icon: <Quote className="w-3.5 h-3.5" /> },
+  { id: "core-team", label: "6. Core Team", icon: <Users className="w-3.5 h-3.5" /> },
+  { id: "memories-settings", label: "7. Memories Settings", icon: <Heart className="w-3.5 h-3.5" /> },
+  { id: "guest-moments", label: "8. Guest Moment Cards", icon: <Layers className="w-3.5 h-3.5" /> },
+  { id: "footer-media", label: "9. Footer Media", icon: <ImageIcon className="w-3.5 h-3.5" /> },
+];
+
 export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [saving, setSaving] = useState(false)
-  const [content, setContent] = useState<any>(initialData || DEFAULT_B2C_LANDING_CONTENT)
-  const [availableTeamMembers, setAvailableTeamMembers] = useState<any[]>([])
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(!initialData);
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [activeSectionId, setActiveSectionId] = useState<string>("sequence");
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+  const [content, setContent] = useState<any>(initialData || DEFAULT_B2C_LANDING_CONTENT);
+  const [availableTeamMembers, setAvailableTeamMembers] = useState<any[]>([]);
+
+  // Team search and filter states
+  const [teamSearch, setTeamSearch] = useState("");
+  const [teamDeptFilter, setTeamDeptFilter] = useState("ALL");
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
 
   const fetchLatestData = async () => {
     try {
-      const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' });
+      const res = await fetch("/api/cms/pages/b2c-landing?t=" + Date.now(), { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
         if (json?.data?.content) {
           setContent(json.data.content);
         }
       }
-    } catch (_e) {}
+    } catch (_e) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchTeamMembers = async () => {
     try {
-      const res = await fetch('/api/team');
+      const res = await fetch("/api/team");
       if (res.ok) {
         const json = await res.json();
         if (Array.isArray(json)) {
@@ -47,167 +112,39 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
   useEffect(() => {
     if (initialData) {
       setContent(initialData);
+      setLoading(false);
+    } else {
+      fetchLatestData();
     }
-    fetchLatestData();
     fetchTeamMembers();
 
-    window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestData);
+    window.addEventListener("e3_cms_b2c_landing_updated", fetchLatestData);
     let bc: BroadcastChannel | null = null;
     try {
-      bc = new BroadcastChannel('e3_cms_sync');
+      bc = new BroadcastChannel("e3_cms_sync");
       bc.onmessage = (event) => {
-        if (event.data?.type === 'b2c_landing_updated') {
+        if (event.data?.type === "b2c_landing_updated") {
           fetchLatestData();
         }
       };
     } catch (_e) {}
 
     return () => {
-      window.removeEventListener('e3_cms_b2c_landing_updated', fetchLatestData);
+      window.removeEventListener("e3_cms_b2c_landing_updated", fetchLatestData);
       if (bc) bc.close();
     };
   }, [initialData]);
 
-  const handleAct1Change = (field: string, val: any) => {
-    setContent((prev: any) => ({
-      ...prev,
-      act1Hero: { ...prev.act1Hero, [field]: val }
-    }))
-  }
+  const updateContent = (updater: (prev: any) => any) => {
+    setContent((prev: any) => {
+      const next = updater(prev);
+      setIsDirty(true);
+      return next;
+    });
+  };
 
-  const handleAct2Change = (field: string, val: any) => {
-    setContent((prev: any) => ({
-      ...prev,
-      act2Curtain: { ...prev.act2Curtain, [field]: val }
-    }))
-  }
-
-  const handleCoreTeamChange = (field: string, val: any) => {
-    setContent((prev: any) => ({
-      ...prev,
-      coreTeam: { ...prev.coreTeam, [field]: val }
-    }))
-  }
-
-  const toggleTeamMemberSelection = (member: any) => {
-    const currentCoreTeam = content.coreTeam || {}
-    const currentSelectedIds: string[] = Array.isArray(currentCoreTeam.selectedMemberIds)
-      ? currentCoreTeam.selectedMemberIds
-      : (Array.isArray(currentCoreTeam.members) ? currentCoreTeam.members.map((m: any) => m.id) : [])
-
-    const matchesMember = (id: string, m: any) =>
-      id === m.id || id === m.slug || `team-${m.slug}` === id || (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
-
-    const isSelected = currentSelectedIds.some(id => matchesMember(id, member))
-    let newSelectedIds: string[]
-
-    if (isSelected) {
-      newSelectedIds = currentSelectedIds.filter(id => !matchesMember(id, member))
-    } else {
-      newSelectedIds = [...currentSelectedIds, member.id]
-    }
-
-    // Map selected member objects for immediate preview & persistence
-    const selectedObjects = availableTeamMembers
-      .filter(m => newSelectedIds.some(id => matchesMember(id, m)))
-      .map(m => ({
-        id: m.id,
-        slug: m.slug || m.id,
-        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
-        roleEn: m.designation || "Executive",
-        roleAr: m.designationAr || m.designation || "قيادي",
-        bioEn: m.aboutSummary || m.tagline || "",
-        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-        showProfileLink: true,
-        profileCtaLabelEn: "View Profile",
-        profileCtaLabelAr: "عرض الملف"
-      }))
-
-    setContent((prev: any) => ({
-      ...prev,
-      coreTeam: {
-        ...prev.coreTeam,
-        selectedMemberIds: newSelectedIds,
-        members: selectedObjects
-      }
-    }))
-  }
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      const heroMedia = content.heroMedia || {}
-      const act1Hero = content.act1Hero || {}
-      
-      const mediaUrlResolved = (heroMedia.mediaUrl || act1Hero.mediaUrl || act1Hero.desktopVideoUrl || '').trim()
-      const mediaTypeResolved = resolveMediaType({ url: mediaUrlResolved, explicitType: heroMedia.mediaType })
-      
-      const updatedContent = {
-        ...content,
-        heroMedia: {
-          ...heroMedia,
-          mediaUrl: mediaUrlResolved,
-          mediaType: mediaTypeResolved,
-        },
-        hero: {
-          ...(content.hero || {}),
-          ...heroMedia,
-          ...act1Hero,
-          headerEn: act1Hero.titleEn || content.hero?.headerEn,
-          headerAr: act1Hero.titleAr || content.hero?.headerAr,
-          subHeaderEn: act1Hero.subtextEn || content.hero?.subHeaderEn,
-          subHeaderAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
-          mediaUrl: mediaUrlResolved,
-          mediaType: mediaTypeResolved,
-          posterUrl: (heroMedia.posterUrl || '').trim(),
-        },
-        act1Hero: {
-          ...act1Hero,
-          mediaUrl: mediaUrlResolved,
-          mediaType: mediaTypeResolved,
-        },
-        sectionSequence: sectionSequence,
-      }
-
-      const res = await fetch('/api/cms/pages/b2c-landing', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: {
-            content: updatedContent,
-            published: true,
-          }
-        }),
-      })
-
-      if (!res.ok) {
-        throw new Error('Failed to save landing page changes')
-      }
-
-      try {
-        const bc = new BroadcastChannel('e3_cms_sync');
-        bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() });
-        bc.close();
-      } catch (_e) {}
-
-      window.dispatchEvent(new Event('e3_cms_b2c_landing_updated'));
-
-      toast('CMS Page Saved Successfully: Landing Page content and team selection saved to database.')
-      router.refresh()
-    } catch (error: any) {
-      toast(`Error Saving CMS Page: ${error.message || 'Could not update page'}`)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const selectedIds: string[] = Array.isArray(content.coreTeam?.selectedMemberIds)
-    ? content.coreTeam.selectedMemberIds
-    : (Array.isArray(content.coreTeam?.members) ? content.coreTeam.members.map((m: any) => m.id) : [])
-
-  const sectionSequence: B2CSectionItem[] = (() => {
+  // Section Sequence calculation
+  const sectionSequence: B2CSectionItem[] = useMemo(() => {
     const rawSeq: any[] = Array.isArray(content?.sectionSequence) ? content.sectionSequence : [];
     if (rawSeq.length === 0) return DEFAULT_B2C_SECTION_SEQUENCE;
 
@@ -216,7 +153,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
     for (let i = 0; i < rawSeq.length; i++) {
       const item = rawSeq[i];
-      if (item && typeof item.id === 'string' && !seenIds.has(item.id)) {
+      if (item && typeof item.id === "string" && !seenIds.has(item.id)) {
         seenIds.add(item.id);
         const defaultSec = DEFAULT_B2C_SECTION_SEQUENCE.find((d) => d.id === item.id);
         userOrdered.push({
@@ -239,33 +176,33 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
     });
 
     return userOrdered;
-  })();
+  }, [content?.sectionSequence]);
 
   const updateSectionSequence = (newSeq: B2CSectionItem[]) => {
     const normalized = newSeq.map((sec, index) => ({
       ...sec,
       order: index + 1,
     }));
-    setContent((prev: any) => ({
+    updateContent((prev) => ({
       ...prev,
       sectionSequence: normalized,
     }));
   };
 
-  const moveSection = (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
+  const moveSection = (index: number, direction: "up" | "down" | "top" | "bottom") => {
     const items = [...sectionSequence];
-    if (direction === 'up' && index > 0) {
+    if (direction === "up" && index > 0) {
       const temp = items[index];
       items[index] = items[index - 1];
       items[index - 1] = temp;
-    } else if (direction === 'down' && index < items.length - 1) {
+    } else if (direction === "down" && index < items.length - 1) {
       const temp = items[index];
       items[index] = items[index + 1];
       items[index + 1] = temp;
-    } else if (direction === 'top' && index > 0) {
+    } else if (direction === "top" && index > 0) {
       const [item] = items.splice(index, 1);
       items.unshift(item);
-    } else if (direction === 'bottom' && index < items.length - 1) {
+    } else if (direction === "bottom" && index < items.length - 1) {
       const [item] = items.splice(index, 1);
       items.push(item);
     }
@@ -282,480 +219,656 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
   };
 
   const resetSectionSequence = () => {
-    updateSectionSequence(DEFAULT_B2C_SECTION_SEQUENCE);
+    if (window.confirm("Reset B2C landing page section sequence to default order?")) {
+      updateSectionSequence(DEFAULT_B2C_SECTION_SEQUENCE);
+    }
   };
 
-  return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-24">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-level-1)] shadow-sm">
-        <div>
-          <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Landing Page CMS Editor</h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage acts, section sequence ordering, media configurations, and team members displayed on the landing page.</p>
-        </div>
+  // Team Selection Handling
+  const selectedTeamIds: string[] = useMemo(() => {
+    const currentCoreTeam = content.coreTeam || {};
+    return Array.isArray(currentCoreTeam.selectedMemberIds)
+      ? currentCoreTeam.selectedMemberIds
+      : (Array.isArray(currentCoreTeam.members) ? currentCoreTeam.members.map((m: any) => m.id) : []);
+  }, [content.coreTeam]);
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-bold text-sm rounded-xl hover:opacity-90 transition-all shadow-md disabled:opacity-50 cursor-pointer"
-        >
-          {saving ? (
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Save className="w-4 h-4" />
-          )}
-          <span>{saving ? 'Saving...' : 'Save All Changes'}</span>
-        </button>
-      </div>
+  const matchesMember = (id: string, m: any) =>
+    id === m.id || id === m.slug || `team-${m.slug}` === id || (typeof id === "string" && (id.includes(m.id) || m.id.includes(id)));
 
-      {/* B2C Landing Page Section Sequence & Ordering Manager */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-level-1)] pb-4">
-          <div>
-            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <ListOrdered className="w-5 h-5 text-purple-500" />
-              <span>B2C Landing Page Section Sequence Manager</span>
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-              Reorder sections, toggle visibility, or customize sequence flow for the public B2C landing page (<code className="text-purple-400 bg-purple-950/40 px-1.5 py-0.5 rounded">/b2c</code>).
-            </p>
-          </div>
+  const toggleTeamMemberSelection = (member: any) => {
+    const isSelected = selectedTeamIds.some((id) => matchesMember(id, member));
+    let newSelectedIds: string[];
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
-              {sectionSequence.filter(s => s.enabled).length} / {sectionSequence.length} Active Sections
-            </span>
-            <button
-              onClick={resetSectionSequence}
-              type="button"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-level-1)] hover:bg-purple-500/10 text-xs font-semibold text-[var(--text-secondary)] hover:text-purple-400 rounded-xl border border-[var(--border-level-1)] transition-all cursor-pointer"
-              title="Reset to default section ordering"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Order</span>
-            </button>
-          </div>
-        </div>
+    if (isSelected) {
+      newSelectedIds = selectedTeamIds.filter((id) => !matchesMember(id, member));
+    } else {
+      newSelectedIds = [...selectedTeamIds, member.id];
+    }
 
-        <div className="space-y-3">
-          {sectionSequence.map((sec, idx) => {
-            const isFirst = idx === 0;
-            const isLast = idx === sectionSequence.length - 1;
+    const selectedObjects = availableTeamMembers
+      .filter((m) => newSelectedIds.some((id) => matchesMember(id, m)))
+      .map((m) => ({
+        id: m.id,
+        slug: m.slug || m.id,
+        nameEn: `${m.firstName || ""} ${m.lastName || ""}`.trim() || "Team Member",
+        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ""}`.trim() : `${m.firstName || ""} ${m.lastName || ""}`.trim(),
+        roleEn: m.designation || "Executive",
+        roleAr: m.designationAr || m.designation || "قيادي",
+        bioEn: m.aboutSummary || m.tagline || "",
+        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        showProfileLink: true,
+        profileCtaLabelEn: "View Profile",
+        profileCtaLabelAr: "عرض الملف",
+      }));
 
-            return (
-              <div
-                key={sec.id}
-                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all ${
-                  sec.enabled
-                    ? 'bg-[var(--bg-level-1)] border-[var(--border-level-1)] hover:border-purple-500/30'
-                    : 'bg-zinc-950/40 border-zinc-800/60 opacity-60'
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono font-bold text-xs shrink-0">
-                    #{idx + 1}
-                  </div>
+    updateContent((prev) => ({
+      ...prev,
+      coreTeam: {
+        ...(prev.coreTeam || {}),
+        selectedMemberIds: newSelectedIds,
+        members: selectedObjects,
+      },
+    }));
+  };
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
-                        {sec.nameEn}
-                      </h4>
-                      <span className="text-xs font-medium text-[var(--text-tertiary)] font-sans" dir="rtl">
-                        ({sec.nameAr})
-                      </span>
-                      {!sec.enabled && (
-                        <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                          Hidden
-                        </span>
-                      )}
-                    </div>
-                    {sec.descriptionEn && (
-                      <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">
-                        {sec.descriptionEn}
-                      </p>
-                    )}
-                  </div>
-                </div>
+  // Filtered Team Members list
+  const filteredTeamMembers = useMemo(() => {
+    return availableTeamMembers
+      .filter((member) => {
+        const fullName = `${member.firstName || ""} ${member.lastName || ""} ${member.firstNameAr || ""} ${member.lastNameAr || ""}`.toLowerCase();
+        const designation = (member.designation || member.department || "").toLowerCase();
+        const matchesQuery = !teamSearch || fullName.includes(teamSearch.toLowerCase()) || designation.includes(teamSearch.toLowerCase());
+        const matchesDept = teamDeptFilter === "ALL" || member.department === teamDeptFilter;
+        const isSelected = selectedTeamIds.some((id) => matchesMember(id, member));
+        const matchesSelectedOnly = !showSelectedOnly || isSelected;
 
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                  {/* Visibility Toggle */}
-                  <button
-                    onClick={() => toggleSectionEnabled(idx)}
-                    type="button"
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      sec.enabled
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
-                        : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700'
-                    }`}
-                  >
-                    {sec.enabled ? (
-                      <>
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Visible</span>
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="w-3.5 h-3.5" />
-                        <span>Hidden</span>
-                      </>
-                    )}
-                  </button>
+        return matchesQuery && matchesDept && matchesSelectedOnly;
+      })
+      .sort((a, b) => {
+        // Selected members shown first
+        const aSelected = selectedTeamIds.some((id) => matchesMember(id, a));
+        const bSelected = selectedTeamIds.some((id) => matchesMember(id, b));
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+        return 0;
+      });
+  }, [availableTeamMembers, teamSearch, teamDeptFilter, showSelectedOnly, selectedTeamIds]);
 
-                  {/* Reorder Buttons */}
-                  <div className="flex items-center bg-[var(--surface-default)] rounded-lg p-1 border border-[var(--border-level-1)] gap-1">
-                    <button
-                      onClick={() => moveSection(idx, 'top')}
-                      disabled={isFirst}
-                      type="button"
-                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
-                      title="Move to Top"
-                    >
-                      <ChevronsUp className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => moveSection(idx, 'up')}
-                      disabled={isFirst}
-                      type="button"
-                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
-                      title="Move Up"
-                    >
-                      <ArrowUp className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => moveSection(idx, 'down')}
-                      disabled={isLast}
-                      type="button"
-                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
-                      title="Move Down"
-                    >
-                      <ArrowDown className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => moveSection(idx, 'bottom')}
-                      disabled={isLast}
-                      type="button"
-                      className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-30 disabled:hover:text-[var(--text-secondary)] rounded transition-all cursor-pointer"
-                      title="Move to Bottom"
-                    >
-                      <ChevronsDown className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+  const uniqueDepartments = useMemo(() => {
+    const depts = new Set<string>();
+    availableTeamMembers.forEach((m) => {
+      if (m.department) depts.add(m.department);
+    });
+    return Array.from(depts);
+  }, [availableTeamMembers]);
 
-      {/* Hero Media Settings */}
-      <UniversalMediaSectionEditor
-        title="Landing Hero Media Settings"
-        subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
-        value={content.heroMedia || {
-          mediaType: content.act1Hero?.desktopVideoUrl?.match(/\.(mp4|webm)$/i) ? 'VIDEO' : 'IMAGE',
-          mediaUrl: content.act1Hero?.desktopVideoUrl || content.hero?.mediaUrl || '',
-          fallbackImage: content.act1Hero?.mobileVideoUrl || content.hero?.posterUrl || '',
-          posterUrl: content.act1Hero?.mobileVideoUrl || content.hero?.posterUrl || '',
-        }}
-        onChange={(heroMedia: UniversalMediaConfig) => setContent((prev: any) => ({
-          ...prev,
-          heroMedia,
-          act1Hero: {
-            ...prev.act1Hero,
-            mediaUrl: heroMedia.mediaUrl,
-            desktopVideoUrl: heroMedia.mediaUrl,
-            mediaType: heroMedia.mediaType,
-            mobileVideoUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
+  // Save handler for all 9 sections
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const heroMedia = content.heroMedia || {};
+      const act1Hero = content.act1Hero || {};
+
+      const mediaUrlResolved = (heroMedia.mediaUrl || act1Hero.mediaUrl || act1Hero.desktopVideoUrl || "").trim();
+      const mediaTypeResolved = resolveMediaType({ url: mediaUrlResolved, explicitType: heroMedia.mediaType });
+
+      const updatedContent = {
+        ...content,
+        heroMedia: {
+          ...heroMedia,
+          mediaUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
+        },
+        hero: {
+          ...(content.hero || {}),
+          ...heroMedia,
+          ...act1Hero,
+          headerEn: act1Hero.titleEn || content.hero?.headerEn,
+          headerAr: act1Hero.titleAr || content.hero?.headerAr,
+          subHeaderEn: act1Hero.subtextEn || content.hero?.subHeaderEn,
+          subHeaderAr: act1Hero.subtextAr || content.hero?.subHeaderAr,
+          mediaUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
+          posterUrl: (heroMedia.posterUrl || "").trim(),
+        },
+        act1Hero: {
+          ...act1Hero,
+          mediaUrl: mediaUrlResolved,
+          mediaType: mediaTypeResolved,
+        },
+        sectionSequence: sectionSequence,
+      };
+
+      const res = await fetch("/api/cms/pages/b2c-landing", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: {
+            content: updatedContent,
+            published: true,
           },
-          hero: {
-            ...prev.hero,
-            mediaUrl: heroMedia.mediaUrl,
-            mediaType: heroMedia.mediaType,
-            posterUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
-          }
-        }))}
-        accentColor="purple"
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save landing page changes");
+      }
+
+      try {
+        const bc = new BroadcastChannel("e3_cms_sync");
+        bc.postMessage({ type: "b2c_landing_updated", timestamp: Date.now() });
+        bc.close();
+      } catch (_e) {}
+
+      window.dispatchEvent(new Event("e3_cms_b2c_landing_updated"));
+
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("Landing Page CMS saved successfully!", "success");
+      router.refresh();
+    } catch (error: any) {
+      toast(`Error Saving CMS Page: ${error.message || "Could not update page"}`, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <DashboardLoadingState title="Loading B2C Landing Page Editor..." type="skeleton" />;
+  }
+
+  return (
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      {/* Standard Page Header */}
+      <DashboardPageHeader
+        title="B2C Landing Page Editor"
+        description="Configure public landing page sequences, hero storytelling, brand manifesto, core team showcase, guest moments, and media assets (/b2c)."
+        breadcrumbs={[
+          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: "Landing Page Editor" },
+        ]}
+        badge={{ label: "B2C Public", variant: "purple" }}
+        previewUrl="/b2c"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving All..." : "Save All Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
+        }
       />
 
-      {/* Act 1: Hero Headlines */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>Act 1: Hero Title & Headlines</span>
-        </h2>
+      {/* Standard Long-Editor Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS_CONFIG}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Headline Text (English)</label>
-            <input
-              type="text"
-              value={content.act1Hero?.titleEn || content.hero?.headerEn || ''}
-              onChange={(e) => handleAct1Change('titleEn', e.target.value)}
-              placeholder="e.g. Some days pass. Others become stories."
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
-            />
-          </div>
+      {/* 1. SECTION SEQUENCE */}
+      {activeSectionId === "sequence" && (
+        <DashboardSectionCard
+          title="Section Sequence & Display Ordering"
+          description="Reorder sections, toggle visibility, and customize narrative flow for the public B2C landing page."
+          icon={<ListOrdered className="w-5 h-5 text-[var(--color-primary)]" />}
+          badge={
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              {sectionSequence.filter((s) => s.enabled).length} / {sectionSequence.length} Active
+            </span>
+          }
+          headerAction={
+            <AdminButton
+              variant="outline"
+              size="sm"
+              onClick={resetSectionSequence}
+              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+              className="text-xs"
+            >
+              Reset Order
+            </AdminButton>
+          }
+        >
+          <div className="space-y-2.5">
+            {sectionSequence.map((sec, idx) => {
+              const isFirst = idx === 0;
+              const isLast = idx === sectionSequence.length - 1;
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Headline Text (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={content.act1Hero?.titleAr || content.hero?.headerAr || ''}
-              onChange={(e) => handleAct1Change('titleAr', e.target.value)}
-              placeholder="مثال: أيام تمرّ… وأيام تتحول إلى حكايات."
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext Description (English)</label>
-            <textarea
-              rows={3}
-              value={content.act1Hero?.subtextEn || content.hero?.subHeaderEn || ''}
-              onChange={(e) => handleAct1Change('subtextEn', e.target.value)}
-              placeholder="Enter hero subtitle description..."
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext Description (Arabic)</label>
-            <textarea
-              rows={3}
-              dir="rtl"
-              value={content.act1Hero?.subtextAr || content.hero?.subHeaderAr || ''}
-              onChange={(e) => handleAct1Change('subtextAr', e.target.value)}
-              placeholder="أدخل الوصف الفرعي للهيرو..."
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-        </div>
-
-        <div className="border-t border-[var(--border-level-1)] pt-4 mt-2">
-          <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4">Hero Tabs / Action Buttons</h3>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 1 Label (English)</label>
-                <input
-                  type="text"
-                  value={content.act1Hero?.tab1LabelEn || content.hero?.tab1LabelEn || ''}
-                  onChange={(e) => handleAct1Change('tab1LabelEn', e.target.value)}
-                  placeholder="e.g. EXPLORE ENTERTAINMENT WORLDS"
-                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 1 Label (Arabic)</label>
-                <input
-                  type="text"
-                  dir="rtl"
-                  value={content.act1Hero?.tab1LabelAr || content.hero?.tab1LabelAr || ''}
-                  onChange={(e) => handleAct1Change('tab1LabelAr', e.target.value)}
-                  placeholder="مثال: استكشف الوجهات الترفيهية"
-                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 1 URL</label>
-                <input
-                  type="text"
-                  value={content.act1Hero?.tab1Url || content.hero?.tab1Url || ''}
-                  onChange={(e) => handleAct1Change('tab1Url', e.target.value)}
-                  placeholder="e.g. /{locale}/b2c/attractions"
-                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 2 Label (English)</label>
-                <input
-                  type="text"
-                  value={content.act1Hero?.tab2LabelEn || content.hero?.tab2LabelEn || ''}
-                  onChange={(e) => handleAct1Change('tab2LabelEn', e.target.value)}
-                  placeholder="e.g. LIVE EVENTS & CALENDAR"
-                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 2 Label (Arabic)</label>
-                <input
-                  type="text"
-                  dir="rtl"
-                  value={content.act1Hero?.tab2LabelAr || content.hero?.tab2LabelAr || ''}
-                  onChange={(e) => handleAct1Change('tab2LabelAr', e.target.value)}
-                  placeholder="مثال: جدول الفعاليات والتذاكر"
-                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Tab 2 URL</label>
-                <input
-                  type="text"
-                  value={content.act1Hero?.tab2Url || content.hero?.tab2Url || ''}
-                  onChange={(e) => handleAct1Change('tab2Url', e.target.value)}
-                  placeholder="e.g. /{locale}/b2c/calendar"
-                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Act 2: Brand Manifesto */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>Act 2: Brand Manifesto & Subtext</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Manifesto Headline (English)</label>
-            <input
-              type="text"
-              value={content.act2Curtain?.headingEn || ''}
-              onChange={(e) => handleAct2Change('headingEn', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Manifesto Headline (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={content.act2Curtain?.headingAr || ''}
-              onChange={(e) => handleAct2Change('headingAr', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Core Team & Leadership Selector Section */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-level-1)] pb-4">
-          <div>
-            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-500" />
-              <span>Core Team & Leadership Display Selector</span>
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-              Select which team members from <code className="text-purple-400 bg-purple-950/40 px-1.5 py-0.5 rounded">/dashboard/team</code> will be showcased on the landing page.
-            </p>
-          </div>
-
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
-            {selectedIds.length} Members Selected
-          </span>
-        </div>
-
-        {/* Section Headline Inputs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Team Section Title (English)</label>
-            <input
-              type="text"
-              value={content.coreTeam?.headlineEn || 'The people behind the experience'}
-              onChange={(e) => handleCoreTeamChange('headlineEn', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Team Section Title (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={content.coreTeam?.headlineAr || 'الفريق الذي يصنع التجربة'}
-              onChange={(e) => handleCoreTeamChange('headlineAr', e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-        </div>
-
-        {/* Team Members Grid Selection Picker */}
-        <div className="space-y-3 pt-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-            Select Team Members from Database Profiles (/dashboard/team):
-          </label>
-
-          {availableTeamMembers.length === 0 ? (
-            <div className="p-8 text-center border border-dashed border-[var(--border-level-1)] rounded-2xl bg-[var(--bg-level-1)]">
-              <Users className="w-8 h-8 text-[var(--text-secondary)] mx-auto mb-2 opacity-50" />
-              <p className="text-xs text-[var(--text-secondary)]">No team members registered yet in database.</p>
-              <a href="/dashboard/team" className="text-xs font-bold text-purple-400 hover:underline mt-2 inline-block">
-                Manage Team Profiles under /dashboard/team ↗
-              </a>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {availableTeamMembers.map((member) => {
-                const isSelected = selectedIds.some(id => id === member.id || id === member.slug || `team-${member.slug}` === id)
-                const fullName = `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Team Member'
-
-                return (
-                  <div
-                    key={member.id}
-                    onClick={() => toggleTeamMemberSelection(member)}
-                    className={`relative p-4 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 select-none ${
-                      isSelected
-                        ? 'border-purple-500 bg-purple-500/10 shadow-md'
-                        : 'border-[var(--border-level-1)] bg-[var(--bg-level-1)] hover:border-purple-500/40'
-                    }`}
-                  >
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-zinc-900 shrink-0 border border-white/10">
-                      {member.profileImage ? (
-                        <img src={member.profileImage} alt={fullName} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-bold text-sm text-purple-400">
-                          {member.firstName?.[0] || 'E'}
-                        </div>
-                      )}
+              return (
+                <div
+                  key={sec.id}
+                  className={cn(
+                    "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition-all",
+                    sec.enabled
+                      ? "bg-[var(--bg-level-1)] border-[var(--border-level-1)] hover:border-[var(--color-primary)]/40 shadow-sm"
+                      : "bg-black/30 border-zinc-800/60 opacity-60"
+                  )}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-[var(--surface-active)] text-purple-400 font-mono font-bold text-xs shrink-0 border border-[var(--border-level-1)]">
+                      #{idx + 1}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">{fullName}</h4>
-                      <p className="text-xs text-purple-400 truncate">{member.designation || member.department || 'Executive'}</p>
-                    </div>
-
-                    <div className="shrink-0">
-                      {isSelected ? (
-                        <UserCheck className="w-5 h-5 text-purple-400 fill-purple-500/20" />
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border border-[var(--border-level-1)]" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
+                          {sec.nameEn}
+                        </h4>
+                        <span className="text-xs text-[var(--text-tertiary)] font-sans hidden sm:inline" dir="rtl">
+                          ({sec.nameAr})
+                        </span>
+                        {!sec.enabled && (
+                          <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            Hidden
+                          </span>
+                        )}
+                      </div>
+                      {sec.descriptionEn && (
+                        <p className="text-[11px] text-[var(--text-secondary)] truncate mt-0.5">
+                          {sec.descriptionEn}
+                        </p>
                       )}
                     </div>
                   </div>
-                )
-              })}
+
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    {/* Visibility */}
+                    <button
+                      onClick={() => toggleSectionEnabled(idx)}
+                      type="button"
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                        sec.enabled
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                          : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700"
+                      )}
+                    >
+                      {sec.enabled ? (
+                        <>
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Visible</span>
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-3.5 h-3.5" />
+                          <span>Hidden</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Reordering */}
+                    <div className="flex items-center bg-[var(--surface-default)] rounded-xl p-0.5 border border-[var(--border-level-1)] gap-0.5">
+                      <button
+                        onClick={() => moveSection(idx, "top")}
+                        disabled={isFirst}
+                        type="button"
+                        className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-20 rounded transition-all cursor-pointer"
+                        title="Move to Top"
+                      >
+                        <ChevronsUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => moveSection(idx, "up")}
+                        disabled={isFirst}
+                        type="button"
+                        className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-20 rounded transition-all cursor-pointer"
+                        title="Move Up"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => moveSection(idx, "down")}
+                        disabled={isLast}
+                        type="button"
+                        className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-20 rounded transition-all cursor-pointer"
+                        title="Move Down"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => moveSection(idx, "bottom")}
+                        disabled={isLast}
+                        type="button"
+                        className="p-1 text-[var(--text-secondary)] hover:text-purple-400 disabled:opacity-20 rounded transition-all cursor-pointer"
+                        title="Move to Bottom"
+                      >
+                        <ChevronsDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </DashboardSectionCard>
+      )}
+
+      {/* 2. HERO MEDIA */}
+      {activeSectionId === "hero-media" && (
+        <UniversalMediaSectionEditor
+          title="Landing Hero Media Settings"
+          subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
+          value={
+            content.heroMedia || {
+              mediaType: content.act1Hero?.desktopVideoUrl?.match(/\.(mp4|webm)$/i) ? "VIDEO" : "IMAGE",
+              mediaUrl: content.act1Hero?.desktopVideoUrl || content.hero?.mediaUrl || "",
+              fallbackImage: content.act1Hero?.mobileVideoUrl || content.hero?.posterUrl || "",
+              posterUrl: content.act1Hero?.mobileVideoUrl || content.hero?.posterUrl || "",
+            }
+          }
+          onChange={(heroMedia: UniversalMediaConfig) =>
+            updateContent((prev) => ({
+              ...prev,
+              heroMedia,
+              act1Hero: {
+                ...prev.act1Hero,
+                mediaUrl: heroMedia.mediaUrl,
+                desktopVideoUrl: heroMedia.mediaUrl,
+                mediaType: heroMedia.mediaType,
+                mobileVideoUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
+              },
+              hero: {
+                ...prev.hero,
+                mediaUrl: heroMedia.mediaUrl,
+                mediaType: heroMedia.mediaType,
+                posterUrl: heroMedia.fallbackImage || heroMedia.posterUrl,
+              },
+            }))
+          }
+          accentColor="purple"
+        />
+      )}
+
+      {/* 3. HERO CONTENT */}
+      {activeSectionId === "hero-content" && (
+        <DashboardSectionCard
+          title="Act 1: Hero Title & Headlines"
+          description="Main opening headline and subtitle copy displayed on initial viewport entrance."
+          icon={<Sparkles className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <DashboardBilingualField
+            label="Main Hero Headline"
+            valueEn={content.act1Hero?.titleEn || content.hero?.headerEn || ""}
+            valueAr={content.act1Hero?.titleAr || content.hero?.headerAr || ""}
+            onChangeEn={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, titleEn: val } }))}
+            onChangeAr={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, titleAr: val } }))}
+            placeholderEn="e.g. Some days pass. Others become stories."
+            placeholderAr="مثال: أيام تمرّ… وأيام تتحول إلى حكايات."
+            mode={languageMode}
+          />
+
+          <DashboardBilingualField
+            label="Hero Subtext Description"
+            type="textarea"
+            rows={3}
+            valueEn={content.act1Hero?.subtextEn || content.hero?.subHeaderEn || ""}
+            valueAr={content.act1Hero?.subtextAr || content.hero?.subHeaderAr || ""}
+            onChangeEn={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, subtextEn: val } }))}
+            onChangeAr={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, subtextAr: val } }))}
+            placeholderEn="Enter hero subtitle narrative description..."
+            placeholderAr="أدخل الوصف السردي للهيرو..."
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
+
+      {/* 4. HERO ACTIONS */}
+      {activeSectionId === "hero-actions" && (
+        <DashboardSectionCard
+          title="Hero Navigation Tabs & Call to Action Buttons"
+          description="Configure primary exploratory buttons linking to attractions, events, or tickets."
+          icon={<MousePointerClick className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          {/* Tab 1 */}
+          <div className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)]/50 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+              Primary Action Tab 1 (e.g. Attractions)
+            </h4>
+            <DashboardBilingualField
+              label="Tab 1 Label"
+              valueEn={content.act1Hero?.tab1LabelEn || content.hero?.tab1LabelEn || ""}
+              valueAr={content.act1Hero?.tab1LabelAr || content.hero?.tab1LabelAr || ""}
+              onChangeEn={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, tab1LabelEn: val } }))}
+              onChangeAr={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, tab1LabelAr: val } }))}
+              placeholderEn="e.g. EXPLORE ENTERTAINMENT WORLDS"
+              placeholderAr="مثال: استكشف الوجهات الترفيهية"
+              mode={languageMode}
+            />
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                Tab 1 Destination URL
+              </label>
+              <input
+                type="text"
+                value={content.act1Hero?.tab1Url || content.hero?.tab1Url || ""}
+                onChange={(e) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, tab1Url: e.target.value } }))}
+                placeholder="e.g. /{locale}/b2c/attractions"
+                className="w-full h-10 px-3.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Everlasting Memories Section Manager */}
-      <EverlastingMemoriesManager
-        value={content.guestMemories}
-        onChange={(guestMemories) => setContent((prev: any) => ({ ...prev, guestMemories }))}
-      />
+          {/* Tab 2 */}
+          <div className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)]/50 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+              Secondary Action Tab 2 (e.g. Live Calendar)
+            </h4>
+            <DashboardBilingualField
+              label="Tab 2 Label"
+              valueEn={content.act1Hero?.tab2LabelEn || content.hero?.tab2LabelEn || ""}
+              valueAr={content.act1Hero?.tab2LabelAr || content.hero?.tab2LabelAr || ""}
+              onChangeEn={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, tab2LabelEn: val } }))}
+              onChangeAr={(val) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, tab2LabelAr: val } }))}
+              placeholderEn="e.g. LIVE EVENTS & CALENDAR"
+              placeholderAr="مثال: جدول الفعاليات والتذاكر"
+              mode={languageMode}
+            />
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                Tab 2 Destination URL
+              </label>
+              <input
+                type="text"
+                value={content.act1Hero?.tab2Url || content.hero?.tab2Url || ""}
+                onChange={(e) => updateContent((p) => ({ ...p, act1Hero: { ...p.act1Hero, tab2Url: e.target.value } }))}
+                placeholder="e.g. /{locale}/b2c/calendar"
+                className="w-full h-10 px-3.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+          </div>
+        </DashboardSectionCard>
+      )}
 
-      {/* Universal Footer Media Section */}
-      <UniversalMediaSectionEditor
-        title="Landing Footer Banner Media Settings"
-        subtitle="Universal footer banner media supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
-        value={content.footerMedia || { mediaType: 'IMAGE', mediaUrl: '' }}
-        onChange={(footerMedia: UniversalMediaConfig) => setContent((prev: any) => ({ ...prev, footerMedia }))}
-        accentColor="indigo"
+      {/* 5. BRAND MANIFESTO */}
+      {activeSectionId === "manifesto" && (
+        <DashboardSectionCard
+          title="Act 2: Brand Manifesto & Subtext"
+          description="E3 Qatar brand philosophy statement displayed upon scrolling past the hero curtain."
+          icon={<Quote className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <DashboardBilingualField
+            label="Manifesto Headline"
+            type="textarea"
+            rows={3}
+            valueEn={content.act2Curtain?.headingEn || ""}
+            valueAr={content.act2Curtain?.headingAr || ""}
+            onChangeEn={(val) => updateContent((p) => ({ ...p, act2Curtain: { ...p.act2Curtain, headingEn: val } }))}
+            onChangeAr={(val) => updateContent((p) => ({ ...p, act2Curtain: { ...p.act2Curtain, headingAr: val } }))}
+            placeholderEn="Enter English brand manifesto text..."
+            placeholderAr="أدخل نص بيان العلامة التجارية..."
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
+
+      {/* 6. CORE TEAM */}
+      {activeSectionId === "core-team" && (
+        <DashboardSectionCard
+          title="Core Team & Leadership Display"
+          description="Select, search, and reorder executive profiles from the team database showcased on the landing page."
+          icon={<Users className="w-5 h-5 text-[var(--color-primary)]" />}
+          badge={
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              {selectedTeamIds.length} Members Selected
+            </span>
+          }
+        >
+          <DashboardBilingualField
+            label="Team Section Title"
+            valueEn={content.coreTeam?.headlineEn || "The people behind the experience"}
+            valueAr={content.coreTeam?.headlineAr || "الفريق الذي يصنع التجربة"}
+            onChangeEn={(val) => updateContent((p) => ({ ...p, coreTeam: { ...p.coreTeam, headlineEn: val } }))}
+            onChangeAr={(val) => updateContent((p) => ({ ...p, coreTeam: { ...p.coreTeam, headlineAr: val } }))}
+            mode={languageMode}
+          />
+
+          {/* Search and Filters Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-[var(--border-level-1)]">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+              <input
+                type="text"
+                value={teamSearch}
+                onChange={(e) => setTeamSearch(e.target.value)}
+                placeholder="Search team members by name or title..."
+                className="w-full ps-9 pe-3.5 h-10 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={teamDeptFilter}
+                onChange={(e) => setTeamDeptFilter(e.target.value)}
+                className="h-10 px-3 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              >
+                <option value="ALL">All Departments</option>
+                {uniqueDepartments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => setShowSelectedOnly(!showSelectedOnly)}
+                className={cn(
+                  "flex items-center gap-1.5 h-10 px-3.5 rounded-xl text-xs font-bold transition-all border cursor-pointer",
+                  showSelectedOnly
+                    ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                    : "bg-[var(--bg-level-1)] text-[var(--text-secondary)] border-[var(--border-level-1)] hover:bg-[var(--surface-hover)]"
+                )}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>Selected Only ({selectedTeamIds.length})</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Team Cards Grid */}
+          <div className="pt-2">
+            {filteredTeamMembers.length === 0 ? (
+              <div className="p-8 text-center border border-dashed border-[var(--border-level-1)] rounded-2xl bg-[var(--bg-level-1)] space-y-2">
+                <Users className="w-8 h-8 text-[var(--text-tertiary)] mx-auto opacity-50" />
+                <p className="text-xs text-[var(--text-secondary)]">No team profiles matching criteria.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                {filteredTeamMembers.map((member) => {
+                  const isSelected = selectedTeamIds.some((id) => matchesMember(id, member));
+                  const fullName = `${member.firstName || ""} ${member.lastName || ""}`.trim() || "Team Member";
+
+                  return (
+                    <div
+                      key={member.id}
+                      onClick={() => toggleTeamMemberSelection(member)}
+                      className={cn(
+                        "relative p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3.5 select-none",
+                        isSelected
+                          ? "border-[var(--color-primary)] bg-[var(--surface-selected)] shadow-sm ring-1 ring-[var(--color-primary)]/30"
+                          : "border-[var(--border-level-1)] bg-[var(--bg-level-1)] hover:border-[var(--color-primary)]/40 hover:bg-[var(--surface-hover)]"
+                      )}
+                    >
+                      <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-zinc-900 shrink-0 border border-white/10">
+                        {member.profileImage ? (
+                          <img src={member.profileImage} alt={fullName} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center font-bold text-xs text-purple-400">
+                            {member.firstName?.[0] || "E"}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">{fullName}</h4>
+                        <p className="text-[11px] text-purple-400 truncate">{member.designation || member.department || "Executive"}</p>
+                      </div>
+
+                      <div className="shrink-0">
+                        {isSelected ? (
+                          <UserCheck className="w-5 h-5 text-[var(--color-primary)]" />
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border border-[var(--border-level-1)]" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </DashboardSectionCard>
+      )}
+
+      {/* 7. MEMORIES SETTINGS */}
+      {activeSectionId === "memories-settings" && (
+        <EverlastingMemoriesManager
+          mode="settings-only"
+          languageMode={languageMode}
+          value={content.guestMemories}
+          onChange={(guestMemories) => updateContent((prev) => ({ ...prev, guestMemories }))}
+        />
+      )}
+
+      {/* 8. GUEST MOMENT CARDS */}
+      {activeSectionId === "guest-moments" && (
+        <EverlastingMemoriesManager
+          mode="moments-only"
+          languageMode={languageMode}
+          value={content.guestMemories}
+          onChange={(guestMemories) => updateContent((prev) => ({ ...prev, guestMemories }))}
+        />
+      )}
+
+      {/* 9. FOOTER MEDIA */}
+      {activeSectionId === "footer-media" && (
+        <UniversalMediaSectionEditor
+          title="Landing Footer Banner Media Settings"
+          subtitle="Universal footer banner media supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
+          value={content.footerMedia || { mediaType: "IMAGE", mediaUrl: "" }}
+          onChange={(footerMedia: UniversalMediaConfig) => updateContent((prev) => ({ ...prev, footerMedia }))}
+          accentColor="indigo"
+        />
+      )}
+
+      {/* Sticky Bottom Actions Bar */}
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (window.confirm("Discard unsaved changes and reload from server?")) {
+            fetchLatestData();
+            setIsDirty(false);
+          }
+        }}
       />
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }

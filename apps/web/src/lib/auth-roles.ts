@@ -2,9 +2,18 @@ import type { RoleType } from '@prisma/client';
 
 export type PortalKey = 'admin' | 'staff' | 'business' | 'careers';
 
+export type AdminRoleName =
+  | 'SUPER_ADMIN'
+  | 'SALES_ADMIN'
+  | 'SUPPORT_ADMIN'
+  | 'B2C_ADMIN'
+  | 'B2B_ADMIN'
+  | 'HR_ADMIN'
+  | 'OPERATIONS_ADMIN';
+
 /**
  * Canonical role normalization utility across E3 Qatar monorepo.
- * Normalizes role strings into valid Prisma RoleType values.
+ * Normalizes role strings into valid Prisma RoleType values or mapped admin roles.
  */
 export function normalizeRole(role?: string | null): RoleType {
   if (!role) return 'CLIENT';
@@ -13,13 +22,25 @@ export function normalizeRole(role?: string | null): RoleType {
   if (clean === 'ADMIN' || clean === 'SUPER_ADMIN' || clean === 'SUPERADMIN') {
     return 'SUPER_ADMIN';
   }
+  if (clean === 'B2C_ADMIN' || clean === 'B2CADMIN') {
+    return 'SUPPORT_ADMIN'; // Maps to SUPPORT_ADMIN in Prisma enum
+  }
+  if (clean === 'B2B_ADMIN' || clean === 'B2BADMIN') {
+    return 'SALES_ADMIN'; // Maps to SALES_ADMIN in Prisma enum
+  }
+  if (clean === 'HR_ADMIN' || clean === 'HRADMIN' || clean === 'HR') {
+    return 'STAFF'; // Has HR capabilities
+  }
+  if (clean === 'OPERATIONS_ADMIN' || clean === 'OPS_ADMIN' || clean === 'OPERATIONS') {
+    return 'SUPER_ADMIN';
+  }
   if (clean === 'SALES' || clean === 'SALES_ADMIN' || clean === 'SALESADMIN') {
     return 'SALES_ADMIN';
   }
   if (clean === 'SUPPORT' || clean === 'SUPPORT_ADMIN' || clean === 'SUPPORTADMIN') {
     return 'SUPPORT_ADMIN';
   }
-  if (clean === 'STAFF') {
+  if (clean === 'STAFF' || clean === 'EMPLOYEE') {
     return 'STAFF';
   }
   if (clean === 'CANDIDATE' || clean === 'APPLICANT' || clean === 'TALENT') {
@@ -34,16 +55,16 @@ export function normalizeRole(role?: string | null): RoleType {
 /**
  * Returns allowed RoleType values for a specific portal key.
  */
-export function allowedRolesForPortal(portal: PortalKey): RoleType[] {
+export function allowedRolesForPortal(portal: PortalKey): string[] {
   switch (portal) {
     case 'admin':
-      return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN'];
+      return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN', 'HR_ADMIN', 'OPERATIONS_ADMIN'];
     case 'staff':
-      return ['STAFF'];
+      return ['STAFF', 'SUPER_ADMIN'];
     case 'business':
-      return ['CLIENT'];
+      return ['CLIENT', 'SUPER_ADMIN'];
     case 'careers':
-      return ['CANDIDATE' as any];
+      return ['CANDIDATE', 'SUPER_ADMIN'];
     default:
       return [];
   }
@@ -53,14 +74,27 @@ export function allowedRolesForPortal(portal: PortalKey): RoleType[] {
  * Checks if a given user role is authorized for a specific portal key.
  */
 export function isAuthorizedForPortal(role: string | null | undefined, portal: PortalKey): boolean {
+  if (!role) return false;
+  const clean = String(role).trim().toUpperCase();
   const normRole = normalizeRole(role);
   const allowed = allowedRolesForPortal(portal);
-  return allowed.includes(normRole);
+  return allowed.includes(clean) || allowed.includes(normRole);
 }
 
 export function isAdminRole(role?: string | null): boolean {
-  const norm = normalizeRole(role);
-  return norm === 'SUPER_ADMIN' || norm === 'SALES_ADMIN' || norm === 'SUPPORT_ADMIN';
+  if (!role) return false;
+  const clean = String(role).trim().toUpperCase();
+  const adminRoles = [
+    'SUPER_ADMIN',
+    'ADMIN',
+    'SALES_ADMIN',
+    'SUPPORT_ADMIN',
+    'B2C_ADMIN',
+    'B2B_ADMIN',
+    'HR_ADMIN',
+    'OPERATIONS_ADMIN'
+  ];
+  return adminRoles.includes(clean) || normalizeRole(role) === 'SUPER_ADMIN' || normalizeRole(role) === 'SALES_ADMIN' || normalizeRole(role) === 'SUPPORT_ADMIN';
 }
 
 export function isStaffRole(role?: string | null): boolean {

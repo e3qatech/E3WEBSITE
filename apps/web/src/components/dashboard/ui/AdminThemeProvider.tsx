@@ -36,45 +36,42 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
 
     const root = window.document.documentElement;
     root.setAttribute("data-portal", "dashboard");
-    root.removeAttribute("data-theme");
 
     const getSystemTheme = () =>
       window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
     const effectiveTheme = theme === "system" ? getSystemTheme() : theme;
     
-    // In our Tailwind v4 setup, we use data-theme for explicit overrides
-    if (theme !== "system") {
-      root.setAttribute("data-theme", effectiveTheme);
-    }
+    root.setAttribute("data-theme", effectiveTheme);
+    root.style.colorScheme = effectiveTheme;
     
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for hydration
     setResolvedTheme(effectiveTheme as "dark" | "light");
-    localStorage.setItem("e3-admin-theme", theme);
+    try {
+      localStorage.setItem("e3-admin-theme", theme);
+    } catch (_e) {}
   }, [theme, mounted]);
 
   // Listen for system theme changes if set to system
   useEffect(() => {
-    if (theme !== "system") return;
+    if (theme !== "system" || !mounted) return;
     
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
-      setResolvedTheme(mediaQuery.matches ? "dark" : "light");
+      const nextTheme = mediaQuery.matches ? "dark" : "light";
+      setResolvedTheme(nextTheme);
+      const root = window.document.documentElement;
+      root.setAttribute("data-theme", nextTheme);
+      root.style.colorScheme = nextTheme;
     };
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
+  }, [theme, mounted]);
 
-  // Prevent hydration mismatch flash by hiding content until theme is resolved
-  // but we MUST provide the context to avoid SSR errors from children using the hook.
   return (
     <AdminThemeContext.Provider value={{ theme, resolvedTheme, setTheme: setThemeState }}>
-      {!mounted ? (
-        <div style={{ visibility: "hidden" }}>{children}</div>
-      ) : (
-        children
-      )}
+      {children}
     </AdminThemeContext.Provider>
   );
 }

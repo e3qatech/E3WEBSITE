@@ -258,73 +258,114 @@
 
 /* --------------------------------------------------------------------------
    4. E3 CONTROL (INTERNAL DASHBOARD)
-   Personality: Neutral, efficient, operational, calm, high legibility
+   Personality: Deep violet & indigo identity, controlled magenta accents,
+   clean neutral surfaces, high legibility, strict semantic states.
    -------------------------------------------------------------------------- */
 
 :root[data-portal="dashboard"][data-theme="dark"],
 [data-portal="dashboard"][data-theme="dark"] {
-  --bg-level-1: #0B0F13;
-  --bg-level-2: #12181E;
-  --bg-level-3: #192129;
-  --bg-level-4: #212B35;
-  --bg-level-5: #29343D;
+  --admin-bg: #0A0D14;
+  --admin-surface: #101622;
+  --admin-surface-elevated: #161F30;
+  --admin-surface-muted: #1B263C;
+  --admin-border: #1E2B44;
+  --admin-border-subtle: #162033;
+  --admin-border-strong: #2A3B5E;
 
-  --surface-default: #12181E;
-  --surface-hover: #192129;
-  --surface-active: #212B35;
-  --surface-selected: rgba(23, 128, 109, 0.18);
+  --bg-level-1: #0A0D14;
+  --bg-level-2: #101622;
+  --bg-level-3: #161F30;
+  --bg-level-4: #1B263C;
+  --bg-level-5: #23314D;
 
-  --border-level-1: #1E2730;
-  --border-level-2: #29343D;
-  --border-level-3: #374552;
+  --surface-default: #101622;
+  --surface-hover: #161F30;
+  --surface-active: #1B263C;
+  --surface-selected: rgba(139, 92, 246, 0.16);
 
-  --text-primary: #EFF3F5;
-  --text-secondary: #9BA8B1;
-  --text-tertiary: #6E7D87;
-  --text-disabled: #47545E;
+  --border-level-1: #1E2B44;
+  --border-level-2: #2A3B5E;
+  --border-level-3: #3B4F7A;
 
-  --color-primary: #17806D;
-  --color-primary-hover: #126858;
-  --accent-primary-foreground: #EFF3F5;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
+  --text-disabled: #475569;
 
-  --color-secondary: #3B82F6;
-  --color-accent: #F59E0B;
+  /* E3 Violet / Indigo Primary Action */
+  --color-primary: #8B5CF6;
+  --color-primary-hover: #7C3AED;
+  --accent-primary-foreground: #FFFFFF;
 
-  --btn-radius: 10px;
-  --card-radius: 12px;
+  /* E3 Controlled Magenta Accent */
+  --color-accent: #EC4899;
+  --color-accent-hover: #DB2777;
+
+  --color-secondary: #6366F1;
+  --color-secondary-hover: #4F46E5;
+
+  /* Strict Semantic Colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #38BDF8;
+
+  --btn-radius: 12px;
+  --card-radius: 16px;
+  --focus-ring: #8B5CF6;
 }
 
 :root[data-portal="dashboard"][data-theme="light"],
 [data-portal="dashboard"][data-theme="light"] {
-  --bg-level-1: #F3F5F6;
+  --admin-bg: #F8FAFC;
+  --admin-surface: #FFFFFF;
+  --admin-surface-elevated: #F1F5F9;
+  --admin-surface-muted: #E2E8F0;
+  --admin-border: #E2E8F0;
+  --admin-border-subtle: #EDF2F7;
+  --admin-border-strong: #CBD5E1;
+
+  --bg-level-1: #F8FAFC;
   --bg-level-2: #FFFFFF;
-  --bg-level-3: #FAFBFC;
-  --bg-level-4: #EAEFF2;
-  --bg-level-5: #DCE2E6;
+  --bg-level-3: #F1F5F9;
+  --bg-level-4: #E2E8F0;
+  --bg-level-5: #CBD5E1;
 
   --surface-default: #FFFFFF;
-  --surface-hover: #FAFBFC;
-  --surface-active: #F0F4F6;
-  --surface-selected: rgba(11, 110, 93, 0.12);
+  --surface-hover: #F8FAFC;
+  --surface-active: #F1F5F9;
+  --surface-selected: rgba(124, 58, 237, 0.10);
 
-  --border-level-1: #EAEFF2;
-  --border-level-2: #DCE2E6;
-  --border-level-3: #C2CBD0;
+  --border-level-1: #E2E8F0;
+  --border-level-2: #CBD5E1;
+  --border-level-3: #94A3B8;
 
-  --text-primary: #172027;
-  --text-secondary: #5F6E78;
-  --text-tertiary: #84939E;
-  --text-disabled: #B0BAC0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #64748B;
+  --text-disabled: #94A3B8;
 
-  --color-primary: #0B6E5D;
-  --color-primary-hover: #085649;
+  /* E3 Violet / Indigo Primary Action */
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
   --accent-primary-foreground: #FFFFFF;
 
-  --color-secondary: #2563EB;
-  --color-accent: #D97706;
+  /* E3 Controlled Magenta Accent */
+  --color-accent: #DB2777;
+  --color-accent-hover: #BE185D;
 
-  --btn-radius: 10px;
-  --card-radius: 12px;
+  --color-secondary: #4F46E5;
+  --color-secondary-hover: #4338CA;
+
+  /* Strict Semantic Colors */
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-error: #DC2626;
+  --color-info: #0284C7;
+
+  --btn-radius: 12px;
+  --card-radius: 16px;
+  --focus-ring: #7C3AED;
 }
 
 /* --------------------------------------------------------------------------

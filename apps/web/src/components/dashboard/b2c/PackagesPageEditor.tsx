@@ -1,305 +1,240 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Save, Sparkles, Gift, Globe, Search, Tag, Sliders, Type } from 'lucide-react'
-import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Save, Gift, Sparkles, SlidersHorizontal, Layers, CheckCircle2 } from "lucide-react";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardLanguageSwitch,
+  DashboardStickyActions,
+  DashboardLoadingState,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+  AdminButton,
+} from "@/components/dashboard/ui";
 
 export function PackagesPageEditor() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+
   const [pageConfig, setPageConfig] = useState({
-    eyebrowEn: 'E3 CELEBRATIONS & GROUP PACKAGES',
-    eyebrowAr: 'باقات الفعاليات والاحتفالات الاستثنائية',
-    titleEn: 'Big Moments Deserve Bigger Experiences',
-    titleAr: 'لحظاتكم الكبيرة تستحق تجارب استثنائية',
-    descEn: 'Discover birthday celebrations, group adventures, school experiences and corporate packages across E3\'s entertainment destinations.',
-    descAr: 'اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية.',
-    primaryCtaEn: 'Find Your Package',
-    primaryCtaAr: 'اختر باقتك',
-    secondaryCtaEn: 'Plan a Custom Event',
-    secondaryCtaAr: 'خطط لفعاليتك الخاصة',
-    campaignBadgeEn: 'VIP PACKAGES & EVENTS',
-    campaignBadgeAr: 'باقات كبار الشخصيات',
-    heroMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop' } as UniversalMediaConfig,
-    footerMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'VIDEO', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4' } as UniversalMediaConfig,
-    seoTitle: 'Packages & Birthdays | E3 Qatar',
-    seoDescription: 'Book custom birthday packages, VIP party rooms, and group events.'
-  })
+    eyebrowEn: "E3 CELEBRATIONS & GROUP PACKAGES",
+    eyebrowAr: "باقات الفعاليات والاحتفالات الاستثنائية",
+    titleEn: "Big Moments Deserve Bigger Experiences",
+    titleAr: "لحظاتكم الكبيرة تستحق تجارب استثنائية",
+    descEn: "Discover birthday celebrations, group adventures, school experiences and corporate packages across E3's entertainment destinations.",
+    descAr: "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية.",
+    primaryCtaEn: "Find Your Package",
+    primaryCtaAr: "اختر باقتك",
+    secondaryCtaEn: "Plan a Custom Event",
+    secondaryCtaAr: "خطط لفعاليتك الخاصة",
+    campaignBadgeEn: "VIP PACKAGES & EVENTS",
+    campaignBadgeAr: "باقات كبار الشخصيات",
+    heroMedia: {
+      ...DEFAULT_UNIVERSAL_MEDIA,
+      mediaType: "IMAGE",
+      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+    } as UniversalMediaConfig,
+    footerMedia: {
+      ...DEFAULT_UNIVERSAL_MEDIA,
+      mediaType: "VIDEO",
+      mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+    } as UniversalMediaConfig,
+    seoTitle: "Packages & Birthdays | E3 Qatar",
+    seoDescription: "Book custom birthday packages, VIP party rooms, and group events.",
+  });
 
   useEffect(() => {
+    let active = true;
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-packages-page')
-        if (res.ok) {
-          const json = await res.json()
+        const res = await fetch("/api/cms/pages/b2c-packages-page?t=" + Date.now());
+        if (res.ok && active) {
+          const json = await res.json();
           if (json?.data?.content) {
-            setPageConfig(prev => ({ ...prev, ...json.data.content }))
+            setPageConfig((prev) => ({ ...prev, ...json.data.content }));
           }
         }
       } catch (_e) {
-        // Fallback default
       } finally {
-        setLoading(false)
+        if (active) setLoading(false);
       }
     }
-    loadData()
-  }, [])
+    loadData();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const updateField = (updater: (prev: typeof pageConfig) => typeof pageConfig) => {
+    setPageConfig((prev) => {
+      const next = updater(prev);
+      setIsDirty(true);
+      return next;
+    });
+  };
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const res = await fetch('/api/cms/pages/b2c-packages-page', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: pageConfig })
-      })
-      if (!res.ok) throw new Error('Failed to save Packages Page settings')
-      toast('Packages Page Editor saved successfully!', 'success')
-      router.refresh()
+      const res = await fetch("/api/cms/pages/b2c-packages-page", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: { content: pageConfig, published: true } }),
+      });
+      if (!res.ok) throw new Error("Failed to save Packages Page settings");
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("Packages Page Editor saved successfully!", "success");
+      router.refresh();
     } catch (err: any) {
-      console.error(err)
-      toast(err?.message || 'Error saving page settings', 'error')
+      console.error(err);
+      toast(err?.message || "Error saving page settings", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-pink-500" />
-        <span>Loading Packages Page Editor...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Packages Page Editor..." type="skeleton" />;
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
-      {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30">
-              B2C PAGE EDITOR
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Gift className="w-6 h-6 text-pink-500" />
-              <span>Packages & Birthday Page Editor</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage page layout, universal hero & footer media (Image, Video, 3D, IFrame, Fallbacks), CTAs, badges, and SEO metadata (`/b2c/packages`).
-          </p>
-        </div>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : 'Save Page Settings'}</span>
-        </button>
-      </div>
+      {/* Standard Header */}
+      <DashboardPageHeader
+        title="Packages & Celebrations Page Editor"
+        description="Manage packages landing page layout, universal hero and footer media assets, CTAs, VIP badges, and SEO metadata (/b2c/packages)."
+        breadcrumbs={[
+          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: "Packages Page Editor" },
+        ]}
+        badge={{ label: "B2C Public", variant: "purple" }}
+        previewUrl="/b2c/packages"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Page Settings",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
+        }
+      />
 
-      {/* Hero Header Controls */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Globe className="w-5 h-5 text-pink-500" />
-          <span>Page Hero Titles & Eyebrow</span>
-        </h2>
+      {/* Hero Headlines Card */}
+      <DashboardSectionCard
+        title="Hero Eyebrow & Headlines"
+        description="Opening headlines displayed on the packages page header banner."
+        icon={<Gift className="w-5 h-5 text-[var(--color-primary)]" />}
+      >
+        <DashboardBilingualField
+          label="Eyebrow Tag"
+          valueEn={pageConfig.eyebrowEn}
+          valueAr={pageConfig.eyebrowAr}
+          onChangeEn={(val) => updateField((p) => ({ ...p, eyebrowEn: val }))}
+          onChangeAr={(val) => updateField((p) => ({ ...p, eyebrowAr: val }))}
+          mode={languageMode}
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Eyebrow (English)</label>
-            <input
-              type="text"
-              value={pageConfig.eyebrowEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, eyebrowEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
+        <DashboardBilingualField
+          label="Main Page Title"
+          valueEn={pageConfig.titleEn}
+          valueAr={pageConfig.titleAr}
+          onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
+          onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
+          mode={languageMode}
+        />
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Eyebrow (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.eyebrowAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, eyebrowAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
+        <DashboardBilingualField
+          label="Page Description"
+          type="textarea"
+          rows={3}
+          valueEn={pageConfig.descEn}
+          valueAr={pageConfig.descAr}
+          onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
+          onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
+          mode={languageMode}
+        />
+      </DashboardSectionCard>
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Title (English)</label>
-            <input
-              type="text"
-              value={pageConfig.titleEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
+      {/* CTAs and Badges Card */}
+      <DashboardSectionCard
+        title="Call to Action Buttons & Campaign Badge"
+        description="Configure action buttons and campaign promo badges."
+        icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
+      >
+        <DashboardBilingualField
+          label="Primary Action Button"
+          valueEn={pageConfig.primaryCtaEn}
+          valueAr={pageConfig.primaryCtaAr}
+          onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
+          onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
+          mode={languageMode}
+        />
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Title (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.titleAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
+        <DashboardBilingualField
+          label="Secondary Action Button"
+          valueEn={pageConfig.secondaryCtaEn}
+          valueAr={pageConfig.secondaryCtaAr}
+          onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
+          onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
+          mode={languageMode}
+        />
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (English)</label>
-            <textarea
-              rows={2}
-              value={pageConfig.descEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (Arabic)</label>
-            <textarea
-              rows={2}
-              dir="rtl"
-              value={pageConfig.descAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Hero CTA & Campaign Badge Controls */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Tag className="w-5 h-5 text-pink-500" />
-          <span>Call To Actions & Campaign Badge</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Primary CTA Label (English)</label>
-            <input
-              type="text"
-              value={pageConfig.primaryCtaEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, primaryCtaEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Primary CTA Label (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.primaryCtaAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, primaryCtaAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Secondary CTA Label (English)</label>
-            <input
-              type="text"
-              value={pageConfig.secondaryCtaEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, secondaryCtaEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Secondary CTA Label (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.secondaryCtaAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, secondaryCtaAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Optional Campaign Badge (English)</label>
-            <input
-              type="text"
-              value={pageConfig.campaignBadgeEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, campaignBadgeEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Optional Campaign Badge (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.campaignBadgeAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, campaignBadgeAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-        </div>
-      </div>
+        <DashboardBilingualField
+          label="Campaign Badge Label"
+          valueEn={pageConfig.campaignBadgeEn}
+          valueAr={pageConfig.campaignBadgeAr}
+          onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
+          onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
+          mode={languageMode}
+        />
+      </DashboardSectionCard>
 
       {/* Universal Hero Media Section */}
       <UniversalMediaSectionEditor
-        title="Page Hero Media Section"
-        subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
+        title="Packages Hero Media Banner"
+        subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
         value={pageConfig.heroMedia}
-        onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, heroMedia }))}
-        accentColor="pink"
+        onChange={(heroMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, heroMedia }))}
+        accentColor="purple"
       />
 
       {/* Universal Footer Media Section */}
       <UniversalMediaSectionEditor
-        title="Page Footer Media Section"
-        subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
+        title="Packages Footer Banner Media"
+        subtitle="Universal footer media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."
         value={pageConfig.footerMedia}
-        onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
-        accentColor="purple"
+        onChange={(footerMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, footerMedia }))}
+        accentColor="indigo"
       />
 
-      {/* SEO Settings */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Search className="w-5 h-5 text-pink-500" />
-          <span>SEO Metadata</span>
-        </h2>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Meta Title Tag</label>
-            <input
-              type="text"
-              value={pageConfig.seoTitle}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, seoTitle: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Meta Description</label>
-            <textarea
-              rows={2}
-              value={pageConfig.seoDescription}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, seoDescription: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+      {/* Sticky Action Bar */}
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (window.confirm("Discard changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
+  );
 }

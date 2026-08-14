@@ -141,14 +141,14 @@ export function E3Logo({
         >
           <defs>
             <linearGradient id="e3BrandGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0f172a" />
-              <stop offset="50%" stopColor="#0284c7" />
-              <stop offset="100%" stopColor="#0d9488" />
+              <stop offset="0%" stopColor="#4C1D95" />
+              <stop offset="50%" stopColor="#7C3AED" />
+              <stop offset="100%" stopColor="#DB2777" />
             </linearGradient>
             <linearGradient id="e3BrandGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="50%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor="#3b82f6" />
+              <stop offset="0%" stopColor="#A78BFA" />
+              <stop offset="50%" stopColor="#8B5CF6" />
+              <stop offset="100%" stopColor="#EC4899" />
             </linearGradient>
           </defs>
 
@@ -176,13 +176,13 @@ export function E3Logo({
               size === "lg" && "text-xl",
               size === "xl" && "text-2xl",
               isLight
-                ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900"
-                : "bg-gradient-to-r from-white via-slate-200 to-slate-400"
+                ? "bg-gradient-to-r from-slate-900 via-purple-950 to-pink-900"
+                : "bg-gradient-to-r from-white via-purple-200 to-pink-300"
             )}
           >
             E3 QATAR
           </span>
-          <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">
+          <span className="text-[9px] font-bold tracking-widest text-[var(--text-tertiary)] uppercase mt-0.5">
             EVENTS & ENTERTAINMENT
           </span>
         </div>

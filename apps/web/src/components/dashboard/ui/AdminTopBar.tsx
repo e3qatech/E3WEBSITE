@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronRight, Command, Sun, Moon, Laptop, Globe } from "lucide-react"
+import { Search, ChevronRight, Command, Sun, Moon, Laptop, Globe, Menu } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAdminTheme } from "./AdminThemeProvider"
 import { useLocale } from "@/components/layout/LocaleProvider"
@@ -12,7 +12,7 @@ export function AdminTopBar() {
   const pathname = usePathname();
   const router = useRouter();
   const { locale, setLocale } = useLocale();
-  const { theme, setTheme } = useAdminTheme();
+  const { theme, setTheme, resolvedTheme } = useAdminTheme();
   
   const [themeMenuOpen, setThemeMenuOpen] = React.useState(false);
   const themeMenuRef = React.useRef<HTMLDivElement>(null);
@@ -52,8 +52,15 @@ export function AdminTopBar() {
   return (
     <header className="flex h-16 bg-transparent items-center justify-between px-4 sm:px-6 shrink-0 z-20 sticky top-0 transition-colors">
       
-      {/* Mobile Menu Toggle Placeholder */}
-      <div className="md:hidden flex items-center gap-3">
+      {/* Mobile Menu Toggle */}
+      <div className="md:hidden flex items-center gap-2">
+        <button
+          onClick={() => window.dispatchEvent(new Event("e3_toggle_mobile_sidebar"))}
+          className="p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-1)] bg-[var(--surface-default)] cursor-pointer"
+          aria-label="Open Navigation Menu"
+        >
+          <Menu className="w-5 h-5 text-[var(--color-primary)]" />
+        </button>
       </div>
 
       {/* Breadcrumbs - Hidden on small screens */}
@@ -112,37 +119,64 @@ export function AdminTopBar() {
           <span>{currentLocale === 'en' ? 'العربية' : 'EN'}</span>
         </button>
 
-        {/* Theme Toggle */}
+        {/* Theme Selector (3-Option: Light, Dark, System) */}
         <div className="relative" ref={themeMenuRef}>
           <button 
             onClick={() => setThemeMenuOpen(!themeMenuOpen)}
-            className="p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors focus-visible:outline-none cursor-pointer flex items-center gap-1"
-            title="Toggle theme (Light, Dark, System)"
+            aria-expanded={themeMenuOpen}
+            aria-label={`Theme selector. Current preference: ${theme}, resolved: ${resolvedTheme}`}
+            className="p-2 rounded-xl text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] border border-[var(--border-level-1)] bg-[var(--surface-default)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] cursor-pointer flex items-center gap-1.5 shadow-sm"
+            title={`Theme: ${theme === 'system' ? `System (${resolvedTheme})` : theme}`}
           >
-            {theme === "light" && <Sun className="w-4 h-4 text-amber-500" strokeWidth={2.5} />}
-            {theme === "dark" && <Moon className="w-4 h-4 text-cyan-400" strokeWidth={2.5} />}
-            {theme === "system" && <Laptop className="w-4 h-4 text-blue-400" strokeWidth={2.5} />}
+            {theme === "light" && <Sun className="w-4 h-4 text-amber-500" strokeWidth={2.2} />}
+            {theme === "dark" && <Moon className="w-4 h-4 text-purple-400" strokeWidth={2.2} />}
+            {theme === "system" && <Laptop className="w-4 h-4 text-indigo-400" strokeWidth={2.2} />}
+            <span className="text-[11px] font-bold text-[var(--text-secondary)] hidden sm:inline-block capitalize">
+              {theme === "system" ? `System (${resolvedTheme === "dark" ? "Dark" : "Light"})` : theme}
+            </span>
           </button>
           
           {themeMenuOpen && (
-            <div className="absolute end-0 top-full mt-2 w-36 rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+            <div 
+              role="menu"
+              className="absolute end-0 top-full mt-2 w-48 rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200"
+            >
+              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] border-b border-[var(--border-level-1)] mb-1">
+                Theme Preference
+              </div>
               <button
+                role="menuitem"
                 onClick={() => { setTheme("light"); setThemeMenuOpen(false); }}
-                className={cn("flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[13px] transition-colors cursor-pointer", theme === "light" ? "bg-[var(--surface-selected)] text-[var(--color-primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] font-medium")}
+                className={cn("flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-[13px] transition-colors cursor-pointer", theme === "light" ? "bg-[var(--surface-selected)] text-[var(--color-primary)] font-bold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] font-medium")}
               >
-                <Sun className="h-4 w-4 text-amber-500" /> Light
+                <span className="flex items-center gap-2.5">
+                  <Sun className="h-4 w-4 text-amber-500" /> Light
+                </span>
+                {theme === "light" && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />}
               </button>
               <button
+                role="menuitem"
                 onClick={() => { setTheme("dark"); setThemeMenuOpen(false); }}
-                className={cn("flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[13px] transition-colors cursor-pointer", theme === "dark" ? "bg-[var(--surface-selected)] text-[var(--color-primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] font-medium")}
+                className={cn("flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-[13px] transition-colors cursor-pointer", theme === "dark" ? "bg-[var(--surface-selected)] text-[var(--color-primary)] font-bold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] font-medium")}
               >
-                <Moon className="h-4 w-4 text-cyan-400" /> Dark
+                <span className="flex items-center gap-2.5">
+                  <Moon className="h-4 w-4 text-purple-400" /> Dark
+                </span>
+                {theme === "dark" && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />}
               </button>
               <button
+                role="menuitem"
                 onClick={() => { setTheme("system"); setThemeMenuOpen(false); }}
-                className={cn("flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[13px] transition-colors cursor-pointer", theme === "system" ? "bg-[var(--surface-selected)] text-[var(--color-primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] font-medium")}
+                className={cn("flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-[13px] transition-colors cursor-pointer", theme === "system" ? "bg-[var(--surface-selected)] text-[var(--color-primary)] font-bold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] font-medium")}
               >
-                <Laptop className="h-4 w-4 text-blue-400" /> System
+                <span className="flex items-center gap-2.5">
+                  <Laptop className="h-4 w-4 text-indigo-400" /> 
+                  <span className="flex flex-col text-start">
+                    <span>System</span>
+                    <span className="text-[10px] text-[var(--text-tertiary)]">Auto ({resolvedTheme})</span>
+                  </span>
+                </span>
+                {theme === "system" && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />}
               </button>
             </div>
           )}
