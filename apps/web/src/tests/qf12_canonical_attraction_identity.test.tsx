@@ -201,10 +201,12 @@ describe('QF-12: Canonical Attraction & Project Identity Architecture', () => {
     );
     expect(b2bHtml).toContain('dir="ltr"');
     expect(b2bHtml).toContain('Unified Canonical Attraction Architecture');
+    expect(b2bHtml).toContain('href="/en/dashboard/b2b/attractions/new"');
     expect(b2bHtml).toContain('href="/en/dashboard/b2c/attractions"');
     expect(b2bHtml).toContain('href="/en/dashboard/b2b/attractions/attr-1/edit"');
     expect(b2bHtml).toContain('href="/en/dashboard/b2c/attractions/attr-1/edit"');
     expect(b2bHtml).not.toMatch(/href="\/dashboard\/b2c\/attractions"/);
+    expect(b2bHtml).not.toMatch(/href="\/dashboard\/b2b\/attractions\/new"/);
 
     // B2C List English Render
     const b2cHtml = renderToStaticMarkup(
@@ -214,10 +216,12 @@ describe('QF-12: Canonical Attraction & Project Identity Architecture', () => {
     );
     expect(b2cHtml).toContain('dir="ltr"');
     expect(b2cHtml).toContain('Unified Canonical Attraction Architecture');
+    expect(b2cHtml).toContain('href="/en/dashboard/b2c/attractions/new"');
     expect(b2cHtml).toContain('href="/en/dashboard/b2b/attractions"');
     expect(b2cHtml).toContain('href="/en/dashboard/b2c/attractions/attr-1/edit"');
     expect(b2cHtml).toContain('href="/en/dashboard/b2b/attractions/attr-1/edit"');
     expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2b\/attractions"/);
+    expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2c\/attractions\/new"/);
   });
 
   // 6. Rendered Arabic Cross-Portal Handoff & Localization (RTL)
@@ -254,10 +258,12 @@ describe('QF-12: Canonical Attraction & Project Identity Architecture', () => {
     expect(b2bHtml).toContain('بنية الهوية الموحدة للوجهات');
     expect(b2bHtml).toContain('قائمة وجهات B2C');
     expect(b2bHtml).toContain('محرر B2C');
+    expect(b2bHtml).toContain('href="/ar/dashboard/b2b/attractions/new"');
     expect(b2bHtml).toContain('href="/ar/dashboard/b2c/attractions"');
     expect(b2bHtml).toContain('href="/ar/dashboard/b2b/attractions/attr-1/edit"');
     expect(b2bHtml).toContain('href="/ar/dashboard/b2c/attractions/attr-1/edit"');
     expect(b2bHtml).not.toMatch(/href="\/dashboard\/b2c\/attractions"/);
+    expect(b2bHtml).not.toMatch(/href="\/dashboard\/b2b\/attractions\/new"/);
 
     // B2C List Arabic Render
     const b2cHtml = renderToStaticMarkup(
@@ -269,9 +275,11 @@ describe('QF-12: Canonical Attraction & Project Identity Architecture', () => {
     expect(b2cHtml).toContain('الهوية الموحدة لوجهات ومشاريع E3');
     expect(b2cHtml).toContain('دليل مشاريع B2B');
     expect(b2cHtml).toContain('محرر B2B');
+    expect(b2cHtml).toContain('href="/ar/dashboard/b2c/attractions/new"');
     expect(b2cHtml).toContain('href="/ar/dashboard/b2b/attractions"');
     expect(b2cHtml).toContain('href="/ar/dashboard/b2c/attractions/attr-1/edit"');
     expect(b2cHtml).toContain('href="/ar/dashboard/b2b/attractions/attr-1/edit"');
     expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2b\/attractions"/);
+    expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2c\/attractions\/new"/);
   });
 });

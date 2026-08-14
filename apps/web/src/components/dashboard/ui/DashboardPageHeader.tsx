@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ExternalLink, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { ExternalLink, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DashboardBreadcrumbs, BreadcrumbItem } from "./DashboardBreadcrumbs";
 import { AdminButton } from "./AdminButton";
@@ -153,7 +153,7 @@ export function DashboardPageHeader({
 
           {primaryAction && (
             primaryAction.href ? (
-              <Link href={primaryAction.href}>
+              <Link href={localizeHref(primaryAction.href, locale)}>
                 <AdminButton
                   variant={primaryAction.variant || "primary"}
                   isLoading={primaryAction.isLoading}

@@ -187,7 +187,7 @@ export function B2BAttractionsList({ initialAttractions }: { initialAttractions:
           }}
           primaryAction={{
             label: isAr ? "إضافة مشروع جديد" : "New B2B Project",
-            href: "/dashboard/b2b/attractions/new",
+            href: localizeHref("/dashboard/b2b/attractions/new", locale),
             icon: <Plus className="w-4 h-4" />
           }}
         />

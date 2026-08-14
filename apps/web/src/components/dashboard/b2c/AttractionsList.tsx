@@ -149,7 +149,7 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
           }}
           primaryAction={{
             label: isAr ? "إضافة وجهة جديدة" : "New Attraction",
-            href: "/dashboard/b2c/attractions/new",
+            href: localizeHref("/dashboard/b2c/attractions/new", locale),
             icon: <Plus className="w-4 h-4" />,
           }}
         />
