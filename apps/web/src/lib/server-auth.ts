@@ -2,7 +2,7 @@ import { auth } from "./auth";
 import db from "./db";
 import { rolePermissions } from "./permissions";
 import type { RoleType } from "@prisma/client";
-import { normalizeRole, isAdminRole, PortalKey, isAuthorizedForPortal } from "./auth-roles";
+import { normalizeRole, isAdminRole, isStaffRole, PortalKey, isAuthorizedForPortal } from "./auth-roles";
 
 export class AppAuthError extends Error {
   statusCode: number;
@@ -142,12 +142,12 @@ export async function requireStaffAssignment(resourceId: string) {
 export async function requireClientMembership(clientId: string) {
   const user = await requireCurrentUser();
   if (user.role === 'SUPER_ADMIN') {
-    const client = await (db as any).client.findUnique({ where: { id: clientId } });
+    const client = await db.client.findUnique({ where: { id: clientId } });
     if (!client) throw new AppAuthError(404, "Client entity not found");
     return { user, membership: null, client };
   }
 
-  const membership = await (db as any).clientMembership.findUnique({
+  const membership = await db.clientMembership.findUnique({
     where: {
       userId_clientId: {
         userId: user.id,
@@ -162,6 +162,126 @@ export async function requireClientMembership(clientId: string) {
   }
 
   return { user, membership, client: membership.client };
+}
+
+export async function requireClientOrganization(targetClientId?: string) {
+  const user = await requireCurrentUser();
+  const isPrivileged = isAdminRole(user.role) || isStaffRole(user.role);
+
+  if (isPrivileged) {
+    if (targetClientId) {
+      const client = await db.client.findUnique({ where: { id: targetClientId } });
+      if (!client) throw new AppAuthError(404, "Organization not found");
+      return { user, membership: null, client };
+    }
+    return { user, membership: null, client: null };
+  }
+
+  // Regular CLIENT user must have an active membership
+  const membership = await db.clientMembership.findFirst({
+    where: {
+      userId: user.id,
+      isActive: true,
+    },
+    include: { client: true },
+  });
+
+  if (!membership || !membership.client) {
+    throw new AppAuthError(403, "No active organization membership found for this account");
+  }
+
+  // Cross-tenant prevention: If a specific organization ID was requested, strictly ensure it matches
+  if (targetClientId && membership.clientId !== targetClientId) {
+    throw new AppAuthError(403, "Access denied: You do not have permission to access another organization");
+  }
+
+  return { user, membership, client: membership.client };
+}
+
+export function sanitizeLeadForClient(lead: any) {
+  if (!lead) return null;
+  // Strip internal staff notes, probability scores, margins, and internal-only activities
+  const clientActivities = Array.isArray(lead.activities)
+    ? lead.activities
+        .filter((act: any) => act.type !== 'INTERNAL_NOTE' && act.type !== 'STAFF_NOTE')
+        .map((act: any) => ({
+          id: act.id,
+          type: act.type,
+          description: act.description,
+          timestamp: act.timestamp,
+        }))
+    : [];
+
+  const clientInquiries = Array.isArray(lead.inquiries)
+    ? lead.inquiries.map((inq: any) => ({
+        id: inq.id,
+        type: inq.type,
+        subject: inq.subject,
+        message: inq.message,
+        status: inq.status,
+        createdAt: inq.createdAt,
+      }))
+    : [];
+
+  return {
+    id: lead.id,
+    name: lead.name,
+    company: lead.company,
+    email: lead.email,
+    phone: lead.phone,
+    status: lead.status,
+    value: lead.value,
+    interestServices: lead.interestServices,
+    createdAt: lead.createdAt,
+    updatedAt: lead.updatedAt,
+    inquiries: clientInquiries,
+    activities: clientActivities,
+  };
+}
+
+export async function requireClientRfpAccess(rfpId: string) {
+  const user = await requireCurrentUser();
+  const isPrivileged = isAdminRole(user.role) || isStaffRole(user.role);
+
+  const lead = await db.lead.findUnique({
+    where: { id: rfpId },
+    include: {
+      inquiries: { orderBy: { createdAt: 'desc' } },
+      activities: { orderBy: { timestamp: 'desc' } },
+    },
+  });
+
+  if (!lead) {
+    throw new AppAuthError(404, "RFP record not found");
+  }
+
+  if (isPrivileged) {
+    return { user, membership: null, client: null, lead };
+  }
+
+  // For client users, resolve organization and enforce multi-tenant match
+  const { membership, client } = await requireClientOrganization();
+
+  const isCompanyMatch =
+    client &&
+    lead.company &&
+    lead.company.trim().toLowerCase() === client.company.trim().toLowerCase();
+
+  const isEmailMatch =
+    user.email &&
+    lead.email &&
+    lead.email.trim().toLowerCase() === user.email.trim().toLowerCase();
+
+  if (!isCompanyMatch && !isEmailMatch) {
+    throw new AppAuthError(404, "RFP record not found or access denied");
+  }
+
+  return {
+    user,
+    membership,
+    client,
+    lead: sanitizeLeadForClient(lead),
+  };
 }
 
 export async function requireClientPermission(clientId: string, requiredRole: 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER') {

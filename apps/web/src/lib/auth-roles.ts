@@ -46,7 +46,7 @@ export function normalizeRole(role?: string | null): RoleType {
   if (clean === 'CANDIDATE' || clean === 'APPLICANT' || clean === 'TALENT') {
     return 'CANDIDATE' as any;
   }
-  if (clean === 'CLIENT' || clean === 'BUSINESS' || clean === 'CUSTOMER') {
+  if (clean === 'CLIENT' || clean === 'BUSINESS' || clean === 'BUSINESS_USER' || clean === 'CUSTOMER') {
     return 'CLIENT';
   }
   return 'CLIENT';

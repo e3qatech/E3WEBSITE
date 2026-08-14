@@ -1,7 +1,11 @@
 import React from 'react';
-import Link from 'next/link';
-import { requirePortalAccess } from '@/lib/server-auth';
-import { Building2, FolderKanban, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { requirePortalAccess, requireClientOrganization, sanitizeLeadForClient, AppAuthError } from '@/lib/server-auth';
+import { BusinessHubClient } from '@/components/business/BusinessHubClient';
+import db from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function BusinessDashboardPage({
   params,
@@ -10,55 +14,110 @@ export default async function BusinessDashboardPage({
 }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
-  const user = await requirePortalAccess('business');
 
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white p-6 md:p-10 font-sans" dir={isAr ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
-          <div>
-            <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full text-xs font-bold uppercase tracking-wider">
-              {isAr ? 'بوابة اتيليه للشركات' : 'E3 Atelier Business Hub'}
-            </span>
-            <h1 className="text-3xl font-extrabold tracking-tight mt-2 font-display">
-              {isAr ? 'لوحة تحكم الشركات' : 'Enterprise Dashboard'}
-            </h1>
-            <p className="text-zinc-400 text-sm mt-1">
-              {isAr ? `مرحباً بعودتك، ${user.name || user.email}. إدارة المشاريع والطلبات الاجتماعات.` : `Welcome back, ${user.name || user.email}. Manage company projects, files, and consultation meetings.`}
-            </p>
+  let authResult: any = null;
+  try {
+    await requirePortalAccess('business');
+    authResult = await requireClientOrganization();
+  } catch (error: any) {
+    if (error instanceof AppAuthError && error.statusCode === 401) {
+      redirect(`/${locale}/login/business?callbackUrl=/${locale}/business`);
+    }
+
+    // Access denied / missing membership state
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="max-w-md w-full bg-zinc-900 border border-red-500/30 p-8 rounded-3xl text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto text-xl font-bold">
+            !
           </div>
-          <Link
-            href={`/${locale}/b2b`}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:text-white hover:border-zinc-700 transition-all min-h-[44px]"
+          <h2 className="text-xl font-extrabold text-white">
+            {isAr ? 'غير مصرح بالدخول' : 'Access Denied'}
+          </h2>
+          <p className="text-xs text-zinc-400">
+            {isAr
+              ? 'هذا الحساب غير مرتبط بعضوية نشطة في بوابة الشركات. يرجى التواصل مع مسؤول المؤسسة.'
+              : 'This account is not associated with an active enterprise membership. Please contact your organization administrator.'}
+          </p>
+          <a
+            href={`/${locale}/login/business`}
+            className="inline-block px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-all"
           >
-            {isAr ? <ArrowRight className="w-4 h-4 text-emerald-400" /> : <ArrowLeft className="w-4 h-4 text-emerald-400" />}
-            <span>{isAr ? 'العودة للموقع الرئيسي' : 'Back to Public Portal'}</span>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-3">
-            <Building2 className="w-8 h-8 text-amber-400" />
-            <h3 className="text-lg font-bold text-white">{isAr ? 'عضوية الشركة' : 'Company Membership'}</h3>
-            <p className="text-xs text-zinc-400">{isAr ? 'حساب الشركة المعتمد' : 'Verified Enterprise Account'}</p>
-            <div className="text-sm font-semibold text-amber-300">{isAr ? 'عضوية نشطة' : 'Active Membership'}</div>
-          </div>
-
-          <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-3">
-            <FolderKanban className="w-8 h-8 text-emerald-400" />
-            <h3 className="text-lg font-bold text-white">{isAr ? 'المشاريع الحالية' : 'Active Projects'}</h3>
-            <p className="text-xs text-zinc-400">{isAr ? 'النطاق المعماري والتقني' : 'Architectural & Tech Scope'}</p>
-            <div className="text-sm font-semibold text-white">{isAr ? 'لا توجد مشاريع نشطة' : '0 Active Projects'}</div>
-          </div>
-
-          <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-3">
-            <Calendar className="w-8 h-8 text-emerald-400" />
-            <h3 className="text-lg font-bold text-white">{isAr ? 'اجتماعات الاستشارة' : 'Consultation Meetings'}</h3>
-            <p className="text-xs text-zinc-400">{isAr ? 'اللقاءات المجدولة' : 'Scheduled Consultations'}</p>
-            <div className="text-sm font-semibold text-emerald-300">{isAr ? 'طلب اجتماع استشاري' : 'Request Consultation'}</div>
-          </div>
+            {isAr ? 'العودة لتسجيل الدخول' : 'Back to Login'}
+          </a>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  const { user, membership, client } = authResult;
+
+  // Fallback organization representation for Admin users browsing without active client membership
+  const organizationData = client || {
+    id: 'org-admin-view',
+    company: 'E3 Enterprise Administration',
+    type: 'B2B',
+    industry: 'Entertainment Engineering',
+    website: 'https://e3.qa',
+  };
+
+  // Fetch organization members
+  let members: any[] = [];
+  if (client?.id) {
+    try {
+      members = await db.clientMembership.findMany({
+        where: { clientId: client.id, isActive: true },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, role: true },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+    } catch (_e) {
+      members = [];
+    }
+  }
+
+  // Fetch organization-scoped RFPs / Leads
+  let rfps: any[] = [];
+  try {
+    const rawLeads = await db.lead.findMany({
+      where: client?.company
+        ? {
+            OR: [
+              { company: { equals: client.company, mode: 'insensitive' } },
+              ...(user?.email ? [{ email: { equals: user.email, mode: 'insensitive' } }] : []),
+            ],
+          }
+        : user?.email
+        ? { email: { equals: user.email, mode: 'insensitive' } }
+        : {},
+      include: {
+        inquiries: { orderBy: { createdAt: 'desc' } },
+        activities: { orderBy: { timestamp: 'desc' } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    rfps = (rawLeads || []).map(sanitizeLeadForClient);
+  } catch (_e) {
+    rfps = [];
+  }
+
+  return (
+    <BusinessHubClient
+      user={{
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }}
+      membershipRole={membership?.role || 'MEMBER'}
+      organization={organizationData}
+      members={members}
+      rfps={rfps}
+      locale={locale}
+    />
   );
 }

@@ -463,6 +463,18 @@ export function PulseOrbitNav({
               {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
             </button>
 
+            {/* B2B Client Portal Entry (QF-07) */}
+            {(type === 'b2b' || activePortalTab === 'b2b') && (
+              <Link
+                href={isAuthenticated ? `/${locale}/business` : `/${locale}/login/business?callbackUrl=/${locale}/business`}
+                onMouseEnter={() => playSpatialHoverSound(0.1, 'tab')}
+                className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 text-xs font-bold text-amber-300 hover:border-amber-500/60 hover:bg-amber-500/20 transition-all select-none cursor-pointer"
+              >
+                <Building2 className="h-3.5 w-3.5 text-amber-400" />
+                <span>{isAr ? 'بوابة العملاء' : 'Client Portal'}</span>
+              </Link>
+            )}
+
             {/* Quick Ticket / Proposal CTA */}
             {isBookTicketsEnabled && (
               isExternalBookUrl ? (

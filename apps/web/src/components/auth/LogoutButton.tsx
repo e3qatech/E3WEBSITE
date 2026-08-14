@@ -7,13 +7,22 @@ import { LogOut } from "lucide-react";
 interface LogoutButtonProps {
   locale?: string;
   className?: string;
+  portal?: 'admin' | 'staff' | 'business' | 'careers';
+  callbackUrl?: string;
 }
 
-export function LogoutButton({ locale = "en", className = "" }: LogoutButtonProps) {
+export function LogoutButton({ 
+  locale = "en", 
+  className = "", 
+  portal, 
+  callbackUrl 
+}: LogoutButtonProps) {
   const isAr = locale === "ar";
 
+  const resolvedCallback = callbackUrl || (portal ? `/${locale}/login/${portal}` : `/${locale}/login/careers`);
+
   const handleLogout = async () => {
-    await signOut({ callbackUrl: `/${locale}/login/careers` });
+    await signOut({ callbackUrl: resolvedCallback });
   };
 
   return (
