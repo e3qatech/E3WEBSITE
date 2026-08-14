@@ -6,6 +6,7 @@ import { E3Logo } from "@/components/shared/E3Logo";
 import { UniversalMediaHolder } from "@/components/shared/UniversalMediaHolder";
 import { useMounted } from "@/hooks/useMounted";
 import { cn } from "@/lib/utils";
+import { localizeHref } from "@/lib/url-helper";
 import {
     DEFAULT_GATEWAY_CMS_PAYLOAD,
     GatewayCustomizationPayload,
@@ -14,7 +15,7 @@ import {
 import { ArrowLeft, ArrowRight, Globe, Moon, Sun, Sparkles, Building2, Ticket } from "lucide-react";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { playSpatialHoverSound } from "@/components/b2c/nav/PulseOrbitNav";
 
@@ -45,7 +46,6 @@ export function PortalGateway({
   const [focusedPortal, setFocusedPortal] = useState<"b2c" | "b2b" | null>(null);
   const [_selectedPortal, setSelectedPortal] = useState<"b2c" | "b2b" | null>(null);
   const [isMobileViewport, setIsMobileViewport] = useState<boolean>(false);
-  const isMounted = useMounted();
 
   // Handle mobile viewport detection (< 768px)
   useEffect(() => {
@@ -88,7 +88,6 @@ export function PortalGateway({
   const seo = activeCmsData.seoAccess || DEFAULT_GATEWAY_CMS_PAYLOAD.seoAccess;
 
   const headline = isAr ? ar.headlineAr || en.headlineEn : en.headlineEn || ar.headlineAr;
-  const supportingText = isAr ? ar.supportingTextAr || en.supportingTextEn : en.supportingTextEn || ar.supportingTextAr;
 
   // B2C Content
   const b2cLabel = isAr ? ar.b2cLabelAr || en.b2cLabelEn : en.b2cLabelEn || ar.b2cLabelAr;
@@ -96,9 +95,10 @@ export function PortalGateway({
   const b2cDesc = isAr ? ar.b2cDescAr || en.b2cDescEn : en.b2cDescEn || ar.b2cDescAr;
   const b2cCta = isAr ? ar.b2cCtaLabelAr || en.b2cCtaLabelEn : en.b2cCtaLabelEn || ar.b2cCtaLabelAr;
   const b2cStat = isAr ? ar.b2cStatLabelAr || en.b2cStatLabelEn : en.b2cStatLabelEn || ar.b2cStatLabelAr;
-  const b2cDest = isAr
+  const rawB2cDest = isAr
     ? ar.b2cDestinationUrl || en.b2cDestinationUrl || "/ar/b2c"
     : en.b2cDestinationUrl || ar.b2cDestinationUrl || "/en/b2c";
+  const b2cDest = localizeHref(rawB2cDest, activeLocale);
   const b2cAria = isAr ? ar.b2cAriaLabelAr : en.b2cAriaLabelEn;
 
   // B2B Content
@@ -107,9 +107,10 @@ export function PortalGateway({
   const b2bDesc = isAr ? ar.b2bDescAr || en.b2bDescEn : en.b2bDescEn || ar.b2bDescAr;
   const b2bCta = isAr ? ar.b2bCtaLabelAr || en.b2bCtaLabelEn : en.b2bCtaLabelEn || ar.b2bCtaLabelAr;
   const b2bStat = isAr ? ar.b2bStatLabelAr || en.b2bStatLabelEn : en.b2bStatLabelEn || ar.b2bStatLabelAr;
-  const b2bDest = isAr
+  const rawB2bDest = isAr
     ? ar.b2bDestinationUrl || en.b2bDestinationUrl || "/ar/b2b"
     : en.b2bDestinationUrl || ar.b2bDestinationUrl || "/en/b2b";
+  const b2bDest = localizeHref(rawB2bDest, activeLocale);
   const b2bAria = isAr ? ar.b2bAriaLabelAr : en.b2bAriaLabelEn;
 
   // Portal selection handler

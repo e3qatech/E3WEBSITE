@@ -60,7 +60,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
   const b2bNavLinks = [
     { label: isAr ? 'الرئيسية' : 'Home', href: `/${currentLocale}/b2b` },
     { label: isAr ? 'الخدمات' : 'Services', href: `/${currentLocale}/b2b/services` },
-    { label: isAr ? 'أعمالنا' : 'Case Studies', href: `/${currentLocale}/b2b/case-studies` },
+    { label: isAr ? 'أعمالنا' : 'Case Studies', href: `/${currentLocale}/b2b/cases` },
     { label: isAr ? 'العملاء والشركاء' : 'Clients', href: `/${currentLocale}/b2b/clients` },
     { label: isAr ? 'من نحن' : 'About', href: `/${currentLocale}/b2b/about` },
     { label: isAr ? 'تواصل معنا' : 'Contact', href: `/${currentLocale}/b2b/contact` }
@@ -206,7 +206,7 @@ export function B2BHeader({ settings = {} }: { settings?: Record<string, string>
               </div>
               
               <Link
-                href="/b2b/client-login"
+                href={`/${currentLocale}/login/business`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-center py-3 border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold rounded-xl"
               >

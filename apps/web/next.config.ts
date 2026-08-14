@@ -35,6 +35,117 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      // 1. Case Studies Aliases
+      {
+        source: '/:locale(en|ar)/b2b/case-studies',
+        destination: '/:locale/b2b/cases',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/case-studies/:slug',
+        destination: '/:locale/b2b/cases/:slug',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/cases',
+        destination: '/:locale/b2b/cases',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/cases/:slug',
+        destination: '/:locale/b2b/cases/:slug',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/case-studies',
+        destination: '/:locale/b2b/cases',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/case-studies/:slug',
+        destination: '/:locale/b2b/cases/:slug',
+        permanent: true,
+      },
+
+      // 2. Services Aliases & FEC
+      {
+        source: '/:locale(en|ar)/b2b/services/fec',
+        destination: '/:locale/b2b/services/family-entertainment-centers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/services/fec',
+        destination: '/:locale/b2b/services/family-entertainment-centers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/services',
+        destination: '/:locale/b2b/services',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/services/:slug',
+        destination: '/:locale/b2b/services/:slug',
+        permanent: true,
+      },
+
+      // 3. Contact & Partner Contact Aliases
+      {
+        source: '/:locale(en|ar)/partners-contact',
+        destination: '/:locale/b2b/contact',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/rfp',
+        destination: '/:locale/b2b/contact',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/contact/b2b',
+        destination: '/:locale/b2b/contact',
+        permanent: true,
+      },
+
+      // 4. B2C Attractions, Calendar, Support Aliases
+      {
+        source: '/:locale(en|ar)/attractions',
+        destination: '/:locale/b2c/attractions',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/attractions/:slug',
+        destination: '/:locale/b2c/attractions/:slug',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/calendar',
+        destination: '/:locale/b2c/calendar',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/events',
+        destination: '/:locale/b2c/calendar',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2c/events',
+        destination: '/:locale/b2c/calendar',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/contact/b2c',
+        destination: '/:locale/b2c/contact',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/support',
+        destination: '/:locale/b2c/contact',
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },

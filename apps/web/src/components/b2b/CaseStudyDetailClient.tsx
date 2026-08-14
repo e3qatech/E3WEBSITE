@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Quote, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { UniversalMediaRenderer as MediaRenderer } from "@/components/shared/UniversalMediaRenderer";
+import { localizeHref } from "@/lib/url-helper";
 
 // Custom Animated Counter Hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -305,7 +306,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
             <h2 className="text-3xl md:text-4xl font-black mb-12 text-center text-[var(--text-primary)]">Related Work</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedCaseStudies.map((cs) => (
-                <Link key={cs.id} href={`/b2b/case-studies/${cs.slug}`} className="group block bg-[var(--surface-default)] rounded-3xl overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--color-primary)] transition-colors">
+                <Link key={cs.id} href={localizeHref(`/b2b/cases/${cs.slug}`)} className="group block bg-[var(--surface-default)] rounded-3xl overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--color-primary)] transition-colors">
                   <div className="relative h-48 overflow-hidden">
                     <MediaRenderer src={cs.thumbnailUrl || ""} type={(cs.thumbnailMediaType || "IMAGE") as any} alt={cs.titleEn} className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>

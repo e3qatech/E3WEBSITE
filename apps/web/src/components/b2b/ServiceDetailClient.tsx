@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Play, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { localizeHref } from "@/lib/url-helper";
 
 // Dynamically import Three.js components to prevent bundle bloat on non-3D pages
 const Scene3D = dynamic(() => import("@/components/b2b/Scene3D"), { ssr: false });
@@ -237,7 +238,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
             </div>
             <div className="mt-16 text-center">
               <Button variant="outline" asChild size="lg" className="rounded-full">
-                <Link href="/b2b/case-studies">View All Case Studies</Link>
+                <Link href={localizeHref('/b2b/cases')}>View All Case Studies</Link>
               </Button>
             </div>
           </div>

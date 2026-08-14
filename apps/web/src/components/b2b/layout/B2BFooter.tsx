@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ArrowRight, MapPin, Mail, Phone } from 'lucide-react'
+import { localizeHref, normalizeExternalUrl } from '@/lib/url-helper'
 
 function Instagram({ className }: { className?: string }) {
   return (
@@ -116,7 +117,7 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
           <div>
             <h4 className="text-[var(--text-primary)] font-bold mb-6 tracking-wider uppercase text-xs">{isAr ? "الشركة" : "Company"}</h4>
             <ul className="space-y-3.5 text-sm">
-              <li><Link href={`/${currentLocale}/b2b/case-studies`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "دراسات الحالة وأعمالنا" : "Case Studies"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/cases`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "دراسات الحالة وأعمالنا" : "Case Studies"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/clients`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "العملاء والشركاء" : "Clients & Partners"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/about`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "من نحن" : "About Us"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/contact`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "تواصل معنا" : "Contact / RFP"}</Link></li>
@@ -148,17 +149,17 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
             
             <div className="flex items-center gap-3 mt-6">
               {settings.socialInstagram && (
-                <a href={settings.socialInstagram} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
+                <a href={normalizeExternalUrl(settings.socialInstagram)} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
                   <Instagram className="w-4 h-4" />
                 </a>
               )}
               {settings.socialFacebook && (
-                <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
+                <a href={normalizeExternalUrl(settings.socialFacebook)} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
                   <Facebook className="w-4 h-4" />
                 </a>
               )}
               {settings.socialLinkedin && (
-                <a href={settings.socialLinkedin} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
+                <a href={normalizeExternalUrl(settings.socialLinkedin)} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-[var(--surface-default)] rounded-xl border border-[var(--border-level-2)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all">
                   <Linkedin className="w-4 h-4" />
                 </a>
               )}
@@ -170,8 +171,8 @@ export function B2BFooter({ settings = {} }: { settings?: Record<string, string>
         <div className="pt-8 border-t border-[var(--border-level-1)] flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium">
           <p>© {new Date().getFullYear()} {siteName}. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "سياسة الخصوصية" : "Privacy Policy"}</Link>
-            <Link href="/terms" className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "شروط الخدمة" : "Terms of Service"}</Link>
+            <Link href={localizeHref('/privacy', currentLocale)} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "سياسة الخصوصية" : "Privacy Policy"}</Link>
+            <Link href={localizeHref('/terms', currentLocale)} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "شروط الخدمة" : "Terms of Service"}</Link>
           </div>
         </div>
       </div>

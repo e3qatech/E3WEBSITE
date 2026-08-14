@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import db from '@/lib/db'
 import { B2BBrandPortfolio } from '@/components/b2b/brands/B2BBrandPortfolio'
 import { DEFAULT_B2B_HOME_CONTENT } from '@/lib/cms-default-pages'
+import { localizeHref } from '@/lib/url-helper'
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -59,11 +60,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     primaryCta: isAr 
       ? (content.hero?.primaryCtaAr || content.hero?.primaryCta || "استكشف الخدمات") 
       : (content.hero?.primaryCtaEn || content.hero?.primaryCta || "Explore Services"),
-    primaryLink: content.hero?.primaryLink || `/${locale}/b2b/services`,
+    primaryLink: localizeHref(content.hero?.primaryLink || '/b2b/services', locale),
     secondaryCta: isAr 
       ? (content.hero?.secondaryCtaAr || content.hero?.secondaryCta || "ابدأ مشروعاً") 
       : (content.hero?.secondaryCtaEn || content.hero?.secondaryCta || "Start a Project"),
-    secondaryLink: content.hero?.secondaryLink || `/${locale}/b2b/contact`,
+    secondaryLink: localizeHref(content.hero?.secondaryLink || '/b2b/contact', locale),
     mediaType: content.hero?.mediaType || "IMAGE",
     mediaUrl: content.hero?.mediaUrl || ""
   }
@@ -227,7 +228,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       detailCopyEn: b.b2bDetailCopyEn || b.fullStoryEn,
       detailCopyAr: b.b2bDetailCopyAr || b.fullStoryAr,
       primaryMediaUrl: b.primaryMediaUrl,
-      ctaUrl: b.b2bCtaUrl || `/${locale}/b2b/contact`
+      ctaUrl: localizeHref(b.b2bCtaUrl || '/b2b/contact', locale)
     }));
   }
 
@@ -494,7 +495,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               </p>
             </div>
             <Link 
-              href={`/${locale}/b2b/case-studies`} 
+              href={localizeHref('/b2b/cases', locale)} 
               className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
             >
               <span>{caseStudiesHeader.cta}</span>
@@ -507,7 +508,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               dbProjects.map((project, i) => {
                 const title = isAr ? (project.titleAr || project.titleEn || project.slug) : (project.titleEn || project.slug)
                 return (
-                  <Link key={i} href={`/${locale}/b2b/case-studies/${project.slug}`} className="group block">
+                  <Link key={i} href={localizeHref(`/b2b/cases/${project.slug}`, locale)} className="group block">
                     <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 mb-6 border border-zinc-800/80 group-hover:border-emerald-500/50 transition-all duration-500">
                       {(project.thumbnailUrl || project.heroImageUrl) ? (
                         <UniversalMediaRenderer 

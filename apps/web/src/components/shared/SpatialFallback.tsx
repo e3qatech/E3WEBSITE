@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Info } from "lucide-react"
 import Link from "next/link"
+import { localizeHref } from "@/lib/url-helper"
 
 export interface AttractionData {
   id: string
@@ -16,10 +17,11 @@ export interface AttractionData {
 
 interface SpatialFallbackProps {
   attractions: AttractionData[]
+  locale?: string
   onAttractionClick?: (slug: string) => void
 }
 
-export function SpatialFallback({ attractions, onAttractionClick }: SpatialFallbackProps) {
+export function SpatialFallback({ attractions, locale = "en", onAttractionClick }: SpatialFallbackProps) {
   const [hovered, setHovered] = useState<string | null>(null)
 
   const getColor = (status: string) => {
@@ -80,7 +82,7 @@ export function SpatialFallback({ attractions, onAttractionClick }: SpatialFallb
               <div className="absolute bottom-full start-1/2 -translate-x-1/2 mb-3 bg-[var(--surface-default)] border border-[var(--border-default)] p-3 rounded-xl shadow-xl w-48 z-10">
                 <h4 className="font-bold text-[var(--text-primary)] text-sm mb-1">{attr.name}</h4>
                 <p className="text-xs text-[var(--text-secondary)] line-clamp-1 mb-2">{attr.tagline}</p>
-                <Link href={`/b2c/attractions/${attr.slug}`} className="text-xs font-bold text-[var(--color-primary)] flex items-center gap-1 hover:underline">
+                <Link href={localizeHref(`/b2c/attractions/${attr.slug}`, locale)} className="text-xs font-bold text-[var(--color-primary)] flex items-center gap-1 hover:underline">
                   <Info className="w-3 h-3" /> View Details
                 </Link>
               </div>

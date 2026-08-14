@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Zap, Settings, Shield, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { localizeHref } from "@/lib/url-helper";
 
 interface ServiceItem {
   id: string;
@@ -261,10 +262,10 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" variant="primary" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full">
-              <Link href="/b2b/contact">Start a Project</Link>
+              <Link href={localizeHref('/b2b/contact')}>Start a Project</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full border-white/20 hover:bg-white hover:text-zinc-950">
-              <Link href="/b2b/case-studies">View Our Work</Link>
+              <Link href={localizeHref('/b2b/cases')}>View Our Work</Link>
             </Button>
           </div>
         </div>

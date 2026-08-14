@@ -6,6 +6,7 @@ import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRender
 import { DynamicARViewer } from '@/components/shared/DynamicWrappers'
 import { db } from "@/lib/db"
 import { Metadata } from 'next'
+import { localizeHref } from '@/lib/url-helper'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {
   const { slug, locale } = await params;
@@ -40,9 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ServiceMicrosite({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ServiceMicrosite({ params }: { params: Promise<{ slug: string; locale: string }> }) {
   
-  const { slug } = await params
+  const { slug, locale } = await params
 
   const service = await db.service.findUnique({
     where: { slug },
@@ -80,7 +81,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
         </div>
 
         <div className="container relative z-10 mx-auto px-4 md:px-8">
-          <Link href="/b2b/services" className="inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-emerald-400 uppercase tracking-wider mb-8">
+          <Link href={localizeHref('/b2b/services', locale)} className="inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-emerald-400 uppercase tracking-wider mb-8">
             <ArrowRight className="w-4 h-4 rotate-180" /> Back to Services
           </Link>
           
@@ -153,7 +154,7 @@ export default async function ServiceMicrosite({ params }: { params: Promise<{ s
             <div className="grid md:grid-cols-2 gap-8">
               {service.projects.map((proj: any, i: number) => {
                 const isAttraction = !!proj.attraction;
-                const linkHref = isAttraction ? `/b2c/attractions/${proj.attraction.slug}` : null;
+                const linkHref = isAttraction ? localizeHref(`/b2c/attractions/${proj.attraction.slug}`, locale) : null;
                 const targetName = isAttraction ? (proj.attraction.nameEn || proj.titleEn) : proj.titleEn;
                 const targetDesc = isAttraction ? (proj.attraction.descriptionEn || proj.descriptionEn) : proj.descriptionEn;
                 const targetImage = isAttraction ? (proj.attraction.heroThumbnailUrl || proj.attraction.heroFallbackUrl || proj.imageUrl) : proj.imageUrl;

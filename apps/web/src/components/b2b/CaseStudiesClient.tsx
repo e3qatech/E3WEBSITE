@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { UniversalMediaRenderer as MediaRenderer } from "@/components/shared/UniversalMediaRenderer";
+import { localizeHref } from "@/lib/url-helper";
 
 type CaseStudyStub = {
   id: string;
@@ -116,7 +117,7 @@ export function CaseStudiesClient({ initialCaseStudies }: { initialCaseStudies: 
           animate={{ opacity: 1, scale: 1 }}
           className="relative rounded-3xl overflow-hidden mb-16 group cursor-pointer block h-[60vh] min-h-[400px]"
         >
-          <Link href={`/b2b/case-studies/${featuredStudy.slug}`} className="absolute inset-0 z-20">
+          <Link href={localizeHref(`/b2b/cases/${featuredStudy.slug}`)} className="absolute inset-0 z-20">
             <span className="sr-only">View Case Study</span>
           </Link>
           <MediaRenderer 
@@ -160,7 +161,7 @@ export function CaseStudiesClient({ initialCaseStudies }: { initialCaseStudies: 
                 key={cs.id}
                 className="group cursor-pointer flex flex-col h-full bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-3xl overflow-hidden hover:border-[var(--color-primary)] transition-colors"
               >
-                <Link href={`/b2b/case-studies/${cs.slug}`} className="relative h-64 md:h-80 overflow-hidden block">
+                <Link href={localizeHref(`/b2b/cases/${cs.slug}`)} className="relative h-64 md:h-80 overflow-hidden block">
                   <MediaRenderer
             src={cs.thumbnailUrl || cs.heroImageUrl || ""} 
             type={(cs.thumbnailMediaType || cs.heroMediaType || "IMAGE") as any}

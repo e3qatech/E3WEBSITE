@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { resolveMediaType } from "@/lib/media-resolver";
 import { MapPin, Clock, Ticket, Users, AlertCircle, HelpCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { localizeHref, isExternalUrl, normalizeExternalUrl } from "@/lib/url-helper";
 
 // ==========================================
 // 1. Theme Provider & Context
@@ -318,7 +319,7 @@ export function B2CButton({
   href,
   ...props
 }: B2CButtonProps) {
-  const { theme } = useB2CTheme();
+  const { theme, locale } = useB2CTheme();
 
   const baseStyles = "inline-flex items-center justify-center font-bold tracking-wide rounded-xl cursor-pointer transition-all duration-300 select-none active:scale-[0.98] outline-none focus:ring-2 focus:ring-[var(--e3-royal-blue)]/50";
   
@@ -351,8 +352,22 @@ export function B2CButton({
   );
 
   if (href) {
+    if (isExternalUrl(href)) {
+      const safeUrl = normalizeExternalUrl(href);
+      const isSpecial = safeUrl.startsWith('mailto:') || safeUrl.startsWith('tel:') || safeUrl.startsWith('sms:');
+      return (
+        <a 
+          href={safeUrl} 
+          target={isSpecial ? undefined : "_blank"} 
+          rel={isSpecial ? undefined : "noopener noreferrer"} 
+          className={currentStyles}
+        >
+          {children}
+        </a>
+      );
+    }
     return (
-      <Link href={href} className={currentStyles}>
+      <Link href={localizeHref(href, locale)} className={currentStyles}>
         {children}
       </Link>
     );

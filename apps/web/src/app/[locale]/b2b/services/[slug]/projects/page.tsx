@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, ExternalLink } from "lucide-react"
+import { localizeHref } from "@/lib/url-helper"
 const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
@@ -83,7 +84,7 @@ export default async function ServiceProjectsPage(props: { params: Promise<{ loc
           {projects.map((project: any) => (
             <Link 
               key={project.id} 
-              href={`/${locale}/b2b/case-studies/${project.slug}`}
+              href={localizeHref(`/b2b/cases/${project.slug}`, locale)}
               className="group block relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-500/30 transition-all duration-500"
             >
               <div className="aspect-video relative overflow-hidden">
