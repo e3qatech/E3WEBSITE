@@ -228,16 +228,50 @@ export function PackageMicrositeClient({
                         </div>
                         <span className="text-[10px] text-[var(--text-tertiary)] font-mono">
                           {isAr ? `يشمل حتى ${t.guestCount} ضيفاً` : `Includes up to ${t.guestCount} guests`}
+                          {t.durationMinutes ? ` • ${t.durationMinutes} ${isAr ? "دقيقة" : "Mins"}` : ''}
                         </span>
                       </div>
 
                       <div className="space-y-2 border-t border-[var(--border-level-2)] pt-4">
-                        {(t.includedItems || []).map((item: string, idx: number) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>{item}</span>
-                          </div>
-                        ))}
+                        {(() => {
+                          if (isAr) {
+                            // 1. Use existing Arabic tier-benefit fields if available
+                            const arabicTierItems = t.includedItemsAr || t.benefitsAr
+                            if (Array.isArray(arabicTierItems) && arabicTierItems.length > 0) {
+                              return arabicTierItems.map((item: string, idx: number) => (
+                                <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                  <span>{item}</span>
+                                </div>
+                              ))
+                            }
+
+                            // 2. Arabic-safe presentation fallback based on package's existing Arabic inclusions
+                            const fallbackInclusions = inclusions
+                              .map((inc: any) => inc.titleAr || inc.titleEn)
+                              .filter(Boolean)
+
+                            const displayItems = fallbackInclusions.length > 0
+                              ? fallbackInclusions
+                              : ["دخول الفعالية والأنشطة الترفيهية المعتمدة", "خدمات الضيافة والتنسيق المعتمدة"]
+
+                            return displayItems.map((item: string, idx: number) => (
+                              <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                <span>{item}</span>
+                              </div>
+                            ))
+                          }
+
+                          // English mode: display English tier benefits
+                          const englishTierItems = t.includedItems || t.includedItemsEn || t.benefits || []
+                          return englishTierItems.map((item: string, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <span>{item}</span>
+                            </div>
+                          ))
+                        })()}
                       </div>
                     </div>
 

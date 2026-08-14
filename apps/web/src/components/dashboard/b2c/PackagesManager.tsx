@@ -262,6 +262,17 @@ export function PackagesManager() {
                     {isAr ? (item.shortDescriptionAr || item.shortDescriptionEn || "بدون وصف...") : (item.shortDescriptionEn || "No description...")}
                   </p>
 
+                  {Array.isArray(item.tiers) && item.tiers.some((t: any) => t.includedItems?.length > 0 && (!t.includedItemsAr || t.includedItemsAr.length === 0)) && (
+                    <div className="mt-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 text-[10px] font-bold">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>
+                        {isAr
+                          ? "تنبيه للموظفين: تفتقر بعض المستويات لمشتملات عربية (يتم استخدام مشملات الباقة تلقائياً في الواجهة)"
+                          : "Staff Notice: Missing Arabic Tier Benefits (Package inclusions fallback active)"}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-default/60 text-xs font-mono font-bold">
                     <span className="text-text-secondary">{item.minGuests}-{item.maxGuests} {isAr ? "ضيوف" : "Guests"}</span>
                     <span className="text-primary">{item.startingPrice} {item.currency || 'QAR'}</span>
@@ -401,6 +412,17 @@ function PackageEditor({
           </Button>
         </div>
       </div>
+
+      {Array.isArray(tiers) && tiers.some((t: any) => t.includedItems?.length > 0 && (!t.includedItemsAr || t.includedItemsAr.length === 0)) && (
+        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>
+            {isAr
+              ? "تنبيه للموظفين: تفتقر مستويات هذه الباقة لمشتملات عربية محددة. تطبق الواجهة العامة تلقائياً مشتملات الباقة المعتمدة بالعربية كبديل آمن دون تعديل قاعدة البيانات."
+              : "Staff Notice: This package has tiers lacking Arabic-specific included items. The public Arabic route safely displays the package's Arabic inclusions without mutating stored records."}
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">

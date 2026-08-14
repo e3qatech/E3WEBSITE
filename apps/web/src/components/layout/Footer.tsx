@@ -117,7 +117,9 @@ export function Footer({ portal, settings = {} }: FooterProps) {
               )}
             </Link>
             <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
-              Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.
+              {locale === "ar"
+                ? (settings.footerDescriptionAr || "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار.")
+                : (settings.footerDescriptionEn || "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.")}
             </p>
             <div className="flex flex-wrap items-center gap-4">
               {settings.socialTwitter && (

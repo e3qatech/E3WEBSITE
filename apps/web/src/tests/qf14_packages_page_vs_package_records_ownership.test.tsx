@@ -5,6 +5,8 @@ import { LocaleProvider } from '@/components/layout/LocaleProvider';
 import { PackagesPageEditor } from '@/components/dashboard/b2c/PackagesPageEditor';
 import { PackagesManager } from '@/components/dashboard/b2c/PackagesManager';
 import { PackagesClient } from '@/components/b2c/PackagesClient';
+import { PackageMicrositeClient } from '@/components/b2c/PackageMicrositeClient';
+import { PackageEnquiryModal } from '@/components/b2c/PackageEnquiryModal';
 import { Footer } from '@/components/layout/Footer';
 import { DashboardLanguageSwitch, DashboardStickyActions } from '@/components/dashboard/ui';
 import { getManagedCMSPage, isManagedCMSPage } from '@/lib/cms-ownership';
@@ -370,5 +372,168 @@ describe('QF-14 & QF-14-B — Packages Page Settings vs Package Records Ownershi
       </LocaleProvider>
     );
     expect(htmlStickySaved).toContain('تم حفظ جميع التغييرات في قاعدة البيانات');
+  });
+
+  // 11. QF-14-C: Arabic Footer Description Localization & English Invariance
+  it('11. Arabic Footer renders localized brand description while preserving English brand description on English route', () => {
+    // Arabic Footer
+    const htmlAr = renderToStaticMarkup(
+      <LocaleProvider defaultLocale="ar">
+        <Footer portal="b2c" settings={{ siteNameAr: 'إي ثري قطر' }} />
+      </LocaleProvider>
+    );
+
+    expect(htmlAr).toContain('ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار.');
+    expect(htmlAr).not.toContain('Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.');
+
+    // English Footer
+    const htmlEn = renderToStaticMarkup(
+      <LocaleProvider defaultLocale="en">
+        <Footer portal="b2c" settings={{ siteNameEn: 'E3 Qatar' }} />
+      </LocaleProvider>
+    );
+
+    expect(htmlEn).toContain('Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.');
+    expect(htmlEn).not.toContain('ريادة مستقبل الفعاليات والترفيه في قطر');
+  });
+
+  // 12. QF-14-C: Arabic Package Detail Tier Benefits Presentation Fallback & Duration Units
+  it('12. Arabic PackageMicrositeClient renders localized duration units, Arabic inclusions fallback for unlocalized tier benefits, and zero English tier residue', () => {
+    const sampleInflataPackage = {
+      id: 'pkg-inflatarun',
+      slug: 'inflatarun-vip-birthday',
+      titleEn: 'InflataRUN VIP Birthday Adventure',
+      titleAr: 'مغامرة عيد الميلاد VIP في إنفلاتا ران',
+      category: 'BIRTHDAY',
+      startingPrice: 1500,
+      minGuests: 10,
+      maxGuests: 40,
+      durationMinutes: 150,
+      isPublished: true,
+      tiers: [
+        {
+          id: 'tier-essential',
+          nameEn: 'Essential Adventure',
+          nameAr: 'المغامرة الأساسية',
+          price: 1500,
+          guestCount: 10,
+          durationMinutes: 120,
+          includedItems: [
+            '90 Mins Inflatable Park Access',
+            '30 Mins Party Room',
+            'Dedicated Party Host',
+            'Digital Invitations',
+            'Birthday Child Certificate'
+          ]
+        },
+        {
+          id: 'tier-premium',
+          nameEn: 'VIP Party Ultimate',
+          nameAr: 'حفل VIP الفاخر',
+          price: 2600,
+          guestCount: 15,
+          durationMinutes: 150,
+          recommended: true,
+          includedItems: [
+            '120 Mins Inflatable Park Access',
+            '40 Mins Private Party Room',
+            'Personal Party Facilitator',
+            'Hot Kids Meals & Juice'
+          ]
+        }
+      ],
+      inclusions: [
+        { id: 'inc-1', titleEn: 'Inflatable Dunes Access', titleAr: 'دخول حديقة المطاطيات' },
+        { id: 'inc-2', titleEn: 'Private Party Room', titleAr: 'غرفة الحفلات الخاصة' },
+        { id: 'inc-3', titleEn: 'Dedicated Party Host', titleAr: 'مضيف حفل مخصص' },
+        { id: 'inc-4', titleEn: 'Kids Meals & Juice', titleAr: 'وجبات أطفال ومشروبات' },
+        { id: 'inc-5', titleEn: 'Safety Grip Socks', titleAr: 'جوارب السلامة الرياضية' }
+      ],
+      addOns: [
+        { id: 'add-1', titleEn: 'Extra 30 Mins Play Time', titleAr: '٣٠ دقيقة لعب إضافية', price: 30, priceType: 'PER_GUEST' }
+      ]
+    };
+
+    // Render in Arabic
+    const htmlAr = renderToStaticMarkup(
+      <LocaleProvider defaultLocale="ar">
+        <PackageMicrositeClient
+          locale="ar"
+          pkg={sampleInflataPackage}
+        />
+      </LocaleProvider>
+    );
+
+    // 1. Duration units are Arabic
+    expect(htmlAr).toContain('150 دقيقة');
+    expect(htmlAr).toContain('120 دقيقة');
+
+    // 2. Arabic presentation fallback derived from package inclusions
+    expect(htmlAr).toContain('دخول حديقة المطاطيات');
+    expect(htmlAr).toContain('غرفة الحفلات الخاصة');
+    expect(htmlAr).toContain('مضيف حفل مخصص');
+    expect(htmlAr).toContain('وجبات أطفال ومشروبات');
+    expect(htmlAr).toContain('جوارب السلامة الرياضية');
+
+    // 3. Pricing preserved
+    expect(htmlAr).toContain('1500 QAR');
+    expect(htmlAr).toContain('2600 QAR');
+
+    // 4. Zero English tier benefit residue on public Arabic route
+    expect(htmlAr).not.toContain('90 Mins Inflatable Park Access');
+    expect(htmlAr).not.toContain('30 Mins Party Room');
+    expect(htmlAr).not.toContain('120 Mins Inflatable Park Access');
+    expect(htmlAr).not.toContain('40 Mins Private Party Room');
+    expect(htmlAr).not.toContain('Birthday Child Certificate');
+
+    // Render in English: Output remains English
+    const htmlEn = renderToStaticMarkup(
+      <LocaleProvider defaultLocale="en">
+        <PackageMicrositeClient
+          locale="en"
+          pkg={sampleInflataPackage}
+        />
+      </LocaleProvider>
+    );
+
+    expect(htmlEn).toContain('90 Mins Inflatable Park Access');
+    expect(htmlEn).toContain('30 Mins Party Room');
+    expect(htmlEn).toContain('What Is Included');
+    expect(htmlEn).toContain('Choose Your Package Tier');
+  });
+
+  // 13. QF-14-C: Arabic Package Links & PDPL Consent Verification
+  it('13. Arabic PackagesClient and PackageEnquiryModal preserve 3 published package links and exact Arabic PDPL consent', () => {
+    const publishedPackages = sampleThreePublishedPackagesFixture.filter((p) => p.isPublished);
+
+    const htmlList = renderToStaticMarkup(
+      <LocaleProvider defaultLocale="ar">
+        <PackagesClient
+          locale="ar"
+          initialSettings={samplePageSettingsFixture}
+          packages={publishedPackages}
+        />
+      </LocaleProvider>
+    );
+
+    // Three published locale-preserving package links
+    expect(htmlList).toContain('href="/ar/b2c/packages/inflatarun-vip-birthday"');
+    expect(htmlList).toContain('href="/ar/b2c/packages/urban-arena-tactical-combat"');
+    expect(htmlList).toContain('href="/ar/b2c/packages/school-discovery-adventure"');
+
+    // Arabic PDPL Consent in Enquiry Modal
+    const htmlModal = renderToStaticMarkup(
+      <LocaleProvider defaultLocale="ar">
+        <PackageEnquiryModal
+          isOpen={true}
+          onClose={vi.fn()}
+          locale="ar"
+          selectedPackage={sampleThreePublishedPackagesFixture[0]}
+        />
+      </LocaleProvider>
+    );
+
+    expect(htmlModal).toContain('أوافق على شروط باقات إي ثري، قواعد الفعاليات، وسياسة حماية البيانات الشخصية في قطر (PDPL)');
+    expect(htmlModal).not.toContain('I agree to E3 Package terms, venue rules, and Qatar PDPL privacy policies');
   });
 });
