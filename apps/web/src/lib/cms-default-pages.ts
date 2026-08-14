@@ -494,6 +494,22 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       answerAr: "نعم! توفر إي ثري قطر تجارب مصممة لجميع الفئات العمرية بما في ذلك مناطق عائلية ومناطق أطفال مخصصة.",
     }
   ],
+  liveFeed: {
+    titleEn: "LIVE EVENT FEED & BROADCASTS",
+    titleAr: "البث المباشر للفعاليات والمهرجانات",
+    streamUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+    isLiveNow: true,
+    recentHighlights: [
+      {
+        id: "hl-1",
+        titleEn: "Nocturnal Drone Parade in Lusail",
+        titleAr: "عروض طائرات الدرون المضيئة في لوسيل",
+        mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+        dateLabelEn: "Tonight in Doha",
+        dateLabelAr: "الليلة في الدوحة"
+      }
+    ]
+  },
   footer: {
     mediaType: "IMAGE",
     mediaUrl: "",
@@ -1797,6 +1813,10 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       subtextEn: "Real-time moments, live event highlights, and guest stories streaming across official E3 channels.",
       subtextAr: "تابع أحدث الفعاليات واللحظات الترفيهية الحية عبر حساباتنا الرسمية.",
       ...(raw.socialFeed || {}),
+    },
+    liveFeed: {
+      ...defaults.liveFeed,
+      ...(raw.liveFeed || {}),
     },
     act7Ticket: {
       ...defaults.act7Ticket,

@@ -3,8 +3,9 @@
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
-import { Plus, Radio, Save, Sparkles, Trash2 } from 'lucide-react'
+import { Plus, Radio, Save, Sparkles, Trash2, ExternalLink, Share2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import {
   DashboardPageShell,
@@ -18,7 +19,7 @@ export function LiveFeedManager() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [fullContent, setFullContent] = useState<any>(null)
-  
+
   const [liveFeed, setLiveFeed] = useState({
     titleEn: 'LIVE EVENT FEED & BROADCASTS',
     titleAr: 'البث المباشر للفعاليات والمهرجانات',
@@ -31,8 +32,8 @@ export function LiveFeedManager() {
         titleAr: 'عروض طائرات الدرون المضيئة في لوسيل',
         mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
         dateLabelEn: 'Tonight in Doha',
-        dateLabelAr: 'الليلة في الدوحة'
-      }
+        dateLabelAr: 'الليلة في الدوحة',
+      },
     ] as Array<{
       id: string
       titleEn: string
@@ -40,25 +41,25 @@ export function LiveFeedManager() {
       mediaUrl: string
       dateLabelEn?: string
       dateLabelAr?: string
-    }>
+    }>,
   })
 
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/cms/pages/b2c-landing')
+        const res = await fetch('/api/cms/pages/b2c-landing?t=' + Date.now(), { cache: 'no-store' })
         if (res.ok) {
           const json = await res.json()
           const data = json?.data?.content || DEFAULT_B2C_LANDING_CONTENT
           setFullContent(data)
           if (data.liveFeed) {
-            setLiveFeed(prev => ({
+            setLiveFeed((prev) => ({
               ...prev,
               titleEn: data.liveFeed.titleEn || prev.titleEn,
               titleAr: data.liveFeed.titleAr || prev.titleAr,
               streamUrl: data.liveFeed.streamUrl || prev.streamUrl,
               isLiveNow: data.liveFeed.isLiveNow ?? prev.isLiveNow,
-              recentHighlights: data.liveFeed.recentHighlights || prev.recentHighlights
+              recentHighlights: data.liveFeed.recentHighlights || prev.recentHighlights,
             }))
           }
         }
@@ -70,11 +71,11 @@ export function LiveFeedManager() {
       }
     }
     loadData()
-// eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleHighlightChange = (idx: number, field: string, value: any) => {
-    setLiveFeed(prev => {
+    setLiveFeed((prev) => {
       const copy = [...prev.recentHighlights]
       if (copy[idx]) {
         copy[idx] = { ...copy[idx], [field]: value }
@@ -84,7 +85,7 @@ export function LiveFeedManager() {
   }
 
   const handleAddHighlight = () => {
-    setLiveFeed(prev => ({
+    setLiveFeed((prev) => ({
       ...prev,
       recentHighlights: [
         ...prev.recentHighlights,
@@ -94,40 +95,51 @@ export function LiveFeedManager() {
           titleAr: 'عروض حية ومهرجانات موسيقية',
           mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4',
           dateLabelEn: 'Tonight in Doha',
-          dateLabelAr: 'الليلة في الدوحة'
-        }
-      ]
+          dateLabelAr: 'الليلة في الدوحة',
+        },
+      ],
     }))
   }
 
   const handleDeleteHighlight = (idx: number) => {
-    setLiveFeed(prev => ({
+    setLiveFeed((prev) => ({
       ...prev,
-      recentHighlights: prev.recentHighlights.filter((_, i) => i !== idx)
+      recentHighlights: prev.recentHighlights.filter((_, i) => i !== idx),
     }))
   }
 
   const handleSave = async () => {
     setSaving(true)
     try {
+      // Isolate update to liveFeed only, preserving all other CMS and social placements
       const updatedFullContent = {
         ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),
-        liveFeed
+        liveFeed,
       }
 
       const res = await fetch('/api/cms/pages/b2c-landing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: updatedFullContent })
+        body: JSON.stringify({ content: updatedFullContent }),
       })
 
       if (!res.ok) throw new Error('Failed to save Live Feed content')
 
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+      const json = await res.json().catch(() => null)
+      if (json?.data?.content) {
+        setFullContent(json.data.content)
       }
 
-      toast('Live Feed content manager saved successfully!', 'success')
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
+        try {
+          const bc = new BroadcastChannel('e3_cms_sync')
+          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
+          bc.close()
+        } catch (_bcErr) {}
+      }
+
+      toast('Live Broadcast & stream settings saved successfully!', 'success')
       router.refresh()
     } catch (err: any) {
       console.error(err)
@@ -148,10 +160,10 @@ export function LiveFeedManager() {
         title="Live Broadcast & Stream Feed Manager"
         description="Manage live broadcast streams, ON-AIR status flags, and video highlights featured on the landing page."
         breadcrumbs={[
-          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
-          { label: "Live Feed Manager" },
+          { label: 'B2C Content', href: '/dashboard/b2c/attractions' },
+          { label: 'Live Feed Manager' },
         ]}
-        badge={{ label: "Live Stream", variant: "error" }}
+        badge={{ label: 'Live Stream', variant: 'error' }}
         primaryAction={{
           label: saving ? 'Saving Changes...' : 'Save Live Feed',
           onClick: handleSave,
@@ -159,6 +171,35 @@ export function LiveFeedManager() {
           icon: <Save className="w-4 h-4" />,
         }}
       />
+
+      {/* Architectural Ownership Separation Notice */}
+      <div className="bg-purple-950/20 border border-purple-500/30 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-start gap-3.5">
+          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shrink-0">
+            <Share2 className="w-4 h-4" />
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs font-bold text-white flex items-center gap-2">
+              <span>Canonical Social Media Manager Available</span>
+              <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-mono uppercase">
+                System Boundary
+              </span>
+            </div>
+            <p className="text-[11px] text-zinc-400 max-w-2xl leading-relaxed">
+              This manager controls <strong>broadcast status, live stream URLs, and curated video clips</strong>.
+              To configure connected Instagram/YouTube accounts, post moderation, automated sync, and social placements, use the central Social Media Manager.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/dashboard/social-media"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shrink-0 shadow-md"
+        >
+          <span>Social Media Manager</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </Link>
+      </div>
 
       {/* Main Broadcast Control */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
@@ -172,11 +213,11 @@ export function LiveFeedManager() {
             <input
               type="checkbox"
               checked={liveFeed.isLiveNow}
-              onChange={(e) => setLiveFeed(prev => ({ ...prev, isLiveNow: e.target.checked }))}
+              onChange={(e) => setLiveFeed((prev) => ({ ...prev, isLiveNow: e.target.checked }))}
               className="rounded accent-rose-500"
             />
-            <span className={liveFeed.isLiveNow ? "text-rose-500 font-extrabold" : "text-[var(--text-secondary)]"}>
-              {liveFeed.isLiveNow ? "● LIVE ON-AIR NOW" : "OFFLINE / STANDBY"}
+            <span className={liveFeed.isLiveNow ? 'text-rose-500 font-extrabold' : 'text-[var(--text-secondary)]'}>
+              {liveFeed.isLiveNow ? '● LIVE ON-AIR NOW' : 'OFFLINE / STANDBY'}
             </span>
           </label>
         </div>
@@ -187,7 +228,7 @@ export function LiveFeedManager() {
             <input
               type="text"
               value={liveFeed.titleEn}
-              onChange={(e) => setLiveFeed(prev => ({ ...prev, titleEn: e.target.value }))}
+              onChange={(e) => setLiveFeed((prev) => ({ ...prev, titleEn: e.target.value }))}
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-rose-500"
             />
           </div>
@@ -198,24 +239,24 @@ export function LiveFeedManager() {
               type="text"
               dir="rtl"
               value={liveFeed.titleAr}
-              onChange={(e) => setLiveFeed(prev => ({ ...prev, titleAr: e.target.value }))}
+              onChange={(e) => setLiveFeed((prev) => ({ ...prev, titleAr: e.target.value }))}
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-rose-500"
             />
           </div>
 
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Live Stream Video URL</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={liveFeed.streamUrl || ''}
-                onChange={(e) => setLiveFeed(prev => ({ ...prev, streamUrl: e.target.value }))}
+                onChange={(e) => setLiveFeed((prev) => ({ ...prev, streamUrl: e.target.value }))}
                 placeholder="https://assets.mixkit.co/..."
                 className="flex-1 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-rose-500 placeholder:text-[var(--text-tertiary)]"
               />
               <AdminMediaPicker
                 value={liveFeed.streamUrl || ''}
-                onChange={(url: string) => setLiveFeed(prev => ({ ...prev, streamUrl: url }))}
+                onChange={(url: string) => setLiveFeed((prev) => ({ ...prev, streamUrl: url }))}
                 label="Stream Video"
                 accept="video/*"
               />
@@ -229,10 +270,12 @@ export function LiveFeedManager() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-rose-500 flex items-center gap-2">
-              <Radio className="w-5 h-5" />
+              <Sparkles className="w-5 h-5" />
               <span>Video Highlights ({liveFeed.recentHighlights.length})</span>
             </h2>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">Manage featured video clip highlights shown alongside the stream.</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+              Manage curated video clip highlights shown alongside the live broadcast stream.
+            </p>
           </div>
 
           <button
