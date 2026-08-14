@@ -56,28 +56,35 @@ export function UniversalMediaHolder({
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const safeConfig = config || {
+    mediaType: 'IMAGE' as const,
+    mediaUrl: '',
+    fallbackImageUrl: '',
+    altEn: '',
+    altAr: '',
+  };
 
-  const altText = locale === 'ar' ? config.altAr || config.altEn : config.altEn || config.altAr;
-  const captionText = locale === 'ar' ? config.captionAr || config.captionEn : config.captionEn || config.captionAr;
-  const fallbackUrl = config.fallbackImageUrl || config.mediaUrl;
+  const altText = locale === 'ar' ? safeConfig.altAr || safeConfig.altEn : safeConfig.altEn || safeConfig.altAr;
+  const captionText = locale === 'ar' ? safeConfig.captionAr || safeConfig.captionEn : safeConfig.captionEn || safeConfig.captionAr;
+  const fallbackUrl = safeConfig.fallbackImageUrl || safeConfig.mediaUrl;
 
   const parsedMediaUrl = React.useMemo(() => {
     return parseVideoEmbedUrl(
-      config.mediaUrl || '',
-      config.autoplay !== false,
-      config.muted ?? true,
-      config.loop !== false
+      safeConfig.mediaUrl || '',
+      safeConfig.autoplay !== false,
+      safeConfig.muted ?? true,
+      safeConfig.loop !== false
     );
-  }, [config.mediaUrl, config.autoplay, config.muted, config.loop]);
+  }, [safeConfig.mediaUrl, safeConfig.autoplay, safeConfig.muted, safeConfig.loop]);
 
-  const effectiveMediaType = resolveMediaType({ url: parsedMediaUrl || config.mediaUrl, explicitType: config.mediaType });
+  const effectiveMediaType = resolveMediaType({ url: parsedMediaUrl || safeConfig.mediaUrl, explicitType: safeConfig.mediaType });
 
   // Handle cached image checks on mount
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete) {
       setIsLoaded(true);
     }
-  }, [config.mediaUrl]);
+  }, [config?.mediaUrl]);
 
   // Iframe Domain Security Check
   const isValidIframeUrl = React.useMemo(() => {
@@ -160,7 +167,10 @@ export function UniversalMediaHolder({
               src={config.mediaUrl}
               alt={altText || 'E3 Media Image'}
               style={focalStyle}
-              className="w-full h-full object-cover opacity-100 filter contrast-[1.05] brightness-[0.95] transition-opacity duration-300"
+              className={cn(
+                "w-full h-full object-cover filter contrast-[1.05] brightness-[0.95] transition-opacity duration-300",
+                isLoaded ? "opacity-100" : "opacity-95"
+              )}
               loading={config.loadingStrategy}
               onLoad={() => setIsLoaded(true)}
               onError={() => setHasError(true)}

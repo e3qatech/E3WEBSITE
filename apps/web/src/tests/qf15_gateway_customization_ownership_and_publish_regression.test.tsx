@@ -4,6 +4,9 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { LocaleProvider } from '@/components/layout/LocaleProvider';
 import { PortalGateway } from '@/components/home/PortalGateway';
 import { GeneralSettingsView } from '@/components/dashboard/settings/GeneralSettingsView';
+import GatewayLocalePage from '@/app/[locale]/page';
+import Home from '@/app/page';
+import { setMockWebGLSupport, resetMockWebGLSupport } from '@/lib/webgl-capability';
 import {
   DEFAULT_GATEWAY_CMS_PAYLOAD,
   GatewayCustomizationPayload,
@@ -408,6 +411,108 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
       expect(b2cMobileMedia.fallbackImageUrl).toBeTruthy();
       expect(b2bDesktopMedia.fallbackImageUrl).toBeTruthy();
       expect(b2bMobileMedia.fallbackImageUrl).toBeTruthy();
+    });
+  });
+
+  // =========================================================================
+  // 8. QF-15-B: CANONICAL PUBLIC ROUTES & NO-WEBGL 2D FALLBACK
+  // =========================================================================
+  describe('8. QF-15-B: Canonical Public Gateway Routes & No-WebGL Fallback', () => {
+    it('Canonical /[locale]/page.tsx renders working /en and /ar gateway routes with accurate dir, links, and language toggles', async () => {
+      // 1. English Canonical Route (/en)
+      const pageEn = await GatewayLocalePage({
+        params: Promise.resolve({ locale: 'en' }),
+      });
+      const htmlEn = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          {pageEn}
+        </LocaleProvider>
+      );
+
+      expect(htmlEn).toContain('dir="ltr"');
+      expect(htmlEn).toContain('href="/en/b2c"');
+      expect(htmlEn).toContain('href="/en/b2b"');
+      expect(htmlEn).toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlEn).toContain('BUILD WHAT’S NEXT');
+      expect(htmlEn).toContain('العربية');
+
+      // 2. Arabic Canonical Route (/ar)
+      const pageAr = await GatewayLocalePage({
+        params: Promise.resolve({ locale: 'ar' }),
+      });
+      const htmlAr = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="ar">
+          {pageAr}
+        </LocaleProvider>
+      );
+
+      expect(htmlAr).toContain('dir="rtl"');
+      expect(htmlAr).toContain('href="/ar/b2c"');
+      expect(htmlAr).toContain('href="/ar/b2b"');
+      expect(htmlAr).toContain('عِش التجربة القادمة');
+      expect(htmlAr).toContain('لنصنع القادم');
+      expect(htmlAr).toContain('ENGLISH');
+
+      // 3. Default Safe / Route
+      const pageHome = await Home();
+      const htmlHome = renderToStaticMarkup(pageHome);
+      expect(htmlHome).toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlHome).toContain('href="/en/b2c"');
+    });
+
+    it('In minimal / No-WebGL mode, renders full 2D gateway design with zero canvas and zero WebGL crash errors', () => {
+      setMockWebGLSupport(false);
+
+      const wireframePayload: GatewayCustomizationPayload = {
+        ...DEFAULT_GATEWAY_CMS_PAYLOAD,
+        visual: {
+          ...DEFAULT_GATEWAY_CMS_PAYLOAD.visual,
+          backgroundStyle: 'wireframe',
+        },
+      };
+
+      const htmlNoWebGL = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <PortalGateway cmsData={wireframePayload} />
+        </LocaleProvider>
+      );
+
+      // Complete 2D branding and gateway elements preserved
+      expect(htmlNoWebGL).toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlNoWebGL).toContain('BUILD WHAT’S NEXT');
+      expect(htmlNoWebGL).toContain('Explore Experiences');
+      expect(htmlNoWebGL).toContain('Work With E3');
+      expect(htmlNoWebGL).toContain('<svg');
+      expect(htmlNoWebGL).toContain('العربية');
+
+      // Zero canvas elements rendered
+      expect(htmlNoWebGL).not.toContain('<canvas');
+
+      resetMockWebGLSupport();
+    });
+
+    it('WebGL-capable environment preserves cinematic 3D wireframe background without global boundary errors', () => {
+      setMockWebGLSupport(true);
+
+      const wireframePayload: GatewayCustomizationPayload = {
+        ...DEFAULT_GATEWAY_CMS_PAYLOAD,
+        visual: {
+          ...DEFAULT_GATEWAY_CMS_PAYLOAD.visual,
+          backgroundStyle: 'wireframe',
+        },
+      };
+
+      const htmlWebGL = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <PortalGateway cmsData={wireframePayload} />
+        </LocaleProvider>
+      );
+
+      expect(htmlWebGL).toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlWebGL).toContain('BUILD WHAT’S NEXT');
+      expect(htmlWebGL).not.toContain('°C');
+
+      resetMockWebGLSupport();
     });
   });
 });

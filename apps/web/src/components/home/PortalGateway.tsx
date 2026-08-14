@@ -4,7 +4,6 @@ import { useLocale } from "@/components/layout/LocaleProvider";
 import { useTheme } from "@/components/layout/ThemeProvider";
 import { E3Logo } from "@/components/shared/E3Logo";
 import { UniversalMediaHolder } from "@/components/shared/UniversalMediaHolder";
-import { useMounted } from "@/hooks/useMounted";
 import { cn } from "@/lib/utils";
 import { localizeHref } from "@/lib/url-helper";
 import {
@@ -18,6 +17,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { playSpatialHoverSound } from "@/components/b2c/nav/PulseOrbitNav";
+import { WebGLBoundary } from "@/components/motion/WebGLBoundary";
 
 const WireframeBackground = dynamic(
   () => import("./WireframeBackground").then((mod) => mod.WireframeBackground),
@@ -172,7 +172,11 @@ export function PortalGateway({
         aria-label={seo.ariaGatewayLabelEn || "E3 Qatar Portal Selection Gateway"}
       >
         {/* Optional 3D Wireframe Background */}
-        {visual.backgroundStyle === 'wireframe' && <WireframeBackground />}
+        {visual.backgroundStyle === 'wireframe' && (
+          <WebGLBoundary fallback={null} minHeight="100%">
+            <WireframeBackground />
+          </WebGLBoundary>
+        )}
 
         {/* Subtle Industrial Grain Texture Overlay */}
         <div className="pointer-events-none fixed inset-0 z-40 opacity-[0.02] mix-blend-overlay">
@@ -308,17 +312,20 @@ export function PortalGateway({
                   <p className="text-xs text-slate-300 font-medium line-clamp-2 leading-relaxed drop-shadow">
                     {b2cDesc}
                   </p>
-
                   <div className="pt-1">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSelect("b2c"); }}
+                    <a
+                      href={b2cDest}
+                      onClick={(e) => {
+                        if (previewMode) e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className="w-full py-3 px-5 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl shadow-purple-950/60 flex items-center justify-between group/mbtn cursor-pointer"
                     >
                       <span>{b2cCta}</span>
                       <div className={cn("w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/mbtn:translate-x-1")}>
                         {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                       </div>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -366,15 +373,19 @@ export function PortalGateway({
                   </p>
 
                   <div className="pt-1">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSelect("b2b"); }}
+                    <a
+                      href={b2bDest}
+                      onClick={(e) => {
+                        if (previewMode) e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className="w-full py-3 px-5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl shadow-indigo-950/60 flex items-center justify-between group/mbtn cursor-pointer"
                     >
                       <span>{b2bCta}</span>
                       <div className={cn("w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/mbtn:translate-x-1")}>
                         {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                       </div>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -435,15 +446,19 @@ export function PortalGateway({
                   </p>
 
                   <div className="pt-2">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSelect("b2c"); }}
+                    <a
+                      href={b2cDest}
+                      onClick={(e) => {
+                        if (previewMode) e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold uppercase tracking-widest transition-all shadow-xl shadow-purple-950/60 group/btn cursor-pointer"
                     >
                       <span>{b2cCta}</span>
                       <div className={cn("w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/btn:translate-x-1 group-hover/btn:scale-105")}>
                         {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                       </div>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -500,15 +515,19 @@ export function PortalGateway({
                   </p>
 
                   <div className="pt-2">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSelect("b2b"); }}
+                    <a
+                      href={b2bDest}
+                      onClick={(e) => {
+                        if (previewMode) e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-widest transition-all shadow-xl shadow-purple-950/60 group/btn cursor-pointer"
                     >
                       <span>{b2bCta}</span>
                       <div className={cn("w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-all", !isReducedMotion && "group-hover/btn:translate-x-1 group-hover/btn:scale-105")}>
                         {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                       </div>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

@@ -1,8 +1,6 @@
 import { Metadata } from "next";
 import { PortalGateway } from "@/components/home/PortalGateway";
 import { SEO } from "@/components/shared/SEO";
-import { LocaleProvider } from "@/components/layout/LocaleProvider";
-import { MotionCapabilityProvider } from "@/lib/motion/capability-context";
 import db from "@/lib/db";
 import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
 
@@ -25,7 +23,11 @@ function mergeGatewayPayload(raw: any): GatewayCustomizationPayload {
   };
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await props.params;
+  const isAr = locale === "ar";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
   
   let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
@@ -40,15 +42,26 @@ export async function generateMetadata(): Promise<Metadata> {
     // Fallback to default payload
   }
 
-  const title = cmsData.seoAccess?.seoTitleEn || "E3 - We Build Experiences | Event Engineering Experts";
-  const description = cmsData.seoAccess?.seoDescEn || "Qatar's premier event engineering and entertainment agency.";
-  const ogImage = cmsData.seoAccess?.ogImage || `${baseUrl}/og-image-default.jpg`;
+  const en = cmsData.english;
+  const ar = cmsData.arabic;
+  const seo = cmsData.seoAccess;
+
+  const title = isAr
+    ? (seo.seoTitleAr || ar.headlineAr || "إي ثري - نصنع التجارب والفعاليات في قطر")
+    : (seo.seoTitleEn || en.headlineEn || "E3 - We Build Experiences | Event Engineering Experts");
+
+  const description = isAr
+    ? (seo.seoDescAr || ar.b2cDescAr || "الوجهة الرائدة في قطر لهندسة الفعاليات الاستثنائية والترفيه.")
+    : (seo.seoDescEn || en.b2cDescEn || "Qatar's premier event engineering and entertainment agency.");
+
+  const ogImage = seo.ogImage || `${baseUrl}/og-image-default.jpg`;
+  const canonicalUrl = `${baseUrl}/${locale}`;
 
   return {
     title,
     description,
     alternates: {
-      canonical: baseUrl,
+      canonical: canonicalUrl,
       languages: {
         'en': `${baseUrl}/en`,
         'ar': `${baseUrl}/ar`,
@@ -57,20 +70,25 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: baseUrl,
+      url: canonicalUrl,
+      locale: isAr ? 'ar_QA' : 'en_US',
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: "E3 Event Engineering",
+          alt: isAr ? "إي ثري لهندسة الفعاليات" : "E3 Event Engineering",
         },
       ],
     },
   };
 }
 
-export default async function Home() {
+export default async function GatewayLocalePage(props: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await props.params;
+  const isAr = locale === "ar";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
 
   let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
@@ -85,23 +103,24 @@ export default async function Home() {
     // Fallback
   }
 
+  const en = cmsData.english;
+  const ar = cmsData.arabic;
+
   return (
-    <LocaleProvider defaultLocale="en">
-      <MotionCapabilityProvider>
-        <SEO 
-          type="WebSite"
-          data={{
-            name: "E3 - Event Engineering Experts",
-            url: baseUrl,
-            potentialAction: {
-              "@type": "SearchAction",
-              target: `${baseUrl}/search?q={search_term_string}`,
-              "query-input": "required name=search_term_string"
-            }
-          }}
-        />
-        <PortalGateway cmsData={cmsData} />
-      </MotionCapabilityProvider>
-    </LocaleProvider>
+    <>
+      <SEO 
+        type="WebSite"
+        data={{
+          name: isAr ? (ar.headlineAr || "إي ثري قطر") : (en.headlineEn || "E3 Qatar"),
+          url: `${baseUrl}/${locale}`,
+          potentialAction: {
+            "@type": "SearchAction",
+            target: `${baseUrl}/${locale}/search?q={search_term_string}`,
+            "query-input": "required name=search_term_string"
+          }
+        }}
+      />
+      <PortalGateway cmsData={cmsData} />
+    </>
   );
 }
