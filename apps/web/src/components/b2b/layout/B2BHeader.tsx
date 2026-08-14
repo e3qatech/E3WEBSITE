@@ -11,15 +11,15 @@ import { PulseOrbitDropdown } from '@/components/b2c/nav/PulseOrbitDropdown';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
 
-export function B2BHeader({ settings = {} }: { settings?: Record<string, string> }) {
+export function B2BHeader({ settings = {}, locale: propLocale }: { settings?: Record<string, string>; locale?: string }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname() || ""
   
   const [theme, setThemeState] = useState<'dark' | 'light'>('dark')
 
-  const isAr = pathname.startsWith('/ar') || (typeof document !== 'undefined' && document.cookie.includes('NEXT_LOCALE=ar'))
-  const currentLocale = isAr ? 'ar' : 'en'
+  const isAr = propLocale ? propLocale === 'ar' : (pathname.startsWith('/ar') || (typeof document !== 'undefined' && document.cookie.includes('NEXT_LOCALE=ar')))
+  const currentLocale = propLocale || (isAr ? 'ar' : 'en')
 
   useEffect(() => {
     const handleScroll = () => {

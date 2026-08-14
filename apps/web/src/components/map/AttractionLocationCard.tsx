@@ -1,9 +1,10 @@
 "use client";
 
 import React from 'react';
-import { MapPin, Clock, ExternalLink, Ticket, Compass, ArrowRight } from 'lucide-react';
+import { MapPin, ExternalLink, Ticket, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { MapLocationProperties } from './map-types';
+import { localizeHref } from '@/lib/url-helper';
 
 interface AttractionLocationCardProps {
   location: MapLocationProperties;
@@ -87,7 +88,7 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
         <div className="pt-3 border-t border-[var(--border-level-2)] flex items-center gap-2">
           {location.ticketingUrl && (
             <Link
-              href={location.ticketingUrl}
+              href={localizeHref(location.ticketingUrl, locale)}
               onClick={(e) => e.stopPropagation()}
               className="flex-1 py-2 px-3 rounded-xl bg-[var(--e3-royal-blue)] hover:opacity-90 text-white text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md"
             >

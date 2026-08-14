@@ -93,6 +93,11 @@ const nextConfig: NextConfig = {
 
       // 3. Contact & Partner Contact Aliases
       {
+        source: '/partners-contact',
+        destination: '/en/b2b/contact',
+        permanent: true,
+      },
+      {
         source: '/:locale(en|ar)/partners-contact',
         destination: '/:locale/b2b/contact',
         permanent: true,

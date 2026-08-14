@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Search, Sparkles, Calendar, ArrowRight, Play, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { localizeHref } from '@/lib/url-helper';
 
 export interface MaskedVideoHeroProps {
   locale: string;
@@ -168,7 +169,7 @@ export function MaskedVideoHero({
             className="flex flex-wrap items-center gap-4 pt-2 z-30"
           >
             <Link
-              href={(heroConfig.tab1Url || maskedConfig.tab1Url || `/${locale}/b2c/attractions`).replace('{locale}', locale)}
+              href={localizeHref((heroConfig.tab1Url || maskedConfig.tab1Url || '/b2c/attractions').replace('{locale}', locale), locale)}
               className="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-slate-950 font-black text-xs shadow-xl hover:opacity-95 transition-all uppercase tracking-wider min-h-[48px] flex items-center justify-center cursor-pointer select-none gap-2"
             >
               <span>{isAr ? (heroConfig.tab1LabelAr || maskedConfig.tab1LabelAr || 'استكشف كافة التجارب') : (heroConfig.tab1LabelEn || maskedConfig.tab1LabelEn || 'EXPLORE ATTRACTIONS')}</span>
@@ -176,7 +177,7 @@ export function MaskedVideoHero({
             </Link>
 
             <Link
-              href={(heroConfig.tab2Url || maskedConfig.tab2Url || `/${locale}/b2c/calendar`).replace('{locale}', locale)}
+              href={localizeHref((heroConfig.tab2Url || maskedConfig.tab2Url || '/b2c/calendar').replace('{locale}', locale), locale)}
               className="px-8 py-4 rounded-full border border-slate-700 bg-slate-900/80 text-white hover:border-slate-500 font-bold text-xs shadow-md transition-all uppercase tracking-wider min-h-[48px] flex items-center justify-center cursor-pointer select-none gap-2 backdrop-blur-md"
             >
               <Calendar className="w-4 h-4 text-emerald-400" />

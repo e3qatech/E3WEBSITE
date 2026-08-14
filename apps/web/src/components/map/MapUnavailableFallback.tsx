@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { MapPin, Compass, ExternalLink, Ticket, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 import { MapGeoJSONCollection, MapLocationProperties } from './map-types';
+import { localizeHref } from '@/lib/url-helper';
 
 interface MapUnavailableFallbackProps {
   locale: string;
@@ -133,8 +135,8 @@ export function MapUnavailableFallback({
                     )}
 
                     {props.ticketingUrl && (
-                      <a
-                        href={props.ticketingUrl}
+                      <Link
+                        href={localizeHref(props.ticketingUrl, locale)}
                         onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors ms-auto"
                         aria-label={`${isAr ? "حجز التذاكر لـ" : "Book Tickets for"} ${name}`}
@@ -142,7 +144,7 @@ export function MapUnavailableFallback({
                         <Ticket className="w-3 h-3" />
                         <span>{isAr ? "احجز التذاكر" : "Book Tickets"}</span>
                         <ArrowUpRight className="w-3 h-3 icon-directional" />
-                      </a>
+                      </Link>
                     )}
                   </div>
                 </div>

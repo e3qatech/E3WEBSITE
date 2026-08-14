@@ -5,6 +5,7 @@ import { ArrowUpRight, Sparkles, MapPin, ChevronDown } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { formatLocalizedText } from '@/lib/utils'
+import { localizeHref } from '@/lib/url-helper'
 
 interface StoryTaxonomyPortalsProps {
   content: any
@@ -19,7 +20,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
 
   const selector = content?.intentSelector || {}
   
-  const [dbStoryTypes, setDbStoryTypes] = useState<any[]>([])
+  const [dbStoryTypes, setDbStoryTypes] = useState<any[]>(content?.storyDiscovery?.storyTypes || content?.storyTypes || [])
   const [showAllActivities, setShowAllActivities] = useState(false)
 
   useEffect(() => {
@@ -77,14 +78,14 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       attractionNameAr: attr.nameAr
     }))
 
-    const titleEnStr = formatLocalizedText(st.titleEn, 'en')
-    const titleArStr = formatLocalizedText(st.titleAr, 'ar')
+    const titleEnStr = formatLocalizedText(st.titleEn || st.nameEn || st.slug || '', 'en')
+    const titleArStr = formatLocalizedText(st.titleAr || st.nameAr || st.titleEn || st.slug || '', 'ar')
 
     return {
-      id: st.slug,
-      labelEn: titleEnStr || st.slug,
-      labelAr: titleArStr || titleEnStr || st.slug,
-      category: (titleEnStr || st.slug).toUpperCase(),
+      id: st.slug || st.id || 'story-type',
+      labelEn: titleEnStr || st.slug || st.id || 'Story Type',
+      labelAr: titleArStr || titleEnStr || st.slug || st.id || 'نوع القصة',
+      category: String(titleEnStr || st.slug || st.id || 'CATEGORY').toUpperCase(),
       mediaUrl: st.coverMediaUrl 
         || displayActivities[0]?.imageUrl 
         || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
@@ -255,7 +256,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                   return (
                     <a
                       key={act.id || idx}
-                      href={`/b2c/attractions/${act.attractionSlug}`}
+                      href={localizeHref(`/b2c/attractions/${act.attractionSlug}`, locale)}
                       className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between min-h-[220px] w-full max-w-sm flex-1 min-w-[280px] transition-all duration-500 hover:border-purple-500/50 hover:bg-slate-900/90 hover:shadow-2xl hover:-translate-y-1"
                     >
                       {/* Background Image overlay */}

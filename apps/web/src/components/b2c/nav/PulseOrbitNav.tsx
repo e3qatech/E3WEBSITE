@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { PulseOrbitDropdown as _PulseOrbitDropdown } from './PulseOrbitDropdown';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
+import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
 
 interface NavDestination {
   labelEn: string;
@@ -366,13 +367,11 @@ export function PulseOrbitNav({
     }
   };
 
-  const bookTicketsRawUrl = settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || (activePortalTab === 'b2c' ? '/b2c/tickets' : '/b2b/contact');
-  const isExternalBookUrl = bookTicketsRawUrl.startsWith('http://') || bookTicketsRawUrl.startsWith('https://');
+  const bookTicketsRawUrl = settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || (activePortalTab === 'b2c' ? '/b2c/calendar' : '/b2b/contact');
+  const isExternalBookUrl = isExternalUrl(bookTicketsRawUrl);
   const bookTicketsHref = isExternalBookUrl
-    ? bookTicketsRawUrl
-    : bookTicketsRawUrl.startsWith('/')
-      ? `/${locale}${bookTicketsRawUrl}`
-      : `/${locale}/${bookTicketsRawUrl}`;
+    ? normalizeExternalUrl(bookTicketsRawUrl)
+    : localizeHref(bookTicketsRawUrl, locale);
 
   const bookTicketsLabelEn = settings?.bookTicketsLabelEn || currentOrbitData?.bookTicketsLabelEn || (activePortalTab === 'b2c' ? 'BOOK TICKETS' : 'REQUEST PROPOSAL');
   const bookTicketsLabelAr = settings?.bookTicketsLabelAr || currentOrbitData?.bookTicketsLabelAr || (activePortalTab === 'b2c' ? 'احجز التذاكر' : 'اطلب عرض سعر');
@@ -421,7 +420,7 @@ export function PulseOrbitNav({
               return (
                 <Link
                   key={dest.href}
-                  href={`/${locale}${dest.href}`}
+                  href={localizeHref(dest.href, locale)}
                   onMouseEnter={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const pan = ((rect.left + rect.width / 2) / window.innerWidth - 0.5) * 1.5;
@@ -632,7 +631,7 @@ export function PulseOrbitNav({
                 return (
                   <Link
                     key={dest.href}
-                    href={`/${locale}${dest.href}`}
+                    href={localizeHref(dest.href, locale)}
                     onMouseEnter={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       const pan = ((rect.left + rect.width / 2) / window.innerWidth - 0.5) * 1.5;

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Ticket, Sparkles, ArrowRight, Compass, Calendar, MapPin } from 'lucide-react'
 import { DEFAULT_ATTRACTION_WORLDS } from './ExperienceWorldsStage'
+import { localizeHref } from '@/lib/url-helper'
 
 interface TactileDigitalTicketProps {
   content: any
@@ -15,9 +16,9 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
   const isAr = locale === 'ar'
   const ticketData = content?.act7Ticket || {}
   const secondaryActions = ticketData.secondaryActions || [
-    { labelEn: "Explore Map GIS", labelAr: "تصفح الخريطة التفاعلية", url: `/${locale}/b2c/attractions#interactive-attractions-map` },
-    { labelEn: "View Calendar Schedule", labelAr: "جدول الفعاليات والمواعيد", url: `/${locale}/b2c/calendar` },
-    { labelEn: "Browse All Attractions", labelAr: "استكشف كافة الوجهات", url: `/${locale}/b2c/attractions` }
+    { labelEn: "Explore Map GIS", labelAr: "تصفح الخريطة التفاعلية", url: "/b2c/attractions#interactive-attractions-map" },
+    { labelEn: "View Calendar Schedule", labelAr: "جدول الفعاليات والمواعيد", url: "/b2c/calendar" },
+    { labelEn: "Browse All Attractions", labelAr: "استكشف كافة الوجهات", url: "/b2c/attractions" }
   ]
 
   const rawWorlds = content?.act3Worlds
@@ -35,7 +36,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     nameAr: rawActiveWorld.nameAr || fallback.nameAr,
     locationEn: rawActiveWorld.locationEn || rawActiveWorld.locationNameEn || fallback.locationEn,
     locationAr: rawActiveWorld.locationAr || rawActiveWorld.locationNameAr || fallback.locationAr,
-    ticketingUrl: rawActiveWorld.ticketingUrl || `/${locale}/b2c/calendar`
+    ticketingUrl: rawActiveWorld.ticketingUrl || '/b2c/calendar'
   }
 
   return (
@@ -116,7 +117,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
 
             <div className="flex flex-col gap-3">
               <Link
-                href={activeWorld.ticketingUrl || `/${locale}/b2c/calendar`}
+                href={localizeHref(activeWorld.ticketingUrl || '/b2c/calendar', locale)}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-base transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Ticket className="w-5 h-5" />
@@ -132,7 +133,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           {secondaryActions.map((action: any, idx: number) => (
             <Link
               key={idx}
-              href={action.url}
+              href={localizeHref(action.url, locale)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-xs font-bold text-slate-300 hover:text-white transition-all cursor-pointer"
             >
               {idx === 0 ? <Compass className="w-3.5 h-3.5 text-emerald-400" /> : idx === 1 ? <Calendar className="w-3.5 h-3.5 text-sky-400" /> : <MapPin className="w-3.5 h-3.5 text-purple-400" />}

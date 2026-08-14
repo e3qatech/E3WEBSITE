@@ -60,11 +60,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     primaryCta: isAr 
       ? (content.hero?.primaryCtaAr || content.hero?.primaryCta || "استكشف الخدمات") 
       : (content.hero?.primaryCtaEn || content.hero?.primaryCta || "Explore Services"),
-    primaryLink: localizeHref(content.hero?.primaryLink || '/b2b/services', locale),
+    primaryLink: localizeHref('/b2b/services', locale),
     secondaryCta: isAr 
       ? (content.hero?.secondaryCtaAr || content.hero?.secondaryCta || "ابدأ مشروعاً") 
       : (content.hero?.secondaryCtaEn || content.hero?.secondaryCta || "Start a Project"),
-    secondaryLink: localizeHref(content.hero?.secondaryLink || '/b2b/contact', locale),
+    secondaryLink: localizeHref('/b2b/contact', locale),
     mediaType: content.hero?.mediaType || "IMAGE",
     mediaUrl: content.hero?.mediaUrl || ""
   }

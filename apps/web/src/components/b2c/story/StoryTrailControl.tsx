@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Sparkles, Ticket } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { localizeHref } from '@/lib/url-helper'
 
 interface StoryTrailControlProps {
   currentStoryLabelEn?: string
@@ -51,7 +52,7 @@ export function StoryTrailControl({
           </a>
 
           <Link
-            href="/b2c/tickets"
+            href={localizeHref('/b2c/calendar', locale)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition-all shadow-md cursor-pointer"
           >
             <Ticket className="w-3.5 h-3.5" />

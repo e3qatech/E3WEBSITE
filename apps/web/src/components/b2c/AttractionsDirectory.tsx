@@ -23,6 +23,7 @@ import { AttractionLocationCard } from '../map/AttractionLocationCard';
 import { useNearestLocations } from '@/hooks/useNearestLocations';
 import { MapGeoJSONCollection, MapGeoJSONFeature } from '../map/map-types';
 import { getBentoCardSpan } from '@/lib/bento-grid';
+import { localizeHref } from '@/lib/url-helper';
 
 interface AttractionsDirectoryProps {
   initialAttractions: Attraction[];
@@ -210,7 +211,7 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                   </div>
 
                   <Link
-                    href={attr.ticketingUrl || `/${locale}/b2c/calendar`}
+                    href={localizeHref(attr.ticketingUrl || '/b2c/calendar', locale)}
                     className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group/btn"
                   >
                     <Ticket className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover/btn:text-white transition-colors" />

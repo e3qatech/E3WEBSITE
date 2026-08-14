@@ -3,6 +3,8 @@
 import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { Star, Send, MessageSquare, CheckCircle, Mail, Phone, MapPin, Sparkles } from "lucide-react"
+import Link from "next/link"
+import { localizeHref } from "@/lib/url-helper"
 
 interface AttractionFeedbackContactSectionProps {
   attractionId: string
@@ -276,12 +278,12 @@ export function AttractionFeedbackContactSection({
               </div>
 
               <div className="pt-2">
-                <a
-                  href={`/${locale}/contact`}
+                <Link
+                  href={localizeHref('/b2c/contact', locale)}
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl border border-white/20 bg-white/5 hover:bg-white/15 text-xs font-extrabold uppercase tracking-wider text-white transition-all cursor-pointer"
                 >
                   <span>{isAr ? "صفحة التواصل الكاملة ↗" : "Full Contact Page ↗"}</span>
-                </a>
+                </Link>
               </div>
             </div>
           </motion.div>

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Users, Clock, Ticket, ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Sparkles } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
+import { localizeHref } from '@/lib/url-helper'
 
 export const DEFAULT_ATTRACTION_WORLDS = [
   {
@@ -407,7 +408,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 </div>
 
                 <Link
-                  href={`/b2c/attractions/${currentWorld.slug || 'urban-arena-doha'}`}
+                  href={localizeHref(`/b2c/attractions/${currentWorld.slug || 'urban-arena-doha'}`, locale)}
                   className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs tracking-wider uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />

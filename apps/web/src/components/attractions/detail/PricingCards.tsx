@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Ticket, Tag, Copy, Check, Info, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { formatLocalizedText } from '@/lib/utils';
+import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
 
 interface PricingTier {
   id: string;
@@ -49,6 +50,10 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
   const generalPasses = pricing.filter(p => (p.type || '').toUpperCase() === 'GENERAL' || !p.type);
   const addOnPasses = pricing.filter(p => (p.type || '').toUpperCase() === 'ADD_ON');
   const passesToRender = generalPasses.length > 0 ? generalPasses : pricing;
+
+  const safeBookingUrl = bookingUrl
+    ? (isExternalUrl(bookingUrl) ? normalizeExternalUrl(bookingUrl) : localizeHref(bookingUrl, locale))
+    : '#';
 
   const noteText = isAr
     ? (pricingNoteAr || "يخضع استخدام الباقات لتوفر الأنشطة ومتطلبات التشغيل وشروط العمر وتعليمات السلامة في الموقع. يجب شراء الأنشطة المميزة غير المشمولة في باقات الدخول بشكل منفصل.")
@@ -128,7 +133,7 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
                 <div className="mt-auto pt-6 border-t border-white/10 relative z-10">
                   <Link
-                    href={bookingUrl || '#'}
+                    href={safeBookingUrl}
                     className={`relative group/btn w-full flex justify-center items-center py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-lg ${
                       isFeatured ? 'bg-emerald-500 text-zinc-950 hover:bg-emerald-400' : 'bg-white text-zinc-950 hover:bg-zinc-200'
                     }`}
@@ -184,7 +189,7 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
                     </div>
 
                     <Link
-                      href={bookingUrl || '#'}
+                      href={safeBookingUrl}
                       className="w-full text-center py-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 text-xs font-bold uppercase tracking-wider transition-all"
                     >
                       {isAr ? "إضافة التجربة" : "Book Activity"}

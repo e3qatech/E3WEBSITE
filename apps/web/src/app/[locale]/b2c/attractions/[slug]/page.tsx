@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
+import Link from "next/link"
+import { localizeHref } from "@/lib/url-helper"
 
 // Component Imports
 import { HeroViewer } from "@/components/attractions/detail/HeroViewer"
@@ -352,12 +354,12 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
               <span className="relative z-10">{locale === "ar" ? "احجز الآن" : "Book Now"}</span>
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
             </a>
-            <a 
-              href={`/${locale}/contact`}
+            <Link 
+              href={localizeHref('/b2c/contact', locale)}
               className="px-10 py-5 bg-white/5 backdrop-blur-md border border-white/10 text-white font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-colors duration-300"
             >
               {locale === "ar" ? "اتصل بنا" : "Contact Us"}
-            </a>
+            </Link>
           </div>
         </div>
       </section>

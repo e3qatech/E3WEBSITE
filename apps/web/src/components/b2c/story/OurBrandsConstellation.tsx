@@ -7,6 +7,7 @@ import { Sparkles, ArrowRight, Ticket, Compass, Pause, Play, ChevronLeft, Chevro
 import { OurBrandRecord } from '@/lib/cms-brands'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 import { formatLocalizedText } from '@/lib/utils'
+import { localizeHref } from '@/lib/url-helper'
 
 interface OurBrandsConstellationProps {
   content?: any
@@ -331,7 +332,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   {(activeBrand.internalRoute || activeBrand.ctaUrl) && (
                     <Link
-                      href={activeBrand.internalRoute || activeBrand.ctaUrl}
+                      href={localizeHref(activeBrand.internalRoute || activeBrand.ctaUrl, locale)}
                       className="flex items-center gap-2 px-6 py-3.5 rounded-2xl text-slate-950 font-extrabold text-xs transition-all shadow-lg hover:scale-105 cursor-pointer"
                       style={{ backgroundColor: activeBrand.brandColor || '#a855f7', color: '#090417' }}
                     >
@@ -343,7 +344,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
                   {activeBrand.bookingUrl && (
                     <Link
-                      href={activeBrand.bookingUrl}
+                      href={localizeHref(activeBrand.bookingUrl, locale)}
                       className="flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-slate-700 bg-slate-950 hover:bg-slate-900 text-xs font-extrabold text-slate-200 hover:text-white transition-all cursor-pointer"
                     >
                       <Ticket className="w-4 h-4 text-emerald-400" />

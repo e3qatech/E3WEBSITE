@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Clock, MapPin, Navigation, Ticket, ExternalLink, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { formatLocalizedText } from '@/lib/utils';
+import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
 import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas';
 import { MapGeoJSONCollection } from '@/components/map/map-types';
 
@@ -119,13 +120,25 @@ export function LiveBookingCard({
             </a>
 
             {bookingUrl && (
-              <Link
-                href={bookingUrl}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
-              >
-                <Ticket className="w-4 h-4" />
-                <span>{isAr ? "احجز تذكرتك" : "Book Tickets"}</span>
-              </Link>
+              isExternalUrl(bookingUrl) ? (
+                <a
+                  href={normalizeExternalUrl(bookingUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>{isAr ? "احجز تذكرتك" : "Book Tickets"}</span>
+                </a>
+              ) : (
+                <Link
+                  href={localizeHref(bookingUrl, locale)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>{isAr ? "احجز تذكرتك" : "Book Tickets"}</span>
+                </Link>
+              )
             )}
           </div>
         </div>

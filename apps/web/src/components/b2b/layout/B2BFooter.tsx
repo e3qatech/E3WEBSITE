@@ -34,10 +34,10 @@ function Linkedin({ className }: { className?: string }) {
   );
 }
 
-export function B2BFooter({ settings = {} }: { settings?: Record<string, string> }) {
+export function B2BFooter({ settings = {}, locale: propLocale }: { settings?: Record<string, string>; locale?: string }) {
   const pathname = usePathname() || ""
-  const isAr = pathname.startsWith('/ar')
-  const currentLocale = isAr ? 'ar' : 'en'
+  const isAr = propLocale ? propLocale === 'ar' : pathname.startsWith('/ar')
+  const currentLocale = propLocale || (isAr ? 'ar' : 'en')
 
   const siteName = isAr ? (settings.siteNameAr || "إي ثري للشركات") : (settings.siteNameEn || "E3 Corporate");
   const address = isAr ? (settings.addressAr || settings.addressEn || "الدوحة، دولة قطر") : (settings.addressEn || "Doha, State of Qatar");

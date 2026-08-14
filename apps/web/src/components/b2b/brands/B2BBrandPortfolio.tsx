@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Building2, ArrowRight, ExternalLink, Activity, Briefcase } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
+import { localizeHref } from '@/lib/url-helper'
 
 interface B2BBrandPortfolioProps {
   content?: any
@@ -160,8 +162,8 @@ export function B2BBrandPortfolio({ content, locale = 'en' }: B2BBrandPortfolioP
                     )}
 
                     <div className="pt-2">
-                      <a 
-                        href={activeBrand.b2bInquiryUrl || "/b2b/contact"}
+                      <Link 
+                        href={localizeHref(activeBrand.b2bInquiryUrl || "/b2b/contact", locale)}
                         className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-white text-black hover:bg-zinc-200 transition-colors font-bold text-sm"
                       >
                         {isAr 
@@ -169,7 +171,7 @@ export function B2BBrandPortfolio({ content, locale = 'en' }: B2BBrandPortfolioP
                           : (activeBrand.b2bCtaLabelEn || "Inquire for Partnership")
                         }
                         <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

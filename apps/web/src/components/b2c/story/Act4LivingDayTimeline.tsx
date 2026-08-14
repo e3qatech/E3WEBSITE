@@ -2,6 +2,7 @@ import { Clock, Radio, Ticket, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatLocalizedText } from '@/lib/utils'
+import { localizeHref } from '@/lib/url-helper'
 
 interface Act4LivingDayTimelineProps {
   content: any
@@ -204,7 +205,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
               const venueVal = formatLocalizedText(isAr ? (item.venueAr || item.venueEn) : (item.venueEn || item.venueAr), locale)
               const timeVal = formatLocalizedText(isAr ? (item.timeAr || item.timeEn) : (item.timeEn || item.timeAr), locale)
               const statusVal = formatLocalizedText(isAr ? (item.statusAr || item.statusEn) : (item.statusEn || item.statusAr), locale)
-              const targetUrl = item.slug ? `/b2c/attractions/${item.slug}` : `/b2c/tickets`
+              const targetUrl = localizeHref(item.slug ? `/b2c/attractions/${item.slug}` : `/b2c/calendar`, locale)
 
               return (
                 <div

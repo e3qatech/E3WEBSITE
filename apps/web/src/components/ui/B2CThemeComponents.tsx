@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { resolveMediaType } from "@/lib/media-resolver";
-import { MapPin, Clock, Ticket, Users, AlertCircle, HelpCircle, ArrowRight } from "lucide-react";
+import { MapPin, Clock, Ticket, Users, AlertCircle, HelpCircle, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from "@/lib/url-helper";
 
@@ -28,7 +28,7 @@ export function B2CThemeProvider({
   children,
   locale = "en",
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   locale?: string;
 }) {
   const theme = React.useSyncExternalStore(
@@ -309,6 +309,7 @@ interface B2CButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg";
   href?: string;
+  locale?: string;
 }
 
 export function B2CButton({
@@ -317,9 +318,11 @@ export function B2CButton({
   variant = "primary",
   size = "md",
   href,
+  locale: propLocale,
   ...props
 }: B2CButtonProps) {
-  const { theme, locale } = useB2CTheme();
+  const { theme, locale: contextLocale } = useB2CTheme();
+  const locale = propLocale || contextLocale || 'en';
 
   const baseStyles = "inline-flex items-center justify-center font-bold tracking-wide rounded-xl cursor-pointer transition-all duration-300 select-none active:scale-[0.98] outline-none focus:ring-2 focus:ring-[var(--e3-royal-blue)]/50";
   
@@ -701,12 +704,14 @@ export function B2CMediaCard({
 
 export function B2CAttractionCard({
   attraction,
-  locale: _locale = "en",
+  locale: propLocale,
 }: {
   attraction: any;
   locale?: string;
 }) {
-  const { isAr } = useB2CTheme();
+  const { isAr: contextIsAr, locale: contextLocale } = useB2CTheme();
+  const effectiveLocale = propLocale || contextLocale || 'en';
+  const isAr = propLocale ? propLocale === 'ar' : contextIsAr;
   
   const name = isAr ? attraction.nameAr || attraction.nameEn : attraction.nameEn || attraction.nameAr;
   const tagline = isAr ? attraction.taglineAr || attraction.taglineEn : attraction.taglineEn || attraction.taglineAr;
@@ -729,42 +734,50 @@ export function B2CAttractionCard({
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[var(--e3-royal-blue)]/20 to-[var(--e3-purple)]/20 flex items-center justify-center text-zinc-800">
-            No Image
+          <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-700">
+            <Sparkles size={32} />
           </div>
         )}
 
-        {/* Dynamic Status Tag */}
-        <div className="absolute top-4 start-4">
-          <B2CStatusBadge status={attraction.computedStatus || attraction.status} />
+        {/* Badges */}
+        <div className="absolute top-3 start-3 flex gap-2">
+          {attraction.category && (
+            <B2CBadge variant="secondary" className="backdrop-blur-md bg-black/60">
+              {attraction.category}
+            </B2CBadge>
+          )}
+          {attraction.isFeatured && (
+            <B2CBadge variant="accent" className="backdrop-blur-md bg-[rgba(26,31,214,0.8)]">
+              {isAr ? "مميز" : "Featured"}
+            </B2CBadge>
+          )}
         </div>
 
-        {/* Price Tag Overlay */}
+        {/* Price tag */}
         {price && (
-          <div className="absolute bottom-4 end-4 bg-[var(--e3-magenta)] text-[var(--e3-white)] px-3 py-1.5 rounded-lg text-xs font-black tracking-wider uppercase shadow-[0_4px_10px_rgba(176,19,184,0.3)]">
+          <div className="absolute bottom-3 end-3 bg-black/80 backdrop-blur-md border border-[var(--border-level-2)] px-3 py-1 rounded-full text-xs font-mono font-bold text-emerald-400">
             {price}
           </div>
         )}
       </div>
 
-      {/* Info Content */}
+      {/* Body Content */}
       <div className="p-6 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-xl font-bold tracking-tight mb-2 text-[var(--text-primary)] font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors duration-300">
+          <h3 className="text-xl font-extrabold tracking-tight mb-1 text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors font-display uppercase">
             {name}
           </h3>
           
           {tagline && (
-            <p className="text-sm text-[var(--text-secondary)] font-medium mb-4 line-clamp-2">
+            <p className="text-xs text-[var(--text-secondary)] font-medium mb-4 line-clamp-2">
               {tagline}
             </p>
           )}
 
-          {/* Location and Info block */}
           {address && (
-            <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)] mb-4 font-semibold">
-              <MapPin size={14} className="text-[var(--e3-royal-blue)]" />
-              <span className="line-clamp-1">{address}</span>
+            <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] font-medium">
+              <MapPin size={13} className="text-[var(--e3-royal-blue)] shrink-0" />
+              <span className="truncate">{address}</span>
             </div>
           )}
         </div>
@@ -774,7 +787,7 @@ export function B2CAttractionCard({
           <div className="flex items-center justify-between text-xs font-semibold mb-2">
             <span className="flex items-center gap-1.5 text-[var(--text-secondary)] uppercase tracking-wider">
               <Users size={12} className="text-[var(--e3-royal-blue)] animate-pulse" />
-              Live Capacity
+              {isAr ? "السعة الحالية" : "Live Capacity"}
             </span>
             <span className="text-[var(--e3-royal-blue)] font-bold">{occupancyPercentage}%</span>
           </div>
@@ -792,10 +805,11 @@ export function B2CAttractionCard({
         <div className="mt-6">
           <B2CButton 
             href={`/b2c/attractions/${attraction.slug}`} 
+            locale={effectiveLocale}
             variant="outline" 
             className="w-full text-xs font-black uppercase flex items-center justify-center gap-2 group/btn border-[rgba(75,0,143,0.3)]"
           >
-            Explore Experience
+            {isAr ? "استكشف التجربة" : "Explore Experience"}
             <ArrowRight size={14} className={cn("transition-transform", isAr ? "rotate-180 group-hover/btn:-translate-x-1" : "group-hover/btn:translate-x-1")} />
           </B2CButton>
         </div>
@@ -806,22 +820,24 @@ export function B2CAttractionCard({
 
 export function B2CEventCard({
   event,
-  locale = "en",
+  locale: propLocale,
 }: {
   event: any;
   locale?: string;
 }) {
-  const { isAr } = useB2CTheme();
+  const { isAr: contextIsAr, locale: contextLocale } = useB2CTheme();
+  const effectiveLocale = propLocale || contextLocale || 'en';
+  const isAr = propLocale ? propLocale === 'ar' : contextIsAr;
   
   const title = isAr ? event.titleAr || event.titleEn : event.titleEn || event.titleAr;
   const description = isAr ? event.descriptionAr || event.descriptionEn : event.descriptionEn || event.descriptionAr;
   const venue = isAr ? event.venueAr || event.venueEn : event.venueEn || event.venueAr;
   
-  const _startDateStr = new Date(event.startDate).toLocaleDateString(locale, {
+  const _startDateStr = new Date(event.startDate).toLocaleDateString(effectiveLocale, {
     day: 'numeric', month: 'short', year: 'numeric'
   });
   
-  const startTimeStr = new Date(event.startDate).toLocaleTimeString(locale, {
+  const startTimeStr = new Date(event.startDate).toLocaleTimeString(effectiveLocale, {
     hour: '2-digit', minute: '2-digit'
   });
 
@@ -835,7 +851,7 @@ export function B2CEventCard({
           {new Date(event.startDate).getDate()}
         </span>
         <span className="text-xs font-bold text-[var(--e3-royal-blue)] uppercase tracking-wider mt-1">
-          {new Date(event.startDate).toLocaleDateString(locale, { month: 'short' })}
+          {new Date(event.startDate).toLocaleDateString(effectiveLocale, { month: 'short' })}
         </span>
       </div>
 
@@ -880,15 +896,15 @@ export function B2CEventCard({
       {/* CTA ticket Button */}
       {event.ticketUrl ? (
         <div className="shrink-0 w-full md:w-auto">
-          <B2CButton href={event.ticketUrl} variant="primary" size="sm" className="w-full flex items-center gap-2">
+          <B2CButton href={event.ticketUrl} locale={effectiveLocale} variant="primary" size="sm" className="w-full flex items-center gap-2">
             <Ticket size={14} />
-            Get Tickets
+            {isAr ? "شراء التذاكر" : "Get Tickets"}
           </B2CButton>
         </div>
       ) : (
         <div className="shrink-0 w-full md:w-auto">
-          <B2CButton href={`/b2c/calendar/${event.id}`} variant="outline" size="sm" className="w-full">
-            Details
+          <B2CButton href={`/b2c/calendar/${event.id}`} locale={effectiveLocale} variant="outline" size="sm" className="w-full">
+            {isAr ? "التفاصيل" : "Details"}
           </B2CButton>
         </div>
       )}

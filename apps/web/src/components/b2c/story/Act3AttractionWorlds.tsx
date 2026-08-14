@@ -12,6 +12,7 @@ interface Act3AttractionWorldsProps {
 }
 
 import { resolveMediaType } from '@/lib/media-resolver'
+import { localizeHref } from '@/lib/url-helper'
 
 export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsProps) {
   const isAr = locale === 'ar'
@@ -163,7 +164,7 @@ export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsPr
 
                 <div className="flex items-center gap-3">
                   <Link
-                    href={`/b2c/attractions/${activeWorld.slug || activeWorld.id}`}
+                    href={localizeHref(`/b2c/attractions/${activeWorld.slug || activeWorld.id}`, locale)}
                     className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold text-xs transition-all shadow-lg hover:scale-105 cursor-pointer"
                   >
                     <Ticket className="w-4 h-4" />

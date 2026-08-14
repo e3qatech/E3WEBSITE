@@ -162,12 +162,23 @@ export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, s
             transition={{ delay: 0.7, duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className="mt-12"
           >
-            <Link 
-              href={ctaLink}
-              className="inline-flex items-center justify-center px-10 py-5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-lg md:text-xl uppercase tracking-widest transition-all duration-300 rounded-sm hover:scale-105"
-            >
-              {ctaText}
-            </Link>
+            {ctaLink.startsWith('http://') || ctaLink.startsWith('https://') ? (
+              <a 
+                href={ctaLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-10 py-5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-lg md:text-xl uppercase tracking-widest transition-all duration-300 rounded-sm hover:scale-105"
+              >
+                {ctaText}
+              </a>
+            ) : (
+              <Link 
+                href={ctaLink}
+                className="inline-flex items-center justify-center px-10 py-5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-lg md:text-xl uppercase tracking-widest transition-all duration-300 rounded-sm hover:scale-105"
+              >
+                {ctaText}
+              </Link>
+            )}
           </motion.div>
         )}
       </div>
