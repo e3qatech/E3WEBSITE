@@ -239,6 +239,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    let publishedVersion: number | undefined;
+
     // Publish (SUPER_ADMIN)
     if (action === 'publish') {
       await db.setting.upsert({
@@ -259,6 +261,7 @@ export async function POST(req: NextRequest) {
         const existingVersions = versionRecord?.value ? (versionRecord.value as any[]) : [];
         const maxExistingVersion = existingVersions.reduce((max, v) => Math.max(max, v.version || 0), 0);
         const nextVersionNumber = maxExistingVersion + 1;
+        publishedVersion = nextVersionNumber;
 
         const newVersionSnapshot = {
           version: nextVersionNumber,
@@ -284,6 +287,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       action,
+      version: publishedVersion,
       data: action === 'publish' ? { ...updatedPayload, status: 'PUBLISHED' } : { ...updatedPayload, status: 'DRAFT' },
     });
   } catch (error) {

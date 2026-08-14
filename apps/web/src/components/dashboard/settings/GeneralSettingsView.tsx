@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Save, CheckCircle2, Building, Mail, Share2, Key, Image as ImageIcon, LayoutTemplate, Ticket } from "lucide-react"
+import { Save, CheckCircle2, Building, Mail, Share2, Key, Image as ImageIcon, LayoutTemplate, ArrowRight, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import {
   DashboardPageShell,
@@ -12,6 +13,7 @@ import {
   DashboardUnsavedChangesGuard,
   EditorSectionItem,
 } from "@/components/dashboard/ui"
+import { cn } from "@/lib/utils"
 
 import { useLocale } from "@/components/layout/LocaleProvider"
 
@@ -22,7 +24,7 @@ const SECTIONS: EditorSectionItem[] = [
   { id: "social", label: "4. Social Channels", labelAr: "4. قنوات التواصل الاجتماعي" },
   { id: "tickets", label: "5. Ticket CTA Bar", labelAr: "5. شريط حجز التذاكر" },
   { id: "integrations", label: "6. API Gateways", labelAr: "6. بوابات الربط البرمجي (API)" },
-  { id: "gateway", label: "7. Gateway Hero Split", labelAr: "7. واجهة تقسيم بوابة الدخول" },
+  { id: "gateway", label: "7. Gateway Customization", labelAr: "7. تخصيص بوابة الدخول" },
 ]
 
 export function GeneralSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
@@ -62,10 +64,6 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     bookTicketsLabelAr: initialSettings.bookTicketsLabelAr || "احجز التذاكر",
     bookTicketsEnabled: initialSettings.bookTicketsEnabled ?? "true",
     bookTicketsExternal: initialSettings.bookTicketsExternal ?? "false",
-    gatewayB2CTitle: initialSettings.gatewayB2CTitle || "PRISTINE\\nSNOW",
-    gatewayB2CDesc: initialSettings.gatewayB2CDesc || "Discover Qatar's premier live events, permanent attractions, and immersive experiences.",
-    gatewayB2BTitle: initialSettings.gatewayB2BTitle || "COSMIC\\nVOID",
-    gatewayB2BDesc: initialSettings.gatewayB2BDesc || "End-to-end event engineering, stage fabrication, and B2B spatial technologies."
   })
 
   const handleChange = (field: string, value: string) => {
@@ -446,48 +444,40 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
           </div>
 
           <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-[var(--text-primary)] mb-6 flex items-center border-b border-[var(--border-default)] pb-4">
-              <LayoutTemplate className="w-5 h-5 me-2 text-indigo-500" /> Gateway Customization
+            <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center border-b border-[var(--border-default)] pb-4">
+              <LayoutTemplate className="w-5 h-5 me-2 text-indigo-500" />
+              <span>{isAr ? "تخصيص بوابة الدخول 50/50" : "50/50 Portal Gateway Customization"}</span>
             </h3>
-            <div className="space-y-6">
-              <div className="space-y-4 border-b border-[var(--border-default)] pb-4">
-                <h4 className="text-sm font-bold text-[var(--text-primary)]">Public Portal (B2C)</h4>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Title</label>
-                  <textarea 
-                    value={data.gatewayB2CTitle.replace(/\\n/g, '\n')} 
-                    onChange={e => handleChange("gatewayB2CTitle", e.target.value.replace(/\n/g, '\\n'))}
-                    className="w-full h-16 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Description</label>
-                  <textarea 
-                    value={data.gatewayB2CDesc} 
-                    onChange={e => handleChange("gatewayB2CDesc", e.target.value)}
-                    className="w-full h-20 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
-                  />
+            <div className="space-y-4">
+              <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-4">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
+                  <div className="text-xs space-y-1">
+                    <p className="font-bold text-purple-200">
+                      {isAr
+                        ? "المحرر المتخصص لبوابة الدخول المركزية"
+                        : "Dedicated Gateway Customization CMS"}
+                    </p>
+                    <p className="text-[var(--text-secondary)] leading-relaxed">
+                      {isAr
+                        ? "تتم إدارة نصوص البوابة، والوسائط المتعددة 3D/فيديو، والشعارات بحسب النمط (فاتح/داكن)، وتأثيرات التقسيم 50/50، وسجل الإصدارات والاسترجاع في المحرر المخصص لضمان استقلالية النشر."
+                        : "Bilingual portal copy, universal 3D/video/image media holders, theme-specific logos, 50/50 interactive split physics, live simulation, and version rollbacks are managed in the specialized Gateway CMS."}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h4 className="text-sm font-bold text-[var(--text-primary)]">Enterprise Solutions (B2B)</h4>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Title</label>
-                  <textarea 
-                    value={data.gatewayB2BTitle.replace(/\\n/g, '\n')} 
-                    onChange={e => handleChange("gatewayB2BTitle", e.target.value.replace(/\n/g, '\\n'))}
-                    className="w-full h-16 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Description</label>
-                  <textarea 
-                    value={data.gatewayB2BDesc} 
-                    onChange={e => handleChange("gatewayB2BDesc", e.target.value)}
-                    className="w-full h-20 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
-                  />
-                </div>
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-[var(--text-secondary)] font-medium">
+                  {isAr ? "الانتقال إلى مدير بوابة الدخول:" : "Access Canonical Gateway Editor:"}
+                </span>
+                <Link
+                  href={`/${locale}/dashboard/settings/gateway`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold shadow-lg shadow-purple-950/30 hover:opacity-90 transition-all"
+                >
+                  <span>{isAr ? "فتح محرر بوابة الدخول" : "Open Gateway Editor"}</span>
+                  <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+                </Link>
               </div>
             </div>
           </div>
