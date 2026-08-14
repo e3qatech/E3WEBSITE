@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
@@ -15,8 +14,17 @@ import {
   ArrowDown, 
   Plus, 
   Trash2, 
-  FileText
+  FileText,
+  Save,
+  Sparkles
 } from "lucide-react"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+} from "@/components/dashboard/ui"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const [data, setData] = useState<any>(() => {
@@ -130,6 +138,9 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
 
   }, [])
 
+  const [isDirty, setIsDirty] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -151,6 +162,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       })
 
       if (res.ok) {
+        setIsDirty(false)
+        setLastSaved(new Date())
         toast("Discover Page configuration published to database successfully!", "success")
       } else {
         toast("Could not save Discover Page settings.", "error")
@@ -163,6 +176,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   }
 
   const updateSectionField = (section: string, field: string, value: any) => {
+    setIsDirty(true)
     setData((prev: any) => ({
       ...prev,
       [section]: {
@@ -173,6 +187,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   }
 
   const toggleSectionEnabled = (section: string) => {
+    setIsDirty(true)
     setData((prev: any) => ({
       ...prev,
       [section]: {
@@ -183,6 +198,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
   }
 
   const moveSectionOrder = (index: number, direction: 'up' | 'down') => {
+    setIsDirty(true)
     const order = [...(data.sectionOrder || [])]
     const targetIdx = direction === 'up' ? index - 1 : index + 1
     if (targetIdx < 0 || targetIdx >= order.length) return
@@ -206,37 +222,37 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     { id: "finalGateway", label: "11. Final Gateway" },
     { id: "ordering", label: "12. Section Ordering" },
     { id: "seo", label: "13. SEO & AEO Settings" },
-    { id: "footer", label: "14. Footer Background Media" }
+    { id: "footer", label: "14. Footer Media" }
   ]
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6 max-w-6xl mx-auto font-poppins">
-      <AdminPageHeader 
-        title="B2C Discover Page Manager"
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      <DashboardPageHeader 
+        title="B2C Discover Page Editor"
         description="Configure E3 corporate story, leadership, record achievements, BookingQube tech, and opportunity gateways."
-        action={
-          <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Discover Page"}
-          </AdminButton>
-        }
+        breadcrumbs={[
+          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: "Discover Page Editor" }
+        ]}
+        badge={{ label: "B2C Public", variant: "purple" }}
+        previewUrl="/b2c/discover"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Discover Page",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />
+        }}
       />
 
-      {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-border-default pb-4">
-        {tabsList.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-              activeTab === tab.id 
-                ? "bg-color-primary text-white" 
-                : "bg-surface-subtle text-text-secondary hover:text-text-primary"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <DashboardSectionNavigator
+        sections={tabsList}
+        activeSectionId={activeTab}
+        onSectionChange={setActiveTab}
+      />
 
       <AdminFormLayout>
         {/* 1. HERO TAB */}
@@ -1634,6 +1650,17 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
       </AdminFormLayout>
-    </div>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   )
 }

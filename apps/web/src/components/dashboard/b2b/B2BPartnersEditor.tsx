@@ -1,13 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
-import { AdminButton } from "../ui/AdminButton"
-import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { MediaUploader } from "@/components/shared/MediaUploader"
+import React, { useState } from "react";
+import { Save, Globe, Users2 } from "lucide-react";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import { MediaUploader } from "@/components/shared/MediaUploader";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardLanguageSwitch,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+} from "@/components/dashboard/ui";
 
 export function B2BPartnersEditor({ initialData }: { initialData: any }) {
+  const { toast } = useToast();
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   const [data, setData] = useState({
     hero: {
       titleEn: initialData?.hero?.titleEn || "Trusted by the Best.",
@@ -16,132 +30,147 @@ export function B2BPartnersEditor({ initialData }: { initialData: any }) {
       subtitleAr: initialData?.hero?.subtitleAr || "نحن نتشارك مع هيئات حكومية طموحة، وعلامات تجارية عالمية، ووجهات رائدة لتقديم تجارب تهم.",
       mediaType: initialData?.hero?.mediaType || "IMAGE",
       mediaUrl: initialData?.hero?.mediaUrl || "",
-    }
-  })
-
-  const { toast } = useToast()
-  const [saving, setSaving] = useState(false)
+    },
+  });
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const res = await fetch('/api/cms/pages/b2b-partners', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data })
-      })
-      if (!res.ok) throw new Error("Failed to save")
-      toast("B2B Partners page updated successfully.", "success")
+      const res = await fetch("/api/cms/pages/b2b-partners", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: data }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("B2B Partners page updated successfully.", "success");
     } catch (e) {
-      console.error(e)
-      toast("Failed to save B2B Partners page.", "error")
+      toast("Failed to save B2B Partners page.", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleChange = (section: keyof typeof data, field: string, value: any) => {
-    setData(prev => ({
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
       [section]: {
         ...(prev[section] as any),
-        [field]: value
-      }
-    }))
-  }
+        [field]: value,
+      },
+    }));
+  };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6">
-      <AdminPageHeader 
-        title="Client Page Editor"
-        description="Manage the main clients index page hero section."
-        action={
-          <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </AdminButton>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      {/* Header */}
+      <DashboardPageHeader
+        title="B2B Clients & Partners Editor"
+        description="Manage the hero narrative and media assets on the corporate clients index (/b2b/clients)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Clients & Partners Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "warning" }}
+        previewUrl="/b2b/clients"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
         }
       />
 
-      <AdminFormLayout>
-        {/* Hero Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Hero Section</h2>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero.titleEn}
-                  onChange={e => handleChange('hero', 'titleEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero.titleAr}
-                  onChange={e => handleChange('hero', 'titleAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
-                <textarea 
-                  value={data.hero.subtitleEn}
-                  onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.hero.subtitleAr}
-                  onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
-                <select 
-                  value={data.hero.mediaType}
-                  onChange={e => handleChange('hero', 'mediaType', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                >
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                  <option value="SPLINE">Spline / 3D Scene</option>
-                  <option value="IFRAME">iFrame Embed</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media URL / Source</label>
-                {['IFRAME', 'SPLINE'].includes(data.hero.mediaType) ? (
-                  <input 
-                    type="text" 
-                    value={data.hero.mediaUrl}
-                    onChange={e => handleChange('hero', 'mediaUrl', e.target.value)}
-                    placeholder="https://..."
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                  />
-                ) : (
-                  <MediaUploader 
-                    value={data.hero.mediaUrl} 
-                    onChange={url => handleChange('hero', 'mediaUrl', url)} 
-                    accept={data.hero.mediaType === 'VIDEO' ? "video/*" : "image/*"}
-                  />
-                )}
-              </div>
-            </div>
+      {/* Hero Section */}
+      <DashboardSectionCard
+        title="Clients Hero Narrative"
+        description="Opening headlines and mission statement celebrating E3's partnership with Qatar's government entities and enterprise brands."
+        icon={<Users2 className="w-5 h-5 text-purple-400" />}
+      >
+        <DashboardBilingualField
+          label="Headline"
+          valueEn={data.hero.titleEn}
+          valueAr={data.hero.titleAr}
+          onChangeEn={(val) => handleChange("hero", "titleEn", val)}
+          onChangeAr={(val) => handleChange("hero", "titleAr", val)}
+          placeholderEn="e.g. Trusted by the Best."
+          placeholderAr="مثال: يحظى بثقة الأفضل."
+          mode={languageMode}
+        />
+
+        <DashboardBilingualField
+          label="Subtitle & Description"
+          type="textarea"
+          rows={3}
+          valueEn={data.hero.subtitleEn}
+          valueAr={data.hero.subtitleAr}
+          onChangeEn={(val) => handleChange("hero", "subtitleEn", val)}
+          onChangeAr={(val) => handleChange("hero", "subtitleAr", val)}
+          placeholderEn="Enter description..."
+          placeholderAr="أدخل النص الوصفي..."
+          mode={languageMode}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[var(--border-level-1)]">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+              Media Type
+            </label>
+            <select
+              value={data.hero.mediaType}
+              onChange={(e) => handleChange("hero", "mediaType", e.target.value)}
+              className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+            >
+              <option value="IMAGE">Image</option>
+              <option value="VIDEO">Video</option>
+              <option value="SPLINE">Spline / 3D Scene</option>
+              <option value="IFRAME">iFrame Embed</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+              Media Source
+            </label>
+            {["IFRAME", "SPLINE"].includes(data.hero.mediaType) ? (
+              <input
+                type="text"
+                value={data.hero.mediaUrl}
+                onChange={(e) => handleChange("hero", "mediaUrl", e.target.value)}
+                placeholder="https://..."
+                className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            ) : (
+              <MediaUploader
+                value={data.hero.mediaUrl}
+                onChange={(url) => handleChange("hero", "mediaUrl", url)}
+                accept={data.hero.mediaType === "VIDEO" ? "video/*" : "image/*"}
+              />
+            )}
           </div>
         </div>
-      </AdminFormLayout>
-    </div>
-  )
+      </DashboardSectionCard>
+
+      {/* Sticky Bottom Actions */}
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
+  );
 }

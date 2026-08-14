@@ -8,6 +8,7 @@ export type Role =
   | 'OPERATIONS_ADMIN'
   | 'STAFF'
   | 'CLIENT'
+  | 'BUSINESS_USER'
   | 'CANDIDATE';
 
 export type Capability =
@@ -198,6 +199,20 @@ export const rolePermissions: Record<Role, string[]> = {
   ],
 
   CLIENT: [
+    'client.rfp.own',
+    'client.company.own',
+    'client.documents.own',
+    'view:business_dashboard',
+    'view:company',
+    'manage:company_members',
+    'view:projects',
+    'create:requests',
+    'view:files',
+    'view:meetings',
+    'request:meetings',
+  ],
+
+  BUSINESS_USER: [
     'client.rfp.own',
     'client.company.own',
     'client.documents.own',

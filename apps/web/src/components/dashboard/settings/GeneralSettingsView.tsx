@@ -1,14 +1,34 @@
 "use client"
 
 import { useState } from "react"
-import { Save, CheckCircle2, Building, Mail, Share2, Key, Image as ImageIcon, LayoutTemplate } from "lucide-react"
-import { Button } from "@/components/ui/Button"
+import { Save, CheckCircle2, Building, Mail, Share2, Key, Image as ImageIcon, LayoutTemplate, Ticket } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MediaUploader } from "@/components/shared/MediaUploader"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "identity", label: "1. Site Identity" },
+  { id: "branding", label: "2. Logos & Favicon" },
+  { id: "contact", label: "3. Contact Info" },
+  { id: "social", label: "4. Social Channels" },
+  { id: "tickets", label: "5. Ticket CTA Bar" },
+  { id: "integrations", label: "6. API Gateways" },
+  { id: "gateway", label: "7. Gateway Hero Split" },
+]
 
 export function GeneralSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [activeSectionId, setActiveSectionId] = useState("identity")
   const [toast, setToast] = useState(false)
   
   const [data, setData] = useState({
@@ -45,6 +65,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
   })
 
   const handleChange = (field: string, value: string) => {
+    setIsDirty(true)
     setData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -59,6 +80,8 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
         })
       )
       await Promise.all(promises)
+      setIsDirty(false)
+      setLastSaved(new Date())
       setToast(true)
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("e3_general_settings_updated", { detail: data }))
@@ -73,21 +96,37 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">General Settings</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Manage global site identity, contact info, and API keys.</p>
-        </div>
-        
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          {isSaving ? <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Changes
-        </Button>
-      </div>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      {/* Standard Header */}
+      <DashboardPageHeader
+        title="General Platform Settings"
+        description="Manage global site identity, brand logos, contact information, social links, and external API gateways."
+        breadcrumbs={[
+          { label: "Settings", href: "/dashboard/settings/general" },
+          { label: "General Settings" },
+        ]}
+        badge={{ label: "Platform Global", variant: "cyan" }}
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Settings",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
+
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
 
       {toast && (
-        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
+        <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
           <CheckCircle2 className="w-5 h-5 me-2" />
           Settings saved successfully.
         </div>
@@ -447,6 +486,17 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
 
         </div>
       </div>
-    </div>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={isSaving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   )
 }

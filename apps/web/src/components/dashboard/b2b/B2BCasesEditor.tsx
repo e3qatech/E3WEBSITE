@@ -2,12 +2,34 @@
 
 import { useState } from "react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
-import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Clock, Flame, BarChart3, CheckSquare, Eye, ArrowUpRight } from "lucide-react"
+import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Clock, Flame, BarChart3, CheckSquare, Eye, ArrowUpRight, Save } from "lucide-react"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "hero", label: "1. Hero Section" },
+  { id: "showreel", label: "2. Master Showreel" },
+  { id: "factStream", label: "3. Fact Stream" },
+  { id: "featuredCases", label: "4. Featured Cases" },
+  { id: "archive", label: "5. Projects Archive" },
+  { id: "teamStories", label: "6. Team Stories" },
+  { id: "timeline", label: "7. Production Timeline" },
+  { id: "transformations", label: "8. Transformations" },
+  { id: "impactOverview", label: "9. ROI & Impact" },
+  { id: "servicesSection", label: "10. Linked Services" },
+  { id: "cta", label: "11. RFP CTA" },
+  { id: "seo", label: "12. SEO Settings" },
+]
 
 export function B2BCasesEditor({ 
   initialData, 
@@ -22,6 +44,9 @@ export function B2BCasesEditor({
 }) {
   const [data, setData] = useState(initialData)
   const [seo, setSeo] = useState<any>(initialData?.seo || {})
+  const [activeSectionId, setActiveSectionId] = useState("hero")
+  const [isDirty, setIsDirty] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
 
@@ -34,6 +59,8 @@ export function B2BCasesEditor({
         body: JSON.stringify({ content: data, seo })
       })
       if (!res.ok) throw new Error("Failed to save")
+      setIsDirty(false)
+      setLastSaved(new Date())
       toast("B2B Case Studies landing page updated successfully.", "success")
     } catch (e) {
       console.error(e)
@@ -44,6 +71,7 @@ export function B2BCasesEditor({
   }
 
   const handleChange = (section: string, field: string, value: any) => {
+    setIsDirty(true)
     setData((prev: any) => ({
       ...prev,
       [section]: {
@@ -275,26 +303,32 @@ export function B2BCasesEditor({
   };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6 text-text-primary">
-      <AdminPageHeader 
-        title="B2B Case Studies Landing Page Editor"
-        description="Manage all 12 interactive sections of the landmark projects showcase (b2b-cases)."
-        action={
-          <div className="flex items-center gap-3">
-            <a 
-              href="/en/b2b/cases" 
-              target="_blank" 
-              rel="noreferrer"
-              className="px-4 py-2 bg-surface-hover border border-border-default rounded-lg text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-surface-active transition-colors"
-            >
-              <span>Preview Public Page</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </a>
-            <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
-              {saving ? "Saving Changes..." : "Save All Sections"}
-            </AdminButton>
-          </div>
-        }
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      <DashboardPageHeader 
+        title="B2B Case Studies Page Editor"
+        description="Manage all 12 interactive sections of the landmark projects showcase (/b2b/cases)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Case Studies Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "warning" }}
+        previewUrl="/b2b/cases"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save All Sections",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />
+        }}
+      />
+
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
       />
 
       <AdminFormLayout>
@@ -1325,6 +1359,17 @@ export function B2BCasesEditor({
         <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </AdminFormLayout>
-    </div>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   )
 }

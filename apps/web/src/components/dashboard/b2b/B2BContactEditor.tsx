@@ -1,14 +1,37 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
-import { AdminButton } from "../ui/AdminButton"
-import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { MediaUploader } from "@/components/shared/MediaUploader"
-import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
+import React, { useState } from "react";
+import { Mail, Phone, MapPin, Save, Briefcase, HelpCircle, MessageSquare, Globe } from "lucide-react";
+import { AdminMediaPicker } from "../ui/AdminMediaPicker";
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardLanguageSwitch,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+  EditorSectionItem,
+} from "@/components/dashboard/ui";
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "header", label: "1. Header & Inquiries" },
+  { id: "rfp-ctas", label: "2. CTAs & Opportunity Cards" },
+  { id: "seo", label: "3. SEO Metadata" },
+];
 
 export function B2BContactEditor({ initialData }: { initialData: any }) {
+  const { toast } = useToast();
+  const [activeSectionId, setActiveSectionId] = useState<string>("header");
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   const [data, setData] = useState({
     header: {
       titleEn: initialData?.header?.titleEn || "",
@@ -19,13 +42,13 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
       mediaUrl: initialData?.header?.mediaUrl || "",
     },
     inquiries: {
-      business: initialData?.inquiries?.business || "",
-      careers: initialData?.inquiries?.careers || "",
-      phone: initialData?.inquiries?.phone || "",
+      business: initialData?.inquiries?.business || "rfp@e3.qa",
+      careers: initialData?.inquiries?.careers || "careers@e3.qa",
+      phone: initialData?.inquiries?.phone || "+974 4400 0000",
     },
     headquarters: {
-      addressEn: initialData?.headquarters?.addressEn || "",
-      addressAr: initialData?.headquarters?.addressAr || "",
+      addressEn: initialData?.headquarters?.addressEn || "Doha, State of Qatar",
+      addressAr: initialData?.headquarters?.addressAr || "الدوحة، دولة قطر",
     },
     careersCta: {
       titleEn: initialData?.careersCta?.titleEn || "Join Our Team",
@@ -34,8 +57,7 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
       descriptionAr: initialData?.careersCta?.descriptionAr || "اكتشف فرصاً جديدة لبناء تجارب استثنائية.",
       ctaTextEn: initialData?.careersCta?.ctaTextEn || "Explore Careers",
       ctaTextAr: initialData?.careersCta?.ctaTextAr || "استكشف الوظائف",
-      ctaLink: initialData?.careersCta?.ctaLink || "mailto:careers@e3.qa",
-      mediaType: initialData?.careersCta?.mediaType || "IMAGE",
+      ctaLink: initialData?.careersCta?.ctaLink || "/careers",
       mediaUrl: initialData?.careersCta?.mediaUrl || "",
     },
     feedbackCta: {
@@ -46,7 +68,6 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
       ctaTextEn: initialData?.feedbackCta?.ctaTextEn || "Share Feedback",
       ctaTextAr: initialData?.feedbackCta?.ctaTextAr || "شارك الملاحظات",
       ctaLink: initialData?.feedbackCta?.ctaLink || "/feedback",
-      mediaType: initialData?.feedbackCta?.mediaType || "IMAGE",
       mediaUrl: initialData?.feedbackCta?.mediaUrl || "",
     },
     faqCta: {
@@ -57,272 +78,275 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
       ctaTextEn: initialData?.faqCta?.ctaTextEn || "View FAQs",
       ctaTextAr: initialData?.faqCta?.ctaTextAr || "عرض الأسئلة",
       ctaLink: initialData?.faqCta?.ctaLink || "/b2b/faqs",
-      mediaType: initialData?.faqCta?.mediaType || "IMAGE",
       mediaUrl: initialData?.faqCta?.mediaUrl || "",
-    }
-  })
+    },
+  });
 
-  const [seo, setSeo] = useState<any>(initialData?.seo || {})
-
-  const { toast } = useToast()
-  const [saving, setSaving] = useState(false)
+  const [seo, setSeo] = useState<any>(initialData?.seo || {});
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const res = await fetch('/api/cms/pages/b2b-contact', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data, seo })
-      })
-      if (!res.ok) throw new Error("Failed to save")
-      toast("B2B Contact page updated successfully.", "success")
+      const res = await fetch("/api/cms/pages/b2b-contact", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: data, seo }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("B2B Contact page updated successfully.", "success");
     } catch (e) {
-      console.error(e)
-      toast("Failed to save B2B Contact page.", "error")
+      toast("Failed to save B2B Contact page.", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleChange = (section: keyof typeof data, field: string, value: any) => {
-    setData(prev => ({
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
       [section]: {
         ...(prev[section] as any),
-        [field]: value
-      }
-    }))
-  }
+        [field]: value,
+      },
+    }));
+  };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6">
-      <AdminPageHeader 
-        title="B2B Contact / RFP"
-        description="Manage contact information, RFP settings, and CTA cards."
-        action={
-          <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </AdminButton>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      {/* Header */}
+      <DashboardPageHeader
+        title="B2B Contact & RFP Editor"
+        description="Manage corporate contact details, RFP intake parameters, and opportunity gateway cards (/b2b/contact)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Contact & RFP Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "warning" }}
+        previewUrl="/b2b/contact"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
         }
       />
 
-      <AdminFormLayout>
-        {/* Header Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Header Section</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-                <input 
-                  type="text" 
-                  value={data.header.titleEn}
-                  onChange={e => handleChange('header', 'titleEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.header.titleAr}
-                  onChange={e => handleChange('header', 'titleAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
-                <textarea 
-                  value={data.header.subtitleEn}
-                  onChange={e => handleChange('header', 'subtitleEn', e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.header.subtitleAr}
-                  onChange={e => handleChange('header', 'subtitleAr', e.target.value)}
-                  className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
-                <select 
-                  value={data.header.mediaType}
-                  onChange={e => handleChange('header', 'mediaType', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                >
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Background</label>
-                <MediaUploader 
-                  value={data.header.mediaUrl}
-                  onChange={(url) => handleChange('header', 'mediaUrl', url)} 
-                  accept={data.header.mediaType === 'VIDEO' ? "video/*" : "image/*"}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
 
-        {/* Direct Inquiries Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Direct Inquiries</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Business Email</label>
-              <input 
-                type="email" 
-                value={data.inquiries.business}
-                onChange={e => handleChange('inquiries', 'business', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Careers Email</label>
-              <input 
-                type="email" 
-                value={data.inquiries.careers}
-                onChange={e => handleChange('inquiries', 'careers', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Phone Number</label>
-              <input 
-                type="tel" 
-                value={data.inquiries.phone}
-                onChange={e => handleChange('inquiries', 'phone', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Headquarters Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Headquarters Address</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Address (En)</label>
-              <textarea 
-                value={data.headquarters.addressEn}
-                onChange={e => handleChange('headquarters', 'addressEn', e.target.value)}
-                className="w-full h-32 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Address (Ar)</label>
-              <textarea 
-                dir="rtl"
-                value={data.headquarters.addressAr}
-                onChange={e => handleChange('headquarters', 'addressAr', e.target.value)}
-                className="w-full h-32 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Careers CTA */}
-        <CtaEditorBlock 
-          title="Careers CTA Card"
-          data={data.careersCta} 
-          onChange={(field, value) => handleChange('careersCta', field, value)} 
-        />
-        
-        {/* Feedback CTA */}
-        <CtaEditorBlock 
-          title="Suggestions & Feedback CTA Card"
-          data={data.feedbackCta} 
-          onChange={(field, value) => handleChange('feedbackCta', field, value)} 
-        />
-        
-        {/* FAQs CTA */}
-        <CtaEditorBlock 
-          title="B2B FAQs CTA Card"
-          data={data.faqCta} 
-          onChange={(field, value) => handleChange('faqCta', field, value)} 
-        />
-
-        {/* SEO Customizer */}
-        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
-
-      </AdminFormLayout>
-    </div>
-  )
-}
-
-function CtaEditorBlock({ title, data, onChange }: { title: string, data: any, onChange: (field: string, value: any) => void }) {
-  return (
-    <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-      <h2 className="text-lg font-bold text-text-primary">{title}</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-              <input type="text" value={data.titleEn} onChange={e => onChange('titleEn', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-              <input type="text" dir="rtl" value={data.titleAr} onChange={e => onChange('titleAr', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
-              <textarea value={data.descriptionEn} onChange={e => onChange('descriptionEn', e.target.value)} className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
-              <textarea dir="rtl" value={data.descriptionAr} onChange={e => onChange('descriptionAr', e.target.value)} className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none" />
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">CTA Text (En)</label>
-              <input type="text" value={data.ctaTextEn} onChange={e => onChange('ctaTextEn', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">CTA Text (Ar)</label>
-              <input type="text" dir="rtl" value={data.ctaTextAr} onChange={e => onChange('ctaTextAr', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Link</label>
-              <input type="text" value={data.ctaLink} onChange={e => onChange('ctaLink', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
-            <select value={data.mediaType} onChange={e => onChange('mediaType', e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none">
-              <option value="IMAGE">Image</option>
-              <option value="VIDEO">Video</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Background</label>
-            <MediaUploader 
-              value={data.mediaUrl}
-              onChange={(url) => onChange('mediaUrl', url)} 
-              accept={data.mediaType === 'VIDEO' ? "video/*" : "image/*"}
+      {/* 1. HEADER & INQUIRIES */}
+      {activeSectionId === "header" && (
+        <div className="space-y-6">
+          <DashboardSectionCard
+            title="Page Header & Narrative"
+            description="Hero copy displayed at the top of the contact and RFP submission page."
+            icon={<Mail className="w-5 h-5 text-purple-400" />}
+          >
+            <DashboardBilingualField
+              label="Page Title"
+              valueEn={data.header.titleEn}
+              valueAr={data.header.titleAr}
+              onChangeEn={(val) => handleChange("header", "titleEn", val)}
+              onChangeAr={(val) => handleChange("header", "titleAr", val)}
+              placeholderEn="e.g. Partner With E3 Qatar"
+              placeholderAr="مثال: شارك إي ثري قطر"
+              mode={languageMode}
             />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
+            <DashboardBilingualField
+              label="Subtitle"
+              type="textarea"
+              rows={2}
+              valueEn={data.header.subtitleEn}
+              valueAr={data.header.subtitleAr}
+              onChangeEn={(val) => handleChange("header", "subtitleEn", val)}
+              onChangeAr={(val) => handleChange("header", "subtitleAr", val)}
+              placeholderEn="Enter subtitle..."
+              placeholderAr="أدخل النص الفرعي..."
+              mode={languageMode}
+            />
+
+            <div className="space-y-2 pt-2 border-t border-[var(--border-level-1)]">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                Header Media Asset
+              </label>
+              <AdminMediaPicker
+                value={data.header.mediaUrl}
+                onChange={(url) => handleChange("header", "mediaUrl", url)}
+              />
+            </div>
+          </DashboardSectionCard>
+
+          <DashboardSectionCard
+            title="Direct Contact Channels"
+            description="Official email channels and headquarters physical location."
+            icon={<Phone className="w-5 h-5 text-purple-400" />}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  Business RFP Email
+                </label>
+                <input
+                  type="email"
+                  value={data.inquiries.business}
+                  onChange={(e) => handleChange("inquiries", "business", e.target.value)}
+                  className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  Careers & Talent Email
+                </label>
+                <input
+                  type="email"
+                  value={data.inquiries.careers}
+                  onChange={(e) => handleChange("inquiries", "careers", e.target.value)}
+                  className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  Direct Phone Number
+                </label>
+                <input
+                  type="text"
+                  value={data.inquiries.phone}
+                  onChange={(e) => handleChange("inquiries", "phone", e.target.value)}
+                  className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-[var(--border-level-1)]">
+              <DashboardBilingualField
+                label="Headquarters Address"
+                valueEn={data.headquarters.addressEn}
+                valueAr={data.headquarters.addressAr}
+                onChangeEn={(val) => handleChange("headquarters", "addressEn", val)}
+                onChangeAr={(val) => handleChange("headquarters", "addressAr", val)}
+                placeholderEn="e.g. Doha, State of Qatar"
+                placeholderAr="مثال: الدوحة، دولة قطر"
+                mode={languageMode}
+              />
+            </div>
+          </DashboardSectionCard>
+        </div>
+      )}
+
+      {/* 2. RFP & CTAs */}
+      {activeSectionId === "rfp-ctas" && (
+        <div className="space-y-6">
+          {/* Careers CTA Card */}
+          <DashboardSectionCard
+            title="Careers Gateway Card"
+            description="Callout card linking candidates to the careers and talent recruitment portal."
+            icon={<Briefcase className="w-5 h-5 text-indigo-400" />}
+          >
+            <DashboardBilingualField
+              label="Card Title"
+              valueEn={data.careersCta.titleEn}
+              valueAr={data.careersCta.titleAr}
+              onChangeEn={(val) => handleChange("careersCta", "titleEn", val)}
+              onChangeAr={(val) => handleChange("careersCta", "titleAr", val)}
+              mode={languageMode}
+            />
+
+            <DashboardBilingualField
+              label="Card Description"
+              type="textarea"
+              rows={2}
+              valueEn={data.careersCta.descriptionEn}
+              valueAr={data.careersCta.descriptionAr}
+              onChangeEn={(val) => handleChange("careersCta", "descriptionEn", val)}
+              onChangeAr={(val) => handleChange("careersCta", "descriptionAr", val)}
+              mode={languageMode}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <DashboardBilingualField
+                label="Button Label"
+                valueEn={data.careersCta.ctaTextEn}
+                valueAr={data.careersCta.ctaTextAr}
+                onChangeEn={(val) => handleChange("careersCta", "ctaTextEn", val)}
+                onChangeAr={(val) => handleChange("careersCta", "ctaTextAr", val)}
+                mode={languageMode}
+              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  Destination URL
+                </label>
+                <input
+                  type="text"
+                  value={data.careersCta.ctaLink}
+                  onChange={(e) => handleChange("careersCta", "ctaLink", e.target.value)}
+                  className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+            </div>
+          </DashboardSectionCard>
+
+          {/* Feedback CTA Card */}
+          <DashboardSectionCard
+            title="Client Feedback Gateway Card"
+            description="Callout card inviting partners to share feedback or inquiries."
+            icon={<MessageSquare className="w-5 h-5 text-purple-400" />}
+          >
+            <DashboardBilingualField
+              label="Card Title"
+              valueEn={data.feedbackCta.titleEn}
+              valueAr={data.feedbackCta.titleAr}
+              onChangeEn={(val) => handleChange("feedbackCta", "titleEn", val)}
+              onChangeAr={(val) => handleChange("feedbackCta", "titleAr", val)}
+              mode={languageMode}
+            />
+
+            <DashboardBilingualField
+              label="Card Description"
+              type="textarea"
+              rows={2}
+              valueEn={data.feedbackCta.descriptionEn}
+              valueAr={data.feedbackCta.descriptionAr}
+              onChangeEn={(val) => handleChange("feedbackCta", "descriptionEn", val)}
+              onChangeAr={(val) => handleChange("feedbackCta", "descriptionAr", val)}
+              mode={languageMode}
+            />
+          </DashboardSectionCard>
+        </div>
+      )}
+
+      {/* 3. SEO */}
+      {activeSectionId === "seo" && (
+        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
+      )}
+
+      {/* Sticky Bottom Actions */}
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
+  );
+}

@@ -1,15 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
-import { AdminMediaPicker } from "../ui/AdminMediaPicker"
-import { AdminButton } from "../ui/AdminButton"
-import { Plus, Trash2 } from "lucide-react"
-import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
+import React, { useState } from "react";
+import { Plus, Trash2, Save, Globe, BookOpen, Heart, Sparkles } from "lucide-react";
+import { AdminMediaPicker } from "../ui/AdminMediaPicker";
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardLanguageSwitch,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+  EditorSectionItem,
+  AdminButton,
+} from "@/components/dashboard/ui";
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "header", label: "1. Hero Header" },
+  { id: "story", label: "2. Corporate Story" },
+  { id: "values", label: "3. Corporate Values" },
+  { id: "seo", label: "4. SEO Metadata" },
+];
 
 export function B2BAboutEditor({ initialData }: { initialData: any }) {
+  const { toast } = useToast();
+  const [activeSectionId, setActiveSectionId] = useState<string>("header");
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   const [data, setData] = useState({
     header: {
       titleEn: initialData?.header?.titleEn || "",
@@ -29,341 +53,267 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       mediaUrl: initialData?.story?.mediaUrl || initialData?.story?.imageMediaId || "",
       fallbackImageUrl: initialData?.story?.fallbackImageUrl || "",
     },
-    values: initialData?.values || []
-  })
+    values: initialData?.values || [],
+  });
 
-  const [seo, setSeo] = useState<any>(initialData?.seo || {})
-
-  const { toast } = useToast()
-  const [saving, setSaving] = useState(false)
+  const [seo, setSeo] = useState<any>(initialData?.seo || {});
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const res = await fetch('/api/cms/pages/b2b-about', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data, seo })
-      })
-      if (!res.ok) throw new Error("Failed to save")
-      toast("B2B About Us page updated successfully.", "success")
+      const res = await fetch("/api/cms/pages/b2b-about", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: data, seo }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("B2B About Us page updated successfully.", "success");
     } catch (e) {
-      console.error(e)
-      toast("Failed to save B2B About Us page.", "error")
+      toast("Failed to save B2B About Us page.", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleChange = (section: keyof typeof data, field: string, value: any) => {
-    setData(prev => ({
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
       [section]: {
         ...(prev[section] as any),
-        [field]: value
-      }
-    }))
-  }
+        [field]: value,
+      },
+    }));
+  };
 
   const addValue = () => {
-    setData(prev => ({
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
-      values: [...prev.values, { titleEn: "", titleAr: "", descEn: "", descAr: "" }]
-    }))
-  }
+      values: [...prev.values, { titleEn: "", titleAr: "", descEn: "", descAr: "" }],
+    }));
+  };
 
   const removeValue = (index: number) => {
-    setData(prev => ({
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
-      values: prev.values.filter((_val: any, i: number) => i !== index)
-    }))
-  }
+      values: prev.values.filter((_val: any, i: number) => i !== index),
+    }));
+  };
 
   const updateValue = (index: number, field: string, value: string) => {
-    setData(prev => {
-      const newValues = [...prev.values]
-      newValues[index] = { ...newValues[index], [field]: value }
-      return { ...prev, values: newValues }
-    })
-  }
+    setIsDirty(true);
+    setData((prev) => {
+      const newValues = [...prev.values];
+      newValues[index] = { ...newValues[index], [field]: value };
+      return { ...prev, values: newValues };
+    });
+  };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6">
-      <AdminPageHeader 
-        title="B2B About Us"
-        description="Manage the content for the Corporate About page."
-        action={
-          <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </AdminButton>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      {/* Header */}
+      <DashboardPageHeader
+        title="B2B About Us Editor"
+        description="Manage the brand narrative, vision, leadership story, and core values for the corporate portal (/b2b/about)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "About Us Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "warning" }}
+        previewUrl="/b2b/about"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
         }
       />
 
-      <AdminFormLayout>
-        {/* Header Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Header Section</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-              <input 
-                type="text" 
-                value={data.header.titleEn}
-                onChange={e => handleChange('header', 'titleEn', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-              <input 
-                type="text" 
-                dir="rtl"
-                value={data.header.titleAr}
-                onChange={e => handleChange('header', 'titleAr', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
-              <textarea 
-                value={data.header.subtitleEn}
-                onChange={e => handleChange('header', 'subtitleEn', e.target.value)}
-                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
-              <textarea 
-                dir="rtl"
-                value={data.header.subtitleAr}
-                onChange={e => handleChange('header', 'subtitleAr', e.target.value)}
-                className="w-full h-24 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Background Media Type</label>
-              <select 
-                value={data.header.mediaType}
-                onChange={e => handleChange('header', 'mediaType', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              >
-                <option value="IMAGE">Image</option>
-                <option value="VIDEO">Video</option>
-                <option value="SPLINE">3D Model (Spline)</option>
-                <option value="IFRAME">Iframe (YouTube/Embed)</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-                {['IMAGE', 'VIDEO'].includes(data.header.mediaType) ? 'Background Asset' : 'Background URL'}
-              </label>
-              {['IMAGE', 'VIDEO'].includes(data.header.mediaType) ? (
-                <AdminMediaPicker 
-                  value={data.header.mediaUrl}
-                  onChange={url => handleChange('header', 'mediaUrl', url)}
-                  accept={data.header.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
-                />
-              ) : (
-                <input 
-                  type="url" 
-                  value={data.header.mediaUrl}
-                  onChange={e => handleChange('header', 'mediaUrl', e.target.value)}
-                  placeholder={data.header.mediaType === 'IFRAME' ? "https://..." : "https://prod.spline.design/..."}
-                  className="w-full h-[42px] bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              )}
-            </div>
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
 
-            {data.header.mediaType !== 'IMAGE' && (
-              <div className="space-y-2 lg:col-start-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-                  Fallback Image / Poster
-                </label>
-                <p className="text-xs text-text-tertiary mb-2">Shows while loading, or as a poster frame.</p>
-                <AdminMediaPicker 
-                  value={data.header.fallbackImageUrl}
-                  onChange={url => handleChange('header', 'fallbackImageUrl', url)}
-                  accept="image/*"
-                />
-              </div>
-            )}
+      {/* 1. HERO HEADER */}
+      {activeSectionId === "header" && (
+        <DashboardSectionCard
+          title="Hero Header Section"
+          description="Main opening headline and banner media for the About Us page."
+          icon={<Globe className="w-5 h-5 text-purple-400" />}
+        >
+          <DashboardBilingualField
+            label="Page Title"
+            valueEn={data.header.titleEn}
+            valueAr={data.header.titleAr}
+            onChangeEn={(val) => handleChange("header", "titleEn", val)}
+            onChangeAr={(val) => handleChange("header", "titleAr", val)}
+            placeholderEn="e.g. About E3 Qatar"
+            placeholderAr="مثال: عن إي ثري قطر"
+            mode={languageMode}
+          />
 
+          <DashboardBilingualField
+            label="Subtitle & Mission Statement"
+            type="textarea"
+            rows={3}
+            valueEn={data.header.subtitleEn}
+            valueAr={data.header.subtitleAr}
+            onChangeEn={(val) => handleChange("header", "subtitleEn", val)}
+            onChangeAr={(val) => handleChange("header", "subtitleAr", val)}
+            placeholderEn="Enter mission statement..."
+            placeholderAr="أدخل بيان المهمة والرؤية..."
+            mode={languageMode}
+          />
+
+          <div className="space-y-2 pt-2 border-t border-[var(--border-level-1)]">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              Hero Media Asset
+            </label>
+            <AdminMediaPicker
+              value={data.header.mediaUrl}
+              onChange={(url) => handleChange("header", "mediaUrl", url)}
+            />
           </div>
-        </div>
+        </DashboardSectionCard>
+      )}
 
-        {/* Our Story Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-text-primary">Our Story</h2>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Title (En)</label>
-                <input 
-                  type="text" 
-                  value={data.story.titleEn}
-                  onChange={e => handleChange('story', 'titleEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Section Title (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.story.titleAr}
-                  onChange={e => handleChange('story', 'titleAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Content (En)</label>
-                <textarea 
-                  value={data.story.contentEn}
-                  onChange={e => handleChange('story', 'contentEn', e.target.value)}
-                  className="w-full h-48 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Content (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.story.contentAr}
-                  onChange={e => handleChange('story', 'contentAr', e.target.value)}
-                  className="w-full h-48 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
-                <select 
-                  value={data.story.mediaType}
-                  onChange={e => handleChange('story', 'mediaType', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                >
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                  <option value="SPLINE">3D Model (Spline)</option>
-                  <option value="IFRAME">Iframe (YouTube/Embed)</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-                  {['IMAGE', 'VIDEO'].includes(data.story.mediaType) ? 'Media Asset' : 'Media URL'}
-                </label>
-                {['IMAGE', 'VIDEO'].includes(data.story.mediaType) ? (
-                  <AdminMediaPicker 
-                    value={data.story.mediaUrl}
-                    onChange={url => handleChange('story', 'mediaUrl', url)}
-                    accept={data.story.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
-                  />
-                ) : (
-                  <input 
-                    type="url" 
-                    value={data.story.mediaUrl}
-                    onChange={e => handleChange('story', 'mediaUrl', e.target.value)}
-                    placeholder={data.story.mediaType === 'IFRAME' ? "https://..." : "https://prod.spline.design/..."}
-                    className="w-full h-[42px] bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                  />
-                )}
-              </div>
-            </div>
+      {/* 2. CORPORATE STORY */}
+      {activeSectionId === "story" && (
+        <DashboardSectionCard
+          title="Corporate Story & Heritage"
+          description="Detailed brand story, event engineering philosophy, and operational scale in Qatar."
+          icon={<BookOpen className="w-5 h-5 text-purple-400" />}
+        >
+          <DashboardBilingualField
+            label="Story Section Heading"
+            valueEn={data.story.titleEn}
+            valueAr={data.story.titleAr}
+            onChangeEn={(val) => handleChange("story", "titleEn", val)}
+            onChangeAr={(val) => handleChange("story", "titleAr", val)}
+            placeholderEn="e.g. Engineering Unforgettable Experiences"
+            placeholderAr="مثال: هندسة تجارب لا تُنسى"
+            mode={languageMode}
+          />
 
-            {data.story.mediaType !== 'IMAGE' && (
-              <div className="grid grid-cols-2 gap-6 mt-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-                    Fallback Image / Poster
-                  </label>
-                  <p className="text-xs text-text-tertiary mb-2">Shows while loading, or as a poster frame.</p>
-                  <AdminMediaPicker 
-                    value={data.story.fallbackImageUrl}
-                    onChange={url => handleChange('story', 'fallbackImageUrl', url)}
-                    accept="image/*"
-                  />
-                </div>
-              </div>
-            )}
+          <DashboardBilingualField
+            label="Narrative Story Content"
+            type="textarea"
+            rows={5}
+            valueEn={data.story.contentEn}
+            valueAr={data.story.contentAr}
+            onChangeEn={(val) => handleChange("story", "contentEn", val)}
+            onChangeAr={(val) => handleChange("story", "contentAr", val)}
+            placeholderEn="Enter narrative story content..."
+            placeholderAr="أدخل النص السردي..."
+            mode={languageMode}
+          />
+
+          <div className="space-y-2 pt-2 border-t border-[var(--border-level-1)]">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              Story Media Asset
+            </label>
+            <AdminMediaPicker
+              value={data.story.mediaUrl}
+              onChange={(url) => handleChange("story", "mediaUrl", url)}
+            />
           </div>
-        </div>
+        </DashboardSectionCard>
+      )}
 
-        {/* Values Section */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-text-primary">Core Values</h2>
-            <button 
+      {/* 3. CORPORATE VALUES */}
+      {activeSectionId === "values" && (
+        <DashboardSectionCard
+          title="Corporate Core Values"
+          description="Foundational principles guiding E3's design, innovation, and client partnerships."
+          icon={<Heart className="w-5 h-5 text-pink-400" />}
+          headerAction={
+            <AdminButton
+              variant="outline"
+              size="sm"
               onClick={addValue}
-              className="px-4 py-2 bg-surface-hover border border-border-default text-text-primary rounded-lg text-sm font-bold flex items-center hover:bg-surface-active"
+              leftIcon={<Plus className="w-3.5 h-3.5" />}
+              className="text-xs"
             >
-              <Plus size={16} className="me-2" />
               Add Value
-            </button>
-          </div>
-          
+            </AdminButton>
+          }
+        >
           <div className="space-y-4">
-            {data.values.map((val: any, idx: number) => (
-              <div key={idx} className="p-4 bg-surface-hover border border-border-default rounded-lg relative">
-                <button 
-                  onClick={() => removeValue(idx)}
-                  className="absolute top-4 end-4 p-2 text-text-tertiary hover:text-error hover:bg-error/10 rounded-md transition-colors"
+            {data.values.length === 0 ? (
+              <p className="text-xs text-[var(--text-tertiary)] py-4 text-center">No corporate values defined yet.</p>
+            ) : (
+              data.values.map((val: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)]/60 space-y-3"
                 >
-                  <Trash2 size={16} />
-                </button>
-                <div className="grid grid-cols-2 gap-4 pe-12">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-                    <input 
-                      type="text" 
-                      value={val.titleEn}
-                      onChange={e => updateValue(idx, 'titleEn', e.target.value)}
-                      className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                    />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-400 uppercase">Value #{idx + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeValue(idx)}
+                      className="p-1 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+                      title="Remove Value"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-                    <input 
-                      type="text" 
-                      dir="rtl"
-                      value={val.titleAr}
-                      onChange={e => updateValue(idx, 'titleAr', e.target.value)}
-                      className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
-                    <textarea 
-                      value={val.descEn}
-                      onChange={e => updateValue(idx, 'descEn', e.target.value)}
-                      className="w-full h-20 bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none resize-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
-                    <textarea 
-                      dir="rtl"
-                      value={val.descAr}
-                      onChange={e => updateValue(idx, 'descAr', e.target.value)}
-                      className="w-full h-20 bg-surface-default border border-border-default rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none resize-none"
-                    />
-                  </div>
+
+                  <DashboardBilingualField
+                    label="Value Title"
+                    valueEn={val.titleEn || ""}
+                    valueAr={val.titleAr || ""}
+                    onChangeEn={(v) => updateValue(idx, "titleEn", v)}
+                    onChangeAr={(v) => updateValue(idx, "titleAr", v)}
+                    mode={languageMode}
+                  />
+
+                  <DashboardBilingualField
+                    label="Value Description"
+                    type="textarea"
+                    rows={2}
+                    valueEn={val.descEn || ""}
+                    valueAr={val.descAr || ""}
+                    onChangeEn={(v) => updateValue(idx, "descEn", v)}
+                    onChangeAr={(v) => updateValue(idx, "descAr", v)}
+                    mode={languageMode}
+                  />
                 </div>
-              </div>
-            ))}
-            {data.values.length === 0 && (
-              <div className="text-center py-8 text-text-tertiary text-sm">
-                No values added.
-              </div>
+              ))
             )}
           </div>
-        </div>
+        </DashboardSectionCard>
+      )}
 
-        {/* SEO Customizer */}
+      {/* 4. SEO */}
+      {activeSectionId === "seo" && (
         <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
+      )}
 
-      </AdminFormLayout>
-    </div>
-  )
+      {/* Sticky Bottom Actions */}
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
+  );
 }

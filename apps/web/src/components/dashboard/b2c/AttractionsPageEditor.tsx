@@ -1,221 +1,313 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Save, Sparkles, Layout, Globe, Search } from 'lucide-react'
-import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Save, Sparkles, Layout, Globe, Search, SlidersHorizontal } from "lucide-react";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardLanguageSwitch,
+  DashboardStickyActions,
+  DashboardLoadingState,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+  EditorSectionItem,
+} from "@/components/dashboard/ui";
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "titles", label: "1. Hero Titles & Copy" },
+  { id: "display", label: "2. Display & Search Controls" },
+  { id: "hero-media", label: "3. Hero Media" },
+  { id: "footer-media", label: "4. Footer Media" },
+  { id: "seo", label: "5. SEO Metadata" },
+];
 
 export function AttractionsPageEditor() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [activeSectionId, setActiveSectionId] = useState<string>("titles");
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+
   const [pageConfig, setPageConfig] = useState({
-    titleEn: 'EXPERIENCES & ATTRACTIONS',
-    titleAr: 'التجارب والوجهات المميزة',
-    descEn: 'Explore all flagship E3 entertainment worlds across Qatar.',
-    descAr: 'استكشف كافة وجهات إي ثري الترفيهية في قطر.',
+    titleEn: "EXPERIENCES & ATTRACTIONS",
+    titleAr: "التجارب والوجهات المميزة",
+    descEn: "Explore all flagship E3 entertainment worlds across Qatar.",
+    descAr: "استكشف كافة وجهات إي ثري الترفيهية في قطر.",
     showFilters: true,
     showSearchBar: true,
-    heroMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'VIDEO', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4' } as UniversalMediaConfig,
-    footerMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop' } as UniversalMediaConfig,
-    seoTitle: 'Experiences & Attractions | E3 Qatar',
-    seoDescription: 'Discover live events, family attractions, InflataPark, and tactical arenas.'
-  })
+    heroMedia: {
+      ...DEFAULT_UNIVERSAL_MEDIA,
+      mediaType: "VIDEO",
+      mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
+    } as UniversalMediaConfig,
+    footerMedia: {
+      ...DEFAULT_UNIVERSAL_MEDIA,
+      mediaType: "IMAGE",
+      mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+    } as UniversalMediaConfig,
+    seoTitle: "Experiences & Attractions | E3 Qatar",
+    seoDescription: "Discover live events, family attractions, InflataPark, and tactical arenas.",
+  });
 
   useEffect(() => {
+    let active = true;
     async function loadData() {
       try {
         const [res1, res2] = await Promise.all([
-          fetch('/api/cms/pages/b2c-attractions').catch(() => null),
-          fetch('/api/cms/pages/b2c-attractions-page').catch(() => null)
-        ])
+          fetch("/api/cms/pages/b2c-attractions?t=" + Date.now()).catch(() => null),
+          fetch("/api/cms/pages/b2c-attractions-page?t=" + Date.now()).catch(() => null),
+        ]);
 
-        if (res1 && res1.ok) {
-          const json = await res1.json()
-          if (json?.data?.content) {
-            setPageConfig(prev => ({ ...prev, ...json.data.content }))
-          }
-        } else if (res2 && res2.ok) {
-          const json = await res2.json()
-          if (json?.data?.content) {
-            setPageConfig(prev => ({ ...prev, ...json.data.content }))
+        if (active) {
+          if (res1 && res1.ok) {
+            const json = await res1.json();
+            if (json?.data?.content) {
+              setPageConfig((prev) => ({ ...prev, ...json.data.content }));
+            }
+          } else if (res2 && res2.ok) {
+            const json = await res2.json();
+            if (json?.data?.content) {
+              setPageConfig((prev) => ({ ...prev, ...json.data.content }));
+            }
           }
         }
       } catch (_e) {
-        // Fallback default
       } finally {
-        setLoading(false)
+        if (active) setLoading(false);
       }
     }
-    loadData()
-  }, [])
+    loadData();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const updateField = (updater: (prev: typeof pageConfig) => typeof pageConfig) => {
+    setPageConfig((prev) => {
+      const next = updater(prev);
+      setIsDirty(true);
+      return next;
+    });
+  };
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
       await Promise.all([
-        fetch('/api/cms/pages/b2c-attractions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: pageConfig, title: pageConfig.titleEn || "Experiences & Attractions" })
-        }).catch(() => null),
-        fetch('/api/cms/pages/b2c-attractions-page', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: pageConfig })
-        }).catch(() => null)
-      ])
+        fetch("/api/cms/pages/b2c-attractions", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            data: {
+              content: pageConfig,
+              title: { en: pageConfig.titleEn, ar: pageConfig.titleAr },
+              published: true,
+            },
+          }),
+        }),
+        fetch("/api/cms/pages/b2c-attractions-page", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: { content: pageConfig, published: true } }),
+        }),
+      ]);
 
-      toast('Attractions Page Editor saved successfully!', 'success')
-      router.refresh()
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("Attractions Page Editor saved successfully!", "success");
+      router.refresh();
     } catch (err: any) {
-      console.error(err)
-      toast(err?.message || 'Error saving page settings', 'error')
+      console.error(err);
+      toast(err?.message || "Error saving page settings", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-[var(--color-primary)]" />
-        <span>Loading Attractions Page Editor...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Attractions Page Editor..." type="skeleton" />;
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
-      {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[var(--surface-selected)] text-[var(--color-primary)] border border-[var(--color-primary)]/30">
-              B2C PAGE EDITOR
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Layout className="w-6 h-6 text-[var(--color-primary)]" />
-              <span>Attractions Page Editor</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage page layout, universal hero/footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (`/b2c/attractions`).
-          </p>
-        </div>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
+      {/* Standard Header */}
+      <DashboardPageHeader
+        title="Attractions Page Editor"
+        description="Manage page layout, universal hero/footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (/b2c/attractions)."
+        breadcrumbs={[
+          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: "Attractions Page Editor" },
+        ]}
+        badge={{ label: "B2C Public", variant: "purple" }}
+        previewUrl="/b2c/attractions"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Page Settings",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
+        }
+      />
+
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
+
+      {/* 1. HERO TITLES */}
+      {activeSectionId === "titles" && (
+        <DashboardSectionCard
+          title="Page Hero Titles & Copy"
+          description="Configure main hero titles, headlines, and descriptive text for the public attractions index."
+          icon={<Globe className="w-5 h-5 text-[var(--color-primary)]" />}
         >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : 'Save Page Settings'}</span>
-        </button>
-      </div>
+          <DashboardBilingualField
+            label="Main Attractions Header"
+            valueEn={pageConfig.titleEn}
+            valueAr={pageConfig.titleAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
+            placeholderEn="e.g. EXPERIENCES & ATTRACTIONS"
+            placeholderAr="مثال: التجارب والوجهات المميزة"
+            mode={languageMode}
+          />
 
-      {/* Hero Header Controls */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Globe className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>Page Hero Titles & Copy</span>
-        </h2>
+          <DashboardBilingualField
+            label="Page Description Subtext"
+            type="textarea"
+            rows={3}
+            valueEn={pageConfig.descEn}
+            valueAr={pageConfig.descAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
+            placeholderEn="Enter description..."
+            placeholderAr="أدخل الوصف..."
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Main Title (English)</label>
-            <input
-              type="text"
-              value={pageConfig.titleEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
+      {/* 2. DISPLAY & SEARCH */}
+      {activeSectionId === "display" && (
+        <DashboardSectionCard
+          title="Display & Search Controls"
+          description="Enable or disable the search bar and category filter controls on the attractions roster."
+          icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="flex items-center gap-3 p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] cursor-pointer hover:border-[var(--color-primary)]/40 transition-all">
+              <input
+                type="checkbox"
+                checked={pageConfig.showSearchBar}
+                onChange={(e) => updateField((p) => ({ ...p, showSearchBar: e.target.checked }))}
+                className="w-4 h-4 accent-purple-600 rounded"
+              />
+              <div>
+                <span className="block text-xs font-bold text-[var(--text-primary)]">Show Live Search Bar</span>
+                <span className="block text-[11px] text-[var(--text-secondary)]">Allows guests to search attractions by name or keyword</span>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] cursor-pointer hover:border-[var(--color-primary)]/40 transition-all">
+              <input
+                type="checkbox"
+                checked={pageConfig.showFilters}
+                onChange={(e) => updateField((p) => ({ ...p, showFilters: e.target.checked }))}
+                className="w-4 h-4 accent-purple-600 rounded"
+              />
+              <div>
+                <span className="block text-xs font-bold text-[var(--text-primary)]">Show Category Filter Pills</span>
+                <span className="block text-[11px] text-[var(--text-secondary)]">Allows filtering by All, Parks, Tactical, Family, and VIP</span>
+              </div>
+            </label>
           </div>
+        </DashboardSectionCard>
+      )}
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Main Title (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.titleAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
+      {/* 3. HERO MEDIA */}
+      {activeSectionId === "hero-media" && (
+        <UniversalMediaSectionEditor
+          title="Attractions Hero Banner Media"
+          subtitle="Universal media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
+          value={pageConfig.heroMedia}
+          onChange={(heroMedia) => updateField((p) => ({ ...p, heroMedia }))}
+          accentColor="purple"
+        />
+      )}
+
+      {/* 4. FOOTER MEDIA */}
+      {activeSectionId === "footer-media" && (
+        <UniversalMediaSectionEditor
+          title="Attractions Footer Banner Media"
+          subtitle="Universal media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."
+          value={pageConfig.footerMedia}
+          onChange={(footerMedia) => updateField((p) => ({ ...p, footerMedia }))}
+          accentColor="indigo"
+        />
+      )}
+
+      {/* 5. SEO */}
+      {activeSectionId === "seo" && (
+        <DashboardSectionCard
+          title="SEO Metadata"
+          description="Search engine metadata and OpenGraph social preview tags."
+          icon={<Globe className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                SEO Meta Title
+              </label>
+              <input
+                type="text"
+                value={pageConfig.seoTitle}
+                onChange={(e) => updateField((p) => ({ ...p, seoTitle: e.target.value }))}
+                className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                SEO Meta Description
+              </label>
+              <textarea
+                rows={2}
+                value={pageConfig.seoDescription}
+                onChange={(e) => updateField((p) => ({ ...p, seoDescription: e.target.value }))}
+                className="w-full p-3 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
           </div>
+        </DashboardSectionCard>
+      )}
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (English)</label>
-            <textarea
-              rows={2}
-              value={pageConfig.descEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (Arabic)</label>
-            <textarea
-              rows={2}
-              dir="rtl"
-              value={pageConfig.descAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Universal Hero Media Controls */}
-      <UniversalMediaSectionEditor
-        title="Page Hero Media Section"
-        subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
-        value={pageConfig.heroMedia}
-        onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, heroMedia }))}
-        accentColor="blue"
+      {/* Sticky Bottom Actions */}
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
       />
-
-      {/* Universal Footer Media Controls */}
-      <UniversalMediaSectionEditor
-        title="Page Footer Media Section"
-        subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
-        value={pageConfig.footerMedia}
-        onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
-        accentColor="cyan"
-      />
-
-      {/* SEO Settings */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Search className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>SEO & Search Engine Metadata</span>
-        </h2>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Meta Title Tag</label>
-            <input
-              type="text"
-              value={pageConfig.seoTitle}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, seoTitle: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Meta Description</label>
-            <textarea
-              rows={2}
-              value={pageConfig.seoDescription}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, seoDescription: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }

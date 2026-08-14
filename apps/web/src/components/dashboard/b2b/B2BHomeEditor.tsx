@@ -10,8 +10,28 @@ import { AdminMediaPicker } from "@/components/dashboard/ui/AdminMediaPicker"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { Save } from "lucide-react"
 
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  DashboardLanguageSwitch,
+  LanguageEditMode,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "hero", label: "1. Hero Section" },
+  { id: "stats", label: "2. Key Metrics & Stats" },
+  { id: "wowAndHow", label: "3. The Wow & How" },
+  { id: "capabilities", label: "4. Strategic Capabilities" },
+  { id: "caseStudies", label: "5. Case Studies Portfolio" },
+  { id: "deliveryProcess", label: "6. Delivery Process" },
+  { id: "partnerRibbon", label: "7. Partner Ribbon" },
+  { id: "seo", label: "8. SEO Metadata" },
+]
 
 export function B2BHomeEditor({ 
   initialData,
@@ -23,10 +43,14 @@ export function B2BHomeEditor({
   caseStudies?: any[]
 }) {
   const [isSaving, setIsSaving] = React.useState(false)
+  const [isDirty, setIsDirty] = React.useState(false)
+  const [lastSaved, setLastSaved] = React.useState<Date | null>(null)
+  const [activeSectionId, setActiveSectionId] = React.useState("hero")
+  const [langMode, setLangMode] = React.useState<LanguageEditMode>("en")
+  const activeLang = langMode === "ar" ? "ar" : "en"
   const { toast } = useToast()
 
   // State
-  const [activeLang, setActiveLang] = React.useState<'en' | 'ar'>('en')
   const [hero, setHero] = React.useState(initialData.content?.hero || {})
   const [stats, setStats] = React.useState<any[]>(initialData.content?.stats || [])
   const [wowAndHow, setWowAndHow] = React.useState(initialData.content?.wowAndHow || {})
@@ -62,6 +86,8 @@ export function B2BHomeEditor({
 
       if (!res.ok) throw new Error("Failed to save")
       
+      setIsDirty(false)
+      setLastSaved(new Date())
       toast("B2B Homepage content updated successfully", "success")
     } catch {
       toast("Failed to update B2B homepage content", "error")
@@ -71,40 +97,41 @@ export function B2BHomeEditor({
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-6">
-      <AdminPageHeader
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      {/* Standard Page Header */}
+      <DashboardPageHeader
         title="B2B Homepage Editor"
-        description="Manage the content blocks on the main B2B corporate portal."
-        action={
-          <AdminButton 
-            variant="primary" 
-            leftIcon={<Save className="w-4 h-4" />}
-            onClick={handleSave}
-            isLoading={isSaving}
-          >
-            Save Changes
-          </AdminButton>
+        description="Manage the content blocks, video heroes, case studies showcase, and delivery process on the main B2B corporate portal (/b2b)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Homepage Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "warning" }}
+        previewUrl="/b2b"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={langMode} onModeChange={setLangMode} />
         }
       />
+
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
+
       <AdminFormLayout>
       <div className="space-y-8">
-        {/* LANGUAGE SWITCHER */}
-        <div className="flex bg-surface-default p-1 rounded-md w-fit border border-border-default">
-          <button
-            type="button"
-            onClick={() => setActiveLang('en')}
-            className={`px-4 py-2 text-sm font-semibold rounded-sm transition-colors ${activeLang === 'en' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}
-          >
-            English
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveLang('ar')}
-            className={`px-4 py-2 text-sm font-semibold rounded-sm transition-colors ${activeLang === 'ar' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}
-          >
-            العربية
-          </button>
-        </div>
 
         {/* HERO SECTION */}
         <AdminFormSection id="hero" title="Hero Section" description="The main introduction at the top of the page.">
@@ -565,6 +592,17 @@ export function B2BHomeEditor({
 
       </div>
     </AdminFormLayout>
-    </div>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={isSaving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   )
 }

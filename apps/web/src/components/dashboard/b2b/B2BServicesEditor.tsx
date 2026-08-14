@@ -2,11 +2,33 @@
 
 import React, { useState } from "react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { ExternalLink, Plus, Trash2, ArrowUp, ArrowDown, Save } from "lucide-react"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  DashboardLanguageSwitch,
+  LanguageEditMode,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "hero", label: "1. Hero Section" },
+  { id: "capabilityCount", label: "2. Capability Metrics" },
+  { id: "philosophy", label: "3. WOW & HOW" },
+  { id: "navigator", label: "4. Bento Navigator" },
+  { id: "spotlights", label: "5. Spotlights" },
+  { id: "methodology", label: "6. Methodology" },
+  { id: "caseStudies", label: "7. Case Studies" },
+  { id: "partnerRibbon", label: "8. Partner Ribbon" },
+  { id: "cta", label: "9. RFP Gateway" },
+  { id: "seo", label: "10. SEO Metadata" },
+]
 
 export function B2BServicesEditor({ 
   initialData, 
@@ -17,7 +39,12 @@ export function B2BServicesEditor({
   services?: any[]
   caseStudies?: any[]
 }) {
-  const [activeLang, setActiveLang] = useState<'en' | 'ar'>('en')
+  const [langMode, setLangMode] = useState<LanguageEditMode>("en")
+  const activeLang = langMode === "ar" ? "ar" : "en"
+  const [activeSectionId, setActiveSectionId] = useState("hero")
+  const [isDirty, setIsDirty] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+
   const [data, setData] = useState<any>({
     hero: initialData?.hero || {},
     capabilityCount: initialData?.capabilityCount || {},
@@ -43,6 +70,8 @@ export function B2BServicesEditor({
         body: JSON.stringify({ content: data, seo: data.seo })
       })
       if (!res.ok) throw new Error("Failed to save")
+      setIsDirty(false)
+      setLastSaved(new Date())
       toast("B2B Services CMS configuration saved successfully.", "success")
     } catch (e) {
       console.error(e)
@@ -53,6 +82,7 @@ export function B2BServicesEditor({
   }
 
   const updateSection = (section: string, field: string, value: any) => {
+    setIsDirty(true)
     setData((prev: any) => ({
       ...prev,
       [section]: {
@@ -63,45 +93,36 @@ export function B2BServicesEditor({
   }
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6 text-text-primary">
-      <AdminPageHeader 
-        title="B2B Services Landing Page CMS Editor"
-        description="Manage hero, capability count, WOW & HOW philosophy, bento navigator, spotlights, methodology pipeline, proof & case studies, RFP CTA, and SEO."
-        action={
-          <div className="flex items-center gap-3">
-            <a 
-              href="/en/b2b/services" 
-              target="_blank" 
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold bg-surface-hover hover:bg-surface-active text-text-primary px-4 py-2 rounded-lg border border-border-default transition-colors"
-            >
-              <span>Preview Public Page</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-            <AdminButton variant="primary" onClick={handleSave} disabled={saving} leftIcon={<Save className="w-4 h-4" />}>
-              {saving ? "Saving..." : "Save Changes"}
-            </AdminButton>
-          </div>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      <DashboardPageHeader 
+        title="B2B Services Page Editor"
+        description="Manage hero, capability count, WOW & HOW philosophy, bento navigator, spotlights, methodology pipeline, proof & case studies, RFP CTA, and SEO (/b2b/services)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Services Page Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "warning" }}
+        previewUrl="/b2b/services"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />
+        }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={langMode} onModeChange={setLangMode} />
         }
       />
 
-      {/* LANGUAGE SWITCHER */}
-      <div className="flex bg-surface-default p-1 rounded-lg w-fit border border-border-default">
-        <button
-          type="button"
-          onClick={() => setActiveLang('en')}
-          className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${activeLang === 'en' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}
-        >
-          English Content
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveLang('ar')}
-          className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${activeLang === 'ar' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}
-        >
-          المحتوى العربي (Arabic)
-        </button>
-      </div>
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
 
       <AdminFormLayout>
         {/* 1. HERO SECTION */}
@@ -811,6 +832,17 @@ export function B2BServicesEditor({
         </div>
 
       </AdminFormLayout>
-    </div>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   )
 }

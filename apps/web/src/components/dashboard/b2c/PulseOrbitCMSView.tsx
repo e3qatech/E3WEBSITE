@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client"
 
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
@@ -8,7 +7,19 @@ import { useEffect, useState } from "react"
 import { AdminButton } from "../ui/AdminButton"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "B2C", label: "1. B2C Entertainment Orbit" },
+  { id: "B2B", label: "2. B2B Enterprise Orbit" },
+]
 
 export interface OrbitDestinationItem {
   id: string
@@ -396,51 +407,32 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   }
 
   return (
-    <AdminFormLayout>
-      <AdminPageHeader
-        title="Pulse Orbit CMS Hub"
-        description="Manage live media, logos, navigation tab names, header titles, and route paths for B2C & B2B Pulse Orbit modal overlays."
-        action={
-          <AdminButton
-            variant="primary"
-            onClick={handleSave}
-            disabled={saving || uploadingCount > 0}
-            className="gap-2"
-          >
-            <Save className="w-4 h-4" />
-            {saving ? "Saving..." : uploadingCount > 0 ? "Uploading Media..." : `Save ${activeTab} Orbit`}
-          </AdminButton>
-        }
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={uploadingCount > 0} />
+
+      <DashboardPageHeader
+        title="Pulse Orbit 3D Portal Settings"
+        description="Manage live media, destination nodes, logo overlays, and route links for B2C and B2B Pulse Orbit modal navigation (/settings/pulse-orbit)."
+        breadcrumbs={[
+          { label: "Settings", href: "/dashboard/settings/general" },
+          { label: "Pulse Orbit Settings" },
+        ]}
+        badge={{ label: "3D Nav", variant: "purple" }}
+        primaryAction={{
+          label: saving ? "Saving..." : uploadingCount > 0 ? "Uploading Media..." : `Save ${activeTab} Orbit`,
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
       />
 
-      {/* Orbit Portal Selector Tabs (B2C vs B2B) */}
-      <div className="flex items-center gap-3 p-1.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl w-fit shadow-sm">
-        <button
-          type="button"
-          onClick={() => setActiveTab('B2C')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-            activeTab === 'B2C'
-              ? 'bg-[var(--color-primary)] text-white shadow-md'
-              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
-          }`}
-        >
-          <User className="w-4 h-4" />
-          <span>B2C Pulse Orbit (Visitor / Customer)</span>
-        </button>
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeTab}
+        onSectionChange={(id) => setActiveTab(id as any)}
+      />
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('B2B')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-            activeTab === 'B2B'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          <span>B2B Enterprise Orbit (Organiser / Corporate)</span>
-        </button>
-      </div>
+      <AdminFormLayout>
 
       {/* Orbit Logo Manager Section */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
@@ -781,5 +773,17 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
         ))}
       </div>
     </AdminFormLayout>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={uploadingCount > 0}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   )
 }

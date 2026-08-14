@@ -188,7 +188,15 @@ describe('Gate 13: E3 Auth Portals, Multi-Tenant RBAC & Ownership Security', () 
     const allowedBusinessRoles = allowedRolesForPortal('business');
     const allowedCareersRoles = allowedRolesForPortal('careers');
 
-    expect(allowedAdminRoles).toEqual(['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN']);
+    expect(allowedAdminRoles).toEqual([
+      'SUPER_ADMIN',
+      'SALES_ADMIN',
+      'SUPPORT_ADMIN',
+      'B2C_ADMIN',
+      'B2B_ADMIN',
+      'HR_ADMIN',
+      'OPERATIONS_ADMIN',
+    ]);
     expect(allowedStaffRoles).toEqual(['STAFF']);
     expect(allowedBusinessRoles).toEqual(['CLIENT']);
     expect(allowedCareersRoles).toEqual(['CANDIDATE']);

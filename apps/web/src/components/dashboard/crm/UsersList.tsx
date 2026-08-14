@@ -25,12 +25,16 @@ type UserItem = {
 };
 
 const ROLES = [
-  { value: "SUPER_ADMIN", label: "Super Admin", variant: "danger" },
-  { value: "SALES_ADMIN", label: "Sales Admin", variant: "warning" },
-  { value: "SUPPORT_ADMIN", label: "Support Admin", variant: "info" },
+  { value: "SUPER_ADMIN", label: "Super Admin", variant: "error" },
+  { value: "B2C_ADMIN", label: "B2C Admin", variant: "purple" },
+  { value: "B2B_ADMIN", label: "B2B Admin", variant: "warning" },
+  { value: "HR_ADMIN", label: "HR Admin", variant: "info" },
+  { value: "OPERATIONS_ADMIN", label: "Operations Admin", variant: "warning" },
   { value: "STAFF", label: "Staff", variant: "purple" },
-  { value: "CLIENT", label: "Client B2B", variant: "success" },
-  { value: "CANDIDATE", label: "Candidate", variant: "default" },
+  { value: "CLIENT", label: "Client / Business User", variant: "success" },
+  { value: "CANDIDATE", label: "Candidate / Applicant", variant: "default" },
+  { value: "SALES_ADMIN", label: "Sales Admin (B2B)", variant: "warning" },
+  { value: "SUPPORT_ADMIN", label: "Support Admin (B2C)", variant: "info" },
 ] as const;
 
 export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
@@ -89,6 +93,13 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       role: formData.get("role"),
     };
 
+    if (editingUser.role !== data.role) {
+      if (!confirm(`Are you sure you want to change the security role for ${editingUser.email} from "${editingUser.role}" to "${data.role}"?`)) {
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     try {
       const res = await fetch(`/api/admin/users/${editingUser.id}`, {
         method: "PATCH",
@@ -114,6 +125,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const handleAdminChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordUser || !newPassword) return;
+    if (!confirm(`Are you sure you want to reset the password for ${passwordUser.email}? This will immediately invalidate all active sessions for this account.`)) return;
     setIsSubmitting(true);
 
     try {
@@ -201,12 +213,16 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     switch (role) {
       case "SUPER_ADMIN":
         return <Badge variant="error">{label}</Badge>;
-      case "SALES_ADMIN":
-        return <Badge variant="warning">{label}</Badge>;
-      case "SUPPORT_ADMIN":
-        return <Badge variant="info">{label}</Badge>;
+      case "B2C_ADMIN":
       case "STAFF":
         return <Badge variant="gradient">{label}</Badge>;
+      case "B2B_ADMIN":
+      case "SALES_ADMIN":
+      case "OPERATIONS_ADMIN":
+        return <Badge variant="warning">{label}</Badge>;
+      case "HR_ADMIN":
+      case "SUPPORT_ADMIN":
+        return <Badge variant="info">{label}</Badge>;
       case "CLIENT":
         return <Badge variant="success">{label}</Badge>;
       default:
@@ -218,8 +234,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-text-primary">User & Role Management</h1>
-          <p className="text-sm text-text-secondary">Manage platform accounts, canonical RBAC roles, credential freezes, and session revocation.</p>
+          <h2 className="text-base font-bold text-text-primary">Platform Accounts & Role Assignments</h2>
+          <p className="text-xs text-text-secondary">View active accounts, assign permissions, revoke sessions, or freeze compromised credentials.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">

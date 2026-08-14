@@ -60,11 +60,11 @@ export function allowedRolesForPortal(portal: PortalKey): string[] {
     case 'admin':
       return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN', 'HR_ADMIN', 'OPERATIONS_ADMIN'];
     case 'staff':
-      return ['STAFF', 'SUPER_ADMIN'];
+      return ['STAFF'];
     case 'business':
-      return ['CLIENT', 'SUPER_ADMIN'];
+      return ['CLIENT'];
     case 'careers':
-      return ['CANDIDATE', 'SUPER_ADMIN'];
+      return ['CANDIDATE'];
     default:
       return [];
   }

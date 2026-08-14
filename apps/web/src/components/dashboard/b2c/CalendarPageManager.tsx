@@ -1,125 +1,145 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Plus, Trash2, Save, CheckCircle2, Loader2, Upload } from "lucide-react"
-import { Button } from "@/components/ui/Button"
-import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
-import { uploadFile } from "@/lib/upload"
+import React, { useState, useEffect } from "react";
+import { Plus, Trash2, Save, Calendar, Sparkles, Tag, Globe, SlidersHorizontal } from "lucide-react";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardStickyActions,
+  DashboardLoadingState,
+  DashboardUnsavedChangesGuard,
+  EditorSectionItem,
+  AdminButton,
+} from "@/components/dashboard/ui";
 
 type PageSettings = {
-  title: string
-  tagline: string
-  heroMediaType: string
-  heroMediaUrl: string
-  seo?: any
-}
+  titleEn?: string;
+  titleAr?: string;
+  taglineEn?: string;
+  taglineAr?: string;
+  heroMedia?: UniversalMediaConfig;
+  seo?: any;
+};
 
 type DiscountOffer = {
   id: string;
   code: string;
   discount: number;
   attraction: { nameEn: string };
-}
+};
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "HERO", label: "1. Hero Titles & Copy" },
+  { id: "MEDIA", label: "2. Hero Media" },
+  { id: "DISCOUNTS", label: "3. Promo Discounts" },
+  { id: "SEO", label: "4. SEO Metadata" },
+];
 
 export function CalendarPageManager() {
-  const [activeTab, setActiveTab] = useState<"HERO" | "DISCOUNTS" | "SEO">("HERO")
-  const [, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<string>("HERO");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const [pageSettings, setPageSettings] = useState<PageSettings>({
-    title: "Events Calendar",
-    tagline: "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions.",
-    heroMediaType: "IMAGE",
-    heroMediaUrl: "",
-    seo: {}
-  })
+    titleEn: "Events & Entertainment Calendar",
+    titleAr: "جدول الفعاليات والتجارب",
+    taglineEn: "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions.",
+    taglineAr: "اكتشف جدول الفعاليات والمهرجانات القادمة في وجهات إي ثري الترفيهية.",
+    heroMedia: {
+      ...DEFAULT_UNIVERSAL_MEDIA,
+      mediaType: "VIDEO",
+      mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+    },
+    seo: {},
+  });
 
-  const [discounts, setDiscounts] = useState<DiscountOffer[]>([])
-  const [attractions, setAttractions] = useState<{ id: string, nameEn: string }[]>([])
-  const [newDiscount, setNewDiscount] = useState({ attractionId: "", code: "", discount: "" })
-  const [loadingDiscounts, setLoadingDiscounts] = useState(false)
-
+  const [discounts, setDiscounts] = useState<DiscountOffer[]>([]);
+  const [attractions, setAttractions] = useState<{ id: string; nameEn: string }[]>([]);
+  const [newDiscount, setNewDiscount] = useState({ attractionId: "", code: "", discount: "" });
+  const [loadingDiscounts, setLoadingDiscounts] = useState(false);
 
   useEffect(() => {
+    let active = true;
     async function fetchData() {
       try {
         const [settingsRes, discountsRes, attractionsRes] = await Promise.all([
-          fetch("/api/b2c/calendar-settings"),
-          fetch("/api/b2c/offers"),
-          fetch("/api/b2c/attractions/simple")
-        ])
-        
-        if (settingsRes.ok) {
-          const data = await settingsRes.json()
-          if (data.pageSettings && Object.keys(data.pageSettings).length > 0) {
-            setPageSettings(prev => ({ ...prev, ...data.pageSettings }))
+          fetch("/api/b2c/calendar-settings?t=" + Date.now()).catch(() => null),
+          fetch("/api/b2c/offers?t=" + Date.now()).catch(() => null),
+          fetch("/api/b2c/attractions/simple?t=" + Date.now()).catch(() => null),
+        ]);
+
+        if (active) {
+          if (settingsRes && settingsRes.ok) {
+            const data = await settingsRes.json();
+            if (data.pageSettings && Object.keys(data.pageSettings).length > 0) {
+              setPageSettings((prev) => ({ ...prev, ...data.pageSettings }));
+            }
           }
-        }
 
-        if (discountsRes.ok) {
-          const data = await discountsRes.json()
-          setDiscounts(data)
-        }
+          if (discountsRes && discountsRes.ok) {
+            const data = await discountsRes.json();
+            if (Array.isArray(data)) setDiscounts(data);
+          }
 
-        if (attractionsRes.ok) {
-          const data = await attractionsRes.json()
-          setAttractions(data)
-          if (data.length > 0) {
-            setNewDiscount(prev => ({ ...prev, attractionId: data[0].id }))
+          if (attractionsRes && attractionsRes.ok) {
+            const data = await attractionsRes.json();
+            if (Array.isArray(data)) {
+              setAttractions(data);
+              if (data.length > 0) {
+                setNewDiscount((prev) => ({ ...prev, attractionId: data[0].id }));
+              }
+            }
           }
         }
       } catch (error) {
-        console.error("Failed to load settings", error)
+        console.error("Failed to load settings", error);
       } finally {
-        setLoading(false)
+        if (active) setLoading(false);
       }
     }
-    fetchData()
-  }, [])
+    fetchData();
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target;
-    const file = target.files?.[0]
-    if (!file) return
-
-    setUploading(true)
-
-    try {
-      const result = await uploadFile(file)
-      setPageSettings(prev => ({ ...prev, heroMediaUrl: result.url }))
-    } catch (error: any) {
-      console.error("Upload error:", error)
-      alert("Failed to upload file: " + error.message)
-    } finally {
-      setUploading(false)
-      if (target) {
-        target.value = ""
-      }
-    }
-  }
+  const updateSettings = (updater: (prev: PageSettings) => PageSettings) => {
+    setPageSettings((prev) => {
+      const next = updater(prev);
+      setIsDirty(true);
+      return next;
+    });
+  };
 
   const handleSaveSettings = async () => {
-    setSaving(true)
-    setSuccess(false)
+    setSaving(true);
     try {
       const res = await fetch("/api/b2c/calendar-settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pageSettings })
-      })
+        body: JSON.stringify({ pageSettings }),
+      });
       if (res.ok) {
-        setSuccess(true)
-        setTimeout(() => setSuccess(false), 3000)
+        setIsDirty(false);
+        setLastSaved(new Date());
+        toast("Calendar Page settings saved successfully!", "success");
+      } else {
+        toast("Failed to save Calendar settings", "error");
       }
     } catch (error) {
-      console.error("Error saving settings", error)
-      alert("Error saving settings")
+      toast("Error saving settings", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleCreateDiscount = async () => {
     if (!newDiscount.attractionId || !newDiscount.code || !newDiscount.discount) return;
@@ -128,275 +148,264 @@ export function CalendarPageManager() {
       const res = await fetch("/api/b2c/offers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newDiscount)
+        body: JSON.stringify(newDiscount),
       });
       if (res.ok) {
         const added = await res.json();
         setDiscounts([added, ...discounts]);
-        setNewDiscount(prev => ({ ...prev, code: "", discount: "" }));
+        setNewDiscount((prev) => ({ ...prev, code: "", discount: "" }));
+        toast("Discount offer created successfully!", "success");
       } else {
-        alert("Failed to create discount");
+        toast("Failed to create discount offer", "error");
       }
     } catch (e) {
-      console.error(e);
-      alert("Error creating discount");
+      toast("Error creating discount offer", "error");
     } finally {
       setLoadingDiscounts(false);
     }
-  }
+  };
 
   const handleDeleteDiscount = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this discount?")) return;
+    if (!confirm("Are you sure you want to delete this promotional offer?")) return;
     try {
-      const res = await fetch(`/api/b2c/offers/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/b2c/offers?id=${id}`, { method: "DELETE" });
       if (res.ok) {
-        setDiscounts(discounts.filter(d => d.id !== id));
-      } else {
-        alert("Failed to delete discount");
+        setDiscounts(discounts.filter((d) => d.id !== id));
+        toast("Discount deleted", "success");
       }
-    } catch (e) {
-      console.error(e);
-      alert("Error deleting discount");
+    } catch (error) {
+      toast("Failed to delete discount", "error");
     }
+  };
+
+  if (loading) {
+    return <DashboardLoadingState title="Loading Calendar Page Editor..." type="skeleton" />;
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Calendar Page Settings</h1>
-          <p className="text-[var(--text-secondary)]">Manage the hero content for the B2C Events Calendar.</p>
-        </div>
-        <Button onClick={handleSaveSettings} disabled={saving} className="shrink-0 flex items-center gap-2">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
-      <div className="flex items-center gap-4 border-b border-[var(--border-default)]">
-        <button
-          onClick={() => setActiveTab("HERO")}
-          className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "HERO" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
-        >
-          Hero Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("DISCOUNTS")}
-          className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "DISCOUNTS" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
-        >
-          Partner Discounts
-        </button>
-        <button
-          onClick={() => setActiveTab("SEO")}
-          className={`pb-4 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === "SEO" ? "border-amber-500 text-amber-500" : "border-transparent text-zinc-400 hover:text-white"}`}
-        >
-          SEO Settings
-        </button>
-      </div>
+      {/* Header */}
+      <DashboardPageHeader
+        title="Events & Calendar Page Editor"
+        description="Configure events schedule, hero banner media, seasonal promo discounts, and calendar metadata (/b2c/calendar)."
+        breadcrumbs={[
+          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: "Calendar Page Editor" },
+        ]}
+        badge={{ label: "B2C Public", variant: "purple" }}
+        previewUrl="/b2c/calendar"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Calendar Settings",
+          onClick: handleSaveSettings,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
-      {success && (
-        <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5" />
-          Settings saved successfully!
-        </div>
-      )}
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeTab}
+        onSectionChange={setActiveTab}
+      />
 
-      {/* Hero Settings Content */}
+      {/* 1. HERO TITLES */}
       {activeTab === "HERO" && (
-        <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Heading Title (English)</label>
-                  <input
-                    type="text"
-                    value={pageSettings.title || ""}
-                    onChange={e => setPageSettings({ ...pageSettings, title: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Heading Title (Arabic)</label>
-                  <input
-                    type="text"
-                    dir="rtl"
-                    value={(pageSettings as any).titleAr || ""}
-                    onChange={e => setPageSettings({ ...pageSettings, titleAr: e.target.value } as any)}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Sub-heading / Tagline (English)</label>
-                  <textarea
-                    value={pageSettings.tagline || ""}
-                    onChange={e => setPageSettings({ ...pageSettings, tagline: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Sub-heading / Tagline (Arabic)</label>
-                  <textarea
-                    dir="rtl"
-                    value={(pageSettings as any).taglineAr || ""}
-                    onChange={e => setPageSettings({ ...pageSettings, taglineAr: e.target.value } as any)}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white resize-none h-24"
-                  />
-                </div>
-              </div>
+        <DashboardSectionCard
+          title="Hero Titles & Copy"
+          description="Opening headlines displayed on the live events and calendar directory banner."
+          icon={<Calendar className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <DashboardBilingualField
+            label="Calendar Page Title"
+            valueEn={pageSettings.titleEn || ""}
+            valueAr={pageSettings.titleAr || ""}
+            onChangeEn={(val) => updateSettings((p) => ({ ...p, titleEn: val }))}
+            onChangeAr={(val) => updateSettings((p) => ({ ...p, titleAr: val }))}
+            placeholderEn="e.g. Events & Entertainment Calendar"
+            placeholderAr="مثال: جدول الفعاليات والتجارب"
+          />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Background Media Type</label>
-                  <select
-                    value={pageSettings.heroMediaType}
-                    onChange={e => setPageSettings({ ...pageSettings, heroMediaType: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                  >
-                    <option value="IMAGE">Image</option>
-                    <option value="VIDEO">Video</option>
-                    <option value="MODEL_3D">3D Model / Spline</option>
-                    <option value="IFRAME">Iframe Embed</option>
-                    <option value="LOTTIE">Lottie Animation</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[var(--text-primary)]">Media URL</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="https://..."
-                      value={pageSettings.heroMediaUrl}
-                      onChange={e => setPageSettings({ ...pageSettings, heroMediaUrl: e.target.value })}
-                      className="flex-1 px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                    />
-                    <label className="shrink-0 flex items-center justify-center px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl cursor-pointer transition-colors relative">
-                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                      <span className="ms-2 font-bold text-sm">{uploading ? 'Uploading...' : 'Upload'}</span>
-                      <input 
-                        type="file" 
-                        accept="image/*,video/*" 
-                        className="hidden" 
-                        onChange={handleFileUpload}
-                        disabled={uploading}
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-[var(--text-secondary)]">Note: Make sure to click &quot;Save Changes&quot; after editing to apply the settings to the frontend.</p>
-            </div>
-        </div>
+          <DashboardBilingualField
+            label="Tagline & Narrative Description"
+            type="textarea"
+            rows={3}
+            valueEn={pageSettings.taglineEn || ""}
+            valueAr={pageSettings.taglineAr || ""}
+            onChangeEn={(val) => updateSettings((p) => ({ ...p, taglineEn: val }))}
+            onChangeAr={(val) => updateSettings((p) => ({ ...p, taglineAr: val }))}
+            placeholderEn="Enter tagline..."
+            placeholderAr="أدخل النص الوصفي..."
+          />
+        </DashboardSectionCard>
       )}
 
-      {/* Discounts Settings Content */}
+      {/* 2. HERO MEDIA */}
+      {activeTab === "MEDIA" && (
+        <UniversalMediaSectionEditor
+          title="Calendar Hero Media Banner"
+          subtitle="Universal media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
+          value={pageSettings.heroMedia || DEFAULT_UNIVERSAL_MEDIA}
+          onChange={(heroMedia) => updateSettings((p) => ({ ...p, heroMedia }))}
+          accentColor="purple"
+        />
+      )}
+
+      {/* 3. PROMO DISCOUNTS */}
       {activeTab === "DISCOUNTS" && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6">
-            <h2 className="text-lg font-bold text-white mb-4">Add New Discount</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-bold text-zinc-400">Attraction</label>
+        <DashboardSectionCard
+          title="Active Promotional Offers & Discount Codes"
+          description="Manage promotional coupon codes redeemable at specific entertainment attractions."
+          icon={<Tag className="w-5 h-5 text-[var(--color-primary)]" />}
+          badge={
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              {discounts.length} Active Offers
+            </span>
+          }
+        >
+          {/* Create Discount Form */}
+          <div className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)]/60 space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+              Create New Discount Offer
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Target Attraction</label>
                 <select
                   value={newDiscount.attractionId}
-                  onChange={e => setNewDiscount({ ...newDiscount, attractionId: e.target.value })}
-                  className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
+                  onChange={(e) => setNewDiscount({ ...newDiscount, attractionId: e.target.value })}
+                  className="w-full h-10 px-3 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 >
-                  <option value="" disabled>Select an attraction...</option>
-                  {attractions.map(a => (
-                    <option key={a.id} value={a.id}>{a.nameEn}</option>
+                  {attractions.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.nameEn}
+                    </option>
                   ))}
                 </select>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-zinc-400">Promo Code</label>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Promo Code</label>
                 <input
                   type="text"
-                  placeholder="e.g. SUMMER20"
+                  placeholder="e.g. SUMMER25"
                   value={newDiscount.code}
-                  onChange={e => setNewDiscount({ ...newDiscount, code: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white uppercase"
+                  onChange={(e) => setNewDiscount({ ...newDiscount, code: e.target.value.toUpperCase() })}
+                  className="w-full h-10 px-3 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-zinc-400">Discount (%)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 25"
-                  value={newDiscount.discount}
-                  onChange={e => setNewDiscount({ ...newDiscount, discount: e.target.value })}
-                  className="w-full px-4 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-default)] text-white"
-                />
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Discount %</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    placeholder="25"
+                    value={newDiscount.discount}
+                    onChange={(e) => setNewDiscount({ ...newDiscount, discount: e.target.value })}
+                    className="w-full h-10 px-3 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                  <AdminButton
+                    variant="primary"
+                    size="sm"
+                    onClick={handleCreateDiscount}
+                    disabled={loadingDiscounts || !newDiscount.code || !newDiscount.discount}
+                    leftIcon={<Plus className="w-3.5 h-3.5" />}
+                    className="h-10 px-4 shrink-0 font-bold"
+                  >
+                    Add
+                  </AdminButton>
+                </div>
               </div>
-            </div>
-            <div className="mt-4 flex justify-end">
-              <Button onClick={handleCreateDiscount} disabled={loadingDiscounts || !newDiscount.attractionId || !newDiscount.code || !newDiscount.discount}>
-                {loadingDiscounts ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : <Plus className="w-4 h-4 me-2" />}
-                Add Discount
-              </Button>
             </div>
           </div>
 
-          <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-zinc-900 border-b border-zinc-800">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">Attraction</th>
-                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">Promo Code</th>
-                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">Discount</th>
-                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-wider text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {discounts.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-zinc-500">
-                        No active discounts found.
-                      </td>
-                    </tr>
-                  ) : (
-                    discounts.map(offer => (
-                      <tr key={offer.id} className="hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-6 py-4 font-bold text-white">
-                          {offer.attraction?.nameEn}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded font-mono text-sm font-bold">
-                            {offer.code}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="font-bold text-emerald-500">{offer.discount}% OFF</span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleDeleteDiscount(offer.id)}
-                            className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          {/* Discounts Roster */}
+          <div className="space-y-2">
+            {discounts.length === 0 ? (
+              <p className="text-xs text-[var(--text-tertiary)] py-4 text-center">No promo codes created yet.</p>
+            ) : (
+              discounts.map((d) => (
+                <div
+                  key={d.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)]"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-400 font-mono font-bold text-xs border border-purple-500/20">
+                      {d.code}
+                    </span>
+                    <div>
+                      <span className="text-xs font-bold text-[var(--text-primary)]">{d.attraction?.nameEn || "All Attractions"}</span>
+                      <span className="text-[11px] text-emerald-400 font-bold ms-2">{d.discount}% OFF</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteDiscount(d.id)}
+                    className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+                    title="Delete Promo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
-        </div>
+        </DashboardSectionCard>
       )}
 
-      {/* SEO Settings Content */}
+      {/* 4. SEO */}
       {activeTab === "SEO" && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <AdminSeoCustomizer 
-            seo={pageSettings.seo} 
-            setSeo={(seo) => setPageSettings({ ...pageSettings, seo })} 
-            formData={null} 
-            setFormData={() => {}} 
-          />
-        </div>
+        <DashboardSectionCard
+          title="SEO Metadata"
+          description="Search engine metadata and OpenGraph social preview tags."
+          icon={<Globe className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                SEO Meta Title
+              </label>
+              <input
+                type="text"
+                value={pageSettings.seo?.title || ""}
+                onChange={(e) => updateSettings((p) => ({ ...p, seo: { ...(p.seo || {}), title: e.target.value } }))}
+                placeholder="Events & Calendar | E3 Qatar"
+                className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                SEO Meta Description
+              </label>
+              <textarea
+                rows={2}
+                value={pageSettings.seo?.description || ""}
+                onChange={(e) => updateSettings((p) => ({ ...p, seo: { ...(p.seo || {}), description: e.target.value } }))}
+                placeholder="Browse upcoming events and entertainment festivals in Qatar."
+                className="w-full p-3 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+          </div>
+        </DashboardSectionCard>
       )}
-    </div>
-  )
+
+      {/* Sticky Bottom Actions */}
+      <DashboardStickyActions
+        onSave={handleSaveSettings}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
+  );
 }

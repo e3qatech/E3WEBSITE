@@ -1,15 +1,32 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
 import { Save, CheckCircle2, Globe, FileJson, Search, ExternalLink, RefreshCw } from "lucide-react";
-import { AdminPageHeader } from "../ui/AdminPageHeader";
 import { AdminFormLayout } from "../ui/AdminFormLayout";
 import { AdminButton } from "../ui/AdminButton";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  EditorSectionItem,
+} from "@/components/dashboard/ui";
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "meta", label: "1. Global Meta Tags" },
+  { id: "analytics", label: "2. Google Tracking & GTM" },
+  { id: "robots", label: "3. Robots & Sitemap" },
+  { id: "llm", label: "4. LLMs.txt AI Context" },
+  { id: "jsonld", label: "5. JSON-LD Schema" },
+];
 
 export function SeoSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
   const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [activeSectionId, setActiveSectionId] = useState("meta");
   const [generatingSitemap, setGeneratingSitemap] = useState(false);
   const { toast } = useToast();
 
@@ -33,6 +50,7 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
   });
 
   const handleChange = (field: string, value: string) => {
+    setIsDirty(true);
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -47,6 +65,8 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
         })
       );
       await Promise.all(promises);
+      setIsDirty(false);
+      setLastSaved(new Date());
       toast("SEO & Analytics settings saved successfully.", "success");
     } catch (error) {
       console.error("Failed to save settings", error);
@@ -71,16 +91,31 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
   };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-4 md:p-8 max-w-6xl mx-auto pb-24">
-      <AdminPageHeader
-        title="SEO, Meta Tags & Indexing"
-        description="Configure search engine visibility, Google Analytics, robots.txt, and AI crawler documentation."
-        action={
-          <AdminButton variant="primary" onClick={handleSave} disabled={isSaving} className="gap-2 shadow-md">
-            {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save SEO Config
-          </AdminButton>
-        }
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      <DashboardPageHeader
+        title="SEO, Meta Tags & Search Indexing"
+        description="Configure search engine visibility, Google Analytics, GTM tracking, robots.txt, and AI crawler documentation (/settings/seo)."
+        breadcrumbs={[
+          { label: "Settings", href: "/dashboard/settings/general" },
+          { label: "SEO & Indexing" },
+        ]}
+        badge={{ label: "Platform SEO", variant: "cyan" }}
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save SEO Config",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
+
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
       />
 
       <AdminFormLayout>
@@ -247,6 +282,17 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
           </div>
         </div>
       </AdminFormLayout>
-    </div>
+
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={isSaving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
+    </DashboardPageShell>
   );
 }
