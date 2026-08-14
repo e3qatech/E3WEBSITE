@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, SlidersHorizontal, Grid, List } from "lucide-react";
+import { Search, Grid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DashboardToolbarProps {

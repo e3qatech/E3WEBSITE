@@ -96,20 +96,21 @@ export function LocaleProvider({
 }: LocaleProviderProps) {
   const [locale, setLocaleState] = React.useState<Locale>(defaultLocale);
 
+  // Sync state if defaultLocale prop changes from route params
   React.useEffect(() => {
-    const savedLocale = localStorage.getItem("locale") as Locale | null;
-    if (savedLocale && (savedLocale === "en" || savedLocale === "ar")) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for hydration
-      setLocaleState(savedLocale);
+    if (defaultLocale && (defaultLocale === "en" || defaultLocale === "ar")) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Explicit route sync from Next.js route params
+      setLocaleState(defaultLocale);
     }
-  }, []);
+  }, [defaultLocale]);
 
   React.useEffect(() => {
-    const root = window.document.documentElement;
-    const dir = locale === "ar" ? "rtl" : "ltr";
-    
-    root.setAttribute("lang", locale);
-    root.setAttribute("dir", dir);
+    if (typeof window !== "undefined") {
+      const root = window.document.documentElement;
+      const dir = locale === "ar" ? "rtl" : "ltr";
+      root.setAttribute("lang", locale);
+      root.setAttribute("dir", dir);
+    }
   }, [locale]);
 
   const setLocale = React.useCallback((newLocale: Locale) => {

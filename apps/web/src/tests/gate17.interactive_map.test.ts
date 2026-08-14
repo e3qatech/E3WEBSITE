@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateHaversineDistanceKm } from '../hooks/useNearestLocations';
-import { validateMapStyleUrl, ALLOWED_MAP_STYLE_ORIGINS } from '../components/map/map-config';
+import { validateMapStyleUrl } from '../components/map/map-config';
 import { isAttractionActiveByDate } from '../lib/cms-attractions';
 
 describe('Gate 17: E3 Qatar Interactive Map & Location System Verification', () => {

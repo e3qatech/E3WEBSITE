@@ -131,7 +131,7 @@ describe('QF-01: Capability-Safe MapLibre Lifecycle & No-WebGL Fallback', () => 
 
   it('7. Unmounted component ignores async load callbacks and tile warnings', () => {
     let state = 'loading';
-    let isMounted = false; // Component already unmounted
+    const isMounted = false; // Component already unmounted
 
     const onLoadCallback = () => {
       if (!isMounted) return; // Guarded

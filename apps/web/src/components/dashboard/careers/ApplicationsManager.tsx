@@ -1,76 +1,93 @@
 "use client"
 
 import React, { useState } from "react"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
-import { AdminButton } from "../ui/AdminButton"
-import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { FileText, Download, Cpu, Search, Filter } from "lucide-react"
-import { safeFetchJson } from "@/lib/utils"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
+import { AdminButton } from "../ui/AdminButton";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
+import { FileText, Download, Cpu, Search, Filter } from "lucide-react";
+import { safeFetchJson } from "@/lib/utils";
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {
-  const [applications, setApplications] = useState(initialApplications)
-  const [selectedAppId, setSelectedAppId] = useState<string | null>(null)
-  const [parsing, setParsing] = useState(false)
-  const [updating, setUpdating] = useState(false)
-  const { toast } = useToast()
+  const [applications, setApplications] = useState(initialApplications);
+  const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const { toast } = useToast();
 
-  const selectedApp = applications.find(a => a.id === selectedAppId)
+  const selectedApp = applications.find((a) => a.id === selectedAppId);
 
   const handleParseCV = async (id: string) => {
-    setParsing(true)
+    setParsing(true);
     try {
-      const res = await fetch(`/api/careers/${id}/parse`, { method: 'POST' })
-      const parsed = await safeFetchJson(res)
-      
-      if (!parsed.ok) throw new Error(parsed.error || "Failed to parse CV")
-      
-      setApplications(prev => prev.map(app => app.id === id ? parsed.data.application : app))
-      toast("CV parsed successfully.", "success")
+      const res = await fetch(`/api/careers/${id}/parse`, { method: "POST" });
+      const parsed = await safeFetchJson(res);
+
+      if (!parsed.ok) throw new Error(parsed.error || "Failed to parse CV");
+
+      setApplications((prev) =>
+        prev.map((app) => (app.id === id ? parsed.data.application : app))
+      );
+      toast("CV parsed successfully.", "success");
     } catch (e: any) {
-      console.error(e)
-      toast(e.message || "Failed to parse CV.", "error")
+      console.error(e);
+      toast(e.message || "Failed to parse CV.", "error");
     } finally {
-      setParsing(false)
+      setParsing(false);
     }
-  }
+  };
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
-    setUpdating(true)
+    setUpdating(true);
     try {
-      const res = await fetch(`/api/careers/${id}/status`, { 
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-      const parsed = await safeFetchJson(res)
-      
-      if (!parsed.ok) throw new Error(parsed.error || "Failed to update status")
-      
-      setApplications(prev => prev.map(app => app.id === id ? { ...app, status: newStatus } : app))
-      toast("Application status updated.", "success")
+      const res = await fetch(`/api/careers/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const parsed = await safeFetchJson(res);
+
+      if (!parsed.ok) throw new Error(parsed.error || "Failed to update status");
+
+      setApplications((prev) =>
+        prev.map((app) => (app.id === id ? { ...app, status: newStatus } : app))
+      );
+      toast("Application status updated.", "success");
     } catch (e: any) {
-      console.error(e)
-      toast(e.message || "Failed to update status.", "error")
+      console.error(e);
+      toast(e.message || "Failed to update status.", "error");
     } finally {
-      setUpdating(false)
+      setUpdating(false);
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'NEW': return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-      case 'REVIEWING': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-      case 'REJECTED': return 'bg-red-500/10 text-red-500 border-red-500/20'
-      case 'HIRED': return 'bg-green-500/10 text-green-500 border-green-500/20'
-      default: return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
+    switch (status) {
+      case "NEW":
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "REVIEWING":
+        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+      case "REJECTED":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      case "HIRED":
+        return "bg-green-500/10 text-green-500 border-green-500/20";
+      default:
+        return "bg-zinc-500/10 text-zinc-400 border-zinc-500/20";
     }
-  }
+  };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6">
-      <AdminPageHeader 
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
         title="Global Job Applications"
-        description="Review incoming applications across all B2B and B2C portals and use AI to parse CVs."
+        description="Review incoming candidate submissions across all B2B and B2C portals and use AI to parse CVs."
+        breadcrumbs={[
+          { label: "HR & Careers", href: "/dashboard/team" },
+          { label: "Job Applications" },
+        ]}
+        badge={{ label: `${applications.length} Applicants`, variant: "indigo" }}
       />
 
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-200px)]">
@@ -239,6 +256,6 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
           )}
         </div>
       </div>
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }

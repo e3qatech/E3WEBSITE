@@ -4,8 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Search, Plus, Mail, Building, XCircle, ArrowRight } from "lucide-react"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
-import { AdminButton } from "@/components/dashboard/ui/AdminButton"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  AdminButton,
+} from "@/components/dashboard/ui"
 import Link from "next/link"
 
 type Lead = {
@@ -58,9 +61,6 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
       })
 
       if (!res.ok) throw new Error()
-      
-      const newLead = await res.json()
-      setLeads(prev => [newLead, ...prev])
       setIsAdding(false)
       router.refresh()
     } catch {
@@ -112,30 +112,33 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-bg-base overflow-hidden">
-      <div className="px-8 pt-8 pb-4">
-        <AdminPageHeader 
-          title="Sales Pipeline" 
-          description="Manage your B2B leads and track sales opportunities."
-          action={
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                <input 
-                  type="text" 
-                  placeholder="Search leads..." 
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent w-full md:w-64"
-                />
-              </div>
-              <AdminButton variant="primary" onClick={() => setIsAdding(true)}>
-                <Plus className="w-4 h-4 me-2" /> Add Lead
-              </AdminButton>
-            </div>
-          }
-        />
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Sales Pipeline & Leads"
+        description="Manage B2B sales pipeline, track deals stage progression, and log corporate inquiries."
+        breadcrumbs={[
+          { label: "CRM & Sales", href: "/dashboard/crm/leads" },
+          { label: "Sales Pipeline" },
+        ]}
+        badge={{ label: `${leads.length} Leads`, variant: "amber" }}
+        primaryAction={{
+          label: "Add Lead",
+          onClick: () => setIsAdding(true),
+          icon: <Plus className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <div className="relative w-64">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+            <input 
+              type="text" 
+              placeholder="Search leads..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-amber-400 w-full"
+            />
+          </div>
+        }
+      />
 
       {isAdding && (
         <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -277,6 +280,6 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
           )
         })}
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

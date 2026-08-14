@@ -38,6 +38,8 @@ import {
   DashboardPageHeader,
   DashboardLoadingState,
   DashboardStickyActions,
+  DashboardSectionNavigator,
+  EditorSectionItem,
 } from '@/components/dashboard/ui';
 
 type TabKey =
@@ -51,16 +53,16 @@ type TabKey =
   | 'preview'
   | 'versions';
 
-const TABS: { key: TabKey; label: string; icon: any }[] = [
-  { key: 'english', label: '1. English Content', icon: FileText },
-  { key: 'arabic', label: '2. Arabic Content', icon: Globe },
-  { key: 'logo', label: '3. Logo & Branding', icon: Sparkles },
-  { key: 'b2c_media', label: '4. B2C Media', icon: ImageIcon },
-  { key: 'b2b_media', label: '5. B2B Media', icon: Layers },
-  { key: 'visual', label: '6. Visual & Behaviour', icon: Sliders },
-  { key: 'seo', label: '7. SEO & Accessibility', icon: ShieldCheck },
-  { key: 'preview', label: '8. Live Preview', icon: Play },
-  { key: 'versions', label: 'Version History', icon: History },
+const SECTIONS: EditorSectionItem[] = [
+  { id: 'english', label: '1. English Content' },
+  { id: 'arabic', label: '2. Arabic Content' },
+  { id: 'logo', label: '3. Logo & Branding' },
+  { id: 'b2c_media', label: '4. B2C Media Assets' },
+  { id: 'b2b_media', label: '5. B2B Media Assets' },
+  { id: 'visual', label: '6. Visual & Behaviour' },
+  { id: 'seo', label: '7. SEO & Accessibility' },
+  { id: 'preview', label: '8. Live Preview Simulator' },
+  { id: 'versions', label: '9. Version History' },
 ];
 
 const DEFAULT_SIMULATION_STATE: GatewayPreviewSimulationState = {
@@ -297,28 +299,12 @@ export default function GatewayCustomizationPage() {
         }
       />
 
-      {/* Tab Navigation */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-slate-800/80">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border',
-                isActive
-                  ? 'bg-purple-600/30 text-purple-200 border-purple-500/50 shadow-md'
-                  : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200'
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Standard Section Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeTab}
+        onSelectSection={(id: string) => setActiveTab(id as TabKey)}
+      />
 
       {/* TAB CONTENT PANELS */}
       <div className="mt-4">

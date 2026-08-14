@@ -3,9 +3,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, Trash2, Edit2, CheckCircle2, XCircle, Search, ExternalLink, Briefcase } from "lucide-react"
-import { AdminButton } from "../ui/AdminButton"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
 import { MediaUploader } from "@/components/shared/MediaUploader"
+import { AdminButton } from "../ui/AdminButton"
 
 export function PartnersClient({ initialData }: { initialData: any[] }) {
   const router = useRouter()
@@ -90,15 +93,20 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6">
-      <AdminPageHeader 
-        title="Clients CMS"
-        description="Manage corporate clients, government partners, and agencies."
-        action={
-          <AdminButton variant="primary" leftIcon={<Plus className="w-4 h-4" />} onClick={handleAddNew}>
-            Add Client
-          </AdminButton>
-        }
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader 
+        title="Corporate Clients & Partners Directory"
+        description="Manage corporate partners, enterprise client logos, brand credentials, and trust marks."
+        breadcrumbs={[
+          { label: "B2B Content", href: "/dashboard/b2b/services" },
+          { label: "Clients Directory" },
+        ]}
+        badge={{ label: `${partners.length} Clients`, variant: "indigo" }}
+        primaryAction={{
+          label: "Add Client",
+          onClick: handleAddNew,
+          icon: <Plus className="w-4 h-4" />,
+        }}
       />
 
       <div className="relative">
@@ -279,7 +287,7 @@ export function PartnersClient({ initialData }: { initialData: any[] }) {
           </div>
         </div>
       )}
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }
 

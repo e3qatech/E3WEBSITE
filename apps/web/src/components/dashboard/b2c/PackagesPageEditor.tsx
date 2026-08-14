@@ -14,9 +14,18 @@ import {
   DashboardStickyActions,
   DashboardLoadingState,
   DashboardUnsavedChangesGuard,
+  DashboardSectionNavigator,
+  EditorSectionItem,
   LanguageEditMode,
   AdminButton,
 } from "@/components/dashboard/ui";
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "headlines", label: "1. Hero Copy & Headlines" },
+  { id: "ctas", label: "2. CTAs, Pricing & Badges" },
+  { id: "hero-media", label: "3. Hero Media Background" },
+  { id: "footer-media", label: "4. Footer Media & Poster" },
+];
 
 export function PackagesPageEditor() {
   const router = useRouter();
@@ -25,6 +34,7 @@ export function PackagesPageEditor() {
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [activeSectionId, setActiveSectionId] = useState("headlines");
   const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
 
   const [pageConfig, setPageConfig] = useState({
@@ -136,93 +146,109 @@ export function PackagesPageEditor() {
         }
       />
 
-      {/* Hero Headlines Card */}
-      <DashboardSectionCard
-        title="Hero Eyebrow & Headlines"
-        description="Opening headlines displayed on the packages page header banner."
-        icon={<Gift className="w-5 h-5 text-[var(--color-primary)]" />}
-      >
-        <DashboardBilingualField
-          label="Eyebrow Tag"
-          valueEn={pageConfig.eyebrowEn}
-          valueAr={pageConfig.eyebrowAr}
-          onChangeEn={(val) => updateField((p) => ({ ...p, eyebrowEn: val }))}
-          onChangeAr={(val) => updateField((p) => ({ ...p, eyebrowAr: val }))}
-          mode={languageMode}
-        />
-
-        <DashboardBilingualField
-          label="Main Page Title"
-          valueEn={pageConfig.titleEn}
-          valueAr={pageConfig.titleAr}
-          onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
-          onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
-          mode={languageMode}
-        />
-
-        <DashboardBilingualField
-          label="Page Description"
-          type="textarea"
-          rows={3}
-          valueEn={pageConfig.descEn}
-          valueAr={pageConfig.descAr}
-          onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
-          onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
-          mode={languageMode}
-        />
-      </DashboardSectionCard>
-
-      {/* CTAs and Badges Card */}
-      <DashboardSectionCard
-        title="Call to Action Buttons & Campaign Badge"
-        description="Configure action buttons and campaign promo badges."
-        icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
-      >
-        <DashboardBilingualField
-          label="Primary Action Button"
-          valueEn={pageConfig.primaryCtaEn}
-          valueAr={pageConfig.primaryCtaAr}
-          onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
-          onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
-          mode={languageMode}
-        />
-
-        <DashboardBilingualField
-          label="Secondary Action Button"
-          valueEn={pageConfig.secondaryCtaEn}
-          valueAr={pageConfig.secondaryCtaAr}
-          onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
-          onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
-          mode={languageMode}
-        />
-
-        <DashboardBilingualField
-          label="Campaign Badge Label"
-          valueEn={pageConfig.campaignBadgeEn}
-          valueAr={pageConfig.campaignBadgeAr}
-          onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
-          onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
-          mode={languageMode}
-        />
-      </DashboardSectionCard>
-
-      {/* Universal Hero Media Section */}
-      <UniversalMediaSectionEditor
-        title="Packages Hero Media Banner"
-        subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
-        value={pageConfig.heroMedia}
-        onChange={(heroMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, heroMedia }))}
-        accentColor="purple"
+      {/* 4-Section Long-Page Navigator */}
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSelectSection={setActiveSectionId}
+        dirtySections={isDirty ? [activeSectionId] : []}
       />
 
-      {/* Universal Footer Media Section */}
-      <UniversalMediaSectionEditor
-        title="Packages Footer Banner Media"
-        subtitle="Universal footer media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."
-        value={pageConfig.footerMedia}
-        onChange={(footerMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, footerMedia }))}
-        accentColor="indigo"
-      />
+      {/* 1. Hero Headlines Card */}
+      <div id="headlines" className={activeSectionId === "headlines" || !activeSectionId ? "block" : "hidden"}>
+        <DashboardSectionCard
+          title="Hero Eyebrow & Headlines"
+          description="Opening headlines displayed on the packages page header banner."
+          icon={<Gift className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <DashboardBilingualField
+            label="Eyebrow Tag"
+            valueEn={pageConfig.eyebrowEn}
+            valueAr={pageConfig.eyebrowAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, eyebrowEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, eyebrowAr: val }))}
+            mode={languageMode}
+          />
+
+          <DashboardBilingualField
+            label="Main Page Title"
+            valueEn={pageConfig.titleEn}
+            valueAr={pageConfig.titleAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
+            mode={languageMode}
+          />
+
+          <DashboardBilingualField
+            label="Page Description"
+            type="textarea"
+            rows={3}
+            valueEn={pageConfig.descEn}
+            valueAr={pageConfig.descAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      </div>
+
+      {/* 2. CTAs and Badges Card */}
+      <div id="ctas" className={activeSectionId === "ctas" ? "block" : "hidden"}>
+        <DashboardSectionCard
+          title="Call to Action Buttons & Campaign Badge"
+          description="Configure action buttons and campaign promo badges."
+          icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
+        >
+          <DashboardBilingualField
+            label="Primary Action Button"
+            valueEn={pageConfig.primaryCtaEn}
+            valueAr={pageConfig.primaryCtaAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
+            mode={languageMode}
+          />
+
+          <DashboardBilingualField
+            label="Secondary Action Button"
+            valueEn={pageConfig.secondaryCtaEn}
+            valueAr={pageConfig.secondaryCtaAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
+            mode={languageMode}
+          />
+
+          <DashboardBilingualField
+            label="Campaign Badge Label"
+            valueEn={pageConfig.campaignBadgeEn}
+            valueAr={pageConfig.campaignBadgeAr}
+            onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
+            onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      </div>
+
+      {/* 3. Universal Hero Media Section */}
+      <div id="hero-media" className={activeSectionId === "hero-media" ? "block" : "hidden"}>
+        <UniversalMediaSectionEditor
+          title="Packages Hero Media Banner"
+          subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
+          value={pageConfig.heroMedia}
+          onChange={(heroMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, heroMedia }))}
+          accentColor="purple"
+        />
+      </div>
+
+      {/* 4. Universal Footer Media Section */}
+      <div id="footer-media" className={activeSectionId === "footer-media" ? "block" : "hidden"}>
+        <UniversalMediaSectionEditor
+          title="Packages Footer Banner Media"
+          subtitle="Universal footer media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."
+          value={pageConfig.footerMedia}
+          onChange={(footerMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, footerMedia }))}
+          accentColor="indigo"
+        />
+      </div>
 
       {/* Sticky Action Bar */}
       <DashboardStickyActions

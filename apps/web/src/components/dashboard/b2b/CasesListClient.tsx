@@ -1,10 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Plus, Trash2, Edit2, Search, Briefcase } from "lucide-react"
-import { AdminButton } from "@/components/dashboard/ui/AdminButton"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, Trash2, Edit2, Search, Briefcase } from "lucide-react";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  AdminButton,
+} from "@/components/dashboard/ui";
 import { 
   AdminTable, 
   AdminTableHeader, 
@@ -12,48 +15,48 @@ import {
   AdminTableRow, 
   AdminTableHead, 
   AdminTableCell 
-} from "@/components/dashboard/ui/AdminTable"
+} from "@/components/dashboard/ui/AdminTable";
 
 export function CasesListClient({ initialData }: { initialData: any[] }) {
-  const router = useRouter()
-  const [caseStudies, setCaseStudies] = useState(initialData)
-  const [search, setSearch] = useState("")
+  const router = useRouter();
+  const [caseStudies, setCaseStudies] = useState(initialData);
+  const [search, setSearch] = useState("");
 
-  const filteredCases = caseStudies.filter(c => 
-    c.titleEn.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredCases = caseStudies.filter((c) =>
+    c.titleEn.toLowerCase().includes(search.toLowerCase()) ||
     c.slug.toLowerCase().includes(search.toLowerCase()) ||
     (c.clientName && c.clientName.toLowerCase().includes(search.toLowerCase()))
-  )
+  );
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this case study?")) return
+    if (!confirm("Are you sure you want to delete this case study?")) return;
 
     try {
-      const res = await fetch(`/api/b2b/cases/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Failed to delete")
-      
-      setCaseStudies(caseStudies.filter(c => c.id !== id))
-      router.refresh()
+      const res = await fetch(`/api/b2b/cases/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+
+      setCaseStudies(caseStudies.filter((c) => c.id !== id));
+      router.refresh();
     } catch {
-      alert("Failed to delete case study")
+      alert("Failed to delete case study");
     }
-  }
+  };
 
   return (
-    <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-6 animate-fade-in-up">
-      <AdminPageHeader 
-        title="B2B Case Studies"
-        description="Manage past work, projects, and success stories."
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="B2B Case Studies Portfolio"
+        description="Manage past client activations, mega-event productions, and technical showcase projects."
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "B2B Portal" },
-          { label: "Case Studies" }
+          { label: "B2B Content", href: "/dashboard/b2b/services" },
+          { label: "Case Studies" },
         ]}
-        action={
-          <AdminButton onClick={() => router.push("/dashboard/b2b/cases/new")} variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
-            Add Case Study
-          </AdminButton>
-        }
+        badge={{ label: `${caseStudies.length} Projects`, variant: "indigo" }}
+        primaryAction={{
+          label: "Add Case Study",
+          href: "/dashboard/b2b/cases/new",
+          icon: <Plus className="w-4 h-4" />,
+        }}
       />
 
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">
@@ -135,7 +138,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
           )}
         </AdminTableBody>
       </AdminTable>
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }
 

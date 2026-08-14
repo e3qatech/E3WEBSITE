@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { Calendar, Clock, Users, Plus, Trash2, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
 
 type Attraction = {
   id: string
@@ -63,17 +67,15 @@ export function EventScheduleManager({
 
       if (!res.ok) throw new Error()
       
-      const newSchedule = await res.json()
-      setSchedules(prev => [...prev, newSchedule].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()))
       setIsAdding(false)
       router.refresh()
     } catch {
-      alert("Failed to add schedule")
+      alert("Failed to create schedule. Please try again.")
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this schedule?")) return
+    if (!confirm("Are you sure you want to delete this schedule?")) return
     try {
       const res = await fetch(`/api/operations/schedules/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
@@ -86,16 +88,21 @@ export function EventScheduleManager({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Event Schedules & Capacity</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Manage attraction opening hours, special events, and capacity gates.</p>
-        </div>
-        <Button onClick={() => setIsAdding(!isAdding)} className="gap-2">
-          {isAdding ? "Cancel" : <><Plus className="w-4 h-4" /> Add Schedule</>}
-        </Button>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Event Schedules & Capacity Gates"
+        description="Manage attraction opening hours, special events calendar, live headcount, and capacity thresholds."
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard/operations/events" },
+          { label: "Event Schedules & Capacity" },
+        ]}
+        badge={{ label: `${schedules.length} Blocks`, variant: "cyan" }}
+        primaryAction={{
+          label: isAdding ? "Cancel" : "Add Schedule Block",
+          onClick: () => setIsAdding(!isAdding),
+          icon: <Plus className="w-4 h-4" />,
+        }}
+      />
 
       {isAdding && (
         <form onSubmit={handleAddSchedule} className="glass rounded-3xl p-6 border-gradient relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -234,9 +241,9 @@ export function EventScheduleManager({
               })
             )}
           </tbody>
-          </table>
+        </table>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

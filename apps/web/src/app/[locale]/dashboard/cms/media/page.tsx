@@ -1,19 +1,22 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
-import { AdminButton } from "@/components/dashboard/ui/AdminButton"
-import { SlideOver } from "@/components/dashboard/ui/SlideOver"
-import { Image as ImageIcon, Video, FileText, Trash2, Upload, ExternalLink, Box, Grid, List, Copy, Search, Calendar, HardDrive, Link as LinkIcon, CheckCircle2 } from "lucide-react"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
+import { AdminButton } from "@/components/dashboard/ui/AdminButton";
+import { SlideOver } from "@/components/dashboard/ui/SlideOver";
+import { Image as ImageIcon, Video, FileText, Trash2, Upload, ExternalLink, Box, Grid, List, Copy, Search, Calendar, HardDrive, Link as LinkIcon, CheckCircle2 } from "lucide-react";
 
 interface Media {
-  id: string
-  url: string
-  type: string
-  alt: string
-  mimeType: string
-  size: number
-  createdAt: string
+  id: string;
+  url: string;
+  type: string;
+  alt: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
 }
 
 const TYPE_ICONS: Record<string, any> = {
@@ -21,143 +24,150 @@ const TYPE_ICONS: Record<string, any> = {
   VIDEO: Video,
   DOCUMENT: FileText,
   MODEL_3D: Box,
-}
+};
 
 export default function MediaLibraryPage() {
-  const [mediaList, setMediaList] = useState<Media[]>([])
-  const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
-  const [selectedMedia, setSelectedMedia] = useState<Media | null>(null)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [filterType, setFilterType] = useState<string>("ALL")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [copied, setCopied] = useState(false)
+  const [mediaList, setMediaList] = useState<Media[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [filterType, setFilterType] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const fetchMedia = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await fetch("/api/cms/media?limit=200")
-      const json = await res.json()
+      const res = await fetch("/api/cms/media?limit=200");
+      const json = await res.json();
       if (json.data) {
-        setMediaList(json.data)
+        setMediaList(json.data);
       }
     } catch (e) {
-      console.error(e)
+      console.error(e);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
-    fetchMedia()
-  }, [])
+    fetchMedia();
+  }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    setUploading(true)
-    const formData = new FormData()
-    Array.from(files).forEach(f => formData.append("files", f))
+    setUploading(true);
+    const formData = new FormData();
+    Array.from(files).forEach((f) => formData.append("files", f));
 
     try {
       const res = await fetch("/api/cms/media", {
         method: "POST",
-        body: formData
-      })
-      const data = await res.json()
+        body: formData,
+      });
+      const data = await res.json();
       if (data.data && Array.isArray(data.data)) {
-        setMediaList(prev => [...data.data, ...prev])
+        setMediaList((prev) => [...data.data, ...prev]);
       } else if (data.url) {
-        setMediaList(prev => [data, ...prev])
+        setMediaList((prev) => [data, ...prev]);
       }
     } catch (e) {
-      console.error(e)
+      console.error(e);
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this media?")) return
+    if (!confirm("Are you sure you want to permanently delete this media?")) return;
     try {
-      await fetch(`/api/cms/media/${id}`, { method: "DELETE" })
-      setMediaList(prev => prev.filter(m => m.id !== id))
-      setSelectedMedia(null)
+      await fetch(`/api/cms/media/${id}`, { method: "DELETE" });
+      setMediaList((prev) => prev.filter((m) => m.id !== id));
+      setSelectedMedia(null);
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
-  }
+  };
 
   const handleCopyUrl = async (url: string) => {
     try {
-      await navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy', err)
+      console.error("Failed to copy", err);
     }
-  }
+  };
 
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
   const filteredMedia = useMemo(() => {
-    return mediaList.filter(m => {
-      const matchesType = filterType === "ALL" || m.type === filterType
-      const matchesSearch = m.url.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            m.mimeType.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchesType && matchesSearch
-    })
-  }, [mediaList, filterType, searchQuery])
+    return mediaList.filter((m) => {
+      const matchesType = filterType === "ALL" || m.type === filterType;
+      const matchesSearch =
+        m.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.mimeType.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesType && matchesSearch;
+    });
+  }, [mediaList, filterType, searchQuery]);
 
   return (
-    <div className="flex flex-col h-full bg-bg-base">
-      <AdminPageHeader 
-        title="Media Library" 
-        description="Centralized asset manager for all images, videos, and documents."
-        action={
-          <div className="flex items-center gap-3">
-            <div className="flex bg-surface-default border border-border-default rounded-lg p-1">
-              <button 
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-surface-active text-text-primary" : "text-text-secondary hover:text-text-primary"}`}
-              >
-                <Grid className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-surface-active text-text-primary" : "text-text-secondary hover:text-text-primary"}`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="relative">
-              <input 
-                type="file" 
-                id="media-upload-page" 
-                multiple
-                className="hidden" 
-                onChange={handleUpload}
-                disabled={uploading}
-              />
-              <AdminButton 
-                variant="primary" 
-                onClick={() => document.getElementById("media-upload-page")?.click()}
-                disabled={uploading}
-              >
-                <Upload className="w-4 h-4 me-2" />
-                {uploading ? "Uploading Bulk..." : "Upload Media / Bulk Upload"}
-              </AdminButton>
-            </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Global Media Library"
+        description="Centralized asset repository for images, video footage, 3D models, documents, and web posters."
+        breadcrumbs={[
+          { label: "Global Media", href: "/dashboard/cms/media" },
+          { label: "Media Library" },
+        ]}
+        badge={{ label: `${mediaList.length} Assets`, variant: "purple" }}
+        primaryAction={{
+          label: uploading ? "Uploading..." : "Upload Media",
+          onClick: () => document.getElementById("media-upload-page")?.click(),
+          isLoading: uploading,
+          icon: <Upload className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <div className="flex bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl p-1">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-[var(--surface-active)] text-[var(--text-primary)]"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                viewMode === "list"
+                  ? "bg-[var(--surface-active)] text-[var(--text-primary)]"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
         }
+      />
+      <input
+        type="file"
+        id="media-upload-page"
+        multiple
+        className="hidden"
+        onChange={handleUpload}
+        disabled={uploading}
       />
 
       <div className="px-8 py-4 border-b border-border-default flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-bg-level-1">
@@ -347,6 +357,6 @@ export default function MediaLibraryPage() {
           </div>
         )}
       </SlideOver>
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }

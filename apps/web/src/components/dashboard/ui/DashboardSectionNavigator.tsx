@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Check, AlertCircle, ChevronDown, ListFilter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,9 @@ export interface EditorSectionItem {
 export interface DashboardSectionNavigatorProps {
   sections: EditorSectionItem[];
   activeSectionId: string;
-  onSectionChange: (sectionId: string) => void;
+  onSectionChange?: (sectionId: string) => void;
+  onSelectSection?: (sectionId: string) => void;
+  dirtySections?: string[];
   isSticky?: boolean;
   className?: string;
 }
@@ -27,9 +29,18 @@ export function DashboardSectionNavigator({
   sections,
   activeSectionId,
   onSectionChange,
+  onSelectSection,
+  dirtySections,
   isSticky = true,
   className,
 }: DashboardSectionNavigatorProps) {
+  const handleChange = useCallback(
+    (sectionId: string) => {
+      if (onSectionChange) onSectionChange(sectionId);
+      else if (onSelectSection) onSelectSection(sectionId);
+    },
+    [onSectionChange, onSelectSection]
+  );
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const tabsContainerRef = React.useRef<HTMLDivElement>(null);
@@ -42,7 +53,7 @@ export function DashboardSectionNavigator({
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
       if (hash && sections.some((s) => s.id === hash)) {
-        onSectionChange(hash);
+        handleChange(hash);
       }
     };
 
@@ -52,11 +63,11 @@ export function DashboardSectionNavigator({
 
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [sections, onSectionChange]);
+  }, [sections, handleChange]);
 
   // Update hash when active section changes
   const handleSelectSection = (sectionId: string) => {
-    onSectionChange(sectionId);
+    handleChange(sectionId);
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", `#${sectionId}`);
     }

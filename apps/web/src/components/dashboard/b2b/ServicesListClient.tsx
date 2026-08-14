@@ -1,10 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Plus, Trash2, Edit2, Search, Settings } from "lucide-react"
-import { AdminButton } from "@/components/dashboard/ui/AdminButton"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, Trash2, Edit2, Search, Settings } from "lucide-react";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  AdminButton,
+} from "@/components/dashboard/ui";
 import { 
   AdminTable, 
   AdminTableHeader, 
@@ -12,47 +15,47 @@ import {
   AdminTableRow, 
   AdminTableHead, 
   AdminTableCell 
-} from "@/components/dashboard/ui/AdminTable"
+} from "@/components/dashboard/ui/AdminTable";
 
 export function ServicesListClient({ initialData }: { initialData: any[] }) {
-  const router = useRouter()
-  const [services, setServices] = useState(initialData)
-  const [search, setSearch] = useState("")
+  const router = useRouter();
+  const [services, setServices] = useState(initialData);
+  const [search, setSearch] = useState("");
 
-  const filteredServices = services.filter(s => 
-    s.titleEn.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredServices = services.filter((s) =>
+    s.titleEn.toLowerCase().includes(search.toLowerCase()) ||
     s.slug.toLowerCase().includes(search.toLowerCase())
-  )
+  );
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this service?")) return
+    if (!confirm("Are you sure you want to delete this service?")) return;
 
     try {
-      const res = await fetch(`/api/b2b/services/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Failed to delete")
-      
-      setServices(services.filter(s => s.id !== id))
-      router.refresh()
+      const res = await fetch(`/api/b2b/services/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+
+      setServices(services.filter((s) => s.id !== id));
+      router.refresh();
     } catch {
-      alert("Failed to delete service")
+      alert("Failed to delete service");
     }
-  }
+  };
 
   return (
-    <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-6 animate-fade-in-up">
-      <AdminPageHeader 
-        title="B2B Services"
-        description="Manage corporate services and offerings."
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="B2B Services Catalog"
+        description="Manage corporate event engineering solutions, enterprise services, and capability offerings."
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "B2B Portal" },
-          { label: "Services" }
+          { label: "B2B Content", href: "/dashboard/b2b/services" },
+          { label: "Services Catalog" },
         ]}
-        action={
-          <AdminButton onClick={() => router.push("/dashboard/b2b/services/new")} variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
-            Add Service
-          </AdminButton>
-        }
+        badge={{ label: `${services.length} Services`, variant: "indigo" }}
+        primaryAction={{
+          label: "Add Service",
+          href: "/dashboard/b2b/services/new",
+          icon: <Plus className="w-4 h-4" />,
+        }}
       />
 
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">
@@ -127,7 +130,7 @@ export function ServicesListClient({ initialData }: { initialData: any[] }) {
           )}
         </AdminTableBody>
       </AdminTable>
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }
 

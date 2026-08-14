@@ -53,7 +53,13 @@ export function DashboardBreadcrumbs({ items, className }: DashboardBreadcrumbsP
             <ChevronRight className="w-3 h-3 text-[var(--text-disabled)] shrink-0 rtl:rotate-180" />
             {crumb.href && !isLast ? (
               <Link
-                href={crumb.href}
+                href={
+                  crumb.href.startsWith(`/${locale}`)
+                    ? crumb.href
+                    : crumb.href.startsWith("/")
+                    ? `/${locale}${crumb.href}`
+                    : crumb.href
+                }
                 className="hover:text-[var(--color-primary)] transition-colors truncate max-w-[150px] sm:max-w-[200px]"
               >
                 {crumb.label}

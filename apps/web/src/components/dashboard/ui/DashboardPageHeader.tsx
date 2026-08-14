@@ -13,7 +13,7 @@ export interface DashboardPageHeaderProps {
   breadcrumbs?: BreadcrumbItem[];
   badge?: {
     label: string;
-    variant?: "default" | "success" | "warning" | "error" | "purple" | "cyan";
+    variant?: "default" | "success" | "warning" | "error" | "purple" | "cyan" | "indigo" | "amber" | "info";
   };
   previewUrl?: string;
   previewLabel?: string;
@@ -22,6 +22,7 @@ export interface DashboardPageHeaderProps {
   secondaryAction?: React.ReactNode;
   primaryAction?: {
     label: string;
+    href?: string;
     onClick?: () => void;
     isLoading?: boolean;
     disabled?: boolean;
@@ -52,9 +53,12 @@ export function DashboardPageHeader({
     default: "bg-[var(--surface-active)] text-[var(--text-secondary)] border-[var(--border-level-1)]",
     success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
     warning: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    amber: "bg-amber-500/10 text-amber-400 border-amber-500/30",
     error: "bg-rose-500/10 text-rose-400 border-rose-500/30",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/30",
     cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+    indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
+    info: "bg-sky-500/10 text-sky-400 border-sky-500/30",
   }[badge?.variant || "default"];
 
   return (
@@ -134,16 +138,30 @@ export function DashboardPageHeader({
           {secondaryAction}
 
           {primaryAction && (
-            <AdminButton
-              variant={primaryAction.variant || "primary"}
-              onClick={primaryAction.onClick}
-              isLoading={primaryAction.isLoading}
-              disabled={primaryAction.disabled}
-              leftIcon={primaryAction.icon}
-              className="h-10 sm:h-11 px-5 rounded-xl font-bold shadow-md shadow-purple-950/20"
-            >
-              {primaryAction.label}
-            </AdminButton>
+            primaryAction.href ? (
+              <Link href={primaryAction.href}>
+                <AdminButton
+                  variant={primaryAction.variant || "primary"}
+                  isLoading={primaryAction.isLoading}
+                  disabled={primaryAction.disabled}
+                  leftIcon={primaryAction.icon}
+                  className="h-10 sm:h-11 px-5 rounded-xl font-bold shadow-md shadow-purple-950/20 cursor-pointer"
+                >
+                  {primaryAction.label}
+                </AdminButton>
+              </Link>
+            ) : (
+              <AdminButton
+                variant={primaryAction.variant || "primary"}
+                onClick={primaryAction.onClick}
+                isLoading={primaryAction.isLoading}
+                disabled={primaryAction.disabled}
+                leftIcon={primaryAction.icon}
+                className="h-10 sm:h-11 px-5 rounded-xl font-bold shadow-md shadow-purple-950/20"
+              >
+                {primaryAction.label}
+              </AdminButton>
+            )
           )}
 
           {children}

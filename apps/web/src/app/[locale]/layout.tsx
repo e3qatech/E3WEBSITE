@@ -6,11 +6,13 @@ export default async function LocaleLayout({
   params
 }: {
   children: React.ReactNode;
-  params: Promise<any>;
+  params: Promise<{ locale: string }>;
 }) {
-  await params;
+  const { locale } = await params;
+  const validLocale = locale === 'ar' ? 'ar' : 'en';
+
   return (
-    <LocaleProvider>
+    <LocaleProvider defaultLocale={validLocale}>
       <ToastProvider>
         {children}
       </ToastProvider>

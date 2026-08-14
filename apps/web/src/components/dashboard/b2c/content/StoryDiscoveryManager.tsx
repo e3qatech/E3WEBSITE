@@ -6,6 +6,11 @@ import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 import { Compass, Plus, Save, Sparkles, Trash2, Edit2, Check, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+} from '@/components/dashboard/ui'
 
 export function StoryDiscoveryManager() {
   const router = useRouter()
@@ -72,61 +77,49 @@ export function StoryDiscoveryManager() {
     ])
   }
 
-  const handleStoryTypeChange = (idx: number, field: string, value: any) => {
+  const handleDeleteStoryType = (index: number) => {
+    setStoryTypes(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleStoryTypeChange = (index: number, field: string, value: any) => {
     setStoryTypes(prev => {
-      const copy = [...prev]
-      if (copy[idx]) {
-        copy[idx] = { ...copy[idx], [field]: value }
-      }
-      return copy
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
     })
   }
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      // 1. Save Landing Page Title (intentSelector title)
-      const updatedFullContent = {
-        ...(fullContent || DEFAULT_B2C_LANDING_CONTENT),
-        intentSelector: {
-          ...((fullContent || DEFAULT_B2C_LANDING_CONTENT).intentSelector || {}),
-          titleEn: intentSelector.titleEn,
-          titleAr: intentSelector.titleAr,
-          options: undefined // Remove old manual options
+      if (fullContent) {
+        const updatedContent = {
+          ...fullContent,
+          intentSelector: {
+            ...fullContent.intentSelector,
+            titleEn: intentSelector.titleEn,
+            titleAr: intentSelector.titleAr,
+          }
         }
+
+        const pageRes = await fetch('/api/cms/pages/b2c-landing', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: { content: updatedContent } })
+        })
+
+        if (!pageRes.ok) throw new Error('Failed to update page header content')
       }
 
-      await fetch('/api/cms/pages/b2c-landing', {
+      const typesRes = await fetch('/api/b2c/story-types', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: updatedFullContent })
+        body: JSON.stringify({ storyTypes })
       })
 
-      // 2. Save Story Types
-      for (const st of storyTypes) {
-        const url = '/api/b2c/story-types'
-        const method = st.id && !st.isNew ? 'PUT' : 'POST'
-        await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(st)
-        })
-      }
-
-      // Re-fetch story types to get real IDs
-      const typesRes = await fetch('/api/b2c/story-types?t=' + Date.now(), { cache: 'no-store' })
-      if (typesRes.ok) {
-        const typesData = await typesRes.json()
-        setStoryTypes(Array.isArray(typesData) ? typesData : [])
-      }
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('e3_cms_b2c_landing_updated'))
-        try {
-          const bc = new BroadcastChannel('e3_cms_sync')
-          bc.postMessage({ type: 'b2c_landing_updated', timestamp: Date.now() })
-          bc.close()
-        } catch (_bcErr) {}
+      if (!typesRes.ok) {
+        const errJson = await typesRes.json().catch(() => ({}))
+        throw new Error(errJson.error || 'Failed to update story types')
       }
 
       toast('Story Discovery content manager saved successfully!', 'success')
@@ -140,42 +133,35 @@ export function StoryDiscoveryManager() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-purple-500" />
-        <span>Loading Story Discovery Content Manager...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Story Discovery Manager..." type="skeleton" />
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
-      {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/10 text-purple-500 border border-purple-500/30">
-              B2C CONTENT MANAGER
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Compass className="w-6 h-6 text-purple-500" />
-              <span>Story Discovery Content Manager</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage interactive guest story selection categories and classifications.
-          </p>
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving Changes...' : 'Save Story Discovery'}</span>
-        </button>
-      </div>
+    <DashboardPageShell variant="focused">
+      <DashboardPageHeader
+        title="Story Discovery Content Manager"
+        description="Manage interactive guest story selection categories, classification filters, and narrative tracks."
+        breadcrumbs={[
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Story Discovery" },
+        ]}
+        badge={{ label: `${storyTypes.length} Tracks`, variant: "purple" }}
+        primaryAction={{
+          label: saving ? 'Saving Changes...' : 'Save Story Discovery',
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <button
+            onClick={handleAddStoryType}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-primary)] border border-[var(--border-level-1)] shadow-sm transition-all cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5 text-purple-400" />
+            <span>Add Story Type</span>
+          </button>
+        }
+      />
 
       {/* Section Header */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
@@ -323,6 +309,6 @@ export function StoryDiscoveryManager() {
           ))}
         </div>
       </div>
-    </div>
-  )
+    </DashboardPageShell>
+  );
 }

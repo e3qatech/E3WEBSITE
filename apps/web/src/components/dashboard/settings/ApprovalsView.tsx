@@ -2,7 +2,10 @@
 "use client";
 
 import { useState } from "react";
-import { AdminPageHeader } from "../ui/AdminPageHeader";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
 import { AdminFormLayout } from "../ui/AdminFormLayout";
 import { AdminButton } from "../ui/AdminButton";
 import { CheckCircle2, XCircle, Clock, ShieldCheck, Sliders, FileText, AlertTriangle, ArrowRight, RefreshCw } from "lucide-react";
@@ -58,35 +61,33 @@ export function ApprovalsView({ initialRules, initialItems }: ApprovalsViewProps
         setItems(json.items);
       }
       toast(
-        action === "APPROVE" ? "Approval request granted successfully." : "Approval request rejected.",
+        action === "APPROVE" ? "Request Approved & Executed" : "Request Rejected",
         action === "APPROVE" ? "success" : "info"
       );
       setReviewNote("");
     } catch (err: any) {
       console.error(err);
-      toast(err?.message || "Failed to process approval action.", "error");
+      toast(err?.message || "Failed to process approval action", "error");
     } finally {
       setActionId(null);
     }
   };
 
-  const handleSaveRules = async () => {
+  const handleSaveRules = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const res = await fetch("/api/settings/approvals", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "SAVE_RULES",
-          rules,
-        }),
+        body: JSON.stringify({ rules }),
       });
 
-      if (!res.ok) throw new Error("Failed to save rules");
-      toast("Approval policy rules saved successfully.", "success");
+      if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
+      toast("Approval Rules Policy Saved", "success");
     } catch (err: any) {
       console.error(err);
-      toast("Failed to save policy rules.", "error");
+      toast(err?.message || "Failed to save approval policy", "error");
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,8 @@ export function ApprovalsView({ initialRules, initialItems }: ApprovalsViewProps
   const refreshData = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/settings/approvals");
+      const res = await fetch("/api/settings/approvals?t=" + Date.now());
+      if (!res.ok) return;
       const json = await res.json();
       if (json.items) setItems(json.items);
       if (json.rules) setRules(json.rules);
@@ -124,15 +126,21 @@ export function ApprovalsView({ initialRules, initialItems }: ApprovalsViewProps
   };
 
   return (
-    <div className="flex flex-col gap-6 h-full p-4 md:p-8 max-w-6xl mx-auto pb-24">
-      <AdminPageHeader
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
         title="Workflow Approvals & Signoffs"
-        description="Review pending CMS releases, pricing overrides, and enterprise policy controls."
-        action={
-          <AdminButton variant="outline" onClick={refreshData} disabled={loading} className="gap-2 text-xs">
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh Queue
-          </AdminButton>
-        }
+        description="Review pending CMS publications, pricing overrides, and enterprise governance policy controls."
+        breadcrumbs={[
+          { label: "Settings", href: "/dashboard/settings/general" },
+          { label: "Workflow Approvals" },
+        ]}
+        badge={{ label: `${pendingItems.length} Pending`, variant: pendingItems.length > 0 ? "warning" : "success" }}
+        primaryAction={{
+          label: "Refresh Queue",
+          onClick: refreshData,
+          isLoading: loading,
+          icon: <RefreshCw className="w-4 h-4" />,
+        }}
       />
 
       {/* Navigation Tabs */}
@@ -384,6 +392,6 @@ export function ApprovalsView({ initialRules, initialItems }: ApprovalsViewProps
           </div>
         )}
       </AdminFormLayout>
-    </div>
+    </DashboardPageShell>
   );
 }

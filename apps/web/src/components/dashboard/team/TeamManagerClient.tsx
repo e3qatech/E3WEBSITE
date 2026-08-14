@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Edit2, Trash2, Check, X as XIcon, User } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Check, X as XIcon, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EmployeeFormModal } from "./EmployeeFormModal";
 import { useRouter } from "next/navigation";
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
 
 export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[] }) {
   const router = useRouter();
@@ -14,7 +18,7 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
 
-  const filteredEmployees = employees.filter(emp => 
+  const filteredEmployees = employees.filter((emp) =>
     emp.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -26,7 +30,7 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
     try {
       const res = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setEmployees(prev => prev.filter(e => e.id !== id));
+        setEmployees((prev) => prev.filter((e) => e.id !== id));
         router.refresh();
       }
     } catch (e) {
@@ -35,19 +39,28 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">Team Management</h1>
-          <p className="text-[var(--text-secondary)]">Manage employee profiles and microsites.</p>
-        </div>
-        <Button onClick={() => { setEditingEmployee(null); setIsModalOpen(true); }} className="gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 text-white font-bold">
-          <Plus className="w-4 h-4" /> Add Team Member
-        </Button>
-      </div>
+    <DashboardPageShell variant="wide">
+      {/* Standard Header */}
+      <DashboardPageHeader
+        title="Team Profiles & Directory"
+        description="Manage employee profiles, executive bios, departments, and public microsites."
+        breadcrumbs={[
+          { label: "HR & Careers", href: "/dashboard/team" },
+          { label: "Team Profiles" },
+        ]}
+        badge={{ label: `${employees.length} Members`, variant: "indigo" }}
+        primaryAction={{
+          label: "Add Team Member",
+          onClick: () => {
+            setEditingEmployee(null);
+            setIsModalOpen(true);
+          },
+          icon: <Plus className="w-4 h-4" />,
+        }}
+      />
 
-      <div className="glass rounded-2xl border-gradient overflow-hidden">
-        <div className="p-4 border-b border-[var(--border-level-2)] flex flex-col sm:flex-row gap-4 justify-between items-center bg-[var(--surface-default)]/50">
+      <div className="rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-[var(--border-level-1)] flex flex-col sm:flex-row gap-4 justify-between items-center bg-[var(--surface-hover)]/30">
           <div className="relative w-full sm:w-72">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
             <Input 
@@ -60,29 +73,29 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-[var(--surface-hover)]/50 text-[var(--text-secondary)] uppercase text-xs font-bold">
+          <table className="w-full text-sm text-start">
+            <thead className="bg-[var(--surface-hover)]/60 text-[var(--text-secondary)] uppercase text-xs font-bold border-b border-[var(--border-level-1)]">
               <tr>
-                <th className="px-6 py-4">Profile</th>
-                <th className="px-6 py-4">Name</th>
-                <th className="px-6 py-4">Designation</th>
-                <th className="px-6 py-4">Department</th>
+                <th className="px-6 py-4 text-start">Profile</th>
+                <th className="px-6 py-4 text-start">Name</th>
+                <th className="px-6 py-4 text-start">Designation</th>
+                <th className="px-6 py-4 text-start">Department</th>
                 <th className="px-6 py-4 text-center">Active</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-6 py-4 text-end">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-[var(--text-tertiary)]">
-                    No team members found.
+                  <td colSpan={6} className="px-6 py-12 text-center text-[var(--text-tertiary)] font-mono text-xs">
+                    No team members found matching search criteria.
                   </td>
                 </tr>
               ) : (
-                filteredEmployees.map(emp => (
-                  <tr key={emp.id} className="border-b border-[var(--border-level-2)] hover:bg-[var(--surface-hover)]/30 transition-colors">
+                filteredEmployees.map((emp) => (
+                  <tr key={emp.id} className="border-b border-[var(--border-level-1)] hover:bg-[var(--surface-hover)]/40 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--surface-hover)] flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--surface-hover)] flex items-center justify-center border border-[var(--border-level-1)]">
                         {emp.profileImage ? (
                           <img src={emp.profileImage} alt={emp.firstName} className="w-full h-full object-cover" />
                         ) : (
@@ -95,18 +108,36 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
                     </td>
                     <td className="px-6 py-4 text-[var(--text-secondary)]">{emp.designation}</td>
                     <td className="px-6 py-4 text-[var(--text-secondary)]">
-                      <span className="px-2 py-1 bg-[var(--surface-hover)] rounded-md text-xs font-bold">{emp.department}</span>
+                      <span className="px-2.5 py-1 bg-[var(--surface-hover)] rounded-md text-xs font-bold border border-[var(--border-level-1)]">{emp.department}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      {emp.isActive ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <XIcon className="w-4 h-4 text-red-500 mx-auto" />}
+                      {emp.isActive ? (
+                        <span className="inline-flex items-center gap-1 text-emerald-500 font-bold text-xs">
+                          <Check className="w-4 h-4" /> Yes
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-zinc-500 text-xs">
+                          <XIcon className="w-4 h-4" /> No
+                        </span>
+                      )}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-2">
-                      <Button variant="ghost" className="p-2" onClick={() => { setEditingEmployee(emp); setIsModalOpen(true); }}>
-                        <Edit2 className="w-4 h-4 text-blue-400" />
-                      </Button>
-                      <Button variant="ghost" className="p-2" onClick={() => handleDelete(emp.id)}>
-                        <Trash2 className="w-4 h-4 text-red-400" />
-                      </Button>
+                    <td className="px-6 py-4 text-end">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => { setEditingEmployee(emp); setIsModalOpen(true); }}
+                          className="p-1.5 hover:bg-[var(--surface-hover)] rounded-lg text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
+                          title="Edit Profile"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(emp.id)}
+                          className="p-1.5 hover:bg-rose-500/20 rounded-lg text-rose-400 transition-colors cursor-pointer"
+                          title="Delete Profile"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -117,18 +148,14 @@ export function TeamManagerClient({ initialEmployees }: { initialEmployees: any[
       </div>
 
       <EmployeeFormModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         employee={editingEmployee}
         onSuccess={() => {
           setIsModalOpen(false);
           router.refresh();
-          // To update local state without full reload we could fetch again, or just rely on router.refresh() if page is server component.
-          // Since we passed initialEmployees, router.refresh() will fetch new data and pass it as props, updating the state.
-          // Wait, router.refresh() doesn't update the local useState immediately, so we could just reload.
-          window.location.reload();
         }}
       />
-    </div>
+    </DashboardPageShell>
   );
 }

@@ -17,9 +17,12 @@ import {
   Layers,
   ImageOff
 } from "lucide-react"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui";
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { Badge } from "@/components/ui/Badge"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 
 type Attraction = {
   id: string
@@ -109,24 +112,20 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-8 max-w-[1600px] mx-auto animate-fade-in-up">
-      <AdminPageHeader
-        title="B2C Attractions"
-        description="Manage consumer experiences, pricing, and FAQs."
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="B2C Attractions Roster"
+        description="Manage consumer entertainment worlds, ticketing rules, VIP pricing tiers, and FAQ rosters."
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "B2C Portal" },
-          { label: "Attractions" }
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Attractions Roster" }
         ]}
-        action={
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard/b2c/attractions/new">
-              <AdminButton variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
-                New Attraction
-              </AdminButton>
-            </Link>
-          </div>
-        }
+        badge={{ label: `${attractions.length} Destinations`, variant: "purple" }}
+        primaryAction={{
+          label: "New Attraction",
+          href: "/dashboard/b2c/attractions/new",
+          icon: <Plus className="w-4 h-4" />,
+        }}
       />
 
       {/* Control Bar: Search & Multi-Filters */}
@@ -319,6 +318,6 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }
