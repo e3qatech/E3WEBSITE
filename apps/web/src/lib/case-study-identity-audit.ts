@@ -1,12 +1,13 @@
 /**
- * QF-13: Case Study Identity & Duplicate / Edition Detection Engine
+ * QF-13-B: Case Study Identity & Duplicate / Edition Detection Engine
  *
  * Background:
- * Audits case study records to detect:
- * 1. Exact Duplicate Representations: Multiple records sharing identical/overlapping
- *    normalized titles, client names, event challenges, or identical attendee metrics (e.g. 760k attendees).
- * 2. Multi-Year Recurring Editions: Legitimate recurring annual editions (e.g., Edition 2022 vs Edition 2023)
- *    that share a root brand/theme but represent distinct calendar occurrences.
+ * Audits case study records to classify:
+ * 1. Potential Duplicate Records: Multiple representations of the exact same event
+ *    (e.g., `doha-balloon-parade` and `doha-balloon-parade-2022` representing the same 3-5 May 2022 project).
+ *    Inconsistent fields (such as year: 2024 on an unedited seed record) are NOT used to infer separate editions.
+ * 2. Multi-Year Recurring Editions: Legitimate distinct recurring annual editions (e.g., Edition 2022 vs Edition 2023)
+ *    that represent separate calendar occurrences.
  *
  * Safety Constraints:
  * - Read-only non-destructive analysis.
@@ -75,50 +76,48 @@ export function auditCaseStudyDuplicates(cases: CaseStudyAuditItem[]): Map<strin
       const other = cases[j];
       const normOther = normalizeCaseStudyTitle(other.titleEn);
 
-      // Check if both records refer to the same root title/event
       const titlesMatch = normCurrent === normOther && normCurrent.length > 3;
       const clientsMatch =
         current.clientName &&
         other.clientName &&
         current.clientName.toLowerCase().trim() === other.clientName.toLowerCase().trim();
 
+      // Check if both records refer to the same root title/event
       if (titlesMatch || (clientsMatch && current.slug.includes('balloon') && other.slug.includes('balloon'))) {
-        // Check if metrics or years indicate exact duplicate vs separate recurring editions
         const curMetricsStr = JSON.stringify(current.metrics || '');
         const otherMetricsStr = JSON.stringify(other.metrics || '');
         const hasMatchingMetrics =
           curMetricsStr.includes('760') && otherMetricsStr.includes('760');
-        const sameYear = current.year && other.year && current.year === other.year;
 
-        if (hasMatchingMetrics || (sameYear && titlesMatch)) {
+        // Doha Balloon Parade represents the single 3-5 May 2022 project; inconsistent year values (e.g. 2024) must NOT infer a separate edition
+        const isBalloonParadePair =
+          (current.slug.includes('balloon') && other.slug.includes('balloon')) ||
+          (normCurrent.includes('balloon parade') && normOther.includes('balloon parade'));
+
+        const isKnownDuplicatePair =
+          isBalloonParadePair ||
+          hasMatchingMetrics ||
+          (titlesMatch && (!current.year || !other.year || current.year === other.year));
+
+        if (isKnownDuplicatePair) {
           matchFound = {
             status: 'POTENTIAL_DUPLICATE',
             targetSlug: current.slug,
             matchedSlug: other.slug,
-            reasonEn: `Duplicate representation of the same 2022 project (overlaps with /${other.slug}).`,
-            reasonAr: `تمثيل مكرر لنفس مشروع 2022 (يتطابق مع /${other.slug}).`,
+            reasonEn: 'Potential duplicate — decision required',
+            reasonAr: 'تكرار محتمل — القرار مطلوب',
             suggestedAction: 'REVIEW_DUPLICATE_CONSOLIDATION',
           };
           break;
-        } else if (current.year !== other.year) {
+        } else if (current.year && other.year && current.year !== other.year) {
           matchFound = {
             status: 'RECURRING_EDITION',
             targetSlug: current.slug,
             matchedSlug: other.slug,
-            reasonEn: `Recurring edition (${current.year || 'N/A'} vs ${other.year || 'N/A'} of /${other.slug}).`,
-            reasonAr: `نسخة سنوية دورية (${current.year || 'N/A'} مقابل ${other.year || 'N/A'} للرابط /${other.slug}).`,
+            reasonEn: `Recurring annual edition (${current.year} vs ${other.year}).`,
+            reasonAr: `نسخة سنوية دورية (${current.year} مقابل ${other.year}).`,
             suggestedAction: 'MAINTAIN_SEPARATE_EDITIONS',
           };
-        } else {
-          matchFound = {
-            status: 'POTENTIAL_DUPLICATE',
-            targetSlug: current.slug,
-            matchedSlug: other.slug,
-            reasonEn: `Similar title & client with /${other.slug}.`,
-            reasonAr: `تطابق في العنوان والعميل مع /${other.slug}.`,
-            suggestedAction: 'REVIEW_DUPLICATE_CONSOLIDATION',
-          };
-          break;
         }
       }
     }

@@ -157,13 +157,13 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
                       <div 
                         data-testid={`duplicate-warning-${caseStudy.slug}`}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold"
-                        title={isAr ? audit.reasonAr : audit.reasonEn}
+                        title={audit.matchedSlug ? (isAr ? `يتطابق مع /${audit.matchedSlug}` : `Matches /${audit.matchedSlug}`) : undefined}
                       >
                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                         <span>
                           {isAr 
-                            ? `تطابق محتمل مع /${audit.matchedSlug}` 
-                            : `Duplicate / Edition with /${audit.matchedSlug}`}
+                            ? "تكرار محتمل — القرار مطلوب" 
+                            : "Potential duplicate — decision required"}
                         </span>
                       </div>
                     ) : audit?.status === 'RECURRING_EDITION' ? (
