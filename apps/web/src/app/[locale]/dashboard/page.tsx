@@ -14,12 +14,20 @@ export const metadata = {
   title: "Command Center | E3 Admin"
 }
 
-export default async function DashboardOverviewPage() {
+export default async function DashboardOverviewPage({
+  params
+}: {
+  params?: Promise<{ locale?: string }>;
+}) {
+  const { locale } = (await params) || {};
+  const isAr = locale === 'ar';
   const session = await auth();
-  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || "Admin";
+  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || (isAr ? "المسؤول" : "Admin");
 
-  const hour = new Date().getHours()
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"
+  const hour = new Date().getHours();
+  const greetingEn = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greetingAr = hour < 12 ? "صباح الخير" : "مساء الخير";
+  const greeting = isAr ? greetingAr : greetingEn;
 
   // Fetch Real Data
   let projectsCount = 0;
@@ -139,27 +147,29 @@ export default async function DashboardOverviewPage() {
         
         <div className="relative z-10">
           <h1 className="text-2xl md:text-3xl font-semibold text-text-primary tracking-tight mb-2">
-            {greeting}, <span className="text-accent">{userName}</span> 👋
+            {greeting}، <span className="text-accent">{userName}</span> 👋
           </h1>
           <p className="text-sm md:text-base text-text-secondary font-medium">
-            Welcome to the E3 Command Center. All systems operational.
+            {isAr 
+              ? "مرحباً بك في مركز قيادة E3. جميع الأنظمة تعمل بصورة ممتازة." 
+              : "Welcome to the E3 Command Center. All systems operational."}
           </p>
         </div>
         
         <div className="relative z-10 flex flex-wrap items-center gap-3">
           <Link href="/dashboard/b2c/locations">
             <AdminButton variant="outline" leftIcon={<MapPin className="w-4 h-4 text-[var(--e3-royal-blue)]" />}>
-              Locations & Map GIS
+              {isAr ? "المواقع والخرائط" : "Locations & Map GIS"}
             </AdminButton>
           </Link>
           <Link href="/dashboard/b2c/calendar">
             <AdminButton variant="outline" leftIcon={<Calendar className="w-4 h-4" />}>
-              Calendar
+              {isAr ? "التقويم" : "Calendar"}
             </AdminButton>
           </Link>
           <Link href="/dashboard/crm/leads/new">
             <AdminButton variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
-              New Lead
+              {isAr ? "عميل جديد" : "New Lead"}
             </AdminButton>
           </Link>
         </div>
@@ -175,12 +185,16 @@ export default async function DashboardOverviewPage() {
         <div className="lg:col-span-8 xl:col-span-9 bg-bg-level-2 border border-border-default rounded-xl p-6 shadow-sm relative overflow-hidden group">
           <div className="relative z-10 mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-text-primary tracking-tight">Active Inquiries</h3>
-              <p className="text-sm text-text-tertiary mt-0.5">Real-time pipeline overview</p>
+              <h3 className="text-lg font-semibold text-text-primary tracking-tight">
+                {isAr ? "الاستفسارات والعملاء المحتملين" : "Active Inquiries"}
+              </h3>
+              <p className="text-sm text-text-tertiary mt-0.5">
+                {isAr ? "نظرة عامة مباشرة على مسار العملاء" : "Real-time pipeline overview"}
+              </p>
             </div>
             <Link href="/dashboard/crm/leads">
               <AdminButton variant="ghost" rightIcon={<ArrowRight className="w-4 h-4 rtl:-scale-x-100" />}>
-                View All
+                {isAr ? "عرض الكل" : "View All"}
               </AdminButton>
             </Link>
           </div>

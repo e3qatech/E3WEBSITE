@@ -20,9 +20,9 @@ export function AdminTopBar() {
   // Determine current active locale from pathname or context
   const currentLocale = pathname.startsWith('/ar') ? 'ar' : (locale || 'en');
 
-  // Strip locale prefix for breadcrumbs
+  // Strip locale and dashboard prefix for breadcrumbs
   const rawPaths = pathname.split('/').filter(Boolean);
-  const paths = rawPaths.filter((p) => p !== 'en' && p !== 'ar');
+  const paths = rawPaths.filter((p) => p !== 'en' && p !== 'ar' && p !== 'dashboard');
 
   // Close theme menu when clicking outside
   React.useEffect(() => {
