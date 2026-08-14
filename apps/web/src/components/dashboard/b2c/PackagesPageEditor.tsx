@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, Gift, Sparkles, SlidersHorizontal, Layers, CheckCircle2 } from "lucide-react";
+import { Save, Gift, SlidersHorizontal, Package, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/components/dashboard/ui";
 
 import { useLocale } from "@/components/layout/LocaleProvider";
+import { localizeHref } from "@/lib/url-helper";
 
 const SECTIONS: EditorSectionItem[] = [
   { id: "headlines", label: "1. Hero Copy & Headlines", labelAr: "1. العناوين والنصوص الترويجية" },
@@ -31,10 +33,21 @@ const SECTIONS: EditorSectionItem[] = [
 
 export function PackagesPageEditor() {
   const router = useRouter();
-  const { locale } = useLocale();
+  let locale: 'en' | 'ar' = 'en';
+  let dir: 'ltr' | 'rtl' = 'ltr';
+  try {
+    const localeCtx = useLocale();
+    if (localeCtx) {
+      locale = (localeCtx.locale as 'en' | 'ar') || 'en';
+      dir = localeCtx.dir || (locale === 'ar' ? 'rtl' : 'ltr');
+    }
+  } catch {
+    // Fallback
+  }
   const isAr = locale === "ar";
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -73,16 +86,21 @@ export function PackagesPageEditor() {
     let active = true;
     async function loadData() {
       try {
-        const res = await fetch("/api/cms/pages/b2c-packages-page?t=" + Date.now());
-        if (res.ok && active) {
-          const json = await res.json();
-          if (json?.data?.content) {
-            setPageConfig((prev) => ({ ...prev, ...json.data.content }));
-          }
+        const res = await fetch("/api/cms/pages/b2c-packages-page", { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to load packages page settings");
+        const json = await res.json();
+        if (active && json?.data?.content) {
+          setPageConfig((prev) => ({ ...prev, ...json.data.content }));
         }
-      } catch (_e) {
+      } catch (e: any) {
+        if (active) {
+          console.error(e);
+          setError(e?.message || "Error loading page settings");
+        }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
     loadData();
@@ -90,6 +108,20 @@ export function PackagesPageEditor() {
       active = false;
     };
   }, []);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    fetch("/api/cms/pages/b2c-packages-page", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.data?.content) {
+          setPageConfig((prev) => ({ ...prev, ...json.data.content }));
+        }
+      })
+      .catch((e) => setError(e?.message || "Error loading page settings"))
+      .finally(() => setLoading(false));
+  };
 
   const updateField = (updater: (prev: typeof pageConfig) => typeof pageConfig) => {
     setPageConfig((prev) => {
@@ -112,166 +144,208 @@ export function PackagesPageEditor() {
       setIsDirty(false);
       setDirtySections(new Set());
       setLastSaved(new Date());
-      toast("Packages Page Editor saved successfully!", "success");
+      toast(isAr ? "تم حفظ إعدادات صفحة الباقات بنجاح!" : "Packages Page Editor saved successfully!", "success");
       router.refresh();
     } catch (err: any) {
       console.error(err);
-      toast(err?.message || "Error saving page settings", "error");
+      toast(err?.message || (isAr ? "حدث خطأ أثناء حفظ الصفحة" : "Error saving page settings"), "error");
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return <DashboardLoadingState title="Loading Packages Page Editor..." type="skeleton" />;
-  }
-
   return (
     <DashboardPageShell variant="focused">
-      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+      <div dir={dir} className="space-y-6">
+        <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
-      {/* Standard Header */}
-      <DashboardPageHeader
-        title={isAr ? "محرر صفحة الباقات والاحتفالات" : "Packages & Celebrations Page Editor"}
-        description={
-          isAr
-            ? "إدارة تصميم صفحة الباقات، وسائط الهيدر والتذييل، أزرار الحجز وشارات الفعاليات (/b2c/packages)."
-            : "Manage packages landing page layout, universal hero and footer media assets, CTAs, VIP badges, and SEO metadata (/b2c/packages)."
-        }
-        breadcrumbs={[
-          { label: isAr ? "صفحات الأفراد" : "B2C Pages", href: "/dashboard/b2c/landing" },
-          { label: isAr ? "محرر صفحة الباقات" : "Packages Page Editor" },
-        ]}
-        badge={{ label: isAr ? "صفحة عامة" : "B2C Public", variant: "purple" }}
-        previewUrl="/b2c/packages"
-        isUnsaved={isDirty}
-        lastSavedAt={lastSaved || undefined}
-        primaryAction={{
-          label: saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ إعدادات الصفحة" : "Save Page Settings"),
-          onClick: handleSave,
-          isLoading: saving,
-          icon: <Save className="w-4 h-4" />,
-        }}
-        secondaryAction={
-          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
-        }
-      />
-
-      {/* 4-Section Long-Page Navigator */}
-      <DashboardSectionNavigator
-        sections={SECTIONS}
-        activeSectionId={activeSectionId}
-        onSelectSection={setActiveSectionId}
-        dirtySections={Array.from(dirtySections)}
-      />
-
-      {/* 1. Hero Headlines Card */}
-      <div id="headlines" className={activeSectionId === "headlines" || !activeSectionId ? "block" : "hidden"}>
-        <DashboardSectionCard
-          title="Hero Eyebrow & Headlines"
-          description="Opening headlines displayed on the packages page header banner."
-          icon={<Gift className="w-5 h-5 text-[var(--color-primary)]" />}
-        >
-          <DashboardBilingualField
-            label="Eyebrow Tag"
-            valueEn={pageConfig.eyebrowEn}
-            valueAr={pageConfig.eyebrowAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, eyebrowEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, eyebrowAr: val }))}
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label="Main Page Title"
-            valueEn={pageConfig.titleEn}
-            valueAr={pageConfig.titleAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label="Page Description"
-            type="textarea"
-            rows={3}
-            valueEn={pageConfig.descEn}
-            valueAr={pageConfig.descAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
-            mode={languageMode}
-          />
-        </DashboardSectionCard>
-      </div>
-
-      {/* 2. CTAs and Badges Card */}
-      <div id="ctas" className={activeSectionId === "ctas" ? "block" : "hidden"}>
-        <DashboardSectionCard
-          title="Call to Action Buttons & Campaign Badge"
-          description="Configure action buttons and campaign promo badges."
-          icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
-        >
-          <DashboardBilingualField
-            label="Primary Action Button"
-            valueEn={pageConfig.primaryCtaEn}
-            valueAr={pageConfig.primaryCtaAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label="Secondary Action Button"
-            valueEn={pageConfig.secondaryCtaEn}
-            valueAr={pageConfig.secondaryCtaAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label="Campaign Badge Label"
-            valueEn={pageConfig.campaignBadgeEn}
-            valueAr={pageConfig.campaignBadgeAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
-            mode={languageMode}
-          />
-        </DashboardSectionCard>
-      </div>
-
-      {/* 3. Universal Hero Media Section */}
-      <div id="hero-media" className={activeSectionId === "hero-media" ? "block" : "hidden"}>
-        <UniversalMediaSectionEditor
-          title="Packages Hero Media Banner"
-          subtitle="Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."
-          value={pageConfig.heroMedia}
-          onChange={(heroMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, heroMedia }))}
-          accentColor="purple"
-        />
-      </div>
-
-      {/* 4. Universal Footer Media Section */}
-      <div id="footer-media" className={activeSectionId === "footer-media" ? "block" : "hidden"}>
-        <UniversalMediaSectionEditor
-          title="Packages Footer Banner Media"
-          subtitle="Universal footer media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."
-          value={pageConfig.footerMedia}
-          onChange={(footerMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, footerMedia }))}
-          accentColor="indigo"
-        />
-      </div>
-
-      {/* Sticky Action Bar */}
-      <DashboardStickyActions
-        onSave={handleSave}
-        isSaving={saving}
-        isUnsaved={isDirty}
-        onDiscard={() => {
-          if (window.confirm("Discard changes?")) {
-            window.location.reload();
+        {/* Standard Header */}
+        <DashboardPageHeader
+          title={isAr ? "محرر صفحة الباقات والاحتفالات" : "Packages & Celebrations Page Editor"}
+          description={
+            isAr
+              ? "إدارة تصميم صفحة الباقات، وسائط الهيدر والتذييل، أزرار الحجز وشارات الفعاليات (/b2c/packages)."
+              : "Manage packages landing page layout, universal hero and footer media assets, CTAs, VIP badges, and SEO metadata (/b2c/packages)."
           }
-        }}
-      />
+          breadcrumbs={[
+            { label: isAr ? "صفحات الأفراد" : "B2C Pages", href: "/dashboard/b2c/landing" },
+            { label: isAr ? "محرر صفحة الباقات" : "Packages Page Editor" },
+          ]}
+          badge={{ label: isAr ? "صفحة عامة" : "B2C Public", variant: "purple" }}
+          previewUrl="/b2c/packages"
+          isUnsaved={isDirty}
+          lastSavedAt={lastSaved || undefined}
+          primaryAction={{
+            label: saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ إعدادات الصفحة" : "Save Page Settings"),
+            onClick: handleSave,
+            isLoading: saving,
+            icon: <Save className="w-4 h-4" />,
+          }}
+          secondaryAction={
+            <div className="flex items-center gap-3">
+              <Link href={localizeHref("/dashboard/b2c/packages", locale)}>
+                <AdminButton variant="outline" size="sm" leftIcon={<Package className="w-4 h-4" />}>
+                  {isAr ? "إدارة الباقات الفردية" : "Manage Individual Packages"}
+                </AdminButton>
+              </Link>
+              <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
+            </div>
+          }
+        />
+
+        {/* Reciprocal Handoff Banner */}
+        <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Package className="w-5 h-5 text-purple-400 shrink-0" />
+            <div>
+              <h4 className="text-sm font-bold text-text-primary">
+                {isAr ? "إدارة باقات الفعاليات والأسعار والمشتملات" : "Individual Package Records & Tiers"}
+              </h4>
+              <p className="text-xs text-text-secondary mt-0.5">
+                {isAr 
+                  ? "يتم تحديد تفاصيل الباقات الفردية والأسعار والمستويات والمشتملات في مدير الباقات وأعياد الميلاد."
+                  : "Individual package pricing, tiers, inclusions, availability, and venue links are managed in the Packages Manager."}
+              </p>
+            </div>
+          </div>
+          <Link href={localizeHref("/dashboard/b2c/packages", locale)}>
+            <AdminButton variant="outline" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />}>
+              {isAr ? "مدير الباقات وأعياد الميلاد" : "Go to Packages Manager"}
+            </AdminButton>
+          </Link>
+        </div>
+
+        {loading ? (
+          <DashboardLoadingState title={isAr ? "جاري تحميل محرر صفحة الباقات..." : "Loading Packages Page Editor..."} type="skeleton" />
+        ) : error ? (
+          <div className="p-8 text-center bg-surface-default border border-border-default rounded-2xl space-y-4">
+            <AlertCircle className="w-10 h-10 text-error mx-auto" />
+            <h3 className="text-lg font-bold text-text-primary">{isAr ? "فشل تحميل إعدادات الصفحة" : "Failed to load page settings"}</h3>
+            <p className="text-sm text-text-secondary">{error}</p>
+            <AdminButton onClick={handleRetry} variant="primary" size="sm" leftIcon={<RefreshCw className="w-4 h-4" />}>
+              {isAr ? "إعادة المحاولة" : "Retry"}
+            </AdminButton>
+          </div>
+        ) : (
+          <>
+            {/* 4-Section Long-Page Navigator */}
+            <DashboardSectionNavigator
+              sections={SECTIONS}
+              activeSectionId={activeSectionId}
+              onSelectSection={setActiveSectionId}
+              dirtySections={Array.from(dirtySections)}
+            />
+
+            {/* 1. Hero Headlines Card */}
+            <div id="headlines" className={activeSectionId === "headlines" || !activeSectionId ? "block" : "hidden"}>
+              <DashboardSectionCard
+                title={isAr ? "العناوين والشعار الرئيسي" : "Hero Eyebrow & Headlines"}
+                description={isAr ? "العناوين الافتتاحية المعروضة في أعلى صفحة الباقات العامة." : "Opening headlines displayed on the packages page header banner."}
+                icon={<Gift className="w-5 h-5 text-[var(--color-primary)]" />}
+              >
+                <DashboardBilingualField
+                  label={isAr ? "الشعار العلوي (Eyebrow)" : "Eyebrow Tag"}
+                  valueEn={pageConfig.eyebrowEn}
+                  valueAr={pageConfig.eyebrowAr}
+                  onChangeEn={(val) => updateField((p) => ({ ...p, eyebrowEn: val }))}
+                  onChangeAr={(val) => updateField((p) => ({ ...p, eyebrowAr: val }))}
+                  mode={languageMode}
+                />
+
+                <DashboardBilingualField
+                  label={isAr ? "العنوان الرئيسي للصفحة" : "Main Page Title"}
+                  valueEn={pageConfig.titleEn}
+                  valueAr={pageConfig.titleAr}
+                  onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
+                  onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
+                  mode={languageMode}
+                />
+
+                <DashboardBilingualField
+                  label={isAr ? "وصف الصفحة" : "Page Description"}
+                  type="textarea"
+                  rows={3}
+                  valueEn={pageConfig.descEn}
+                  valueAr={pageConfig.descAr}
+                  onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
+                  onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
+                  mode={languageMode}
+                />
+              </DashboardSectionCard>
+            </div>
+
+            {/* 2. CTAs and Badges Card */}
+            <div id="ctas" className={activeSectionId === "ctas" ? "block" : "hidden"}>
+              <DashboardSectionCard
+                title={isAr ? "أزرار الحجز وشارات الفعاليات" : "Call to Action Buttons & Campaign Badge"}
+                description={isAr ? "تخصيص أزرار الحجز الرئيسية وشارات العروض والحملات." : "Configure action buttons and campaign promo badges."}
+                icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
+              >
+                <DashboardBilingualField
+                  label={isAr ? "زر الإجراء الرئيسي" : "Primary Action Button"}
+                  valueEn={pageConfig.primaryCtaEn}
+                  valueAr={pageConfig.primaryCtaAr}
+                  onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
+                  onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
+                  mode={languageMode}
+                />
+
+                <DashboardBilingualField
+                  label={isAr ? "زر الإجراء الثانوي" : "Secondary Action Button"}
+                  valueEn={pageConfig.secondaryCtaEn}
+                  valueAr={pageConfig.secondaryCtaAr}
+                  onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
+                  onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
+                  mode={languageMode}
+                />
+
+                <DashboardBilingualField
+                  label={isAr ? "نص شارة الحملة" : "Campaign Badge Label"}
+                  valueEn={pageConfig.campaignBadgeEn}
+                  valueAr={pageConfig.campaignBadgeAr}
+                  onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
+                  onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
+                  mode={languageMode}
+                />
+              </DashboardSectionCard>
+            </div>
+
+            {/* 3. Universal Hero Media Section */}
+            <div id="hero-media" className={activeSectionId === "hero-media" ? "block" : "hidden"}>
+              <UniversalMediaSectionEditor
+                title={isAr ? "وسائط وخلفية الهيدر الرئيسي" : "Packages Hero Media Banner"}
+                subtitle={isAr ? "إعدادات وسائط الهيدر التفاعلية الداعمة للفيديو، الصور، والمشاهد الحركية." : "Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."}
+                value={pageConfig.heroMedia}
+                onChange={(heroMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, heroMedia }))}
+                accentColor="purple"
+              />
+            </div>
+
+            {/* 4. Universal Footer Media Section */}
+            <div id="footer-media" className={activeSectionId === "footer-media" ? "block" : "hidden"}>
+              <UniversalMediaSectionEditor
+                title={isAr ? "وسائط وخلفية التذييل" : "Packages Footer Banner Media"}
+                subtitle={isAr ? "إعدادات وسائط بنر التذييل الداعمة للفيديو، الصور، والوسائط المتعددة." : "Universal footer media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."}
+                value={pageConfig.footerMedia}
+                onChange={(footerMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, footerMedia }))}
+                accentColor="indigo"
+              />
+            </div>
+
+            {/* Sticky Action Bar */}
+            <DashboardStickyActions
+              onSave={handleSave}
+              isSaving={saving}
+              isUnsaved={isDirty}
+              onDiscard={() => {
+                if (window.confirm(isAr ? "هل أنت متأكد من إلغاء التغييرات؟" : "Discard changes?")) {
+                  window.location.reload();
+                }
+              }}
+            />
+          </>
+        )}
+      </div>
     </DashboardPageShell>
   );
 }

@@ -1505,11 +1505,46 @@ export const DEFAULT_B2B_CASES_CONTENT = {
   }
 };
 
+export const DEFAULT_B2C_PACKAGES_PAGE_CONTENT = {
+  eyebrowEn: "E3 CELEBRATIONS & GROUP PACKAGES",
+  eyebrowAr: "باقات الفعاليات والاحتفالات الاستثنائية",
+  titleEn: "Big Moments Deserve Bigger Experiences",
+  titleAr: "لحظاتكم الكبيرة تستحق تجارب استثنائية",
+  descEn: "Discover birthday celebrations, group adventures, school experiences and corporate packages across E3's entertainment destinations.",
+  descAr: "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية.",
+  primaryCtaEn: "Find Your Package",
+  primaryCtaAr: "اختر باقتك",
+  secondaryCtaEn: "Plan a Custom Event",
+  secondaryCtaAr: "خطط لفعاليتك الخاصة",
+  campaignBadgeEn: "VIP PACKAGES & EVENTS",
+  campaignBadgeAr: "باقات كبار الشخصيات",
+  heroMedia: {
+    mediaType: "IMAGE",
+    mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+  },
+  footerMedia: {
+    mediaType: "VIDEO",
+    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-stage-show-41551-large.mp4",
+  },
+  seoTitle: "Packages & Birthdays | E3 Qatar",
+  seoDescription: "Book custom birthday packages, VIP party rooms, and group events across Qatar with E3.",
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
  */
 export function getMergedCMSPageContent(slug: string, rawContent?: any) {
+  if (slug === 'b2c-packages-page' || slug === 'b2c-packages') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2C_PACKAGES_PAGE_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      heroMedia: { ...defaults.heroMedia, ...(raw.heroMedia || {}) },
+      footerMedia: { ...defaults.footerMedia, ...(raw.footerMedia || {}) },
+    };
+  }
   if (slug === 'b2b-cases' || slug === 'cases') {
     const raw = rawContent || {};
     const defaults = DEFAULT_B2B_CASES_CONTENT;

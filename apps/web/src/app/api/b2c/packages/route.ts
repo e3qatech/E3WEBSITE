@@ -192,7 +192,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get("category")
-    const venue = searchParams.get("venue")
+    const _venue = searchParams.get("venue")
     const featured = searchParams.get("featured") === "true"
     const search = searchParams.get("search")
 
@@ -204,7 +204,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const where: any = { isPublished: true }
+    const showAll = searchParams.get("all") === "true" || searchParams.get("includeDrafts") === "true"
+    const where: any = showAll ? {} : { isPublished: true }
 
     if (category && category !== "ALL") {
       where.category = category.toUpperCase()

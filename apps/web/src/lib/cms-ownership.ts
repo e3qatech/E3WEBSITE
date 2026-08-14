@@ -82,6 +82,28 @@ export const MANAGED_CMS_PAGES: Record<string, ManagedPageRegistryEntry> = {
     descriptionAr: 'خرائط وجهات المدار، العقد الفضائية، والمحاور التفاعلية.',
     isSpecialized: true,
   },
+  'b2c-packages-page': {
+    slug: 'b2c-packages-page',
+    nameEn: 'B2C Packages & Celebrations Page',
+    nameAr: 'صفحة باقات واحتفالات الزوار',
+    specializedEditorPath: '/dashboard/b2c/packages-page',
+    canonicalApiEndpoint: '/api/cms/pages/b2c-packages-page',
+    domain: 'B2C',
+    descriptionEn: 'Packages landing layout, universal hero/footer media, CTAs, campaign badges, and SEO metadata.',
+    descriptionAr: 'تصميم صفحة الباقات، وسائط الهيدر والتذييل، أزرار الحجز وشارات الفعاليات والبيانات الوصفية.',
+    isSpecialized: true,
+  },
+  'b2c-packages': {
+    slug: 'b2c-packages',
+    nameEn: 'B2C Packages Page (Alias)',
+    nameAr: 'صفحة باقات الزوار (اسم بديل)',
+    specializedEditorPath: '/dashboard/b2c/packages-page',
+    canonicalApiEndpoint: '/api/cms/pages/b2c-packages-page',
+    domain: 'B2C',
+    descriptionEn: 'Alias for B2C Packages & Celebrations Page Editor.',
+    descriptionAr: 'اسم بديل لمحرر صفحة باقات واحتفالات الزوار.',
+    isSpecialized: true,
+  },
 };
 
 /**
