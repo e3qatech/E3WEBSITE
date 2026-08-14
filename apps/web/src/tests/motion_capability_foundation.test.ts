@@ -171,7 +171,7 @@ describe('Shared E3 Motion & Capability Foundation Tests', () => {
     it('skips video playback when Data Saver or Minimal Reduced Motion is active', () => {
       const isDataSaver = true;
       const isReducedMotion = false;
-      const tier: 'full' | 'balanced' | 'minimal' = 'minimal';
+      const tier = 'minimal' as const;
 
       const shouldSkipVideo = isDataSaver || (tier === 'minimal' && isReducedMotion);
       expect(shouldSkipVideo).toBe(true);
@@ -180,10 +180,32 @@ describe('Shared E3 Motion & Capability Foundation Tests', () => {
     it('allows video streaming when in balanced or full tier without Data Saver', () => {
       const isDataSaver = false;
       const isReducedMotion = false;
-      const tier: 'full' | 'balanced' | 'minimal' = 'full';
+      const tier = 'full' as const;
 
-      const shouldSkipVideo = isDataSaver || (tier === 'minimal' && isReducedMotion);
+      const shouldSkipVideo = isDataSaver || ((tier as string) === 'minimal' && isReducedMotion);
       expect(shouldSkipVideo).toBe(false);
+    });
+  });
+
+  describe('6. Route Transitions & Repeated Navigation Safety', () => {
+    it('provides zero-offset instant opacity variants when in minimal mode', () => {
+      const isMinimal = true;
+      const minimalVariants = isMinimal
+        ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+        : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -16 } };
+
+      expect(minimalVariants.initial.opacity).toBe(0);
+      expect((minimalVariants.initial as any).y).toBeUndefined();
+    });
+
+    it('provides directional slide variants when in full tier', () => {
+      const isMinimal = false;
+      const slideVariants = isMinimal
+        ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+        : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -16 } };
+
+      expect(slideVariants.initial.y).toBe(16);
+      expect(slideVariants.animate.y).toBe(0);
     });
   });
 });

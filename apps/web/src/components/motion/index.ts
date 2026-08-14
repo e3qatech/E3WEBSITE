@@ -4,3 +4,4 @@ export * from './Parallax';
 export * from './ScrollScene';
 export * from './CinematicVideo';
 export * from './WebGLBoundary';
+export * from './RouteTransition';
