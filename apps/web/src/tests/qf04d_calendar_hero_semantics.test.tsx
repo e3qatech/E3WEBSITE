@@ -47,6 +47,18 @@ describe("QF-04-D — Rendered Calendar Hero Semantics & DOM Verification", () =
       const eyebrow = extractEyebrow(html);
 
       expect(eyebrow).toBe("Events Calendar");
+      
+      // Prove eyebrow is outside H1 by checking H1 does not contain the eyebrow markup
+      const h1Match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      expect(h1Match?.[1]).not.toContain("data-testid=\"calendar-hero-eyebrow\"");
+      expect(h1Match?.[1]).not.toContain("Events Calendar");
+    });
+
+    it("guarantees no concatenated 'Events CalendarFind Your Next E3 Experience' text in the DOM", () => {
+      const html = renderCalendar("en");
+      expect(html).not.toContain("Events CalendarFind Your Next E3 Experience");
+      expect(html).not.toContain("EVENTS CALENDARFind Your Next E3 Experience");
+      expect(html).not.toContain("Events Calendar Find Your Next E3 Experience");
     });
 
     it("renders LTR direction attribute for English layout", () => {
