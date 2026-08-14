@@ -260,7 +260,7 @@ export function CaseStudiesIndexClient({
                 <Trophy className="w-3.5 h-3.5" />
                 <span>{isAr ? (hero.eyebrowAr || "سجل الإنجازات") : (hero.eyebrowEn || "The Vault")}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{caseStudies.length} {isAr ? "مشروعاً موثقاً" : "Delivered Landmarks"}</span>
+                <span>{eligibleCases.length} {isAr ? "مشروعاً موثقاً" : "Delivered Landmarks"}</span>
               </div>
 
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-xl">
@@ -540,7 +540,7 @@ export function CaseStudiesIndexClient({
                     : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-100 border border-zinc-800"
                 )}
               >
-                {isAr ? "جميع المشاريع" : "All Projects"} ({caseStudies.length})
+                {isAr ? "جميع المشاريع" : "All Projects"} ({eligibleCases.length})
               </button>
 
               {categories.map(cat => (

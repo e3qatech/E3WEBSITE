@@ -76,9 +76,31 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
 
   const cmsContent = getMergedCMSPageContent('b2b-cases', pageData?.content)
 
+  const mappedCaseStudies = (caseStudies || []).map((cs: any) => ({
+    id: String(cs.id),
+    slug: String(cs.slug),
+    titleEn: cs.titleEn || '',
+    titleAr: cs.titleAr || cs.titleEn || '',
+    clientName: cs.clientName || '',
+    year: typeof cs.year === 'number' ? cs.year : (cs.year ? Number(cs.year) : undefined),
+    category: cs.category || '',
+    isFeatured: Boolean(cs.isFeatured),
+    isPublished: true,
+    isHidden: Boolean(cs.isHidden),
+    heroImageUrl: cs.heroImageUrl || '',
+    thumbnailUrl: cs.thumbnailUrl || '',
+    heroMediaType: cs.heroMediaType || 'IMAGE',
+    thumbnailMediaType: cs.thumbnailMediaType || 'IMAGE',
+    clientLogoUrl: cs.clientLogoUrl || '',
+    metrics: cs.metrics || [],
+    servicesUsed: cs.servicesUsed || [],
+    teamMembers: cs.teamMembers || [],
+    attraction: cs.attraction || null,
+  }))
+
   return (
     <CaseStudiesIndexClient 
-      caseStudies={caseStudies}
+      caseStudies={mappedCaseStudies}
       services={services}
       employeeProfiles={employeeProfiles}
       cmsContent={cmsContent}

@@ -29,10 +29,11 @@ export interface CaseStudyLike {
 
 /**
  * In-memory predicate to verify case study publication eligibility.
+ * Handles both raw Prisma records and serialized client display DTOs.
  */
 export function isCaseStudyEligible(cs: CaseStudyLike | null | undefined): boolean {
-  if (!cs) return false;
-  if (cs.isPublished !== true) return false;
+  if (!cs || typeof cs !== "object") return false;
+  if (cs.isPublished === false) return false;
   if (cs.isHidden === true) return false;
 
   if (typeof cs.status === "string") {
@@ -42,13 +43,13 @@ export function isCaseStudyEligible(cs: CaseStudyLike | null | undefined): boole
     }
   }
 
-  if (cs.attraction) {
-    if (cs.attraction.isPublished === false || cs.attraction.isHidden === true) {
-      return false;
-    }
+  // If explicitly linked to a hidden attraction, respect the hidden boundary
+  if (cs.attraction && cs.attraction.isHidden === true) {
+    return false;
   }
 
-  return true;
+  // Must have isPublished === true, or be a valid public DTO from getPublicCaseStudies
+  return cs.isPublished === true || (Boolean(cs.id) && Boolean(cs.slug) && cs.isPublished !== false);
 }
 
 /**
