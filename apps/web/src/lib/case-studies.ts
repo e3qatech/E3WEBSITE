@@ -35,6 +35,7 @@ export function isCaseStudyEligible(cs: CaseStudyLike | null | undefined): boole
   if (!cs || typeof cs !== "object") return false;
   if (cs.isPublished === false) return false;
   if (cs.isHidden === true) return false;
+  if (cs.isVisible === false) return false;
 
   if (typeof cs.status === "string") {
     const statusUpper = cs.status.trim().toUpperCase();
@@ -48,8 +49,8 @@ export function isCaseStudyEligible(cs: CaseStudyLike | null | undefined): boole
     return false;
   }
 
-  // Must have isPublished === true, or be a valid public DTO from getPublicCaseStudies
-  return cs.isPublished === true || (Boolean(cs.id) && Boolean(cs.slug) && cs.isPublished !== false);
+  // Must be explicitly published / visible (strictly true)
+  return cs.isPublished === true || cs.isVisible === true;
 }
 
 /**

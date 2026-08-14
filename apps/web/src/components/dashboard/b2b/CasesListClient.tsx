@@ -107,7 +107,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
               </AdminTableCell>
               <AdminTableCell>
                 <div className="flex flex-col gap-1.5">
-                  {caseStudy.isVisible ? (
+                  {(caseStudy.isPublished ?? caseStudy.isVisible) ? (
                     <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-success/10 text-success">Visible</span>
                   ) : (
                     <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-surface-hover text-text-secondary border border-border-default">Hidden</span>
