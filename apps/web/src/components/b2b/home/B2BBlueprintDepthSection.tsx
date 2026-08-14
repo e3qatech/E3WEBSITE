@@ -1,0 +1,281 @@
+"use client";
+
+import React, { useState, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useMotionCapability } from '@/lib/motion/capability-context';
+import { Reveal } from '@/components/motion/Reveal';
+import { WebGLBoundary } from '@/components/motion/WebGLBoundary';
+import { Layers, Sparkles, Cpu, Eye, Compass, ShieldCheck } from 'lucide-react';
+import { useLocale } from '@/components/layout/LocaleProvider';
+
+export interface B2BBlueprintDepthSectionProps {
+  locale: string;
+}
+
+export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionProps) {
+  const isAr = locale === 'ar';
+  const { tier, isReducedMotion } = useMotionCapability();
+  const isFull = tier === 'full' && !isReducedMotion;
+
+  const [mode, setMode] = useState<'split' | 'blueprint' | 'live'>('split');
+  const [sliderPosition, setSliderPosition] = useState(50); // 0 to 100 percentage
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Mouse tilt physics for 'full' tier
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 25, stiffness: 180 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
+
+  const rotateX = useTransform(smoothY, [-0.5, 0.5], [6, -6]);
+  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-8, 8]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isFull || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isFull) return;
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  return (
+    <section className="py-24 md:py-32 bg-zinc-950 border-y border-zinc-900 relative overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* Ambient background glows */}
+      <div className="absolute top-1/3 start-1/4 w-96 h-96 bg-emerald-500/5 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 end-1/4 w-96 h-96 bg-cyan-500/5 blur-[140px] rounded-full pointer-events-none" />
+
+      <div className="container mx-auto px-4 md:px-8 relative z-10">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <Reveal direction="slide-up">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-4">
+              <Cpu className="w-3.5 h-3.5" />
+              <span>{isAr ? "الهندسة المعمارية التفاعلية" : "SPATIAL ARCHITECTURE & DEPTH"}</span>
+            </div>
+          </Reveal>
+
+          <Reveal direction="slide-up" delay={0.1}>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+              {isAr ? "من المخطط الهندسي إلى الواقع الحي" : "From Blueprint to Landmark Reality"}
+            </h2>
+          </Reveal>
+
+          <Reveal direction="slide-up" delay={0.2}>
+            <p className="text-base md:text-lg text-zinc-400 leading-relaxed">
+              {isAr
+                ? "شاهد كيف تتحول الحسابات الإنشائية ومخططات تدفق الجماهير ثلاثية الأبعاد إلى تجارب ترفيهية متكاملة تنبض بالحياة."
+                : "Explore how rigorous structural engineering, spatial telemetry, and crowd logistics transform into world-class entertainment destinations."}
+            </p>
+          </Reveal>
+
+          {/* Interactive Mode Selector */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <button
+              onClick={() => { setMode('blueprint'); setSliderPosition(100); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
+                mode === 'blueprint'
+                  ? 'bg-cyan-500 text-zinc-950 shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+                  : 'bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <Compass className="w-3.5 h-3.5" />
+                <span>{isAr ? "المخطط الهيكلي" : "01. CAD Blueprint"}</span>
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setMode('split'); setSliderPosition(50); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
+                mode === 'split'
+                  ? 'bg-emerald-500 text-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                  : 'bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5" />
+                <span>{isAr ? "المقارنة التفاعلية" : "02. Interactive Split"}</span>
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setMode('live'); setSliderPosition(0); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
+                mode === 'live'
+                  ? 'bg-amber-500 text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
+                  : 'bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isAr ? "الإنتاج الواقعي" : "03. Live Experience"}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Blueprint-to-Live Interactive Showcase Canvas */}
+        <WebGLBoundary
+          title="Blueprint to Live Spatial Scene"
+          minHeight="520px"
+        >
+          <Reveal direction="fade" delay={0.3}>
+            <div
+              ref={containerRef}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              className="relative max-w-5xl mx-auto aspect-[16/9] min-h-[460px] md:min-h-[540px] rounded-3xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl transition-shadow duration-500 hover:shadow-[0_0_60px_rgba(16,185,129,0.12)] group perspective-1000"
+            >
+              <motion.div
+                style={{
+                  rotateX: isFull ? rotateX : 0,
+                  rotateY: isFull ? rotateY : 0,
+                  transformStyle: 'preserve-3d',
+                }}
+                className="w-full h-full relative"
+              >
+                {/* 1. Underlayer: CAD Blueprint Wireframe Layer */}
+                <div className="absolute inset-0 bg-[#070b14] overflow-hidden flex items-center justify-center select-none">
+                  {/* Blueprint Grid Lines */}
+                  <div
+                    className="absolute inset-0 opacity-25"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(to right, rgba(6,182,212,0.3) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(6,182,212,0.3) 1px, transparent 1px)
+                      `,
+                      backgroundSize: '40px 40px',
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0 opacity-15"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(to right, rgba(6,182,212,0.6) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(6,182,212,0.6) 1px, transparent 1px)
+                      `,
+                      backgroundSize: '200px 200px',
+                    }}
+                  />
+
+                  {/* Architectural Vector Schematic Overlay */}
+                  <svg className="absolute inset-0 w-full h-full opacity-40 text-cyan-400" preserveAspectRatio="none">
+                    <line x1="10%" y1="20%" x2="90%" y2="80%" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+                    <line x1="10%" y1="80%" x2="90%" y2="20%" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+                    <circle cx="50%" cy="50%" r="180" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.6" />
+                    <circle cx="50%" cy="50%" r="80" stroke="currentColor" strokeWidth="1" fill="none" strokeDasharray="6 6" />
+                    <rect x="25%" y="25%" width="50%" height="50%" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                  </svg>
+
+                  {/* Technical Metadata Badges */}
+                  <div className="absolute top-6 start-6 flex flex-col gap-1 text-cyan-400 font-mono text-[11px] bg-black/60 backdrop-blur-md p-3 rounded-xl border border-cyan-500/30">
+                    <span className="font-bold flex items-center gap-1.5 text-xs text-white">
+                      <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>E3 SPATIAL SCHEMATIC // QATAR</span>
+                    </span>
+                    <span>TOLERANCE: ±0.5mm | LOAD: 4.8 kN/m²</span>
+                    <span>CROWD CAPACITY: 12,500 PAX/HR</span>
+                  </div>
+
+                  <div className="absolute bottom-6 end-6 text-cyan-400/80 font-mono text-[10px] bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-cyan-500/20">
+                    SYSTEM ID: E3-B2B-ENG-2026
+                  </div>
+                </div>
+
+                {/* 2. Top Layer: Live Photorealistic Experience Render */}
+                <div
+                  className="absolute inset-0 overflow-hidden select-none transition-all duration-300"
+                  style={{
+                    clipPath: isAr
+                      ? `polygon(0 0, ${100 - sliderPosition}% 0, ${100 - sliderPosition}% 100%, 0 100%)`
+                      : `polygon(${sliderPosition}% 0, 100% 0, 100% 100%, ${sliderPosition}% 100%)`,
+                  }}
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=80"
+                    alt="E3 Live Event Experience"
+                    className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-zinc-950/30" />
+
+                  {/* Live Status Overlay */}
+                  <div className="absolute top-6 end-6 flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-mono text-xs backdrop-blur-md shadow-lg">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>{isAr ? "الإنتاج المباشر — جاهز للتشغيل" : "LIVE COMMISSIONED VENUE"}</span>
+                  </div>
+                </div>
+
+                {/* 3. Interactive Split Scrubber Line */}
+                {mode === 'split' && (
+                  <div
+                    className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20 shadow-[0_0_20px_rgba(255,255,255,0.8)]"
+                    style={{
+                      left: isAr ? `${100 - sliderPosition}%` : `${sliderPosition}%`,
+                    }}
+                  >
+                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-2xl font-black text-xs pointer-events-none">
+                      ⇄
+                    </div>
+                  </div>
+                )}
+
+                {/* Range Slider Overlay for accessibility & touch scrubbing */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={sliderPosition}
+                  onChange={(e) => {
+                    setSliderPosition(Number(e.target.value));
+                    setMode('split');
+                  }}
+                  aria-label={isAr ? "محدد المقارنة بين المخطط والواقع" : "Blueprint to Live Slider"}
+                  className="absolute inset-x-0 bottom-0 opacity-0 cursor-ew-resize h-16 z-30 w-full"
+                />
+              </motion.div>
+            </div>
+          </Reveal>
+        </WebGLBoundary>
+
+        {/* Feature Highlights Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
+          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+              <Compass className="w-5 h-5" />
+            </div>
+            <h4 className="text-base font-bold text-zinc-100 mb-1">{isAr ? "دقة التصميم الإنشائي" : "Structural Precision"}</h4>
+            <p className="text-xs text-zinc-400 leading-relaxed">{isAr ? "مخططات هندسية متكاملة تتوافق مع أعلى معايير السلامة القطرية." : "Full engineering blueprints certified for municipal and crowd safety compliance."}</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4">
+              <Layers className="w-5 h-5" />
+            </div>
+            <h4 className="text-base font-bold text-zinc-100 mb-1">{isAr ? "محاكاة الإضاءة والصوت" : "Acoustic & Lighting Staging"}</h4>
+            <p className="text-xs text-zinc-400 leading-relaxed">{isAr ? "محاكاة بصرية وصوتية متقدمة تضمن تجربة استثنائية في كل نقطة." : "Advanced ray-traced spatial audio and DMX lighting simulations."}</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <h4 className="text-base font-bold text-zinc-100 mb-1">{isAr ? "تسليم تشغيلي متكامل" : "Turnkey Commissioning"}</h4>
+            <p className="text-xs text-zinc-400 leading-relaxed">{isAr ? "من الفكرة إلى حفل الافتتاح وإدارة العمليات اليومية وإصدار التذاكر." : "Zero-gap handover with live crowd telemetry, staff operations, and ticketing."}</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}

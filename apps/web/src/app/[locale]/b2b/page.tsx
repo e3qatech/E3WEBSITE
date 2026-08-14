@@ -7,6 +7,10 @@ import db from '@/lib/db'
 import { B2BBrandPortfolio } from '@/components/b2b/brands/B2BBrandPortfolio'
 import { DEFAULT_B2B_HOME_CONTENT } from '@/lib/cms-default-pages'
 import { localizeHref } from '@/lib/url-helper'
+import { Reveal } from '@/components/motion/Reveal'
+import { SplitHeadline } from '@/components/motion/SplitHeadline'
+import { B2BBlueprintDepthSection } from '@/components/b2b/home/B2BBlueprintDepthSection'
+import { B2BInteractiveCta } from '@/components/b2b/home/B2BInteractiveCta'
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -253,50 +257,59 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         <div className="container relative z-10 mx-auto px-4 md:px-8 pt-24 pb-16">
           <div className="max-w-4xl">
             {/* Indicator Eyebrow */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span>{isAr ? "منظومة إي ثري لقطاع الأعمال" : "E3 ENTERPRISE ATELIER"}</span>
-            </div>
+            <Reveal direction="fade">
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span>{isAr ? "منظومة إي ثري لقطاع الأعمال" : "E3 ENTERPRISE ATELIER"}</span>
+              </div>
+            </Reveal>
 
             {/* Display Headline */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-lg">
-              {hero.title}
-            </h1>
+            <SplitHeadline
+              text={hero.title}
+              as="h1"
+              delay={0.05}
+              className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-lg"
+            />
 
             {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-zinc-200 font-medium max-w-3xl mb-4 leading-relaxed">
-              {hero.subtitle}
-            </p>
+            <Reveal direction="slide-up" delay={0.15}>
+              <p className="text-xl md:text-2xl text-zinc-200 font-medium max-w-3xl mb-4 leading-relaxed">
+                {hero.subtitle}
+              </p>
+            </Reveal>
 
             {/* Description */}
-            <p className="text-base md:text-lg text-zinc-400 max-w-2xl mb-10 leading-relaxed">
-              {hero.description}
-            </p>
+            <Reveal direction="slide-up" delay={0.25}>
+              <p className="text-base md:text-lg text-zinc-400 max-w-2xl mb-10 leading-relaxed">
+                {hero.description}
+              </p>
+            </Reveal>
             
             {/* CTA Group */}
-            <div className="flex flex-wrap items-center gap-4">
-              {hero.primaryCta && (
-                <Link 
-                  href={hero.primaryLink || `/${locale}/b2b/services`} 
-                  className="group relative inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-base rounded-full hover:bg-emerald-400 transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] hover:-translate-y-0.5"
-                >
-                  <span>{hero.primaryCta}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
-                </Link>
-              )}
-              {hero.secondaryCta && (
-                <Link 
-                  href={hero.secondaryLink || `/${locale}/b2b/contact`} 
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-zinc-900/80 backdrop-blur-md border border-zinc-700/80 text-zinc-100 font-bold text-base rounded-full hover:border-zinc-500 hover:bg-zinc-800 transition-all duration-300 hover:-translate-y-0.5"
-                >
-                  <span>{hero.secondaryCta}</span>
-                  <ArrowUpRight className="w-5 h-5 text-zinc-400 group-hover:text-zinc-100 transition-colors" />
-                </Link>
-              )}
-            </div>
+            <Reveal direction="slide-up" delay={0.35}>
+              <div className="flex flex-wrap items-center gap-4">
+                {hero.primaryCta && (
+                  <B2BInteractiveCta
+                    href={hero.primaryLink || `/${locale}/b2b/services`}
+                    label={hero.primaryCta}
+                    variant="primary"
+                    iconType="arrow-right"
+                  />
+                )}
+                {hero.secondaryCta && (
+                  <B2BInteractiveCta
+                    href={hero.secondaryLink || `/${locale}/b2b/contact`}
+                    label={hero.secondaryCta}
+                    variant="secondary"
+                    iconType="arrow-up-right"
+                  />
+                )}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -392,6 +405,9 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
           </div>
         </div>
       </section>
+
+      {/* 3.5 BLUEPRINT-TO-LIVE DEPTH TRANSITION PILOT */}
+      <B2BBlueprintDepthSection locale={locale} />
 
       {/* 4. CORE CAPABILITIES BENTO GRID */}
       <section className="py-24 bg-zinc-900/40 border-y border-zinc-800/80">

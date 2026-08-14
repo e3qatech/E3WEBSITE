@@ -1,5 +1,6 @@
 import { LocaleProvider } from "@/components/layout/LocaleProvider";
 import { ToastProvider } from "@/components/dashboard/ui/ToastProvider";
+import { MotionCapabilityProvider } from "@/lib/motion/capability-context";
 
 export default async function LocaleLayout({
   children,
@@ -13,9 +14,11 @@ export default async function LocaleLayout({
 
   return (
     <LocaleProvider defaultLocale={validLocale}>
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <MotionCapabilityProvider>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </MotionCapabilityProvider>
     </LocaleProvider>
   );
 }
