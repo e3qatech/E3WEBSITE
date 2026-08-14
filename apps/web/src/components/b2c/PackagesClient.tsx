@@ -1,29 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { 
   Sparkles, 
   Search, 
-  Filter, 
-  Users, 
-  Clock, 
-  Calendar, 
-  ArrowRight, 
   Check, 
-  SlidersHorizontal,
-  ChevronRight,
-  ShieldCheck,
-  CheckCircle2,
-  Share2,
-  Grid
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { InteractiveCard } from "@/components/ui/InteractiveCard"
 import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
-import { Footer } from "@/components/layout/Footer"
 import { SmartPackageFinderModal } from "@/components/b2c/SmartPackageFinderModal"
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer"
 import { cn } from "@/lib/utils"
@@ -42,12 +29,10 @@ export function PackagesClient({
   const searchParams = useSearchParams()
 
   const [packagesList, setPackagesList] = useState<any[]>(initialPackages)
-  const [loading, setLoading] = useState(false)
 
   // Filters State synced with URL searchParams
   const [activeCategory, setActiveCategory] = useState<string>(searchParams.get("category") || "ALL")
   const [searchQuery, setSearchQuery] = useState<string>(searchParams.get("search") || "")
-  const [selectedGuestRange, setSelectedGuestRange] = useState<string>(searchParams.get("guests") || "ALL")
 
   // Modals & Comparison State
   const [isFinderOpen, setIsFinderOpen] = useState(false)
@@ -97,13 +82,22 @@ export function PackagesClient({
 
   const categoryTabs = [
     { id: "ALL", labelEn: "All Packages", labelAr: "جميع الباقات" },
-    { id: "BIRTHDAY", labelEn: "Birthdays", labelAr: "أعيد الميلاد" },
+    { id: "BIRTHDAY", labelEn: "Birthdays", labelAr: "أعياد الميلاد" },
     { id: "GROUP", labelEn: "Groups", labelAr: "المجموعات" },
     { id: "SCHOOL", labelEn: "Schools & Nurseries", labelAr: "المدارس والحضانات" },
     { id: "CORPORATE", labelEn: "Corporate & Team Building", labelAr: "الشركات وبناء الفرق" },
     { id: "PRIVATE_EVENT", labelEn: "Private Events", labelAr: "الفعاليات الخاصة" },
     { id: "CUSTOM", labelEn: "Custom Experiences", labelAr: "تجارب حسب الطلب" }
   ]
+
+  const categoryLabels: Record<string, { en: string; ar: string }> = {
+    BIRTHDAY: { en: "Birthday", ar: "أعياد الميلاد" },
+    GROUP: { en: "Group", ar: "المجموعات" },
+    SCHOOL: { en: "School", ar: "المدارس" },
+    CORPORATE: { en: "Corporate", ar: "الشركات" },
+    PRIVATE_EVENT: { en: "Private Event", ar: "الفعاليات الخاصة" },
+    CUSTOM: { en: "Custom Experience", ar: "تجارب حسب الطلب" },
+  }
 
   const heroEyebrow = isAr
     ? (initialSettings?.eyebrowAr || initialSettings?.hero?.badgeAr || "باقات الفعاليات والمناسبات الاستثنائية")
@@ -236,8 +230,8 @@ export function PackagesClient({
                     )}
 
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-bold font-mono">
-                      <span>{pkg.minGuests}-{pkg.maxGuests} Guests</span>
-                      <span>{pkg.durationMinutes ? `${pkg.durationMinutes} Mins` : ""}</span>
+                      <span>{pkg.minGuests}-{pkg.maxGuests} {isAr ? "ضيوف" : "Guests"}</span>
+                      <span>{pkg.durationMinutes ? `${pkg.durationMinutes} ${isAr ? "دقيقة" : "Mins"}` : ""}</span>
                     </div>
                   </div>
 
@@ -245,7 +239,7 @@ export function PackagesClient({
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[10px] font-mono font-extrabold uppercase text-[var(--e3-royal-blue)] tracking-wider">
-                        {pkg.category}
+                        {isAr ? (categoryLabels[pkg.category]?.ar || pkg.category) : (categoryLabels[pkg.category]?.en || pkg.category)}
                       </span>
                       <label className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-secondary)] cursor-pointer">
                         <input
@@ -283,9 +277,9 @@ export function PackagesClient({
                 {/* Footer CTAs */}
                 <div className="p-6 pt-0 space-y-3">
                   <div className="flex items-center justify-between pt-3 border-t border-[var(--border-level-2)]">
-                    <span className="text-xs text-[var(--text-secondary)] font-mono">Starting From</span>
+                    <span className="text-xs text-[var(--text-secondary)] font-mono">{isAr ? "يبدأ من" : "Starting From"}</span>
                     <span className="text-lg font-black font-mono text-[var(--e3-royal-blue)]">
-                      {pkg.startingPrice ? `${pkg.startingPrice} ${pkg.currency || 'QAR'}` : 'On Request'}
+                      {pkg.startingPrice ? `${pkg.startingPrice} ${pkg.currency || 'QAR'}` : (isAr ? "عند الطلب" : "On Request")}
                     </span>
                   </div>
 

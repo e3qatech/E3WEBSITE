@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Check, Calendar, Users, Building2, Sparkles, ShieldCheck, Download, Send, AlertCircle } from "lucide-react"
+import { X, Check, Send, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 
@@ -35,17 +35,17 @@ export function PackageEnquiryModal({
   const [customerName, setCustomerName] = useState("")
   const [companyOrOrg, setCompanyOrOrg] = useState("")
   const [email, setEmail] = useState("")
-  const [phone, setPhone] = useState("")
+  const [phone] = useState("")
   const [whatsApp, setWhatsApp] = useState("")
-  const [contactMethod, setContactMethod] = useState("WHATSAPP")
+  const [contactMethod] = useState("WHATSAPP")
   
   const [celebrationName, setCelebrationName] = useState("")
-  const [ageGroup, setAgeGroup] = useState("")
+  const [ageGroup] = useState("")
   const [preferredDate, setPreferredDate] = useState("")
-  const [alternativeDate, setAlternativeDate] = useState("")
+  const [alternativeDate] = useState("")
   const [expectedGuests, setExpectedGuests] = useState(selectedPackage?.minGuests || 15)
   const [specialRequests, setSpecialRequests] = useState("")
-  const [marketingConsent, setMarketingConsent] = useState(false)
+  const [marketingConsent] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(true)
 
   const [submitting, setSubmitting] = useState(false)
@@ -323,7 +323,9 @@ export function PackageEnquiryModal({
                     className="rounded text-[var(--e3-royal-blue)]"
                   />
                   <span>
-                    {isAr ? "أوافق على الشروط والأحكام وسياسة الخصوصية الخاصة بـ إي ثري" : "I agree to E3 Package terms, venue rules, and cancellation policies"}
+                    {isAr 
+                      ? "أوافق على شروط باقات إي ثري، قواعد الفعاليات، وسياسة حماية البيانات الشخصية في قطر (PDPL)" 
+                      : "I agree to E3 Package terms, venue rules, and Qatar PDPL privacy policies"}
                   </span>
                 </label>
               </div>

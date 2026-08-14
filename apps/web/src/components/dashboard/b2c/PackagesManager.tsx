@@ -239,7 +239,7 @@ export function PackagesManager() {
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20">
-                      {item.category}
+                      {isAr ? (categories.find(c => c.id === item.category)?.labelAr || item.category) : item.category}
                     </span>
                     <span className={cn(
                       "px-2 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider",

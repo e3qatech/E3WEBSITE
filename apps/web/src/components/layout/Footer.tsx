@@ -207,7 +207,7 @@ export function Footer({ portal, settings = {} }: FooterProps) {
               <div className="relative flex items-center">
                 <input 
                   type="email" 
-                  placeholder="Enter your email" 
+                  placeholder={locale === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} 
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="w-full bg-[var(--surface-active)] border border-[var(--border-level-2)] text-[var(--text-primary)] text-sm rounded-lg ps-4 pe-12 py-3 outline-none focus:border-[var(--color-primary)] transition-colors"
@@ -216,7 +216,7 @@ export function Footer({ portal, settings = {} }: FooterProps) {
                 />
                 <button 
                   type="submit"
-                  aria-label="Subscribe"
+                  aria-label={locale === "ar" ? "اشتراك" : "Subscribe"}
                   disabled={subscribing}
                   className="absolute end-2 rtl:start-2 rtl:end-auto p-1.5 text-[var(--color-primary)] bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)] hover:text-white rounded-md transition-all disabled:opacity-50"
                 >
@@ -228,10 +228,14 @@ export function Footer({ portal, settings = {} }: FooterProps) {
                 </button>
               </div>
               {subscribeStatus === 'success' && (
-                <p className="text-xs text-[var(--color-success)] font-medium mt-1">Successfully subscribed! Please check your email.</p>
+                <p className="text-xs text-[var(--color-success)] font-medium mt-1">
+                  {locale === "ar" ? "تم الاشتراك بنجاح! يرجى مراجعة بريدك الإلكتروني." : "Successfully subscribed! Please check your email."}
+                </p>
               )}
               {subscribeStatus === 'error' && (
-                <p className="text-xs text-[var(--color-danger)] font-medium mt-1">Failed to subscribe. Please try again.</p>
+                <p className="text-xs text-[var(--color-danger)] font-medium mt-1">
+                  {locale === "ar" ? "فشل الاشتراك. يرجى المحاولة مرة أخرى." : "Failed to subscribe. Please try again."}
+                </p>
               )}
             </form>
           </div>
@@ -239,15 +243,19 @@ export function Footer({ portal, settings = {} }: FooterProps) {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[var(--border-level-1)] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[var(--text-tertiary)]">
-          <p>© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {siteName}. {locale === "ar" ? "جميع الحقوق محفوظة." : "All rights reserved."}</p>
           
           <div className="flex items-center gap-6">
-            <Link href={localizeHref('/privacy', locale)} className="hover:text-[var(--text-primary)] transition-colors">Privacy Policy</Link>
-            <Link href={localizeHref('/terms', locale)} className="hover:text-[var(--text-primary)] transition-colors">Terms of Service</Link>
+            <Link href={localizeHref('/privacy', locale)} className="hover:text-[var(--text-primary)] transition-colors">
+              {locale === "ar" ? "سياسة الخصوصية" : "Privacy Policy"}
+            </Link>
+            <Link href={localizeHref('/terms', locale)} className="hover:text-[var(--text-primary)] transition-colors">
+              {locale === "ar" ? "شروط الخدمة" : "Terms of Service"}
+            </Link>
             
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#22C55E10] text-[var(--color-success)] font-medium border border-[#22C55E20]">
               <ShieldCheck size={14} />
-              <span>Qatar PDPL Compliant</span>
+              <span>{locale === "ar" ? "متوافق مع قانون حماية البيانات الشخصية القطري (PDPL)" : "Qatar PDPL Compliant"}</span>
             </div>
           </div>
         </div>

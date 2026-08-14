@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Sparkles, ArrowRight, ArrowLeft, CheckCircle2, Award, Building2, Users } from "lucide-react"
+import { X, Sparkles, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
 interface SmartPackageFinderModalProps {
@@ -25,8 +25,8 @@ export function SmartPackageFinderModal({
   const [step, setStep] = useState(1)
   const [eventType, setEventType] = useState("BIRTHDAY")
   const [guestCount, setGuestCount] = useState("15-25")
-  const [ageBand, setAgeBand] = useState("KIDS")
-  const [budgetRange, setBudgetRange] = useState("MEDIUM")
+  const [_ageBand] = useState("KIDS")
+  const [_budgetRange] = useState("MEDIUM")
 
   if (!isOpen) return null
 
@@ -110,7 +110,9 @@ export function SmartPackageFinderModal({
               </p>
 
               <div>
-                <label className="text-[10px] font-bold text-[var(--text-secondary)] block mb-2 uppercase">Guest Count</label>
+                <label className="text-[10px] font-bold text-[var(--text-secondary)] block mb-2 uppercase">
+                  {isAr ? "عدد الضيوف المتوقع" : "Guest Count"}
+                </label>
                 <div className="grid grid-cols-3 gap-2">
                   {["10-15", "15-30", "30-50", "50+"].map(gc => (
                     <button
@@ -122,7 +124,7 @@ export function SmartPackageFinderModal({
                           : "bg-[var(--surface-hover)] border-[var(--border-level-2)] text-[var(--text-secondary)]"
                       }`}
                     >
-                      {gc} Guests
+                      {gc} {isAr ? "ضيوف" : "Guests"}
                     </button>
                   ))}
                 </div>
@@ -152,7 +154,13 @@ export function SmartPackageFinderModal({
                     <div key={pkg.id} className="p-4 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div>
                         <span className="text-[10px] font-mono font-extrabold text-[var(--e3-royal-blue)] uppercase">
-                          {pkg.category}
+                          {isAr ? (
+                            pkg.category === "BIRTHDAY" ? "أعياد الميلاد" :
+                            pkg.category === "CORPORATE" ? "الشركات" :
+                            pkg.category === "SCHOOL" ? "المدارس" :
+                            pkg.category === "GROUP" ? "المجموعات" :
+                            pkg.category === "PRIVATE_EVENT" ? "الفعاليات الخاصة" : pkg.category
+                          ) : pkg.category}
                         </span>
                         <h4 className="font-extrabold text-sm text-[var(--text-primary)]">
                           {isAr ? pkg.titleAr || pkg.titleEn : pkg.titleEn}
@@ -164,7 +172,7 @@ export function SmartPackageFinderModal({
 
                       <div className="flex items-center gap-3 shrink-0">
                         <span className="text-sm font-black font-mono text-[var(--text-primary)]">
-                          {pkg.startingPrice ? `${pkg.startingPrice} QAR` : "On Request"}
+                          {pkg.startingPrice ? `${pkg.startingPrice} QAR` : (isAr ? "عند الطلب" : "On Request")}
                         </span>
                         <Button size="sm" onClick={() => { onSelectPackage(pkg); onClose(); }}>
                           {isAr ? "استفسر الآن" : "Enquire"}

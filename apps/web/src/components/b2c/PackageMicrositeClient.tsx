@@ -1,24 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
 import { 
-  Sparkles, 
-  Users, 
-  Clock, 
-  Calendar, 
   Check, 
-  X, 
   Download, 
   Send, 
-  ArrowRight, 
   ShieldCheck, 
-  FileText, 
-  Utensils, 
-  Camera, 
-  Gift, 
-  HelpCircle, 
   ChevronDown, 
   ExternalLink,
   Plus,
@@ -33,10 +20,11 @@ import { cn } from "@/lib/utils"
 export function PackageMicrositeClient({
   locale,
   pkg,
-  relatedPackages = []
+  _relatedPackages = []
 }: {
   locale: string
   pkg: any
+  _relatedPackages?: any[]
   relatedPackages?: any[]
 }) {
   const isAr = locale === "ar"
@@ -44,20 +32,18 @@ export function PackageMicrositeClient({
   const title = isAr ? (pkg.titleAr || pkg.titleEn) : pkg.titleEn
   const tagline = isAr ? (pkg.taglineAr || pkg.taglineEn) : pkg.taglineEn
   const summary = isAr ? (pkg.shortDescriptionAr || pkg.shortDescriptionEn) : pkg.shortDescriptionEn
-  const fullDesc = isAr ? (pkg.fullDescriptionAr || pkg.fullDescriptionEn) : pkg.fullDescriptionEn
 
   // Tiers, Inclusions, Add-Ons from DB JSON
   const tiers: any[] = Array.isArray(pkg.tiers) ? pkg.tiers : []
   const inclusions: any[] = Array.isArray(pkg.inclusions) ? pkg.inclusions : []
   const addOns: any[] = Array.isArray(pkg.addOns) ? pkg.addOns : []
-  const journeySteps: any[] = Array.isArray(pkg.journeySteps) ? pkg.journeySteps : []
   const faqs: any[] = Array.isArray(pkg.faqs) ? pkg.faqs : []
 
   // Interactive Add-On Builder State
   const [selectedTier, setSelectedTier] = useState<any>(tiers[0] || null)
   const [selectedAddOnQty, setSelectedAddOnQty] = useState<{ [id: string]: number }>({})
   const [openFaqId, setOpenFaqId] = useState<string | null>(null)
-  const [isTermsOpen, setIsTermsOpen] = useState(false)
+  const [_isTermsOpen, setIsTermsOpen] = useState(false)
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
 
   // Calculate dynamic estimated total
@@ -84,7 +70,13 @@ export function PackageMicrositeClient({
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="px-3 py-1 rounded-full bg-[var(--e3-royal-blue)]/10 text-[var(--e3-royal-blue)] border border-[var(--e3-royal-blue)]/20 text-xs font-mono font-extrabold uppercase tracking-widest">
-                {pkg.category}
+                {isAr ? (
+                  pkg.category === "BIRTHDAY" ? "أعياد الميلاد" :
+                  pkg.category === "CORPORATE" ? "الشركات" :
+                  pkg.category === "SCHOOL" ? "المدارس" :
+                  pkg.category === "GROUP" ? "المجموعات" :
+                  pkg.category === "PRIVATE_EVENT" ? "الفعاليات الخاصة" : pkg.category
+                ) : pkg.category}
               </span>
               {pkg.badgeTextEn && (
                 <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold uppercase">
@@ -110,16 +102,28 @@ export function PackageMicrositeClient({
             {/* Quick Spec Badges */}
             <div className="grid grid-cols-3 gap-3 p-4 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-2)] text-center text-xs font-mono font-bold">
               <div>
-                <span className="text-[10px] text-[var(--text-tertiary)] block uppercase">Capacity</span>
-                <span className="text-[var(--text-primary)]">{pkg.minGuests}-{pkg.maxGuests} Guests</span>
+                <span className="text-[10px] text-[var(--text-tertiary)] block uppercase">
+                  {isAr ? "السعة" : "Capacity"}
+                </span>
+                <span className="text-[var(--text-primary)]">
+                  {pkg.minGuests}-{pkg.maxGuests} {isAr ? "ضيوف" : "Guests"}
+                </span>
               </div>
               <div>
-                <span className="text-[10px] text-[var(--text-tertiary)] block uppercase">Duration</span>
-                <span className="text-[var(--text-primary)]">{pkg.durationMinutes ? `${pkg.durationMinutes} Mins` : "Custom"}</span>
+                <span className="text-[10px] text-[var(--text-tertiary)] block uppercase">
+                  {isAr ? "المدة" : "Duration"}
+                </span>
+                <span className="text-[var(--text-primary)]">
+                  {pkg.durationMinutes ? `${pkg.durationMinutes} ${isAr ? "دقيقة" : "Mins"}` : (isAr ? "حسب الطلب" : "Custom")}
+                </span>
               </div>
               <div>
-                <span className="text-[10px] text-[var(--text-tertiary)] block uppercase">Starting Price</span>
-                <span className="text-[var(--e3-royal-blue)]">{pkg.startingPrice ? `${pkg.startingPrice} QAR` : "On Request"}</span>
+                <span className="text-[10px] text-[var(--text-tertiary)] block uppercase">
+                  {isAr ? "يبدأ من" : "Starting Price"}
+                </span>
+                <span className="text-[var(--e3-royal-blue)]">
+                  {pkg.startingPrice ? `${pkg.startingPrice} QAR` : (isAr ? "عند الطلب" : "On Request")}
+                </span>
               </div>
             </div>
 
@@ -139,7 +143,7 @@ export function PackageMicrositeClient({
               )}
               {pkg.brochureUrl && (
                 <a href={pkg.brochureUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold uppercase text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1">
-                  <Download className="w-4 h-4" /> PDF Brochure
+                  <Download className="w-4 h-4" /> {isAr ? "تحميل كتيب PDF" : "PDF Brochure"}
                 </a>
               )}
             </div>
@@ -222,7 +226,9 @@ export function PackageMicrositeClient({
                         <div className="mt-2 text-3xl font-black font-mono text-[var(--e3-royal-blue)]">
                           {t.price} QAR
                         </div>
-                        <span className="text-[10px] text-[var(--text-tertiary)] font-mono">Includes up to {t.guestCount} guests</span>
+                        <span className="text-[10px] text-[var(--text-tertiary)] font-mono">
+                          {isAr ? `يشمل حتى ${t.guestCount} ضيفاً` : `Includes up to ${t.guestCount} guests`}
+                        </span>
                       </div>
 
                       <div className="space-y-2 border-t border-[var(--border-level-2)] pt-4">
@@ -262,8 +268,10 @@ export function PackageMicrositeClient({
                 </h2>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[var(--e3-royal-blue)]/10 border border-[var(--e3-royal-blue)]/30 text-right">
-                <span className="text-[10px] font-bold text-[var(--text-secondary)] block uppercase">Estimated Total</span>
+              <div className="p-4 rounded-2xl bg-[var(--e3-royal-blue)]/10 border border-[var(--e3-royal-blue)]/30 text-right rtl:text-left">
+                <span className="text-[10px] font-bold text-[var(--text-secondary)] block uppercase">
+                  {isAr ? "الإجمالي التقديري" : "Estimated Total"}
+                </span>
                 <span className="text-2xl font-black font-mono text-[var(--e3-royal-blue)]">
                   {estimatedTotal.toLocaleString()} QAR
                 </span>
@@ -280,7 +288,7 @@ export function PackageMicrositeClient({
                         {isAr ? addon.titleAr || addon.titleEn : addon.titleEn}
                       </h4>
                       <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)]">
-                        +{addon.price} QAR {addon.priceType === "PER_GUEST" ? "/ guest" : ""}
+                        +{addon.price} QAR {addon.priceType === "PER_GUEST" ? (isAr ? "/ لكل ضيف" : "/ guest") : ""}
                       </span>
                     </div>
 
@@ -321,7 +329,7 @@ export function PackageMicrositeClient({
                   <div key={f.id} className="rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] overflow-hidden">
                     <button
                       onClick={() => setOpenFaqId(isOpen ? null : f.id)}
-                      className="w-full p-5 text-left flex justify-between items-center gap-4 text-sm font-bold hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                      className="w-full p-5 text-left rtl:text-right flex justify-between items-center gap-4 text-sm font-bold hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                     >
                       <span>{isAr ? f.questionAr : f.questionEn}</span>
                       <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
@@ -353,7 +361,9 @@ export function PackageMicrositeClient({
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-default)]/90 backdrop-blur-md border-t border-[var(--border-level-2)] p-4 shadow-2xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div>
-            <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] block uppercase">Estimated Total</span>
+            <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] block uppercase">
+              {isAr ? "الإجمالي التقديري" : "Estimated Total"}
+            </span>
             <span className="text-lg font-black font-mono text-[var(--e3-royal-blue)]">
               {estimatedTotal.toLocaleString()} QAR
             </span>

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Globe, Columns2, AlignLeft, AlignRight } from "lucide-react";
+import React from "react";
+import { Columns2, AlignLeft, AlignRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/layout/LocaleProvider";
 
 export type LanguageEditMode = "both" | "en" | "ar";
 
@@ -17,6 +18,15 @@ export function DashboardLanguageSwitch({
   onModeChange,
   className,
 }: DashboardLanguageSwitchProps) {
+  let locale: "en" | "ar" = "en";
+  try {
+    const localeCtx = useLocale();
+    if (localeCtx) locale = (localeCtx.locale as "en" | "ar") || "en";
+  } catch {
+    // Fallback
+  }
+  const isAr = locale === "ar";
+
   return (
     <div
       className={cn(
@@ -33,10 +43,10 @@ export function DashboardLanguageSwitch({
             ? "bg-[var(--color-primary)] text-white shadow-sm"
             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
         )}
-        title="Side-by-Side bilingual editing"
+        title={isAr ? "تحرير متزامن باللغتين" : "Side-by-Side bilingual editing"}
       >
         <Columns2 className="w-3.5 h-3.5" />
-        <span>Both (EN + AR)</span>
+        <span>{isAr ? "كلا اللغتين (EN + AR)" : "Both (EN + AR)"}</span>
       </button>
 
       <button
@@ -48,10 +58,10 @@ export function DashboardLanguageSwitch({
             ? "bg-[var(--color-primary)] text-white shadow-sm"
             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
         )}
-        title="English only (LTR)"
+        title={isAr ? "الإنجليزية فقط (LTR)" : "English only (LTR)"}
       >
         <AlignLeft className="w-3.5 h-3.5" />
-        <span>English</span>
+        <span>{isAr ? "الإنجليزية" : "English"}</span>
       </button>
 
       <button
@@ -63,7 +73,7 @@ export function DashboardLanguageSwitch({
             ? "bg-[var(--color-primary)] text-white shadow-sm"
             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
         )}
-        title="Arabic only (RTL)"
+        title={isAr ? "العربية فقط (RTL)" : "Arabic only (RTL)"}
       >
         <AlignRight className="w-3.5 h-3.5" />
         <span>العربية</span>

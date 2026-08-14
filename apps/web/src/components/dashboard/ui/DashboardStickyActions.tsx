@@ -5,6 +5,8 @@ import { Save, AlertCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminButton } from "./AdminButton";
 
+import { useLocale } from "@/components/layout/LocaleProvider";
+
 export interface DashboardStickyActionsProps {
   onSave?: () => void;
   onDiscard?: () => void;
@@ -23,13 +25,25 @@ export function DashboardStickyActions({
   onDiscard,
   isSaving = false,
   isUnsaved = false,
-  saveLabel = "Save All Changes",
-  discardLabel = "Discard Changes",
+  saveLabel,
+  discardLabel,
   statusMessage,
   secondaryActions,
   children,
   className,
 }: DashboardStickyActionsProps) {
+  let locale: "en" | "ar" = "en";
+  try {
+    const localeCtx = useLocale();
+    if (localeCtx) locale = (localeCtx.locale as "en" | "ar") || "en";
+  } catch {
+    // Fallback
+  }
+  const isAr = locale === "ar";
+
+  const resolvedSaveLabel = saveLabel || (isAr ? "حفظ جميع التغييرات" : "Save All Changes");
+  const resolvedDiscardLabel = discardLabel || (isAr ? "إلغاء التغييرات" : "Discard Changes");
+
   return (
     <div
       className={cn(
@@ -43,12 +57,12 @@ export function DashboardStickyActions({
           {isUnsaved ? (
             <span className="flex items-center gap-1.5 text-amber-400">
               <AlertCircle className="w-4 h-4" />
-              <span>You have unsaved changes</span>
+              <span>{isAr ? "لديك تغييرات غير محفوظة" : "You have unsaved changes"}</span>
             </span>
           ) : (
             <span className="flex items-center gap-1.5 text-emerald-400">
               <CheckCircle2 className="w-4 h-4" />
-              <span>All changes saved to database</span>
+              <span>{isAr ? "تم حفظ جميع التغييرات في قاعدة البيانات" : "All changes saved to database"}</span>
             </span>
           )}
           {statusMessage && (
@@ -68,7 +82,7 @@ export function DashboardStickyActions({
               disabled={isSaving}
               className="text-xs"
             >
-              {discardLabel}
+              {resolvedDiscardLabel}
             </AdminButton>
           )}
 
@@ -81,7 +95,7 @@ export function DashboardStickyActions({
               leftIcon={<Save className="w-4 h-4" />}
               className="h-10 sm:h-11 px-5 rounded-xl font-bold shadow-lg shadow-purple-950/30"
             >
-              {saveLabel}
+              {resolvedSaveLabel}
             </AdminButton>
           )}
 
