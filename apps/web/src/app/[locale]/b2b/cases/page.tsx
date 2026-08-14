@@ -3,8 +3,10 @@ import { db } from "@/lib/db"
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
 import { CaseStudiesIndexClient } from '@/components/b2b/CaseStudiesIndexClient'
 import { Metadata } from 'next'
-
 import { getPublicCaseStudies } from '@/lib/case-studies'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -37,8 +39,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export const dynamic = 'force-dynamic'
-
 export default async function CaseStudiesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   
@@ -48,7 +48,7 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
   let pageData: any = null
   
   try {
-    const results = await Promise.all([
+    const [casesRes, pageRes, servicesRes, teamRes] = await Promise.allSettled([
       getPublicCaseStudies({
         includeTeam: true,
         includeAttraction: true,
@@ -59,19 +59,37 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
       }),
       db.service.findMany({
         orderBy: { titleEn: 'asc' },
-        select: { id: true, slug: true, titleEn: true, titleAr: true, icon: true }
+        select: { id: true, slug: true, titleEn: true, titleAr: true, thumbnail: true }
       }),
       db.employeeProfile.findMany({
         orderBy: { firstName: 'asc' },
         select: { id: true, firstName: true, lastName: true, designation: true, profileImage: true, department: true }
       })
     ])
-    caseStudies = results[0]
-    pageData = results[1]
-    services = results[2]
-    employeeProfiles = results[3]
+
+    if (casesRes.status === 'fulfilled') {
+      caseStudies = casesRes.value || []
+    }
+    if (pageRes.status === 'fulfilled') {
+      pageData = pageRes.value || null
+    }
+    if (servicesRes.status === 'fulfilled') {
+      services = servicesRes.value || []
+    }
+    if (teamRes.status === 'fulfilled') {
+      employeeProfiles = teamRes.value || []
+    }
   } catch (error) {
     console.error("Error fetching b2b case studies page data:", error)
+  }
+
+  // If caseStudies is still empty due to any transient error, attempt a direct fallback fetch
+  if (!caseStudies || caseStudies.length === 0) {
+    try {
+      caseStudies = await getPublicCaseStudies({ featuredFirst: true })
+    } catch (_fallbackErr) {
+      console.error("Fallback case studies fetch error:", _fallbackErr)
+    }
   }
 
   const cmsContent = getMergedCMSPageContent('b2b-cases', pageData?.content)
