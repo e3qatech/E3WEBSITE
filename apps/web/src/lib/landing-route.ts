@@ -100,10 +100,10 @@ export function sanitizeCallbackUrl(
       return `/${locale}/staff`;
     }
     if (role === 'SALES_ADMIN' && decoded.includes('/dashboard/b2c')) {
-      return `/dashboard/b2b`;
+      return `/${locale}/dashboard/b2b`;
     }
     if (role === 'SUPPORT_ADMIN' && decoded.includes('/dashboard/b2b')) {
-      return `/dashboard/b2c`;
+      return `/${locale}/dashboard/b2c`;
     }
   }
 

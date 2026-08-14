@@ -24,7 +24,31 @@ export default async function BusinessCompanyPage({
     if (error instanceof AppAuthError && error.statusCode === 401) {
       redirect(`/${locale}/login/business?callbackUrl=/${locale}/business/company`);
     }
-    redirect(`/${locale}/login/business`);
+
+    // Access denied / missing membership state for authenticated users
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="max-w-md w-full bg-zinc-900 border border-red-500/30 p-8 rounded-3xl text-center space-y-4 shadow-2xl">
+          <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto text-xl font-bold">
+            !
+          </div>
+          <h2 className="text-xl font-extrabold text-white">
+            {isAr ? 'غير مصرح بالدخول' : 'Access Denied'}
+          </h2>
+          <p className="text-xs text-zinc-400">
+            {isAr
+              ? 'هذا الحساب غير مرتبط بعضوية نشطة في بوابة الشركات. يرجى التواصل مع مسؤول المؤسسة.'
+              : 'This account is not associated with an active enterprise membership. Please contact your organization administrator.'}
+          </p>
+          <Link
+            href={`/${locale}/business`}
+            className="inline-block px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-all"
+          >
+            {isAr ? 'العودة لبوابة الشركات' : 'Back to Enterprise Hub'}
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const { client, membership } = authResult;

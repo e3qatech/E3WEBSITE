@@ -5,74 +5,115 @@ const PUBLIC_FILE = /\.(.*)$/;
 
 export function proxy(req: NextRequest) {
   const { nextUrl } = req;
+  const rawPathname = nextUrl.pathname;
 
-  // Check for any NextAuth / Auth.js session token cookie variant (HTTPS, Host, Secure, Chunked)
+  // 1. Static Assets & API Bypass
+  if (
+    rawPathname.startsWith('/_next') ||
+    rawPathname.includes('/api/') ||
+    PUBLIC_FILE.test(rawPathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  // 2. Locale & Theme Detection
   const allCookies = req.cookies.getAll();
-  const isLoggedIn = allCookies.some(c => 
-    c.name.includes('session-token') || 
-    c.name.includes('authjs') || 
+  const themeCookie = req.cookies.get('data-theme')?.value || 'dark';
+  const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value || 'en';
+
+  // Detect locale from URL path first, then fallback to cookie
+  let targetLocale = cookieLocale === 'ar' ? 'ar' : 'en';
+  if (rawPathname.startsWith('/ar/') || rawPathname === '/ar') {
+    targetLocale = 'ar';
+  } else if (rawPathname.startsWith('/en/') || rawPathname === '/en') {
+    targetLocale = 'en';
+  }
+
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-theme', themeCookie);
+  requestHeaders.set('x-locale', targetLocale);
+
+  // 3. Auth Session Cookie Detection
+  const isLoggedIn = allCookies.some((c) =>
+    c.name.includes('session-token') ||
+    c.name.includes('authjs') ||
     c.name.includes('next-auth')
   );
 
-  // 1. Locale & Theme Detection
-  const requestHeaders = new Headers(req.headers);
-  const themeCookie = req.cookies.get('data-theme')?.value || 'dark';
-  const localeCookie = req.cookies.get('NEXT_LOCALE')?.value || 'en';
-  requestHeaders.set('x-theme', themeCookie);
-  requestHeaders.set('x-locale', localeCookie);
+  let normalizedPath = rawPathname;
+  try {
+    normalizedPath = decodeURIComponent(rawPathname);
+  } catch (_e) {
+    // Keep raw on malformed decode
+  }
 
+  // 4. Legacy Root Login Routes (Redirect to localized canonical login)
+  if (normalizedPath === '/client/login') {
+    return NextResponse.redirect(new URL(`/${targetLocale}/login/business`, nextUrl));
+  }
+  if (normalizedPath === '/careers/login') {
+    return NextResponse.redirect(new URL(`/${targetLocale}/login/careers`, nextUrl));
+  }
+  if (normalizedPath === '/staff-login') {
+    return NextResponse.redirect(new URL(`/${targetLocale}/login/staff`, nextUrl));
+  }
   if (
-    nextUrl.pathname.startsWith('/_next') ||
-    nextUrl.pathname.includes('/api/') ||
-    PUBLIC_FILE.test(nextUrl.pathname)
+    normalizedPath === '/login/admin' ||
+    normalizedPath === '/login/business' ||
+    normalizedPath === '/login/staff' ||
+    normalizedPath === '/login/careers'
   ) {
+    return NextResponse.redirect(new URL(`/${targetLocale}${normalizedPath}`, nextUrl));
+  }
+
+  // 5. Check if the current request is already on a Login/Auth page
+  // NEVER apply protected portal redirects to login/auth routes to prevent loops
+  const isLoginRoute =
+    /^\/(?:en|ar)?\/?login(?:\/.*)?$/i.test(normalizedPath) ||
+    /^\/(?:en|ar)?\/?auth(?:\/.*)?$/i.test(normalizedPath) ||
+    normalizedPath === '/staff-login' ||
+    normalizedPath === '/client/login' ||
+    normalizedPath === '/careers/login';
+
+  if (isLoginRoute) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // 2. Protected Portal Route Edge Guards
-  let normalizedPath = nextUrl.pathname;
-  try {
-    normalizedPath = decodeURIComponent(nextUrl.pathname);
-  } catch (_e) {
-    // Keep raw path on decode error
-  }
+  // 6. Protected Portal Route Edge Guards (Strict segment matching)
+  if (!isLoggedIn) {
+    const search = nextUrl.search || '';
 
-  // Check dashboard protection
-  if (normalizedPath.includes('/dashboard')) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${localeCookie}/login/admin`, nextUrl));
+    // Dashboard (/dashboard, /en/dashboard, /ar/dashboard)
+    if (/^\/(?:en|ar)?\/?dashboard(?:\/.*)?$/i.test(normalizedPath)) {
+      return NextResponse.redirect(new URL(`/${targetLocale}/login/admin${search}`, nextUrl));
+    }
+
+    // Staff Portal (/staff, /en/staff, /ar/staff)
+    if (/^\/(?:en|ar)?\/?staff(?:\/.*)?$/i.test(normalizedPath)) {
+      return NextResponse.redirect(new URL(`/${targetLocale}/login/staff${search}`, nextUrl));
+    }
+
+    // Business Portal (/business, /en/business, /ar/business)
+    if (/^\/(?:en|ar)?\/?business(?:\/.*)?$/i.test(normalizedPath)) {
+      return NextResponse.redirect(new URL(`/${targetLocale}/login/business${search}`, nextUrl));
+    }
+
+    // Candidate Portal (/candidate, /en/candidate, /ar/candidate)
+    if (/^\/(?:en|ar)?\/?candidate(?:\/.*)?$/i.test(normalizedPath)) {
+      return NextResponse.redirect(new URL(`/${targetLocale}/login/careers${search}`, nextUrl));
     }
   }
 
-  // Check staff portal protection
-  if (normalizedPath.includes('/staff') && !normalizedPath.includes('/staff-login')) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${localeCookie}/login/staff`, nextUrl));
-    }
-  }
-
-  // Check business portal protection
-  if (normalizedPath.includes('/business')) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${localeCookie}/login/business`, nextUrl));
-    }
-  }
-
-  // Check candidate portal protection
-  if (normalizedPath.includes('/candidate')) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${localeCookie}/login/careers`, nextUrl));
-    }
-  }
-
-  // Handle missing locale prefix for dashboard, B2B, and B2C routes
+  // 7. Missing Locale Prefix Routing for Unprefixed Paths
   if (
-    nextUrl.pathname === '/dashboard' ||
-    nextUrl.pathname.startsWith('/dashboard/') ||
-    nextUrl.pathname.startsWith('/b2b') ||
-    nextUrl.pathname.startsWith('/b2c')
+    normalizedPath.startsWith('/dashboard') ||
+    normalizedPath.startsWith('/b2b') ||
+    normalizedPath.startsWith('/b2c') ||
+    normalizedPath.startsWith('/business') ||
+    normalizedPath.startsWith('/staff') ||
+    normalizedPath.startsWith('/candidate')
   ) {
-    return NextResponse.redirect(new URL(`/${localeCookie}${nextUrl.pathname}`, nextUrl));
+    return NextResponse.redirect(new URL(`/${targetLocale}${nextUrl.pathname}${nextUrl.search}`, nextUrl));
   }
 
   return NextResponse.next({ request: { headers: requestHeaders } });
