@@ -13,18 +13,22 @@ import {
   EditorSectionItem,
 } from "@/components/dashboard/ui"
 
+import { useLocale } from "@/components/layout/LocaleProvider"
+
 const SECTIONS: EditorSectionItem[] = [
-  { id: "identity", label: "1. Site Identity" },
-  { id: "branding", label: "2. Logos & Favicon" },
-  { id: "contact", label: "3. Contact Info" },
-  { id: "social", label: "4. Social Channels" },
-  { id: "tickets", label: "5. Ticket CTA Bar" },
-  { id: "integrations", label: "6. API Gateways" },
-  { id: "gateway", label: "7. Gateway Hero Split" },
+  { id: "identity", label: "1. Site Identity", labelAr: "1. هوية المنصة" },
+  { id: "branding", label: "2. Logos & Favicon", labelAr: "2. الشعارات والأيقونة" },
+  { id: "contact", label: "3. Contact Info", labelAr: "3. بيانات التواصل" },
+  { id: "social", label: "4. Social Channels", labelAr: "4. قنوات التواصل الاجتماعي" },
+  { id: "tickets", label: "5. Ticket CTA Bar", labelAr: "5. شريط حجز التذاكر" },
+  { id: "integrations", label: "6. API Gateways", labelAr: "6. بوابات الربط البرمجي (API)" },
+  { id: "gateway", label: "7. Gateway Hero Split", labelAr: "7. واجهة تقسيم بوابة الدخول" },
 ]
 
 export function GeneralSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
   const router = useRouter()
+  const { locale } = useLocale()
+  const isAr = locale === "ar"
   const [isSaving, setIsSaving] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -101,17 +105,21 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
 
       {/* Standard Header */}
       <DashboardPageHeader
-        title="General Platform Settings"
-        description="Manage global site identity, brand logos, contact information, social links, and external API gateways."
+        title={isAr ? "الإعدادات العامة للمنصة" : "General Platform Settings"}
+        description={
+          isAr
+            ? "إدارة هوية المنصة العامة، وشعارات العلامة التجارية، وبيانات التواصل، وروابط التواصل الاجتماعي، وبوابات الربط البرمجي."
+            : "Manage global site identity, brand logos, contact information, social links, and external API gateways."
+        }
         breadcrumbs={[
-          { label: "Settings", href: "/dashboard/settings/general" },
-          { label: "General Settings" },
+          { label: isAr ? "الإعدادات" : "Settings", href: "/dashboard/settings/general" },
+          { label: isAr ? "الإعدادات العامة" : "General Settings" },
         ]}
-        badge={{ label: "Platform Global", variant: "cyan" }}
+        badge={{ label: isAr ? "إعدادات شاملة" : "Platform Global", variant: "cyan" }}
         isUnsaved={isDirty}
         lastSavedAt={lastSaved || undefined}
         primaryAction={{
-          label: isSaving ? "Saving..." : "Save Settings",
+          label: isSaving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ الإعدادات" : "Save Settings"),
           onClick: handleSave,
           isLoading: isSaving,
           icon: <Save className="w-4 h-4" />,
@@ -128,7 +136,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
       {toast && (
         <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
           <CheckCircle2 className="w-5 h-5 me-2" />
-          Settings saved successfully.
+          {isAr ? "تم حفظ الإعدادات بنجاح." : "Settings saved successfully."}
         </div>
       )}
 

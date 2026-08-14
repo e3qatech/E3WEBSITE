@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
+import { getBreadcrumbTranslation } from "@/lib/i18n";
 
 export interface BreadcrumbItem {
   label: string;
@@ -32,7 +33,7 @@ export function DashboardBreadcrumbs({ items, className }: DashboardBreadcrumbsP
 
   return (
     <nav
-      aria-label="Breadcrumbs"
+      aria-label={isAr ? "مسار التنقل" : "Breadcrumbs"}
       className={cn(
         "flex items-center gap-1.5 text-xs font-semibold text-[var(--text-tertiary)] tracking-wide overflow-x-auto scrollbar-none",
         className
@@ -48,6 +49,8 @@ export function DashboardBreadcrumbs({ items, className }: DashboardBreadcrumbsP
 
       {normalizedItems.map((crumb, idx) => {
         const isLast = idx === normalizedItems.length - 1;
+        const displayLabel = isAr ? getBreadcrumbTranslation(crumb.label, "ar") : crumb.label;
+
         return (
           <React.Fragment key={`${crumb.label}-${idx}`}>
             <ChevronRight className="w-3 h-3 text-[var(--text-disabled)] shrink-0 rtl:rotate-180" />
@@ -62,7 +65,7 @@ export function DashboardBreadcrumbs({ items, className }: DashboardBreadcrumbsP
                 }
                 className="hover:text-[var(--color-primary)] transition-colors truncate max-w-[150px] sm:max-w-[200px]"
               >
-                {crumb.label}
+                {displayLabel}
               </Link>
             ) : (
               <span
@@ -72,7 +75,7 @@ export function DashboardBreadcrumbs({ items, className }: DashboardBreadcrumbsP
                 )}
                 aria-current={isLast ? "page" : undefined}
               >
-                {crumb.label}
+                {displayLabel}
               </span>
             )}
           </React.Fragment>

@@ -20,15 +20,19 @@ import {
   AdminButton,
 } from "@/components/dashboard/ui";
 
+import { useLocale } from "@/components/layout/LocaleProvider";
+
 const SECTIONS: EditorSectionItem[] = [
-  { id: "headlines", label: "1. Hero Copy & Headlines" },
-  { id: "ctas", label: "2. CTAs, Pricing & Badges" },
-  { id: "hero-media", label: "3. Hero Media Background" },
-  { id: "footer-media", label: "4. Footer Media & Poster" },
+  { id: "headlines", label: "1. Hero Copy & Headlines", labelAr: "1. العناوين والنصوص الترويجية" },
+  { id: "ctas", label: "2. CTAs, Pricing & Badges", labelAr: "2. أزرار الحجز والأسعار والشارات" },
+  { id: "hero-media", label: "3. Hero Media Background", labelAr: "3. خلفية الوسائط الرئيسية" },
+  { id: "footer-media", label: "4. Footer Media & Poster", labelAr: "4. وسائط وخلفية التذييل" },
 ];
 
 export function PackagesPageEditor() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const isAr = locale === "ar";
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -128,18 +132,22 @@ export function PackagesPageEditor() {
 
       {/* Standard Header */}
       <DashboardPageHeader
-        title="Packages & Celebrations Page Editor"
-        description="Manage packages landing page layout, universal hero and footer media assets, CTAs, VIP badges, and SEO metadata (/b2c/packages)."
+        title={isAr ? "محرر صفحة الباقات والاحتفالات" : "Packages & Celebrations Page Editor"}
+        description={
+          isAr
+            ? "إدارة تصميم صفحة الباقات، وسائط الهيدر والتذييل، أزرار الحجز وشارات الفعاليات (/b2c/packages)."
+            : "Manage packages landing page layout, universal hero and footer media assets, CTAs, VIP badges, and SEO metadata (/b2c/packages)."
+        }
         breadcrumbs={[
-          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
-          { label: "Packages Page Editor" },
+          { label: isAr ? "صفحات الأفراد" : "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: isAr ? "محرر صفحة الباقات" : "Packages Page Editor" },
         ]}
-        badge={{ label: "B2C Public", variant: "purple" }}
+        badge={{ label: isAr ? "صفحة عامة" : "B2C Public", variant: "purple" }}
         previewUrl="/b2c/packages"
         isUnsaved={isDirty}
         lastSavedAt={lastSaved || undefined}
         primaryAction={{
-          label: saving ? "Saving..." : "Save Page Settings",
+          label: saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ إعدادات الصفحة" : "Save Page Settings"),
           onClick: handleSave,
           isLoading: saving,
           icon: <Save className="w-4 h-4" />,

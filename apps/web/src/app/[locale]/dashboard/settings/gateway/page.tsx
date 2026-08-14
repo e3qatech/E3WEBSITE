@@ -53,16 +53,18 @@ type TabKey =
   | 'preview'
   | 'versions';
 
+import { useLocale } from '@/components/layout/LocaleProvider';
+
 const SECTIONS: EditorSectionItem[] = [
-  { id: 'english', label: '1. English Content' },
-  { id: 'arabic', label: '2. Arabic Content' },
-  { id: 'logo', label: '3. Logo & Branding' },
-  { id: 'b2c_media', label: '4. B2C Media Assets' },
-  { id: 'b2b_media', label: '5. B2B Media Assets' },
-  { id: 'visual', label: '6. Visual & Behaviour' },
-  { id: 'seo', label: '7. SEO & Accessibility' },
-  { id: 'preview', label: '8. Live Preview Simulator' },
-  { id: 'versions', label: '9. Version History' },
+  { id: 'english', label: '1. English Content', labelAr: '1. المحتوى الإنجليزي' },
+  { id: 'arabic', label: '2. Arabic Content', labelAr: '2. المحتوى العربي' },
+  { id: 'logo', label: '3. Logo & Branding', labelAr: '3. الشعار والهوية البصرية' },
+  { id: 'b2c_media', label: '4. B2C Media Assets', labelAr: '4. وسائط بوابة الأفراد (B2C)' },
+  { id: 'b2b_media', label: '5. B2B Media Assets', labelAr: '5. وسائط بوابة الأعمال (B2B)' },
+  { id: 'visual', label: '6. Visual & Behaviour', labelAr: '6. المظهر والتفاعل البصري' },
+  { id: 'seo', label: '7. SEO & Accessibility', labelAr: '7. محركات البحث وإمكانية الوصول' },
+  { id: 'preview', label: '8. Live Preview Simulator', labelAr: '8. محاكي المعاينة المباشرة' },
+  { id: 'versions', label: '9. Version History', labelAr: '9. سجل الإصدارات والاسترجاع' },
 ];
 
 const DEFAULT_SIMULATION_STATE: GatewayPreviewSimulationState = {
@@ -75,6 +77,8 @@ const DEFAULT_SIMULATION_STATE: GatewayPreviewSimulationState = {
 };
 
 export default function GatewayCustomizationPage() {
+  const { locale } = useLocale();
+  const isAr = locale === 'ar';
   const [activeTab, setActiveTab] = useState<TabKey>('english');
   const [formData, setFormData] = useState<GatewayCustomizationPayload>(DEFAULT_GATEWAY_CMS_PAYLOAD);
   const [loading, setLoading] = useState(true);
@@ -270,19 +274,23 @@ export default function GatewayCustomizationPage() {
 
       {/* Standard Page Header */}
       <DashboardPageHeader
-        title="Gateway Customization CMS"
-        description="Configure the original E3 50/50 B2C & B2B gateway experience, media, branding, and localization."
+        title={isAr ? "إدارة وتخصيص بوابة الدخول" : "Gateway Customization CMS"}
+        description={
+          isAr
+            ? "تهيئة تجربة بوابة الدخول الثنائية 50/50 للأفراد والأعمال، والوسائط، والهوية البصرية، والتعريب."
+            : "Configure the original E3 50/50 B2C & B2B gateway experience, media, branding, and localization."
+        }
         breadcrumbs={[
-          { label: "Settings", href: "/dashboard/settings/general" },
-          { label: "Gateway Customization" },
+          { label: isAr ? "الإعدادات" : "Settings", href: "/dashboard/settings/general" },
+          { label: isAr ? "تخصيص بوابة الدخول" : "Gateway Customization" },
         ]}
         badge={{
-          label: formData.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+          label: formData.status === "PUBLISHED" ? (isAr ? "منشور" : "PUBLISHED") : (isAr ? "مسودة" : "DRAFT"),
           variant: formData.status === "PUBLISHED" ? "success" : "warning",
         }}
         previewUrl="/"
         primaryAction={{
-          label: publishing ? "Publishing..." : "Publish Gateway",
+          label: publishing ? (isAr ? "جاري النشر..." : "Publishing...") : (isAr ? "نشر البوابة" : "Publish Gateway"),
           onClick: () => handleSave("publish"),
           isLoading: publishing,
           icon: <CheckCircle2 className="h-4 w-4" />,
@@ -294,7 +302,7 @@ export default function GatewayCustomizationPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--surface-default)] px-4 py-2.5 text-xs font-bold text-[var(--text-secondary)] shadow-sm transition-all hover:text-[var(--text-primary)] border border-[var(--border-level-1)] disabled:opacity-50 cursor-pointer"
           >
             <Save className="h-4 w-4" />
-            <span>{saving ? "Saving Draft..." : "Save Draft"}</span>
+            <span>{saving ? (isAr ? "جاري حفظ المسودة..." : "Saving Draft...") : (isAr ? "حفظ مسودة" : "Save Draft")}</span>
           </button>
         }
       />
