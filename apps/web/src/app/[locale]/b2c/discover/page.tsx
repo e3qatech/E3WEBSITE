@@ -3,6 +3,7 @@ import { DiscoverClient } from "@/components/b2c/DiscoverClient";
 import db from "@/lib/db";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import { isGuinnessPublicationAllowed } from "@/lib/guinness-gate";
+import { getPublicCaseStudies } from "@/lib/case-studies";
 
 export const dynamic = "force-dynamic";
 
@@ -109,11 +110,7 @@ export default async function DiscoverPage(props: {
         orderBy: { orderIndex: "asc" }
       }).catch(() => []),
       db.client.findMany({ where: { isVisible: true } }).catch(() => []),
-      db.caseStudy.findMany({
-        where: { isPublished: true },
-        orderBy: { createdAt: "desc" },
-        take: 6
-      }).catch(() => []),
+      getPublicCaseStudies({ limit: 6 }).catch(() => []),
       db.service.findMany({
         where: { isVisible: true },
         take: 6

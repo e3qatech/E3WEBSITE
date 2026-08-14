@@ -4,6 +4,8 @@ import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
 import { CaseStudiesIndexClient } from '@/components/b2b/CaseStudiesIndexClient'
 import { Metadata } from 'next'
 
+import { getPublicCaseStudies } from '@/lib/case-studies'
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const isAr = locale === 'ar';
@@ -47,20 +49,10 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
   
   try {
     const results = await Promise.all([
-      db.caseStudy.findMany({
-        where: { isPublished: true },
-        orderBy: [
-          { isFeatured: 'desc' },
-          { year: 'desc' }
-        ],
-        include: {
-          teamMembers: {
-            include: {
-              employeeProfile: true
-            }
-          },
-          attraction: true
-        }
+      getPublicCaseStudies({
+        includeTeam: true,
+        includeAttraction: true,
+        featuredFirst: true
       }),
       db.pages.findUnique({
         where: { slug: 'b2b-cases' }

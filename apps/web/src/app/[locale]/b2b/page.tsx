@@ -11,6 +11,7 @@ import { Reveal } from '@/components/motion/Reveal'
 import { SplitHeadline } from '@/components/motion/SplitHeadline'
 import { B2BBlueprintDepthSection } from '@/components/b2b/home/B2BBlueprintDepthSection'
 import { B2BInteractiveCta } from '@/components/b2b/home/B2BInteractiveCta'
+import { getPublicCaseStudies } from '@/lib/case-studies'
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -160,22 +161,15 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     console.error("Error loading services for B2B home:", error)
   }
 
-  // Fetch Case Studies from Database
+  // Fetch Case Studies using shared canonical helper (QF-05)
   const featuredCaseStudyIds = content?.featuredCaseStudyIds || []
   let dbProjects: any[] = []
   try {
-    if (featuredCaseStudyIds.length > 0) {
-      dbProjects = await db.caseStudy.findMany({
-        where: { id: { in: featuredCaseStudyIds }, isPublished: true }
-      })
-      dbProjects.sort((a, b) => featuredCaseStudyIds.indexOf(a.id) - featuredCaseStudyIds.indexOf(b.id))
-    } else {
-      dbProjects = await db.caseStudy.findMany({
-        where: { isPublished: true },
-        orderBy: { year: 'desc' },
-        take: 3
-      })
-    }
+    dbProjects = await getPublicCaseStudies({
+      ids: featuredCaseStudyIds.length > 0 ? featuredCaseStudyIds : undefined,
+      limit: 3,
+      featuredFirst: true
+    })
   } catch (error) {
     console.error("Error loading case studies for B2B home:", error)
   }

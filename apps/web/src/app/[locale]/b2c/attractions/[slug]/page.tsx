@@ -22,6 +22,7 @@ import { getDay, isWithinInterval } from "date-fns"
 
 import { formatLocalizedText } from "@/lib/utils"
 import { resolveBookingUrl } from "@/lib/cms-attractions"
+import { getPublicCaseStudies } from "@/lib/case-studies"
 
 async function getAttractionData(slug: string) {
   const baseSlugKey = (slug || "").split('-')[0] || slug;
@@ -127,8 +128,8 @@ async function getAttractionData(slug: string) {
     ...((attraction.operations as any) || {})
   }
 
-  const projects = await db.caseStudy.findMany({
-    where: { attractionId: attraction.id, isPublished: true },
+  const projects = await getPublicCaseStudies({
+    attractionId: attraction.id,
     select: {
       id: true,
       slug: true,

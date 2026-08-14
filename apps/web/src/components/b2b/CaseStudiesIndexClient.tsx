@@ -2,9 +2,10 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Filter, Search, ArrowRight, Sparkles, Building2, Calendar, Trophy, Layers, Play, Pause, ChevronLeft, ChevronRight, Quote, ShieldCheck, BarChart3, Wrench, CheckCircle2 } from 'lucide-react'
+import { Search, ArrowRight, Sparkles, Building2, Calendar, Trophy, ChevronLeft, ChevronRight, Quote } from 'lucide-react'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { cn } from '@/lib/utils'
+import { isCaseStudyEligible } from '@/lib/case-studies'
 
 interface CaseStudyItem {
   id: string
@@ -35,7 +36,7 @@ interface CaseStudiesIndexClientProps {
 
 export function CaseStudiesIndexClient({
   caseStudies,
-  services = [],
+  services: _services = [],
   employeeProfiles = [],
   cmsContent,
   locale
@@ -45,44 +46,46 @@ export function CaseStudiesIndexClient({
   // Section bindings
   const hero = cmsContent?.hero || {}
   const showreel = cmsContent?.showreel || {}
-  const factStream = cmsContent?.factStream || {}
-  const featuredCases = cmsContent?.featuredCases || {}
-  const archiveConfig = cmsContent?.archive || {}
+  const factStream = useMemo(() => cmsContent?.factStream || {}, [cmsContent?.factStream])
+  const featuredCasesConfig = useMemo(() => cmsContent?.featuredCases || {}, [cmsContent?.featuredCases])
   const teamStoriesConfig = cmsContent?.teamStories || {}
-  const timelineConfig = cmsContent?.timeline || {}
   const transformationsConfig = cmsContent?.transformations || {}
   const impactOverviewConfig = cmsContent?.impactOverview || {}
-  const servicesConfig = cmsContent?.servicesSection || {}
   const cta = cmsContent?.cta || {}
 
   // Filter state
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
   const [selectedYear, setSelectedYear] = useState<string>('ALL')
-  const [selectedServiceId, setSelectedServiceId] = useState<string>('ALL')
+  const [selectedServiceId] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   // Fact Stream Auto-Rotation State
   const [factIndex, setFactIndex] = useState<number>(0)
   const [isFactPaused, setIsFactPaused] = useState<boolean>(false)
 
+  // Base Published & Eligible Cases Pool (QF-05)
+  const eligibleCases = useMemo(() => {
+    return (caseStudies || []).filter(isCaseStudyEligible)
+  }, [caseStudies])
+
   // Dynamic Fact Extraction from Published Case Studies
   const factsList = useMemo(() => {
     if (factStream.enabled === false) return []
     
-    let eligibleCases = caseStudies.filter(cs => cs.isPublished !== false)
+    let cases = [...eligibleCases]
 
     if (factStream.displayOrder === 'MANUAL' && Array.isArray(factStream.selectedCaseStudyIds) && factStream.selectedCaseStudyIds.length > 0) {
       const set = new Set(factStream.selectedCaseStudyIds.map(String))
-      eligibleCases = eligibleCases.filter(cs => set.has(String(cs.id)))
+      cases = cases.filter(cs => set.has(String(cs.id)))
     } else if (factStream.displayOrder === 'NEWEST_FIRST') {
-      eligibleCases = [...eligibleCases].sort((a, b) => (b.year || 0) - (a.year || 0))
+      cases = [...cases].sort((a, b) => (b.year || 0) - (a.year || 0))
     } else {
       // FEATURED_FIRST default
-      eligibleCases = [...eligibleCases].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0))
+      cases = [...cases].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0))
     }
 
     const list: any[] = []
-    eligibleCases.forEach(cs => {
+    cases.forEach(cs => {
       const metricsArr = Array.isArray(cs.metrics) ? cs.metrics : []
       metricsArr.forEach((m: any, idx: number) => {
         const val = m.valueEn || m.value || m.val || ""
@@ -110,14 +113,11 @@ export function CaseStudiesIndexClient({
 
     const maxLimit = Number(factStream.maxFacts) || 10
     return list.slice(0, maxLimit)
-  }, [caseStudies, factStream])
+  }, [eligibleCases, factStream])
 
   // Featured Case Studies Resolution
-  const featuredCasesConfig = cmsContent?.featuredCases || {}
   const featuredCasesList = useMemo(() => {
     if (featuredCasesConfig.enabled === false) return []
-
-    const eligibleCases = caseStudies.filter(cs => cs.isPublished !== false)
 
     if (featuredCasesConfig.selectionMode === 'MANUAL') {
       const selectedIds: string[] = Array.isArray(featuredCasesConfig.selectedCaseStudyIds)
@@ -129,7 +129,7 @@ export function CaseStudiesIndexClient({
       const caseMap = new Map(eligibleCases.map(cs => [String(cs.id), cs]))
       const resolved = selectedIds
         .map(id => caseMap.get(id))
-        .filter(Boolean) as any[]
+        .filter(isCaseStudyEligible) as any[]
 
       const maxLimit = Number(featuredCasesConfig.maxItems) || 3
       return resolved.slice(0, maxLimit)
@@ -139,7 +139,7 @@ export function CaseStudiesIndexClient({
     const featured = eligibleCases.filter(cs => cs.isFeatured)
     const maxLimit = Number(featuredCasesConfig.maxItems) || 3
     return featured.slice(0, maxLimit)
-  }, [caseStudies, featuredCasesConfig])
+  }, [eligibleCases, featuredCasesConfig])
 
   useEffect(() => {
     if (factsList.length <= 1 || isFactPaused) return
@@ -169,26 +169,26 @@ export function CaseStudiesIndexClient({
     setSliderPosition(pos)
   }
 
-  // Categories & Years derived dynamically
+  // Categories & Years derived dynamically from published cases
   const categories = useMemo(() => {
     const set = new Set<string>()
-    caseStudies.forEach(cs => {
+    eligibleCases.forEach(cs => {
       if (cs.category) set.add(cs.category)
     })
     return Array.from(set)
-  }, [caseStudies])
+  }, [eligibleCases])
 
   const years = useMemo(() => {
     const set = new Set<number>()
-    caseStudies.forEach(cs => {
+    eligibleCases.forEach(cs => {
       if (cs.year) set.add(cs.year)
     })
     return Array.from(set).sort((a, b) => b - a)
-  }, [caseStudies])
+  }, [eligibleCases])
 
   // Filtered case studies
   const filteredCaseStudies = useMemo(() => {
-    return caseStudies.filter(cs => {
+    return eligibleCases.filter(cs => {
       const title = isAr ? (cs.titleAr || cs.titleEn) : cs.titleEn
       const matchesSearch = !searchQuery || 
         title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -205,7 +205,7 @@ export function CaseStudiesIndexClient({
 
       return matchesSearch && matchesCat && matchesYr && matchesSvc
     })
-  }, [caseStudies, selectedCategory, selectedYear, selectedServiceId, searchQuery, isAr])
+  }, [eligibleCases, selectedCategory, selectedYear, selectedServiceId, searchQuery, isAr])
 
   // Team stories list
   const teamStoriesList = Array.isArray(teamStoriesConfig.stories) ? teamStoriesConfig.stories : []

@@ -17,6 +17,7 @@ import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { cn } from '@/lib/utils'
+import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -78,9 +79,8 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
           { createdAt: 'desc' }
         ]
       }),
-      db.caseStudy.findMany({
-        where: { isPublished: true },
-        orderBy: { year: 'desc' }
+      getPublicCaseStudies({
+        featuredFirst: true
       })
     ])
     page = results[0]
@@ -165,15 +165,15 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   const proofTitle = isAr ? (proofConfig.titleAr || proofConfig.titleEn) : proofConfig.titleEn
   const viewAllCaseStudiesCta = isAr ? (proofConfig.viewAllCtaAr || proofConfig.viewAllCtaEn) : proofConfig.viewAllCtaEn
 
-  let displayCaseStudies = allCaseStudies
+  let displayCaseStudies = (allCaseStudies || []).filter(isCaseStudyEligible)
   if (proofConfig.selectionMode === 'MANUAL' && Array.isArray(proofConfig.selectedCaseStudyIds) && proofConfig.selectedCaseStudyIds.length > 0) {
     displayCaseStudies = proofConfig.selectedCaseStudyIds
       .map((id: string) => allCaseStudies.find(cs => cs.id === id))
-      .filter(Boolean)
+      .filter(isCaseStudyEligible)
   } else if (proofConfig.maxItems) {
-    displayCaseStudies = allCaseStudies.slice(0, proofConfig.maxItems)
+    displayCaseStudies = displayCaseStudies.slice(0, proofConfig.maxItems)
   } else {
-    displayCaseStudies = allCaseStudies.slice(0, 3)
+    displayCaseStudies = displayCaseStudies.slice(0, 3)
   }
 
   // 8. FINAL RFP CTA DATA

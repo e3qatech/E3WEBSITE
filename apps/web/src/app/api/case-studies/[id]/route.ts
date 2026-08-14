@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
 import { auth } from '@/lib/auth';
+import { isCaseStudyEligible } from '@/lib/case-studies';
 
 export async function GET(
   req: NextRequest,
@@ -19,7 +20,7 @@ export async function GET(
       where: { id },
     });
 
-    if (!caseStudy || !caseStudy.isPublished) {
+    if (!isCaseStudyEligible(caseStudy)) {
       return NextResponse.json({ error: 'Case study not found' }, { status: 404 });
     }
 

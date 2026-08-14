@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import db from '@/lib/db';
+import { getPublicCaseStudies } from '@/lib/case-studies';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
@@ -35,11 +36,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
-    // 2. Fetch Published Dynamic Routes
+    // 2. Fetch Published Dynamic Routes (QF-05)
     const [attractions, services, caseStudies, teamMembers] = await Promise.all([
       db.attraction.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.service.findMany({ where: { isVisible: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
-      db.caseStudy.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
+      getPublicCaseStudies({ select: { slug: true, updatedAt: true } }).catch(() => []),
       db.employeeProfile.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
     ]);
 

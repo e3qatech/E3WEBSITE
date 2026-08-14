@@ -1,18 +1,16 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Quote, Calendar, Building2, Layers, CheckCircle2, ChevronRight, Trophy } from 'lucide-react'
+import { ArrowRight, Quote, Calendar, Building2, Layers, Trophy } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
-import { db } from "@/lib/db"
 import { Metadata } from 'next'
+import { getPublicCaseStudyBySlug, getNextPublicCaseStudy } from '@/lib/case-studies'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {
   const { slug, locale } = await params;
   const isAr = locale === 'ar';
   
-  const project = await db.caseStudy.findUnique({
-    where: { slug }
-  });
+  const project = await getPublicCaseStudyBySlug(slug);
 
   if (!project) {
     return { title: 'Case Study Not Found' };
@@ -49,37 +47,17 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const { slug, locale } = await params
   const isAr = locale === 'ar'
 
-  const project = await db.caseStudy.findUnique({
-    where: { slug },
-    include: {
-      teamMembers: {
-        include: {
-          employeeProfile: true
-        }
-      },
-      attraction: true
-    }
+  const project = await getPublicCaseStudyBySlug(slug, {
+    includeTeam: true,
+    includeAttraction: true
   })
 
-  if (!project || !project.isPublished) {
+  if (!project) {
     notFound()
   }
 
-  // Fetch next case study for footer transition
-  const nextProject = await db.caseStudy.findFirst({
-    where: { 
-      isPublished: true,
-      year: { lte: project.year || new Date().getFullYear() },
-      id: { not: project.id }
-    },
-    orderBy: { year: 'desc' }
-  }) || await db.caseStudy.findFirst({
-    where: { 
-      isPublished: true,
-      id: { not: project.id }
-    },
-    orderBy: { year: 'desc' }
-  })
+  // Fetch next published case study for footer transition (QF-05)
+  const nextProject = await getNextPublicCaseStudy(project.id, project.year)
 
   const metrics = Array.isArray(project.metrics) ? project.metrics as any[] : []
   const gallery = Array.isArray(project.gallery) ? project.gallery as any[] : []
