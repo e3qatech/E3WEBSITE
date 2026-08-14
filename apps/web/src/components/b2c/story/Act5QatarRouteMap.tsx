@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Navigation, Clock, ExternalLink } from 'lucide-react'
+import { MapPin, Navigation, ExternalLink } from 'lucide-react'
+import { resolveQatarMapPins } from '@/lib/qatar-map-resolver'
 
 interface Act5QatarRouteMapProps {
   content: any
@@ -11,14 +12,16 @@ interface Act5QatarRouteMapProps {
 
 export function Act5QatarRouteMap({ content, locale }: Act5QatarRouteMapProps) {
   const isAr = locale === 'ar'
-  const mapData = content?.qatarMap || {}
-  const venues = mapData.venues || []
+  const { pins, headlineEn, headlineAr, subtextEn, subtextAr } = resolveQatarMapPins({
+    settings: content?.qatarMap,
+    locale,
+  })
 
-  const [selectedVenueId, setSelectedVenueId] = useState(venues[0]?.id || 'v-dfc')
-  const activeVenue = venues.find((v: any) => v.id === selectedVenueId) || venues[0] || {}
+  const [selectedVenueId, setSelectedVenueId] = useState(pins[0]?.id || 'v-dfc')
+  const activeVenue = pins.find((v) => v.id === selectedVenueId) || pins[0] || {}
 
   return (
-    <section id="qatar-map" className="relative py-24 bg-[#050110] text-white border-b border-purple-950/40 overflow-hidden">
+    <section id="qatar-map" className="relative py-24 bg-[#050110] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Background Radial Shading */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(59,130,246,0.12),transparent_70%)] pointer-events-none" />
 
@@ -30,12 +33,10 @@ export function Act5QatarRouteMap({ content, locale }: Act5QatarRouteMapProps) {
             <span>{isAr ? "الفصل الخامس — رحلة عبر أنحاء قطر" : "ACT V — A JOURNEY ACROSS QATAR"}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-            {isAr ? (mapData.headlineAr || "رحلة عبر أنحاء قطر") : (mapData.headlineEn || "A Journey Across Qatar")}
+            {isAr ? headlineAr : headlineEn}
           </h2>
           <p className="text-sm text-slate-300 font-light max-w-xl mx-auto">
-            {isAr
-              ? (mapData.subtextAr || "استكشف وجهات إي ثري الترفيهية وصالات الفعاليات في كافة مناطق الدوحة.")
-              : (mapData.subtextEn || "Discover E3's permanent attraction worlds and temporary event arenas across Doha.")}
+            {isAr ? subtextAr : subtextEn}
           </p>
         </div>
 
@@ -72,7 +73,7 @@ export function Act5QatarRouteMap({ content, locale }: Act5QatarRouteMapProps) {
 
             {/* Interactive Venue Pin Buttons overlay on map */}
             <div className="absolute inset-0 p-8 flex flex-col justify-around">
-              {venues.map((venue: any, idx: number) => {
+              {pins.map((venue, idx) => {
                 const isSelected = venue.id === selectedVenueId
                 return (
                   <button
@@ -106,10 +107,10 @@ export function Act5QatarRouteMap({ content, locale }: Act5QatarRouteMapProps) {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-widest">
-                      {isAr ? activeVenue.areaAr : activeVenue.areaEn}
+                      {isAr ? activeVenue.venueAr || activeVenue.venue : activeVenue.venueEn || activeVenue.venue}
                     </span>
                     <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
-                      {isAr ? activeVenue.statusAr : activeVenue.statusEn}
+                      {activeVenue.operationalStatus}
                     </span>
                   </div>
                   <h3 className="text-2xl font-extrabold text-white">
@@ -119,19 +120,20 @@ export function Act5QatarRouteMap({ content, locale }: Act5QatarRouteMapProps) {
 
                 <div className="space-y-3 border-y border-slate-800/80 py-4 text-xs">
                   <div>
-                    <span className="text-slate-400 block font-medium">{isAr ? "التجارب المتوفرة" : "Featured Experiences"}</span>
-                    <span className="font-bold text-slate-200 block mt-0.5">{isAr ? activeVenue.experiencesAr : activeVenue.experiencesEn}</span>
+                    <span className="text-slate-400 block font-medium">{isAr ? "العنوان" : "Address & Location"}</span>
+                    <span className="font-bold text-slate-200 block mt-0.5">{isAr ? activeVenue.addressAr || activeVenue.address : activeVenue.addressEn || activeVenue.address}</span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-slate-300">
-                    <Clock className="w-4 h-4 text-sky-400" />
-                    <span>{isAr ? activeVenue.hoursAr : activeVenue.hoursEn}</span>
-                  </div>
+                  {activeVenue.shortDescription && (
+                    <div className="text-slate-300 text-xs leading-relaxed">
+                      {activeVenue.shortDescription}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
                   <a
-                    href={activeVenue.directionsUrl || "https://maps.google.com"}
+                    href={activeVenue.directionsUrl || `https://maps.google.com/?q=${activeVenue.latitude},${activeVenue.longitude}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs transition-all shadow-md cursor-pointer"

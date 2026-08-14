@@ -1,18 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
-import { FALLBACK_ATTRACTIONS } from '@/lib/fallback-attractions';
+import { resolveQatarMapPins } from '@/lib/qatar-map-resolver';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const locale = searchParams.get('locale') || 'en';
-    const isAr = locale === 'ar';
     const typeFilter = searchParams.get('type');
     const statusFilter = searchParams.get('status');
     const featuredOnly = searchParams.get('featured') === 'true';
     const openNowOnly = searchParams.get('openNow') === 'true';
     const activeOnly = searchParams.get('activeOnly') === 'true';
 
+    // 1. Fetch Landing CMS settings if present
+    let qatarMapSettings: any = {};
+    try {
+      const b2cPage = await db.cMSPage.findUnique({
+        where: { slug: 'b2c-landing' },
+      });
+      if (b2cPage?.content && typeof b2cPage.content === 'object') {
+        qatarMapSettings = (b2cPage.content as any).qatarMap || {};
+      }
+    } catch (_e) {
+      qatarMapSettings = {};
+    }
+
+    // 2. Fetch canonical published Location records
     let dbLocations: any[] = [];
     try {
       dbLocations = await db.location.findMany({
@@ -20,9 +33,6 @@ export async function GET(req: NextRequest) {
           mapVisible: true,
           publicationStatus: 'PUBLISHED',
           isPublished: true,
-          ...(typeFilter ? { locationType: typeFilter } : {}),
-          ...(statusFilter ? { operationalStatus: statusFilter } : {}),
-          ...(featuredOnly ? { featured: true } : {}),
         },
         include: {
           attraction: true,
@@ -38,141 +48,24 @@ export async function GET(req: NextRequest) {
       dbLocations = [];
     }
 
-    // Combine database locations with canonical fallback location points if database empty
-    const itemsToProcess = dbLocations.length > 0 ? dbLocations : FALLBACK_ATTRACTIONS.map((attr: any, idx: number) => ({
-      id: `loc-${attr.id}`,
-      slug: attr.slug,
-      nameEn: attr.nameEn,
-      nameAr: attr.nameAr,
-      venueEn: attr.operations?.locationNameEn || "Qatar",
-      venueAr: attr.operations?.locationNameAr || "قطر",
-      addressEn: attr.operations?.locationNameEn || "Qatar",
-      addressAr: attr.operations?.locationNameAr || "قطر",
-      latitude: attr.operations?.lat || attr.coordinates?.lat || 25.418,
-      longitude: attr.operations?.lng || attr.coordinates?.lng || 51.530,
-      locationType: (attr as any).category === 'WATER & SPLASH' ? 'SEASONAL_ATTRACTION' : 'PERMANENT_ATTRACTION',
-      operationalStatus: attr.operations?.openingSoon ? 'COMING_SOON' : 'OPEN',
-      pinColorToken: 'CYAN',
-      featured: true,
-      mapVisible: true,
-      publicationStatus: 'PUBLISHED',
-      coverMediaUrl: attr.heroMediaUrl,
-      ticketingUrl: attr.ticketingUrl || `/en/b2c/calendar`,
-      attraction: attr
-    }));
-
-    const features: any[] = [];
-
-    for (const loc of itemsToProcess) {
-      const lat = typeof loc.latitude === 'number' ? loc.latitude : parseFloat(loc.latitude);
-      const lng = typeof loc.longitude === 'number' ? loc.longitude : parseFloat(loc.longitude);
-
-      // Validate numeric coordinates
-      if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        continue;
-      }
-
-      // Collect associated attractions
-      const linkedAttrObjs: any[] = [];
-      if (loc.attraction) {
-        linkedAttrObjs.push(loc.attraction);
-      }
-      if (loc.attractionLinks && Array.isArray(loc.attractionLinks)) {
-        loc.attractionLinks.forEach((link: any) => {
-          if (link.attraction && link.mapVisible !== false) {
-            linkedAttrObjs.push(link.attraction);
-          }
-        });
-      }
-
-      const primaryAttr = linkedAttrObjs[0] || {};
-      const title = isAr ? (loc.nameAr || primaryAttr.nameAr) : (loc.nameEn || primaryAttr.nameEn);
-      const venue = isAr ? (loc.venueAr || primaryAttr.venueAr || 'قطر') : (loc.venueEn || primaryAttr.venueEn || 'Qatar');
-      const address = isAr ? (loc.addressAr || venue) : (loc.addressEn || venue);
-      const thumbnailUrl = loc.coverMediaUrl || primaryAttr.heroMediaUrl || primaryAttr.heroThumbnailUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop';
-      const ticketUrl = loc.ticketingUrl || primaryAttr.ticketingUrl || `/en/b2c/calendar`;
-      const directionsUrl = loc.directionsUrl || loc.googleMapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-
-      // Open now logic
-      let isOpen = loc.operationalStatus === 'OPEN';
-      if (openNowOnly && !isOpen) continue;
-
-      // Active by date filter check
-      if (activeOnly) {
-        const now = new Date();
-        const opStatus = loc.operationalStatus || primaryAttr.operationalStatus || primaryAttr.computedStatus;
-        if (opStatus === 'ENDED' || opStatus === 'INACTIVE' || opStatus === 'PAST' || opStatus === 'TEMPORARILY_CLOSED') {
-          continue;
-        }
-
-        const temporal = primaryAttr.temporalStatus || loc.temporalStatus || {};
-        if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') {
-          continue;
-        }
-
-        const startDate = temporal.startDate || loc.startDate || primaryAttr.startDate;
-        const endDate = temporal.endDate || loc.endDate || primaryAttr.endDate;
-
-        if (startDate && !isNaN(new Date(startDate).getTime()) && now < new Date(startDate)) {
-          continue;
-        }
-
-        if (endDate && !isNaN(new Date(endDate).getTime()) && now > new Date(endDate)) {
-          continue;
-        }
-      }
-
-      features.push({
-        type: "Feature",
-        id: loc.id,
-        geometry: {
-          type: "Point",
-          coordinates: [lng, lat] // GeoJSON format: [longitude, latitude]
-        },
-        properties: {
-          locationId: loc.id,
-          slug: loc.slug || primaryAttr.slug || loc.id,
-          name: title,
-          nameEn: loc.nameEn || primaryAttr.nameEn,
-          nameAr: loc.nameAr || primaryAttr.nameAr,
-          venue,
-          address,
-          shortDescription: isAr ? (loc.shortDescriptionAr || primaryAttr.taglineAr) : (loc.shortDescriptionEn || primaryAttr.taglineEn),
-          locationType: loc.locationType || 'PERMANENT_ATTRACTION',
-          operationalStatus: loc.operationalStatus || 'OPEN',
-          thumbnailUrl,
-          pinColorToken: loc.pinColorToken || (loc.featured ? 'GOLD' : 'CYAN'),
-          featured: Boolean(loc.featured),
-          attractionCount: Math.max(1, linkedAttrObjs.length),
-          ticketingUrl: ticketUrl,
-          directionsUrl,
-          googleMapsUrl: loc.googleMapsUrl || directionsUrl,
-          latitude: lat,
-          longitude: lng,
-          attractions: linkedAttrObjs.map((a) => ({
-            id: a.id,
-            slug: a.slug,
-            nameEn: a.nameEn,
-            nameAr: a.nameAr,
-            heroMediaUrl: a.heroMediaUrl,
-            ticketingUrl: a.ticketingUrl || `/en/b2c/calendar`
-          }))
-        }
-      });
-    }
-
-    const geoJson = {
-      type: "FeatureCollection",
-      features
-    };
+    // 3. Resolve pins using canonical resolver
+    const { geoJson } = resolveQatarMapPins({
+      settings: qatarMapSettings,
+      dbLocations,
+      locale,
+      activeOnly,
+      typeFilter,
+      statusFilter,
+      featuredOnly,
+      openNowOnly,
+    });
 
     return NextResponse.json(geoJson, {
       headers: {
         'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-        'Content-Type': 'application/geo+json'
-      }
+        'Content-Type': 'application/geo+json',
+      },
     });
-
   } catch (error: any) {
     console.error('[PUBLIC_LOCATIONS_MAP_GET_ERROR]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
