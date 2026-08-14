@@ -8,7 +8,6 @@ import { SubscribeSection } from './SubscribeSection';
 import { TicketSelectionModal } from './TicketSelectionModal';
 import { BulkBookingModal } from './BulkBookingModal';
 import { CalendarEvent } from './EventCard';
-import { HeroViewer } from '@/components/attractions/detail/HeroViewer';
 import { useLocale } from '@/components/layout/LocaleProvider';
 
 interface CalendarViewProps {
@@ -137,14 +136,32 @@ export function CalendarView({
     setCurrentDate(new Date());
   };
 
-  // QF-04-C: Resolve strict locale-aware Hero Copy
+  // QF-04-D: Sanitize title to guarantee no concatenation with eyebrow
+  const sanitizeHeroTitle = (raw: string | undefined | null): string | null => {
+    if (!raw || typeof raw !== 'string') return null;
+    let cleaned = raw.trim();
+    // Strip leading English eyebrow variations
+    cleaned = cleaned.replace(/^Events\s*Calendar\s*:?\s*/i, '');
+    cleaned = cleaned.replace(/^EVENTS\s*CALENDAR\s*:?\s*/i, '');
+    // Strip leading Arabic eyebrow variations
+    cleaned = cleaned.replace(/^جدول\s*الفعاليات\s*:?\s*/, '');
+    cleaned = cleaned.replace(/^الفعاليات\s*والعروض\s*:?\s*/, '');
+    cleaned = cleaned.trim();
+    return cleaned.length > 0 ? cleaned : null;
+  };
+
+  // QF-04-D: Resolve strict locale-aware Hero Copy & Separate Eyebrow
   const heroEyebrow = isAr
     ? (eyebrowAr || "جدول الفعاليات")
-    : (eyebrowEn || "EVENTS CALENDAR");
+    : (eyebrowEn || "Events Calendar");
+
+  const rawTitle = isAr
+    ? (titleAr || (title && /[\u0600-\u06FF]/.test(title) ? title : null))
+    : (titleEn || title);
 
   const heroTitle = isAr
-    ? (titleAr || (title && /[\u0600-\u06FF]/.test(title) ? title : null) || "اكتشف تجربتك القادمة مع إي ثري")
-    : (titleEn || title || "Find Your Next E3 Experience");
+    ? (sanitizeHeroTitle(rawTitle) || "اكتشف تجربتك القادمة مع إي ثري")
+    : (sanitizeHeroTitle(rawTitle) || "Find Your Next E3 Experience");
 
   const heroDescription = isAr
     ? (descriptionAr || (tagline && /[\u0600-\u06FF]/.test(tagline) ? tagline : null) || "استكشف الفعاليات القادمة والتجارب العائلية والمهرجانات الموسمية والأنشطة المميزة في قطر.")
@@ -181,54 +198,74 @@ export function CalendarView({
           />
         </div>
 
-        {/* Dynamic Hero Viewer or Semantic Text Hero */}
-        {heroMediaUrl ? (
-          <div className="absolute inset-0 z-0 h-[100vh] w-full">
-            <HeroViewer 
-              title={heroTitle}
-              tagline={heroDescription}
-              mediaType={heroMediaType || 'IMAGE'}
-              mediaUrl={heroMediaUrl}
-            />
+        {/* Ambient Hero Media Background (if provided) */}
+        {heroMediaUrl && (
+          <div className="absolute inset-0 z-0 h-[65vh] md:h-[80vh] w-full overflow-hidden pointer-events-none">
+            {heroMediaType === 'VIDEO' ? (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover opacity-25"
+              >
+                <source src={heroMediaUrl} type="video/mp4" />
+              </video>
+            ) : (
+              <img 
+                src={heroMediaUrl}
+                alt=""
+                aria-hidden="true"
+                className="w-full h-full object-cover opacity-25"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0F0F23]/80 to-[#0F0F23]" />
           </div>
-        ) : (
-          <>
-            {/* Industrial Grain Texture */}
-            <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
-              <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                <filter id="noise">
-                  <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-                </filter>
-                <rect width="100%" height="100%" filter="url(#noise)" />
-              </svg>
-            </div>
-
-            {/* QF-04-C: Semantic, Accessible Hero Header with Separate Eyebrow, Title & Description */}
-            <header className="pt-28 pb-10 text-center max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-              {/* 1. Semantic Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-5 backdrop-blur-md">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span>{heroEyebrow}</span>
-              </div>
-
-              {/* 2. Semantic Display Headline (H1) */}
-              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-5 font-syne drop-shadow-xl break-words">
-                {heroTitle}
-              </h1>
-
-              {/* 3. Semantic Descriptive Subtitle */}
-              <p className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-md">
-                {heroDescription}
-              </p>
-            </header>
-          </>
         )}
 
+        {/* Industrial Grain Texture */}
+        <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <filter id="noise">
+              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#noise)" />
+          </svg>
+        </div>
+
+        {/* QF-04-D: Semantic, Accessible Hero Header with Separate Visible Eyebrow & Single H1 Title */}
+        <header className="pt-28 pb-10 text-center max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+          {/* 1. Semantic Eyebrow Badge (Outside H1) */}
+          <div 
+            data-testid="calendar-hero-eyebrow"
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-5 backdrop-blur-md"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span>{heroEyebrow}</span>
+          </div>
+
+          {/* 2. Semantic Display Headline (Single H1, Title Only) */}
+          <h1 
+            data-testid="calendar-hero-title"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-5 font-syne drop-shadow-xl break-words"
+          >
+            {heroTitle}
+          </h1>
+
+          {/* 3. Semantic Descriptive Subtitle */}
+          <p 
+            data-testid="calendar-hero-description"
+            className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-md"
+          >
+            {heroDescription}
+          </p>
+        </header>
+
         {/* Main Content Area */}
-        <div className={`relative z-10 ${heroMediaUrl ? 'pt-[70vh]' : ''}`}>
+        <div className="relative z-10">
           <TopFilterBar
             currentDate={currentDate}
             onDateChange={setCurrentDate}
