@@ -5,8 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useMotionCapability } from '@/lib/motion/capability-context';
 import { Reveal } from '@/components/motion/Reveal';
 import { WebGLBoundary } from '@/components/motion/WebGLBoundary';
-import { Layers, Sparkles, Cpu, Eye, Compass, ShieldCheck } from 'lucide-react';
-import { useLocale } from '@/components/layout/LocaleProvider';
+import { Layers, Sparkles, Cpu, Compass, ShieldCheck } from 'lucide-react';
 
 export interface B2BBlueprintDepthSectionProps {
   locale: string;
@@ -127,7 +126,14 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
 
         {/* Blueprint-to-Live Interactive Showcase Canvas */}
         <WebGLBoundary
-          title="Blueprint to Live Spatial Scene"
+          title={isAr ? "من المخطط الهندسي إلى المشهد المكاني الحي" : "Blueprint to Live Spatial Scene"}
+          description={
+            isAr
+              ? "يعمل هذا القسم التفاعلي في وضع العرض ثنائي الأبعاد عالي التوافق لضمان الأداء السلس والتوافق التام مع جميع الأجهزة."
+              : "This interactive section operates in accessible 2D display mode to ensure seamless performance and universal device compatibility."
+          }
+          badgeText={isAr ? "وضع الأداء العالي وسهولة الوصول" : "High-Performance Accessible Mode"}
+          locale={locale}
           minHeight="520px"
         >
           <Reveal direction="fade" delay={0.3}>

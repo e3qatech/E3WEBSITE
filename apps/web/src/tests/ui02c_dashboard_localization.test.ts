@@ -3,7 +3,6 @@ import {
   getBreadcrumbTranslation,
   getDashboardControlTranslation,
   DASHBOARD_SEGMENT_MAP,
-  DASHBOARD_SHARED_CONTROLS,
   GENERAL_SETTINGS_SECTIONS,
   PACKAGES_PAGE_SECTIONS,
   GATEWAY_PAGE_SECTIONS,

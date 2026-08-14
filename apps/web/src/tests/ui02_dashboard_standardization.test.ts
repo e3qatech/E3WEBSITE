@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { hasPermission, rolePermissions } from '@/lib/permissions';
+import { hasPermission } from '@/lib/permissions';
 
 describe('UI-02 Dashboard Standardization Tests', () => {
   describe('1. RTL & Localization Verification', () => {

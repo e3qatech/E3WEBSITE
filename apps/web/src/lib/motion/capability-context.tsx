@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useSyncExternalStore } from 'react';
 import { CapabilityTier, MotionCapabilityState, ViewportCapability } from './types';
 import { isWebGLSupported, isWebGL2Supported } from '@/lib/webgl-capability';
 
@@ -33,6 +34,8 @@ export interface MotionCapabilityProviderProps {
   initialTier?: CapabilityTier;
 }
 
+const emptySubscribe = () => () => {};
+
 /**
  * Calculates the operational capability tier based on active environmental signals.
  */
@@ -63,7 +66,11 @@ export function MotionCapabilityProvider({
   initialTier = 'balanced',
 }: MotionCapabilityProviderProps) {
   const [tierOverride, setTierOverride] = useState<CapabilityTier | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const [isReducedMotion, setIsReducedMotion] = useState(false);
   const [isDataSaver, setIsDataSaver] = useState(false);
   const [isWebGLAvailable, setIsWebGLAvailable] = useState(true);
@@ -73,8 +80,6 @@ export function MotionCapabilityProvider({
 
   // Client-side detection
   useEffect(() => {
-    setIsHydrated(true);
-
     if (typeof window === 'undefined') return;
 
     // 1. Reduced Motion Detection

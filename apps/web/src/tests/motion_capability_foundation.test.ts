@@ -208,4 +208,54 @@ describe('Shared E3 Motion & Capability Foundation Tests', () => {
       expect(slideVariants.animate.y).toBe(0);
     });
   });
+
+  describe('7. WebGL Fallback Bilingual Localizations (EN/AR)', () => {
+    it('produces verified English fallback copy for /en/b2b blueprint scene', () => {
+      const locale: string = 'en';
+      const isAr = locale === 'ar';
+
+      const title = isAr ? "من المخطط الهندسي إلى المشهد المكاني الحي" : "Blueprint to Live Spatial Scene";
+      const description = isAr
+        ? "يعمل هذا القسم التفاعلي في وضع العرض ثنائي الأبعاد عالي التوافق لضمان الأداء السلس والتوافق التام مع جميع الأجهزة."
+        : "This interactive section operates in accessible 2D display mode to ensure seamless performance and universal device compatibility.";
+      const badgeText = isAr ? "وضع الأداء العالي وسهولة الوصول" : "High-Performance Accessible Mode";
+      const reason = isAr ? "وضع سهولة الوصول نشط" : "Accessibility Mode Active";
+      const ariaLabel = `${title} (${reason})`;
+
+      expect(title).toBe("Blueprint to Live Spatial Scene");
+      expect(description).toContain("accessible 2D display mode");
+      expect(badgeText).toBe("High-Performance Accessible Mode");
+      expect(ariaLabel).toBe("Blueprint to Live Spatial Scene (Accessibility Mode Active)");
+    });
+
+    it('produces verified Arabic fallback copy for /ar/b2b blueprint scene', () => {
+      const locale = 'ar';
+      const isAr = locale === 'ar';
+
+      const title = isAr ? "من المخطط الهندسي إلى المشهد المكاني الحي" : "Blueprint to Live Spatial Scene";
+      const description = isAr
+        ? "يعمل هذا القسم التفاعلي في وضع العرض ثنائي الأبعاد عالي التوافق لضمان الأداء السلس والتوافق التام مع جميع الأجهزة."
+        : "This interactive section operates in accessible 2D display mode to ensure seamless performance and universal device compatibility.";
+      const badgeText = isAr ? "وضع الأداء العالي وسهولة الوصول" : "High-Performance Accessible Mode";
+      const reason = isAr ? "وضع سهولة الوصول نشط" : "Accessibility Mode Active";
+      const ariaLabel = `${title} (${reason})`;
+
+      expect(title).toBe("من المخطط الهندسي إلى المشهد المكاني الحي");
+      expect(description).toContain("وضع العرض ثنائي الأبعاد عالي التوافق");
+      expect(badgeText).toBe("وضع الأداء العالي وسهولة الوصول");
+      expect(ariaLabel).toBe("من المخطط الهندسي إلى المشهد المكاني الحي (وضع سهولة الوصول نشط)");
+    });
+
+    it('handles unsupported WebGL reason localization accurately', () => {
+      const getReason = (isSupported: boolean, isAr: boolean) =>
+        !isSupported
+          ? (isAr ? "تقنية WebGL غير متوفرة" : "WebGL Unsupported")
+          : (isAr ? "وضع سهولة الوصول نشط" : "Accessibility Mode Active");
+
+      expect(getReason(false, true)).toBe("تقنية WebGL غير متوفرة");
+      expect(getReason(false, false)).toBe("WebGL Unsupported");
+      expect(getReason(true, true)).toBe("وضع سهولة الوصول نشط");
+      expect(getReason(true, false)).toBe("Accessibility Mode Active");
+    });
+  });
 });

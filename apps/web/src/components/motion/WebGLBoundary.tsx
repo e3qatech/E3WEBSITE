@@ -2,7 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { useWebGLCapability } from '@/lib/motion/capability-context';
-import { Layers, AlertTriangle } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -50,20 +50,43 @@ class InnerWebGLCrashBoundary extends Component<ErrorBoundaryProps, ErrorBoundar
 }
 
 export function DefaultWebGLFallback({
-  title = "3D Interactive View",
+  title,
+  description,
+  badgeText,
   minHeight = "400px",
-  reason = "WebGL Not Available",
+  reason,
+  locale,
 }: {
   title?: string;
+  description?: string;
+  badgeText?: string;
   minHeight?: string;
   reason?: string;
+  locale?: string;
 }) {
+  const isAr = locale === 'ar';
+
+  const defaultTitle = isAr ? "عرض تفاعلي ثلاثي الأبعاد" : "3D Interactive View";
+  const displayTitle = title || defaultTitle;
+
+  const defaultDescription = isAr
+    ? "يعمل هذا القسم التفاعلي في وضع العرض ثنائي الأبعاد عالي التوافق لضمان الأداء السلس والتوافق التام مع جميع الأجهزة."
+    : "This interactive section operates in accessible 2D display mode to ensure seamless performance and universal device compatibility.";
+  const displayDescription = description || defaultDescription;
+
+  const defaultBadgeText = isAr ? "وضع الأداء العالي وسهولة الوصول" : "High-Performance Accessible Mode";
+  const displayBadgeText = badgeText || defaultBadgeText;
+
+  const defaultReason = isAr ? "وضع سهولة الوصول نشط" : "WebGL Not Available";
+  const displayReason = reason || defaultReason;
+
   return (
     <div
       role="region"
-      aria-label={`${title} (${reason})`}
+      aria-label={`${displayTitle} (${displayReason})`}
       className="relative w-full rounded-2xl border border-zinc-800 bg-zinc-950 flex flex-col items-center justify-center p-8 text-center overflow-hidden"
       style={{ minHeight }}
+      dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-zinc-950 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)] pointer-events-none" />
@@ -72,13 +95,13 @@ export function DefaultWebGLFallback({
         <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-700/60 flex items-center justify-center text-emerald-400 mx-auto">
           <Layers className="w-6 h-6" />
         </div>
-        <h4 className="text-base font-bold text-zinc-100">{title}</h4>
+        <h4 className="text-base font-bold text-zinc-100">{displayTitle}</h4>
         <p className="text-xs text-zinc-400 leading-relaxed">
-          This interactive section operates in accessible 2D display mode to ensure seamless performance and universal device compatibility.
+          {displayDescription}
         </p>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-[10px] font-mono text-zinc-500">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-[10px] font-mono text-zinc-400">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>High-Performance Accessible Mode</span>
+          <span>{displayBadgeText}</span>
         </span>
       </div>
     </div>
@@ -89,6 +112,9 @@ export interface WebGLBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
   title?: string;
+  description?: string;
+  badgeText?: string;
+  locale?: string;
   minHeight?: string;
   requireWebGL2?: boolean;
 }
@@ -101,12 +127,20 @@ export function WebGLBoundary({
   children,
   fallback,
   title,
+  description,
+  badgeText,
+  locale,
   minHeight = '400px',
   requireWebGL2 = false,
 }: WebGLBoundaryProps) {
   const { isWebGLAvailable, isWebGL2Available, tier } = useWebGLCapability();
 
   const isSupported = requireWebGL2 ? isWebGL2Available : isWebGLAvailable;
+  const isAr = locale === 'ar';
+
+  const defaultReason = !isSupported
+    ? (isAr ? "تقنية WebGL غير متوفرة" : "WebGL Unsupported")
+    : (isAr ? "وضع سهولة الوصول نشط" : "Accessibility Mode Active");
 
   // If in minimal tier or WebGL is completely missing, immediately render safe fallback
   if (!isSupported || tier === 'minimal') {
@@ -115,14 +149,32 @@ export function WebGLBoundary({
     ) : (
       <DefaultWebGLFallback
         title={title}
+        description={description}
+        badgeText={badgeText}
+        locale={locale}
         minHeight={minHeight}
-        reason={!isSupported ? "WebGL Unsupported" : "Accessibility Mode Active"}
+        reason={defaultReason}
       />
     );
   }
 
   return (
-    <InnerWebGLCrashBoundary fallback={fallback} title={title} minHeight={minHeight}>
+    <InnerWebGLCrashBoundary
+      fallback={
+        fallback || (
+          <DefaultWebGLFallback
+            title={title}
+            description={description}
+            badgeText={badgeText}
+            locale={locale}
+            minHeight={minHeight}
+            reason={isAr ? "خطأ في معالجة المشهد ثلاثي الأبعاد" : "Rendering Error"}
+          />
+        )
+      }
+      title={title}
+      minHeight={minHeight}
+    >
       {children}
     </InnerWebGLCrashBoundary>
   );
