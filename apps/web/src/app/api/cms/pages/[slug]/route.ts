@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
 import { getCMSPageContentServer, deepMergeCMSContent } from '@/lib/cms-server';
+import { getManagedCMSPage } from '@/lib/cms-ownership';
 
 const pageUpdateSchema = z.object({
   title: z.any().optional(),
@@ -97,6 +98,7 @@ export async function GET(
       }
     }
 
+    const managedInfo = getManagedCMSPage(slug);
     const mergedContent = getMergedCMSPageContent(slug, rawContent);
     return NextResponse.json({
       data: {
@@ -104,6 +106,8 @@ export async function GET(
         title,
         content: mergedContent,
         seo,
+        isManaged: Boolean(managedInfo),
+        managedInfo,
       },
     }, {
       headers: {
