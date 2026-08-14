@@ -3,10 +3,13 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Search, MessageSquare, CheckCircle, UserPlus, Trash2, Clock, CheckCircle2, XCircle, Mail, Phone } from "lucide-react"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminStatusBadge } from "@/components/dashboard/ui/AdminStatusBadge"
 import { cn } from "@/lib/utils"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 type Inquiry = {
   id: string
@@ -99,39 +102,42 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
   }
 
   return (
-    <div className="flex flex-col h-full bg-bg-base overflow-hidden">
-      <div className="px-8 pt-8 pb-4 shrink-0">
-        <AdminPageHeader 
-          title="Inquiries Inbox" 
-          description="Manage incoming requests, contact forms, and convert them to leads."
-          action={
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                <input 
-                  type="text" 
-                  placeholder="Search inquiries..." 
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent w-full md:w-64"
-                />
-              </div>
-              <select 
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="px-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent appearance-none cursor-pointer"
-              >
-                <option value="ALL">All Status</option>
-                <option value="NEW">New</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-              </select>
-            </div>
-          }
-        />
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader 
+        title="Customer Inquiries & Form Submissions" 
+        description="Manage incoming contact requests, customer support questions, and convert prospective clients into sales pipeline leads."
+        breadcrumbs={[
+          { label: "CRM & Sales", href: "/dashboard/crm/clients" },
+          { label: "Inquiries Inbox" }
+        ]}
+        badge={{ label: `${inquiries.length} Inquiries`, variant: "indigo" }}
+      />
 
-      <div className="flex-1 flex overflow-hidden px-8 pb-8 gap-6">
+      <div className="flex flex-col h-[750px] bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-1)] overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-[var(--border-level-1)] bg-[var(--surface-subtle)] flex items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+            <input 
+              type="text" 
+              placeholder="Search inquiries..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="ps-9 pe-4 py-1.5 bg-surface-default border border-border-default rounded-lg text-xs text-text-primary focus:outline-none focus:border-accent w-full"
+            />
+          </div>
+          <select 
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="px-3 py-1.5 bg-surface-default border border-border-default rounded-lg text-xs text-text-primary focus:outline-none focus:border-accent appearance-none cursor-pointer font-bold"
+          >
+            <option value="ALL">All Status</option>
+            <option value="NEW">New</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+        </div>
+
+        <div className="flex-1 flex overflow-hidden p-4 gap-6">
         {/* Inbox List Pane */}
         <div className={cn(
           "flex flex-col bg-bg-level-1 border border-border-default rounded-2xl overflow-hidden shadow-sm h-full transition-all duration-300",
@@ -290,7 +296,8 @@ export function InquiriesInbox({ initialInquiries }: { initialInquiries: Inquiry
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

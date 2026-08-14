@@ -2,6 +2,10 @@
 
 import { useState } from "react"
 import { Users, Ticket, TrendingUp, Activity, AlertCircle } from "lucide-react"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 type EventSchedule = {
   id: string
   attractionId: string
@@ -31,21 +35,25 @@ export function TicketingDashboard({ schedules, liveFeed }: { schedules: EventSc
   const utilization = totalCapacity > 0 ? (totalBooked / totalCapacity) * 100 : 0
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">Ticketing Overview</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Monitor capacity and booking velocity across attractions.</p>
-        </div>
-        <div className="flex items-center gap-3">
+    <DashboardPageShell variant="wide">
+      {/* Header */}
+      <DashboardPageHeader
+        title="Ticketing & Capacity Overview"
+        description="Monitor booking velocity, schedule slot utilization, and real-time gate webhooks across attractions."
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard/operations/ticketing" },
+          { label: "Ticketing Overview" },
+        ]}
+        badge={{ label: `${filteredSchedules.length} Active Slots`, variant: "indigo" }}
+        secondaryAction={
           <input 
             type="date" 
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
-            className="px-3 py-2 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg text-sm focus:outline-none focus:border-[var(--color-primary)]"
+            className="px-3 py-1.5 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
           />
-        </div>
-      </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -195,6 +203,6 @@ export function TicketingDashboard({ schedules, liveFeed }: { schedules: EventSc
           </div>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -6,6 +6,11 @@ import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 import { ArrowDown, ArrowUp, Lightbulb, Plus, Save, Sparkles, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+} from '@/components/dashboard/ui'
 
 export function IdeasToLifeManager() {
   const router = useRouter()
@@ -141,42 +146,27 @@ export function IdeasToLifeManager() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-amber-500" />
-        <span>Loading Ideas to Life Content Manager...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Ideas to Life Content Manager..." type="skeleton" />
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
+    <DashboardPageShell variant="focused">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30">
-              B2C CONTENT MANAGER
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Lightbulb className="w-6 h-6 text-amber-500" />
-              <span>Ideas to Life Content Manager</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage the step-by-step creative blueprint process, headline messaging, and visual stages shown on the B2C Landing Page.
-          </p>
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving Changes...' : 'Save Ideas to Life'}</span>
-        </button>
-      </div>
+      <DashboardPageHeader
+        title="Ideas to Life Content Manager"
+        description="Manage the step-by-step creative blueprint process, headline messaging, and visual stages shown on the B2C Landing Page."
+        breadcrumbs={[
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Ideas to Life" },
+        ]}
+        badge={{ label: "B2C Content", variant: "amber" }}
+        primaryAction={{
+          label: saving ? 'Saving Changes...' : 'Save Ideas to Life',
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       {/* Main Section Banner */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
@@ -335,6 +325,6 @@ export function IdeasToLifeManager() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { Plus, ToggleRight, ToggleLeft, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { format } from "date-fns"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function BroadcastManager({ initialBroadcasts }: { initialBroadcasts: any[] }) {
   const router = useRouter()
@@ -94,17 +98,21 @@ export function BroadcastManager({ initialBroadcasts }: { initialBroadcasts: any
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1600px] mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">System Broadcasts</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Manage platform-wide announcements and alerts.</p>
-        </div>
-        
-        <Button onClick={() => setIsAdding(!isAdding)} className="gap-2">
-          {isAdding ? "Cancel" : <><Plus className="w-4 h-4" /> New Broadcast</>}
-        </Button>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="System Broadcasts & Announcements"
+        description="Manage platform-wide banners, operational notices, maintenance advisories, and flash alerts."
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard/operations/broadcast" },
+          { label: "Broadcasts" },
+        ]}
+        badge={{ label: `${broadcasts.length} Broadcasts`, variant: "indigo" }}
+        primaryAction={{
+          label: isAdding ? "Cancel" : "New Broadcast",
+          onClick: () => setIsAdding(!isAdding),
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
 
       {isAdding && (
         <form onSubmit={handleAddBroadcast} className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm mb-8 space-y-6 animate-in fade-in zoom-in duration-200">
@@ -245,6 +253,6 @@ export function BroadcastManager({ initialBroadcasts }: { initialBroadcasts: any
           </table>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

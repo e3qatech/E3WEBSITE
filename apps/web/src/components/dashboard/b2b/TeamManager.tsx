@@ -9,6 +9,10 @@ import {
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
 import { useRouter } from "next/navigation"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 interface TeamMember {
   id: string
@@ -142,7 +146,22 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
   const selectedMember = members.find(m => m.id === selectedMemberId)
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-bg-base">
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Team Directory & Meeting Scheduler"
+        description="Manage event engineering team roster, availability windows, and B2B client consultation slots."
+        breadcrumbs={[
+          { label: "B2B Content", href: "/dashboard/b2b/home" },
+          { label: "Team & Scheduler" },
+        ]}
+        badge={{ label: `${members.length} Members`, variant: "purple" }}
+        primaryAction={{
+          label: "Add Team Member",
+          onClick: () => setShowAddModal(true),
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
+      <div className="flex flex-col lg:flex-row h-[750px] bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-1)] overflow-hidden shadow-sm">
       
       {/* Sidebar - Roster Registry */}
       <div className="w-80 border-e border-border-default bg-surface-default p-4 flex flex-col">
@@ -552,6 +571,7 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </DashboardPageShell>
   )
 }

@@ -6,6 +6,11 @@ import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 import { Plus, Radio, Save, Sparkles, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+} from '@/components/dashboard/ui'
 
 export function LiveFeedManager() {
   const router = useRouter()
@@ -133,42 +138,27 @@ export function LiveFeedManager() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-rose-500" />
-        <span>Loading Live Feed Content Manager...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Live Feed Content Manager..." type="skeleton" />
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
+    <DashboardPageShell variant="focused">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/30">
-              B2C CONTENT MANAGER
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Radio className="w-6 h-6 text-rose-500" />
-              <span>Live Broadcast & Stream Feed Manager</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage live broadcast streams, ON-AIR status flags, and video highlights featured on the landing page.
-          </p>
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving Changes...' : 'Save Live Feed'}</span>
-        </button>
-      </div>
+      <DashboardPageHeader
+        title="Live Broadcast & Stream Feed Manager"
+        description="Manage live broadcast streams, ON-AIR status flags, and video highlights featured on the landing page."
+        breadcrumbs={[
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Live Feed Manager" },
+        ]}
+        badge={{ label: "Live Stream", variant: "error" }}
+        primaryAction={{
+          label: saving ? 'Saving Changes...' : 'Save Live Feed',
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       {/* Main Broadcast Control */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
@@ -318,6 +308,6 @@ export function LiveFeedManager() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -7,6 +7,10 @@ import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { AdminInput } from "@/components/dashboard/ui/AdminInput"
 import { AdminSelect } from "@/components/dashboard/ui/AdminSelect"
 import { AdminTextarea } from "@/components/dashboard/ui/AdminTextarea"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export type Talent = {
   id: string
@@ -87,28 +91,25 @@ export function TalentDetail({ initialTalent, onClose }: { initialTalent: Talent
   }
 
   return (
-    <div className="flex flex-col h-full bg-bg-base">
-      <div className="flex items-center justify-between px-8 py-6 border-b border-border-default bg-surface-default shrink-0">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={onClose ? onClose : () => router.push("/dashboard/crm/talent")}
-            className="p-2 bg-surface-hover hover:bg-surface-active rounded-lg transition-colors text-text-secondary"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-text-primary">{talent.name}</h1>
-            <p className="text-xs text-text-secondary mt-1">Applied: {new Date(talent.appliedDate).toLocaleDateString()}</p>
-          </div>
-        </div>
-        <AdminButton onClick={handleSave} isLoading={isSaving} variant={success ? "outline" : "primary"}>
-          {success ? (
-            <span className="flex items-center text-emerald-500 gap-2"><CheckCircle className="w-4 h-4" /> Saved Successfully</span>
-          ) : (
-            <span className="flex items-center gap-2"><Save className="w-4 h-4" /> Save Evaluation</span>
-          )}
-        </AdminButton>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title={`Candidate: ${talent.name}`}
+        description={`Review applicant profile, qualifications, position fit (${talent.position || talent.job?.title || "General Application"}), and internal HR evaluation.`}
+        breadcrumbs={[
+          { label: "Talent CRM", href: "/dashboard/crm/talent" },
+          { label: talent.name },
+        ]}
+        badge={{
+          label: form.status,
+          variant: form.status === "HIRED" ? "success" : form.status === "REJECTED" ? "error" : "warning",
+        }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : success ? "Saved Successfully" : "Save Evaluation",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -218,6 +219,6 @@ export function TalentDetail({ initialTalent, onClose }: { initialTalent: Talent
           </div>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

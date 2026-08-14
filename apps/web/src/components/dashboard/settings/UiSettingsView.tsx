@@ -4,6 +4,10 @@ import { useState } from "react"
 import { Save, CheckCircle2, Palette, Layout, Code } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { useRouter } from "next/navigation"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function UiSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
   const router = useRouter()
@@ -49,18 +53,22 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">UI & Theming</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Manage brand colors, fonts, and feature flags.</p>
-        </div>
-        
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          {isSaving ? <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Changes
-        </Button>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="UI & System Theming"
+        description="Configure brand color accents, typography families, dark/light theme defaults, and feature flags."
+        breadcrumbs={[
+          { label: "Settings", href: "/dashboard/settings/general" },
+          { label: "UI & Theming" },
+        ]}
+        badge={{ label: "Frontend Engine", variant: "purple" }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : toast ? "Saved Successfully" : "Save Changes",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       {toast && (
         <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center font-bold text-sm">
@@ -235,9 +243,8 @@ export function UiSettingsView({ initialSettings }: { initialSettings: Record<st
           </div>
           </div>
           </div>
-
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -2,8 +2,11 @@ import { Metadata } from "next"
 import db from "@/lib/db"
 import { Users, Plus, Globe, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import "next/link"
-import "next/image"
+import Link from "next/link"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export const metadata: Metadata = {
   title: "Partners | E3 Admin",
@@ -17,17 +20,21 @@ export default async function PartnersPage() {
   })
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1600px] mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">Partners & Sponsors</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Manage B2B partners visible on the public website.</p>
-        </div>
-        
-        <Button className="gap-2">
-          <Plus className="w-4 h-4" /> Add Partner
-        </Button>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Partners & Sponsors Directory"
+        description="Manage government agencies, corporate sponsors, and ecosystem partners displayed on the public portal."
+        breadcrumbs={[
+          { label: "B2B Ecosystem", href: "/dashboard/partners" },
+          { label: "Partners & Sponsors" },
+        ]}
+        badge={{ label: `${partners.length} Partners`, variant: "indigo" }}
+        primaryAction={{
+          label: "Add Partner",
+          href: "/dashboard/partners/new",
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
 
       <div className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl overflow-hidden shadow-sm flex-1 p-6">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
@@ -72,6 +79,6 @@ export default async function PartnersPage() {
           )}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

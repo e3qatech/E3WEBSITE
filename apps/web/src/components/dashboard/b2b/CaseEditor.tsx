@@ -4,8 +4,25 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { MediaUploader } from "@/components/ui/MediaUploader"
+import { MediaUploader } from "@/components/shared/MediaUploader"
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const CASE_SECTIONS: EditorSectionItem[] = [
+  { id: "general", label: "1. Core Details" },
+  { id: "hero", label: "2. Hero Media" },
+  { id: "narrative", label: "3. Narrative" },
+  { id: "metrics", label: "4. Metrics" },
+  { id: "team", label: "5. Team" },
+  { id: "testimonials", label: "6. Testimonials" },
+  { id: "gallery", label: "7. Gallery" },
+  { id: "seo", label: "8. SEO Settings" },
+];
 
 export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: { initialData?: any, attractions?: any[], teamMembers?: any[] }) {
   const router = useRouter()
@@ -108,48 +125,55 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-surface-default p-4 rounded-2xl border border-border-default shadow-sm sticky top-6 z-30 gap-4">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.back()}
-            className="p-2 hover:bg-surface-hover rounded-xl transition-colors text-text-secondary"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-text-primary">
-              {isEditing ? "Edit Case Study" : "New Case Study"}
-            </h1>
-            <p className="text-xs text-text-secondary mt-0.5">{titleEn || "Untitled"}</p>
+      <DashboardPageHeader
+        title={isEditing ? `Edit Case Study: ${titleEn || "Untitled"}` : "New Case Study"}
+        description="Configure B2B client case study details, media assets, metrics, testimonials, and gallery."
+        breadcrumbs={[
+          { label: "B2B Case Studies", href: "/dashboard/b2b/cases" },
+          { label: isEditing ? (titleEn || "Edit Case") : "New Case Study" },
+        ]}
+        badge={{
+          label: isVisible ? "VISIBLE" : "HIDDEN",
+          variant: isVisible ? "success" : "warning",
+        }}
+        previewUrl={slug ? `/b2b/cases/${slug}` : undefined}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-3 py-2 rounded-xl border border-[var(--border-default)]">
+              <input 
+                type="checkbox" 
+                checked={isVisible}
+                onChange={e => setIsVisible(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+              />
+              <span className="text-xs font-bold text-[var(--text-primary)]">Visible</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-3 py-2 rounded-xl border border-[var(--border-default)]">
+              <input 
+                type="checkbox" 
+                checked={isFeatured}
+                onChange={e => setIsFeatured(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+              />
+              <span className="text-xs font-bold text-[var(--text-primary)]">Featured</span>
+            </label>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer bg-surface-hover px-4 py-2 rounded-xl border border-border-default">
-            <input 
-              type="checkbox" 
-              checked={isVisible}
-              onChange={e => setIsVisible(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
-            />
-            <span className="text-sm font-bold text-text-primary">Visible</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer bg-surface-hover px-4 py-2 rounded-xl border border-border-default">
-            <input 
-              type="checkbox" 
-              checked={isFeatured}
-              onChange={e => setIsFeatured(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
-            />
-            <span className="text-sm font-bold text-text-primary">Featured</span>
-          </label>
-          <Button onClick={handleSave} disabled={isSaving} className="gap-2 rounded-xl h-10 px-6">
-            <Save className="w-4 h-4" />
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      </div>
+        }
+      />
+
+      <DashboardSectionNavigator
+        sections={CASE_SECTIONS}
+        activeSectionId={activeTab}
+        onSelectSection={setActiveTab}
+      />
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Nav */}
@@ -432,7 +456,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                     </button>
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                       <div className="md:col-span-4">
-                        <MediaUploader value={item.url} onChange={(url) => updateArrayItem(setGallery, gallery, index, "url", url)} />
+                        <MediaUploader value={item.url} onChange={(url: string) => updateArrayItem(setGallery, gallery, index, "url", url)} />
                       </div>
                       <div className="md:col-span-8 space-y-4">
                         <input type="text" value={item.captionEn || ""} onChange={(e) => updateArrayItem(setGallery, gallery, index, "captionEn", e.target.value)} className="w-full px-4 py-2 bg-surface-default border border-border-default rounded-xl text-sm outline-none" placeholder="Caption (EN)" />
@@ -454,6 +478,6 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
 
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -24,7 +24,10 @@ import {
 } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { Badge } from "@/components/ui/Badge"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export type B2BAttractionItem = {
   id: string
@@ -153,24 +156,20 @@ export function B2BAttractionsList({ initialAttractions }: { initialAttractions:
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-8 max-w-[1600px] mx-auto animate-fade-in-up">
-      <AdminPageHeader
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
         title="B2B Project Portfolio & Attractions"
         description="Manage turnkey entertainment assets, past editions, brand activations, and B2B portfolio listings."
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "B2B Portal", href: "/dashboard/b2b/home" },
+          { label: "B2B Management", href: "/dashboard/b2b/home" },
           { label: "Attractions & Projects" }
         ]}
-        action={
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard/b2c/attractions/new">
-              <AdminButton variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
-                New Project Record
-              </AdminButton>
-            </Link>
-          </div>
-        }
+        badge={{ label: `${attractions.length} Projects`, variant: "purple" }}
+        primaryAction={{
+          label: "New Project Record",
+          href: "/dashboard/b2c/attractions/new",
+          icon: <Plus className="w-4 h-4" />
+        }}
       />
 
       {/* Filter and Search Bar */}
@@ -437,6 +436,6 @@ export function B2BAttractionsList({ initialAttractions }: { initialAttractions:
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

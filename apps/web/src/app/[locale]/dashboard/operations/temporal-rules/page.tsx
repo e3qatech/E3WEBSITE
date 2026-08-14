@@ -38,9 +38,5 @@ export default async function TemporalRulesPage() {
     endDate: rule.endDate?.toISOString() || null,
   }))
 
-  return (
-    <div className="flex flex-col h-full w-full max-w-[1600px] mx-auto p-4 md:p-8">
-      <TemporalRulesManager initialRules={formattedRules as any} attractions={attractions} />
-    </div>
-  )
+  return <TemporalRulesManager initialRules={formattedRules as any} attractions={attractions} />
 }

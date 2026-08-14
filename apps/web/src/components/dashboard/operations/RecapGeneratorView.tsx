@@ -4,6 +4,10 @@ import { useState } from "react"
 import { BarChart3, Search } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import dynamic from "next/dynamic"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 const RecapPDFDownload = dynamic(() => import('./RecapPDFDocument'), { ssr: false });
 
@@ -37,13 +41,16 @@ export function RecapGeneratorView({ attractions }: { attractions: any[] }) {
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">Recap Engine</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Aggregate operations data and generate PDF reports.</p>
-        </div>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Operations Recap & Reporting Engine"
+        description="Aggregate attendance, revenue figures, satisfaction ratings, and generate operations PDF summaries."
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard/operations/recap" },
+          { label: "Recap Engine" },
+        ]}
+        badge={{ label: `${attractions.length} Attractions`, variant: "indigo" }}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -134,8 +141,7 @@ export function RecapGeneratorView({ attractions }: { attractions: any[] }) {
             </div>
           )}
         </div>
-
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -8,6 +8,11 @@ import { RichTextEditor } from "@/components/dashboard/ui/RichTextEditor"
 import { DataTable } from "@/components/dashboard/ui/DataTable"
 import Link from "next/link"
 
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
+
 const MOCK_APPS = [
   { id: "A1", name: "John Smith", date: "Oct 24, 2026", status: "New" },
   { id: "A2", name: "Sara Ali", date: "Oct 22, 2026", status: "Interview" },
@@ -44,31 +49,25 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   ]
 
   return (
-    <div className="p-4 lg:p-8 max-w-5xl mx-auto space-y-6">
-      
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" asChild className="p-2 -ms-2">
-            <Link href="/dashboard/careers">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-black text-[var(--text-primary)]">{isEdit ? 'Edit Job Listing' : 'New Job Listing'}</h1>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {isEdit && (
-            <Button variant="outline" className="gap-2">
-              <Eye className="w-4 h-4" /> View Public
-            </Button>
-          )}
-          <Button onClick={handleSave} isLoading={isSaving} className="gap-2">
-            <Save className="w-4 h-4" /> Save Job
-          </Button>
-        </div>
-      </div>
+    <DashboardPageShell variant="focused">
+      <DashboardPageHeader
+        title={isEdit ? `Edit Job: ${formData.title || "Job Listing"}` : "Create New Job Listing"}
+        description="Configure job position requirements, department assignment, location type, and review applications."
+        breadcrumbs={[
+          { label: "Careers Roster", href: "/dashboard/careers" },
+          { label: isEdit ? (formData.title || "Edit Job") : "New Job" },
+        ]}
+        badge={{
+          label: formData.status === "Active" ? "ACTIVE" : "DRAFT",
+          variant: formData.status === "Active" ? "success" : "warning",
+        }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Job",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] overflow-hidden">
         {isEdit ? (
@@ -153,7 +152,6 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           </TabsContent>
         )}
       </div>
-
-    </div>
+    </DashboardPageShell>
   )
 }

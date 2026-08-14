@@ -5,6 +5,18 @@ import { CheckCircle2, Loader2, Plus, Save, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 import { DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig, UniversalMediaSectionEditor } from "../ui/UniversalMediaSectionEditor"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "HERO", label: "1. Hero & Media Settings" },
+  { id: "FAQS", label: "2. General FAQs" },
+  { id: "SEO", label: "3. SEO Metadata" },
+];
 
 type PageSettings = {
   title: string
@@ -96,54 +108,29 @@ export function ContactPageManager() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto p-4 md:p-6 text-[var(--text-primary)]">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Contact Page Settings</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Manage the hero content, universal media, and general FAQs for the B2C Contact Page.</p>
-        </div>
-        <Button
-          onClick={handleSaveSettings}
-          disabled={saving}
-          className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white gap-2 rounded-xl px-5 py-2.5 font-bold cursor-pointer"
-        >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Changes
-        </Button>
-      </div>
+    <DashboardPageShell variant="focused">
+      <DashboardPageHeader
+        title="Contact Page Settings"
+        description="Manage the hero content, universal media, and general FAQs for the B2C Contact Page (/b2c/contact)."
+        breadcrumbs={[
+          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
+          { label: "Contact Page Settings" },
+        ]}
+        badge={{ label: "B2C Public", variant: "purple" }}
+        previewUrl="/b2c/contact"
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Changes",
+          onClick: handleSaveSettings,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
-      <div className="flex items-center gap-4 border-b border-[var(--border-level-1)]">
-        <button
-          onClick={() => setActiveTab("HERO")}
-          className={`pb-3 px-3 font-bold text-sm transition-colors border-b-2 cursor-pointer ${
-            activeTab === "HERO"
-              ? "border-[var(--color-primary)] text-[var(--color-primary)] font-extrabold"
-              : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-          }`}
-        >
-          Hero & Media Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("FAQS")}
-          className={`pb-3 px-3 font-bold text-sm transition-colors border-b-2 cursor-pointer ${
-            activeTab === "FAQS"
-              ? "border-[var(--color-primary)] text-[var(--color-primary)] font-extrabold"
-              : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-          }`}
-        >
-          General FAQs
-        </button>
-        <button
-          onClick={() => setActiveTab("SEO")}
-          className={`pb-3 px-3 font-bold text-sm transition-colors border-b-2 cursor-pointer ${
-            activeTab === "SEO"
-              ? "border-[var(--color-primary)] text-[var(--color-primary)] font-extrabold"
-              : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-          }`}
-        >
-          SEO Settings
-        </button>
-      </div>
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeTab}
+        onSelectSection={(id) => setActiveTab(id as any)}
+      />
 
       {success && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl flex items-center gap-2 text-sm font-bold">
@@ -259,6 +246,6 @@ export function ContactPageManager() {
           setSeo={(seoData: any) => setPageSettings((prev: PageSettings) => ({ ...prev, seo: seoData }))}
         />
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

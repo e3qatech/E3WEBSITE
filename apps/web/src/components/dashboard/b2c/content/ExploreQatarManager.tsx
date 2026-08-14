@@ -6,6 +6,11 @@ import { DEFAULT_B2C_LANDING_CONTENT } from '@/lib/cms-default-pages'
 import { MapPin, Plus, Save, Sparkles, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+} from '@/components/dashboard/ui'
 
 export function ExploreQatarManager() {
   const router = useRouter()
@@ -152,42 +157,27 @@ export function ExploreQatarManager() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-emerald-500" />
-        <span>Loading Qatar Map Content Manager...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Qatar Map Content Manager..." type="skeleton" />
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
+    <DashboardPageShell variant="focused">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
-              B2C CONTENT MANAGER
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <MapPin className="w-6 h-6 text-emerald-500" />
-              <span>Explore E3 Across Qatar Content Manager</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage interactive map pins, GPS coordinates, venue labels, and location media highlights across Qatar.
-          </p>
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer text-xs"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving Changes...' : 'Save Qatar Map'}</span>
-        </button>
-      </div>
+      <DashboardPageHeader
+        title="Explore E3 Across Qatar Content Manager"
+        description="Manage interactive map pins, GPS coordinates, venue labels, and location media highlights across Qatar."
+        breadcrumbs={[
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Qatar Map GIS" },
+        ]}
+        badge={{ label: "GIS Map", variant: "success" }}
+        primaryAction={{
+          label: saving ? 'Saving Changes...' : 'Save Qatar Map',
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       {/* Section Header */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
@@ -327,6 +317,6 @@ export function ExploreQatarManager() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

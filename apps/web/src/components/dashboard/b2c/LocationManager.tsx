@@ -19,6 +19,11 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { DARK_MAP_STYLE } from '@/components/map/map-config';
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+} from '@/components/dashboard/ui';
 
 export function LocationManager() {
   const [locations, setLocations] = useState<any[]>([]);
@@ -282,30 +287,22 @@ export function LocationManager() {
   });
 
   return (
-    <div className="space-y-8 p-6 bg-[var(--bg-level-1)] text-white min-h-screen">
+    <DashboardPageShell variant="wide">
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase text-[var(--e3-royal-blue)] mb-2">
-            <Compass className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
-            <span>E3 CANONICAL SPATIAL ENGINE</span>
-          </div>
-          <h1 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
-            Attractions & Venues Location Manager
-          </h1>
-          <p className="text-xs text-[var(--text-secondary)] font-medium max-w-2xl mt-1">
-            Manage canonical GIS coordinates, bilingual venue details, map pin styles, and operational visibility across Qatar.
-          </p>
-        </div>
-
-        <button
-          onClick={openCreateDrawer}
-          className="px-5 py-2.5 rounded-xl bg-[var(--e3-royal-blue)] text-white text-xs font-extrabold uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-2 shadow-lg cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Location</span>
-        </button>
-      </div>
+      <DashboardPageHeader
+        title="Attractions & Venues Location Manager"
+        description="Manage canonical GIS coordinates, bilingual venue details, map pin styles, and operational visibility across Qatar."
+        breadcrumbs={[
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Locations & Map GIS" },
+        ]}
+        badge={{ label: "GIS Engine", variant: "cyan" }}
+        primaryAction={{
+          label: "Add New Location",
+          onClick: openCreateDrawer,
+          icon: <Plus className="w-4 h-4" />,
+        }}
+      />
 
       {/* Filter Bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-level-2)]">
@@ -665,6 +662,6 @@ export function LocationManager() {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </DashboardPageShell>
   );
 }

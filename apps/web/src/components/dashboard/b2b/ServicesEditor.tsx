@@ -11,6 +11,23 @@ import { useRouter } from "next/navigation"
 import { TipTapEditor } from "@/components/shared/TipTapEditor"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { RepeaterField } from "@/components/shared/RepeaterField"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const SERVICE_SECTIONS: EditorSectionItem[] = [
+  { id: "basic", label: "1. Basic Details" },
+  { id: "inside", label: "2. What's Inside" },
+  { id: "process", label: "3. Process Stepper" },
+  { id: "hero", label: "4. Hero Media" },
+  { id: "gallery", label: "5. Portfolio Gallery" },
+  { id: "projects", label: "6. Cross-Reference" },
+  { id: "cta", label: "7. Call to Action" },
+  { id: "seo", label: "8. SEO Customizer" },
+];
 
 const TABS = [
   { id: "basic", label: "Basic Details", icon: FileText },
@@ -137,59 +154,59 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
   }
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-bg-base">
-      
-      {/* Sidebar Navigation */}
-      <div className="w-64 border-e border-border-default bg-surface-default p-4 flex flex-col z-10 shrink-0">
-        <div className="mb-6 flex items-center gap-3">
-          <button 
-            onClick={() => router.push('/dashboard/b2b/services')}
-            className="p-1.5 hover:bg-surface-hover rounded-lg transition-colors text-text-secondary"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h2 className="text-lg font-black text-text-primary leading-tight">Services CMS</h2>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-text-tertiary">Advanced Capability Editor</p>
+    <DashboardPageShell variant="wide">
+      {/* Header */}
+      <DashboardPageHeader
+        title={isEditing ? `Edit Service: ${formData.titleEn || "Untitled"}` : "New B2B Service"}
+        description="Configure B2B event engineering capability details, process steps, portfolio gallery, and cross-references."
+        breadcrumbs={[
+          { label: "B2B Services", href: "/dashboard/b2b/services" },
+          { label: isEditing ? (formData.titleEn || "Edit Service") : "New Service" },
+        ]}
+        badge={{
+          label: formData.isVisible ? "VISIBLE" : "HIDDEN",
+          variant: formData.isVisible ? "success" : "warning",
+        }}
+        previewUrl={formData.slug ? `/b2b/services/${formData.slug}` : undefined}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Service",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-3 py-2 rounded-xl border border-[var(--border-default)]">
+              <input 
+                type="checkbox" 
+                checked={formData.isVisible}
+                onChange={e => handleChange('isVisible', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+              />
+              <span className="text-xs font-bold text-[var(--text-primary)]">Visible</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-3 py-2 rounded-xl border border-[var(--border-default)]">
+              <input 
+                type="checkbox" 
+                checked={formData.isFeatured}
+                onChange={e => handleChange('isFeatured', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+              />
+              <span className="text-xs font-bold text-[var(--text-primary)]">Featured</span>
+            </label>
           </div>
-        </div>
-        
-        <nav className="flex-1 space-y-1">
-          {TABS.map(tab => {
-            const isActive = activeTab === tab.id
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left
-                  ${isActive 
-                    ? 'bg-accent text-white font-bold shadow-md' 
-                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
-                  }
-                `}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-text-tertiary'}`} />
-                {tab.label}
-                {isActive && <ChevronRight className="w-4 h-4 ms-auto rtl:-scale-x-100" />}
-              </button>
-            )
-          })}
-        </nav>
+        }
+      />
 
-        <div className="pt-4 border-t border-border-default space-y-3">
-          {hasUnsavedChanges && (
-            <p className="text-xs text-center font-bold text-warning">Unsaved Changes</p>
-          )}
-          <Button className="w-full gap-2 rounded-xl h-12 text-sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <span className="animate-spin text-xl">⟳</span> : <Save className="w-4 h-4" />}
-            Publish Service
-          </Button>
-        </div>
-      </div>
+      <DashboardSectionNavigator
+        sections={SERVICE_SECTIONS}
+        activeSectionId={activeTab}
+        onSelectSection={setActiveTab}
+      />
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-8 relative bg-surface-hover">
+      <div className="flex flex-col md:flex-row gap-6 mt-4">
+        {/* Main Content Area */}
+        <div className="flex-1 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-1)] p-6 md:p-8 min-h-[500px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -532,7 +549,8 @@ export function ServicesEditor({ initialData, attractions }: { initialData?: any
 
           </motion.div>
         </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

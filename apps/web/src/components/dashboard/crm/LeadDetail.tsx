@@ -4,6 +4,10 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save, Plus } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 type Lead = {
   id: string
   name: string
@@ -78,26 +82,26 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex items-center justify-between bg-surface-default p-4 rounded-xl border border-border-default shadow-sm sticky top-6 z-10">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.push("/dashboard/crm/leads")}
-            className="p-2 hover:bg-surface-hover rounded-lg transition-colors text-text-secondary"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-text-primary">Lead: {lead.name}</h1>
-            <p className="text-xs text-text-secondary">{lead.company || "Individual"}</p>
-          </div>
-        </div>
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          <Save className="w-4 h-4" />
-          {isSaving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
+      <DashboardPageHeader
+        title={`Lead: ${lead.name}`}
+        description={`Manage sales pipeline stages, corporate account details, interaction notes, and inquiry history (${lead.company || "Individual Lead"}).`}
+        breadcrumbs={[
+          { label: "CRM Leads", href: "/dashboard/crm/leads" },
+          { label: lead.name },
+        ]}
+        badge={{
+          label: lead.status,
+          variant: lead.status === "WON" ? "success" : lead.status === "LOST" ? "error" : "warning",
+        }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Details Form */}
@@ -226,6 +230,6 @@ export function LeadDetail({ initialLead }: { initialLead: Lead }) {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

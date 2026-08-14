@@ -2,12 +2,15 @@
 
 import { useState } from "react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminPageHeader } from "../ui/AdminPageHeader"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Save } from "lucide-react"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function B2BCareersEditor({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
@@ -98,15 +101,21 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
   }
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6">
-      <AdminPageHeader 
-        title="B2B Careers CMS"
-        description="Manage open roles and career page hero content."
-        action={
-          <AdminButton variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </AdminButton>
-        }
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader 
+        title="B2B Careers Page Editor"
+        description="Manage B2B career opportunities, hero media assets, open job listings, and SEO metadata."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Careers Editor" }
+        ]}
+        badge={{ label: `${data.jobs.length} Positions`, variant: "purple" }}
+        primaryAction={{
+          label: saving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />
+        }}
       />
 
       <AdminFormLayout sidebar={
@@ -258,6 +267,6 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
         <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
 
       </AdminFormLayout>
-    </div>
+    </DashboardPageShell>
   )
 }

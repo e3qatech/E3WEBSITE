@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { DashboardPageShell, DashboardPageHeader } from "@/components/dashboard/ui"
 
 interface UnifiedBrandsManagerProps {
   defaultPortalFilter?: "all" | "b2c" | "b2b"
@@ -126,24 +127,22 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <DashboardPageShell variant="wide">
       {/* Top Header & Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">E3 Brand & IP Ecosystem</h1>
-            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-              {brands.length} Brands Total
-            </span>
-          </div>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Manage canonical E3 brands, sub-brands, hosted concepts, and F&B IPs powering B2C and B2B portals.
-          </p>
-        </div>
-        <Button onClick={() => setIsCreating(true)} className="gap-2 shrink-0">
-          <Plus className="w-4 h-4" /> Create New Brand / IP
-        </Button>
-      </div>
+      <DashboardPageHeader
+        title="E3 Brand & IP Ecosystem"
+        description="Manage canonical E3 brands, sub-brands, hosted concepts, and F&B IPs powering B2C and B2B portals."
+        breadcrumbs={[
+          { label: portalFilter === "b2b" ? "B2B Content" : "B2C Content", href: portalFilter === "b2b" ? "/dashboard/b2b/brands" : "/dashboard/b2c/brands" },
+          { label: "Brand & IP Ecosystem" },
+        ]}
+        badge={{ label: `${brands.length} Brands Total`, variant: "purple" }}
+        primaryAction={{
+          label: "Create New Brand / IP",
+          onClick: () => setIsCreating(true),
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
 
       {/* Portal & Category Filters */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -306,7 +305,7 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }
 
@@ -418,27 +417,29 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
   }
 
   return (
-    <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 max-w-4xl mx-auto shadow-xl space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-        <div>
-          <h2 className="text-xl font-extrabold text-[var(--text-primary)]">
-            {isEditing ? `Edit Brand: ${nameEn}` : "Create New E3 Brand / IP"}
-          </h2>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Configure dual B2C & B2B presence for this canonical brand entity.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+    <DashboardPageShell variant="focused">
+      <DashboardPageHeader
+        title={isEditing ? `Edit Brand: ${nameEn || "Untitled"}` : "Create New E3 Brand / IP"}
+        description="Configure dual B2C & B2B presence for this canonical brand entity."
+        breadcrumbs={[
+          { label: "Brands Directory", href: "/dashboard/b2c/brands" },
+          { label: isEditing ? (nameEn || "Edit Brand") : "New Brand" }
+        ]}
+        badge={{
+          label: lifecycleStatus,
+          variant: lifecycleStatus === "ACTIVE" ? "success" : "warning",
+        }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Brand Record",
+          onClick: handleSave,
+          isLoading: isSaving,
+        }}
+        secondaryAction={
           <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Brand Record"}
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex border-b border-[var(--border-default)] gap-2">
@@ -728,6 +729,6 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
           </div>
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

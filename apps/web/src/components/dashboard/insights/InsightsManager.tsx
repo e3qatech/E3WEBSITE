@@ -8,6 +8,10 @@ import {
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function InsightsManager() {
   const [insights, setInsights] = useState<any[]>([])
@@ -65,24 +69,22 @@ export function InsightsManager() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">Insights, News & Press Portal</h1>
-            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-              {insights.length} Total Records
-            </span>
-          </div>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Central website-wide backend module for Articles, News, Press Releases, Event Recaps, and Announcements.
-          </p>
-        </div>
-        <Button onClick={() => setIsCreating(true)} className="gap-2 shrink-0">
-          <Plus className="w-4 h-4" /> Create New Insight / News
-        </Button>
-      </div>
+      <DashboardPageHeader
+        title="Insights, News & Press Portal"
+        description="Central backend portal for managing articles, press releases, event recaps, and announcements across the site."
+        breadcrumbs={[
+          { label: "Content", href: "/dashboard/insights" },
+          { label: "Insights & Press" },
+        ]}
+        badge={{ label: `${insights.length} Records`, variant: "purple" }}
+        primaryAction={{
+          label: "Create New Record",
+          onClick: () => setIsCreating(true),
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
 
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -175,7 +177,7 @@ export function InsightsManager() {
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }
 
@@ -248,26 +250,29 @@ function InsightEditor({ initialData, onClose, onSave }: { initialData?: any; on
   }
 
   return (
-    <div className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-6 max-w-4xl mx-auto shadow-xl space-y-6">
-      <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-        <div>
-          <h2 className="text-xl font-extrabold text-[var(--text-primary)]">
-            {isEditing ? `Edit Record: ${titleEn}` : "Create Insights / News Record"}
-          </h2>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Central repository for press, articles, recaps, and company announcements.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+    <DashboardPageShell variant="focused">
+      <DashboardPageHeader
+        title={isEditing ? `Edit Record: ${titleEn || "Untitled"}` : "Create Insights / News Record"}
+        description="Configure press release, article, event recap, or company announcement content."
+        breadcrumbs={[
+          { label: "Insights Portal", href: "/dashboard/insights" },
+          { label: isEditing ? (titleEn || "Edit Record") : "New Record" },
+        ]}
+        badge={{
+          label: publishStatus,
+          variant: publishStatus === "PUBLISHED" ? "success" : "warning",
+        }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Record",
+          onClick: handleSave,
+          isLoading: isSaving,
+        }}
+        secondaryAction={
           <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Record"}
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 space-y-4">
@@ -377,6 +382,6 @@ function InsightEditor({ initialData, onClose, onSave }: { initialData?: any; on
           </div>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

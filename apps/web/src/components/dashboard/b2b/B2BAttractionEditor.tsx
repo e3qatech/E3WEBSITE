@@ -21,8 +21,11 @@ import {
   CheckCircle2
 } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
-import { AdminPageHeader } from "@/components/dashboard/ui/AdminPageHeader"
 import { Badge } from "@/components/ui/Badge"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function B2BAttractionEditor({ initialData }: { initialData: any }) {
   const router = useRouter()
@@ -151,32 +154,25 @@ export function B2BAttractionEditor({ initialData }: { initialData: any }) {
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-8 max-w-[1400px] mx-auto animate-fade-in-up">
-      <AdminPageHeader
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
         title={`Edit Project: ${initialData.nameEn}`}
         description={`Updating single source of truth Attraction record (ID: ${initialData.id})`}
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
           { label: "B2B Attractions", href: "/dashboard/b2b/attractions" },
-          { label: "Edit Record" }
+          { label: initialData.nameEn || "Edit Record" }
         ]}
-        action={
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard/b2b/attractions">
-              <AdminButton variant="outline" leftIcon={<ArrowLeft className="w-4 h-4" />}>
-                Back to List
-              </AdminButton>
-            </Link>
-            <AdminButton
-              variant="primary"
-              leftIcon={saveSuccess ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Save className="w-4 h-4" />}
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? "Saving..." : saveSuccess ? "Saved Successfully!" : "Save Changes"}
-            </AdminButton>
-          </div>
-        }
+        badge={{
+          label: formData.isB2bVisible ? "B2B VISIBLE" : "B2B HIDDEN",
+          variant: formData.isB2bVisible ? "success" : "warning",
+        }}
+        previewUrl={`/b2c/attractions/${formData.slug}`}
+        primaryAction={{
+          label: saving ? "Saving..." : saveSuccess ? "Saved Successfully!" : "Save Changes",
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
       />
 
       {/* Editor Tabs Navigation */}
@@ -602,6 +598,6 @@ export function B2BAttractionEditor({ initialData }: { initialData: any }) {
           </div>
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

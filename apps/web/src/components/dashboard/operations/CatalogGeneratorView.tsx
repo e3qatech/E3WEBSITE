@@ -4,6 +4,10 @@ import { useState } from "react"
 import { BookOpen, Search, CheckSquare, Square } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import dynamic from "next/dynamic"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 const CatalogPDFDownload = dynamic(() => import('./CatalogPDFDocument'), { ssr: false });
 
@@ -43,13 +47,16 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">Catalog Generator</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Export B2B service portfolios as PDF pitch decks.</p>
-        </div>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Catalog & Portfolio Generator"
+        description="Export B2B service capabilities and portfolios as printable PDF decks and client presentations."
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard/operations/catalog" },
+          { label: "Catalog Generator" },
+        ]}
+        badge={{ label: `${services.length} Services`, variant: "indigo" }}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -132,8 +139,7 @@ export function CatalogGeneratorView({ services }: { services: any[] }) {
             </div>
           )}
         </div>
-
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

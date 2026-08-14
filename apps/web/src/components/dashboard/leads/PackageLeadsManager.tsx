@@ -7,6 +7,10 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function PackageLeadsManager() {
   const [leads, setLeads] = useState<any[]>([])
@@ -84,25 +88,23 @@ export function PackageLeadsManager() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">Package Leads & Enquiries</h1>
-            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-              {leads.length} Total Enquiries
-            </span>
-          </div>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Track birthday bookings, school group field trips, and corporate team-building briefs.
-          </p>
-        </div>
-
-        <Button onClick={exportCSV} variant="outline" className="gap-2 shrink-0">
-          <Download className="w-4 h-4" /> Export CSV
-        </Button>
-      </div>
+      <DashboardPageHeader
+        title="Package Leads & Enquiries"
+        description="Track birthday bookings, school group field trips, and corporate team-building briefs."
+        breadcrumbs={[
+          { label: "B2C Management", href: "/dashboard/b2c/packages" },
+          { label: "Package Enquiries" },
+        ]}
+        badge={{ label: `${leads.length} Leads`, variant: "indigo" }}
+        primaryAction={{
+          label: "Export CSV",
+          onClick: exportCSV,
+          variant: "secondary",
+          icon: <Download className="w-4 h-4" />
+        }}
+      />
 
       {/* Filter Toolbar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -205,6 +207,6 @@ export function PackageLeadsManager() {
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

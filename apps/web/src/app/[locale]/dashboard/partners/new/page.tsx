@@ -7,6 +7,11 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/dashboard/ui/MediaUploader"
 import Link from "next/link"
 
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
+
 export default function NewPartnerPage() {
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
@@ -28,24 +33,25 @@ export default function NewPartnerPage() {
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-4xl mx-auto space-y-6">
-      
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" asChild className="p-2 -ms-2">
-            <Link href="/dashboard/partners">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-black text-[var(--text-primary)]">Add New Partner</h1>
-          </div>
-        </div>
-        
-        <Button onClick={handleSave} isLoading={isSaving} className="gap-2">
-          <Save className="w-4 h-4" /> Save Partner
-        </Button>
-      </div>
+    <DashboardPageShell variant="focused">
+      <DashboardPageHeader
+        title="Add New Partner"
+        description="Register a new strategic, corporate, or government partner entity and configure public visibility."
+        breadcrumbs={[
+          { label: "Partners Directory", href: "/dashboard/partners" },
+          { label: "New Partner" },
+        ]}
+        badge={{
+          label: formData.visible ? "VISIBLE" : "HIDDEN",
+          variant: formData.visible ? "success" : "warning",
+        }}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Partner",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       <div className="bg-[var(--surface-default)] p-6 md:p-8 rounded-2xl border border-[var(--border-default)] space-y-8">
         
@@ -101,7 +107,6 @@ export default function NewPartnerPage() {
         </label>
 
       </div>
-
-    </div>
+    </DashboardPageShell>
   )
 }

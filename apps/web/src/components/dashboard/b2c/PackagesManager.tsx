@@ -8,6 +8,10 @@ import {
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function PackagesManager() {
   const [packages, setPackages] = useState<any[]>([])
@@ -72,25 +76,23 @@ export function PackagesManager() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">Packages & Birthdays Manager</h1>
-            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-              {packages.length} Total Packages
-            </span>
-          </div>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Create, edit, duplicate, and manage bilingual package microsites for birthdays, groups, schools, and corporate events.
-          </p>
-        </div>
-
-        <Button onClick={() => setIsCreating(true)} className="gap-2 shrink-0">
-          <Plus className="w-4 h-4" /> Create New Package
-        </Button>
-      </div>
+      <DashboardPageHeader
+        title="Packages & Birthdays Manager"
+        description="Create, edit, duplicate, and manage bilingual package microsites for birthdays, groups, schools, and corporate events."
+        breadcrumbs={[
+          { label: "B2C Content", href: "/dashboard/b2c/attractions" },
+          { label: "Packages & Birthdays" },
+        ]}
+        badge={{ label: `${packages.length} Total Packages`, variant: "purple" }}
+        previewUrl="/b2c/packages"
+        primaryAction={{
+          label: "Create New Package",
+          onClick: () => setIsCreating(true),
+          icon: <Plus className="w-4 h-4" />,
+        }}
+      />
 
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -184,7 +186,7 @@ export function PackagesManager() {
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }
 

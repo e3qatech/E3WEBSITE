@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { Search, Globe, Building2, Plus, Trash2, Users, UserPlus } from "lucide-react"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 type Client = {
   id: string
@@ -175,28 +179,21 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-text-primary">Clients & Multi-Tenant Directory</h1>
-          <p className="text-sm text-text-secondary">Manage accounts, agencies, government partners, and tenant memberships.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <input 
-              type="text" 
-              placeholder="Search companies..." 
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm focus:outline-none focus:border-accent w-full md:w-64"
-            />
-          </div>
-          <Button className="gap-2" onClick={() => setIsAdding(true)}>
-            <Plus className="w-4 h-4" /> Add Client
-          </Button>
-        </div>
-      </div>
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Clients & Multi-Tenant Directory"
+        description="Manage corporate accounts, agencies, government partners, and company tenant memberships."
+        breadcrumbs={[
+          { label: "CRM & Sales", href: "/dashboard/crm/clients" },
+          { label: "Clients Directory" },
+        ]}
+        badge={{ label: `${clients.length} Clients`, variant: "indigo" }}
+        primaryAction={{
+          label: "Add Client",
+          onClick: () => setIsAdding(true),
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
 
       {isAdding && (
         <div className="fixed inset-0 z-50 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -416,6 +413,6 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
           </table>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

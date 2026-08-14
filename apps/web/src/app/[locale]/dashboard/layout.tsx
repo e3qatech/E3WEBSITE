@@ -5,7 +5,16 @@ import { SystemBroadcastBanner } from "@/components/dashboard/SystemBroadcastBan
 import db from "@/lib/db"
 import { AdminThemeProvider } from "@/components/dashboard/ui/AdminThemeProvider"
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({
+  children,
+  params
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
+
   // Fetch active broadcast (with error handling for missing tables)
   let activeBroadcast = null;
   try {
@@ -20,7 +29,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <AdminThemeProvider>
       <ToastProvider>
-        <div data-portal="dashboard" className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden transition-colors duration-300 selection:bg-[var(--color-accent)] selection:text-white">
+        <div
+          data-portal="dashboard"
+          dir={isAr ? 'rtl' : 'ltr'}
+          lang={locale || 'en'}
+          className="flex h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] overflow-hidden transition-colors duration-300 selection:bg-[var(--color-accent)] selection:text-white"
+        >
           
           {/* Layer 1: Sidebar (Clean, unblurred solid surface) */}
           <div className="relative z-20 flex-shrink-0 bg-[var(--bg-level-2)] border-e border-[var(--border-level-1)] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">

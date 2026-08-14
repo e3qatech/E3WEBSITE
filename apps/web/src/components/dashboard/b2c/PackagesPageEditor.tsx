@@ -35,6 +35,7 @@ export function PackagesPageEditor() {
   const [isDirty, setIsDirty] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [activeSectionId, setActiveSectionId] = useState("headlines");
+  const [dirtySections, setDirtySections] = useState<Set<string>>(new Set());
   const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
 
   const [pageConfig, setPageConfig] = useState({
@@ -90,6 +91,7 @@ export function PackagesPageEditor() {
     setPageConfig((prev) => {
       const next = updater(prev);
       setIsDirty(true);
+      setDirtySections((s) => new Set(s).add(activeSectionId));
       return next;
     });
   };
@@ -104,6 +106,7 @@ export function PackagesPageEditor() {
       });
       if (!res.ok) throw new Error("Failed to save Packages Page settings");
       setIsDirty(false);
+      setDirtySections(new Set());
       setLastSaved(new Date());
       toast("Packages Page Editor saved successfully!", "success");
       router.refresh();
@@ -151,7 +154,7 @@ export function PackagesPageEditor() {
         sections={SECTIONS}
         activeSectionId={activeSectionId}
         onSelectSection={setActiveSectionId}
-        dirtySections={isDirty ? [activeSectionId] : []}
+        dirtySections={Array.from(dirtySections)}
       />
 
       {/* 1. Hero Headlines Card */}

@@ -14,6 +14,28 @@ import { motion } from "framer-motion"
 import { useEffect } from "react"
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
 import { uploadFile } from "@/lib/upload"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardSectionNavigator,
+  EditorSectionItem,
+} from "@/components/dashboard/ui"
+
+const ATTRACTION_SECTIONS: EditorSectionItem[] = [
+  { id: "general", label: "1. Core Details" },
+  { id: "hero", label: "2. Hero Media" },
+  { id: "motion", label: "3. Motion & Experience" },
+  { id: "features", label: "4. What's Inside" },
+  { id: "pricing", label: "5. Pricing & Tickets" },
+  { id: "partners", label: "6. Partners" },
+  { id: "social", label: "7. Social & News" },
+  { id: "ops", label: "8. Locations & Ops" },
+  { id: "brands", label: "9. Brands & IP" },
+  { id: "visibility", label: "10. Visibility" },
+  { id: "gallery", label: "11. Gallery" },
+  { id: "faqs", label: "12. FAQs" },
+  { id: "seo", label: "13. SEO Settings" },
+];
 
 export function AttractionEditor({ initialData }: { initialData?: any }) {
   const router = useRouter()
@@ -339,62 +361,54 @@ const DEFAULT_STORY_TYPES = [
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-default)] shadow-sm sticky top-6 z-30 gap-4">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => {
-              if (isDirty && !window.confirm("You have unsaved changes. Discard them?")) return;
-              router.back()
-            }}
-            className="p-2 hover:bg-[var(--surface-hover)] rounded-xl transition-colors text-[var(--text-secondary)]"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-[var(--text-primary)]">
-              {isEditing ? "Edit Attraction Microsite" : "New Attraction Microsite"}
-            </h1>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">{nameEn || "Untitled"}</p>
+      <DashboardPageHeader
+        title={isEditing ? `Edit Attraction: ${nameEn || "Untitled"}` : "New Attraction Microsite"}
+        description="Configure attraction microsite details, hero assets, motion experience, pricing tiers, and SEO."
+        breadcrumbs={[
+          { label: "B2C Attractions", href: "/dashboard/b2c/attractions" },
+          { label: isEditing ? (nameEn || "Edit Attraction") : "New Attraction" },
+        ]}
+        badge={{
+          label: isPublished ? "PUBLISHED" : "DRAFT",
+          variant: isPublished ? "success" : "warning",
+        }}
+        previewUrl={slug ? `/b2c/attractions/${slug}` : undefined}
+        primaryAction={{
+          label: isSaving ? "Saving..." : "Save Changes",
+          onClick: handleSave,
+          isLoading: isSaving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+        secondaryAction={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowPreviewModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] border border-[var(--border-default)] text-xs font-bold transition-all cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Preview</span>
+            </button>
+            <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-3 py-2 rounded-xl border border-[var(--border-default)]">
+              <input 
+                type="checkbox" 
+                checked={isPublished}
+                onChange={e => setIsPublished(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              />
+              <span className="text-xs font-bold text-[var(--text-primary)]">Published</span>
+            </label>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setShowPreviewModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-white border border-[var(--border-default)] text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer hover:scale-105"
-          >
-            <Eye className="w-4 h-4 text-emerald-400" />
-            <span>Preview Microsite</span>
-          </button>
+        }
+      />
 
-          <a
-            href={`/en/b2c/attractions/${slug || initialData?.slug || ''}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-slate-800 border border-[var(--border-default)] text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm"
-            title="Open Live Microsite in New Tab"
-          >
-            <ExternalLink className="w-3.5 h-3.5 text-sky-400" />
-            <span>Live Tab</span>
-          </a>
-
-          <label className="flex items-center gap-2 cursor-pointer bg-[var(--surface-subtle)] px-4 py-2 rounded-xl border border-[var(--border-default)]">
-            <input 
-              type="checkbox" 
-              checked={isPublished}
-              onChange={e => setIsPublished(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-            />
-            <span className="text-xs font-bold text-[var(--text-primary)]">Published</span>
-          </label>
-          <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-            {isSaving ? <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
-          </Button>
-        </div>
-      </div>
+      <DashboardSectionNavigator
+        sections={ATTRACTION_SECTIONS}
+        activeSectionId={activeTab}
+        onSelectSection={setActiveTab}
+      />
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Navigation Sidebar */}
@@ -1721,6 +1735,6 @@ const DEFAULT_STORY_TYPES = [
           </div>
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { Plus, Clock, AlertTriangle, CalendarDays, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { format } from "date-fns"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 export function TemporalRulesManager({ 
   initialRules,
@@ -113,17 +117,22 @@ export function TemporalRulesManager({
   ]
 
   return (
-    <div className="space-y-8 pb-24">
+    <DashboardPageShell variant="wide">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">Temporal Rules</h1>
-          <p className="text-[var(--text-secondary)]">Manage opening hours, seasonal closures, and special events.</p>
-        </div>
-        <Button onClick={() => setIsAdding(!isAdding)} className="gap-2">
-          {isAdding ? "Cancel" : <><Plus className="w-4 h-4" /> Create Rule</>}
-        </Button>
-      </div>
+      <DashboardPageHeader
+        title="Temporal Operational Rules"
+        description="Manage attraction opening hours, seasonal schedules, maintenance closures, and public holiday overrides."
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard/operations/temporal-rules" },
+          { label: "Temporal Rules" },
+        ]}
+        badge={{ label: `${rules.length} Rules`, variant: "purple" }}
+        primaryAction={{
+          label: isAdding ? "Cancel" : "Create Rule",
+          onClick: () => setIsAdding(!isAdding),
+          icon: <Plus className="w-4 h-4" />
+        }}
+      />
 
       {isAdding && (
         <form onSubmit={handleAddRule} className="bg-[var(--surface-default)] p-6 rounded-xl border border-[var(--border-default)] shadow-sm space-y-6 animate-in fade-in zoom-in duration-200">
@@ -270,6 +279,6 @@ export function TemporalRulesManager({
           </table>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

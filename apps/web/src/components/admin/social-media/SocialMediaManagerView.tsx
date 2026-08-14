@@ -16,6 +16,10 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from '@/components/dashboard/ui';
 import { OverviewTab } from './tabs/OverviewTab';
 import { PlatformsTab } from './tabs/PlatformsTab';
 import { AccountsTab } from './tabs/AccountsTab';
@@ -107,32 +111,23 @@ export function SocialMediaManagerView() {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16">
+    <DashboardPageShell variant="wide">
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-1)] shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-purple-950 text-purple-400 border border-purple-500/30">
-              <Sparkles className="w-5 h-5" />
-            </span>
-            <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Social Media Manager</h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)]">
-            Manage official API credentials, account connections, native feeds, content moderation, and website placement.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchAllData}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh Workspace</span>
-          </button>
-        </div>
-      </div>
+      <DashboardPageHeader
+        title="Social Media & Feed Hub"
+        description="Manage official API credentials, account connections, native feeds, content moderation, and website placement."
+        breadcrumbs={[
+          { label: "Marketing", href: "/dashboard/social-media" },
+          { label: "Social Media Manager" },
+        ]}
+        badge={{ label: `${accounts.length} Accounts`, variant: "purple" }}
+        primaryAction={{
+          label: "Refresh Workspace",
+          onClick: fetchAllData,
+          isLoading: loading,
+          icon: <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />,
+        }}
+      />
 
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-[var(--border-level-1)] scrollbar-none">
@@ -216,6 +211,6 @@ export function SocialMediaManagerView() {
 
         {activeTab === 'settings' && <GlobalSettingsTab />}
       </div>
-    </div>
+    </DashboardPageShell>
   );
 }

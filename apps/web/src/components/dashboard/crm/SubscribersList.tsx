@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { Search, Mail, Phone, CheckCircle, XCircle, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+} from "@/components/dashboard/ui"
 
 type Subscriber = {
   id: string
@@ -58,13 +62,22 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-text-primary">Subscribers</h1>
-          <p className="text-sm text-text-secondary">Manage newsletter and event subscribers.</p>
-        </div>
-        <div className="flex items-center gap-3">
+    <DashboardPageShell variant="wide">
+      <DashboardPageHeader
+        title="Audience & Subscribers Directory"
+        description="Manage newsletter, campaign, and special event subscriptions, verification statuses, and communication preferences."
+        breadcrumbs={[
+          { label: "CRM & Marketing", href: "/dashboard/crm/subscribers" },
+          { label: "Subscribers" },
+        ]}
+        badge={{ label: `${subscribers.length} Subscribers`, variant: "indigo" }}
+      />
+
+      <div className="flex items-center justify-between gap-4">
+          <div className="text-sm font-semibold text-[var(--text-secondary)]">
+            Total Verified: {subscribers.filter(s => s.isVerified).length} / {subscribers.length}
+          </div>
+          <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input 
@@ -166,6 +179,6 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
           </table>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation'
 import { Save, Sparkles, Users, Globe, Search } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import {
+  DashboardPageShell,
+  DashboardPageHeader,
+  DashboardLoadingState,
+} from '@/components/dashboard/ui'
 
 export function B2BTeamPageEditor() {
   const router = useRouter()
@@ -62,42 +67,28 @@ export function B2BTeamPageEditor() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[var(--text-secondary)] flex items-center justify-center gap-2">
-        <Sparkles className="w-5 h-5 animate-spin text-[var(--color-primary)]" />
-        <span>Loading Team Page Editor...</span>
-      </div>
-    )
+    return <DashboardLoadingState title="Loading Team Page Editor..." type="skeleton" />
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 text-[var(--text-primary)]">
+    <DashboardPageShell variant="focused">
       {/* Top Action Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[var(--surface-selected)] text-[var(--color-primary)] border border-[var(--color-primary)]/30">
-              B2B CONTENT MANAGER
-            </span>
-            <h1 className="text-2xl font-extrabold text-[var(--text-primary)] flex items-center gap-2">
-              <Users className="w-6 h-6 text-[var(--color-primary)]" />
-              <span>B2B Team Page Editor</span>
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage page titles, universal hero & footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (`/b2b/team`).
-          </p>
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : 'Save Page Settings'}</span>
-        </button>
-      </div>
+      <DashboardPageHeader
+        title="B2B Team Page Editor"
+        description="Manage page titles, universal hero & footer media (Image, Video, 3D, IFrame, Fallbacks), and SEO metadata (/b2b/team)."
+        breadcrumbs={[
+          { label: "B2B Pages", href: "/dashboard/b2b/home" },
+          { label: "Team Page Editor" },
+        ]}
+        badge={{ label: "B2B Public", variant: "purple" }}
+        previewUrl="/b2b/team"
+        primaryAction={{
+          label: saving ? 'Saving...' : 'Save Page Settings',
+          onClick: handleSave,
+          isLoading: saving,
+          icon: <Save className="w-4 h-4" />,
+        }}
+      />
 
       {/* Hero Header Controls */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
@@ -198,6 +189,6 @@ export function B2BTeamPageEditor() {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }
