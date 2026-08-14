@@ -191,23 +191,27 @@ export async function requireCandidateProfile() {
     throw new AppAuthError(403, "Forbidden: Candidate role required");
   }
 
-  const talent = await (db as any).talent.findUnique({
-    where: { userId: user.id }
-  });
-
-  return { user, talent };
+  return { user };
 }
 
 export async function requireCandidateApplication(applicationId: string) {
   const user = await requireCurrentUser();
-  if (user.role === 'SUPER_ADMIN') {
+  const isPrivileged = ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'STAFF', 'HR_ADMIN'].includes(user.role) || isAdminRole(user.role);
+
+  if (isPrivileged) {
     const application = await (db as any).jobApplication.findUnique({ where: { id: applicationId } });
     if (!application) throw new AppAuthError(404, "Application not found");
     return { user, application };
   }
 
   const application = await (db as any).jobApplication.findFirst({
-    where: { id: applicationId, userId: user.id }
+    where: {
+      id: applicationId,
+      OR: [
+        { userId: user.id },
+        ...(user.email ? [{ email: user.email }] : [])
+      ]
+    }
   });
 
   if (!application) {

@@ -47,6 +47,8 @@ function simulateAIParse(text: string) {
   };
 }
 
+import { auth } from '@/lib/auth';
+
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get('x-forwarded-for') || 'unknown_ip';
@@ -65,20 +67,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, status: 'ignored' }, { status: 201 });
     }
     const validatedData = applicationSchema.parse(body);
+    const cleanEmail = validatedData.email.trim().toLowerCase();
+
+    const session = await auth();
 
     // 1. Check if user exists or create them
     let user = await db.user.findUnique({
-      where: { email: validatedData.email }
+      where: { email: cleanEmail }
     });
 
-    if (!user) {
+    if (user) {
+      // If the current authenticated session is the same user, allow submitting additional applications
+      if (session?.user?.id === user.id || (session?.user?.email && session.user.email.toLowerCase() === cleanEmail)) {
+        // Authenticated user submitting another application - proceed
+      } else {
+        return NextResponse.json({
+          error: 'An account with this email already exists. Please sign in to submit or track your application.',
+          code: 'ACCOUNT_EXISTS',
+          email: cleanEmail
+        }, { status: 409 });
+      }
+    } else {
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
       user = await db.user.create({
         data: {
-          email: validatedData.email,
-          name: `${validatedData.firstName} ${validatedData.lastName}`,
+          email: cleanEmail,
+          name: `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`,
           password: hashedPassword,
-          role: 'CLIENT' // Applicants are created as standard clients
+          role: 'CANDIDATE' as any
         }
       });
     }
@@ -86,19 +102,19 @@ export async function POST(req: NextRequest) {
     // 2. Create the application and link it to the user
     const application = await db.jobApplication.create({
       data: {
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
-        email: validatedData.email,
-        phone: validatedData.phone,
-        jobTitle: validatedData.jobTitle,
-        department: validatedData.department,
+        firstName: validatedData.firstName.trim(),
+        lastName: validatedData.lastName.trim(),
+        email: cleanEmail,
+        phone: validatedData.phone?.trim() || null,
+        jobTitle: validatedData.jobTitle.trim(),
+        department: validatedData.department?.trim() || null,
         cvUrl: validatedData.cvUrl,
         portal: validatedData.portal,
         userId: user.id
       }
     });
 
-    // 3. Simulated AI Parse and create CRM Talent Record
+    // 3. Simulated AI Parse and optional CRM Talent Record
     let parsedData = { experienceLevel: "Unknown", skills: [] as string[], languages: [] as string[] };
     if (validatedData.cvText) {
       parsedData = simulateAIParse(validatedData.cvText);
@@ -106,23 +122,31 @@ export async function POST(req: NextRequest) {
       parsedData = simulateAIParse(validatedData.jobTitle + " " + (validatedData.department || ""));
     }
 
-    const talent = await db.talent.create({
-      data: {
-        name: `${validatedData.firstName} ${validatedData.lastName}`,
-        email: validatedData.email,
-        phone: validatedData.phone,
-        position: validatedData.jobTitle,
-        department: validatedData.department,
-        resumeUrl: validatedData.cvUrl,
-        experienceLevel: parsedData.experienceLevel,
-        skills: parsedData.skills,
-        languages: parsedData.languages,
-        status: "NEW",
-        notes: validatedData.cvText ? `[AI Summary] Candidate parsed from CV submission.` : undefined,
+    let talentId: string | null = null;
+    try {
+      if ((db as any).talent) {
+        const talent = await (db as any).talent.create({
+          data: {
+            name: `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`,
+            email: cleanEmail,
+            phone: validatedData.phone?.trim() || null,
+            position: validatedData.jobTitle.trim(),
+            department: validatedData.department?.trim() || null,
+            resumeUrl: validatedData.cvUrl,
+            experienceLevel: parsedData.experienceLevel,
+            skills: parsedData.skills,
+            languages: parsedData.languages,
+            status: "NEW",
+            notes: validatedData.cvText ? `[AI Summary] Candidate parsed from CV submission.` : undefined,
+          }
+        });
+        talentId = talent.id;
       }
-    });
+    } catch (_tErr) {
+      // Talent creation is supplementary
+    }
 
-    return NextResponse.json({ success: true, application, talentId: talent.id });
+    return NextResponse.json({ success: true, application, talentId });
   } catch (error) {
     console.error("[POST /api/careers/apply] error:", error);
     if (error instanceof z.ZodError) {

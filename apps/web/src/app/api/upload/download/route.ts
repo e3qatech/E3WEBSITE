@@ -9,11 +9,14 @@
  * In local development (no BLOB_READ_WRITE_TOKEN), serves from private/uploads/.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { requireRole, AppAuthError } from '@/lib/server-auth';
 import path from 'path';
 import fs from 'fs/promises';
 
-const ALLOWED_DOWNLOAD_ROLES = ['SUPER_ADMIN', 'STAFF', 'SALES_ADMIN'] as const;
+import { auth } from '@/lib/auth';
+import db from '@/lib/db';
+import { isAdminRole } from '@/lib/auth-roles';
+
+const ALLOWED_DOWNLOAD_ROLES = ['SUPER_ADMIN', 'STAFF', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'HR_ADMIN'] as const;
 
 function sanitizeFilename(raw: string): string {
   const basename = raw.replace(/\0/g, '').split(/[/\\]/).pop() || 'download';
@@ -21,14 +24,13 @@ function sanitizeFilename(raw: string): string {
 }
 
 export async function GET(req: NextRequest) {
-  try {
-    await requireRole([...ALLOWED_DOWNLOAD_ROLES] as any[]);
-  } catch (error: any) {
-    if (error instanceof AppAuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
+  const session = await auth();
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const user = session.user as any;
+  const isPrivileged = ALLOWED_DOWNLOAD_ROLES.includes(user.role) || isAdminRole(user.role);
 
   // 2. Get the pathname from query
   const { searchParams } = new URL(req.url);
@@ -43,6 +45,42 @@ export async function GET(req: NextRequest) {
   // Prevent path traversal
   if (blobPathname.includes('..') || blobPathname.includes('\0')) {
     return NextResponse.json({ error: 'Invalid pathname' }, { status: 400 });
+  }
+
+  // Enforce candidate ownership if not an admin/staff role
+  if (!isPrivileged) {
+    if (user.role === 'CANDIDATE' as any) {
+      const ownsApplication = await db.jobApplication.findFirst({
+        where: {
+          cvUrl: { contains: blobPathname },
+          OR: [
+            { userId: user.id },
+            ...(user.email ? [{ email: user.email }] : [])
+          ]
+        }
+      });
+
+      let ownsTalent = false;
+      try {
+        if ((db as any).talent) {
+          const t = await (db as any).talent.findFirst({
+            where: {
+              resumeUrl: { contains: blobPathname },
+              ...(user.email ? { email: user.email } : {})
+            }
+          });
+          ownsTalent = Boolean(t);
+        }
+      } catch (_tErr) {
+        ownsTalent = false;
+      }
+
+      if (!ownsApplication && !ownsTalent) {
+        return NextResponse.json({ error: 'Forbidden: Access denied to other candidate documents' }, { status: 403 });
+      }
+    } else {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
   }
 
   try {
