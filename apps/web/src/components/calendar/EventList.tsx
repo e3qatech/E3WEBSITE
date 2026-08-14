@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { format } from 'date-fns';
+import { ar, enUS } from 'date-fns/locale';
 import { Loader2, CalendarX2 } from 'lucide-react';
 import { EventCard, CalendarEvent } from './EventCard';
-
+import { useLocale } from '@/components/layout/LocaleProvider';
 import { getBentoCardSpan } from '@/lib/bento-grid';
 
 interface EventListProps {
@@ -18,8 +19,12 @@ export function EventList({
   currentDate,
   events,
   loading,
-  onSelectTickets
+  onSelectTickets,
 }: EventListProps) {
+  const { locale } = useLocale();
+  const isAr = locale === 'ar';
+  const dateLocale = isAr ? ar : enUS;
+
   // Group events by day, ONLY for the currentDate
   const targetDayStr = format(currentDate, 'yyyy-MM-dd');
   
@@ -46,18 +51,26 @@ export function EventList({
   if (loading) {
     return (
       <div className="w-full h-96 flex flex-col items-center justify-center text-zinc-500">
-        <Loader2 className="w-8 h-8 animate-spin mb-4" />
-        <p className="font-bold uppercase tracking-widest text-sm">Loading Events...</p>
+        <Loader2 className="w-8 h-8 animate-spin mb-4 text-emerald-500" />
+        <p className="font-bold uppercase tracking-widest text-sm">
+          {isAr ? 'جاري تحميل الفعاليات...' : 'Loading Events...'}
+        </p>
       </div>
     );
   }
 
-  if (events.length === 0) {
+  if (events.length === 0 || sortedDays.length === 0) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-zinc-600 border border-dashed border-zinc-800 rounded-lg bg-[#141414] shadow-inner">
-        <CalendarX2 className="w-12 h-12 mb-4 opacity-50" />
-        <h3 className="text-xl font-bold text-zinc-300 mb-2 font-satoshi">No Events Found</h3>
-        <p className="text-sm font-medium">Try adjusting your filters or selecting a different month.</p>
+      <div className="w-full h-96 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-zinc-800 rounded-3xl bg-[#141424] shadow-inner p-8 text-center">
+        <CalendarX2 className="w-12 h-12 mb-4 text-zinc-600" />
+        <h3 className="text-xl font-bold text-zinc-300 mb-2 font-satoshi">
+          {isAr ? 'لا توجد فعاليات مجدولة لهذا اليوم' : 'No Events Scheduled For This Date'}
+        </h3>
+        <p className="text-sm text-zinc-500 max-w-md">
+          {isAr
+            ? 'تصفح التواريخ الأخرى في التقويم أو استكشف الوجهات والمعارض عبر قائمة الفلاتر.'
+            : 'Try adjusting your filters or selecting a different date from the calendar.'}
+        </p>
       </div>
     );
   }
@@ -67,12 +80,13 @@ export function EventList({
       {sortedDays.map(dayStr => {
         const dayEvents = groupedEvents[dayStr];
         const [year, month, day] = dayStr.split('-');
-        const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
         
         const groupedByAttraction = Object.values(
           dayEvents.reduce((acc, ev) => {
-            if (!acc[ev.attractionId]) acc[ev.attractionId] = [];
-            acc[ev.attractionId].push(ev);
+            const groupKey = ev.attractionId || ev.id;
+            if (!acc[groupKey]) acc[groupKey] = [];
+            acc[groupKey].push(ev);
             return acc;
           }, {} as Record<string, CalendarEvent[]>)
         );
@@ -82,18 +96,18 @@ export function EventList({
           <div key={dayStr} className="space-y-6">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-black text-white font-satoshi">
-                {format(dateObj, 'EEEE, MMMM d')}
+                {format(dateObj, 'EEEE, MMMM d', { locale: dateLocale })}
               </h2>
               <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-stretch">
-              {groupedByAttraction.map((groupedEvents, idx) => {
+              {groupedByAttraction.map((group, idx) => {
                 const { spanClass, isFeatured } = getBentoCardSpan(idx, totalAttractions);
                 return (
                   <EventCard 
-                    key={groupedEvents[0].id} 
-                    events={groupedEvents} 
+                    key={group[0].id} 
+                    events={group} 
                     onSelectTickets={onSelectTickets} 
                     isFeatured={isFeatured}
                     spanClass={spanClass}

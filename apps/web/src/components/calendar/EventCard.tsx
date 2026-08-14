@@ -1,7 +1,10 @@
 import React, { useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { format, isPast, differenceInMinutes } from 'date-fns';
+import { format, differenceInMinutes } from 'date-fns';
 import { MapPin, Clock, Tag, ExternalLink } from 'lucide-react';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { BookingAction, resolveBookingAction } from '@/lib/qatar-calendar';
+
 export type EventType = 'REGULAR' | 'SPECIAL' | 'FESTIVAL' | 'PRIVATE';
 
 export interface CalendarEvent {
@@ -12,7 +15,11 @@ export interface CalendarEvent {
   attractionSlug: string;
   ticketingUrl?: string | null;
   title: string | null;
+  titleEn?: string | null;
+  titleAr?: string | null;
   description: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
   thumbnail: string | null;
   startTime: string | Date;
   endTime: string | Date;
@@ -26,6 +33,7 @@ export interface CalendarEvent {
   locationNameAr?: string | null;
   openingTime?: string | null;
   closingTime?: string | null;
+  bookingAction?: BookingAction;
 }
 
 interface EventCardProps {
@@ -38,6 +46,8 @@ interface EventCardProps {
 const DEFAULT_COVER_IMAGE = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop';
 
 export function EventCard({ events, isFeatured = false, spanClass = "" }: EventCardProps) {
+  const { locale } = useLocale();
+  const isAr = locale === 'ar';
   const mounted = (React.useSyncExternalStore || useSyncExternalStore)(() => () => {}, () => true, () => false);
 
   const event = events[0];
@@ -54,13 +64,29 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
   const minsLeft = differenceInMinutes(endDate, now);
 
   if (minsLeft < 0) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-500/20 text-zinc-400 rounded-sm border border-zinc-500/30">Not Available</div>;
+    statusBadge = (
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-500/20 text-zinc-400 rounded-sm border border-zinc-500/30">
+        {isAr ? 'غير متاح' : 'Not Available'}
+      </div>
+    );
   } else if (minsLeft <= 90) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-400 rounded-sm border border-amber-500/30">Closing Soon</div>;
+    statusBadge = (
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-400 rounded-sm border border-amber-500/30">
+        {isAr ? 'ينتهي قريباً' : 'Closing Soon'}
+      </div>
+    );
   } else if (totalRemaining <= 0) {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/20 text-red-500 rounded-sm border border-red-500/30">Sold Out</div>;
+    statusBadge = (
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/20 text-red-500 rounded-sm border border-red-500/30">
+        {isAr ? 'نفدت التذاكر' : 'Sold Out'}
+      </div>
+    );
   } else {
-    statusBadge = <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">Available</div>;
+    statusBadge = (
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">
+        {isAr ? 'متاح' : 'Available'}
+      </div>
+    );
   }
 
   const typeColors = {
@@ -71,10 +97,25 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
   };
 
   const coverImg = event.thumbnail || DEFAULT_COVER_IMAGE;
-  const locationText = event.locationNameEn || 'Lusail Boulevard, Qatar';
+  const displayTitle = isAr
+    ? event.titleAr || event.attractionNameAr || event.title || event.attractionNameEn
+    : event.titleEn || event.attractionNameEn || event.title || 'Event';
 
-  // Only wide hero banners (spanning 4 or 6 columns) use side-by-side flex layout on desktop.
-  // 50% width cards (col-span-3) and 33% width cards (col-span-2) use clean vertical stacked layout so text never gets squeezed.
+  const displayDescription = isAr
+    ? event.descriptionAr || event.description
+    : event.descriptionEn || event.description;
+
+  const displayLocation = isAr
+    ? event.locationNameAr || 'الدوحة، قطر'
+    : event.locationNameEn || 'Doha, Qatar';
+
+  const bookingAction = event.bookingAction || resolveBookingAction(
+    event.ticketingUrl,
+    event.attractionSlug,
+    locale,
+    displayTitle
+  );
+
   const isWide = spanClass.includes('col-span-4') || spanClass.includes('col-span-6');
 
   return (
@@ -87,7 +128,7 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
         </div>
         {isFeatured && (
           <div className="px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-widest rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-md">
-            FEATURED EVENT
+            {isAr ? 'فعالية مميزة' : 'FEATURED EVENT'}
           </div>
         )}
       </div>
@@ -97,7 +138,7 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
         <div className={`relative shrink-0 bg-[#0F0F23] overflow-hidden ${isWide ? 'w-full lg:w-80 h-64 lg:h-auto' : 'w-full h-52 md:h-56'}`}>
           <img 
             src={coverImg} 
-            alt={event.attractionNameEn || "Attraction"}
+            alt={displayTitle}
             className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
             onError={(e) => {
               e.currentTarget.src = DEFAULT_COVER_IMAGE;
@@ -122,11 +163,11 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col flex-1 min-w-0">
                 <h3 className={`font-black text-white leading-tight font-satoshi group-hover:text-emerald-400 transition-colors ${isWide ? 'text-2xl lg:text-3xl' : 'text-lg md:text-xl'}`}>
-                  {event.attractionNameEn}
+                  {displayTitle}
                 </h3>
-                {event.description && (
+                {displayDescription && (
                   <p className="text-xs text-zinc-400 font-medium line-clamp-2 leading-relaxed mt-1">
-                    {event.description}
+                    {displayDescription}
                   </p>
                 )}
               </div>
@@ -134,7 +175,7 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
                 {statusBadge}
                 {event.hasOffer && (
                   <div className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 rounded border border-emerald-500/30">
-                    Offer
+                    {isAr ? 'عرض خاص' : 'Offer'}
                   </div>
                 )}
               </div>
@@ -147,31 +188,46 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
               </div>
               <div className="flex items-center gap-1.5 truncate max-w-[220px]">
                 <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                <span className="truncate">{locationText}</span>
+                <span className="truncate">{displayLocation}</span>
               </div>
               {event.price && (
                 <div className="flex items-center gap-1 text-white bg-zinc-800/80 px-2 py-0.5 rounded-lg border border-zinc-700 font-bold shrink-0">
                   <Tag className="w-3 h-3 text-emerald-400" />
-                  <span>{event.price.startsWith('From') ? event.price : `From ${event.price}`}</span>
+                  <span>{isAr ? (event.price.startsWith('من') ? event.price : `تبدأ من ${event.price}`) : (event.price.startsWith('From') ? event.price : `From ${event.price}`)}</span>
                 </div>
               )}
             </div>
           </div>
 
           <div className="flex items-center justify-between border-t border-zinc-800/80 pt-4 mt-4 gap-2 flex-wrap sm:flex-nowrap">
-            <Link 
-              href={`/en/b2c/attractions/${event.attractionSlug}`}
-              className="px-4 py-2 text-xs font-bold text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700 rounded-xl uppercase tracking-wider transition-all shrink-0 text-center"
-            >
-              Explore
-            </Link>
+            {event.attractionSlug ? (
+              <Link 
+                href={`/${locale}/b2c/attractions/${event.attractionSlug}`}
+                className="px-4 py-2 text-xs font-bold text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700 rounded-xl uppercase tracking-wider transition-all shrink-0 text-center"
+              >
+                {isAr ? 'استكشف' : 'Explore'}
+              </Link>
+            ) : (
+              <span />
+            )}
 
-            <a
-              href={event.ticketingUrl || `/en/b2c/calendar`}
-              className="px-5 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all border flex items-center justify-center gap-2 bg-emerald-500 text-zinc-950 hover:bg-emerald-400 border-emerald-500 shadow-md shadow-emerald-500/20 shrink-0"
-            >
-              Book Now <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            {bookingAction.isExternal ? (
+              <a
+                href={bookingAction.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all border flex items-center justify-center gap-2 bg-emerald-500 text-zinc-950 hover:bg-emerald-400 border-emerald-500 shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer"
+              >
+                {isAr ? bookingAction.labelAr : bookingAction.labelEn} <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            ) : (
+              <Link
+                href={bookingAction.url}
+                className="px-5 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all border flex items-center justify-center gap-2 bg-emerald-500 text-zinc-950 hover:bg-emerald-400 border-emerald-500 shadow-md shadow-emerald-500/20 shrink-0 text-center"
+              >
+                {isAr ? bookingAction.labelAr : bookingAction.labelEn}
+              </Link>
+            )}
           </div>
         </div>
       </div>

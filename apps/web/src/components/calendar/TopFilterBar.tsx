@@ -13,6 +13,8 @@ import {
   isToday,
   startOfDay
 } from 'date-fns';
+import { ar, enUS } from 'date-fns/locale';
+import { useLocale } from '@/components/layout/LocaleProvider';
 
 export type EventType = 'REGULAR' | 'SPECIAL' | 'FESTIVAL' | 'PRIVATE';
 export type AvailabilityType = 'ALL' | 'AVAILABLE' | 'LIMITED' | 'SOLD_OUT';
@@ -50,6 +52,9 @@ export function TopFilterBar({
   onResetFilters,
   onBulkBookingClick
 }: TopFilterBarProps) {
+  const { locale } = useLocale();
+  const isAr = locale === 'ar';
+  const dateLocale = isAr ? ar : enUS;
   
   const today = startOfDay(new Date());
   const maxBookingDate = addMonths(today, 3);
@@ -65,6 +70,13 @@ export function TopFilterBar({
   const nextMonth = () => onDateChange(addMonths(currentDate, 1));
   const prevMonth = () => onDateChange(subMonths(currentDate, 1));
   const goToToday = () => onDateChange(new Date());
+
+  const eventTypeLabels: Record<EventType, { en: string; ar: string }> = {
+    REGULAR: { en: 'REGULAR', ar: 'عادية' },
+    SPECIAL: { en: 'SPECIAL', ar: 'خاصة' },
+    FESTIVAL: { en: 'FESTIVAL', ar: 'مهرجانات' },
+    PRIVATE: { en: 'PRIVATE', ar: 'حصرية' },
+  };
 
   // Auto-scroll to selected date on mount or date change
   useEffect(() => {
@@ -89,7 +101,7 @@ export function TopFilterBar({
               className="flex items-center gap-2 px-4 py-2 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 hover:border-zinc-600 rounded-full text-sm font-bold text-white whitespace-nowrap transition-colors"
             >
               <Calendar className="w-4 h-4 text-emerald-500" />
-              Today
+              {isAr ? 'اليوم' : 'Today'}
             </button>
             <button 
               onClick={onDiscountToggle}
@@ -100,14 +112,14 @@ export function TopFilterBar({
               }`}
             >
               <Tag className="w-4 h-4" />
-              Offers & Discounts
+              {isAr ? 'العروض والخصومات' : 'Offers & Discounts'}
             </button>
             <button 
               onClick={onBulkBookingClick}
               className="flex items-center gap-2 px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-100 rounded-full text-sm font-bold whitespace-nowrap transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             >
               <Users className="w-4 h-4" />
-              Group Booking
+              {isAr ? 'حجز المجموعات' : 'Group Booking'}
             </button>
             
             {(selectedAttractions.length > 0 || selectedEventTypes.length > 0 || isDiscountActive) && (
@@ -115,7 +127,7 @@ export function TopFilterBar({
                 onClick={onResetFilters}
                 className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase transition-colors bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white ms-auto"
               >
-                Reset Filters
+                {isAr ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}
               </button>
             )}
             
@@ -132,21 +144,21 @@ export function TopFilterBar({
                     : 'bg-[#141414] text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
                 }`}
               >
-                {type}
+                {isAr ? eventTypeLabels[type].ar : eventTypeLabels[type].en}
               </button>
             ))}
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-lg font-black uppercase tracking-widest font-satoshi text-white">
-              {format(currentDate, "MMMM yyyy")}
+              {format(currentDate, "MMMM yyyy", { locale: dateLocale })}
             </span>
             <div className="flex gap-1">
-              <button onClick={prevMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
-                <ChevronLeft className="w-4 h-4 text-zinc-300" />
+              <button onClick={prevMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800" aria-label={isAr ? "الشهر السابق" : "Previous month"}>
+                <ChevronLeft className="w-4 h-4 text-zinc-300 rtl:rotate-180" />
               </button>
-              <button onClick={nextMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800">
-                <ChevronRight className="w-4 h-4 text-zinc-300 rtl:-scale-x-100" />
+              <button onClick={nextMonth} className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 rounded-full transition-colors border border-zinc-800" aria-label={isAr ? "الشهر التالي" : "Next month"}>
+                <ChevronRight className="w-4 h-4 text-zinc-300 rtl:rotate-180" />
               </button>
             </div>
           </div>
@@ -182,7 +194,7 @@ export function TopFilterBar({
                   `}
                 >
                   <span className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">
-                    {format(day, 'EEE')}
+                    {format(day, 'EEE', { locale: dateLocale })}
                   </span>
                   <span className={`text-xl font-black font-satoshi ${isSelected ? 'text-zinc-950' : 'text-white'}`}>
                     {format(day, 'd')}
@@ -196,7 +208,7 @@ export function TopFilterBar({
         {/* Bottom Row: Attractions Filter */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
           <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest shrink-0 flex items-center gap-2 me-2">
-            <Filter className="w-3 h-3" /> Attractions
+            <Filter className="w-3 h-3" /> {isAr ? 'الوجهات' : 'Attractions'}
           </span>
           {attractions.map(attr => (
             <button
@@ -209,7 +221,7 @@ export function TopFilterBar({
               }`}
             >
               {selectedAttractions.includes(attr.id) && <Check className="w-3 h-3" />}
-              {attr.nameEn}
+              {isAr ? (attr.nameAr || attr.nameEn) : attr.nameEn}
             </button>
           ))}
         </div>

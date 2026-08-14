@@ -1,159 +1,230 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
-import { FALLBACK_ATTRACTIONS } from '@/lib/fallback-attractions';
+import {
+  getQatarDayBoundaries,
+  resolveBookingAction,
+} from '@/lib/qatar-calendar';
 
-const _QATAR_TZ = 'Asia/Qatar';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const month = searchParams.get('month');
-    const year = searchParams.get('year');
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
-    const attractionIds = searchParams.getAll('attractions');
-    const availableNow = searchParams.get('availableNow') === 'true';
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
+    const attractionIds = searchParams.getAll('attractions').filter(Boolean);
+    const eventTypes = searchParams.getAll('types').filter(Boolean);
     const hasDiscount = searchParams.get('discount') === 'true';
-    const eventType = searchParams.get('eventType');
+    const locale = searchParams.get('locale') || 'en';
 
-    // Caching based on query
-    const cacheKey = `calendar:list:${month}:${year}:${startDate}:${endDate}:${attractionIds.join(',')}:${availableNow}:${eventType}:${hasDiscount}`;
-    
+    // 1. Calculate precise Qatar day boundaries (Asia/Qatar, UTC+3)
+    const startBounds = getQatarDayBoundaries(startDateParam);
+    const endBounds = endDateParam
+      ? getQatarDayBoundaries(endDateParam)
+      : startBounds;
+
+    const cacheKey = `calendar:v2:${startBounds.qatarDateString}:${endBounds.qatarDateString}:${attractionIds.join(',')}:${eventTypes.join(',')}:${hasDiscount}:${locale}`;
+
     let cached = null;
     try {
       cached = await redis.get(cacheKey);
     } catch (e: any) {
-      console.warn('[REDIS_ERROR] Redis connection error: ', e.message);
+      console.warn('[REDIS_ERROR] Redis read notice:', e.message);
     }
-    
+
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
 
-    // Fetch directly from database attractions
-    const attractionsWhere: any = { isPublished: true, isHidden: false };
-    
-    if (attractionIds && attractionIds.length > 0) {
-      attractionsWhere.id = { in: attractionIds };
-    }
-    
-    if (hasDiscount) {
-      attractionsWhere.offers = { some: {} };
+    // 2. Query published CalendarEvent records covering the date range
+    const calEventsWhere: any = {
+      status: 'PUBLISHED',
+      startDate: { lte: endBounds.endUtc },
+      endDate: { gte: startBounds.startUtc },
+    };
+
+    if (attractionIds.length > 0) {
+      calEventsWhere.attractionId = { in: attractionIds };
     }
 
-    let attractions = await db.attraction.findMany({
-      where: attractionsWhere,
+    const calEvents = await db.calendarEvent.findMany({
+      where: calEventsWhere,
       include: {
-        offers: { select: { id: true } },
-        gallery: { orderBy: { orderIndex: 'asc' }, take: 1 },
-        pricing: {
-          orderBy: { price: 'asc' },
-          take: 1
-        }
+        attraction: {
+          include: {
+            pricing: { orderBy: { price: 'asc' }, take: 1 },
+            offers: true,
+            gallery: { orderBy: { orderIndex: 'asc' }, take: 1 },
+          },
+        },
+        timeSlots: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { startDate: 'asc' },
     });
 
-    // If database query returns empty array, seed with canonical FALLBACK_ATTRACTIONS
-    if (!attractions || attractions.length === 0) {
-      attractions = FALLBACK_ATTRACTIONS as any;
+    // 3. Query EventSchedule records covering the date range
+    const scheduleWhere: any = {
+      startTime: { lte: endBounds.endUtc },
+      endTime: { gte: startBounds.startUtc },
+    };
+
+    if (attractionIds.length > 0) {
+      scheduleWhere.attractionId = { in: attractionIds };
     }
 
-    const result = attractions.map((attraction: any) => {
-      const ops = attraction.operations || {};
-      const fallbackObj = FALLBACK_ATTRACTIONS.find((f) => 
-        f.id === attraction.id || 
-        f.slug === attraction.slug || 
-        f.nameEn.toLowerCase().includes((attraction.nameEn || '').toLowerCase())
+    if (eventTypes.length > 0) {
+      scheduleWhere.eventType = { in: eventTypes };
+    }
+
+    const schedules = await db.eventSchedule.findMany({
+      where: scheduleWhere,
+      include: {
+        attraction: {
+          include: {
+            pricing: { orderBy: { price: 'asc' }, take: 1 },
+            offers: true,
+            gallery: { orderBy: { orderIndex: 'asc' }, take: 1 },
+          },
+        },
+      },
+      orderBy: { startTime: 'asc' },
+    });
+
+    const results: any[] = [];
+    const DEFAULT_COVER = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop';
+
+    // 4. Map CalendarEvent records
+    for (const event of calEvents) {
+      const attr = event.attraction;
+      // Skip if attached attraction is unpublished or hidden
+      if (attr && (attr.isPublished === false || attr.isHidden === true)) {
+        continue;
+      }
+
+      if (hasDiscount && attr && (!attr.offers || attr.offers.length === 0)) {
+        continue;
+      }
+
+      const ops = (attr?.operations as any) || {};
+      const thumbnail =
+        attr?.heroMediaUrl ||
+        attr?.heroThumbnailUrl ||
+        attr?.gallery?.[0]?.url ||
+        attr?.logoUrl ||
+        DEFAULT_COVER;
+
+      const lowestPrice = attr?.pricing?.[0]
+        ? `${attr.pricing[0].currency || 'QAR'} ${attr.pricing[0].price}`
+        : null;
+
+      const inferredType = event.timeSlots && event.timeSlots.length > 0 ? 'SPECIAL' : 'FESTIVAL';
+      if (eventTypes.length > 0 && !eventTypes.includes(inferredType)) {
+        continue;
+      }
+
+      const bookingAction = resolveBookingAction(
+        attr?.ticketingUrl,
+        attr?.slug,
+        locale,
+        event.title || attr?.nameEn
       );
 
-      // Prioritize heroMediaUrl -> heroThumbnailUrl -> gallery[0] -> fallback image
-      const thumbnail =
-        attraction.heroMediaUrl ||
-        attraction.heroThumbnailUrl ||
-        attraction.gallery?.[0]?.url ||
-        attraction.logoUrl ||
-        fallbackObj?.heroMediaUrl ||
-        'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop';
-
-      const lowestPrice = attraction.pricing?.[0]
-        ? `${attraction.pricing[0].currency || 'QAR'} ${attraction.pricing[0].price}`
-        : attraction.price 
-        ? `QAR ${attraction.price}` 
-        : 'QAR 25';
-      
-      const locationNameEn = ops.locationNameEn || attraction.venue?.nameEn || fallbackObj?.operations?.locationNameEn || 'Lusail Boulevard, Qatar';
-      const locationNameAr = ops.locationNameAr || attraction.venue?.nameAr || fallbackObj?.operations?.locationNameAr || 'شارع لوسيل التجاري، قطر';
-      
-      const openTimeStr = ops.openingTime || fallbackObj?.operations?.openingTime || '14:00';
-      const closeTimeStr = ops.closingTime || fallbackObj?.operations?.closingTime || '23:00';
-
-      const targetDateStr = searchParams.get('startDate');
-      
-      const now = new Date();
-      let tYear = now.getFullYear();
-      let tMonth = now.getMonth();
-      let tDate = now.getDate();
-      
-      if (targetDateStr && targetDateStr.includes('-')) {
-        const [y, m, d] = targetDateStr.split('-');
-        tYear = parseInt(y, 10);
-        tMonth = parseInt(m, 10) - 1;
-        tDate = parseInt(d, 10);
-      }
-      
-      const [openH, openM] = openTimeStr.split(':').map(Number);
-      const [closeH, closeM] = closeTimeStr.split(':').map(Number);
-
-      const startTime = new Date(tYear, tMonth, tDate, openH || 14, openM || 0);
-      const endTime = new Date(tYear, tMonth, tDate, closeH || 23, closeM || 0);
-
-      return {
-        id: attraction.id,
-        attractionId: attraction.id,
-        attractionNameEn: attraction.nameEn || attraction.name?.en || 'Flagship Attraction',
-        attractionNameAr: attraction.nameAr || attraction.name?.ar || 'وجهة ترفيهية',
-        attractionSlug: attraction.slug || 'attractions',
-        ticketingUrl: attraction.ticketingUrl || fallbackObj?.ticketingUrl || `/en/b2c/calendar`,
-        title: attraction.nameEn || attraction.name?.en || 'Flagship Attraction',
-        description: attraction.taglineEn || attraction.descriptionEn || 'World-class entertainment world in Qatar',
+      results.push({
+        id: event.id,
+        attractionId: attr?.id || event.id,
+        attractionNameEn: attr?.nameEn || event.title,
+        attractionNameAr: attr?.nameAr || event.title,
+        attractionSlug: attr?.slug || '',
+        title: event.title,
+        titleEn: event.title,
+        titleAr: event.title,
+        description: event.description || attr?.taglineEn,
+        descriptionEn: event.description || attr?.taglineEn,
+        descriptionAr: event.description || attr?.taglineAr,
         thumbnail,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        eventType: "REGULAR",
+        startTime: event.startDate.toISOString(),
+        endTime: event.endDate.toISOString(),
+        eventType: inferredType,
         price: lowestPrice,
-        capacityGate: attraction.capacity || 100,
-        currentCount: attraction.currentOccupancy || 0,
+        capacityGate: event.timeSlots?.[0]?.capacity || 100,
+        currentCount: 0,
         isAvailable: true,
-        hasOffer: attraction.offers?.length > 0,
-        locationNameEn,
-        locationNameAr,
-        openingTime: openTimeStr,
-        closingTime: closeTimeStr
-      };
-    });
+        hasOffer: attr?.offers ? attr.offers.length > 0 : false,
+        locationNameEn: ops.locationNameEn || 'Doha, Qatar',
+        locationNameAr: ops.locationNameAr || 'الدوحة، قطر',
+        ticketingUrl: bookingAction.url,
+        bookingAction,
+      });
+    }
 
-    if (availableNow) {
-      const filtered = result.filter((r: any) => r.isAvailable);
-      try {
-        await redis.set(cacheKey, JSON.stringify(filtered), 'EX', 60);
-      } catch (e: any) {
-        console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
+    // 5. Map EventSchedule records
+    for (const sched of schedules) {
+      const attr = sched.attraction;
+      if (attr && (attr.isPublished === false || attr.isHidden === true)) {
+        continue;
       }
-      return NextResponse.json(filtered);
+
+      if (hasDiscount && attr && (!attr.offers || attr.offers.length === 0)) {
+        continue;
+      }
+
+      const ops = (attr?.operations as any) || {};
+      const thumbnail =
+        sched.heroMediaUrl ||
+        attr?.heroMediaUrl ||
+        attr?.heroThumbnailUrl ||
+        attr?.gallery?.[0]?.url ||
+        DEFAULT_COVER;
+
+      const lowestPrice = attr?.pricing?.[0]
+        ? `${attr.pricing[0].currency || 'QAR'} ${attr.pricing[0].price}`
+        : null;
+
+      const bookingAction = resolveBookingAction(
+        attr?.ticketingUrl,
+        attr?.slug,
+        locale,
+        sched.title || attr?.nameEn
+      );
+
+      results.push({
+        id: sched.id,
+        attractionId: attr?.id || sched.id,
+        attractionNameEn: attr?.nameEn || sched.title || 'Event',
+        attractionNameAr: attr?.nameAr || sched.title || 'فعالية',
+        attractionSlug: attr?.slug || '',
+        title: sched.title || attr?.nameEn,
+        titleEn: sched.title || attr?.nameEn,
+        titleAr: sched.title || attr?.nameAr,
+        description: sched.description || attr?.taglineEn,
+        descriptionEn: sched.description || attr?.taglineEn,
+        descriptionAr: sched.description || attr?.taglineAr,
+        thumbnail,
+        startTime: sched.startTime.toISOString(),
+        endTime: sched.endTime.toISOString(),
+        eventType: sched.eventType || 'REGULAR',
+        price: lowestPrice,
+        capacityGate: sched.capacityGate || 100,
+        currentCount: sched.currentCount || 0,
+        isAvailable: sched.currentCount < sched.capacityGate,
+        hasOffer: attr?.offers ? attr.offers.length > 0 : false,
+        locationNameEn: ops.locationNameEn || 'Doha, Qatar',
+        locationNameAr: ops.locationNameAr || 'الدوحة، قطر',
+        ticketingUrl: bookingAction.url,
+        bookingAction,
+      });
     }
 
     try {
-      await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+      await redis.set(cacheKey, JSON.stringify(results), 'EX', 120);
     } catch (e: any) {
-      console.warn('[REDIS_ERROR] Failed to set cache:', e.message);
+      console.warn('[REDIS_ERROR] Redis write notice:', e.message);
     }
 
-    return NextResponse.json(result);
-
+    return NextResponse.json(results);
   } catch (error: any) {
-    console.error('[CALENDAR_GET]', error);
+    console.error('[CALENDAR_GET_ERROR]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
 import { TopFilterBar, EventType } from './TopFilterBar';
 import { EventList } from './EventList';
@@ -9,7 +9,7 @@ import { TicketSelectionModal } from './TicketSelectionModal';
 import { BulkBookingModal } from './BulkBookingModal';
 import { CalendarEvent } from './EventCard';
 import { HeroViewer } from '@/components/attractions/detail/HeroViewer';
-import { Footer } from '@/components/layout/Footer';
+import { useLocale } from '@/components/layout/LocaleProvider';
 
 interface CalendarViewProps {
   initialAttractions: { id: string; nameEn: string; nameAr: string }[];
@@ -23,12 +23,22 @@ interface CalendarViewProps {
   discounts?: any[];
 }
 
-export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, footerMediaType, footerMediaUrl, footerPosterUrl, title, tagline, discounts = [] }: CalendarViewProps) {
+export function CalendarView({
+  initialAttractions,
+  heroMediaType,
+  heroMediaUrl,
+  title,
+  tagline,
+  discounts = []
+}: CalendarViewProps) {
+  const { locale } = useLocale();
+  const isAr = locale === 'ar';
+
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedAttractions, setSelectedAttractions] = useState<string[]>([]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<EventType[]>([]);
   
-  // New Filter States
+  // Filter States
   const [isDiscountActive, setIsDiscountActive] = useState(false);
   
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -37,7 +47,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchEvents() {
       setLoading(true);
       try {
@@ -47,6 +57,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
         const dateStr = format(currentDate, 'yyyy-MM-dd');
         queryParams.append('startDate', dateStr);
         queryParams.append('endDate', dateStr);
+        queryParams.append('locale', locale);
         queryParams.append('t', Date.now().toString());
         
         selectedAttractions.forEach(id => queryParams.append('attractions', id));
@@ -57,7 +68,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
         if (!res.ok) throw new Error('Failed to fetch events');
         
         const data = await res.json();
-        setEvents(data);
+        setEvents(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error fetching calendar events:', err);
       } finally {
@@ -70,7 +81,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
     }, 150);
 
     return () => clearTimeout(timeoutId);
-  }, [currentDate, selectedAttractions, selectedEventTypes, isDiscountActive]);
+  }, [currentDate, selectedAttractions, selectedEventTypes, isDiscountActive, locale]);
 
   const toggleAttraction = (id: string) => {
     setSelectedAttractions(prev => 
@@ -90,6 +101,16 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
     setIsDiscountActive(false);
     setCurrentDate(new Date());
   };
+
+  const defaultTitle = isAr ? (
+    <>جدول <span className="text-[#F43F5E]">الفعاليات</span></>
+  ) : (
+    <>Events <span className="text-[#F43F5E]">Calendar</span></>
+  );
+
+  const defaultTagline = isAr
+    ? "اكتشف تجاربك القادمة. تصفح الفعاليات الخاصة، والمهرجانات، والجلسات الحصرية في جميع وجهاتنا في قطر."
+    : "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions.";
 
   return (
     <>
@@ -126,8 +147,8 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
       {heroMediaUrl ? (
         <div className="absolute inset-0 z-0 h-[100vh] w-full">
           <HeroViewer 
-            title={title || "Events Calendar"}
-            tagline={tagline || "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions."}
+            title={title || (isAr ? "جدول الفعاليات" : "Events Calendar")}
+            tagline={tagline || defaultTagline}
             mediaType={heroMediaType || 'IMAGE'}
             mediaUrl={heroMediaUrl}
           />
@@ -146,10 +167,10 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
 
           <div className="pt-24 pb-8 text-center max-w-4xl mx-auto px-4 relative z-10">
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white uppercase tracking-tight mb-6 font-satoshi drop-shadow-lg">
-              {title ? title : <>Events <span className="text-[#F43F5E]">Calendar</span></>}
+              {title ? title : defaultTitle}
             </h1>
             <p className="text-lg md:text-xl text-zinc-400 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-lg">
-              {tagline || "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions across all our attractions."}
+              {tagline || defaultTagline}
             </p>
           </div>
         </>
@@ -180,7 +201,7 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
               <div className="absolute end-0 top-0 bottom-0 w-24 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
               <motion.div 
                 className="flex gap-16 w-max px-8"
-                animate={{ x: ["0%", "-50%"] }}
+                animate={{ x: isAr ? ["0%", "50%"] : ["0%", "-50%"] }}
                 transition={{ ease: "linear", duration: discounts.length * 5, repeat: Infinity }}
               >
                 {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
@@ -189,7 +210,9 @@ export function CalendarView({ initialAttractions, heroMediaType, heroMediaUrl, 
                     <span className="text-zinc-600 font-black">/</span>
                     <span className="text-white font-black text-lg">{discount.discount}</span>
                     <span className="text-zinc-600 font-black">/</span>
-                    <span className="text-zinc-400 text-sm tracking-wider uppercase">Code: <span className="text-white font-mono bg-white/10 px-2 py-1 rounded ms-1 border border-white/20">{discount.promoCode}</span></span>
+                    <span className="text-zinc-400 text-sm tracking-wider uppercase">
+                      {isAr ? 'الرمز:' : 'Code:'} <span className="text-white font-mono bg-white/10 px-2 py-1 rounded ms-1 border border-white/20">{discount.promoCode}</span>
+                    </span>
                   </div>
                 ))}
               </motion.div>
