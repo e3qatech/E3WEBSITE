@@ -37,7 +37,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   // Map database Story Types to frontend options, extracting actual activations / activities
   const options = dbStoryTypes.map(st => {
     const publishedFeatures = st.features?.filter((f: any) => f.attraction?.isPublished) || []
-    const jsonActivations = st.activations || []
+    const jsonActivations = st.activations || st.activities || []
     
     // Combine features from relation and JSON features
     const allActivities = [
@@ -103,6 +103,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   
   useEffect(() => {
     if (options.length > 0 && !activeId && !paramStory) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync initial story selection
       setActiveId(options[0].id)
     }
   }, [options, activeId, paramStory])
@@ -110,11 +111,13 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   useEffect(() => {
     if (paramStory && options.length > 0) {
       const match = options.find((o: any) => o.id === paramStory || o.category === paramStory)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync query param selection
       if (match) setActiveId(match.id)
     }
   }, [paramStory, options])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset activity pagination on track switch
     setShowAllActivities(false)
   }, [activeId])
 
@@ -130,7 +133,42 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
     router.replace(`?${newParams.toString()}`, { scroll: false })
   }
 
-  if (options.length === 0) return null
+  if (options.length === 0) {
+    return (
+      <section
+        className="relative py-20 bg-[#090418] text-white border-b border-purple-950/40 overflow-hidden"
+        dir={isAr ? "rtl" : "ltr"}
+      >
+        <div className="relative max-w-4xl mx-auto px-4 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <span>{isAr ? "استكشاف الحكايات والأنشطة" : "STORY DISCOVERY"}</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            {formatLocalizedText(
+              isAr
+                ? selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟"
+                : selector.titleEn || "What Kind of Story Do You Want Today?",
+              locale
+            )}
+          </h2>
+          <div className="p-8 rounded-3xl border border-purple-500/20 bg-purple-950/20 backdrop-blur-xl max-w-xl mx-auto space-y-4">
+            <p className="text-sm text-slate-300 font-medium leading-relaxed">
+              {isAr
+                ? "لا توجد مسارات حكايات مفعلة حالياً. يمكنك استكشاف دليل التجارب والفعاليات بالكامل."
+                : "No story tracks currently published. You can explore our complete directory of attractions and experiences."}
+            </p>
+            <a
+              href={localizeHref("/b2c/attractions", locale)}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all"
+            >
+              <span>{isAr ? "استكشف جميع التجارب" : "Explore All Attractions"}</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const selectedTitle = formatLocalizedText(isAr ? activeOption.labelAr : activeOption.labelEn, locale)
 

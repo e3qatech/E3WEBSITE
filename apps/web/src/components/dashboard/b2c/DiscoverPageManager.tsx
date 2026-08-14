@@ -1,12 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 import { DEFAULT_B2C_DISCOVER_CONTENT } from "@/lib/cms-default-pages"
+import { useLocale } from "@/components/layout/LocaleProvider"
+import { cn } from "@/lib/utils"
 import { 
   Eye, 
   EyeOff, 
@@ -16,7 +19,8 @@ import {
   Trash2, 
   FileText,
   Save,
-  Sparkles
+  Compass,
+  ArrowRight
 } from "lucide-react"
 import {
   DashboardPageShell,
@@ -27,6 +31,9 @@ import {
 } from "@/components/dashboard/ui"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
+  const { locale } = useLocale()
+  const isAr = locale === "ar"
+
   const [data, setData] = useState<any>(() => {
     return {
       ...DEFAULT_B2C_DISCOVER_CONTENT,
@@ -230,23 +237,56 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
       <DashboardPageHeader 
-        title="B2C Discover Page Editor"
-        description="Configure E3 corporate story, leadership, record achievements, BookingQube tech, and opportunity gateways."
+        title={isAr ? "محرر صفحة اكتشف إي ثري" : "B2C Discover Page Editor"}
+        description={
+          isAr
+            ? "تخصيص قصة إي ثري الترفيهية، ورسائل القيادة، وإنجاز غينيس، وتقنية بوكينج كيوب، وبوابات التواصل."
+            : "Configure E3 corporate story, leadership, record achievements, BookingQube tech, and opportunity gateways."
+        }
         breadcrumbs={[
-          { label: "B2C Pages", href: "/dashboard/b2c/landing" },
-          { label: "Discover Page Editor" }
+          { label: isAr ? "صفحات الأفراد" : "B2C Pages", href: `/${locale}/dashboard/b2c/landing` },
+          { label: isAr ? "محرر صفحة اكتشف" : "Discover Page Editor" }
         ]}
-        badge={{ label: "B2C Public", variant: "purple" }}
-        previewUrl="/b2c/discover"
+        badge={{ label: isAr ? "عام الأفراد" : "B2C Public", variant: "purple" }}
+        previewUrl={`/${locale}/b2c/discover`}
         isUnsaved={isDirty}
         lastSavedAt={lastSaved || undefined}
         primaryAction={{
-          label: saving ? "Saving..." : "Save Discover Page",
+          label: saving
+            ? (isAr ? "جاري الحفظ..." : "Saving...")
+            : (isAr ? "حفظ صفحة اكتشف" : "Save Discover Page"),
           onClick: handleSave,
           isLoading: saving,
           icon: <Save className="w-4 h-4" />
         }}
       />
+
+      {/* Reciprocal Handoff Card to Story Discovery Manager */}
+      <div className="bg-gradient-to-r from-purple-950/30 via-indigo-950/20 to-[var(--surface-default)] border border-purple-500/30 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+            <Compass className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">
+              {isAr ? "مدير محتوى مسارات الحكايات والتصنيفات" : "Story Discovery & Narrative Tracks CMS"}
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)]">
+              {isAr
+                ? "لإدارة مسارات الحكايات الفردية (القيادة، القفز، الاستكشاف، إلخ) وتصنيفات الأنشطة، انتقل إلى مدير مسارات الحكايات."
+                : "To manage individual story tracks (Drive, Bounce, Explore, etc.) and What's Inside activity classifications, use the dedicated manager."}
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href={`/${locale}/dashboard/b2c/content/story-discovery`}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-xs font-bold text-purple-200 transition-all shrink-0 cursor-pointer"
+        >
+          <span>{isAr ? "فتح مدير مسارات الحكايات" : "Open Story Discovery Manager"}</span>
+          <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+        </Link>
+      </div>
 
       <DashboardSectionNavigator
         sections={tabsList}
