@@ -5,7 +5,7 @@ import { LocaleProvider } from '@/components/layout/LocaleProvider';
 import { DiscoverPageManager } from '@/components/dashboard/b2c/DiscoverPageManager';
 import { StoryDiscoveryManager } from '@/components/dashboard/b2c/content/StoryDiscoveryManager';
 import { StoryTaxonomyPortals } from '@/components/b2c/story/StoryTaxonomyPortals';
-import { GET as getStoryTypes, POST as postStoryTypes } from '@/app/api/b2c/story-types/route';
+import { GET as getStoryTypes, POST as postStoryTypes, PUT as putStoryTypes, DELETE as deleteStoryTypes } from '@/app/api/b2c/story-types/route';
 import { GET as getDiscoverSettings, POST as postDiscoverSettings } from '@/app/api/b2c/discover-settings/route';
 import { DEFAULT_B2C_DISCOVER_CONTENT } from '@/lib/cms-default-pages';
 import { NextRequest } from 'next/server';
@@ -143,6 +143,10 @@ describe('QF-16 — Story Discovery vs Discover Page Ownership Regression Suite'
       (auth as any).mockResolvedValue({
         user: { email: 'admin@e3.qa', role: 'SUPER_ADMIN' },
       });
+
+      vi.spyOn(db, '$transaction').mockImplementation(async (promises: any) =>
+        Array.isArray(promises) ? Promise.all(promises) : promises(db)
+      );
 
       const upsertSpy = vi.spyOn(db.storyType, 'upsert').mockResolvedValue({
         id: 'st-drive',
@@ -339,6 +343,248 @@ describe('QF-16 — Story Discovery vs Discover Page Ownership Regression Suite'
       expect(json.about).toBeDefined();
       expect(json.leadership).toBeDefined();
       expect(json.bookingQube).toBeDefined();
+    });
+  });
+
+  // =========================================================================
+  // 5. QF-16-B: STORY-TYPE API SECURITY & RBAC ENFORCEMENT
+  // =========================================================================
+  describe('5. QF-16-B: Story-Type API Security & RBAC Enforcement', () => {
+    it('Rejects unauthenticated POST and DELETE with 401 Unauthorized', async () => {
+      vi.mocked(auth).mockResolvedValue(null as any);
+
+      // 1. POST
+      const postReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'POST',
+        body: JSON.stringify({ slug: 'test-track', titleEn: 'Test Track' }),
+      });
+      const postRes = await postStoryTypes(postReq);
+      expect(postRes.status).toBe(401);
+
+      // 2. DELETE
+      const deleteReq = new NextRequest('http://localhost:3000/api/b2c/story-types?id=st-1', {
+        method: 'DELETE',
+      });
+      const deleteRes = await deleteStoryTypes(deleteReq);
+      expect(deleteRes.status).toBe(401);
+    });
+
+    it('Rejects authenticated users lacking b2c.content.write capability with 403 Forbidden', async () => {
+      // Client role has no b2c.content.write
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'client-1', role: 'CLIENT' },
+      } as any);
+
+      const postReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'POST',
+        body: JSON.stringify({ slug: 'client-track', titleEn: 'Client Track' }),
+      });
+      const postRes = await postStoryTypes(postReq);
+      expect(postRes.status).toBe(403);
+
+      // Sales admin (b2b only) has no b2c.content.write
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'sales-1', role: 'SALES_ADMIN' },
+      } as any);
+
+      const deleteReq = new NextRequest('http://localhost:3000/api/b2c/story-types?id=st-1', {
+        method: 'DELETE',
+      });
+      const deleteRes = await deleteStoryTypes(deleteReq);
+      expect(deleteRes.status).toBe(403);
+    });
+
+    it('Allows authorized B2C_ADMIN and SUPER_ADMIN to mutate story types', async () => {
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'admin-1', role: 'B2C_ADMIN' },
+      } as any);
+
+      vi.spyOn(db.storyType, 'findUnique').mockResolvedValue(null);
+      vi.spyOn(db.storyType, 'create').mockResolvedValue({
+        id: 'st-created',
+        slug: 'super-jump',
+        titleEn: 'Super Jump',
+        titleAr: 'القفز الخارق',
+        accentColor: '#8b5cf6',
+        orderIndex: 1,
+        isActive: true,
+      } as any);
+
+      const postReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'POST',
+        body: JSON.stringify({
+          slug: 'super-jump',
+          titleEn: 'Super Jump',
+          titleAr: 'القفز الخارق',
+          accentColor: '#8b5cf6',
+        }),
+      });
+      const res = await postStoryTypes(postReq);
+      const json = await res.json();
+
+      expect(res.status).toBe(201);
+      expect(json.success).toBe(true);
+      expect(json.data.slug).toBe('super-jump');
+    });
+
+    it('Enforces field validation: rejects invalid hex colors, unsafe media URLs, and duplicate batch slugs', async () => {
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'admin-1', role: 'SUPER_ADMIN' },
+      } as any);
+
+      // 1. Invalid hex color
+      const invalidColorReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'POST',
+        body: JSON.stringify({
+          titleEn: 'Bad Color Track',
+          accentColor: 'rgb(255,0,0)', // invalid hex format
+        }),
+      });
+      const colorRes = await postStoryTypes(invalidColorReq);
+      expect(colorRes.status).toBe(400);
+
+      // 2. Unsafe media URL
+      const unsafeUrlReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'POST',
+        body: JSON.stringify({
+          titleEn: 'XSS Media Track',
+          coverMediaUrl: 'javascript:alert(1)',
+        }),
+      });
+      const urlRes = await postStoryTypes(unsafeUrlReq);
+      expect(urlRes.status).toBe(400);
+
+      // 3. Duplicate slugs in batch payload
+      const dupBatchReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'POST',
+        body: JSON.stringify({
+          storyTypes: [
+            { slug: 'duplicate-track', titleEn: 'Track 1' },
+            { slug: 'duplicate-track', titleEn: 'Track 2' },
+          ],
+        }),
+      });
+      const dupRes = await postStoryTypes(dupBatchReq);
+      expect(dupRes.status).toBe(400);
+      const dupJson = await dupRes.json();
+      expect(dupJson.error).toContain('Duplicate slug');
+    });
+
+    it('PUT /api/b2c/story-types updates existing story track and rejects missing ID or invalid payload', async () => {
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'admin-1', role: 'B2C_ADMIN' },
+      } as any);
+
+      // Missing ID -> 400
+      const missingIdReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'PUT',
+        body: JSON.stringify({ titleEn: 'No ID Track' }),
+      });
+      const missingIdRes = await putStoryTypes(missingIdReq);
+      expect(missingIdRes.status).toBe(400);
+
+      // Successful update
+      vi.spyOn(db.storyType, 'findUnique')
+        .mockResolvedValueOnce({ id: 'st-1', slug: 'drive', titleEn: 'Drive' } as any)
+        .mockResolvedValueOnce(null);
+      vi.spyOn(db.storyType, 'update').mockResolvedValue({
+        id: 'st-1',
+        slug: 'drive-speed',
+        titleEn: 'Drive & Speed Updated',
+      } as any);
+
+      const updateReq = new NextRequest('http://localhost:3000/api/b2c/story-types', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: 'st-1',
+          slug: 'drive-speed',
+          titleEn: 'Drive & Speed Updated',
+        }),
+      });
+      const updateRes = await putStoryTypes(updateReq);
+      expect(updateRes.status).toBe(200);
+      const updateJson = await updateRes.json();
+      expect(updateJson.success).toBe(true);
+    });
+
+    it('Prevents hard deletion of referenced story tracks returning 409 Conflict, but allows safe deactivation with forceDeactivate=true', async () => {
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'admin-1', role: 'B2C_ADMIN' },
+      } as any);
+
+      // Mock existing record referenced by attraction features
+      vi.spyOn(db.storyType, 'findFirst').mockResolvedValue({
+        id: 'st-drive',
+        slug: 'drive',
+        titleEn: 'Drive & Speed',
+        titleAr: 'القيادة والسرعة',
+        _count: { features: 2 },
+      } as any);
+      vi.spyOn(db.attraction, 'findMany').mockResolvedValue([]);
+
+      // 1. Standard delete on referenced track -> 409 Conflict
+      const deleteConflictReq = new NextRequest('http://localhost:3000/api/b2c/story-types?id=st-drive', {
+        method: 'DELETE',
+      });
+      const conflictRes = await deleteStoryTypes(deleteConflictReq);
+      expect(conflictRes.status).toBe(409);
+      const conflictJson = await conflictRes.json();
+      expect(conflictJson.isReferenced).toBe(true);
+      expect(conflictJson.referenceCount).toBe(2);
+
+      // 2. Delete with forceDeactivate=true -> 200 with deactivation
+      vi.spyOn(db.storyType, 'update').mockResolvedValue({
+        id: 'st-drive',
+        slug: 'drive',
+        isActive: false,
+      } as any);
+
+      const forceDeactivateReq = new NextRequest('http://localhost:3000/api/b2c/story-types?id=st-drive&forceDeactivate=true', {
+        method: 'DELETE',
+      });
+      const deactRes = await deleteStoryTypes(forceDeactivateReq);
+      expect(deactRes.status).toBe(200);
+      const deactJson = await deactRes.json();
+      expect(deactJson.action).toBe('deactivated');
+    });
+
+    it('Separates public GET (active only, safe fields) from authenticated manager GET (includes inactive tracks and counts)', async () => {
+      const mockTracks = [
+        { id: 'st-1', slug: 'drive', titleEn: 'Drive', isActive: true, features: [], _count: { features: 1 } },
+        { id: 'st-2', slug: 'archived', titleEn: 'Archived', isActive: false, features: [], _count: { features: 0 } },
+      ];
+
+      vi.spyOn(db.storyType, 'count').mockResolvedValue(2);
+      vi.spyOn(db.attraction, 'findMany').mockResolvedValue([]);
+
+      // 1. Public GET (Unauthenticated) -> only active tracks queried
+      vi.mocked(auth).mockResolvedValue(null as any);
+      const findManySpy = vi.spyOn(db.storyType, 'findMany').mockResolvedValue([mockTracks[0]] as any);
+
+      const publicReq = new NextRequest('http://localhost:3000/api/b2c/story-types');
+      const publicRes = await getStoryTypes(publicReq);
+      const publicJson = await publicRes.json();
+
+      expect(publicRes.status).toBe(200);
+      expect(findManySpy).toHaveBeenCalledWith(expect.objectContaining({
+        where: { isActive: true },
+      }));
+      expect(publicJson[0].slug).toBe('drive');
+      expect(publicJson[0].features).toBeUndefined(); // internal relation stripped in public view
+
+      // 2. Authenticated Manager GET -> queries all records
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'admin-1', role: 'B2C_ADMIN' },
+      } as any);
+      findManySpy.mockResolvedValue(mockTracks as any);
+
+      const managerReq = new NextRequest('http://localhost:3000/api/b2c/story-types');
+      const managerRes = await getStoryTypes(managerReq);
+      const managerJson = await managerRes.json();
+
+      expect(managerRes.status).toBe(200);
+      expect(managerJson.length).toBe(2);
+      expect(managerJson[0]._count).toBeDefined();
     });
   });
 });
