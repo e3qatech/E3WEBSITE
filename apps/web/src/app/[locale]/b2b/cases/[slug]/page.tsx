@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Quote, Calendar, Building2, Layers, Trophy } from 'lucide-react'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { Metadata } from 'next'
 import { getPublicCaseStudyBySlug, getNextPublicCaseStudy } from '@/lib/case-studies'
@@ -10,6 +10,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug, locale } = await params;
   const isAr = locale === 'ar';
   
+  if (slug === 'doha-balloon-parade') {
+    permanentRedirect(`/${locale}/b2b/cases/doha-balloon-parade-2022`);
+  }
+
   const project = await getPublicCaseStudyBySlug(slug);
 
   if (!project) {
@@ -46,6 +50,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string, locale: string }> }) {
   const { slug, locale } = await params
   const isAr = locale === 'ar'
+
+  if (slug === 'doha-balloon-parade') {
+    permanentRedirect(`/${locale}/b2b/cases/doha-balloon-parade-2022`);
+  }
 
   const project = await getPublicCaseStudyBySlug(slug, {
     includeTeam: true,

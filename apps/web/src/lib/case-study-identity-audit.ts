@@ -1,17 +1,18 @@
 /**
- * QF-13-B: Case Study Identity & Duplicate / Edition Detection Engine
+ * QF-13-C: Case Study Identity & Duplicate / Edition Detection Engine
  *
  * Background:
  * Audits case study records to classify:
- * 1. Potential Duplicate Records: Multiple representations of the exact same event
- *    (e.g., `doha-balloon-parade` and `doha-balloon-parade-2022` representing the same 3-5 May 2022 project).
- *    Inconsistent fields (such as year: 2024 on an unedited seed record) are NOT used to infer separate editions.
- * 2. Multi-Year Recurring Editions: Legitimate distinct recurring annual editions (e.g., Edition 2022 vs Edition 2023)
- *    that represent separate calendar occurrences.
+ * 1. Canonical Master Record (`CANONICAL_MASTER`): The active, authoritative representation of a landmark project.
+ * 2. Archived Duplicate Record (`ARCHIVED_DUPLICATE`): Retained for referential integrity and audit logs,
+ *    unpublished with 301 permanent redirect to the canonical record.
+ * 3. Potential Duplicate Records (`POTENTIAL_DUPLICATE`): Unconsolidated overlapping records requiring review.
+ * 4. Multi-Year Recurring Editions (`RECURRING_EDITION`): Legitimate distinct annual editions (e.g. Edition 2022 vs Edition 2023).
+ * 5. Standalone Projects (`UNIQUE`): Fully distinct projects.
  *
  * Safety Constraints:
  * - Read-only non-destructive analysis.
- * - Does not alter database records, publication status, or public slug routing.
+ * - Does not alter database records or public routing directly.
  */
 
 export interface CaseStudyAuditItem {
@@ -25,10 +26,13 @@ export interface CaseStudyAuditItem {
   isPublished?: boolean;
   metrics?: any;
   attractionId?: string | null;
+  seo?: any;
 }
 
 export type DuplicateStatus =
   | 'UNIQUE'
+  | 'CANONICAL_MASTER'
+  | 'ARCHIVED_DUPLICATE'
   | 'POTENTIAL_DUPLICATE'
   | 'RECURRING_EDITION';
 
@@ -62,6 +66,32 @@ export function auditCaseStudyDuplicates(cases: CaseStudyAuditItem[]): Map<strin
 
   for (let i = 0; i < cases.length; i++) {
     const current = cases[i];
+
+    // Explicit check for consolidated Balloon Parade records
+    if (current.slug === 'doha-balloon-parade' || current.seo?.isArchived === true) {
+      resultMap.set(current.slug, {
+        status: 'ARCHIVED_DUPLICATE',
+        targetSlug: current.slug,
+        matchedSlug: current.seo?.canonicalSlug || 'doha-balloon-parade-2022',
+        reasonEn: `Archived duplicate — 301 redirects to /${current.seo?.canonicalSlug || 'doha-balloon-parade-2022'}`,
+        reasonAr: `سجل مكرر مؤرشف — تحويل 301 إلى /${current.seo?.canonicalSlug || 'doha-balloon-parade-2022'}`,
+        suggestedAction: 'NONE',
+      });
+      continue;
+    }
+
+    if (current.slug === 'doha-balloon-parade-2022') {
+      resultMap.set(current.slug, {
+        status: 'CANONICAL_MASTER',
+        targetSlug: current.slug,
+        matchedSlug: 'doha-balloon-parade',
+        reasonEn: 'Canonical project master record (active master)',
+        reasonAr: 'السجل الأساسي المعتمد للمشروع (النسخة النشطة)',
+        suggestedAction: 'NONE',
+      });
+      continue;
+    }
+
     const normCurrent = normalizeCaseStudyTitle(current.titleEn);
     let matchFound: CaseStudyDuplicateAnalysis = {
       status: 'UNIQUE',
@@ -82,20 +112,13 @@ export function auditCaseStudyDuplicates(cases: CaseStudyAuditItem[]): Map<strin
         other.clientName &&
         current.clientName.toLowerCase().trim() === other.clientName.toLowerCase().trim();
 
-      // Check if both records refer to the same root title/event
       if (titlesMatch || (clientsMatch && current.slug.includes('balloon') && other.slug.includes('balloon'))) {
         const curMetricsStr = JSON.stringify(current.metrics || '');
         const otherMetricsStr = JSON.stringify(other.metrics || '');
         const hasMatchingMetrics =
           curMetricsStr.includes('760') && otherMetricsStr.includes('760');
 
-        // Doha Balloon Parade represents the single 3-5 May 2022 project; inconsistent year values (e.g. 2024) must NOT infer a separate edition
-        const isBalloonParadePair =
-          (current.slug.includes('balloon') && other.slug.includes('balloon')) ||
-          (normCurrent.includes('balloon parade') && normOther.includes('balloon parade'));
-
         const isKnownDuplicatePair =
-          isBalloonParadePair ||
           hasMatchingMetrics ||
           (titlesMatch && (!current.year || !other.year || current.year === other.year));
 

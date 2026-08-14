@@ -37,6 +37,18 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // 0. Balloon Parade Duplicate Case Study 301 Consolidation (QF-13-C)
+      {
+        source: '/:locale(en|ar)/b2b/cases/doha-balloon-parade',
+        destination: '/:locale/b2b/cases/doha-balloon-parade-2022',
+        permanent: true,
+      },
+      {
+        source: '/b2b/cases/doha-balloon-parade',
+        destination: '/en/b2b/cases/doha-balloon-parade-2022',
+        permanent: true,
+      },
+
       // 1. Case Studies Aliases
       {
         source: '/:locale(en|ar)/b2b/case-studies',

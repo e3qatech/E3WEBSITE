@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Edit2, Search, Briefcase, AlertTriangle, Calendar, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, Briefcase, AlertTriangle, Calendar, ExternalLink, Archive, Sparkles } from "lucide-react";
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -84,7 +84,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
           }}
           primaryAction={{
             label: isAr ? "إضافة دراسة حالة" : "Add Case Study",
-            href: "/dashboard/b2b/cases/new",
+            href: localizeHref("/dashboard/b2b/cases/new", locale),
             icon: <Plus className="w-4 h-4" />,
           }}
         />
@@ -117,6 +117,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
               const audit = auditMap.get(caseStudy.slug);
               const editHref = localizeHref(`/dashboard/b2b/cases/${caseStudy.slug}`, locale);
               const publicHref = localizeHref(`/b2b/cases/${caseStudy.slug}`, locale);
+              const isArchived = caseStudy.seo?.isArchived || audit?.status === 'ARCHIVED_DUPLICATE';
 
               return (
                 <AdminTableRow key={caseStudy.id} data-testid={`case-row-${caseStudy.slug}`} className="group">
@@ -153,7 +154,33 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
 
                   {/* Non-destructive Duplicate & Edition Warning Badge */}
                   <AdminTableCell>
-                    {audit?.status === 'POTENTIAL_DUPLICATE' ? (
+                    {audit?.status === 'ARCHIVED_DUPLICATE' ? (
+                      <div 
+                        data-testid={`archived-duplicate-badge-${caseStudy.slug}`}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold"
+                        title={isAr ? `مؤرشف مع تحويل 301 إلى /${audit.matchedSlug}` : `Archived duplicate — 301 redirects to /${audit.matchedSlug}`}
+                      >
+                        <Archive className="w-3.5 h-3.5 shrink-0" />
+                        <span>
+                          {isAr 
+                            ? `مؤرشف (301 → /${audit.matchedSlug})` 
+                            : `Archived (301 → /${audit.matchedSlug})`}
+                        </span>
+                      </div>
+                    ) : audit?.status === 'CANONICAL_MASTER' ? (
+                      <div 
+                        data-testid={`canonical-master-badge-${caseStudy.slug}`}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold"
+                        title={isAr ? audit.reasonAr : audit.reasonEn}
+                      >
+                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                        <span>
+                          {isAr 
+                            ? "النسخة الأساسية المعتمدة" 
+                            : "Canonical Master"}
+                        </span>
+                      </div>
+                    ) : audit?.status === 'POTENTIAL_DUPLICATE' ? (
                       <div 
                         data-testid={`duplicate-warning-${caseStudy.slug}`}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold"
@@ -186,7 +213,11 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
 
                   <AdminTableCell>
                     <div className="flex flex-col gap-1.5">
-                      {(caseStudy.isPublished ?? caseStudy.isVisible) ? (
+                      {isArchived ? (
+                        <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          {isAr ? "مؤرشف (للموظفين)" : "Archived (Staff)"}
+                        </span>
+                      ) : (caseStudy.isPublished ?? caseStudy.isVisible) ? (
                         <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400">
                           {isAr ? "منشور Live" : "Visible"}
                         </span>
@@ -195,7 +226,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
                           {isAr ? "مخفي" : "Hidden"}
                         </span>
                       )}
-                      {caseStudy.isFeatured && (
+                      {caseStudy.isFeatured && !isArchived && (
                         <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400">
                           {isAr ? "مميز" : "Featured"}
                         </span>
@@ -214,14 +245,15 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
                         <ExternalLink className="w-4 h-4" />
                       </Link>
 
-                      <AdminButton 
-                        onClick={() => router.push(editHref)} 
-                        variant="outline" 
-                        size="sm" 
-                        leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-                      >
-                        {isAr ? "تعديل" : "Edit"}
-                      </AdminButton>
+                      <Link href={editHref}>
+                        <AdminButton 
+                          variant="outline" 
+                          size="sm" 
+                          leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                        >
+                          {isAr ? "تعديل" : "Edit"}
+                        </AdminButton>
+                      </Link>
 
                       <button 
                         onClick={() => handleDelete(caseStudy.id)} 

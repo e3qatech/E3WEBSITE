@@ -8,17 +8,28 @@ import {
   normalizeCaseStudyTitle,
 } from '@/lib/case-study-identity-audit';
 import { isCaseStudyEligible } from '@/lib/case-studies';
+import nextConfig from '../../next.config';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
     refresh: vi.fn(),
   }),
+  permanentRedirect: vi.fn((url: string) => {
+    const error = new Error(`NEXT_REDIRECT: 308/301 to ${url}`);
+    (error as any).digest = `NEXT_REDIRECT;replace;${url};308;`;
+    throw error;
+  }),
+  notFound: vi.fn(() => {
+    const error = new Error('NEXT_NOT_FOUND');
+    (error as any).digest = 'NEXT_NOT_FOUND';
+    throw error;
+  }),
 }));
 
-describe('QF-13-B: Duplicate Case-Study Identity Audit & Guardrails', () => {
-  // Fixture represents live state where doha-balloon-parade might have inconsistent year: 2024
-  const publishedCasesFixture = [
+describe('QF-13-C: Balloon Parade Case-Study Consolidation & 301 Redirect Guardrails', () => {
+  // Fixture representing post-consolidation live state
+  const postConsolidationFixture = [
     {
       id: 'cs-1',
       slug: 'case-urban-arena',
@@ -32,28 +43,38 @@ describe('QF-13-B: Duplicate Case-Study Identity Audit & Guardrails', () => {
       metrics: { attendees: 120000 },
     },
     {
-      id: 'cs-2',
+      id: 'cms8cp8e7000090rn4zyp9h5d',
       slug: 'doha-balloon-parade-2022',
-      titleEn: 'Doha Balloon Parade 2022',
+      titleEn: 'DOHA BALLOON PARADE 2022',
       titleAr: 'استعراض بالونات الدوحة 2022',
-      clientName: 'Qatar Tourism',
+      clientName: 'Visit Qatar',
       year: 2022,
-      category: 'Festival & Parade',
+      category: 'Mega Events',
       isFeatured: true,
       isPublished: true,
-      metrics: { visitors: 760000, balloons: 50 },
+      attractionId: 'cmsrbcjh90000mwwc6hgg4agx',
+      metrics: [
+        { labelEn: 'Attendees', valueEn: '760,000+' },
+        { labelEn: 'Parade Route', valueEn: '3 KM' },
+      ],
     },
     {
-      id: 'cs-3',
+      id: 'cmqwzkn6200072opctgzr29o2',
       slug: 'doha-balloon-parade',
       titleEn: 'Doha Balloon Parade',
       titleAr: 'موكب بالونات الدوحة',
-      clientName: 'Qatar Tourism',
-      year: 2024, // Inconsistent seed year; must NOT trigger false edition classification
-      category: 'Festival & Parade',
-      isFeatured: true,
-      isPublished: true,
-      metrics: { visitors: 760000, staff: 2500 },
+      clientName: 'E3 Owned & Operated',
+      year: 2024,
+      category: 'Corporate',
+      isFeatured: false,
+      isPublished: false, // Archived duplicate
+      seo: {
+        isArchived: true,
+        archivedReason: 'DUPLICATE_CONSOLIDATION_QF13C',
+        canonicalSlug: 'doha-balloon-parade-2022',
+        canonicalId: 'cms8cp8e7000090rn4zyp9h5d',
+        redirectTarget: '/b2b/cases/doha-balloon-parade-2022',
+      },
     },
     {
       id: 'cs-draft',
@@ -74,30 +95,25 @@ describe('QF-13-B: Duplicate Case-Study Identity Audit & Guardrails', () => {
     expect(normalizeCaseStudyTitle('Urban Arena Stage Construction!')).toBe('urban arena stage construction');
   });
 
-  // 2. Duplicate Detection without false edition inference
-  it('2. Audit labels both doha-balloon-parade records as POTENTIAL_DUPLICATE despite inconsistent 2024 year', () => {
-    const auditMap = auditCaseStudyDuplicates(publishedCasesFixture);
+  // 2. Post-Consolidation Status Audit
+  it('2. Audit classifies canonical record as CANONICAL_MASTER and duplicate as ARCHIVED_DUPLICATE', () => {
+    const auditMap = auditCaseStudyDuplicates(postConsolidationFixture);
 
     const parade2022 = auditMap.get('doha-balloon-parade-2022');
-    const paradeRoot = auditMap.get('doha-balloon-parade');
+    const paradeArchived = auditMap.get('doha-balloon-parade');
     const urbanArena = auditMap.get('case-urban-arena');
 
-    expect(parade2022?.status).toBe('POTENTIAL_DUPLICATE');
-    expect(parade2022?.matchedSlug).toBe('doha-balloon-parade');
-    expect(parade2022?.reasonEn).toBe('Potential duplicate — decision required');
-    expect(parade2022?.reasonAr).toBe('تكرار محتمل — القرار مطلوب');
-    expect(parade2022?.suggestedAction).toBe('REVIEW_DUPLICATE_CONSOLIDATION');
+    expect(parade2022?.status).toBe('CANONICAL_MASTER');
+    expect(parade2022?.reasonEn).toContain('Canonical project master record');
 
-    expect(paradeRoot?.status).toBe('POTENTIAL_DUPLICATE');
-    expect(paradeRoot?.matchedSlug).toBe('doha-balloon-parade-2022');
-    expect(paradeRoot?.reasonEn).toBe('Potential duplicate — decision required');
-    expect(paradeRoot?.reasonAr).toBe('تكرار محتمل — القرار مطلوب');
+    expect(paradeArchived?.status).toBe('ARCHIVED_DUPLICATE');
+    expect(paradeArchived?.matchedSlug).toBe('doha-balloon-parade-2022');
+    expect(paradeArchived?.reasonEn).toContain('301 redirects to /doha-balloon-parade-2022');
 
     expect(urbanArena?.status).toBe('UNIQUE');
-    expect(urbanArena?.suggestedAction).toBe('NONE');
   });
 
-  // 3. Multi-year genuine recurring edition distinction
+  // 3. Multi-year recurring edition distinction
   it('3. Audit flags distinct non-overlapping annual editions as RECURRING_EDITION rather than duplicate', () => {
     const multiEditionFixture = [
       {
@@ -123,46 +139,67 @@ describe('QF-13-B: Duplicate Case-Study Identity Audit & Guardrails', () => {
     expect(auditMap.get('eid-festival-2023')?.status).toBe('RECURRING_EDITION');
   });
 
-  // 4. Public Eligibility & Unchanged Visible IDs
-  it('4. Preserves all 3 published case studies as eligible under QF-05 rules and excludes drafts', () => {
-    const eligible = publishedCasesFixture.filter(isCaseStudyEligible);
-    expect(eligible).toHaveLength(3);
+  // 4. Public Eligibility: Canonical is eligible, archived duplicate is strictly excluded
+  it('4. Public predicate isCaseStudyEligible returns true for canonical and false for archived duplicate', () => {
+    const eligible = postConsolidationFixture.filter(isCaseStudyEligible);
+    expect(eligible).toHaveLength(2); // Only urban arena and canonical balloon parade
     expect(eligible.map((c) => c.slug)).toEqual([
       'case-urban-arena',
       'doha-balloon-parade-2022',
-      'doha-balloon-parade',
     ]);
+    expect(eligible.some((c) => c.slug === 'doha-balloon-parade')).toBe(false);
   });
 
-  // 5. Rendered English Cases List & Exact Warning Text
-  it('5. Rendered English manager displays "Potential duplicate — decision required" badge and LTR layout', () => {
+  // 5. Next.js Redirects Config: Exact HTTP 301 permanent redirects configured for EN and AR
+  it('5. Next.js configuration defines exact 301 permanent redirect rules for balloon parade duplicate', async () => {
+    const redirectsFn = nextConfig.redirects;
+    expect(redirectsFn).toBeDefined();
+
+    const redirects = await (redirectsFn ? redirectsFn() : []);
+    const balloonParadeLocalizedRedirect = redirects.find(
+      (r: any) => r.source === '/:locale(en|ar)/b2b/cases/doha-balloon-parade'
+    );
+    const balloonParadeBareRedirect = redirects.find(
+      (r: any) => r.source === '/b2b/cases/doha-balloon-parade'
+    );
+
+    expect(balloonParadeLocalizedRedirect).toBeDefined();
+    expect(balloonParadeLocalizedRedirect?.destination).toBe('/:locale/b2b/cases/doha-balloon-parade-2022');
+    expect(balloonParadeLocalizedRedirect?.permanent).toBe(true);
+
+    expect(balloonParadeBareRedirect).toBeDefined();
+    expect(balloonParadeBareRedirect?.destination).toBe('/en/b2b/cases/doha-balloon-parade-2022');
+    expect(balloonParadeBareRedirect?.permanent).toBe(true);
+  });
+
+  // 6. Rendered English Manager: Shows Canonical Master and Archived Duplicate badges (LTR)
+  it('6. Rendered English manager displays Canonical Master and Archived (301) badges with LTR layout', () => {
     const html = renderToStaticMarkup(
       <LocaleProvider defaultLocale="en">
-        <CasesListClient initialData={publishedCasesFixture} />
+        <CasesListClient initialData={postConsolidationFixture} />
       </LocaleProvider>
     );
 
     expect(html).toContain('dir="ltr"');
-    expect(html).toContain('Identity &amp; Edition Audit');
-    expect(html).toContain('Potential duplicate — decision required');
+    expect(html).toContain('Canonical Master');
+    expect(html).toContain('Archived (301 → /doha-balloon-parade-2022)');
+    expect(html).toContain('Archived (Staff)');
     expect(html).toContain('href="/en/b2b/cases/doha-balloon-parade-2022"');
-    expect(html).toContain('href="/en/b2b/cases/doha-balloon-parade"');
-    expect(html).toContain('href="/en/b2b/cases/case-urban-arena"');
+    expect(html).toContain('href="/en/dashboard/b2b/cases/doha-balloon-parade"'); // Staff can still edit archived record
   });
 
-  // 6. Rendered Arabic Cases List & Exact Warning Text (RTL)
-  it('6. Rendered Arabic manager displays "تكرار محتمل — القرار مطلوب" badge and RTL layout', () => {
+  // 7. Rendered Arabic Manager: Shows Canonical Master and Archived Duplicate badges (RTL)
+  it('7. Rendered Arabic manager displays Arabic badges and RTL layout', () => {
     const html = renderToStaticMarkup(
       <LocaleProvider defaultLocale="ar">
-        <CasesListClient initialData={publishedCasesFixture} />
+        <CasesListClient initialData={postConsolidationFixture} />
       </LocaleProvider>
     );
 
     expect(html).toContain('dir="rtl"');
-    expect(html).toContain('حالة الهوية / التكرار');
-    expect(html).toContain('تكرار محتمل — القرار مطلوب');
+    expect(html).toContain('النسخة الأساسية المعتمدة');
+    expect(html).toContain('مؤرشف (301 → /doha-balloon-parade-2022)');
+    expect(html).toContain('مؤرشف (للموظفين)');
     expect(html).toContain('href="/ar/b2b/cases/doha-balloon-parade-2022"');
-    expect(html).toContain('href="/ar/b2b/cases/doha-balloon-parade"');
-    expect(html).toContain('href="/ar/b2b/cases/case-urban-arena"');
   });
 });
