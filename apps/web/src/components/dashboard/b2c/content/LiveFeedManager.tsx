@@ -7,18 +7,38 @@ import { Plus, Radio, Save, Sparkles, Trash2, ExternalLink, Share2 } from 'lucid
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useLocale } from '@/components/layout/LocaleProvider'
+import { localizeHref } from '@/lib/url-helper'
 import {
   DashboardPageShell,
   DashboardPageHeader,
   DashboardLoadingState,
 } from '@/components/dashboard/ui'
 
-export function LiveFeedManager() {
+export interface LiveFeedManagerProps {
+  initialContent?: any
+  initialLoading?: boolean
+}
+
+export function LiveFeedManager({ initialContent, initialLoading = false }: LiveFeedManagerProps = {}) {
   const router = useRouter()
   const { toast } = useToast()
-  const [loading, setLoading] = useState(true)
+  let locale: 'en' | 'ar' = 'en'
+  let dir: 'ltr' | 'rtl' = 'ltr'
+  try {
+    const localeCtx = useLocale()
+    if (localeCtx) {
+      locale = (localeCtx.locale as 'en' | 'ar') || 'en'
+      dir = localeCtx.dir || (locale === 'ar' ? 'rtl' : 'ltr')
+    }
+  } catch {
+    // Fallback if rendered outside LocaleProvider
+  }
+
+  const isAr = locale === 'ar'
+  const [loading, setLoading] = useState(initialLoading)
   const [saving, setSaving] = useState(false)
-  const [fullContent, setFullContent] = useState<any>(null)
+  const [fullContent, setFullContent] = useState<any>(initialContent || null)
 
   const [liveFeed, setLiveFeed] = useState({
     titleEn: 'LIVE EVENT FEED & BROADCASTS',
@@ -173,30 +193,49 @@ export function LiveFeedManager() {
       />
 
       {/* Architectural Ownership Separation Notice */}
-      <div className="bg-purple-950/20 border border-purple-500/30 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+      <div
+        dir={dir}
+        data-testid="livefeed-social-boundary-banner"
+        className="bg-purple-950/20 border border-purple-500/30 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
+      >
         <div className="flex items-start gap-3.5">
           <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shrink-0">
             <Share2 className="w-4 h-4" />
           </div>
           <div className="space-y-1">
             <div className="text-xs font-bold text-white flex items-center gap-2">
-              <span>Canonical Social Media Manager Available</span>
+              <span>
+                {isAr
+                  ? 'إدارة منصات التواصل الاجتماعي المركزية'
+                  : 'Canonical Social Media Manager Available'}
+              </span>
               <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-mono uppercase">
-                System Boundary
+                {isAr ? 'حدود النظام' : 'System Boundary'}
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 max-w-2xl leading-relaxed">
-              This manager controls <strong>broadcast status, live stream URLs, and curated video clips</strong>.
-              To configure connected Instagram/YouTube accounts, post moderation, automated sync, and social placements, use the central Social Media Manager.
+              {isAr ? (
+                <>
+                  تتحكم هذه الواجهة حصرياً في{' '}
+                  <strong className="text-zinc-200">حالة البث المباشر، روابط البث، ومقاطع الفيديو المميزة</strong>.
+                  لربط وتوثيق حسابات إنستغرام ويوتيوب وإدارة النشر والمزامنة التلقائية والتخطيطات، يرجى الانتقال إلى إدارة التواصل الاجتماعي.
+                </>
+              ) : (
+                <>
+                  This manager controls <strong>broadcast status, live stream URLs, and curated video clips</strong>.
+                  To configure connected Instagram/YouTube accounts, post moderation, automated sync, and social placements, use the central Social Media Manager.
+                </>
+              )}
             </p>
           </div>
         </div>
 
         <Link
-          href="/dashboard/social-media"
+          href={localizeHref('/dashboard/social-media', locale)}
+          data-testid="livefeed-social-manager-link"
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shrink-0 shadow-md"
         >
-          <span>Social Media Manager</span>
+          <span>{isAr ? 'إدارة التواصل الاجتماعي' : 'Social Media Manager'}</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </Link>
       </div>
