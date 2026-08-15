@@ -417,19 +417,19 @@ export function CommandPaletteModal({
       aria-modal="true"
       aria-label={isAr ? "شريط البحث والتنقل السريع" : "Command Center Search"}
       data-testid="command-palette-modal"
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] transition-all animate-in zoom-in-95 duration-200"
+        className="w-full max-w-2xl bg-white dark:bg-[#111622] text-slate-900 dark:text-white border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col max-h-[80vh] transition-all animate-in zoom-in-95 duration-200"
         dir={isAr ? "rtl" : "ltr"}
         onClick={(e) => e.stopPropagation()}
       >
         {/* ============================================================ */}
         {/* 1. SEARCH INPUT HEADER                                       */}
         {/* ============================================================ */}
-        <div className="relative flex items-center px-4 sm:px-6 py-4 border-b border-[var(--border-level-1)] bg-[var(--surface-hover)]/50">
-          <Search className="w-5 h-5 text-[var(--color-primary)] shrink-0 me-3 opacity-90" />
+        <div className="relative flex items-center px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/90 dark:bg-[#0c101a]">
+          <Search className="w-5 h-5 text-cyan-600 dark:text-cyan-400 shrink-0 me-3 opacity-90" />
           <input
             ref={inputRef}
             type="text"
@@ -441,13 +441,13 @@ export function CommandPaletteModal({
                 : "Search services, cases, attractions, leads, or settings..."
             }
             data-testid="command-palette-input"
-            className="flex-1 bg-transparent text-sm sm:text-base font-semibold text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
+            className="flex-1 bg-transparent text-sm sm:text-base font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer me-2"
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer me-2"
             >
               <X className="w-4 h-4" />
             </button>
@@ -455,7 +455,7 @@ export function CommandPaletteModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-2 py-1 rounded-lg text-xs font-mono font-bold text-[var(--text-tertiary)] bg-[var(--surface-default)] border border-[var(--border-level-1)] hover:bg-[var(--surface-hover)] transition-colors"
+            className="px-2 py-1 rounded-lg text-xs font-mono font-bold text-slate-500 dark:text-zinc-400 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors"
           >
             ESC
           </button>
@@ -464,7 +464,7 @@ export function CommandPaletteModal({
         {/* ============================================================ */}
         {/* 2. CATEGORY FILTER PILLS                                     */}
         {/* ============================================================ */}
-        <div className="flex items-center gap-1.5 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar border-b border-[var(--border-level-1)] bg-[var(--bg-level-1)]">
+        <div className="flex items-center gap-1.5 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar border-b border-slate-200 dark:border-zinc-800/80 bg-slate-100/90 dark:bg-[#0e131f]">
           {categories.map((cat) => {
             const isActive = activeCategory === cat.key;
             return (
@@ -476,8 +476,8 @@ export function CommandPaletteModal({
                 className={cn(
                   "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer",
                   isActive
-                    ? "bg-[var(--color-primary)] text-white shadow-sm"
-                    : "bg-[var(--surface-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-1)]"
+                    ? "bg-cyan-600 dark:bg-cyan-500 text-white shadow-sm"
+                    : "bg-white dark:bg-zinc-800/90 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/80 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700/80"
                 )}
               >
                 {isAr ? cat.labelAr : cat.labelEn}
@@ -487,12 +487,12 @@ export function CommandPaletteModal({
         </div>
 
         {/* ============================================================ */}
-        {/* 3. SCROLLABLE RESULTS LIST                                   */}
+        {/* 3. SCROLLABLE RESULTS LIST (SOLID OPAQUE SURFACE)            */}
         {/* ============================================================ */}
         <div
           ref={listRef}
           data-testid="command-palette-results"
-          className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1 max-h-[420px]"
+          className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1 max-h-[420px] bg-white dark:bg-[#111622]"
         >
           {filteredItems.map((item, index) => {
             const isSelected = index === selectedIndex;
@@ -507,8 +507,8 @@ export function CommandPaletteModal({
                 className={cn(
                   "flex items-center justify-between px-3 sm:px-4 py-3 rounded-2xl cursor-pointer transition-all",
                   isSelected
-                    ? "bg-[var(--surface-hover)] border border-[var(--color-primary)]/30 text-[var(--text-primary)] shadow-sm"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]/60 border border-transparent"
+                    ? "bg-cyan-50/90 dark:bg-cyan-950/40 border border-cyan-500/40 text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800/50 border border-transparent"
                 )}
               >
                 <div className="flex items-center gap-3.5 min-w-0">
@@ -516,8 +516,8 @@ export function CommandPaletteModal({
                     className={cn(
                       "w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 transition-colors",
                       isSelected
-                        ? "bg-[var(--surface-default)] border-[var(--color-primary)]/40 shadow-sm"
-                        : "bg-[var(--bg-level-1)] border-[var(--border-level-1)]"
+                        ? "bg-white dark:bg-zinc-800 border-cyan-500/50 shadow-sm"
+                        : "bg-slate-100 dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700"
                     )}
                   >
                     {item.icon}
@@ -527,13 +527,13 @@ export function CommandPaletteModal({
                       className={cn(
                         "text-xs sm:text-sm font-bold truncate",
                         isSelected
-                          ? "text-[var(--text-primary)]"
-                          : "text-[var(--text-primary)]/90"
+                          ? "text-slate-900 dark:text-white"
+                          : "text-slate-800 dark:text-zinc-200"
                       )}
                     >
                       {isAr ? item.titleAr : item.titleEn}
                     </div>
-                    <div className="text-[11px] text-[var(--text-tertiary)] flex items-center gap-1.5 mt-0.5">
+                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center gap-1.5 mt-0.5">
                       <span>{isAr ? item.categoryLabelAr : item.categoryLabelEn}</span>
                       <span>•</span>
                       <span className="font-mono text-[10px] truncate max-w-[200px]">
@@ -545,14 +545,14 @@ export function CommandPaletteModal({
 
                 <div className="shrink-0 flex items-center gap-1.5 ms-3">
                   {isSelected && (
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20">
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20">
                       <CornerDownLeft className="w-3 h-3" />
                       <span>{isAr ? "انتقال" : "Jump"}</span>
                     </span>
                   )}
                   <ChevronRight
                     className={cn(
-                      "w-4 h-4 text-[var(--text-tertiary)]",
+                      "w-4 h-4 text-slate-400 dark:text-zinc-500",
                       isAr && "rotate-180"
                     )}
                   />
@@ -563,11 +563,11 @@ export function CommandPaletteModal({
 
           {filteredItems.length === 0 && (
             <div className="py-12 px-4 text-center">
-              <Search className="w-8 h-8 text-[var(--text-tertiary)] mx-auto mb-3 opacity-60" />
-              <p className="text-sm font-bold text-[var(--text-primary)] mb-1">
+              <Search className="w-8 h-8 text-slate-400 dark:text-zinc-600 mx-auto mb-3 opacity-60" />
+              <p className="text-sm font-bold text-slate-900 dark:text-white mb-1">
                 {isAr ? "لم يتم العثور على نتائج" : "No results found"}
               </p>
-              <p className="text-xs text-[var(--text-tertiary)]">
+              <p className="text-xs text-slate-500 dark:text-zinc-400">
                 {isAr
                   ? `لا توجد خدمات أو أقسام تطابق "${query}"`
                   : `No commands or services matching "${query}"`}
@@ -577,21 +577,21 @@ export function CommandPaletteModal({
         </div>
 
         {/* ============================================================ */}
-        {/* 4. FOOTER HELPER                                             */}
+        {/* 4. FOOTER HELPER (SOLID OPAQUE SURFACE)                      */}
         {/* ============================================================ */}
-        <div className="px-4 sm:px-6 py-2.5 border-t border-[var(--border-level-1)] bg-[var(--bg-level-1)] flex items-center justify-between text-[11px] font-medium text-[var(--text-tertiary)]">
+        <div className="px-4 sm:px-6 py-2.5 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50 dark:bg-[#0c101a] flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-zinc-400">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--surface-default)] border border-[var(--border-level-1)] font-mono text-[10px]">
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-mono text-[10px]">
                 ↑
               </kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--surface-default)] border border-[var(--border-level-1)] font-mono text-[10px]">
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-mono text-[10px]">
                 ↓
               </kbd>
               <span>{isAr ? "للتنقل" : "Navigate"}</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--surface-default)] border border-[var(--border-level-1)] font-mono text-[10px]">
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-mono text-[10px]">
                 ↵
               </kbd>
               <span>{isAr ? "للاختيار" : "Select"}</span>
