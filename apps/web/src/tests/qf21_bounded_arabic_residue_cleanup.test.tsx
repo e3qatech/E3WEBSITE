@@ -2,6 +2,8 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { LocaleProvider } from '@/components/layout/LocaleProvider'
+import { AdminThemeProvider } from '@/components/dashboard/ui/AdminThemeProvider'
+import { AdminTopBar } from '@/components/dashboard/ui/AdminTopBar'
 import { PulseOrbitCMSView } from '@/components/dashboard/b2c/PulseOrbitCMSView'
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker'
 import { MediaUploader } from '@/components/shared/MediaUploader'
@@ -189,9 +191,9 @@ describe('QF-21 — Bounded Arabic Residue Cleanup Regression Suite', () => {
   })
 
   // =========================================================================
-  // 3. OPERATIONS EVENTS BREADCRUMB SEGMENT
+  // 3. OPERATIONS EVENTS BREADCRUMB & SHARED TOPBAR SEGMENTS (QF-21 / QF-21-B)
   // =========================================================================
-  describe('3. Operations Events Breadcrumb Segment', () => {
+  describe('3. Operations Events Breadcrumb & Shared Topbar Segments', () => {
     it('EventScheduleManager renders localized Arabic breadcrumbs without English "Events" segment', () => {
       mockPathname = '/ar/dashboard/operations/events'
       const htmlAr = renderToStaticMarkup(
@@ -224,6 +226,37 @@ describe('QF-21 — Bounded Arabic Residue Cleanup Regression Suite', () => {
       expect(htmlEn).toContain('Operations')
       expect(htmlEn).toContain('Event Schedules &amp; Capacity')
       expect(htmlEn).toContain('Event Schedules &amp; Capacity Gates')
+    })
+
+    it('AdminTopBar on /ar/dashboard/operations/events renders "جداول المواعيد والسعة" and no visible exact "Events"', () => {
+      mockPathname = '/ar/dashboard/operations/events'
+      const htmlAr = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="ar">
+          <AdminThemeProvider>
+            <AdminTopBar />
+          </AdminThemeProvider>
+        </LocaleProvider>
+      )
+
+      expect(htmlAr).toContain('لوحة التحكم')
+      expect(htmlAr).toContain('العمليات التشغيلية')
+      expect(htmlAr).toContain('جداول المواعيد والسعة')
+      expect(htmlAr).not.toContain('>Events<')
+    })
+
+    it('AdminTopBar on /en/dashboard/operations/events continues to show "Dashboard", "Operations", and "Events"', () => {
+      mockPathname = '/en/dashboard/operations/events'
+      const htmlEn = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <AdminThemeProvider>
+            <AdminTopBar />
+          </AdminThemeProvider>
+        </LocaleProvider>
+      )
+
+      expect(htmlEn).toContain('Dashboard')
+      expect(htmlEn).toContain('Operations')
+      expect(htmlEn).toContain('Events')
     })
   })
 

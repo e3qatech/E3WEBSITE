@@ -32,6 +32,7 @@ export const DASHBOARD_SEGMENT_MAP: Record<string, { en: string; ar: string }> =
   careers: { en: "Careers & Jobs", ar: "وظائف E3" },
   applications: { en: "Job Applications", ar: "طلبات التوظيف" },
   operations: { en: "Operations", ar: "العمليات التشغيلية" },
+  events: { en: "Events", ar: "جداول المواعيد والسعة" },
   broadcast: { en: "Broadcast Alerts", ar: "البث والتنبيهات" },
   catalog: { en: "Event Catalog", ar: "دليل الفعاليات" },
   recap: { en: "Event Recaps", ar: "تقارير الفعاليات" },
