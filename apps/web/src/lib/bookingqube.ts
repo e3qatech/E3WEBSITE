@@ -1,6 +1,7 @@
 /**
  * BookingQube API Integration Library
  */
+import { getServerSecretSetting } from '@/lib/settings/public-settings';
 
 const BOOKINGQUBE_BASE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.e3.qa'
 const BOOKINGQUBE_API_KEY = process.env.BOOKINGQUBE_API_KEY || 'mock_api_key'
@@ -39,9 +40,10 @@ export function generateTicketUrl(
  */
 export async function checkAvailability(attractionId: string, date: string): Promise<TimeSlot[]> {
   try {
+    const apiKey = (await getServerSecretSetting('bookingQubeApiKey')) || BOOKINGQUBE_API_KEY;
     const response = await fetch(`${BOOKINGQUBE_BASE_URL}/api/v1/availability?attraction=${attractionId}&date=${date}`, {
       headers: {
-        'Authorization': `Bearer ${BOOKINGQUBE_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
       // 30 second cache validation (replaces Redis requirement for this specific read)

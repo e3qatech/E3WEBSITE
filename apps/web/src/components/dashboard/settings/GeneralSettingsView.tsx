@@ -412,6 +412,11 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
             <h3 className="font-bold text-[var(--text-primary)] mb-6 flex items-center border-b border-[var(--border-default)] pb-4">
               <Key className="w-5 h-5 me-2 text-[var(--color-primary)]" /> API Integrations
             </h3>
+            <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed">
+              {isAr
+                ? "إدارة المفاتيح السرية للبوابات والربط البرمجي. يتم إخفاء القيم السرية الحالية لحمايتها. اترك الحقل دون تغيير للاحتفاظ بالمفتاح المخزن."
+                : "Manage server integration API credentials. Stored secrets are write-only and masked for security. Leave blank or unchanged to preserve the existing stored credential."}
+            </p>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">BookingQube API Key</label>
@@ -419,6 +424,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   type="password" 
                   value={data.bookingQubeApiKey} 
                   onChange={e => handleChange("bookingQubeApiKey", e.target.value)}
+                  placeholder={data.bookingQubeApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
                   className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
                 />
               </div>
@@ -428,6 +434,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   type="password" 
                   value={data.mapsApiKey} 
                   onChange={e => handleChange("mapsApiKey", e.target.value)}
+                  placeholder={data.mapsApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
                   className="w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
                 />
               </div>
@@ -437,6 +444,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   type="password" 
                   value={data.emailGatewayKey} 
                   onChange={e => handleChange("emailGatewayKey", e.target.value)}
+                  placeholder={data.emailGatewayKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
                   className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono transition-colors"
                 />
               </div>

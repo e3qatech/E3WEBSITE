@@ -4,6 +4,7 @@ import { B2CExperienceProvider, B2CSceneHost, B2CRouteTransition } from "@/compo
 import { PulseOrbitNav } from "@/components/b2c/nav/PulseOrbitNav";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import db from "@/lib/db";
+import { getPublicSettingsServer, resolvePublicSiteSettings } from "@/lib/settings/public-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -15,18 +16,7 @@ export default async function B2CLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  let settingsMap: Record<string, any> = {};
-  try {
-    const settingModel = (db as any).siteSettings || (db as any).setting;
-    if (settingModel) {
-      const settings = await settingModel.findMany({
-        where: { type: "GENERAL" }
-      });
-      settingsMap = settings.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
-    }
-  } catch (e) {
-    console.warn("[B2C LAYOUT NOTICE] Failed to query siteSettings:", e);
-  }
+  const settingsMap = await getPublicSettingsServer();
 
   let orbitPage: any = null;
   try {
@@ -109,12 +99,12 @@ export default async function B2CLayout({
     landingContent?.footerMedia?.posterMediaUrl ||
     settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl;
 
-  const mergedFooterSettings = {
+  const mergedFooterSettings = resolvePublicSiteSettings({
     ...settingsMap,
     footerMediaUrl: activeFooterMedia,
     footerMediaType: activeFooterMediaType,
     footerPosterUrl: activeFooterPosterUrl
-  };
+  });
 
   const orbitData = getMergedCMSPageContent("b2c-pulse-orbit", orbitPage?.content);
 

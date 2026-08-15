@@ -1,22 +1,57 @@
-import { Metadata } from "next"
-import db from "@/lib/db"
-import { GeneralSettingsView } from "@/components/dashboard/settings/GeneralSettingsView"
+import { Metadata } from "next";
+import { redirect } from "next/navigation";
+import db from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
+import { GeneralSettingsView } from "@/components/dashboard/settings/GeneralSettingsView";
+import { getMaskedAdminSettings } from "@/lib/settings/public-settings";
 
 export const metadata: Metadata = {
   title: "General Settings | E3 Admin",
-}
+};
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-export default async function GeneralSettingsPage() {
+export default async function GeneralSettingsPage({
+  params,
+}: {
+  params?: Promise<{ locale: string }>;
+}) {
+  const resolvedParams = params ? await params : { locale: 'en' };
+  const locale = resolvedParams?.locale || 'en';
+
+  const session = await auth();
+  if (!session?.user) {
+    redirect(`/${locale}/login/admin`);
+  }
+
+  const userRole = (session.user as any)?.role;
+  const isAuthorized =
+    userRole === 'SUPER_ADMIN' ||
+    userRole === 'SALES_ADMIN' ||
+    userRole === 'ADMIN' ||
+    hasPermission(userRole, 'settings.general.manage');
+
+  if (!isAuthorized) {
+    return (
+      <div className="p-8 text-center" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+        <h2 className="text-xl font-bold text-red-500 mb-2">
+          {locale === 'ar' ? 'غير مصرح بالدخول' : 'Access Denied'}
+        </h2>
+        <p className="text-zinc-400">
+          {locale === 'ar'
+            ? 'لا تملك الصلاحيات الكافية للوصول إلى إعدادات النظام العامة.'
+            : 'You do not have permission to view or manage general site settings.'}
+        </p>
+      </div>
+    );
+  }
+
   const settingsRecords = await db.setting.findMany({
-    where: { type: "GENERAL" }
-  })
-  
-  const settings = settingsRecords.reduce((acc: any, curr: any) => {
-    acc[curr.key] = curr.value
-    return acc
-  }, {} as Record<string, any>)
+    where: { type: "GENERAL" },
+  });
 
-  return <GeneralSettingsView initialSettings={settings} />
+  const maskedSettings = getMaskedAdminSettings(settingsRecords || []);
+
+  return <GeneralSettingsView initialSettings={maskedSettings} />;
 }

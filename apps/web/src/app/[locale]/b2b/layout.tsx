@@ -5,6 +5,8 @@ import { PulseOrbitNav } from '@/components/b2c/nav/PulseOrbitNav'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import db from "@/lib/db"
 
+import { getPublicSettingsServer } from '@/lib/settings/public-settings'
+
 export const metadata = {
   title: 'E3 Corporate - Events & Entertainment Enterprises',
   description: 'E3 turns ideas into landmark experiences through creative design, fabrication, ticketing, staffing, operations, and measurable delivery.',
@@ -18,22 +20,7 @@ export default async function RootB2BLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  let settings: Record<string, string> = {}
-  
-  try {
-    const settingModel = (db as any).siteSettings || (db as any).setting;
-    if (settingModel) {
-      const settingsRecords = await settingModel.findMany({
-        where: { type: "GENERAL" }
-      })
-      settings = settingsRecords.reduce((acc: any, curr: any) => {
-        acc[curr.key] = curr.value as string
-        return acc
-      }, {} as Record<string, string>)
-    }
-  } catch (error) {
-    console.error("Error loading B2B layout settings:", error)
-  }
+  const settings = await getPublicSettingsServer();
 
   let b2bOrbitPage: any = null;
   try {

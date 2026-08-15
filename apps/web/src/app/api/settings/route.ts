@@ -1,91 +1,131 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 import { auth } from '@/lib/auth';
-import db from "@/lib/db"
-
-// Mock Redis client for invalidation
-const redis = {
-  del: async (key: string) => {
-    console.log(`[Redis Mock] Cleared cache key: ${key}`)
-    return 1
-  }
-}
+import db from "@/lib/db";
+import { hasPermission } from "@/lib/permissions";
+import {
+  resolvePublicSiteSettings,
+  getMaskedAdminSettings,
+  isSensitiveKey,
+  isMaskedOrBlankSecretSubmission,
+  revalidateSettingsCache,
+} from "@/lib/settings/public-settings";
 
 export async function POST(req: Request) {
   const session = await auth();
-  const userRole = (session?.user as any)?.role;
-  const isAuthorized = Boolean(session?.user && ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'STAFF'].includes(userRole));
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+  }
 
-  if (!isAuthorized && process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Unauthorized: Admin privileges required' }, { status: 403 });
+  const userRole = (session.user as any)?.role;
+  const isAuthorized =
+    userRole === 'SUPER_ADMIN' ||
+    userRole === 'SALES_ADMIN' ||
+    userRole === 'ADMIN' ||
+    hasPermission(userRole, 'settings.general.manage');
+
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
   }
 
   try {
-    const { key, value, type } = await req.json()
+    const { key, value, type } = await req.json();
 
     if (!key || value === undefined) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const settingModel = (db as any).siteSettings || (db as any).setting;
-    let setting: any = null;
-    if (settingModel) {
-      setting = await settingModel.upsert({
+    if (!settingModel) {
+      return NextResponse.json({ error: "Database model not available" }, { status: 500 });
+    }
+
+    // Write-Only Replacement Semantics for Sensitive Credentials:
+    // If a secret is submitted with empty, whitespace, or masked placeholder, retain the existing stored secret.
+    if (isSensitiveKey(key)) {
+      if (isMaskedOrBlankSecretSubmission(value)) {
+        return NextResponse.json({
+          success: true,
+          action: 'PRESERVED',
+          message: `Existing credential for "${key}" preserved.`,
+        });
+      }
+
+      // New credential provided: update securely in storage
+      const setting = await settingModel.upsert({
         where: { key },
-        update: { value, type: type || "GENERAL" },
-        create: { key, value, type: type || "GENERAL" }
+        update: { value: String(value).trim(), type: type || "INTEGRATION" },
+        create: { key, value: String(value).trim(), type: type || "INTEGRATION" },
+      });
+
+      await revalidateSettingsCache();
+      return NextResponse.json({
+        success: true,
+        action: 'UPDATED',
+        setting: { key: setting.key, type: setting.type, updatedAt: setting.updatedAt },
       });
     }
 
-    // Mock Redis cache clear based on the type or key
-    await redis.del(`settings:${key}`)
-    if (type) {
-      await redis.del(`settings:type:${type}`)
-    }
+    // Standard public/presentation setting update
+    const setting = await settingModel.upsert({
+      where: { key },
+      update: { value, type: type || "GENERAL" },
+      create: { key, value, type: type || "GENERAL" },
+    });
 
-    return NextResponse.json({ success: true, setting })
+    await revalidateSettingsCache();
+
+    return NextResponse.json({ success: true, setting });
   } catch (error) {
-    console.error("Error saving setting:", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("Error saving setting:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url)
-    const type = searchParams.get('type')
-    
-    // Auth check only for sensitive/non-GENERAL setting types
-    if (type && type !== 'GENERAL') {
-      const session = await auth();
-      if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-      }
-    }
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get('type');
+    const adminMode = searchParams.get('admin') === 'true';
 
-    let settings: any[] = []
+    const session = await auth();
+    const userRole = (session?.user as any)?.role;
+    const isManager =
+      session?.user &&
+      (userRole === 'SUPER_ADMIN' ||
+        userRole === 'SALES_ADMIN' ||
+        userRole === 'ADMIN' ||
+        hasPermission(userRole, 'settings.general.manage'));
+
     const settingModel = (db as any).siteSettings || (db as any).setting;
+    let settings: any[] = [];
     if (settingModel) {
       if (type) {
-        settings = await settingModel.findMany({ where: { type: type as any } })
+        settings = await settingModel.findMany({ where: { type: type as any } });
       } else {
-        settings = await settingModel.findMany()
+        settings = await settingModel.findMany();
       }
     }
 
-    const dataMap = (settings || []).reduce((acc: Record<string, string>, item: any) => {
-      if (item?.key) {
-        acc[item.key] = item.value || '';
-      }
-      return acc;
-    }, {});
-    
+    // 1. Authorized Manager View (Masked credentials only, zero raw secret exposure)
+    if (isManager && adminMode) {
+      const maskedData = getMaskedAdminSettings(settings || []);
+      return NextResponse.json({
+        success: true,
+        data: maskedData,
+        isAuthorized: true,
+      });
+    }
+
+    // 2. Canonical Public View (Strict allowlist DTO only)
+    const publicData = resolvePublicSiteSettings(settings || []);
+
     return NextResponse.json({
       success: true,
-      data: dataMap,
-      settings: settings || []
-    })
+      data: publicData,
+      settings: Object.entries(publicData).map(([key, value]) => ({ key, value })),
+    });
   } catch (error) {
-    console.error("Error fetching settings:", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("Error fetching settings:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
