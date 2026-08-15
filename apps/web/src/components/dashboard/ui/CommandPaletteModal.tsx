@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -47,12 +48,28 @@ export function CommandPaletteModal({
 }: CommandPaletteModalProps) {
   const router = useRouter();
   const isAr = locale === "ar";
+  const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [dynamicServices, setDynamicServices] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Mount tracking for React Portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Body scroll lock while modal is open
+  useEffect(() => {
+    if (!isOpen || typeof document === "undefined") return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
 
   // Pre-indexed Command Center routes
   const staticItems: CommandItem[] = useMemo(
@@ -411,24 +428,24 @@ export function CommandPaletteModal({
     { key: "settings", labelEn: "Settings", labelAr: "الإعدادات" },
   ];
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={isAr ? "شريط البحث والتنقل السريع" : "Command Center Search"}
       data-testid="command-palette-modal"
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[99999] flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-white dark:bg-[#111622] text-slate-900 dark:text-white border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col max-h-[80vh] transition-all animate-in zoom-in-95 duration-200"
+        className="w-full max-w-2xl bg-white dark:bg-[#111622] text-slate-900 dark:text-white border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col max-h-[80vh] transition-all animate-in zoom-in-95 duration-200"
         dir={isAr ? "rtl" : "ltr"}
         onClick={(e) => e.stopPropagation()}
       >
         {/* ============================================================ */}
         {/* 1. SEARCH INPUT HEADER                                       */}
         {/* ============================================================ */}
-        <div className="relative flex items-center px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/90 dark:bg-[#0c101a]">
+        <div className="relative flex items-center px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50 dark:bg-[#0c101a]">
           <Search className="w-5 h-5 text-cyan-600 dark:text-cyan-400 shrink-0 me-3 opacity-90" />
           <input
             ref={inputRef}
@@ -455,7 +472,7 @@ export function CommandPaletteModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-2 py-1 rounded-lg text-xs font-mono font-bold text-slate-500 dark:text-zinc-400 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors"
+            className="px-2 py-1 rounded-lg text-xs font-mono font-bold text-slate-500 dark:text-zinc-400 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
           >
             ESC
           </button>
@@ -464,7 +481,7 @@ export function CommandPaletteModal({
         {/* ============================================================ */}
         {/* 2. CATEGORY FILTER PILLS                                     */}
         {/* ============================================================ */}
-        <div className="flex items-center gap-1.5 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar border-b border-slate-200 dark:border-zinc-800/80 bg-slate-100/90 dark:bg-[#0e131f]">
+        <div className="flex items-center gap-1.5 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar border-b border-slate-200 dark:border-zinc-800/80 bg-slate-100 dark:bg-[#0e131f]">
           {categories.map((cat) => {
             const isActive = activeCategory === cat.key;
             return (
@@ -604,4 +621,12 @@ export function CommandPaletteModal({
       </div>
     </div>
   );
+
+  // Portal to document.body in browser environment to escape all parent stacking contexts
+  if (typeof document !== "undefined" && mounted) {
+    return createPortal(modalContent, document.body);
+  }
+
+  // SSR / testing fallback
+  return modalContent;
 }
