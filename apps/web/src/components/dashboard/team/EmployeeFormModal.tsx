@@ -61,7 +61,7 @@ export function EmployeeFormModal({ isOpen, onClose, employee, onSuccess }: { is
         firstName: "", lastName: "", slug: "", designation: "", department: "", yearsOfExperience: 0, tagline: "", profileImage: "",
         aboutSummary: "", careerJourney: "", keyStrengths: "", expertiseTags: "[]", coreCompetencies: "[]", experience: "[]",
         projects: "[]", certifications: "[]", education: "[]", awards: "[]", skillsMatrix: "[]", mediaGallery: "[]", testimonials: "[]",
-        contactEmail: "", linkedinUrl: "", isActive: true, order: 0,
+        contactEmail: "", linkedinUrl: "", isActive: false, order: 0,
       });
     }
     setActiveTab("basic");

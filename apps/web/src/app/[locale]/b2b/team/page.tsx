@@ -1,61 +1,50 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-import { TeamGrid, TeamMember } from "@/components/b2b/team/TeamGrid"
-import { Button } from "@/components/ui/Button"
-import prisma from "@/lib/db"
+import { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { TeamGrid } from '@/components/b2b/team/TeamGrid';
+import { Button } from '@/components/ui/Button';
+import db from '@/lib/db';
+import { filterAndResolvePublicTeamMembers } from '@/lib/team/team-resolver';
 
-export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const params = await props.params;
-  return {
-    title: params.locale === 'ar' ? 'فريقنا | E3 Qatar' : 'Our Team | E3 Qatar',
-  }
+interface PageProps {
+  params: Promise<{ locale: string }>;
 }
 
-export default async function B2BTeamPage(props: { params: Promise<{ locale: string }> }) {
-  const params = await props.params;
-  const { locale } = params;
-  const isRTL = locale === 'ar'
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const { locale } = await props.params;
+  return {
+    title: locale === 'ar' ? 'فريق العمل | E3 Qatar' : 'Our Team | E3 Qatar',
+    description:
+      locale === 'ar'
+        ? 'تعرف على نخبة المهندسين والمبدعين والمخططين في E3 قطر.'
+        : 'Meet the engineers, creatives, and tacticians who deliver world-class entertainment in Qatar.',
+  };
+}
 
-  // Fetch real data from DB safely
-  let employeeProfiles: any[] = []
+export default async function B2BTeamPage(props: PageProps) {
+  const { locale } = await props.params;
+  const isRTL = locale === 'ar';
+
+  // 1. Fetch active EmployeeProfiles safely from canonical database
+  let employeeProfiles: any[] = [];
   try {
-    employeeProfiles = await prisma.employeeProfile.findMany({
+    employeeProfiles = await db.employeeProfile.findMany({
       where: { isActive: true },
-      orderBy: { order: "asc" }
-    })
+      orderBy: { order: 'asc' },
+    });
   } catch (error) {
-    console.error("Error loading employee profiles:", error)
+    console.error('[B2B_TEAM_PAGE_ERROR]', error);
   }
 
-  // Map to the format expected by TeamGrid
-  const mappedTeam: TeamMember[] = employeeProfiles.map((emp) => ({
-    id: emp.id,
-    slug: emp.slug,
-    name: { 
-      en: `${emp.firstName} ${emp.lastName}`,
-      ar: emp.firstNameAr && emp.lastNameAr ? `${emp.firstNameAr} ${emp.lastNameAr}` : `${emp.firstName} ${emp.lastName}`
-    },
-    designation: { 
-      en: emp.designation,
-      ar: emp.designationAr || emp.designation
-    },
-    department: emp.department,
-    profilePhoto: emp.profileImage || "https://i.pravatar.cc/500",
-    bioExcerpt: { 
-      en: emp.aboutSummary,
-      ar: emp.aboutSummaryAr || emp.aboutSummary
-    },
-    socialLinks: { 
-      linkedin: emp.linkedinUrl || undefined,
-      email: emp.contactEmail || undefined
-    }
-  }))
+  // 2. Canonical public resolution with deterministic sort, Arabic parity, and contact privacy
+  const safePublicTeam = filterAndResolvePublicTeamMembers(
+    employeeProfiles,
+    locale === 'ar' ? 'ar' : 'en'
+  );
 
   return (
     <main className="bg-[var(--surface-default)] min-h-screen pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header */}
         <div className="mb-16 md:mb-24 flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
           <div>
@@ -63,12 +52,12 @@ export default async function B2BTeamPage(props: { params: Promise<{ locale: str
               {locale === 'ar' ? 'العقول المدبرة' : 'The Masterminds'}
             </h1>
             <p className="text-xl text-[var(--text-secondary)] max-w-2xl">
-              {locale === 'ar' 
-                ? 'تعرف على المهندسين والمبدعين والمخططين الذين يجعلون المستحيل ممكناً.' 
+              {locale === 'ar'
+                ? 'تعرف على المهندسين والمبدعين والمخططين الذين يجعلون المستحيل ممكناً.'
                 : 'Meet the engineers, creatives, and tacticians who make the impossible happen every day.'}
             </p>
           </div>
-          
+
           <Button variant="outline" size="lg" asChild className="shrink-0 gap-2">
             <Link href={`/${locale}/careers`}>
               {locale === 'ar' ? 'انضم لفريقنا' : 'Join Our Team'}
@@ -78,9 +67,8 @@ export default async function B2BTeamPage(props: { params: Promise<{ locale: str
         </div>
 
         {/* Team Grid Client Component */}
-        <TeamGrid members={mappedTeam} locale={locale} />
-        
+        <TeamGrid members={safePublicTeam} locale={locale} />
       </div>
     </main>
-  )
+  );
 }

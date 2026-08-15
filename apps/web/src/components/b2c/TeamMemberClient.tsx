@@ -94,7 +94,7 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               
               <AnimatedText 
                 as="h1" 
-                text={`${member.firstName} ${member.lastName}`}
+                text={member.name || `${member.firstName || ''} ${member.lastName || ''}`.trim()}
                 className="text-5xl md:text-7xl lg:text-8xl leading-[0.95] font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--e3-royal-blue)] to-[var(--e3-magenta)] mb-4 font-display uppercase"
               />
               
@@ -108,12 +108,12 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
               
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
                 <MagneticButton 
-                  href={`mailto:${member.contactEmail}?subject=Contact Request`}
+                  href={`/${locale}/b2c/contact`}
                   variant="primary"
                   size="md"
                   className="flex items-center justify-center gap-2 font-black uppercase"
                 >
-                  <Calendar className="w-5 h-5" /> {initialSettings?.initiateMeetingText || "Contact Member"}
+                  <Calendar className="w-5 h-5" /> {initialSettings?.initiateMeetingText || (isAr ? "تواصل معنا" : "Contact Team")}
                 </MagneticButton>
                 
                 <MagneticButton 

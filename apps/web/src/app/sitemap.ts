@@ -36,12 +36,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
-    // 2. Fetch Published Dynamic Routes (QF-05)
+    // 2. Fetch Published Dynamic Routes (QF-05, QF-24)
     const [attractions, services, caseStudies, teamMembers] = await Promise.all([
       db.attraction.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       db.service.findMany({ where: { isVisible: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
       getPublicCaseStudies({ select: { slug: true, updatedAt: true } }).catch(() => []),
-      db.employeeProfile.findMany({ select: { id: true, updatedAt: true } }).catch(() => []),
+      db.employeeProfile.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }).catch(() => []),
     ]);
 
     // 3. Map Dynamic Routes to Sitemap
@@ -82,18 +82,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         },
       })),
-      ...teamMembers.map((item: any) => ({
-        url: `${baseUrl}/b2b/team/${item.id}`,
-        lastModified: item.updatedAt,
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
-        alternates: {
-          languages: {
-            en: `${baseUrl}/en/b2b/team/${item.id}`,
-            ar: `${baseUrl}/ar/b2b/team/${item.id}`,
+      ...teamMembers
+        .filter((item: any) => Boolean(item.slug))
+        .map((item: any) => ({
+          url: `${baseUrl}/b2b/team/${item.slug}`,
+          lastModified: item.updatedAt,
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+          alternates: {
+            languages: {
+              en: `${baseUrl}/en/b2b/team/${item.slug}`,
+              ar: `${baseUrl}/ar/b2b/team/${item.slug}`,
+            },
           },
-        },
-      })),
+        })),
     ];
 
     return [...routes, ...dynamicRoutes];

@@ -32,22 +32,36 @@ export async function GET() {
       "/ar/business/cases",
       "/en/business/careers",
       "/ar/business/careers",
+      "/en/b2b/team",
+      "/ar/b2b/team",
     ];
 
-    // 2. Published Attractions
+    // 2. Published Attractions & Team Members (QF-24)
     let attractions: any[] = [];
+    let teamMembers: any[] = [];
     try {
-      attractions = await db.attraction.findMany({
-        where: { isPublished: true },
-        select: { slug: true, updatedAt: true }
-      });
+      [attractions, teamMembers] = await Promise.all([
+        db.attraction.findMany({
+          where: { isPublished: true },
+          select: { slug: true, updatedAt: true }
+        }),
+        db.employeeProfile.findMany({
+          where: { isActive: true },
+          select: { slug: true, updatedAt: true }
+        }),
+      ]);
     } catch (_e) {
       attractions = [];
+      teamMembers = [];
     }
 
     const attractionUrls = attractions.map((a) => `/en/b2c/attractions/${a.slug}`);
+    const teamUrls = teamMembers.flatMap((m) => [
+      `/en/b2b/team/${m.slug}`,
+      `/ar/b2b/team/${m.slug}`,
+    ]);
 
-    const allPaths = [...staticRoutes, ...attractionUrls];
+    const allPaths = [...staticRoutes, ...attractionUrls, ...teamUrls];
 
     const xmlItems = allPaths
       .map(

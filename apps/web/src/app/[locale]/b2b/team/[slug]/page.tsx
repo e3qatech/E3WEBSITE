@@ -1,191 +1,258 @@
-import { Metadata } from "next"
-import { notFound } from "next/navigation"
-import { Mail, Award } from "lucide-react"
+import { Metadata } from 'next';
+import { notFound, redirect, RedirectType } from 'next/navigation';
+import Link from 'next/link';
+import { Award, ArrowLeft, ArrowRight } from 'lucide-react';
+import db from '@/lib/db';
+import {
+  resolvePublicTeamMember,
+  isTeamMemberPubliclyEligible,
+} from '@/lib/team/team-resolver';
+import { ExperienceTimeline, TimelineEntry } from '@/components/b2b/team/ExperienceTimeline';
+import { MeetingBookingForm } from '@/components/shared/MeetingBookingForm';
+import { Button } from '@/components/ui/Button';
 
-import { ExperienceTimeline, TimelineEntry } from "@/components/b2b/team/ExperienceTimeline"
-import { CaseStudyCard } from "@/components/b2b/case-studies/CaseStudyCard"
-import { MeetingBookingForm } from "@/components/shared/MeetingBookingForm"
+interface PageProps {
+  params: Promise<{ locale: string; slug: string }>;
+}
 
-export async function generateMetadata(props: { params: Promise<{ locale: string, slug: string }> }): Promise<Metadata> {
-  await props.params;
-  return {
-    title: `Team Member | E3 Qatar`,
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const { locale, slug } = await props.params;
+  const isAr = locale === 'ar';
+
+  try {
+    const rawMember = await db.employeeProfile.findFirst({
+      where: {
+        OR: [{ slug }, { id: slug }],
+        isActive: true,
+      },
+    });
+
+    if (!rawMember || !isTeamMemberPubliclyEligible(rawMember).eligible) {
+      return {
+        title: isAr ? 'الملف الشخصي غير موجود | E3 Qatar' : 'Team Member Not Found | E3 Qatar',
+      };
+    }
+
+    const member = resolvePublicTeamMember(rawMember, isAr ? 'ar' : 'en');
+    return {
+      title: `${member.name} - ${member.designation} | E3 Qatar`,
+      description: member.aboutSummary || member.tagline || undefined,
+    };
+  } catch {
+    return {
+      title: isAr ? 'فريق العمل | E3 Qatar' : 'Our Team | E3 Qatar',
+    };
   }
 }
 
-export default async function TeamMemberPage(props: { params: Promise<{ locale: string, slug: string }> }) {
-  const { locale } = await props.params;
+export default async function TeamMemberDetailPage(props: PageProps) {
+  const { locale, slug } = await props.params;
+  const isAr = locale === 'ar';
 
-  // Mock Data Fetch for team member
-  const member = {
-    id: "3",
-    slug: "tariq-mansour",
-    name: { en: "Tariq Mansour", ar: "طارق منصور" },
-    designation: { en: "Lead Structural Engineer", ar: "كبير المهندسين الإنشائيين" },
-    department: { en: "Technical", ar: "القسم التقني" },
-    coverPhoto: "https://images.unsplash.com/photo-1541888086425-d81bb19240f5",
-    profilePhoto: "https://i.pravatar.cc/500?img=60",
-    bio: {
-      en: "<p>Tariq brings over 15 years of specialized experience in temporary structural engineering for mega-events. He holds a Masters in Structural Mechanics and has overseen the safe deployment of over 5,000 tons of staging equipment across the MENA region.</p><p>His philosophy is simple: 'If it can be imagined, it can be engineered safely.'</p>",
-      ar: "<p>يتمتع طارق بأكثر من 15 عاماً من الخبرة المتخصصة في الهندسة الإنشائية المؤقتة للفعاليات الضخمة.</p>"
-    },
-    socialLinks: {
-      linkedin: "#",
-      twitter: "#",
-      email: "tariq@e3qatar.com"
-    },
-    certifications: [
-      { id: "c1", name: "Certified Rigging Specialist", issuer: "PLASA", year: "2019" },
-      { id: "c2", name: "Structural Safety for Temporary Structures", issuer: "IStructE", year: "2021" }
-    ],
-    experience: [
-      {
-        id: "e1",
-        company: { en: "E3 Qatar", ar: "إي ثري قطر" },
-        role: { en: "Lead Structural Engineer", ar: "كبير المهندسين الإنشائيين" },
-        duration: { en: "2021 - Present", ar: "2021 - الحاضر" },
-        description: { en: "Directing all load calculations, rigging operations, and safety sign-offs for major government and corporate deployments.", ar: "توجيه جميع حسابات الأحمال وعمليات التجهيز واعتمادات السلامة." }
-      },
-      {
-        id: "e2",
-        company: { en: "Global Events Tech", ar: "جلوبال إيفنتس تك" },
-        role: { en: "Senior Rigger", ar: "كبير مسؤولي التجهيز" },
-        duration: { en: "2015 - 2021", ar: "2015 - 2021" }
-      }
-    ] as TimelineEntry[]
+  // 1. Query database for team member by slug or legacy ID
+  const rawMember = await db.employeeProfile.findUnique({
+    where: { slug },
+  });
+
+  // 2. Legacy CUID resolution & 301 redirect helper
+  if (!rawMember && (slug.startsWith('c') || slug.length > 20)) {
+    const legacyMember = await db.employeeProfile.findUnique({
+      where: { id: slug },
+    });
+    if (legacyMember && isTeamMemberPubliclyEligible(legacyMember).eligible && legacyMember.slug) {
+      redirect(`/${locale}/b2b/team/${legacyMember.slug}`, RedirectType.replace);
+    }
   }
 
-  // Mock contributed projects
-  const contributedProjects = [
-    {
-      id: "1", slug: "qatar-auto-show", title: { en: "Geneva International Motor Show Qatar", ar: "معرض جنيف الدولي للسيارات قطر" },
-      clientName: { en: "Qatar Tourism", ar: "قطر للسياحة" }, category: "Government", year: "2023",
-      thumbnailUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81"
-    },
-    {
-      id: "4", slug: "winter-wonderland-rigging", title: { en: "Winter Wonderland Stage Rigging", ar: "تجهيزات مسرح ونتر وندر لاند" },
-      clientName: { en: "Estithmar Holding", ar: "استثمار القابضة" }, category: "FEC", year: "2023",
-      thumbnailUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819"
-    }
-  ]
+  // 3. Strict 404 for missing, inactive, or malformed records — NEVER fallback to another person's profile
+  if (!rawMember || !isTeamMemberPubliclyEligible(rawMember).eligible) {
+    notFound();
+  }
 
-  if (!member) notFound()
+  // 4. Resolve safe public DTO (strips personal contact, ensures Arabic parity)
+  const member = resolvePublicTeamMember(rawMember, isAr ? 'ar' : 'en');
+
+  // Format experience timeline safely
+  const experienceEntries: TimelineEntry[] = Array.isArray(member.experience)
+    ? member.experience.map((exp: any, idx: number) => ({
+        id: exp.id || `exp-${idx}`,
+        company: typeof exp.company === 'object' ? exp.company : { en: exp.company || 'E3', ar: exp.company || 'إي ثري' },
+        role: typeof exp.role === 'object' ? exp.role : { en: exp.title || exp.role || member.designation, ar: exp.titleAr || exp.roleAr || member.designation },
+        duration: typeof exp.duration === 'object' ? exp.duration : { en: exp.year || exp.duration || '', ar: exp.year || exp.duration || '' },
+        description: typeof exp.description === 'object' ? exp.description : { en: exp.description || '', ar: exp.descriptionAr || '' },
+      }))
+    : [];
+
+  // Format certifications safely
+  const certificationsList = Array.isArray(member.certifications)
+    ? member.certifications.map((c: any, idx: number) => ({
+        id: c.id || `cert-${idx}`,
+        name: typeof c === 'string' ? c : c.name || '',
+        issuer: typeof c === 'object' ? c.issuer || 'Professional Organization' : 'Professional Organization',
+        year: typeof c === 'object' ? c.year || '' : '',
+      }))
+    : [];
 
   return (
     <main className="bg-[var(--surface-default)] min-h-screen">
-      
       {/* 1. HERO */}
-      <section className="relative w-full pt-32 pb-24 md:pb-32 overflow-hidden">
-        {/* Cover Photo */}
-        <div className="absolute inset-0 h-[400px]">
-          <img src={member.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/80 to-transparent" />
-        </div>
+      <section className="relative w-full pt-32 pb-20 md:pb-28 overflow-hidden bg-gradient-to-b from-[var(--surface-hover)] to-[var(--surface-default)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb / Back Link */}
+          <div className="mb-8">
+            <Link
+              href={`/${locale}/b2b/team`}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              {isAr ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              {isAr ? 'العودة إلى دليل فريق العمل' : 'Back to Team Directory'}
+            </Link>
+          </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-32">
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-8 text-center md:text-start">
-            {/* Profile Photo */}
-            <div className="w-48 h-48 md:w-64 md:h-64 rounded-full border-8 border-[var(--surface-default)] shadow-2xl overflow-hidden shrink-0">
-              <img src={member.profilePhoto} alt={member.name.en} className="w-full h-full object-cover" />
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 text-center md:text-start">
+            {/* Profile Photo / Avatar Monogram */}
+            <div className="w-40 h-40 md:w-52 md:h-52 rounded-full border-4 border-[var(--surface-default)] shadow-2xl overflow-hidden shrink-0 bg-[var(--surface-default)] flex items-center justify-center">
+              {member.profileImage ? (
+                <img
+                  src={member.profileImage}
+                  alt={member.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[var(--color-primary)] text-white flex items-center justify-center text-4xl md:text-5xl font-black">
+                  {member.initials}
+                </div>
+              )}
             </div>
 
-            {/* Title & Socials */}
-            <div className="flex-1 pb-4">
-              <span className="inline-block px-4 py-1.5 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full text-sm font-bold uppercase tracking-wider mb-4 border border-[var(--color-primary)]/20">
-                {(member.department as any)[locale] || member.department.en}
+            {/* Title & Safe Socials */}
+            <div className="flex-1">
+              <span className="inline-block px-4 py-1.5 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-[var(--color-primary)]/20">
+                {member.department}
               </span>
-              <h1 className="text-4xl md:text-6xl font-black text-[var(--text-primary)] mb-2">
-                {(member.name as any)[locale] || member.name.en}
+              <h1 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] mb-2">
+                {member.name}
               </h1>
-              <p className="text-xl md:text-2xl text-[var(--text-secondary)] font-medium mb-6">
-                {(member.designation as any)[locale] || member.designation.en}
+              <p className="text-lg md:text-xl text-[var(--text-secondary)] font-medium mb-6">
+                {member.designation}
               </p>
 
-              <div className="flex items-center justify-center md:justify-start gap-4">
-                {member.socialLinks?.linkedin && (
-                  <a href={member.socialLinks.linkedin} className="w-12 h-12 rounded-full bg-[var(--surface-hover)] border border-[var(--border-default)] flex items-center justify-center hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-all">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              {member.yearsOfExperience > 0 && (
+                <p className="text-sm font-semibold text-[var(--text-tertiary)] mb-6">
+                  {isAr
+                    ? `${member.yearsOfExperience} سنوات من الخبرة المتخصصة`
+                    : `${member.yearsOfExperience}+ Years of Specialized Experience`}
+                </p>
+              )}
+
+              <div className="flex items-center justify-center md:justify-start gap-3">
+                {member.linkedinUrl && (
+                  <a
+                    href={member.linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-11 h-11 rounded-full bg-[var(--surface-hover)] border border-[var(--border-default)] flex items-center justify-center hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-all"
+                    aria-label="LinkedIn Profile"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
                   </a>
                 )}
-                {member.socialLinks?.twitter && (
-                  <a href={member.socialLinks.twitter} className="w-12 h-12 rounded-full bg-[var(--surface-hover)] border border-[var(--border-default)] flex items-center justify-center hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-all">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-                  </a>
-                )}
-                {member.socialLinks?.email && (
-                  <a href={`mailto:${member.socialLinks.email}`} className="w-12 h-12 rounded-full bg-[var(--surface-hover)] border border-[var(--border-default)] flex items-center justify-center hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-all">
-                    <Mail className="w-5 h-5" />
-                  </a>
-                )}
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/${locale}/b2b/contact`}>
+                    {isAr ? 'تواصل مع فريقنا' : 'Contact E3 Team'}
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* TWO COLUMN LAYOUT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
-        <div className="flex flex-col lg:flex-row gap-16">
-          
+      {/* TWO COLUMN CONTENT SECTION */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="flex flex-col lg:flex-row gap-12">
           {/* Main Content (Left) */}
-          <div className="lg:w-2/3 space-y-20">
-            
-            {/* Bio */}
-            <div>
-              <h2 className="text-2xl font-black text-[var(--text-primary)] mb-6">
-                {locale === 'ar' ? 'نبذة' : 'Biography'}
-              </h2>
-              <div 
-                className="text-lg text-[var(--text-secondary)] leading-relaxed space-y-4"
-                dangerouslySetInnerHTML={{ __html: (member.bio as any)[locale] || member.bio.en }}
-              />
-            </div>
-
-            {/* Experience */}
-            <div>
-              <h2 className="text-2xl font-black text-[var(--text-primary)] mb-12">
-                {locale === 'ar' ? 'الخبرة' : 'Experience'}
-              </h2>
-              <ExperienceTimeline entries={member.experience} locale={locale} />
-            </div>
-
-            {/* Projects */}
-            {contributedProjects.length > 0 && (
+          <div className="lg:w-2/3 space-y-14">
+            {/* Biography */}
+            {member.aboutSummary ? (
               <div>
-                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-8">
-                  {locale === 'ar' ? 'المشاريع' : 'Contributed Projects'}
+                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-4">
+                  {isAr ? 'نبذة مهنية' : 'Professional Biography'}
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {contributedProjects.map((project, i) => (
-                    <CaseStudyCard key={project.id} caseStudy={project as any} locale={locale} index={i} />
+                <div className="text-base md:text-lg text-[var(--text-secondary)] leading-relaxed space-y-4">
+                  <p>{member.aboutSummary}</p>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Career Journey */}
+            {member.careerJourney ? (
+              <div>
+                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-4">
+                  {isAr ? 'المسيرة المهنية' : 'Career Journey'}
+                </h2>
+                <p className="text-base text-[var(--text-secondary)] leading-relaxed">
+                  {member.careerJourney}
+                </p>
+              </div>
+            ) : null}
+
+            {/* Key Strengths & Competencies */}
+            {member.coreCompetencies.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-4">
+                  {isAr ? 'الكفاءات والخبرات الأساسية' : 'Core Competencies'}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {member.coreCompetencies.map((comp: string, i: number) => (
+                    <span
+                      key={i}
+                      className="px-3 py-1.5 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl text-xs font-bold text-[var(--text-primary)]"
+                    >
+                      {comp}
+                    </span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Experience Timeline */}
+            {experienceEntries.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-8">
+                  {isAr ? 'الخبرة العملية' : 'Professional Experience'}
+                </h2>
+                <ExperienceTimeline entries={experienceEntries} locale={locale} />
               </div>
             )}
           </div>
 
           {/* Sidebar (Right) */}
-          <div className="lg:w-1/3 space-y-12">
-            
+          <div className="lg:w-1/3 space-y-10">
             {/* Certifications */}
-            {member.certifications && member.certifications.length > 0 && (
-              <div className="bg-[var(--surface-hover)] rounded-3xl p-8 border border-[var(--border-default)]">
+            {certificationsList.length > 0 && (
+              <div className="bg-[var(--surface-hover)] rounded-3xl p-6 border border-[var(--border-default)]">
                 <h3 className="text-xl font-black text-[var(--text-primary)] mb-6">
-                  {locale === 'ar' ? 'الشهادات' : 'Certifications'}
+                  {isAr ? 'الشهادات والاعتمادات' : 'Certifications'}
                 </h3>
-                <ul className="space-y-4">
-                  {member.certifications.map(cert => (
-                    <li key={cert.id} className="flex gap-4 p-4 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] group hover:border-[var(--color-primary)] transition-colors">
-                      <div className="shrink-0 w-10 h-10 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)]">
-                        <Award className="w-5 h-5" />
+                <ul className="space-y-3">
+                  {certificationsList.map((cert) => (
+                    <li
+                      key={cert.id}
+                      className="flex gap-3 p-3.5 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)]"
+                    >
+                      <div className="shrink-0 w-9 h-9 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)]">
+                        <Award className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-[var(--text-primary)] text-sm mb-1 line-clamp-2 leading-tight">
+                        <p className="font-bold text-[var(--text-primary)] text-sm mb-0.5 leading-tight">
                           {cert.name}
                         </p>
-                        <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
-                          {cert.issuer} • {cert.year}
-                        </p>
+                        {cert.issuer && (
+                          <p className="text-xs font-medium text-[var(--text-tertiary)]">
+                            {cert.issuer} {cert.year ? `• ${cert.year}` : ''}
+                          </p>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -193,23 +260,22 @@ export default async function TeamMemberPage(props: { params: Promise<{ locale: 
               </div>
             )}
 
-            {/* Book a Meeting */}
-            <div className="bg-[var(--surface-default)] rounded-3xl p-8 border border-[var(--border-default)] shadow-2xl sticky top-32">
-              <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">
-                {locale === 'ar' ? 'تحدث مع' : 'Talk to'} {(member.name as any)[locale] || member.name.en.split(' ')[0]}
+            {/* Consultation / Booking CTA */}
+            <div className="bg-[var(--surface-default)] rounded-3xl p-6 border border-[var(--border-default)] shadow-xl sticky top-28">
+              <h3 className="text-lg font-black text-[var(--text-primary)] mb-2">
+                {isAr ? `تنسيق استشارة مع ${member.name}` : `Consult with ${member.name}`}
               </h3>
-              <p className="text-sm text-[var(--text-secondary)] mb-6">
-                {locale === 'ar' ? 'احجز استشارة مباشرة عبر الإنترنت.' : 'Book a direct online consultation.'}
+              <p className="text-xs text-[var(--text-secondary)] mb-6 leading-relaxed">
+                {isAr
+                  ? 'احجز موعداً لمناقشة متطلبات مشروعك أو فعاليتك القادمة.'
+                  : 'Schedule a direct project consultation for your upcoming corporate event.'}
               </p>
-              
+
               <MeetingBookingForm locale={locale} hostId={member.id} />
             </div>
-
           </div>
-
         </div>
       </section>
-
     </main>
-  )
+  );
 }

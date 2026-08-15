@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { redis } from '@/lib/redis';
 import { auth } from '@/lib/auth';
+import {
+  resolvePublicTeamMember,
+  isTeamMemberPubliclyEligible,
+  isTeamAuthorized,
+  analyzeTeamMemberDataQuality,
+} from '@/lib/team/team-resolver';
 
 export async function GET(
   req: NextRequest,
@@ -9,39 +15,63 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const cacheKey = `team:detail:${id}`;
-    const cached = await redis.get(cacheKey);
+    const url = new URL(req.url);
+    const locale = (url.searchParams.get('locale') || 'en') as 'en' | 'ar';
+
+    const session = await auth();
+    const isStaff = Boolean(session?.user && isTeamAuthorized((session.user as any)?.role));
+
+    const cacheKey = `team:detail:${id}:${locale}:${isStaff ? 'staff' : 'public'}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
 
     if (cached) {
       return NextResponse.json(JSON.parse(cached));
     }
 
-    const employeeProfile = await db.employeeProfile.findUnique({
-      where: { id },
-      // Assuming a generic schema; if there were certs/projects, we'd include them here.
+    const employeeProfile = await db.employeeProfile.findFirst({
+      where: {
+        OR: [{ id }, { slug: id }],
+      },
     });
 
     if (!employeeProfile) {
       return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
     }
 
-    await redis.set(cacheKey, JSON.stringify(employeeProfile), 'EX', 3600);
-    return NextResponse.json(employeeProfile);
+    if (!isStaff) {
+      if (!isTeamMemberPubliclyEligible(employeeProfile).eligible) {
+        return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
+      }
+      const safePublic = resolvePublicTeamMember(employeeProfile, locale);
+      await redis.set(cacheKey, JSON.stringify(safePublic), 'EX', 3600).catch(() => {});
+      return NextResponse.json(safePublic);
+    }
+
+    const enrichedStaff = {
+      ...employeeProfile,
+      dataQuality: analyzeTeamMemberDataQuality(employeeProfile),
+    };
+
+    await redis.set(cacheKey, JSON.stringify(enrichedStaff), 'EX', 3600).catch(() => {});
+    return NextResponse.json(enrichedStaff);
   } catch (error: any) {
     console.error('[TEAM_DETAIL_GET]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
-// POST is omitted since list is enough for GET, but adding PUT/DELETE for completeness
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
-    if (!session?.user || ((session.user as any).role !== 'SUPER_ADMIN' && (session.user as any).role !== 'SALES_ADMIN')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    }
+
+    if (!isTeamAuthorized((session.user as any)?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -52,8 +82,8 @@ export async function PUT(
       data: body,
     });
 
-    await redis.del(`team:detail:${id}`);
-    await redis.del(`team:list`);
+    await redis.del(`team:detail:${id}`).catch(() => {});
+    await redis.del(`team:list`).catch(() => {});
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -69,8 +99,12 @@ export async function DELETE(
 ) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    }
+
+    if (!isTeamAuthorized((session.user as any)?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -79,8 +113,8 @@ export async function DELETE(
       where: { id },
     });
 
-    await redis.del(`team:detail:${id}`);
-    await redis.del(`team:list`);
+    await redis.del(`team:detail:${id}`).catch(() => {});
+    await redis.del(`team:list`).catch(() => {});
 
     return NextResponse.json({ message: 'Deleted successfully' });
   } catch (error: any) {
