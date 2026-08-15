@@ -65,36 +65,169 @@ export interface PartnerDataQualityReport {
 }
 
 /**
- * Editorial sentence patterns to redact from public descriptions.
+ * Common editorial action verbs and instructions.
  */
-export const EDITORIAL_SENTENCE_PATTERNS = [
-  /confirm\s+(that\s+)?this\s+is\s+the\s+exact\s+entity(\s+and\s+logo)?(\s+before\s+publishing)?\.?/gi,
-  /confirm\s+entity(\s+and\s+logo)?(\s+before\s+publishing)?\.?/gi,
-  /confirm\s+logo(\s+before\s+publishing)?\.?/gi,
-  /check\s+entity(\s+and\s+logo)?\.?/gi,
-  /needs\s+logo\.?/gi,
-  /pending\s+review\.?/gi,
-  /draft\s+only\.?/gi,
-  /placeholder(\s+text)?\.?/gi,
-  /lorem\s+ipsum[^\.]*\.?/gi,
-  /todo\s*:?[^\.]*\.?/gi,
-  /tbd\.?/gi,
+export const EDITORIAL_ACTIONS = [
+  'confirm',
+  'verify',
+  'validate',
+  'test',
+  'check',
+  'review',
+  'replace',
+  'update',
+  'approve',
+  'ensure',
+  'double-check',
+  'double check',
+  'inspect',
+  'fix',
+  'audit',
 ];
 
 /**
- * Redacts internal editorial instructions from public description strings.
+ * Explicit editorial/publishing contexts that qualify an action as internal/staff-only.
+ */
+export const EDITORIAL_CONTEXTS = [
+  'before publishing',
+  'prior to publishing',
+  'before publication',
+  'before publish',
+  'prior to publish',
+  'before going live',
+  'before launch',
+  'for publishing',
+  'when publishing',
+  'to be published',
+  'exact entity',
+  'confirm entity',
+  'check entity',
+  'verify entity',
+  'validate entity',
+  'exact logo',
+  'confirm logo',
+  'check logo',
+  'verify logo',
+  'replace logo',
+  'update logo',
+  'entity and logo',
+  'entity & logo',
+  'test the url',
+  'check the url',
+  'verify the url',
+  'test the link',
+  'check the link',
+  'verify the link',
+  'test the website',
+  'check the website',
+  'verify website',
+  'availability may vary',
+  'url availability',
+  'link availability',
+  'broken link',
+  'needs logo',
+  'needs url',
+  'needs website',
+  'needs image',
+  'needs description',
+  'official logo',
+  'correct logo',
+  'correct entity',
+  'staff review',
+  'internal review',
+  'internal note',
+  'staff note',
+  'admin note',
+  'draft note',
+  'draft only',
+  'placeholder',
+  'lorem ipsum',
+  'todo',
+  'tbd',
+];
+
+/**
+ * Safely splits a text block into individual sentences across punctuation and line breaks.
+ */
+export function splitIntoSentences(text?: string | null): string[] {
+  if (!text || typeof text !== 'string') return [];
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+
+  // Match sentences ending in ., !, ?, ;, or linebreaks, preserving sentence boundaries
+  const rawSentences = trimmed
+    .split(/(?<=[.!?;\n\r])\s+|\n+/g)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
+  return rawSentences;
+}
+
+/**
+ * Unified sentence-level classifier for internal editorial, verification, and placeholder instructions.
+ * Immune to ordinary marketing prose containing 'test', 'review', 'available', or 'verified'.
+ */
+export function isEditorialSentence(sentence?: string | null): boolean {
+  if (!sentence || typeof sentence !== 'string') return false;
+  const clean = sentence.trim();
+  if (!clean) return false;
+
+  const lower = clean.toLowerCase();
+
+  // 1. Direct standalone placeholder / task keywords
+  if (
+    /^(todo|tbd|draft|placeholder|internal note|admin note|note for staff)\b/i.test(lower) ||
+    lower.startsWith('lorem ipsum') ||
+    lower.includes('todo:') ||
+    lower.includes('tbd:')
+  ) {
+    return true;
+  }
+
+  // 2. Direct exact editorial instruction matches
+  if (
+    lower.includes('test the url before publishing') ||
+    lower.includes('availability may vary') ||
+    lower.includes('confirm that this is the exact entity') ||
+    lower.includes('exact entity and logo') ||
+    lower.includes('confirm entity and logo') ||
+    lower.includes('confirm logo before publishing') ||
+    lower.includes('needs logo') ||
+    lower.includes('pending review') ||
+    lower.includes('draft only')
+  ) {
+    return true;
+  }
+
+  // 3. Action + Context combination
+  const hasAction = EDITORIAL_ACTIONS.some((action) => {
+    const regex = new RegExp(`\\b${action}\\b`, 'i');
+    return regex.test(lower);
+  });
+
+  if (hasAction) {
+    const hasContext = EDITORIAL_CONTEXTS.some((ctx) => lower.includes(ctx));
+    if (hasContext) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Redacts internal editorial instructions from public description strings using the sentence-level classifier.
  * Returns clean meaningful description or empty string if only instructions were present.
  */
 export function redactPublicDescription(description?: string | null): string {
   if (!description || typeof description !== 'string') return '';
-  let text = description.trim();
-  if (!text) return '';
+  const sentences = splitIntoSentences(description);
+  if (sentences.length === 0) return '';
 
-  for (const pattern of EDITORIAL_SENTENCE_PATTERNS) {
-    text = text.replace(pattern, '').trim();
-  }
+  const cleanSentences = sentences.filter((s) => !isEditorialSentence(s));
+  if (cleanSentences.length === 0) return '';
 
-  text = text.replace(/\s{2,}/g, ' ').trim();
+  const text = cleanSentences.join(' ').trim();
   if (text.length < 2 || /^[\s,;.-]+$/.test(text)) {
     return '';
   }
@@ -381,23 +514,6 @@ export function filterAndResolvePublicPartners(partners: CanonicalPartnerInput[]
 }
 
 /**
- * Editorial instruction patterns to detect for staff warnings.
- */
-const EDITORIAL_KEYWORDS = [
-  'confirm',
-  'todo',
-  'tbd',
-  'placeholder',
-  'lorem ipsum',
-  'check entity',
-  'confirm entity',
-  'confirm logo',
-  'needs logo',
-  'pending review',
-  'draft only',
-];
-
-/**
  * Analyzes partner data quality non-destructively for staff inspection.
  * Never mutates any stored records, never changes visibility, and never merges rows.
  */
@@ -486,18 +602,19 @@ export function analyzePartnerDataQuality(
     });
   }
 
-  // 5. Editorial instructions check
-  const textBlob = `${partner.name || ''} ${partner.description || ''}`.toLowerCase();
-  for (const keyword of EDITORIAL_KEYWORDS) {
-    if (textBlob.includes(keyword)) {
-      issues.push({
-        code: 'EDITORIAL_INSTRUCTION',
-        messageEn: `Editorial instruction / placeholder detected ("${keyword}"). Redacted from public presentation.`,
-        messageAr: `تم رصد تعليمات تحريرية أو نص مؤقت ("${keyword}"). تم تنقيحه من العرض العام.`,
-        severity: 'WARNING',
-      });
-      break;
-    }
+  // 5. Editorial instructions check (using shared sentence-level classifier)
+  const descriptionSentences = splitIntoSentences(partner.description);
+  const nameSentences = splitIntoSentences(partner.name);
+  const allSentences = [...nameSentences, ...descriptionSentences];
+
+  const detectedEditorial = allSentences.filter((s) => isEditorialSentence(s));
+  if (detectedEditorial.length > 0) {
+    issues.push({
+      code: 'EDITORIAL_INSTRUCTION',
+      messageEn: `Editorial instruction / placeholder detected ("${detectedEditorial[0]}"). Redacted from public presentation.`,
+      messageAr: `تم رصد تعليمات تحريرية أو نص مؤقت ("${detectedEditorial[0]}"). تم تنقيحه من العرض العام.`,
+      severity: 'WARNING',
+    });
   }
 
   // 6. Duplicate detection against other partners

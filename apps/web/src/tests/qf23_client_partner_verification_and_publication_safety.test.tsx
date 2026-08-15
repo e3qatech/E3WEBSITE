@@ -11,6 +11,8 @@ import {
   sanitizeUrl,
   sanitizePublicWebsite,
   sanitizePublicLogo,
+  splitIntoSentences,
+  isEditorialSentence,
   redactPublicDescription,
   getPartnerInitials,
   normalizeDomain,
@@ -159,28 +161,103 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
   });
 
   // =========================================================================
-  // 2. PUBLIC EDITORIAL REDACTION & DESCRIPTIONS (QF-23-B)
+  // 2. PUBLIC EDITORIAL REDACTION & SENTENCE SAFETY (QF-23-C)
   // =========================================================================
-  describe('2. Public Editorial Redaction (QF-23-B Requirement 1)', () => {
-    it('redacts internal editorial instructions from public description', () => {
-      const descriptionWithInstruction =
+  describe('2. Public Editorial Redaction & Sentence Safety (QF-23-C)', () => {
+    it('splitIntoSentences cleanly splits text across punctuation and whitespace', () => {
+      const text = 'First sentence. Second sentence! Third sentence? Fourth sentence;\nFifth sentence.';
+      const sentences = splitIntoSentences(text);
+      expect(sentences).toEqual([
+        'First sentence.',
+        'Second sentence!',
+        'Third sentence?',
+        'Fourth sentence;',
+        'Fifth sentence.',
+      ]);
+      expect(splitIntoSentences('')).toEqual([]);
+      expect(splitIntoSentences(null)).toEqual([]);
+    });
+
+    it('isEditorialSentence detects exact International Maritime and 900 Park instructions', () => {
+      // Exact International Maritime sentence
+      expect(
+        isEditorialSentence('Confirm that this is the exact entity and logo before publishing.')
+      ).toBe(true);
+
+      // Exact 900 Park sentence
+      expect(
+        isEditorialSentence('Test the URL before publishing because its availability may vary.')
+      ).toBe(true);
+    });
+
+    it('isEditorialSentence handles varied capitalization, punctuation, and whitespace', () => {
+      expect(isEditorialSentence('TEST THE URL BEFORE PUBLISHING.')).toBe(true);
+      expect(isEditorialSentence('  test the url before publishing   ')).toBe(true);
+      expect(isEditorialSentence('Verify entity and logo before launch...')).toBe(true);
+      expect(isEditorialSentence('TODO: Update partner logo once received.')).toBe(true);
+      expect(isEditorialSentence('TBD: Confirm details.')).toBe(true);
+      expect(isEditorialSentence('Draft only - pending review.')).toBe(true);
+      expect(isEditorialSentence('Check the website link before going live;')).toBe(true);
+      expect(isEditorialSentence('Please double-check URL availability before publishing!')).toBe(true);
+      expect(isEditorialSentence('Lorem ipsum dolor sit amet')).toBe(true);
+    });
+
+    it('NEGATIVE FIXTURES: does not classify legitimate marketing prose containing action words as editorial', () => {
+      const legitimateProse = [
+        'We test all equipment to international safety standards.',
+        'Over 500 positive reviews from clients across Qatar.',
+        'Now available across all Qatar venues and luxury resorts.',
+        'Verified sustainable entertainment partners since 2021.',
+        'Our certified engineers review safety protocols daily.',
+        'We confirm event bookings within 24 hours of inquiry.',
+        'Specializing in premium audio, visual, and lighting solutions.',
+        'Trusted by government and enterprise clients in Doha.',
+      ];
+
+      for (const sentence of legitimateProse) {
+        expect(isEditorialSentence(sentence)).toBe(false);
+      }
+    });
+
+    it('redactPublicDescription removes editorial sentences while preserving public copy', () => {
+      // 900 Park mixed description
+      const park900 =
+        'A premier outdoor food & entertainment destination in Lusail. Test the URL before publishing because its availability may vary.';
+      expect(redactPublicDescription(park900)).toBe(
+        'A premier outdoor food & entertainment destination in Lusail.'
+      );
+
+      // International Maritime mixed description
+      const im =
         'A leading freight-forwarding company. Confirm that this is the exact entity and logo before publishing.';
-      const clean = redactPublicDescription(descriptionWithInstruction);
-      expect(clean).toBe('A leading freight-forwarding company.');
-      expect(clean).not.toContain('Confirm that this is the exact entity');
+      expect(redactPublicDescription(im)).toBe('A leading freight-forwarding company.');
+
+      // Sandwich mixed sentences
+      const sandwich =
+        'Founded in Doha in 2018. Test the URL before publishing because its availability may vary. Providing world-class stage production.';
+      expect(redactPublicDescription(sandwich)).toBe(
+        'Founded in Doha in 2018. Providing world-class stage production.'
+      );
     });
 
     it('returns empty string when description contains only editorial instructions', () => {
-      const onlyInstruction = 'Confirm that this is the exact entity and logo before publishing.';
-      const clean = redactPublicDescription(onlyInstruction);
-      expect(clean).toBe('');
+      const onlyInstructions = [
+        'Confirm that this is the exact entity and logo before publishing.',
+        'Test the URL before publishing because its availability may vary.',
+        'Confirm that this is the exact entity and logo before publishing. Test the URL before publishing because its availability may vary.',
+        'TODO: Add partner description and logo.',
+        'Draft only.',
+        'Placeholder text.',
+      ];
 
-      const todoText = 'TODO: Add partner description and logo.';
-      expect(redactPublicDescription(todoText)).toBe('');
+      for (const text of onlyInstructions) {
+        expect(redactPublicDescription(text)).toBe('');
+      }
     });
 
-    it('preserves clean public description without editorial instructions', () => {
-      const normalDescription = 'National tourism council driving Qatar entertainment ecosystem.';
+    it('preserves clean public descriptions without modifications', () => {
+      const normalDescription =
+        'National tourism council driving Qatar entertainment ecosystem. Over 100 successful international events hosted.';
       expect(redactPublicDescription(normalDescription)).toBe(normalDescription);
     });
   });
@@ -343,6 +420,138 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
       const staffJson = await staffRes.json();
       expect(staffJson.partners).toHaveLength(2);
       expect(staffJson.partners[0].dataQuality).toBeDefined();
+    });
+
+    it('Endpoint test with 24 fixture records proves public description safety and staff raw-value preservation', async () => {
+      const FIXTURE_24_PARTNERS: CanonicalPartnerInput[] = Array.from({ length: 24 }, (_, i) => {
+        const id = `partner-${i + 1}`;
+        if (i === 0) {
+          // 900 Park
+          return {
+            id,
+            name: '900 Park',
+            category: 'HOSPITALITY',
+            website: 'https://900park.qa',
+            description:
+              'A premier outdoor food & entertainment destination in Lusail. Test the URL before publishing because its availability may vary.',
+            logoUrl: 'https://cdn.e3.qa/logos/900park.png',
+            isVisible: true,
+            orderIndex: 0,
+          };
+        }
+        if (i === 1) {
+          // International Maritime
+          return {
+            id,
+            name: 'International Maritime',
+            category: 'LOGISTICS',
+            website: 'https://imadxb.com',
+            description:
+              'A freight-forwarding company. Confirm that this is the exact entity and logo before publishing.',
+            logoUrl: 'https://cdn.e3.qa/logos/ima.png',
+            isVisible: true,
+            orderIndex: 1,
+          };
+        }
+        if (i === 2) {
+          // Legitimate prose containing test/review
+          return {
+            id,
+            name: 'Safety First Events',
+            category: 'PRODUCTION',
+            website: 'https://safetyfirst.qa',
+            description:
+              'We test all equipment to international safety standards. Over 500 positive reviews from clients across Qatar.',
+            logoUrl: 'https://cdn.e3.qa/logos/safety.png',
+            isVisible: true,
+            orderIndex: 2,
+          };
+        }
+        if (i === 20) {
+          // Hidden draft
+          return {
+            id,
+            name: 'Draft Entertainment',
+            category: 'ENTERTAINMENT',
+            description: 'Draft only - placeholder description.',
+            isVisible: false,
+            orderIndex: 20,
+          };
+        }
+        return {
+          id,
+          name: `Partner Enterprise ${i + 1}`,
+          category: 'CORPORATE',
+          website: `https://partner${i + 1}.qa`,
+          description: `Leading provider of solutions in Qatar. Specializing in event experience ${i + 1}.`,
+          logoUrl: `https://cdn.e3.qa/logos/p${i + 1}.png`,
+          isVisible: i < 20, // 20 visible, 4 hidden
+          orderIndex: i,
+        };
+      });
+
+      // 1. Public Endpoint Call
+      mocks.session = null;
+      (db.partner.findMany as any).mockResolvedValue(FIXTURE_24_PARTNERS);
+
+      const publicReq = new Request('http://localhost/api/b2b/partners');
+      const publicRes = await B2BPartnersGET(publicReq as any);
+      expect(publicRes.status).toBe(200);
+      const publicJson = await publicRes.json();
+
+      // Exactly 20 visible partners returned
+      expect(publicJson.partners).toHaveLength(20);
+
+      // Every returned public description passes the editorial sentence classifier
+      for (const p of publicJson.partners) {
+        const sentences = splitIntoSentences(p.description);
+        for (const s of sentences) {
+          expect(isEditorialSentence(s)).toBe(false);
+        }
+      }
+
+      // 900 Park public copy has editorial sentence removed
+      const p900 = publicJson.partners.find((p: any) => p.name === '900 Park');
+      expect(p900).toBeDefined();
+      expect(p900.description).toBe('A premier outdoor food & entertainment destination in Lusail.');
+      expect(p900.description).not.toContain('Test the URL before publishing');
+
+      // International Maritime public copy has editorial sentence removed
+      const pIMA = publicJson.partners.find((p: any) => p.name === 'International Maritime');
+      expect(pIMA).toBeDefined();
+      expect(pIMA.description).toBe('A freight-forwarding company.');
+      expect(pIMA.description).not.toContain('Confirm that this is the exact entity');
+
+      // Legitimate marketing copy is fully retained
+      const pSafety = publicJson.partners.find((p: any) => p.name === 'Safety First Events');
+      expect(pSafety).toBeDefined();
+      expect(pSafety.description).toContain('We test all equipment to international safety standards.');
+      expect(pSafety.description).toContain('Over 500 positive reviews from clients across Qatar.');
+
+      // 2. Staff Endpoint Call
+      mocks.session = { user: { id: 'admin-1', role: 'SUPER_ADMIN' } };
+      const staffReq = new Request('http://localhost/api/b2b/partners?all=true');
+      const staffRes = await B2BPartnersGET(staffReq as any);
+      expect(staffRes.status).toBe(200);
+      const staffJson = await staffRes.json();
+
+      // All 24 partners returned
+      expect(staffJson.partners).toHaveLength(24);
+
+      // Staff receives exact raw stored sentence for 900 Park
+      const staff900 = staffJson.partners.find((p: any) => p.name === '900 Park');
+      expect(staff900.description).toBe(
+        'A premier outdoor food & entertainment destination in Lusail. Test the URL before publishing because its availability may vary.'
+      );
+      // Staff receives EDITORIAL_INSTRUCTION warning
+      expect(staff900.dataQuality.issues.some((i: any) => i.code === 'EDITORIAL_INSTRUCTION')).toBe(true);
+
+      // Staff receives exact raw stored sentence for International Maritime
+      const staffIMA = staffJson.partners.find((p: any) => p.name === 'International Maritime');
+      expect(staffIMA.description).toBe(
+        'A freight-forwarding company. Confirm that this is the exact entity and logo before publishing.'
+      );
+      expect(staffIMA.dataQuality.issues.some((i: any) => i.code === 'EDITORIAL_INSTRUCTION')).toBe(true);
     });
 
     it('POST /api/b2b/partners returns 401 unauth and 403 forbidden', async () => {
