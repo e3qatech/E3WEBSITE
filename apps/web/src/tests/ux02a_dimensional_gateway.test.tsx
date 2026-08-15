@@ -220,4 +220,38 @@ describe("UX-02A / UX-02A-B — E3 Dimensional Gateway Specification & Visual Co
       expect(html).toContain("بوابة حلول الشركات والمؤسسات");
     });
   });
+
+  describe("7. Mobile Mode 50/50 Horizontal Split & CTA-Only Verification", () => {
+    it("renders equal 50/50 horizontal split with only CTAs and horizontal divider on mobile", () => {
+      const html = renderToStaticMarkup(
+        <ThemeProvider>
+          <LocaleProvider defaultLocale="en">
+            <PortalGateway simulation={{ viewport: "mobile-390" }} previewMode={true} />
+          </LocaleProvider>
+        </ThemeProvider>
+      );
+
+      // Contains both B2C and B2B CTAs
+      expect(html).toContain("Explore Experiences");
+      expect(html).toContain("Work With E3");
+
+      // Contains 50/50 half height classes and straight horizontal dividing line
+      expect(html).toContain("h-1/2");
+      expect(html).toContain("bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400");
+    });
+
+    it("renders equal 50/50 horizontal split with Arabic CTAs on mobile", () => {
+      const html = renderToStaticMarkup(
+        <ThemeProvider>
+          <LocaleProvider defaultLocale="ar">
+            <PortalGateway simulation={{ viewport: "mobile-390", locale: "ar" }} previewMode={true} />
+          </LocaleProvider>
+        </ThemeProvider>
+      );
+
+      expect(html).toContain("استكشف التجارب");
+      expect(html).toContain("تعاون مع E3");
+      expect(html).toContain("h-1/2");
+    });
+  });
 });

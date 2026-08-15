@@ -347,13 +347,13 @@ export function PortalGateway({
         {/* ============================================================ */}
         {/* 1. FLOATING ISLAND NAVIGATION HEADER */}
         {/* ============================================================ */}
-        <header className="relative z-50 w-full px-4 pt-4 md:px-10 md:pt-6 pointer-events-auto">
+        <header className="absolute top-0 inset-x-0 z-50 w-full px-4 pt-3.5 md:relative md:px-10 md:pt-6 pointer-events-none">
           <div
             className={cn(
-              "w-full flex items-center justify-between p-3.5 md:px-8 md:py-4 rounded-2xl md:rounded-full border backdrop-blur-2xl shadow-2xl transition-all duration-350",
+              "w-full flex items-center justify-between p-3 md:p-3.5 md:px-8 md:py-4 rounded-2xl md:rounded-full border backdrop-blur-2xl shadow-2xl transition-all duration-350 pointer-events-auto",
               isLight
-                ? "bg-white/80 border-slate-200 text-slate-900 shadow-slate-200/50"
-                : "bg-black/60 border-white/15 text-white"
+                ? "bg-white/85 border-slate-200 text-slate-900 shadow-slate-200/50"
+                : "bg-black/65 border-white/15 text-white"
             )}
           >
             {/* Logo (Top Left in LTR / Top Right in RTL) */}
@@ -404,7 +404,7 @@ export function PortalGateway({
                     }
                   }}
                   className={cn(
-                    "flex items-center gap-2 px-3.5 py-2 md:px-4 md:py-2.5 rounded-xl border backdrop-blur-md text-xs md:text-sm font-bold transition-all cursor-pointer shadow-md min-w-[44px] min-h-[44px] focus-visible:ring-2 focus-visible:ring-purple-400 focus:outline-none",
+                    "flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2.5 rounded-xl border backdrop-blur-md text-xs md:text-sm font-bold transition-all cursor-pointer shadow-md min-w-[44px] min-h-[44px] focus-visible:ring-2 focus-visible:ring-purple-400 focus:outline-none",
                     isLight
                       ? "border-slate-300 bg-white/90 hover:bg-slate-100 text-slate-900"
                       : "border-white/15 bg-white/10 hover:bg-white/20 text-white"
@@ -445,17 +445,17 @@ export function PortalGateway({
         {/* ============================================================ */}
         {/* 2. DUAL PORTAL CANVAS & SLANTED DIAGONAL BOUNDARY */}
         {/* ============================================================ */}
-        <main className="relative flex-1 w-full h-full overflow-hidden z-10">
+        <main className="relative flex-1 w-full h-full overflow-hidden z-10 flex flex-col">
           
-          {/* MOBILE VIEW (< 768px): SIMPLIFIED VERTICAL STACK WITH ONLY ONE CTA IN EACH HALF */}
+          {/* MOBILE VIEW (< 768px): EQUAL 50/50 HORIZONTAL SPLIT WITH ONLY CTA IN EACH HALF */}
           {effectiveIsMobile ? (
-            <div className="flex flex-col w-full relative h-[calc(100vh-85px)]">
+            <div className="flex flex-col w-full h-full relative flex-1">
               
-              {/* B2C WONDER IN MOTION (TOP HALF) */}
+              {/* B2C WONDER IN MOTION (TOP HALF: 50%) */}
               <div
                 onClick={() => handleSelect("b2c")}
                 className={cn(
-                  "relative h-1/2 w-full overflow-hidden flex flex-col justify-end p-5 cursor-pointer group",
+                  "relative h-1/2 w-full overflow-hidden flex flex-col items-center justify-end pb-7 px-5 cursor-pointer group",
                   isLight ? "bg-[#F7F3FF]" : "bg-[#0B1020]"
                 )}
                 role="button"
@@ -477,21 +477,21 @@ export function PortalGateway({
                   className={cn(
                     "absolute inset-0 pointer-events-none transition-opacity duration-350",
                     isLight
-                      ? "bg-gradient-to-t from-[#F7F3FF]/90 via-[#F7F3FF]/30 to-transparent"
-                      : "bg-gradient-to-t from-[#0B1020]/95 via-[#0B1020]/40 to-transparent"
+                      ? "bg-gradient-to-t from-[#F7F3FF]/90 via-[#F7F3FF]/25 to-transparent"
+                      : "bg-gradient-to-t from-[#0B1020]/95 via-[#0B1020]/30 to-transparent"
                   )}
                   style={{ opacity: visual?.overlayStrength ?? 0.45 }}
                 />
 
                 {/* Mobile B2C: Clean Single CTA Only */}
-                <div className="relative z-30 w-full max-w-sm">
+                <div className="relative z-30 w-full max-w-xs sm:max-w-sm">
                   <a
                     href={b2cDest}
                     onClick={(e) => {
                       if (previewMode) e.preventDefault();
                       e.stopPropagation();
                     }}
-                    className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-lg flex items-center justify-between min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-300 focus:outline-none"
+                    className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-2xl flex items-center justify-between min-h-[48px] cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-300 focus:outline-none"
                   >
                     <span>{b2cCta}</span>
                     <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
@@ -501,14 +501,14 @@ export function PortalGateway({
                 </div>
               </div>
 
-              {/* SLIGHTLY SLANTED DIVIDER SEAM FOR MOBILE */}
-              <div className="relative z-40 w-full h-[2px] -skew-y-3 bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none" />
+              {/* CLEAN HORIZONTAL DIVIDING LINE (EXACT 50/50 SEAM) */}
+              <div className="relative z-40 w-full h-[2px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none shrink-0" />
 
-              {/* B2B ENGINEERED SPECTACLE (BOTTOM HALF) */}
+              {/* B2B ENGINEERED SPECTACLE (BOTTOM HALF: 50%) */}
               <div
                 onClick={() => handleSelect("b2b")}
                 className={cn(
-                  "relative h-1/2 w-full overflow-hidden flex flex-col justify-end p-5 cursor-pointer group",
+                  "relative h-1/2 w-full overflow-hidden flex flex-col items-center justify-start pt-7 px-5 cursor-pointer group",
                   isLight ? "bg-[#EEF4F8]" : "bg-[#070A12]"
                 )}
                 role="button"
@@ -530,21 +530,21 @@ export function PortalGateway({
                   className={cn(
                     "absolute inset-0 pointer-events-none transition-opacity duration-350",
                     isLight
-                      ? "bg-gradient-to-t from-[#EEF4F8]/90 via-[#EEF4F8]/30 to-transparent"
-                      : "bg-gradient-to-t from-[#070A12]/95 via-[#070A12]/40 to-transparent"
+                      ? "bg-gradient-to-b from-[#EEF4F8]/90 via-[#EEF4F8]/25 to-transparent"
+                      : "bg-gradient-to-b from-[#070A12]/95 via-[#070A12]/30 to-transparent"
                   )}
                   style={{ opacity: visual?.overlayStrength ?? 0.45 }}
                 />
 
                 {/* Mobile B2B: Clean Single CTA Only */}
-                <div className="relative z-30 w-full max-w-sm">
+                <div className="relative z-30 w-full max-w-xs sm:max-w-sm">
                   <a
                     href={b2bDest}
                     onClick={(e) => {
                       if (previewMode) e.preventDefault();
                       e.stopPropagation();
                     }}
-                    className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-lg flex items-center justify-between min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300 focus:outline-none"
+                    className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-2xl flex items-center justify-between min-h-[48px] cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300 focus:outline-none"
                   >
                     <span>{b2bCta}</span>
                     <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
