@@ -215,3 +215,8 @@ export function useViewportCapability(): ViewportCapability {
   const { viewport } = useContext(MotionCapabilityContext);
   return viewport;
 }
+
+export function useCapabilityTier(): CapabilityTier {
+  const { tier } = useContext(MotionCapabilityContext);
+  return tier;
+}
