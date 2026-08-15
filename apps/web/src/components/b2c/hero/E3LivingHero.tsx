@@ -397,23 +397,29 @@ export function E3LivingHero({
     switch (activeAlignment) {
       case 'left':
         return {
-          container: 'items-start text-left',
-          h1: 'text-left me-auto',
+          container: 'items-start text-left me-auto ms-0',
+          inner: 'w-full max-w-7xl me-auto ms-0 items-start text-left',
+          h1: 'text-left me-auto ms-0',
+          line: 'justify-start text-left',
           description: 'text-left me-auto ms-0',
           ctaGroup: 'justify-start',
         }
       case 'right':
         return {
-          container: 'items-end text-right',
-          h1: 'text-right ms-auto',
+          container: 'items-end text-right ms-auto me-0',
+          inner: 'w-full max-w-7xl ms-auto me-0 items-end text-right',
+          h1: 'text-right ms-auto me-0',
+          line: 'justify-end text-right',
           description: 'text-right ms-auto me-0',
           ctaGroup: 'justify-end',
         }
       case 'center':
       default:
         return {
-          container: 'items-center text-center',
+          container: 'items-center text-center mx-auto',
+          inner: 'w-full max-w-6xl mx-auto items-center text-center',
           h1: 'text-center mx-auto',
+          line: 'justify-center text-center',
           description: 'text-center mx-auto',
           ctaGroup: 'justify-center',
         }
@@ -646,8 +652,8 @@ export function E3LivingHero({
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
         className={cn(
-          "relative z-10 max-w-6xl mx-auto w-full flex flex-col justify-end space-y-6 sm:space-y-8",
-          alignmentStyles.container
+          "relative z-10 w-full flex flex-col justify-end space-y-6 sm:space-y-8",
+          alignmentStyles.inner
         )}
       >
         {/* Eyebrow Pill */}
@@ -668,7 +674,7 @@ export function E3LivingHero({
         )}
 
         {/* Main Semantic H1: Exactly 1 H1 with strict 2-Line visual presentation */}
-        <div className={cn("max-w-5xl w-full", alignmentStyles.h1)}>
+        <div className={cn("w-full max-w-full", alignmentStyles.h1)}>
           {/* Accessible Full Headline for Screen Readers */}
           <h1 data-testid={titleTestId || "living-hero-h1"} className="sr-only">
             {accessibleFullHeadline}
@@ -679,18 +685,18 @@ export function E3LivingHero({
             aria-hidden="true"
             data-testid="hero-two-line-visual"
             className={cn(
-              "text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-[1.08] sm:leading-[1.04] text-[var(--text-primary)]",
+              "text-[clamp(1.85rem,5.6vw,4.5rem)] font-black tracking-tight uppercase leading-[1.08] sm:leading-[1.04] text-[var(--text-primary)] w-full",
               alignmentStyles.h1
             )}
           >
             {/* Visual Line 1 */}
             {parsedHeadline.line1.text && (
-              <div data-testid="hero-line-1" className="block overflow-hidden py-0.5">
+              <div data-testid="hero-line-1" className={cn("flex overflow-hidden py-0.5 w-full", alignmentStyles.line)}>
                 <motion.div
                   initial={{ y: "100%", opacity: 0 }}
                   animate={{ y: "0%", opacity: 1 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="inline-block"
+                  className="inline-flex items-baseline flex-nowrap whitespace-nowrap"
                 >
                   {parsedHeadline.line1.hasToken ? (
                     <>
@@ -707,12 +713,12 @@ export function E3LivingHero({
 
             {/* Visual Line 2 */}
             {parsedHeadline.line2.text && (
-              <div data-testid="hero-line-2" className="block overflow-hidden py-0.5">
+              <div data-testid="hero-line-2" className={cn("flex overflow-hidden py-0.5 w-full", alignmentStyles.line)}>
                 <motion.div
                   initial={{ y: "100%", opacity: 0 }}
                   animate={{ y: "0%", opacity: 1 }}
                   transition={{ duration: 0.85, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className="inline-block"
+                  className="inline-flex items-baseline flex-nowrap whitespace-nowrap"
                 >
                   {parsedHeadline.line2.hasToken ? (
                     <>

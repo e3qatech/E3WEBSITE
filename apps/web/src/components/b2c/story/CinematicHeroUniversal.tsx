@@ -82,9 +82,9 @@ export function CinematicHeroUniversal({
   const headlineTemplateAr = livingHeroData.headlineTemplateAr || act1Hero.headlineTemplateAr || fixedHeadlineAr
   const animationType = livingHeroData.animationType || act1Hero.animationType || 'blur-morph'
   const wordStyle = livingHeroData.wordStyle || act1Hero.wordStyle || 'static-gradient'
-  const alignmentEn = livingHeroData.alignmentEn || act1Hero.alignmentEn || livingHeroData.alignment || 'center'
-  const alignmentAr = livingHeroData.alignmentAr || act1Hero.alignmentAr || livingHeroData.alignment || 'center'
-  const alignment = livingHeroData.alignment || act1Hero.alignment
+  const alignmentEn = livingHeroData.alignmentEn || act1Hero.alignmentEn || hero.alignmentEn || livingHeroData.alignment || act1Hero.alignment || hero.alignment || 'center'
+  const alignmentAr = livingHeroData.alignmentAr || act1Hero.alignmentAr || hero.alignmentAr || livingHeroData.alignment || act1Hero.alignment || hero.alignment || 'center'
+  const alignment = livingHeroData.alignment || act1Hero.alignment || hero.alignment
   const animationDuration = livingHeroData.animationDuration || act1Hero.animationDuration || 600
   const animationSpeed = livingHeroData.animationSpeed || act1Hero.animationSpeed || 2800
 
