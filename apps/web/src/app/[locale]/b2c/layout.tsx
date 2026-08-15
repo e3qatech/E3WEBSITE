@@ -111,7 +111,7 @@ export default async function B2CLayout({
   return (
     <B2CExperienceProvider>
       <B2CThemeProvider locale={locale}>
-        <B2CPageShell className="flex flex-col min-h-screen relative bg-slate-950 text-slate-100">
+        <B2CPageShell className="flex flex-col min-h-screen relative text-[var(--text-primary)] bg-[var(--bg-level-1)] transition-colors duration-300">
           <B2CSceneHost preset="ambient-particles" colorAccent="#10b981" />
           <PulseOrbitNav locale={locale} settings={settingsMap} orbitData={orbitData} type="b2c" />
           <main className="flex-1 pt-20 relative z-10">

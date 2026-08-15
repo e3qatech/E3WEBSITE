@@ -96,20 +96,20 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl bg-[#0F0F23] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] text-[var(--text-primary)]"
         >
           {/* Header */}
-          <div className="p-6 border-b border-zinc-800 flex justify-between items-start bg-[#1A1A2E]/80 backdrop-blur-md/50">
+          <div className="p-6 border-b border-[var(--border-level-2)] flex justify-between items-start bg-[var(--surface-hover)]">
             <div>
-              <h2 className="text-xl font-black text-white mb-1 font-satoshi uppercase tracking-wide flex items-center gap-2">
+              <h2 className="text-xl font-black text-[var(--text-primary)] mb-1 font-satoshi uppercase tracking-wide flex items-center gap-2">
                 <Users className="w-5 h-5 text-emerald-500" />
                 Group & Bulk Booking
               </h2>
-              <p className="text-zinc-400 text-sm font-medium">Request a quote for groups of 10 or more guests.</p>
+              <p className="text-[var(--text-secondary)] text-sm font-medium">Request a quote for groups of 10 or more guests.</p>
             </div>
             <button 
               onClick={onClose}
-              className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-full transition-colors shrink-0"
+              className="p-2 bg-[var(--surface-default)] hover:bg-[var(--surface-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-full transition-colors shrink-0 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -126,13 +126,13 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                 <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
                   <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 font-satoshi uppercase tracking-wider">Request Received!</h3>
-                <p className="text-zinc-400 max-w-md mx-auto mb-8">
+                <h3 className="text-2xl font-black text-[var(--text-primary)] mb-2 font-satoshi uppercase tracking-wider">Request Received!</h3>
+                <p className="text-[var(--text-secondary)] max-w-md mx-auto mb-8">
                   Thank you for your interest. Our sales team has received your group booking request and will contact you shortly with a customized quote.
                 </p>
                 <button 
                   onClick={onClose}
-                  className="px-8 py-3 bg-white text-zinc-950 font-bold rounded-xl hover:bg-zinc-200 transition-colors"
+                  className="px-8 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors cursor-pointer shadow-md"
                 >
                   Close Window
                 </button>
@@ -141,16 +141,16 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
               <form id="bulk-booking-form" onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Event Details Section */}
-                <div className="bg-[#1A1A2E]/80 backdrop-blur-md/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
+                <div className="bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl p-5 space-y-4">
                   <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Event Details</h3>
                   
                   <div>
-                    <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Attraction / Event</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">Attraction / Event</label>
                     <select 
                       required
                       value={formData.attractionName}
                       onChange={e => setFormData({...formData, attractionName: e.target.value})}
-                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all cursor-pointer"
                     >
                       <option value="" disabled>Select an attraction</option>
                       {attractions.map(a => (
@@ -165,100 +165,100 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider flex items-center gap-1"><CalendarIcon className="w-3 h-3"/> Date</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider flex items-center gap-1"><CalendarIcon className="w-3 h-3"/> Date</label>
                       <input 
                         type="date"
                         required
                         value={formData.date}
                         onChange={e => setFormData({...formData, date: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider flex items-center gap-1"><Clock className="w-3 h-3"/> Time</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider flex items-center gap-1"><Clock className="w-3 h-3"/> Time</label>
                       <input 
                         type="time"
                         required
                         value={formData.time}
                         onChange={e => setFormData({...formData, time: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider flex items-center gap-1"><Users className="w-3 h-3"/> Guests</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider flex items-center gap-1"><Users className="w-3 h-3"/> Guests</label>
                       <input 
                         type="number"
                         min="10"
                         required
                         value={formData.quantity}
                         onChange={e => setFormData({...formData, quantity: Number(e.target.value)})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Contact Information Section */}
-                <div className="bg-[#1A1A2E]/80 backdrop-blur-md/50 border border-zinc-800 rounded-2xl p-5 space-y-4">
+                <div className="bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl p-5 space-y-4">
                   <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Contact Information</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Full Name</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">Full Name</label>
                       <input 
                         type="text"
                         required
                         placeholder="John Doe"
                         value={formData.name}
                         onChange={e => setFormData({...formData, name: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Company / School (Optional)</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">Company / School (Optional)</label>
                       <input 
                         type="text"
                         placeholder="Company XYZ"
                         value={formData.company}
                         onChange={e => setFormData({...formData, company: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Email Address</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">Email Address</label>
                       <input 
                         type="email"
                         required
                         placeholder="john@example.com"
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Phone Number</label>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">Phone Number</label>
                       <input 
                         type="tel"
                         required
                         placeholder="+974 1234 5678"
                         value={formData.phone}
                         onChange={e => setFormData({...formData, phone: e.target.value})}
-                        className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Special Requests / Notes</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">Special Requests / Notes</label>
                     <textarea 
                       rows={3}
                       placeholder="Any specific requirements (e.g. F&B, VIP access, private guide)..."
                       value={formData.notes}
                       onChange={e => setFormData({...formData, notes: e.target.value})}
-                      className="w-full bg-[#0F0F23] border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -274,11 +274,11 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
 
           {/* Footer */}
           {!success && (
-            <div className="p-6 border-t border-zinc-800 bg-[#0F0F23] flex justify-end gap-3">
+            <div className="p-6 border-t border-[var(--border-level-2)] bg-[var(--surface-default)] flex justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 bg-[#1A1A2E]/80 backdrop-blur-md text-white font-bold rounded-xl hover:bg-zinc-800 transition-colors"
+                className="px-6 py-3 bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-bold rounded-xl transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -286,7 +286,7 @@ export function BulkBookingModal({ isOpen, onClose, attractions, prefilledAttrac
                 form="bulk-booking-form"
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-emerald-500 text-zinc-950 font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[200px]"
+                className="px-8 py-3 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[200px] cursor-pointer shadow-md"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Request Quote'}
               </button>

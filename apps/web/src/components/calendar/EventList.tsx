@@ -61,12 +61,12 @@ export function EventList({
 
   if (events.length === 0 || sortedDays.length === 0) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-zinc-800 rounded-3xl bg-[#141424] shadow-inner p-8 text-center">
-        <CalendarX2 className="w-12 h-12 mb-4 text-zinc-600" />
-        <h3 className="text-xl font-bold text-zinc-300 mb-2 font-satoshi">
+      <div className="w-full h-96 flex flex-col items-center justify-center text-[var(--text-tertiary)] border border-dashed border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-inner p-8 text-center">
+        <CalendarX2 className="w-12 h-12 mb-4 text-[var(--text-tertiary)]" />
+        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2 font-satoshi">
           {isAr ? 'لا توجد فعاليات مجدولة لهذا اليوم' : 'No Events Scheduled For This Date'}
         </h3>
-        <p className="text-sm text-zinc-500 max-w-md">
+        <p className="text-sm text-[var(--text-secondary)] max-w-md">
           {isAr
             ? 'تصفح التواريخ الأخرى في التقويم أو استكشف الوجهات والمعارض عبر قائمة الفلاتر.'
             : 'Try adjusting your filters or selecting a different date from the calendar.'}
@@ -95,10 +95,10 @@ export function EventList({
         return (
           <div key={dayStr} className="space-y-6">
             <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-black text-white font-satoshi">
+              <h2 className="text-2xl font-black text-[var(--text-primary)] font-satoshi">
                 {format(dateObj, 'EEEE, MMMM d', { locale: dateLocale })}
               </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
+              <div className="flex-1 h-px bg-gradient-to-r from-[var(--border-level-2)] to-transparent" />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-stretch">

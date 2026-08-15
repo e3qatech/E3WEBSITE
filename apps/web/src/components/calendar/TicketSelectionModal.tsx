@@ -107,13 +107,13 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-lg bg-[#0F0F23] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] text-[var(--text-primary)]"
         >
           {/* Header */}
-          <div className="p-6 border-b border-zinc-800 flex justify-between items-start bg-[#1A1A2E]/80 backdrop-blur-md/50">
+          <div className="p-6 border-b border-[var(--border-level-2)] flex justify-between items-start bg-[var(--surface-hover)]">
             <div>
-              <h2 className="text-xl font-black text-white mb-1 font-satoshi uppercase tracking-wide">{event.attractionNameEn}</h2>
-              <p className="text-zinc-400 text-sm font-medium flex items-center gap-2 font-mono">
+              <h2 className="text-xl font-black text-[var(--text-primary)] mb-1 font-satoshi uppercase tracking-wide">{event.attractionNameEn}</h2>
+              <p className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2 font-mono">
                 {format(new Date(event.startTime), 'EEEE, MMMM d, yyyy')} <br className="sm:hidden" />
                 <span className="hidden sm:inline">•</span>
                 <span className="text-emerald-500">{format(new Date(event.startTime), 'h:mm a')}</span>
@@ -121,7 +121,7 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
             </div>
             <button 
               onClick={onClose}
-              className="p-2 bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-full transition-colors shrink-0"
+              className="p-2 bg-[var(--surface-default)] hover:bg-[var(--surface-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-full transition-colors shrink-0 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -130,38 +130,38 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
           {/* Content */}
           <div className="p-6 overflow-y-auto flex-1">
             {loading ? (
-              <div className="py-12 flex flex-col items-center justify-center text-zinc-500">
+              <div className="py-12 flex flex-col items-center justify-center text-[var(--text-tertiary)]">
                 <Loader2 className="w-8 h-8 animate-spin mb-4 text-emerald-500" />
                 <p className="text-sm font-bold font-mono uppercase tracking-widest">Loading Tickets...</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {pricing.length === 0 ? (
-                  <div className="py-8 text-center text-zinc-500 font-medium">
+                  <div className="py-8 text-center text-[var(--text-secondary)] font-medium">
                     No tickets configured for this attraction.
                   </div>
                 ) : (
                   pricing.map(tier => (
-                    <div key={tier.id} className="flex items-center justify-between p-4 bg-[#1A1A2E]/80 backdrop-blur-md border border-zinc-800 rounded-2xl">
+                    <div key={tier.id} className="flex items-center justify-between p-4 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl">
                       <div>
-                        <h4 className="font-bold font-satoshi text-white text-lg">{tier.titleEn}</h4>
+                        <h4 className="font-bold font-satoshi text-[var(--text-primary)] text-lg">{tier.titleEn}</h4>
                         <p className="text-emerald-500 font-bold font-mono uppercase tracking-widest text-sm">{tier.currency} {tier.price}</p>
                       </div>
                       
-                      <div className="flex items-center gap-3 bg-[#0F0F23] border border-zinc-800 rounded-xl p-1">
+                      <div className="flex items-center gap-3 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl p-1">
                         <button 
                           onClick={() => handleDecrement(tier.id)}
-                          className="w-8 h-8 flex items-center justify-center bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors disabled:opacity-50"
+                          className="w-8 h-8 flex items-center justify-center bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                           disabled={(quantities[tier.id] || 0) <= 0}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-6 text-center font-bold text-white">
+                        <span className="w-6 text-center font-bold text-[var(--text-primary)]">
                           {quantities[tier.id] || 0}
                         </span>
                         <button 
                           onClick={() => handleIncrement(tier.id)}
-                          className="w-8 h-8 flex items-center justify-center bg-[#1A1A2E]/80 backdrop-blur-md hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors disabled:opacity-50"
+                          className="w-8 h-8 flex items-center justify-center bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                           disabled={totalSelected >= remainingCapacity || totalSelected >= 10}
                         >
                           <Plus className="w-4 h-4" />
@@ -180,23 +180,23 @@ export function TicketSelectionModal({ isOpen, onClose, event, onOpenBulkBooking
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-zinc-800 bg-[#0F0F23]">
+          <div className="p-6 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]">
             {onOpenBulkBooking && (
               <button 
                 onClick={onOpenBulkBooking}
-                className="w-full text-center text-sm text-zinc-500 hover:text-emerald-500 transition-colors mb-4 underline underline-offset-4"
+                className="w-full text-center text-sm text-[var(--text-secondary)] hover:text-emerald-500 transition-colors mb-4 underline underline-offset-4 cursor-pointer"
               >
                 Need 10 or more tickets? Request a Group Booking
               </button>
             )}
             <div className="flex justify-between items-center mb-4">
-              <span className="text-zinc-400 font-bold font-mono uppercase tracking-widest text-sm">Subtotal</span>
-              <span className="text-2xl font-black font-mono text-white">QAR {subtotal}</span>
+              <span className="text-[var(--text-secondary)] font-bold font-mono uppercase tracking-widest text-sm">Subtotal</span>
+              <span className="text-2xl font-black font-mono text-[var(--text-primary)]">QAR {subtotal}</span>
             </div>
             <button
               onClick={handleProceed}
               disabled={totalSelected === 0}
-              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-emerald-500 flex items-center justify-center gap-2 group font-satoshi"
+              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-emerald-500 flex items-center justify-center gap-2 group font-satoshi cursor-pointer shadow-md"
             >
               Proceed to Booking
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform rtl:-scale-x-100" />

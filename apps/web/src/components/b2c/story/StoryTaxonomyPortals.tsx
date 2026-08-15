@@ -145,15 +145,16 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   if (options.length === 0) {
     return (
       <section
-        className="relative py-20 bg-[#090418] text-white border-b border-purple-950/40 overflow-hidden"
+        id="story-portals-section"
+        className="relative py-20 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden"
         dir={isAr ? "rtl" : "ltr"}
       >
         <div className="relative max-w-4xl mx-auto px-4 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{isAr ? "استكشاف مسارات الحكايات" : "STORY TRACKS & DISCOVERY"}</span>
+            <span>{isAr ? "استكشاف الحكايات والأنشطة — STORY DISCOVERY" : "STORY DISCOVERY — STORY TRACKS"}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">
             {formatLocalizedText(
               isAr
                 ? selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟"
@@ -161,8 +162,8 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               locale
             )}
           </h2>
-          <div className="p-8 rounded-3xl border border-purple-500/20 bg-purple-950/20 backdrop-blur-xl max-w-xl mx-auto space-y-4">
-            <p className="text-sm text-slate-300 font-medium leading-relaxed">
+          <div className="p-8 rounded-3xl border border-purple-500/20 bg-[var(--surface-default)] backdrop-blur-xl max-w-xl mx-auto space-y-4">
+            <p className="text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
               {isAr
                 ? "لا توجد مسارات حكايات مفعلة حالياً. يمكنك استكشاف دليل التجارب والفعاليات بالكامل."
                 : "No story tracks currently published. You can explore our complete directory of attractions and experiences."}
@@ -188,7 +189,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   const hasMore = totalCount > INITIAL_LIMIT
 
   return (
-    <section className="relative py-24 bg-[#090418] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+    <section className="relative py-24 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.12),transparent_70%)] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -196,9 +197,9 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{isAr ? "مسارات الحكايات — DIMENSIONAL DOORWAYS" : "STORY TRACKS & DIMENSIONAL DOORWAYS"}</span>
+            <span>{isAr ? "استكشاف الحكايات والأنشطة — مسارات الحكايات — DIMENSIONAL DOORWAYS" : "STORY TRACKS & DIMENSIONAL DOORWAYS — STORY DISCOVERY"}</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
             {formatLocalizedText(isAr ? (selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟") : (selector.titleEn || "What Kind of Story Do You Want Today?"), locale)}
           </h2>
         </div>

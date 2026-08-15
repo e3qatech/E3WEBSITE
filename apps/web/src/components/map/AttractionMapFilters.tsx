@@ -48,7 +48,7 @@ export function AttractionMapFilters({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                 isActive
                   ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg'
-                  : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-white'
+                  : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--text-primary)]'
               }`}
             >
               {isAr ? cat.labelAr : cat.labelEn}

@@ -174,7 +174,7 @@ export function CalendarView({
         .font-righteous { font-family: 'Righteous', cursive; }
         .font-poppins { font-family: 'Poppins', sans-serif; }
       `}} />
-      <div className="min-h-screen font-poppins bg-[#0F0F23] text-zinc-50 relative selection:bg-[#F43F5E]/30 selection:text-zinc-950" dir={isAr ? 'rtl' : 'ltr'}>
+      <div className="min-h-screen font-poppins bg-[var(--bg-level-1)] text-[var(--text-primary)] relative transition-colors duration-300 selection:bg-[#F43F5E]/30" dir={isAr ? 'rtl' : 'ltr'}>
       
         {/* Interactive Background Orbs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -185,7 +185,7 @@ export function CalendarView({
               y: [0, -50, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute -top-64 -start-64 w-[800px] h-[800px] bg-[#7C3AED] rounded-full mix-blend-screen filter blur-[128px] opacity-15"
           />
           <motion.div
             animate={{
@@ -194,7 +194,7 @@ export function CalendarView({
               y: [0, 100, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-20"
+            className="absolute top-1/2 -end-64 w-[600px] h-[600px] bg-[#F43F5E] rounded-full mix-blend-screen filter blur-[128px] opacity-15"
           />
         </div>
 
@@ -207,7 +207,7 @@ export function CalendarView({
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover opacity-25"
+                className="w-full h-full object-cover opacity-20"
               >
                 <source src={heroMediaUrl} type="video/mp4" />
               </video>
@@ -216,10 +216,10 @@ export function CalendarView({
                 src={heroMediaUrl}
                 alt=""
                 aria-hidden="true"
-                className="w-full h-full object-cover opacity-25"
+                className="w-full h-full object-cover opacity-20"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0F0F23]/80 to-[#0F0F23]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--bg-level-1)]/80 to-[var(--bg-level-1)]" />
           </div>
         )}
 
@@ -238,7 +238,7 @@ export function CalendarView({
           {/* 1. Semantic Eyebrow Badge (Outside H1) */}
           <div 
             data-testid="calendar-hero-eyebrow"
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-5 backdrop-blur-md"
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-5 backdrop-blur-md"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -250,7 +250,7 @@ export function CalendarView({
           {/* 2. Semantic Display Headline (Single H1, Title Only) */}
           <h1 
             data-testid="calendar-hero-title"
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-5 font-syne drop-shadow-xl break-words"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[var(--text-primary)] tracking-tight leading-[1.1] mb-5 font-syne drop-shadow-sm break-words"
           >
             {heroTitle}
           </h1>
@@ -258,7 +258,7 @@ export function CalendarView({
           {/* 3. Semantic Descriptive Subtitle */}
           <p 
             data-testid="calendar-hero-description"
-            className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium max-w-2xl mx-auto font-sans leading-relaxed drop-shadow-md"
+            className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto font-sans leading-relaxed"
           >
             {heroDescription}
           </p>

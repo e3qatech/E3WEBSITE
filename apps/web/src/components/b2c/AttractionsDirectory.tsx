@@ -73,7 +73,7 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
   }, [displayList, selectedCategory, searchQuery]);
 
   return (
-    <section className="relative py-16 bg-[#05020c] border-b border-[var(--border-level-2)]">
+    <section className="relative py-16 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)]">
       <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-10">
         
         {/* Header */}
@@ -385,7 +385,7 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
   }, [filteredFeatures, selectedLocationId]);
 
   return (
-    <section id="interactive-attractions-map" className="relative py-20 bg-[var(--bg-level-2)] text-white border-t border-[var(--border-level-2)]">
+    <section id="interactive-attractions-map" className="relative py-20 bg-[var(--bg-level-2)] text-[var(--text-primary)] border-t border-[var(--border-level-2)]">
       <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">

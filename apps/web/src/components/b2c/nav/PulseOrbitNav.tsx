@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
+import { useTheme } from '@/components/layout/ThemeProvider';
 
 interface NavDestination {
   labelEn: string;
@@ -167,7 +168,7 @@ export function playSpatialHoverSound(
       osc.stop(now + 0.09);
     }
   } catch (_e) {
-    // Graceful fallback if Web Audio API is disabled
+    // Spatial audio fallback
   }
 }
 
@@ -219,6 +220,9 @@ export function PulseOrbitNav({
   const isAr = locale === 'ar';
   const lightLogoUrl = settings?.lightLogoUrl;
   const darkLogoUrl = settings?.darkLogoUrl;
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light' || theme === 'light';
 
   const [activePortalTab, setActivePortalTab] = useState<'b2c' | 'b2b'>(type);
   const [b2cOrbitData, setB2COrbitData] = useState<any>(type === 'b2c' ? orbitData : null);
@@ -291,7 +295,6 @@ export function PulseOrbitNav({
   const [activeDestination, setActiveDestination] = useState<NavDestination | null>(
     rawDestinations.length > 0 ? rawDestinations[0] : null
   );
-  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   // Throttled scroll haptic feedback
   const lastScrollTimeRef = React.useRef<number>(0);
@@ -358,11 +361,15 @@ export function PulseOrbitNav({
 
   const toggleTheme = () => {
     playSpatialHoverSound(0, 'tab');
-    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setCurrentTheme(nextTheme);
+    const nextTheme = isLight ? 'dark' : 'light';
+    setTheme(nextTheme);
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('data-theme', nextTheme);
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+      document.documentElement.classList.toggle('light', nextTheme === 'light');
       localStorage.setItem('theme', nextTheme);
+      localStorage.setItem('themePreference', nextTheme);
+      window.dispatchEvent(new Event('storage'));
     }
   };
 
@@ -390,8 +397,12 @@ export function PulseOrbitNav({
         className={cn(
           'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
           scrolled
-            ? 'border-b border-slate-800/80 bg-slate-950/85 py-3 backdrop-blur-md shadow-xl'
-            : 'bg-gradient-to-b from-slate-950/80 to-transparent py-5'
+            ? (isLight
+                ? 'border-b border-slate-200/90 bg-white/95 py-3 backdrop-blur-md shadow-lg text-slate-900 shadow-slate-200/40'
+                : 'border-b border-slate-800/80 bg-slate-950/85 py-3 backdrop-blur-md shadow-xl text-white')
+            : (isLight
+                ? 'bg-gradient-to-b from-white/95 via-white/70 to-transparent py-5 text-slate-900'
+                : 'bg-gradient-to-b from-slate-950/80 to-transparent py-5 text-white')
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -405,7 +416,7 @@ export function PulseOrbitNav({
               <E3Logo
                 lightLogoUrl={lightLogoUrl}
                 darkLogoUrl={darkLogoUrl}
-                isLight={currentTheme === 'light'}
+                isLight={isLight}
                 showText={false}
                 size="md"
               />
@@ -413,7 +424,12 @@ export function PulseOrbitNav({
           </div>
 
           {/* Desktop Links (Resting State) */}
-          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full border border-slate-800/80 bg-slate-900/60 backdrop-blur-md">
+          <nav className={cn(
+            "hidden md:flex items-center gap-1 p-1 rounded-full border backdrop-blur-md transition-colors duration-300",
+            isLight
+              ? "border-slate-200 bg-white/85 shadow-sm"
+              : "border-slate-800/80 bg-slate-900/60"
+          )}>
             {destinationList.slice(0, 4).map((dest: any) => {
               const isActive = pathname?.includes(dest.href);
               return (
@@ -428,8 +444,12 @@ export function PulseOrbitNav({
                   className={cn(
                     'flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold transition-all select-none cursor-pointer',
                     isActive
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? (isLight
+                          ? 'bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 font-bold shadow-sm'
+                          : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold shadow-sm')
+                      : (isLight
+                          ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white')
                   )}
                 >
                   {isAr ? dest.labelAr : dest.labelEn}
@@ -444,10 +464,15 @@ export function PulseOrbitNav({
             <button
               onClick={toggleLanguage}
               onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
+              className={cn(
+                "hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border px-3.5 text-xs font-bold transition-all cursor-pointer select-none",
+                isLight
+                  ? "border-slate-200 bg-white/90 text-slate-800 hover:bg-slate-100 hover:border-slate-300 shadow-sm"
+                  : "border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800"
+              )}
               title={isAr ? 'Switch to English' : 'التغيير إلى العربية'}
             >
-              <Globe className="h-3.5 w-3.5 text-sky-400" />
+              <Globe className="h-3.5 w-3.5 text-sky-500" />
               <span className="font-extrabold uppercase">{isAr ? 'English' : 'العربية'}</span>
             </button>
 
@@ -455,11 +480,16 @@ export function PulseOrbitNav({
             <button
               onClick={toggleTheme}
               onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-              className="hidden sm:inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none"
+              className={cn(
+                "hidden sm:inline-flex items-center justify-center h-9 w-9 rounded-full border transition-all cursor-pointer select-none",
+                isLight
+                  ? "border-slate-200 bg-white/90 text-slate-800 hover:bg-slate-100 hover:border-slate-300 shadow-sm"
+                  : "border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800"
+              )}
               aria-label="Toggle Theme"
-              title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
             >
-              {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
+              {isLight ? <Moon className="h-4 w-4 text-indigo-600" /> : <Sun className="h-4 w-4 text-amber-400" />}
             </button>
 
             {/* B2B Client Portal Entry (QF-07) */}
@@ -509,18 +539,21 @@ export function PulseOrbitNav({
               aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
               className={cn(
-                "inline-flex items-center gap-2 h-9 rounded-full border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-bold text-slate-200 hover:border-slate-700 hover:bg-slate-800 transition-all cursor-pointer select-none",
-                isAuthenticated && "border-emerald-500/40 bg-emerald-950/30 hover:border-emerald-500/60 text-emerald-300 shadow-sm"
+                "inline-flex items-center gap-2 h-9 rounded-full border px-3.5 text-xs font-bold transition-all cursor-pointer select-none",
+                isLight
+                  ? "border-slate-200 bg-white/90 text-slate-800 hover:bg-slate-100 hover:border-slate-300 shadow-sm"
+                  : "border-slate-800 bg-slate-900/80 text-slate-200 hover:border-slate-700 hover:bg-slate-800",
+                isAuthenticated && (isLight ? "border-emerald-500/50 bg-emerald-50 text-emerald-800 shadow-sm" : "border-emerald-500/40 bg-emerald-950/30 hover:border-emerald-500/60 text-emerald-300 shadow-sm")
               )}
             >
               {menuOpen ? (
-                <X className="h-4 w-4 text-rose-400" />
+                <X className="h-4 w-4 text-rose-500" />
               ) : isAuthenticated ? (
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-extrabold text-[10px] border border-emerald-500/40 shadow-sm">
+                <div className={cn("flex h-5 w-5 items-center justify-center rounded-full font-extrabold text-[10px] border shadow-sm", isLight ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40")}>
                   {userInitial || <UserIcon className="h-3 w-3" />}
                 </div>
               ) : (
-                <MenuIcon className="h-4 w-4 text-emerald-400" />
+                <MenuIcon className="h-4 w-4 text-emerald-500" />
               )}
               <span>{menuOpen ? (isAr ? 'إغلاق' : 'CLOSE') : (isAr ? customNavBtnAr : customNavBtnEn)}</span>
             </button>
@@ -531,13 +564,21 @@ export function PulseOrbitNav({
       {/* FULL DESKTOP IMMERSIVE MENU OVERLAY (PULSE ORBIT) */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-50 flex flex-col justify-between bg-slate-950/95 backdrop-blur-xl p-6 sm:p-10 animate-fade-in text-slate-100"
+          className={cn(
+            "fixed inset-0 z-50 flex flex-col justify-between backdrop-blur-xl p-6 sm:p-10 animate-fade-in transition-colors duration-300",
+            isLight
+              ? "bg-[#FFF8EC]/98 text-slate-900 shadow-2xl"
+              : "bg-slate-950/95 text-slate-100"
+          )}
           role="dialog"
           aria-modal="true"
           aria-label="Pulse Orbit Navigation"
         >
           {/* Top Bar inside Overlay - Managed EXCLUSIVELY by Pulse Orbit CMS Hub Logo */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
+          <div className={cn(
+            "flex flex-wrap items-center justify-between gap-4 border-b pb-6",
+            isLight ? "border-slate-200" : "border-slate-800/80"
+          )}>
             <div className="flex items-center gap-3">
               {currentOrbitData?.logoUrl ? (
                 <img
@@ -546,15 +587,27 @@ export function PulseOrbitNav({
                   className="h-8 w-auto object-contain transition-transform hover:scale-105"
                 />
               ) : (
-                <E3Logo isLight={false} showText={false} size="sm" />
+                <E3Logo
+                  lightLogoUrl={lightLogoUrl}
+                  darkLogoUrl={darkLogoUrl}
+                  isLight={isLight}
+                  showText={false}
+                  size="sm"
+                />
               )}
-              <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest font-bold">
+              <span className={cn(
+                "font-mono text-xs uppercase tracking-widest font-bold",
+                isLight ? "text-emerald-700" : "text-emerald-400"
+              )}>
                 {isAr ? (currentOrbitData?.titleAr || defaultTitleAr) : (currentOrbitData?.titleEn || defaultTitleEn)}
               </span>
             </div>
 
             {/* Visitor & Organiser Section Tab Switcher inside Pulse Orbit Overlay */}
-            <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 border border-slate-800 rounded-xl shadow-inner">
+            <div className={cn(
+              "flex items-center gap-1.5 p-1 border rounded-xl shadow-inner",
+              isLight ? "bg-slate-100 border-slate-200" : "bg-slate-900/90 border-slate-800"
+            )}>
               <button
                 type="button"
                 onMouseEnter={() => playSpatialHoverSound(-0.4, 'portal_switch')}
@@ -565,8 +618,8 @@ export function PulseOrbitNav({
                 className={cn(
                   "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer select-none",
                   activePortalTab === 'b2c'
-                    ? "bg-emerald-500 text-slate-950 shadow-md"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? (isLight ? "bg-emerald-600 text-white shadow-md" : "bg-emerald-500 text-slate-950 shadow-md")
+                    : (isLight ? "text-slate-600 hover:text-slate-900 hover:bg-slate-200" : "text-slate-400 hover:text-white hover:bg-slate-800")
                 )}
               >
                 <UserIcon className="h-3.5 w-3.5" />
@@ -582,8 +635,8 @@ export function PulseOrbitNav({
                 className={cn(
                   "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer select-none",
                   activePortalTab === 'b2b'
-                    ? "bg-sky-500 text-slate-950 shadow-md"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? (isLight ? "bg-sky-600 text-white shadow-md" : "bg-sky-500 text-slate-950 shadow-md")
+                    : (isLight ? "text-slate-600 hover:text-slate-900 hover:bg-slate-200" : "text-slate-400 hover:text-white hover:bg-slate-800")
                 )}
               >
                 <Building2 className="h-3.5 w-3.5" />
@@ -599,9 +652,14 @@ export function PulseOrbitNav({
               <button
                 onClick={toggleLanguage}
                 onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer"
+                className={cn(
+                  "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                  isLight
+                    ? "border-slate-200 bg-white text-slate-800 hover:bg-slate-100 shadow-sm"
+                    : "border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800"
+                )}
               >
-                <Globe className="h-3.5 w-3.5 text-sky-400" />
+                <Globe className="h-3.5 w-3.5 text-sky-500" />
                 <span>{isAr ? 'English' : 'العربية'}</span>
               </button>
 
@@ -609,10 +667,15 @@ export function PulseOrbitNav({
               <button
                 onClick={toggleTheme}
                 onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-                className="p-2 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 cursor-pointer"
+                className={cn(
+                  "p-2 rounded-lg border transition-all cursor-pointer",
+                  isLight
+                    ? "border-slate-200 bg-white text-slate-800 hover:bg-slate-100 shadow-sm"
+                    : "border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800"
+                )}
                 aria-label="Toggle Theme"
               >
-                {currentTheme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-400" />}
+                {isLight ? <Moon className="h-4 w-4 text-indigo-600" /> : <Sun className="h-4 w-4 text-amber-400" />}
               </button>
 
               <button
@@ -621,7 +684,12 @@ export function PulseOrbitNav({
                   setMenuOpen(false);
                 }}
                 onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-                className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-rose-300 hover:bg-rose-900/50 transition-colors cursor-pointer"
+                className={cn(
+                  "rounded-xl border p-2.5 transition-colors cursor-pointer",
+                  isLight
+                    ? "border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                    : "border-rose-500/30 bg-rose-950/40 text-rose-300 hover:bg-rose-900/50"
+                )}
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
@@ -654,32 +722,56 @@ export function PulseOrbitNav({
                     className={cn(
                       'group flex items-center justify-between rounded-2xl border p-4 transition-all duration-300 cursor-pointer select-none',
                       isSelected
-                        ? 'border-emerald-500/80 bg-emerald-950/30 text-white shadow-xl shadow-emerald-950/50 translate-x-1'
-                        : 'border-slate-800/60 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        ? (isLight
+                            ? 'border-emerald-500 bg-emerald-50/90 text-slate-950 shadow-md translate-x-1'
+                            : 'border-emerald-500/80 bg-emerald-950/30 text-white shadow-xl shadow-emerald-950/50 translate-x-1')
+                        : (isLight
+                            ? 'border-slate-200/90 bg-white/80 text-slate-700 hover:border-slate-300 hover:text-slate-950 hover:bg-white shadow-sm'
+                            : 'border-slate-800/60 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200')
                     )}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={cn("p-3 rounded-xl transition-colors", isSelected ? "bg-emerald-500 text-slate-950" : "bg-slate-900 text-slate-500")}>
+                      <div className={cn(
+                        "p-3 rounded-xl transition-colors",
+                        isSelected
+                          ? "bg-emerald-500 text-white"
+                          : (isLight ? "bg-slate-100 text-slate-600 group-hover:bg-emerald-50 group-hover:text-emerald-700" : "bg-slate-900 text-slate-500")
+                      )}>
                         <Icon className="h-6 w-6" />
                       </div>
                       <div>
-                        <div className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
+                        <div className={cn(
+                          "text-lg font-bold transition-colors",
+                          isLight
+                            ? (isSelected ? "text-emerald-950" : "text-slate-900 group-hover:text-emerald-700")
+                            : (isSelected ? "text-white" : "text-white group-hover:text-emerald-300")
+                        )}>
                           {isAr ? dest.labelAr : dest.labelEn}
                         </div>
-                        <div className="text-xs text-slate-400 line-clamp-1">
+                        <div className={cn("text-xs line-clamp-1", isLight ? "text-slate-600" : "text-slate-400")}>
                           {isAr ? dest.descAr : dest.descEn}
                         </div>
                       </div>
                     </div>
 
-                    <ChevronRight className={cn("h-5 w-5 transition-transform", isSelected ? "text-emerald-400 translate-x-1" : "text-slate-600")} />
+                    <ChevronRight className={cn(
+                      "h-5 w-5 transition-transform",
+                      isSelected
+                        ? (isLight ? "text-emerald-700 translate-x-1" : "text-emerald-400 translate-x-1")
+                        : (isLight ? "text-slate-400" : "text-slate-600")
+                    )} />
                   </Link>
                 );
               })}
             </div>
 
             {/* INTERACTIVE MEDIA WORLD PREVIEW (5 COLS - DESKTOP ONLY) */}
-            <div className="hidden lg:flex lg:col-span-5 flex-col justify-between rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl relative overflow-hidden">
+            <div className={cn(
+              "hidden lg:flex lg:col-span-5 flex-col justify-between rounded-3xl border p-6 shadow-2xl relative overflow-hidden",
+              isLight
+                ? "border-slate-200 bg-white/95 text-slate-900 shadow-slate-200/60"
+                : "border-slate-800 bg-slate-900/80 text-white"
+            )}>
               {(() => {
                 const mediaUrl = activeDestination?.mediaUrl || '';
                 const isVideo = /\.(mp4|webm|mov|m4v|mkv)$/i.test(mediaUrl) || mediaUrl.includes('video') || mediaUrl.includes('/api/media/') || mediaUrl.includes('/api/upload/') || mediaUrl.startsWith('blob:');
@@ -695,7 +787,7 @@ export function PulseOrbitNav({
                       loop
                       muted
                       playsInline
-                      className="absolute inset-0 w-full h-full object-cover opacity-40 transition-all duration-700 scale-105"
+                      className="absolute inset-0 w-full h-full object-cover opacity-35 transition-all duration-700 scale-105"
                     />
                   );
                 }
@@ -705,7 +797,7 @@ export function PulseOrbitNav({
                     <iframe
                       key={mediaUrl}
                       src={iframeSrc}
-                      className="absolute inset-0 w-full h-full border-none opacity-40 pointer-events-none transition-all duration-700 scale-105"
+                      className="absolute inset-0 w-full h-full border-none opacity-35 pointer-events-none transition-all duration-700 scale-105"
                       allow="autoplay; fullscreen; xr-spatial-tracking"
                     />
                   );
@@ -714,24 +806,34 @@ export function PulseOrbitNav({
                 return (
                   <div
                     key={mediaUrl}
-                    className="absolute inset-0 bg-cover bg-center opacity-40 transition-all duration-700 scale-105"
+                    className="absolute inset-0 bg-cover bg-center opacity-35 transition-all duration-700 scale-105"
                     style={{ backgroundImage: `url(${mediaUrl})` }}
                   />
                 );
               })()}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent pointer-events-none" />
+              <div className={cn(
+                "absolute inset-0 pointer-events-none",
+                isLight
+                  ? "bg-gradient-to-t from-white via-white/70 to-transparent"
+                  : "bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"
+              )} />
 
               <div className="relative z-10">
-                <span className="inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-mono font-bold text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-3">
+                <span className={cn(
+                  "inline-block rounded-full px-3 py-1 text-xs font-mono font-bold border uppercase tracking-wider mb-3",
+                  isLight
+                    ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                    : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                )}>
                   {activePortalTab === 'b2c' ? 'FEATURED WORLD' : 'ENTERPRISE SOLUTION'}
                 </span>
-                <h3 className="text-2xl font-extrabold text-white">
+                <h3 className={cn("text-2xl font-extrabold", isLight ? "text-slate-900" : "text-white")}>
                   {isAr ? activeDestination?.labelAr : activeDestination?.labelEn}
                 </h3>
               </div>
 
               <div className="relative z-10 space-y-4 pt-12">
-                <p className="text-sm text-slate-300 leading-relaxed">
+                <p className={cn("text-sm leading-relaxed", isLight ? "text-slate-700" : "text-slate-300")}>
                   {isAr ? activeDestination?.descAr : activeDestination?.descEn}
                 </p>
 
@@ -739,7 +841,12 @@ export function PulseOrbitNav({
                   href={`/${locale}${activeDestination?.href || (activePortalTab === 'b2c' ? '/b2c' : '/b2b')}`}
                   onClick={() => setMenuOpen(false)}
                   onMouseEnter={() => playSpatialHoverSound(0.2, 'destination')}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition-all cursor-pointer select-none"
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer select-none",
+                    isLight
+                      ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-md"
+                      : "bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-lg"
+                  )}
                 >
                   <span>{isAr ? 'استكشف الوجهة' : (activePortalTab === 'b2c' ? 'EXPLORE WORLD' : 'DISCOVER SOLUTION')}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -749,16 +856,19 @@ export function PulseOrbitNav({
           </div>
 
           {/* Bottom Bar inside Overlay */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-800/80 pt-6 text-xs text-slate-400">
+          <div className={cn(
+            "flex flex-wrap items-center justify-between gap-4 border-t pt-6 text-xs",
+            isLight ? "border-slate-200 text-slate-600" : "border-slate-800/80 text-slate-400"
+          )}>
             <div>
-              <span className="font-semibold text-slate-200">E3 Qatar Live Experiences</span> • Permanent Attractions & Event Engineering
+              <span className={cn("font-semibold", isLight ? "text-slate-900" : "text-slate-200")}>E3 Qatar Live Experiences</span> • Permanent Attractions & Event Engineering
             </div>
 
             <div className="flex items-center gap-4 font-semibold">
               <Link
                 href={`/${locale}/b2c`}
                 onMouseEnter={() => playSpatialHoverSound(-0.3, 'tab')}
-                className="hover:text-emerald-400 transition-colors"
+                className={cn("transition-colors", isLight ? "hover:text-emerald-700" : "hover:text-emerald-400")}
               >
                 {isAr ? 'بوابة الزوار (B2C)' : 'B2C Customer Portal'}
               </Link>
@@ -766,7 +876,7 @@ export function PulseOrbitNav({
               <Link
                 href={`/${locale}/b2b`}
                 onMouseEnter={() => playSpatialHoverSound(0.3, 'tab')}
-                className="hover:text-emerald-400 transition-colors"
+                className={cn("transition-colors", isLight ? "hover:text-emerald-700" : "hover:text-emerald-400")}
               >
                 {isAr ? 'بوابة الشركات (B2B)' : 'B2B Enterprise Portal'}
               </Link>
@@ -774,7 +884,7 @@ export function PulseOrbitNav({
               <Link
                 href={`/${locale}/b2c/contact`}
                 onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-                className="hover:text-emerald-400 transition-colors"
+                className={cn("transition-colors", isLight ? "hover:text-emerald-700" : "hover:text-emerald-400")}
               >
                 {isAr ? 'مركز الدعم' : 'Support Center'}
               </Link>
