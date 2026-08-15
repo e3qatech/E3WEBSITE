@@ -15,6 +15,7 @@ export interface DepartmentAuraTheme {
   key: string;
   nameEn: string;
   primaryColor: string;
+  colorHex?: string;
   secondaryColor: string;
   warmGlowColor: string;
   auraGradient: string;

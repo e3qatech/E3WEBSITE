@@ -44,7 +44,7 @@ export function TeamDirectoryToolbar({
       id="team-directory"
       data-testid="team-directory-toolbar"
       dir={isAr ? "rtl" : "ltr"}
-      className="sticky top-16 md:top-20 z-30 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 mb-8"
+      className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 mb-8"
     >
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-2xl bg-[var(--surface-default)]/90 backdrop-blur-xl border border-[var(--border-level-1)] shadow-xl">
         

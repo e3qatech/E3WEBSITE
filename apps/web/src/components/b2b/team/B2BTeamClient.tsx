@@ -5,7 +5,8 @@ import { SafePublicTeamMember } from "@/lib/team/team-resolver";
 import { CinematicPortraitWallHero } from "./CinematicPortraitWallHero";
 import { MastermindSpotlightSection } from "./MastermindSpotlightSection";
 import { TeamDirectoryToolbar } from "./TeamDirectoryToolbar";
-import { DepartmentChaptersDirectory } from "./DepartmentChaptersDirectory";
+import { UnifiedTeamDirectoryGrid } from "./UnifiedTeamDirectoryGrid";
+import { TeamCareersCtaSection } from "./TeamCareersCtaSection";
 
 interface B2BTeamClientProps {
   members: SafePublicTeamMember[];
@@ -80,13 +81,17 @@ export function B2BTeamClient({
     return Array.from(map.values());
   }, [members]);
 
-  // 5–7 published team members for Hero Portrait Wall
+  // 5–7 published team members for Hero Portrait Strip
   const featuredMembers = members.filter((m) => m.isFeatured);
   const heroWallMembers = featuredMembers.length >= 5 ? featuredMembers.slice(0, 7) : members.slice(0, 7);
 
+  const careersUrl = cmsContent.primaryCta?.url
+    ? cmsContent.primaryCta.url.replace("{locale}", locale)
+    : `/${locale}/careers`;
+
   return (
     <div className="w-full bg-[var(--surface-default)] min-h-screen">
-      {/* 1. Hero — Cinematic Portrait Wall (80-90svh) */}
+      {/* 1. Hero — Clean 70-80svh Hero with non-overlapping 5-7 3:4 portrait strip */}
       <CinematicPortraitWallHero
         featuredMembers={heroWallMembers}
         locale={locale}
@@ -100,17 +105,24 @@ export function B2BTeamClient({
         descriptionAr={cmsContent.descriptionAr || cmsContent.descAr || cmsContent.hero?.descriptionAr}
         primaryCtaLabelEn={cmsContent.primaryCta?.labelEn}
         primaryCtaLabelAr={cmsContent.primaryCta?.labelAr}
-        primaryCtaUrl={cmsContent.primaryCta?.url ? cmsContent.primaryCta.url.replace("{locale}", locale) : `/${locale}/careers`}
+        primaryCtaUrl={careersUrl}
         secondaryCtaLabelEn={cmsContent.secondaryCta?.labelEn}
         secondaryCtaLabelAr={cmsContent.secondaryCta?.labelAr}
         secondaryCtaUrl={cmsContent.secondaryCta?.url || "#team-directory"}
         animationSpeed={cmsContent.animationSpeed || 2800}
       />
 
-      {/* 2. Featured Mastermind Spotlight (Immediately after Hero, 40% Portrait / 60% Content) */}
+      {/* 2. Featured Mastermind Spotlight (Preserved structure, normalized spacing) */}
       <MastermindSpotlightSection featuredMembers={members} locale={locale} />
 
-      {/* 3. Sticky Directory Toolbar (Search & Department Filters) */}
+      {/* 3. Single Heading above Directory */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 mb-2">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">
+          {isAr ? "دليل فريق العمل والقيادات" : "The Masterminds Directory"}
+        </h2>
+      </div>
+
+      {/* 4. Non-sticky Search and Department Filter Toolbar */}
       <TeamDirectoryToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -122,24 +134,16 @@ export function B2BTeamClient({
         locale={locale}
       />
 
-      {/* 4. Section Heading: The Masterminds / العقول المدبرة */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-          {isAr ? "العقول المدبرة — الدليل القيادي والهندسي" : "The Masterminds — Engineering & Creative Roster"}
-        </h2>
-        <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
-          {isAr
-            ? "تعرف على المهندسين والمبدعين والمخططين الذين يجعلون المستحيل ممكناً كل يوم."
-            : "Meet the engineers, creatives, and tacticians who make the impossible happen every day."}
-        </p>
-      </div>
-
-      {/* 5. Team Directory — Department Chapters */}
-      <DepartmentChaptersDirectory
+      {/* 5. Unified Team Directory Grid (Identical 3:4 portrait cards, 4/3/2/1 responsive columns) */}
+      <UnifiedTeamDirectoryGrid
         members={filteredMembers}
-        searchQuery={searchQuery}
-        selectedDepartment={selectedDepartment}
         locale={locale}
+      />
+
+      {/* 6. Careers CTA Section */}
+      <TeamCareersCtaSection
+        locale={locale}
+        primaryUrl={careersUrl}
       />
     </div>
   );

@@ -1,21 +1,23 @@
+/**
+ * UX-03A-C: Canonical Team Directory Redesign & Clutter Correction Test Suite
+ *
+ * Requirements:
+ * 1. Clean 70-80svh Hero: Centered content on top, 5-7 equal 3:4 portraits underneath (no overlap, no circular portraits, no orbit rings, no custom cursor).
+ * 2. Mastermind Spotlight: Preserved structure, normalized spacing and responsiveness.
+ * 3. Unified Team Directory Grid: Replaces all Chapter bloat, identical 3:4 cards, 4/3/2/1 responsive columns, restrained department accent line, hover reveal for experience and profile link.
+ * 4. Non-sticky Search & Department Toolbar: Positioned below heading, never overlaps, displays filtered count once.
+ * 5. Careers CTA: Positioned at bottom before footer.
+ * 6. Arabic Parity: Full RTL mirroring and Arabic metadata with zero leakage.
+ */
+
 import React from "react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    refresh: vi.fn(),
-    replace: vi.fn(),
-  }),
-  usePathname: () => "/en/b2b/team",
-  useSearchParams: () => new URLSearchParams(),
-}));
-
 import { CinematicPortraitWallHero } from "@/components/b2b/team/CinematicPortraitWallHero";
 import { MastermindSpotlightSection } from "@/components/b2b/team/MastermindSpotlightSection";
 import { TeamDirectoryToolbar } from "@/components/b2b/team/TeamDirectoryToolbar";
-import { DepartmentChaptersDirectory } from "@/components/b2b/team/DepartmentChaptersDirectory";
+import { UnifiedTeamDirectoryGrid } from "@/components/b2b/team/UnifiedTeamDirectoryGrid";
+import { TeamCareersCtaSection } from "@/components/b2b/team/TeamCareersCtaSection";
 import { B2BTeamClient } from "@/components/b2b/team/B2BTeamClient";
 import { LocaleProvider } from "@/components/layout/LocaleProvider";
 import { SafePublicTeamMember } from "@/lib/team/team-resolver";
@@ -198,12 +200,12 @@ const SAMPLE_TEAM_MEMBERS: SafePublicTeamMember[] = [
   },
 ];
 
-describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
+describe("UX-03A-C — Team Directory Clutter Correction Suite", () => {
   /* ================================================================ */
-  /* 1. HERO — CINEMATIC PORTRAIT WALL                                */
+  /* 1. HERO — SIMPLIFIED CLEAN HERO                                  */
   /* ================================================================ */
   describe("1. CinematicPortraitWallHero Component", () => {
-    it("renders 80-90svh portrait wall with rectangular 3:4 portrait panels", () => {
+    it("renders clean 70-80svh hero with centered content and horizontal 3:4 portrait strip", () => {
       const html = renderToStaticMarkup(
         <LocaleProvider defaultLocale="en">
           <CinematicPortraitWallHero featuredMembers={SAMPLE_TEAM_MEMBERS} locale="en" />
@@ -219,15 +221,15 @@ describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
       // Aspect ratio 3:4 verified on panels
       expect(html).toContain("aspect-[3/4]");
 
-      // Heading and kinetic content
-      expect(html).toContain('data-testid="portrait-wall-hero-heading"');
-      expect(html).toContain("MEET THE PEOPLE WHO BUILD");
-      expect(html).toContain('data-testid="hero-primary-cta"');
-      expect(html).toContain('data-testid="hero-secondary-cta"');
+      // Heading and CTAs
+      expect(html).toContain("Meet the Minds Shaping");
+      expect(html).toContain("Join the Atelier");
+      expect(html).toContain("Explore Directory ↓");
 
-      // Zero circular portraits (no orbit floating circles)
+      // Zero circular portraits or orbit animations
       expect(html).not.toContain("animate-orbit-slow");
       expect(html).not.toContain("animate-orbit-reverse");
+      expect(html).not.toContain("rounded-full object-cover");
     });
 
     it("renders Arabic typography, RTL alignment, and Arabic metadata in Arabic mode", () => {
@@ -238,10 +240,10 @@ describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
       );
 
       expect(html).toContain('dir="rtl"');
-      expect(html).toContain("تعرّف على الأشخاص الذين يصنعون");
-      expect(html).toContain("قيادة وفريق عمل إي ثري");
-      expect(html).toContain("انضم لفريقنا");
-      expect(html).toContain("استكشف دليل الفريق");
+      expect(html).toContain("نخبة العقول الهندسية التي تصنع");
+      expect(html).toContain("فريق العمل وصناع التجارب الاستثنائية");
+      expect(html).toContain("انضم إلى الفريق");
+      expect(html).toContain("استكشف الدليل ↓");
     });
   });
 
@@ -287,10 +289,10 @@ describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
   });
 
   /* ================================================================ */
-  /* 3. STICKY TOOLBAR & DEPARTMENT CHAPTERS DIRECTORY                */
+  /* 3. NON-STICKY TOOLBAR & UNIFIED DIRECTORY GRID                   */
   /* ================================================================ */
-  describe("3. TeamDirectoryToolbar & DepartmentChaptersDirectory", () => {
-    it("renders sticky toolbar with live search input and department select", () => {
+  describe("3. TeamDirectoryToolbar & UnifiedTeamDirectoryGrid", () => {
+    it("renders non-sticky toolbar with live search and department select without overlapping", () => {
       const html = renderToStaticMarkup(
         <LocaleProvider defaultLocale="en">
           <TeamDirectoryToolbar
@@ -314,42 +316,49 @@ describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
       expect(html).toContain('data-testid="team-department-select"');
       expect(html).toContain("All Departments (5)");
       expect(html).toContain("Executive Leadership (1)");
+
+      // Verified non-sticky (does NOT contain sticky positioning)
+      expect(html).not.toContain("sticky top-");
     });
 
-    it("renders department chapters with chapter headings, lead cards, and supporting 3:4 cards", () => {
+    it("renders unified grid with identical 3:4 cards and no chapter sections", () => {
       const html = renderToStaticMarkup(
         <LocaleProvider defaultLocale="en">
-          <DepartmentChaptersDirectory members={SAMPLE_TEAM_MEMBERS} locale="en" />
+          <UnifiedTeamDirectoryGrid members={SAMPLE_TEAM_MEMBERS} locale="en" />
         </LocaleProvider>
       );
 
-      expect(html).toContain('data-testid="department-chapters-directory"');
-      expect(html).toContain('data-testid="department-chapter-leadership"');
-      expect(html).toContain('data-testid="department-chapter-creative"');
-      expect(html).toContain('data-testid="department-chapter-technical"');
-      expect(html).toContain('data-testid="department-chapter-operations"');
-
-      // Lead card badge
-      expect(html).toContain("Department Lead");
-
-      // Individual cards
+      expect(html).toContain('data-testid="unified-team-directory-grid"');
+      
+      // All 5 sample members rendered in single unified grid
       expect(html).toContain('data-testid="team-card-tariq-al-mansoor"');
       expect(html).toContain('data-testid="team-card-fatima-al-khalifa"');
       expect(html).toContain('data-testid="team-card-marcus-vance"');
       expect(html).toContain('data-testid="team-card-youssef-haddad"');
       expect(html).toContain('data-testid="team-card-layla-nasser"');
 
-      // View Profile action links
+      // 4-column responsive grid classes
+      expect(html).toContain("grid-cols-1");
+      expect(html).toContain("sm:grid-cols-2");
+      expect(html).toContain("md:grid-cols-3");
+      expect(html).toContain("lg:grid-cols-4");
+
+      // Verify Chapter bloat is completely eliminated
+      expect(html).not.toContain("Department Lead");
+      expect(html).not.toContain("Chapter 01");
+      expect(html).not.toContain("01 /");
+
+      // Profile action links
       expect(html).toContain("View Profile");
       expect(html).toContain("/en/b2b/team/tariq-al-mansoor");
     });
   });
 
   /* ================================================================ */
-  /* 4. FULL B2B TEAM CLIENT ORCHESTRATOR                             */
+  /* 4. FULL B2B TEAM CLIENT ORCHESTRATOR & CAREERS CTA               */
   /* ================================================================ */
-  describe("4. B2BTeamClient Orchestrator", () => {
-    it("renders complete cohesive page hierarchy: Hero -> Spotlight -> Toolbar -> Chapters", () => {
+  describe("4. B2BTeamClient Orchestrator Flow", () => {
+    it("renders exact flow: Clean Hero -> Spotlight -> Toolbar -> Unified Grid -> Careers CTA", () => {
       const html = renderToStaticMarkup(
         <LocaleProvider defaultLocale="en">
           <B2BTeamClient members={SAMPLE_TEAM_MEMBERS} locale="en" />
@@ -358,8 +367,10 @@ describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
 
       expect(html).toContain('data-testid="cinematic-portrait-wall-hero"');
       expect(html).toContain('data-testid="mastermind-spotlight-section"');
+      expect(html).toContain("The Masterminds Directory");
       expect(html).toContain('data-testid="team-directory-toolbar"');
-      expect(html).toContain('data-testid="department-chapters-directory"');
+      expect(html).toContain('data-testid="unified-team-directory-grid"');
+      expect(html).toContain('data-testid="team-careers-cta"');
     });
 
     it("renders full Arabic mode seamlessly with zero English leakage", () => {
@@ -374,8 +385,23 @@ describe("UX-03A-B — Canonical Team Directory Redesign Suite", () => {
       expect(html).toContain("ماركوس فانس");
       expect(html).toContain("يوسف حداد");
       expect(html).toContain("ليلى ناصر");
-      expect(html).toContain("قائد القسم");
-      expect(html).toContain("عرض الملف");
+      expect(html).toContain("دليل فريق العمل والقيادات");
+      expect(html).toContain("الملف الشخصي");
+      expect(html).toContain("اصنع معنا مستقبل الفعاليات والتجارب الحية في قطر");
+    });
+
+    it("renders standalone Careers CTA with links to careers and contact", () => {
+      const html = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <TeamCareersCtaSection locale="en" />
+        </LocaleProvider>
+      );
+
+      expect(html).toContain('data-testid="team-careers-cta"');
+      expect(html).toContain("Shape the Future of Live Experiential Engineering");
+      expect(html).toContain("Explore Careers &amp; Roles");
+      expect(html).toContain("/en/careers");
+      expect(html).toContain("/en/contact");
     });
   });
 });
