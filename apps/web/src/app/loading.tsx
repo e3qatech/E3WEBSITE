@@ -7,7 +7,7 @@ export default function GlobalLoading() {
         {/* Terminal cursor style loader matching gstack design system */}
         <div className="flex items-center gap-1">
           <div className="h-5 w-3 bg-[var(--color-primary)] animate-pulse" style={{ animationDuration: '800ms' }}></div>
-          <span className="text-[var(--color-primary)] font-mono text-sm tracking-widest uppercase font-bold ml-2">Loading System</span>
+          <span className="text-[var(--color-primary)] font-mono text-sm tracking-widest uppercase font-bold ml-2">E3 QATAR</span>
         </div>
       </div>
     </div>

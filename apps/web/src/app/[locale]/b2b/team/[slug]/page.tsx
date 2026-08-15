@@ -90,7 +90,7 @@ export default async function TeamMemberDetailPage(props: PageProps) {
     ? member.certifications.map((c: any, idx: number) => ({
         id: c.id || `cert-${idx}`,
         name: typeof c === 'string' ? c : c.name || '',
-        issuer: typeof c === 'object' ? c.issuer || 'Professional Organization' : 'Professional Organization',
+        issuer: typeof c === 'object' ? c.issuer || (isAr ? 'هيئة مهنية معتمدة' : 'Professional Organization') : (isAr ? 'هيئة مهنية معتمدة' : 'Professional Organization'),
         year: typeof c === 'object' ? c.year || '' : '',
       }))
     : [];

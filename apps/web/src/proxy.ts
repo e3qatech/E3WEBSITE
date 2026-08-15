@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server';
 
 const PUBLIC_FILE = /\.(.*)$/;
 
+import { resolveTeamRoute } from './lib/team/team-resolver';
+
 export function proxy(req: NextRequest) {
   const { nextUrl } = req;
   const rawPathname = nextUrl.pathname;
@@ -114,6 +116,26 @@ export function proxy(req: NextRequest) {
     normalizedPath.startsWith('/candidate')
   ) {
     return NextResponse.redirect(new URL(`/${targetLocale}${nextUrl.pathname}${nextUrl.search}`, nextUrl));
+  }
+
+  // 8. Team Route Non-Streamed HTTP Canonicalization & 404 Guard
+  const teamMatch = normalizedPath.match(/^\/(en|ar)\/(b2b|b2c)\/team\/([^/]+)$/i);
+  if (teamMatch) {
+    const routeLocale = teamMatch[1].toLowerCase();
+    const routePortal = teamMatch[2].toLowerCase() as 'b2b' | 'b2c';
+    const slugOrId = teamMatch[3];
+
+    const teamResolution = resolveTeamRoute(routePortal, routeLocale, slugOrId);
+
+    if (teamResolution.status === 'LEGACY_REDIRECT' && teamResolution.targetUrl) {
+      return NextResponse.redirect(new URL(teamResolution.targetUrl, nextUrl), 308);
+    }
+
+    if (teamResolution.status === 'NOT_FOUND') {
+      return new NextResponse(null, { status: 404, statusText: 'Not Found' });
+    }
+
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   return NextResponse.next({ request: { headers: requestHeaders } });

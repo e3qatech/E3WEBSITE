@@ -1,17 +1,20 @@
 /**
- * QF-24: Canonical Team Member Public Resolver, Safety Engine & Data Quality Analyzer
+ * QF-24 & QF-24-D: Canonical Team Member Public Resolver, Safety Engine & HTTP Route Canonicalizer
  *
  * Requirements:
- * 1. Single canonical resolver for all public Team consumers (B2B team list, detail, About, home, sitemap).
+ * 1. Single canonical resolver for all public Team consumers (B2B team list, detail, B2C team, About, sitemap).
  * 2. Strict filtering of `isActive: true` and deterministic ordering (order asc, name asc, slug asc).
- * 3. Exact slug resolution — NO hardcoded fallbacks to other profiles (e.g. Tariq Mansour).
- * 4. Legacy CUID resolution helper for 301 redirects to canonical slugs.
- * 5. Public Privacy: Strips personal email and phone numbers from public DTOs; permits validated HTTPS social links.
- * 6. Arabic Localization: Complete Arabic mapping for designations, departments, bios, and names without English residue.
- * 7. Non-destructive staff data quality & review analyzer:
- *    - Flags Mohasin identities for human review.
- *    - Flags abdulla-alkuwari and sarah-haddad with REVIEW_REQUIRED without destructive mutation.
- *    - Flags missing Arabic, duplicate slugs/names, placeholders, and unsafe links.
+ * 3. Exact slug resolution — NO hardcoded fallbacks to other profiles.
+ * 4. Non-Streamed HTTP Transport Canonicalization:
+ *    - Eligible legacy CUID -> real locale-preserving permanent redirect (HTTP 308) with Location header.
+ *    - Unknown, malformed, or inactive identifiers -> genuine HTTP 404.
+ *    - Canonical eligible slugs -> HTTP 200.
+ * 5. Arabic Fail-Closed Presentation:
+ *    - Zero raw English nested prose on Arabic routes.
+ *    - Comprehensive translation dictionary for all 22 roster members across skills, competencies, roles, certs, issuers, and timelines.
+ *    - Latin text restricted to narrow allowlist of brands, technologies, and standard acronyms.
+ * 6. Public Privacy: Strips personal email and phone numbers; validates HTTPS social links.
+ * 7. Non-destructive staff data quality & review analyzer.
  * 8. Canonical RBAC verification for team mutations.
  */
 
@@ -36,7 +39,9 @@ export interface CanonicalEmployeeInput {
   expertiseTags?: any;
   coreCompetencies?: any;
   experience?: any;
+  experienceTimeline?: any;
   projects?: any;
+  projectsPortfolio?: any;
   certifications?: any;
   education?: any;
   awards?: any;
@@ -111,6 +116,131 @@ export interface TeamDataQualityReport {
 }
 
 /**
+ * Narrow Allowlist for Latin Acronyms, Technologies, and Brand Names permitted in Arabic mode.
+ */
+export const ALLOWED_LATIN_TERMS = new Set<string>([
+  'PMP', 'PMI-ACP', 'CSEP', 'AZ-104', 'AZ-900', 'HACCP', 'HABC',
+  'F&B', 'FEC', 'B2B', 'B2C', 'SEO', 'POS', 'CNC', 'DJ', '3D', 'AI', 'IT',
+  'LEED', 'CISCO', 'AWS', 'ISO', 'Google', 'Meta', 'Microsoft', 'Autodesk',
+  'Azure', 'React', 'TypeScript', 'CADD International', 'Harvard Business School',
+  'E3', 'E3 Qatar', 'Injaz Qatar', 'Highfield International', 'Cesim',
+  'Market2Win', 'Enertech', 'MF Treinamentos', 'Qatar Foundation',
+]);
+
+/**
+ * Checks if a string consists exclusively of allowlisted Latin acronyms, brand names, or numbers/punctuation.
+ */
+export function isAllowlistedLatinOrNumeric(text: string): boolean {
+  if (!text || typeof text !== 'string') return true;
+  const trimmed = text.trim();
+  if (!trimmed) return true;
+  if (/^[\d\s\-\.\,\:\/\|\(\)\+\%]+$/.test(trimmed)) return true;
+  if (ALLOWED_LATIN_TERMS.has(trimmed)) return true;
+
+  const tokens = trimmed.split(/[\s\-\,\.\(\)\:\/\|]+/).filter(Boolean);
+  if (tokens.length > 0 && tokens.every((t) => ALLOWED_LATIN_TERMS.has(t) || /^[\d\+\%]+$/.test(t))) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Canonical 22-Person Team Roster mapping Legacy CUIDs to canonical slugs.
+ */
+export const CANONICAL_TEAM_CUID_MAP: Record<string, string> = {
+  'cmscbl39y00008ayz90qlf3t0': 'adil-ahmed',
+  'cmscbmtxu00018ayzj1dh8l1k': 'mohammad-ali-awada',
+  'cmsd1j7vk0000hzt5zb0zaqtk': 'raja-abbas-khan',
+  'cmscbrh0200058ayz1lv7aqjr': 'amaan-malik',
+  'cmsc8edoh0000r6mpzrb4w64i': 'mohasin-mohammadaly-parayil',
+  'cmsednevn0001ya8dpxr5hill': 'abdullah-al-kubaisi',
+  'cmscbp8qa00048ayzdmzo9x9j': 'ahmad-faraz',
+  'cmsd1j8de0002hzt53lwz7zyd': 'abdulla-alkuwari',
+  'cmsd1j8in0003hzt54hgeubf0': 'sarah-haddad',
+  'cmsbu61zz0000q5psvlhv7y0g': 'arslan-arshad',
+  'cmsbup9u20000ru2xkhymf3df': 'asghar-bhatti',
+  'cmsbuxulo0000ywv1ev7rxe7x': 'quasain-ali',
+  'cmsbvb4uz0000v09p2qedfrjl': 'amal-jose',
+  'cmsbvg05q0001v09pbqcut7wm': 'nicole-bernido',
+  'cmsbvikv00002v09pobgv5p5m': 'rajan-pathak',
+  'cmsd1j9ts000ahzt5sdwo396z': 'mohasin-mohammadaly',
+  'cmsc8k58g0001r6mpbyq2wm7v': 'waqar-asghar',
+  'cmsc8n8tj0002r6mptdhr2czo': 'ebrahim-karolia',
+  'cmsc8weug0003r6mpl9z3vr8o': 'muhammad-izaan-shahid',
+  'cmsc9lauh0000p651qyrt89l8': 'marcialou-macatangay',
+  'cmscb4ii30000f39ywcvf739z': 'lucian-moldovan',
+  'cmscb8zng0001f39y8l9hpfq5': 'ruben-yaralyan',
+};
+
+/**
+ * Set of active canonical slugs across the verified 22-person roster.
+ */
+export const CANONICAL_TEAM_SLUGS = new Set<string>([
+  'adil-ahmed',
+  'mohammad-ali-awada',
+  'raja-abbas-khan',
+  'amaan-malik',
+  'mohasin-mohammadaly-parayil',
+  'abdullah-al-kubaisi',
+  'ahmad-faraz',
+  'abdulla-alkuwari',
+  'sarah-haddad',
+  'arslan-arshad',
+  'asghar-bhatti',
+  'quasain-ali',
+  'amal-jose',
+  'nicole-bernido',
+  'rajan-pathak',
+  'mohasin-mohammadaly',
+  'waqar-asghar',
+  'ebrahim-karolia',
+  'muhammad-izaan-shahid',
+  'marcialou-macatangay',
+  'lucian-moldovan',
+  'ruben-yaralyan',
+]);
+
+export interface TeamRouteResolution {
+  status: 'CANONICAL' | 'LEGACY_REDIRECT' | 'NOT_FOUND';
+  canonicalSlug?: string;
+  targetUrl?: string;
+}
+
+/**
+ * Resolves a team route request at a non-streamed HTTP boundary.
+ */
+export function resolveTeamRoute(
+  portal: 'b2b' | 'b2c',
+  locale: string,
+  slugOrId: string
+): TeamRouteResolution {
+  const normLocale = locale === 'ar' ? 'ar' : 'en';
+  const cleanIdentifier = (slugOrId || '').trim();
+
+  if (!cleanIdentifier) {
+    return { status: 'NOT_FOUND' };
+  }
+
+  // 1. Check if identifier is an eligible canonical slug
+  if (CANONICAL_TEAM_SLUGS.has(cleanIdentifier)) {
+    return { status: 'CANONICAL', canonicalSlug: cleanIdentifier };
+  }
+
+  // 2. Check if identifier is a legacy CUID
+  const targetCanonicalSlug = CANONICAL_TEAM_CUID_MAP[cleanIdentifier];
+  if (targetCanonicalSlug && CANONICAL_TEAM_SLUGS.has(targetCanonicalSlug)) {
+    return {
+      status: 'LEGACY_REDIRECT',
+      canonicalSlug: targetCanonicalSlug,
+      targetUrl: `/${normLocale}/${portal}/team/${targetCanonicalSlug}`,
+    };
+  }
+
+  // 3. Unknown, inactive, or malformed identifier
+  return { status: 'NOT_FOUND' };
+}
+
+/**
  * Standard department localization dictionary for Arabic parity across all 22 active roster roles.
  */
 export const TEAM_DEPARTMENT_LOCALIZATION: Record<string, { en: string; ar: string }> = {
@@ -118,78 +248,73 @@ export const TEAM_DEPARTMENT_LOCALIZATION: Record<string, { en: string; ar: stri
   'events & entertainment': { en: 'Events & Entertainment', ar: 'الفعاليات والترفيه' },
   marketing: { en: 'Marketing', ar: 'التسويق' },
   'marketing & sales': { en: 'Marketing & Sales', ar: 'التسويق والمبيعات' },
+  'marketing, design & branding': { en: 'Marketing, Design & Branding', ar: 'التصميم والهوية والتسويق' },
   'branding, design & marketing': { en: 'Branding, Design & Marketing', ar: 'التصميم والهوية والتسويق' },
-  sales: { en: 'Sales', ar: 'المبيعات' },
-  executive: { en: 'Executive Management', ar: 'الإدارة التنفيذية' },
+  design: { en: 'Design', ar: 'التصميم والإبداع' },
+  'creative & design': { en: 'Creative & Design', ar: 'التصميم والإبداع' },
   'executive management': { en: 'Executive Management', ar: 'الإدارة التنفيذية' },
-  management: { en: 'Management', ar: 'الإدارة العامة' },
-  design: { en: 'Design & Creative', ar: 'التصميم والإبداع' },
-  'design & creative': { en: 'Design & Creative', ar: 'التصميم والإبداع' },
-  creative: { en: 'Creative', ar: 'الإبداع الفني' },
+  executive: { en: 'Executive', ar: 'الإدارة التنفيذية' },
+  leadership: { en: 'Leadership', ar: 'الإدارة التنفيذية' },
+  operations: { en: 'Operations', ar: 'العمليات والتشغيل' },
+  'operations / it': { en: 'Operations / IT', ar: 'العمليات وتقنية المعلومات' },
+  'operations & guest experience': { en: 'Operations & Guest Experience', ar: 'العمليات وتجربة الزوار' },
   logistics: { en: 'Logistics', ar: 'الخدمات اللوجستية' },
   'logistics & production': { en: 'Logistics & Production', ar: 'اللوجستيات والإنتاج' },
-  operations: { en: 'Operations', ar: 'العمليات التشغيلية' },
-  'operations & staging': { en: 'Operations & Staging', ar: 'العمليات والتجهيز' },
-  'operations & guest experience': { en: 'Operations & Guest Experience', ar: 'العمليات وتجربة الزوار' },
-  'operations / it': { en: 'Operations & IT', ar: 'العمليات وتقنية المعلومات' },
   it: { en: 'Information Technology', ar: 'تقنية المعلومات' },
-  'information technology': { en: 'Information Technology', ar: 'تقنية المعلومات' },
-  technical: { en: 'Technical Engineering', ar: 'الهندسة والتقنية' },
-  engineering: { en: 'Engineering', ar: 'الهندسة الإنشائية' },
   'food & beverage': { en: 'Food & Beverage', ar: 'الأغذية والمشروبات' },
-  general: { en: 'General Operations', ar: 'العمليات العامة' },
 };
 
 /**
- * Standard designation translations for common corporate roles across the 22-person roster.
+ * Standard designation localization dictionary for Arabic parity.
  */
 export const COMMON_DESIGNATION_LOCALIZATION: Record<string, string> = {
   'managing director & ceo': 'العضو المنتدب والرئيس التنفيذي',
+  'managing director': 'العضو المنتدب',
+  'chief executive officer': 'الرئيس التنفيذي',
   'general manager': 'المدير العام',
   'senior events manager': 'مدير الفعاليات الأول',
+  'events director': 'مدير الفعاليات',
+  'events manager': 'مدير الفعاليات',
   'ai generalist & senior graphic designer': 'مصمم جرافيك أول وخبير ذكاء اصطناعي',
+  'senior graphic designer': 'مصمم جرافيك أول',
+  'graphic designer': 'مصمم جرافيك',
   'senior 3d visualizer': 'مصمم ثلاثي الأبعاد أول',
+  '3d visualizer': 'مصمم ثلاثي الأبعاد',
   chairman: 'رئيس مجلس الإدارة',
+  'board chairman': 'رئيس مجلس الإدارة',
   'creative marketing lead': 'رئيس التسويق الإبداعي',
-  'chief executive officer': 'الرئيس التنفيذي',
+  'marketing manager': 'مدير التسويق',
+  'marketing lead': 'مسؤول التسويق',
   'head of experiential design': 'رئيس قسم التصميم التجريبي',
+  'experiential design lead': 'مسؤول التصميم التجريبي',
   'project & logistics coordinator': 'منسق المشاريع والخدمات اللوجستية',
+  'logistics coordinator': 'منسق الخدمات اللوجستية',
   'site manager - city center': 'مدير الموقع - سيتي سنتر',
   'site manager': 'مدير الموقع',
   'logistics operations manager': 'مدير العمليات اللوجستية',
-  'production supervisor': 'مشرف الإنتاج',
+  'logistics manager': 'مدير الخدمات اللوجستية',
+  'production supervisor': 'مشرف الإنتاج والتنفيذ',
   'marketing & partnerships': 'مسؤول التسويق والشراكات',
-  'head of operations - fec / it': 'رئيس العمليات - المراكز الترفيهية وتقنية المعلومات',
-  '3d visualizer': 'مصمم ثلاثي الأبعاد',
+  'head of operations - fec / it': 'رئيس العمليات - مراكز الترفيه وتقنية المعلومات',
   'event supervisor': 'مشرف الفعاليات',
   'project manager': 'مدير المشاريع',
   'software engineer': 'مهندس برمجيات',
   'events & entertainment coordinator': 'منسق الفعاليات والترفيه',
   'operations manager': 'مدير العمليات',
   'f&b manager': 'مدير الأغذية والمشروبات',
-  'events manager': 'مدير الفعاليات',
-  'events director': 'مدير إدارة الفعاليات',
-  'creative director': 'المدير الإبداعي',
-  'lead structural engineer': 'كبير المهندسين الإنشائيين',
-  'structural engineer': 'مهندس إنشائي',
-  'operations lead': 'رئيس فريق العمليات',
-  'logistics manager': 'مدير الخدمات اللوجستية',
-  'marketing manager': 'مدير التسويق',
-  'managing director': 'العضو المنتدب',
 };
 
 /**
- * Validates HTTPS social profile URLs (e.g. LinkedIn, Twitter).
- * Strictly requires https: protocol. Rejects http, javascript, data, file protocols.
+ * Validates social URLs strictly for public display.
  */
 export function sanitizeSocialUrl(url?: string | null): string | null {
   if (!url || typeof url !== 'string') return null;
   const trimmed = url.trim();
-  if (!trimmed || trimmed === '#' || trimmed === '/') return null;
+  if (!trimmed) return null;
 
   const lower = trimmed.toLowerCase();
+
   if (
-    lower.startsWith('http://') ||
     lower.startsWith('javascript:') ||
     lower.startsWith('vbscript:') ||
     lower.startsWith('data:') ||
@@ -216,7 +341,6 @@ export function sanitizeSocialUrl(url?: string | null): string | null {
 
 /**
  * Validates portrait photo URLs.
- * Requires HTTPS URL or safe relative image path.
  */
 export function sanitizePortraitUrl(url?: string | null): string | null {
   if (!url || typeof url !== 'string') return null;
@@ -225,7 +349,6 @@ export function sanitizePortraitUrl(url?: string | null): string | null {
 
   const lower = trimmed.toLowerCase();
 
-  // Reject dangerous protocols
   if (
     lower.startsWith('javascript:') ||
     lower.startsWith('vbscript:') ||
@@ -235,12 +358,10 @@ export function sanitizePortraitUrl(url?: string | null): string | null {
     return null;
   }
 
-  // Safe relative paths
   if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
     return trimmed;
   }
 
-  // Safe HTTPS URLs
   if (lower.startsWith('https://')) {
     try {
       const parsed = new URL(trimmed);
@@ -252,7 +373,6 @@ export function sanitizePortraitUrl(url?: string | null): string | null {
     }
   }
 
-  // Safe Base64 image
   if (lower.startsWith('data:image/png;base64,') || lower.startsWith('data:image/jpeg;base64,') || lower.startsWith('data:image/webp;base64,')) {
     return trimmed;
   }
@@ -310,29 +430,118 @@ export function translateDurationToArabic(rawDuration?: string | null): string {
 }
 
 /**
- * Standard nested tags and competencies localization dictionary for Arabic profile parity.
+ * Standard nested tags, skills, and competencies localization dictionary for Arabic profile parity.
  */
 export const NESTED_TAGS_LOCALIZATION: Record<string, string> = {
+  // Executive & Leadership
   'executive leadership': 'القيادة التنفيذية',
-  'event strategy': 'استراتيجية الفعاليات',
-  'entertainment development': 'تطوير قطاع الترفيه',
-  'sports events': 'الفعاليات الرياضية',
-  'public activations': 'العروض والفعاليات العامة',
-  'business growth': 'نمو وتطوير الأعمال',
-  'stakeholder management': 'إدارة الشركاء وأصحاب المصلحة',
   'organizational leadership': 'القيادة المؤسسية',
   'general management': 'الإدارة العامة',
   'business operations': 'العمليات التجارية والتشغيلية',
   'commercial oversight': 'الإشراف التجاري',
-  'project coordination': 'تنسيق المشاريع',
-  'venue performance': 'كفاءة وتشغيل المواقع',
-  'partnership development': 'تطوير الشراكات الاستراتيجية',
-  'compliance review': 'مراجعة الامتثال والمعايير',
+  'business growth': 'نمو وتطوير الأعمال',
+  'stakeholder management': 'إدارة الشركاء وأصحاب المصلحة',
+  'strategic planning': 'التخطيط الاستراتيجي المؤسسي',
+  'visionary leadership': 'القيادة الاستشرافية والرؤية الاستراتيجية',
+  'strategic investments': 'الاستثمارات الاستراتيجية',
+  'global partnerships': 'الشراكات العالمية',
+  'business development': 'تطوير الأعمال والفرص',
+  'p&l management': 'إدارة الأرباح والخسائر P&L',
+  'enterprise scaling': 'توسيع وتنمية الشركات الكبرى',
+  'market disruption': 'ابتكار ونقلة نوعية في السوق',
+  'ip licensing & negotiation': 'ترخيص الملكية الفكرية والتفاوض',
+
+  // Events & Operations
+  'event strategy': 'استراتيجية الفعاليات',
+  'entertainment development': 'تطوير قطاع الترفيه',
+  'sports events': 'الفعاليات الرياضية',
+  'public activations': 'العروض والفعاليات العامة',
   'event operations': 'عمليات وإدارة الفعاليات',
   'venue management': 'إدارة المواقع والمنشآت',
   'live activations': 'العروض والفعاليات الحية',
   'guest experience': 'تجربة وخدمة الزوار',
   'logistics': 'الخدمات اللوجستية',
+  'logistics operations': 'العمليات اللوجستية وسلاسل الإمداد',
+  'event installation': 'تركيب وتجهيز الفعاليات',
+  'site management': 'إدارة وتنسيق المواقع',
+  'inflatable operations': 'تشغيل مدن الألعاب المطاطية',
+  'supply-chain management': 'إدارة سلاسل الإمداد والتوريد',
+  'event delivery': 'تسليم وتنفيذ الفعاليات',
+  'procurement': 'المشتريات والتوريد التجاري',
+  'production supervision': 'الإشراف على خطوط الإنتاج',
+  'large-format printing': 'الطباعة ذات الأحجام الكبرى',
+  'event fabrication': 'تصنيع وهندسة مجسمات الفعاليات',
+  'branding installation': 'تركيب الهويات واللافتات',
+  'operations management': 'إدارة وتنسيق العمليات التشغيلية',
+  'project management': 'إدارة المشاريع المتكاملة',
+  'project coordination': 'تنسيق المشاريع',
+  'fec operations': 'تشغيل مراكز الترفيه العائلي FEC',
+  'end-to-end event operations': 'العمليات التشغيلية المتكاملة للفعاليات',
+  'supplier management': 'إدارة الموردين والشركاء',
+  'venue setup': 'تجهيز وتهيئة المنشآت',
+  'venue performance': 'كفاءة وتشغيل المواقع',
+  'venue coordination': 'تنسيق إدارة المواقع',
+  'compliance review': 'مراجعة الامتثال والمعايير',
+  'birthday-event coordination': 'تنسيق فعاليات أعياد الميلاد والمناسبات',
+  'artist and performer management': 'إدارة الفنانين والفرق الاستعراضية',
+  'live entertainment': 'العروض والترفيه الحي',
+  'programme design': 'تصميم البرامج والأنشطة',
+  'team leadership': 'القيادة وإدارة فرق العمل',
+  'large-scale crowd control': 'إدارة الحشود الكبرى وتدفق الزوار',
+  'technical production coordination': 'تنسيق الإنتاج الفني والتقني',
+  'health & safety compliance': 'الامتثال لمعايير الصحة والسلامة المهنية',
+  'vendor management': 'إدارة الموردين ومزودي الخدمات',
+  'project planning': 'تخطيط وجدولة المشاريع',
+  'crisis management': 'إدارة الأزمات والطوارئ',
+  'logistics planning and coordination': 'تخطيط وتنسيق العمليات اللوجستية',
+  'customs and regulatory compliance': 'الامتثال الجمركي والتنظيمي',
+  'site supervision and handover reporting': 'الإشراف على المواقع وتقارير التسليم',
+  'vendor and contract negotiation': 'التفاوض مع الموردين وإدارة العقود',
+  'third party logistics management': 'إدارة الخدمات اللوجستية للطرف الثالث 3PL',
+  'productivity and throughput optimization': 'تحسين الإنتاجية وتدفق العمليات',
+  'delivery-experience management': 'إدارة تجربة تسليم الفعاليات',
+  'large- and small-format printing': 'الطباعة للأحجام الكبيرة والصغيرة',
+  'cnc and laser-cutting machine operation': 'تشغيل أجهزة القص بالليزر و CNC',
+  'event build-up and closure': 'تجهيز الفعاليات وإغلاق المواقع',
+  'vendor and project coordination': 'تنسيق المشاريع والموردين',
+  'hosting and dj support': 'تقديم العروض والدعم الموسيقي DJ',
+  'theme development': 'تطوير المفاهيم والموضوعات',
+  'costume and prop coordination': 'تنسيق الأزياء والإكسسوارات',
+  'client and stakeholder communication': 'التواصل مع العملاء وأصحاب المصلحة',
+  'administration and reporting': 'الإدارة وإعداد التقارير',
+  'customer-experience management': 'إدارة تجربة العملاء',
+  'contractor negotiation': 'التفاوض مع المقاولين وإبرام العقود',
+  'event planning': 'تخطيط وتنظيم الفعاليات',
+  'team coordination': 'تنسيق وإدارة فرق العمل',
+  'team collaboration': 'العمل الجماعي والتعاون الفعال',
+  'site coordination': 'تنسيق وإدارة المواقع',
+  'production coordination': 'تنسيق عمليات الإنتاج والتنفيذ',
+  '3d design coordination': 'تنسيق التصاميم ثلاثية الأبعاد',
+  'contract negotiation': 'التفاوض على العقود وإبرامها',
+  'customer satisfaction': 'رضا وخدمة العملاء',
+  'data interpretation': 'تحليل وتفسير البيانات',
+  'event logistics planning': 'تخطيط لوجستيات الفعاليات',
+  'live event problem-solving': 'حل المشكلات الميدانية أثناء الفعاليات',
+  'live-site supervision': 'الإشراف الميداني المباشر على المواقع',
+  'operational planning': 'التخطيط التشغيلي',
+  'operational problem-solving': 'معالجة المشكلات التشغيلية',
+  'operational procedures': 'إجراءات العمليات التشغيلية',
+  'operational safety': 'السلامة التشغيلية والمهنية',
+  'performer scheduling': 'جدولة وتنظيم أداء الفرق الاستعراضية',
+  'photography': 'التصوير الفوتوغرافي',
+  'problem-solving': 'حل المشكلات واتخاذ القرارات',
+  'process improvement': 'تحسين وتطوير العمليات',
+  'programme coordination': 'تنسيق وإدارة البرامج',
+  'safety awareness': 'التوعية والامتثال لمعايير السلامة',
+  'shoot direction': 'إخراج وتوجيه جلسات التصوير',
+  'stakeholder coordination': 'تنسيق أصحاب المصلحة والشركاء',
+  'team building': 'بناء وتطوير فرق العمل',
+  'budgeting': 'إعداد الميزانيات والرقابة المالية',
+  'client servicing': 'خدمة ورعاية العملاء',
+  'client communication': 'التواصل مع العملاء',
+  'negotiation': 'التفاوض وإبرام العقود',
+
+  // Design & Creative
   'graphic design': 'التصميم الجرافيكي',
   'ai-assisted creative': 'التصميم الإبداعي بالذكاء الاصطناعي',
   'event branding': 'الهوية البصرية للفعاليات',
@@ -349,98 +558,62 @@ export const NESTED_TAGS_LOCALIZATION: Record<string, string> = {
   'technical drawing': 'الرسم والمخططات التقنية',
   'site supervision': 'الإشراف الميداني على المواقع',
   'ai visualization tools': 'أدوات الذكاء الاصطناعي للتجسيد البصري',
+  'experiential design': 'تصميم التجارب التفاعلية',
+  '3d modeling': 'النمذجة ثلاثية الأبعاد',
+  'interactive environments': 'البيئات والمساحات التفاعلية',
+  'creative concept development': 'تطوير المفاهيم والأفكار الإبداعية',
+  'ux/ui for physical spaces': 'تصميم التجربة الرقمية للمساحات الواقعية',
+  'storyboarding and scripting': 'إعداد لوحات القصة وكتابة السيناريو',
+  'proposal and pitch-deck development': 'إعداد العروض التقديمية وملفات المشاريع',
+  'venue conceptualization': 'تطوير المفاهيم والتصميم المبتكر للمواقع',
+  'user flow optimization': 'تحسين تدفق وحركة الزوار',
+  'lighting & sound integration': 'تكامل أنظمة الإضاءة والصوتيات',
+  'spatial visualization': 'التجسيد والتصميم المكاني',
+  'prototyping': 'تطوير النماذج الأولية',
+  'content creation': 'صناعة وإنتاج المحتوى',
+
+  // Marketing & Media
+  'digital marketing': 'التسويق الرقمي الحديث',
   'digital campaigns': 'الحملات التسويقية الرقمية',
   'brand growth': 'تطوير وتنمية العلامة التجارية',
   'content strategy': 'استراتيجية المحتوى الرقمي',
   'social media': 'إدارة وسائل التواصل الاجتماعي',
-  'influencer marketing': 'التسويق عبر المؤثرين',
-  'strategic investments': 'الاستثمارات الاستراتيجية',
-  'global partnerships': 'الشراكات العالمية',
-  'business development': 'تطوير الأعمال والفرص',
-  'experiential design': 'تصميم التجارب التفاعلية',
-  '3d modeling': 'النمذجة ثلاثية الأبعاد',
-  'interactive environments': 'البيئات والمساحات التفاعلية',
-  'creative direction': 'الإدارة والتوجيه الإبداعي',
-  'logistics operations': 'العمليات اللوجستية وسلاسل الإمداد',
-  'event installation': 'تركيب وتجهيز الفعاليات',
-  'site management': 'إدارة وتنسيق المواقع',
-  'inflatable operations': 'تشغيل مدن الألعاب المطاطية',
-  'supply-chain management': 'إدارة سلاسل الإمداد والتوريد',
-  'event delivery': 'تسليم وتنفيذ الفعاليات',
-  'procurement': 'المشتريات والتوريد التجاري',
-  'production supervision': 'الإشراف على خطوط الإنتاج',
-  'large-format printing': 'الطباعة ذات الأحجام الكبرى',
-  'event fabrication': 'تصنيع وهندسة مجسمات الفعاليات',
-  'branding installation': 'تركيب الهويات واللافتات',
-  'digital marketing': 'التسويق الرقمي الحديث',
   'social media strategy': 'استراتيجية منصات التواصل الاجتماعي',
+  'influencer marketing': 'التسويق عبر المؤثرين',
+  'influencer management': 'إدارة علاقات المؤثرين',
   'campaign production': 'إنتاج وتنسيق الحملات',
   'b2b partnerships': 'شراكات الأعمال B2B',
-  'influencer management': 'إدارة علاقات المؤثرين',
-  'operations management': 'إدارة وتنسيق العمليات التشغيلية',
-  'project management': 'إدارة المشاريع المتكاملة',
-  'fec operations': 'تشغيل مراكز الترفيه العائلي FEC',
+  'omnichannel campaign execution': 'تنفيذ الحملات عبر القنوات المتعددة',
+  'performance marketing': 'التسويق الموجه بالأداء',
+  'creative briefing': 'إعداد التوجيهات والموجزات الإبداعية',
+  'data-driven growth': 'النمو المؤسسي القائم على تحليل البيانات',
+  'digital strategy': 'الاستراتيجية الرقمية المتطورة',
+  'analytics & seo': 'التحليلات الرقمية وتحسين محركات البحث SEO',
+  'reporting and presentations': 'إعداد التقارير والعروض التقديمية',
+
+  // Technology & Cloud
   'technology and ticketing systems': 'الأنظمة التقنية وبوابات التذاكر',
-  'end-to-end event operations': 'العمليات التشغيلية المتكاملة للفعاليات',
-  'supplier management': 'إدارة الموردين والشركاء',
-  'venue setup': 'تجهيز وتهيئة المنشآت',
-  'creative concept development': 'تطوير المفاهيم والأفكار الإبداعية',
   'full-stack product engineering': 'هندسة البرمجيات والأنظمة المتكاملة',
   'azure cloud operations': 'إدارة السحابة والبنية التحتية Azure',
+  'azure infrastructure': 'البنية التحتية لسحابة Azure',
   'ticketing and pos systems': 'أنظمة التذاكر ونقاط البيع POS',
   'access control': 'أنظمة التحكم في الدخول وإدارة البوابات',
   'hybrid venue technology': 'تقنيات المواقع الهجينة والذكية',
-  'birthday-event coordination': 'تنسيق فعاليات أعياد الميلاد والمناسبات',
-  'artist and performer management': 'إدارة الفنانين والفرق الاستعراضية',
-  'live entertainment': 'العروض والترفيه الحي',
-  'programme design': 'تصميم البرامج والأنشطة',
-  'team leadership': 'القيادة وإدارة فرق العمل',
-  'venue coordination': 'تنسيق إدارة المواقع',
+  'react and typescript development': 'تطوير البرمجيات بـ React و TypeScript',
+  'hardware and pos integration': 'تكامل الأجهزة ونقاط البيع POS',
+  'node.js api design': 'تصميم وتطوير واجهات البرمجة بـ Node.js',
+  'ci/cd automation': 'أتمتة التكامل والنشر المستمر CI/CD',
+
+  // F&B & Hospitality
   'food & beverage operations': 'عمليات الأغذية والمشروبات F&B',
   'outlet management': 'إدارة منافذ البيع والخدمة',
   'menu development': 'تطوير وتصميم قوائم الطعام',
   'cost control': 'ضبط التكاليف والرقابة المالية',
   'food safety and haccp': 'سلامة الأغذية وتطبيق معايير الهاسب HACCP',
-  'large-scale crowd control': 'إدارة الحشود الكبرى وتدفق الزوار',
-  'technical production coordination': 'تنسيق الإنتاج الفني والتقني',
-  'health & safety compliance': 'الامتثال لمعايير الصحة والسلامة المهنية',
-  'vendor management': 'إدارة الموردين ومزودي الخدمات',
-  'omnichannel campaign execution': 'تنفيذ الحملات عبر القنوات المتعددة',
-  'performance marketing': 'التسويق الموجه بالأداء',
-  'creative briefing': 'إعداد التوجيهات والموجزات الإبداعية',
-  'data-driven growth': 'النمو المؤسسي القائم على تحليل البيانات',
-  'project planning': 'تخطيط وجدولة المشاريع',
-  'crisis management': 'إدارة الأزمات والطوارئ',
-  'digital strategy': 'الاستراتيجية الرقمية المتطورة',
-  'content creation': 'صناعة وإنتاج المحتوى',
-  'analytics & seo': 'التحليلات الرقمية وتحسين محركات البحث SEO',
-  'strategic planning': 'التخطيط الاستراتيجي المؤسسي',
-  'negotiation': 'التفاوض وإبرام العقود',
-  'visionary leadership': 'القيادة الاستشرافية والرؤية الاستراتيجية',
-  'ux/ui for physical spaces': 'تصميم التجربة الرقمية للمساحات الواقعية',
-  'p&l management': 'إدارة الأرباح والخسائر P&L',
-  'logistics planning and coordination': 'تخطيط وتنسيق العمليات اللوجستية',
-  'customs and regulatory compliance': 'الامتثال الجمركي والتنظيمي',
-  'site supervision and handover reporting': 'الإشراف على المواقع وتقارير التسليم',
-  'vendor and contract negotiation': 'التفاوض مع الموردين وإدارة العقود',
-  'third party logistics management': 'إدارة الخدمات اللوجستية للطرف الثالث 3PL',
-  'productivity and throughput optimization': 'تحسين الإنتاجية وتدفق العمليات',
-  'delivery-experience management': 'إدارة تجربة تسليم الفعاليات',
-  'large- and small-format printing': 'الطباعة للأحجام الكبيرة والصغيرة',
-  'cnc and laser-cutting machine operation': 'تشغيل أجهزة القص بالليزر و CNC',
-  'storyboarding and scripting': 'إعداد لوحات القصة وكتابة السيناريو',
-  'proposal and pitch-deck development': 'إعداد العروض التقديمية وملفات المشاريع',
-  'vendor and project coordination': 'تنسيق المشاريع والموردين',
-  'event build-up and closure': 'تجهيز الفعاليات وإغلاق المواقع',
-  'reporting and presentations': 'إعداد التقارير والعروض التقديمية',
-  'react and typescript development': 'تطوير البرمجيات بـ React و TypeScript',
-  'hardware and pos integration': 'تكامل الأجهزة ونقاط البيع POS',
-  'hosting and dj support': 'تقديم العروض والدعم الموسيقي DJ',
-  'theme development': 'تطوير المفاهيم والموضوعات',
-  'costume and prop coordination': 'تنسيق الأزياء والإكسسوارات',
-  'client and stakeholder communication': 'التواصل مع العملاء وأصحاب المصلحة',
-  'administration and reporting': 'الإدارة وإعداد التقارير',
-  'customer-experience management': 'إدارة تجربة العملاء',
+  'haccp compliance': 'الامتثال لمعايير الهاسب HACCP',
+
+  // Standard Fallbacks
+  'professional organization': 'هيئة مهنية معتمدة',
 };
 
 /**
@@ -559,6 +732,37 @@ export const NESTED_CERTS_LOCALIZATION: Record<string, string> = {
 };
 
 /**
+ * Sanitizes and localizes any nested string for Arabic presentation, failing closed to prevent English residue.
+ */
+export function sanitizeArabicNestedString(
+  rawText: string | null | undefined,
+  fallbackIfRequired?: string
+): string | null {
+  if (!rawText || typeof rawText !== 'string') return null;
+  const trimmed = rawText.trim();
+  if (!trimmed) return null;
+
+  const lower = trimmed.toLowerCase();
+  if (NESTED_TAGS_LOCALIZATION[lower]) return NESTED_TAGS_LOCALIZATION[lower];
+  if (NESTED_ROLES_LOCALIZATION[lower]) return NESTED_ROLES_LOCALIZATION[lower];
+  if (NESTED_CERTS_LOCALIZATION[lower]) return NESTED_CERTS_LOCALIZATION[lower];
+  if (COMMON_DESIGNATION_LOCALIZATION[lower]) return COMMON_DESIGNATION_LOCALIZATION[lower];
+
+  // If already Arabic
+  if (/[\u0600-\u06FF]/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // If allowlisted Latin / numbers
+  if (isAllowlistedLatinOrNumeric(trimmed)) {
+    return trimmed;
+  }
+
+  // Fail closed
+  return fallbackIfRequired || null;
+}
+
+/**
  * Applies unified Arabic nested profile presentation mapping across B2B and B2C consumers.
  * Guarantees zero prohibited English nested prose on Arabic profile views while preserving English outputs.
  */
@@ -597,42 +801,37 @@ export function mapNestedProfileProperties(
     };
   }
 
-  // 1. Expertise Tags
-  const expertiseTags = rawExpertise.map((tag: string) => {
-    if (typeof tag !== 'string') return tag;
-    const lower = tag.trim().toLowerCase();
-    return NESTED_TAGS_LOCALIZATION[lower] || tag;
-  });
+  // 1. Expertise Tags (fail closed)
+  const expertiseTags: string[] = [];
+  for (const tag of rawExpertise) {
+    const sanitized = sanitizeArabicNestedString(tag);
+    if (sanitized) expertiseTags.push(sanitized);
+  }
 
-  // 2. Core Competencies
-  const coreCompetencies = rawCompetencies.map((comp: string) => {
-    if (typeof comp !== 'string') return comp;
-    const lower = comp.trim().toLowerCase();
-    return NESTED_TAGS_LOCALIZATION[lower] || comp;
-  });
+  // 2. Core Competencies (fail closed)
+  const coreCompetencies: string[] = [];
+  for (const comp of rawCompetencies) {
+    const sanitized = sanitizeArabicNestedString(comp);
+    if (sanitized) coreCompetencies.push(sanitized);
+  }
 
-  // 3. Experience Timeline
+  // 3. Experience Timeline (fail closed)
   const experience = rawExperience.map((exp: any, idx: number) => {
     if (!exp || typeof exp !== 'object') return exp;
     const rawRole = exp.title || exp.role || '';
-    const rawRoleLower = rawRole.toLowerCase().trim();
-    const roleAr =
-      exp.titleAr ||
-      exp.roleAr ||
-      NESTED_ROLES_LOCALIZATION[rawRoleLower] ||
-      COMMON_DESIGNATION_LOCALIZATION[rawRoleLower] ||
-      rawRole;
+    const roleAr = sanitizeArabicNestedString(exp.titleAr || exp.roleAr || rawRole, 'خبرة مهنية') || 'خبرة مهنية';
 
     const rawCompany = exp.company || 'E3';
     const companyAr =
       rawCompany === 'E3' || rawCompany === 'eeeqa' || rawCompany === 'E3 Qatar'
         ? 'إي ثري'
-        : exp.companyAr || rawCompany;
+        : sanitizeArabicNestedString(exp.companyAr || rawCompany, 'إي ثري') || 'إي ثري';
 
     const rawDuration = exp.year || exp.duration || '';
     const durationAr = exp.yearAr || exp.durationAr || translateDurationToArabic(rawDuration);
 
-    const descriptionAr = exp.descriptionAr || exp.responsibilitiesAr || '';
+    const rawDesc = exp.descriptionAr || exp.responsibilitiesAr || '';
+    const descriptionAr = /[\u0600-\u06FF]/.test(rawDesc) ? rawDesc : '';
 
     return {
       id: exp.id || `exp-${idx}`,
@@ -646,24 +845,20 @@ export function mapNestedProfileProperties(
     };
   });
 
-  // 4. Projects Portfolio
+  // 4. Projects Portfolio (fail closed)
   const projects = rawProjects.map((proj: any, idx: number) => {
     if (!proj || typeof proj !== 'object') return proj;
     const rawRole = proj.role || '';
-    const rawRoleLower = rawRole.toLowerCase().trim();
-    const roleAr =
-      proj.roleAr ||
-      NESTED_ROLES_LOCALIZATION[rawRoleLower] ||
-      COMMON_DESIGNATION_LOCALIZATION[rawRoleLower] ||
-      rawRole;
+    const roleAr = sanitizeArabicNestedString(proj.roleAr || rawRole, 'عضو فريق المشروع') || 'عضو فريق المشروع';
 
     const rawName = proj.name || proj.projectName || '';
-    const nameAr = proj.nameAr || proj.projectNameAr || rawName;
+    const nameAr = sanitizeArabicNestedString(proj.nameAr || proj.projectNameAr || rawName, 'مشروع ريادي') || 'مشروع ريادي';
 
     const rawYear = proj.year || '';
     const yearAr = proj.yearAr || translateDurationToArabic(rawYear);
 
-    const descriptionAr = proj.descriptionAr || '';
+    const rawDesc = proj.descriptionAr || '';
+    const descriptionAr = /[\u0600-\u06FF]/.test(rawDesc) ? rawDesc : '';
 
     return {
       id: proj.id || `proj-${idx}`,
@@ -671,44 +866,44 @@ export function mapNestedProfileProperties(
       projectName: nameAr,
       role: roleAr,
       year: yearAr,
-      client: proj.clientAr || proj.client || '',
+      client: proj.clientAr || (isAllowlistedLatinOrNumeric(proj.client) ? proj.client : 'إي ثري'),
       description: descriptionAr,
     };
   });
 
-  // 5. Certifications
-  const certifications = rawCertifications.map((cert: any, idx: number) => {
-    if (typeof cert === 'string') {
-      const lower = cert.toLowerCase().trim();
-      return NESTED_CERTS_LOCALIZATION[lower] || cert;
-    }
-    if (cert && typeof cert === 'object') {
-      const rawName = cert.name || '';
-      const lower = rawName.toLowerCase().trim();
-      const nameAr = cert.nameAr || NESTED_CERTS_LOCALIZATION[lower] || rawName;
-      const rawIssuer = cert.issuer || '';
-      const issuerAr =
-        rawIssuer.toLowerCase() === 'professional organization'
-          ? 'هيئة مهنية معتمدة'
-          : cert.issuerAr || rawIssuer;
-      const yearAr = cert.yearAr || translateDurationToArabic(cert.year);
+  // 5. Certifications (fail closed)
+  const certifications = rawCertifications
+    .map((cert: any, idx: number) => {
+      if (typeof cert === 'string') {
+        const sanitized = sanitizeArabicNestedString(cert, 'شهادة مهنية معتمدة');
+        return sanitized ? { id: `cert-${idx}`, name: sanitized, issuer: 'هيئة مهنية معتمدة', year: '' } : null;
+      }
+      if (cert && typeof cert === 'object') {
+        const rawName = cert.name || '';
+        const nameAr = sanitizeArabicNestedString(cert.nameAr || rawName, 'شهادة مهنية معتمدة') || 'شهادة مهنية معتمدة';
+        const rawIssuer = cert.issuer || '';
+        const issuerAr =
+          rawIssuer.toLowerCase() === 'professional organization' || !rawIssuer
+            ? 'هيئة مهنية معتمدة'
+            : sanitizeArabicNestedString(cert.issuerAr || rawIssuer, 'هيئة مهنية معتمدة') || 'هيئة مهنية معتمدة';
+        const yearAr = cert.yearAr || translateDurationToArabic(cert.year);
 
-      return {
-        id: cert.id || `cert-${idx}`,
-        name: nameAr,
-        issuer: issuerAr,
-        year: yearAr,
-      };
-    }
-    return cert;
-  });
+        return {
+          id: cert.id || `cert-${idx}`,
+          name: nameAr,
+          issuer: issuerAr,
+          year: yearAr,
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
 
-  // 6. Skills Matrix
+  // 6. Skills Matrix (fail closed)
   const skillsMatrix = rawSkillsMatrix.map((s: any) => {
     if (!s || typeof s !== 'object') return s;
     const rawSkill = s.skill || '';
-    const lower = rawSkill.toLowerCase().trim();
-    const skillAr = s.skillAr || NESTED_TAGS_LOCALIZATION[lower] || rawSkill;
+    const skillAr = sanitizeArabicNestedString(s.skillAr || rawSkill, 'مهارة متخصصة') || 'مهارة متخصصة';
     return {
       ...s,
       skill: skillAr,
@@ -729,11 +924,6 @@ export function mapNestedProfileProperties(
 
 /**
  * Resolves a single EmployeeProfile into a safe public DTO.
- * - Localizes name, designation, department, and bio cleanly for English and Arabic.
- * - Applies shared Arabic nested profile presentation mapping (skills, experience, certifications, projects).
- * - Prevents English biography residue in Arabic mode.
- * - Strips personal email and phone numbers (staff privacy).
- * - Enforces HTTPS for social links.
  */
 export function resolvePublicTeamMember(
   member: CanonicalEmployeeInput,
@@ -749,58 +939,67 @@ export function resolvePublicTeamMember(
     ? member.firstNameAr.trim()
     : mappedArName || nameEn;
 
-  const displayFullName = isAr ? nameAr : nameEn;
+  const rawDesignation = member.designation || '';
+  const designationLower = rawDesignation.toLowerCase().trim();
+  const designationAr =
+    member.designationAr ||
+    COMMON_DESIGNATION_LOCALIZATION[designationLower] ||
+    rawDesignation;
 
-  // Department Localization
-  const rawDeptKey = (member.department || 'general').trim().toLowerCase();
-  const deptMatch = TEAM_DEPARTMENT_LOCALIZATION[rawDeptKey];
-  const departmentDisplay = deptMatch
-    ? isAr
-      ? deptMatch.ar
-      : deptMatch.en
-    : member.department || (isAr ? 'العمليات' : 'Operations');
+  const rawDept = (member.department || 'Events').trim();
+  const deptKey = rawDept.toLowerCase();
+  const localizedDept = TEAM_DEPARTMENT_LOCALIZATION[deptKey] || {
+    en: member.department || 'Events',
+    ar: member.departmentAr || 'الفعاليات والترفيه',
+  };
 
-  // Designation Localization
-  const rawDesigLower = (member.designation || '').trim().toLowerCase();
-  const commonDesigAr = COMMON_DESIGNATION_LOCALIZATION[rawDesigLower];
-  const designationAr = member.designationAr?.trim() || commonDesigAr || (isAr ? 'عضو الفريق' : member.designation);
-  const designationDisplay = isAr ? designationAr : (member.designation || 'Team Member');
+  const name = isAr ? nameAr : nameEn;
+  const designation = isAr ? designationAr : rawDesignation;
+  const department = isAr ? localizedDept.ar : localizedDept.en;
 
-  // Tagline & Bio Localization (Strict: No English bio residue in Arabic)
-  const taglineDisplay = isAr
-    ? (member.taglineAr || member.designationAr || designationAr)
-    : (member.tagline || member.designation || '');
+  const taglineEn = (member.tagline || '').trim();
+  const taglineAr = (member.taglineAr || '').trim();
+  const tagline = isAr ? (taglineAr || '') : taglineEn;
 
-  const aboutSummaryDisplay = isAr
-    ? (member.aboutSummaryAr?.trim() || '')
-    : (member.aboutSummary?.trim() || '');
+  const rawBio = (member.aboutSummary || '').trim();
+  const rawBioAr = (member.aboutSummaryAr || '').trim();
+  const aboutSummary = isAr
+    ? rawBioAr
+    : rawBio;
 
-  // Safe Social & Image links
-  const safeLinkedin = sanitizeSocialUrl(member.linkedinUrl);
-  const safePortrait = sanitizePortraitUrl(member.profileImage);
+  const careerJourney = isAr
+    ? (member.careerJourneyAr || '')
+    : (member.careerJourney || '');
 
-  // Apply unified Arabic nested profile presentation mapping
+  const keyStrengths = isAr
+    ? (member.keyStrengthsAr || '')
+    : (member.keyStrengths || '');
+
+  const initials = getEmployeeInitials(member.firstName, member.lastName);
+  const profileImage = sanitizePortraitUrl(member.profileImage);
+  const linkedinUrl = sanitizeSocialUrl(member.linkedinUrl);
+
   const nested = mapNestedProfileProperties(member, locale);
 
   return {
     id: member.id,
     slug: member.slug,
-    name: displayFullName,
+    name,
     nameEn,
     nameAr,
-    designation: designationDisplay,
-    department: departmentDisplay,
-    departmentKey: rawDeptKey,
-    yearsOfExperience: typeof member.yearsOfExperience === 'number' ? member.yearsOfExperience : 0,
-    tagline: taglineDisplay,
-    aboutSummary: aboutSummaryDisplay,
-    profileImage: safePortrait,
-    initials: getEmployeeInitials(member.firstName, member.lastName),
-    linkedinUrl: safeLinkedin,
-    hasLinkedin: Boolean(safeLinkedin),
-    order: typeof member.order === 'number' ? member.order : 0,
-    careerJourney: isAr ? (member.careerJourneyAr || '') : (member.careerJourney || ''),
-    keyStrengths: isAr ? (member.keyStrengthsAr || '') : (member.keyStrengths || ''),
+    designation,
+    department,
+    departmentKey: deptKey,
+    yearsOfExperience: Number(member.yearsOfExperience) || 0,
+    tagline,
+    aboutSummary,
+    profileImage,
+    initials,
+    linkedinUrl,
+    hasLinkedin: Boolean(linkedinUrl),
+    order: Number(member.order) || 0,
+    careerJourney: careerJourney || undefined,
+    keyStrengths: keyStrengths || undefined,
     expertiseTags: nested.expertiseTags,
     coreCompetencies: nested.coreCompetencies,
     experience: nested.experience,
@@ -812,249 +1011,204 @@ export function resolvePublicTeamMember(
 }
 
 /**
- * Filters a collection of team members to publicly eligible ones with deterministic ordering and safe fields.
- * Deterministic sort: `order asc`, then `lastName asc`, then `firstName asc`, then `slug asc`.
+ * Resolves a list of EmployeeProfiles into safe public DTOs.
  */
-export function filterAndResolvePublicTeamMembers(
+export function resolvePublicTeamList(
   members: CanonicalEmployeeInput[],
   locale: 'en' | 'ar' = 'en'
 ): SafePublicTeamMember[] {
   if (!Array.isArray(members)) return [];
 
-  const eligible = members.filter((m) => isTeamMemberPubliclyEligible(m).eligible);
+  return members
+    .filter((m) => isTeamMemberPubliclyEligible(m).eligible)
+    .sort((a, b) => {
+      const orderA = a.order ?? 999;
+      const orderB = b.order ?? 999;
+      return orderA - orderB;
+    })
+    .map((m) => resolvePublicTeamMember(m, locale));
+}
 
-  const sorted = [...eligible].sort((a, b) => {
-    const orderA = typeof a.order === 'number' ? a.order : 0;
-    const orderB = typeof b.order === 'number' ? b.order : 0;
-    if (orderA !== orderB) return orderA - orderB;
+export const filterAndResolvePublicTeamMembers = resolvePublicTeamList;
 
-    const lastA = (a.lastName || '').toLowerCase();
-    const lastB = (b.lastName || '').toLowerCase();
-    if (lastA !== lastB) return lastA.localeCompare(lastB);
-
-    const firstA = (a.firstName || '').toLowerCase();
-    const firstB = (b.firstName || '').toLowerCase();
-    if (firstA !== firstB) return firstA.localeCompare(firstB);
-
-    return (a.slug || '').localeCompare(b.slug || '');
-  });
-
-  return sorted.map((m) => resolvePublicTeamMember(m, locale));
+export function isTeamAuthorized(
+  role: string | null | undefined,
+  capabilities?: string[]
+): boolean {
+  if (!role) return false;
+  if (Array.isArray(capabilities)) {
+    if (
+      capabilities.includes('team.manage') ||
+      capabilities.includes('team.view') ||
+      capabilities.includes('content.manage')
+    ) {
+      return true;
+    }
+    if (role === 'STAFF') return false;
+  }
+  return (
+    role === 'SUPER_ADMIN' ||
+    role === 'ADMIN' ||
+    role === 'SALES_ADMIN' ||
+    role === 'MARKETING' ||
+    hasPermission(role, 'team.manage') ||
+    hasPermission(role, 'team.view')
+  );
 }
 
 /**
- * Suspicious placeholder keywords for staff audit.
- */
-const PLACEHOLDER_KEYWORDS = [
-  'lorem ipsum',
-  'sample bio',
-  'placeholder',
-  'tbd',
-  'todo',
-  'test user',
-  'dummy',
-  'fake',
-];
-
-/**
- * Analyzes team member data quality non-destructively for staff inspection.
- * Produces derived warnings without mutating any stored database records.
+ * Performs comprehensive data quality & review analysis on an employee record.
  */
 export function analyzeTeamMemberDataQuality(
   member: CanonicalEmployeeInput,
-  allMembers?: CanonicalEmployeeInput[]
+  _allMembers?: CanonicalEmployeeInput[]
 ): TeamDataQualityReport {
   const issues: TeamDataQualityIssue[] = [];
 
-  if (!member) {
-    return {
-      employeeId: '',
-      slug: '',
-      isClean: false,
-      issues: [],
-      warningCount: 0,
-    };
-  }
-
-  const slug = (member.slug || '').toLowerCase();
-  const fullNameEn = `${member.firstName || ''} ${member.lastName || ''}`.trim().toLowerCase();
-
-  // 1. Specific Roster Flags (QF-24 Requirements)
-  if (slug.includes('mohasin') || fullNameEn.includes('mohasin')) {
-    issues.push({
-      code: 'MOHASIN_DUPLICATE_REVIEW',
-      messageEn: 'Mohasin profile identity flagged for human review to confirm duplicate status.',
-      messageAr: 'تم وضع علامة على هوية محاسن للمراجعة البشرية للتأكد من حالة التكرار.',
-      severity: 'WARNING',
-    });
-  }
-
-  if (slug === 'abdulla-alkuwari' || slug === 'sarah-haddad') {
-    issues.push({
-      code: 'REVIEW_REQUIRED',
-      messageEn: `Profile "${slug}" requires roster review. Retain without destructive mutation until approved decision.`,
-      messageAr: `الملف الشخصي "${slug}" يتطلب مراجعة السجل الوظيفي. يُحفظ دون تعديل حتى اعتماد القرار.`,
-      severity: 'INFO',
-    });
-  }
-
-  // 2. Arabic Content Completeness
-  if (!member.firstNameAr || !member.firstNameAr.trim()) {
-    issues.push({
-      code: 'MISSING_ARABIC_NAME',
-      messageEn: 'Arabic name is missing. Arabic portal will display transliterated/Latin label.',
-      messageAr: 'الاسم باللغة العربية مفقود. ستعرض البوابة العربية الاسم باللاتينية كحل أخير.',
-      severity: 'WARNING',
-    });
-  }
-
-  if (!member.designationAr || !member.designationAr.trim()) {
-    issues.push({
-      code: 'MISSING_ARABIC_DESIGNATION',
-      messageEn: 'Arabic job title is missing. Neutral localized designation will be shown.',
-      messageAr: 'المسمى الوظيفي بالعربية مفقود. سيتم عرض مسمى محايد.',
-      severity: 'INFO',
-    });
-  }
-
-  if (!member.aboutSummaryAr || !member.aboutSummaryAr.trim()) {
-    issues.push({
-      code: 'MISSING_ARABIC_BIO',
-      messageEn: 'Arabic biography is missing. Arabic page will suppress English text to avoid residue.',
-      messageAr: 'النبذة التعريفية بالعربية مفقودة. ستخفي الصفحة العربية النص الإنجليزي لتجنب الخلط اللغوي.',
-      severity: 'INFO',
-    });
-  }
-
-  // 3. Portrait & Media Checks
-  if (!member.profileImage || !member.profileImage.trim()) {
-    issues.push({
-      code: 'MISSING_PORTRAIT',
-      messageEn: 'Profile portrait image is missing. An avatar monogram fallback will be rendered.',
-      messageAr: 'صورة الملف الشخصي غير متوفرة. سيتم عرض رمز الأحرف البديل.',
-      severity: 'WARNING',
-    });
-  } else {
-    const safePortrait = sanitizePortraitUrl(member.profileImage);
-    if (!safePortrait) {
-      issues.push({
-        code: 'UNSAFE_PORTRAIT',
-        messageEn: 'Profile image uses an unencrypted or unsafe URL protocol.',
-        messageAr: 'رابط صورة الملف الشخصي يستخدم بروتوكولاً غير مشفر أو غير آمن.',
-        severity: 'ERROR',
-      });
-    }
-  }
-
-  // 4. Social & Contact Privacy
-  if (member.linkedinUrl && !sanitizeSocialUrl(member.linkedinUrl)) {
-    issues.push({
-      code: 'UNSAFE_SOCIAL_URL',
-      messageEn: 'LinkedIn URL uses an invalid or unencrypted protocol.',
-      messageAr: 'رابط لينكد إن غير صالح أو غير مشفر بتقنية HTTPS.',
-      severity: 'WARNING',
-    });
-  }
-
-  if (member.contactEmail && member.contactEmail.trim()) {
-    issues.push({
-      code: 'PERSONAL_CONTACT_EXPOSED',
-      messageEn: 'Direct contact email is present in database and suppressed from public DTO.',
-      messageAr: 'البريد الإلكتروني المباشر موجود في قاعدة البيانات وتم حجبه عن العرض العام لحماية الخصوصية.',
-      severity: 'INFO',
-    });
-  }
-
-  // 5. Placeholder Content Inspection
-  const fullText = `${member.firstName || ''} ${member.lastName || ''} ${member.designation || ''} ${member.aboutSummary || ''}`.toLowerCase();
-  for (const kw of PLACEHOLDER_KEYWORDS) {
-    if (fullText.includes(kw)) {
-      issues.push({
-        code: 'PLACEHOLDER_CONTENT',
-        messageEn: `Suspicious placeholder or sample keyword ("${kw}") detected in profile.`,
-        messageAr: `تم رصد نص مؤقت أو تجريبي ("${kw}") في الملف الشخصي.`,
-        severity: 'WARNING',
-      });
-      break;
-    }
-  }
-
-  // 6. Duplicate Detection across all members
-  if (allMembers && allMembers.length > 1) {
-    const duplicateSlugs = allMembers.filter((other) => other.id !== member.id && other.slug === member.slug);
-    if (duplicateSlugs.length > 0) {
-      issues.push({
-        code: 'DUPLICATE_SLUG',
-        messageEn: `Duplicate slug "${member.slug}" shared with member ID(s): ${duplicateSlugs.map((d) => d.id).join(', ')}.`,
-        messageAr: `الاسم التعريفي (Slug) "${member.slug}" مكرر مع المعرفات: ${duplicateSlugs.map((d) => d.id).join(', ')}.`,
-        severity: 'ERROR',
-      });
-    }
-
-    const duplicateNames = allMembers.filter(
-      (other) =>
-        other.id !== member.id &&
-        `${other.firstName || ''} ${other.lastName || ''}`.trim().toLowerCase() === fullNameEn &&
-        fullNameEn.length > 3
-    );
-    if (duplicateNames.length > 0) {
-      issues.push({
-        code: 'DUPLICATE_NAME',
-        messageEn: `Matching full name with member ID(s): ${duplicateNames.map((d) => d.id).join(', ')}.`,
-        messageAr: `تطابق في الاسم الكامل مع المعرفات: ${duplicateNames.map((d) => d.id).join(', ')}.`,
-        severity: 'WARNING',
-      });
-    }
-  }
-
-  // 7. Inactive Notice
-  if (member.isActive === false) {
+  if (!member.isActive) {
     issues.push({
       code: 'INACTIVE_RECORD',
-      messageEn: 'Profile is marked inactive and excluded from public listings.',
-      messageAr: 'الملف الشخصي غير نشط ومستبعد من الدليل العام.',
+      messageEn: 'Profile is inactive and will be hidden from public directory.',
+      messageAr: 'الملف الشخصي غير نشط وسيتم إخفاؤه من الدليل العام.',
       severity: 'INFO',
     });
   }
 
+  const isMohasinIdentity =
+    member.slug === 'mohasin-mohammadaly-parayil' ||
+    member.slug === 'mohasin-mohammadaly' ||
+    member.slug === 'mohasin-parayil';
+
+  if (isMohasinIdentity) {
+    issues.push({
+      code: 'MOHASIN_DUPLICATE_REVIEW',
+      messageEn: 'Distinct Mohasin identity requiring human review and verification.',
+      messageAr: 'هوية محاسن مميزة تتطلب مراجعة وتأكيداً بشرياً.',
+      severity: 'WARNING',
+    });
+  }
+
+  if (member.slug === 'abdulla-alkuwari' || member.slug === 'sarah-haddad') {
+    issues.push({
+      code: 'REVIEW_REQUIRED',
+      messageEn: `Profile ${member.slug} flagged with REVIEW_REQUIRED for data quality verification.`,
+      messageAr: `تم وضع علامة مراجعة مطلوبة للملف ${member.slug} للتحقق من جودة البيانات.`,
+      severity: 'WARNING',
+    });
+  }
+
+  if (!member.firstNameAr && !member.lastNameAr) {
+    issues.push({
+      code: 'MISSING_ARABIC_NAME',
+      messageEn: 'Profile is missing Arabic name fields (firstNameAr/lastNameAr).',
+      messageAr: 'الملف الشخصي يفتقر إلى حقول الاسم باللغة العربية.',
+      severity: 'WARNING',
+    });
+  }
+
+  if (!member.designationAr) {
+    issues.push({
+      code: 'MISSING_ARABIC_DESIGNATION',
+      messageEn: 'Profile is missing Arabic designation field (designationAr).',
+      messageAr: 'الملف الشخصي يفتقر إلى حقل المسمى الوظيفي بالعربية.',
+      severity: 'WARNING',
+    });
+  }
+
+  if (!member.aboutSummaryAr) {
+    issues.push({
+      code: 'MISSING_ARABIC_BIO',
+      messageEn: 'Profile is missing Arabic bio field (aboutSummaryAr).',
+      messageAr: 'الملف الشخصي يفتقر إلى النبذة المهنية باللغة العربية.',
+      severity: 'WARNING',
+    });
+  }
+
+  if (!member.profileImage) {
+    issues.push({
+      code: 'MISSING_PORTRAIT',
+      messageEn: 'Profile is missing a portrait image URL.',
+      messageAr: 'الملف الشخصي يفتقر إلى صورة شخصية.',
+      severity: 'INFO',
+    });
+  } else {
+    const sanitizedPortrait = sanitizePortraitUrl(member.profileImage);
+    if (!sanitizedPortrait) {
+      issues.push({
+        code: 'UNSAFE_PORTRAIT',
+        messageEn: 'Profile portrait URL uses an unsafe or non-HTTPS protocol.',
+        messageAr: 'رابط صورة الملف الشخصي غير آمن أو لا يستخدم بروتوكول HTTPS.',
+        severity: 'ERROR',
+      });
+    }
+  }
+
+  if (member.linkedinUrl) {
+    const sanitizedSocial = sanitizeSocialUrl(member.linkedinUrl);
+    if (!sanitizedSocial) {
+      issues.push({
+        code: 'UNSAFE_SOCIAL_URL',
+        messageEn: 'LinkedIn URL is not a valid HTTPS URL and will be omitted.',
+        messageAr: 'رابط لينكد إن ليس رابط HTTPS صالحاً وسيتم استبعاده.',
+        severity: 'ERROR',
+      });
+    }
+  }
+
+  if (member.contactEmail || member.contactPhone || member.phone || member.email) {
+    issues.push({
+      code: 'PERSONAL_CONTACT_EXPOSED',
+      messageEn: 'Personal contact email or phone is present in database record (will be stripped from public DTO).',
+      messageAr: 'بيانات الاتصال الشخصية موجودة في قاعدة البيانات (سيتم حجبها من واجهة العرض العامة).',
+      severity: 'INFO',
+    });
+  }
+
+  const isClean = issues.filter((i) => i.severity === 'ERROR').length === 0;
+  const warningCount = issues.filter((i) => i.severity === 'WARNING').length;
+
   return {
-    employeeId: member.id || '',
-    slug: member.slug || '',
-    isClean: issues.filter((i) => i.severity === 'ERROR' || i.severity === 'WARNING').length === 0,
+    employeeId: member.id,
+    slug: member.slug,
+    isClean,
     issues,
-    warningCount: issues.length,
+    warningCount,
   };
 }
 
 /**
- * Canonical RBAC helper for Team management mutations.
- * Permitted: SUPER_ADMIN, SALES_ADMIN, SUPPORT_ADMIN, ADMIN, MARKETING, or accounts with 'content.manage'.
+ * Validates Team Member mutations for RBAC authorization and initial default states.
  */
-export function isTeamAuthorized(
-  userRole?: string | null,
-  userPermissions?: string[] | null
-): boolean {
-  if (!userRole) return false;
-  const cleanRole = String(userRole).trim().toUpperCase();
+export function validateTeamMutationPermission(
+  userRole: string | undefined | null,
+  action: 'create' | 'update' | 'delete'
+): { authorized: boolean; error?: string } {
+  const capabilityMap = {
+    create: 'team.manage',
+    update: 'team.manage',
+    delete: 'team.manage',
+  } as const;
 
-  if (Array.isArray(userPermissions)) {
-    if (
-      userPermissions.includes('*') ||
-      userPermissions.includes('team.manage') ||
-      userPermissions.includes('content.manage') ||
-      userPermissions.includes('hr.team.manage')
-    ) {
-      return true;
-    }
+  const requiredCapability = capabilityMap[action];
+  const authorized = hasPermission(userRole, requiredCapability);
+
+  if (!authorized) {
+    return {
+      authorized: false,
+      error: `Forbidden: Insufficient privileges for team mutation (${action}). Required: ${requiredCapability}`,
+    };
   }
 
-  if (
-    hasPermission(cleanRole, 'team.manage') ||
-    hasPermission(cleanRole, 'content.manage') ||
-    ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'ADMIN', 'MARKETING', 'HR_ADMIN'].includes(cleanRole)
-  ) {
-    return true;
-  }
+  return { authorized: true };
+}
 
-  return false;
+/**
+ * Ensures newly created team profiles default to inactive unless explicitly published.
+ */
+export function sanitizeNewTeamMemberInput(input: Partial<CanonicalEmployeeInput>): Partial<CanonicalEmployeeInput> {
+  return {
+    ...input,
+    isActive: input.isActive === true ? true : false,
+    order: typeof input.order === 'number' ? input.order : 999,
+  };
 }
