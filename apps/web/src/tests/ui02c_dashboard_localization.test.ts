@@ -29,6 +29,8 @@ describe("UI-02-C Arabic Dashboard Localization & Controls", () => {
       expect(getBreadcrumbTranslation("insights", "ar")).toBe("التحليلات والمؤشرات");
       expect(getBreadcrumbTranslation("ui", "ar")).toBe("واجهة المستخدم والمظهر");
       expect(getBreadcrumbTranslation("seo", "ar")).toBe("محركات البحث والبيانات الوصفية");
+      expect(getBreadcrumbTranslation("operations", "ar")).toBe("العمليات التشغيلية");
+      expect(getBreadcrumbTranslation("events", "ar")).toBe("جداول المواعيد والسعة");
     });
 
     it("returns correct English fallback labels for English locale", () => {
@@ -36,6 +38,8 @@ describe("UI-02-C Arabic Dashboard Localization & Controls", () => {
       expect(getBreadcrumbTranslation("packages-page", "en")).toBe("Packages Page Editor");
       expect(getBreadcrumbTranslation("gateway", "en")).toBe("Portal Gateway");
       expect(getBreadcrumbTranslation("general", "en")).toBe("General Settings");
+      expect(getBreadcrumbTranslation("operations", "en")).toBe("Operations");
+      expect(getBreadcrumbTranslation("events", "en")).toBe("Events");
     });
 
     it("handles unknown segment gracefully by capitalizing and removing dashes", () => {
