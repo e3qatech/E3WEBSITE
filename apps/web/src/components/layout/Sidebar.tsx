@@ -29,7 +29,7 @@ const sidebarConfig = [
     { label: "Contact Page Editor", href: "/dashboard/b2c/contact" },
     { label: "Attractions Page Editor", href: "/dashboard/b2c/attractions-page" },
     { label: "Packages Page Editor", href: "/dashboard/b2c/packages-page" },
-    { label: "Events & Calendar Page Editor", href: "/dashboard/b2c/calendar-page" }
+    { label: "Calendar Page Editor", href: "/dashboard/b2c/calendar-page" }
   ] },
   { label: "B2C Content", icon: Users, href: "/dashboard/b2c/content/ideas", badge: 6, roles: ["SUPER_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Ideas to Life", href: "/dashboard/b2c/content/ideas" },
@@ -41,8 +41,7 @@ const sidebarConfig = [
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
     { label: "Social Media Hub", href: "/dashboard/social-media" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
-    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
-    { label: "Events & Calendar", href: "/dashboard/b2c/calendar" }
+    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" }
   ] },
   { label: "B2B Pages", icon: Briefcase, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Homepage Editor", href: "/dashboard/b2b/home" },

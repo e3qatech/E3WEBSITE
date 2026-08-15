@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
+import { hasPermission } from "@/lib/permissions"
 
 export async function DELETE(
   request: Request,
@@ -8,7 +9,9 @@ export async function DELETE(
 ) {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "OPERATIONS"].includes((session.user as any)?.role)) {
+    const userRole = (session?.user as any)?.role
+    const isAuthorized = userRole && (hasPermission(userRole, 'operations.events.manage') || ["SUPER_ADMIN", "OPERATIONS", "OPERATIONS_ADMIN"].includes(userRole))
+    if (!isAuthorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

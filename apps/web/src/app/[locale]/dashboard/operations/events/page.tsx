@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { EventScheduleManager } from "@/components/dashboard/operations/EventScheduleManager"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { hasPermission } from "@/lib/permissions"
 
 export const metadata = {
   title: "Event Schedules | Operations | E3 Admin",
@@ -9,7 +10,9 @@ export const metadata = {
 
 export default async function OperationsEventsPage() {
   const session = await auth()
-  if (!session || !["SUPER_ADMIN", "OPERATIONS"].includes((session.user as any)?.role)) {
+  const userRole = (session?.user as any)?.role
+  const isAuthorized = userRole && (hasPermission(userRole, 'operations.events.manage') || ["SUPER_ADMIN", "OPERATIONS", "OPERATIONS_ADMIN"].includes(userRole))
+  if (!isAuthorized) {
     redirect("/login")
   }
 

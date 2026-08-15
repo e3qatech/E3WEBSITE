@@ -1,16 +1,10 @@
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
-import { CalendarPageManager } from "@/components/dashboard/b2c/CalendarPageManager"
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Calendar Page Settings | E3 Admin",
-}
-
-export default async function CalendarSettingsPage() {
-  const session = await auth()
-  if (!session && process.env.NODE_ENV === "production") {
-    redirect("/login")
-  }
-
-  return <CalendarPageManager />
+export default async function B2CCalendarRedirectPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect(`/${locale || "en"}/dashboard/b2c/calendar-page`);
 }

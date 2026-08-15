@@ -75,7 +75,7 @@ const sidebarConfig: NavGroupItem[] = [
       { label: "Contact Page Editor", labelAr: "محرر صفحة التواصل", href: "/dashboard/b2c/contact", capability: "b2c.content.write" },
       { label: "Attractions Page Editor", labelAr: "محرر صفحة التجارب", href: "/dashboard/b2c/attractions-page", capability: "b2c.content.write" },
       { label: "Packages Page Editor", labelAr: "محرر صفحة الباقات", href: "/dashboard/b2c/packages-page", capability: "b2c.content.write" },
-      { label: "Events & Calendar Editor", labelAr: "محرر الفعاليات والتقويم", href: "/dashboard/b2c/calendar-page", capability: "b2c.content.write" },
+      { label: "Calendar Page Editor", labelAr: "محرر صفحة الفعاليات", href: "/dashboard/b2c/calendar-page", capability: "b2c.content.write" },
     ],
   },
   {
@@ -88,7 +88,6 @@ const sidebarConfig: NavGroupItem[] = [
     subItems: [
       { label: "Attractions Roster", labelAr: "قائمة التجارب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage" },
       { label: "Packages & Birthdays", labelAr: "الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.manage" },
-      { label: "Events & Calendar", labelAr: "الفعاليات وجدول المواعيد", href: "/dashboard/b2c/calendar", capability: "b2c.calendar.manage" },
       { label: "Locations & Map GIS", labelAr: "المواقع وخريطة قطر", href: "/dashboard/b2c/locations", capability: "b2c.content.read" },
       { label: "Story Discovery", labelAr: "محرر مسار الاستكشاف", href: "/dashboard/b2c/content/story-discovery", capability: "b2c.content.write" },
       { label: "Pulse Orbit (B2C)", labelAr: "نبض الفعاليات (B2C)", href: "/dashboard/b2c/pulse-orbit", capability: "b2c.content.write" },
@@ -179,7 +178,7 @@ const sidebarConfig: NavGroupItem[] = [
     roles: ["SUPER_ADMIN", "OPERATIONS_ADMIN"],
     capability: "operations.events.manage",
     subItems: [
-      { label: "Hardware & Capacity", labelAr: "العتاد وسعة الفعاليات", href: "/dashboard/operations/events", capability: "operations.events.manage" },
+      { label: "Schedules & Capacity", labelAr: "جداول المواعيد والسعة", href: "/dashboard/operations/events", capability: "operations.events.manage" },
       { label: "Recap Engine", labelAr: "محرك تقارير التشغيل", href: "/dashboard/operations/recap", capability: "operations.recap.manage" },
       { label: "Catalog Generator", labelAr: "مولد الكتالوجات والمطبوعات", href: "/dashboard/operations/catalog", capability: "operations.catalog.manage" },
       { label: "Rules & Sync", labelAr: "القواعد والجدولة الزمنية", href: "/dashboard/operations/temporal-rules", capability: "operations.rules.manage" },
