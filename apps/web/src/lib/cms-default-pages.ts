@@ -1883,7 +1883,9 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     },
     faqs: (raw.faqs && raw.faqs.length > 0) ? raw.faqs : defaults.faqs,
     sectionSequence: (() => {
-      const rawSeq: any[] = Array.isArray(raw.sectionSequence) ? raw.sectionSequence : [];
+      const rawSeq: any[] = Array.isArray(raw.sectionSequence) && raw.sectionSequence.length > 0
+        ? raw.sectionSequence
+        : (Array.isArray(raw.sequence) && raw.sequence.length > 0 ? raw.sequence : []);
       if (rawSeq.length === 0) return DEFAULT_B2C_SECTION_SEQUENCE;
 
       const userOrdered: B2CSectionItem[] = [];
@@ -1898,7 +1900,46 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
             ...(defaultSec || {}),
             ...item,
             id: item.id,
-            enabled: item.enabled !== undefined ? Boolean(item.enabled) : (defaultSec?.enabled ?? true),
+            enabled: item.enabled !== undefined
+              ? Boolean(item.enabled)
+              : (item.isVisible !== undefined ? Boolean(item.isVisible) : (defaultSec?.enabled ?? true)),
+            order: userOrdered.length + 1,
+          });
+        }
+      }
+
+      DEFAULT_B2C_SECTION_SEQUENCE.forEach((defaultSec) => {
+        if (!seenIds.has(defaultSec.id)) {
+          userOrdered.push({
+            ...defaultSec,
+            order: userOrdered.length + 1,
+          });
+        }
+      });
+
+      return userOrdered;
+    })(),
+    sequence: (() => {
+      const rawSeq: any[] = Array.isArray(raw.sectionSequence) && raw.sectionSequence.length > 0
+        ? raw.sectionSequence
+        : (Array.isArray(raw.sequence) && raw.sequence.length > 0 ? raw.sequence : []);
+      if (rawSeq.length === 0) return DEFAULT_B2C_SECTION_SEQUENCE;
+
+      const userOrdered: B2CSectionItem[] = [];
+      const seenIds = new Set<string>();
+
+      for (let i = 0; i < rawSeq.length; i++) {
+        const item = rawSeq[i];
+        if (item && typeof item.id === 'string' && !seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          const defaultSec = DEFAULT_B2C_SECTION_SEQUENCE.find((d) => d.id === item.id);
+          userOrdered.push({
+            ...(defaultSec || {}),
+            ...item,
+            id: item.id,
+            enabled: item.enabled !== undefined
+              ? Boolean(item.enabled)
+              : (item.isVisible !== undefined ? Boolean(item.isVisible) : (defaultSec?.enabled ?? true)),
             order: userOrdered.length + 1,
           });
         }

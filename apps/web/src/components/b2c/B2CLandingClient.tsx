@@ -114,12 +114,13 @@ export function B2CLandingClient({
     }
   }, [setAttractions, initialAttractions]);
 
-  const sectionSequence: B2CSectionItem[] = Array.isArray(liveCmsContent?.sectionSequence) && liveCmsContent.sectionSequence.length > 0
-    ? liveCmsContent.sectionSequence
+  const rawSeq = liveCmsContent?.sectionSequence || liveCmsContent?.sequence;
+  const sectionSequence: B2CSectionItem[] = Array.isArray(rawSeq) && rawSeq.length > 0
+    ? rawSeq
     : DEFAULT_B2C_SECTION_SEQUENCE;
 
   const activeSections = sectionSequence
-    .filter(sec => sec && sec.enabled !== false);
+    .filter(sec => sec && sec.enabled !== false && (sec as any).isVisible !== false);
 
   const renderSection = (sectionId: string) => {
     switch (sectionId) {

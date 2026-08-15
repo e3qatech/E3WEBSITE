@@ -37,10 +37,31 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     locationEn: rawActiveWorld.locationEn || rawActiveWorld.locationNameEn || fallback.locationEn,
     locationAr: rawActiveWorld.locationAr || rawActiveWorld.locationNameAr || fallback.locationAr,
     ticketingUrl: rawActiveWorld.ticketingUrl || '/b2c/calendar'
-  }
+  };
+
+  const footerBgUrl = (
+    ticketData.backgroundImage ||
+    content?.cta?.backgroundImage ||
+    content?.cta?.mediaUrl ||
+    content?.footerMedia?.mediaUrl ||
+    content?.footerMedia?.backgroundImage ||
+    ""
+  ).trim();
 
   return (
     <section className="relative py-32 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300" dir={isAr ? "rtl" : "ltr"}>
+      {/* Optional Background Media Backdrop */}
+      {footerBgUrl && (
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+          <img
+            src={footerBgUrl}
+            alt="Footer Background"
+            className="w-full h-full object-cover opacity-15 dark:opacity-25 scale-105 filter blur-xs"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/70 to-[var(--bg-level-1)]" />
+        </div>
+      )}
+
       {/* Soft B2C Dimensional Portal Aura */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(168,85,247,0.12),rgba(16,185,129,0.08)_45%,transparent_75%)] pointer-events-none" />
 
