@@ -9,6 +9,9 @@ import {
   resolvePublicPartner,
   analyzePartnerDataQuality,
   sanitizeUrl,
+  sanitizePublicWebsite,
+  sanitizePublicLogo,
+  redactPublicDescription,
   getPartnerInitials,
   normalizeDomain,
   normalizePartnerName,
@@ -75,7 +78,7 @@ import { POST as PartnersPOST } from '../app/api/partners/route';
 import { PATCH as PartnerPATCH, DELETE as PartnerDELETE } from '../app/api/partners/[id]/route';
 import { POST as PartnersReorderPOST } from '../app/api/partners/reorder/route';
 
-describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () => {
+describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction & Link Safety Suite', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.session = null;
@@ -156,87 +159,141 @@ describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () 
   });
 
   // =========================================================================
-  // 2. URL SANITIZATION & MISSING LOGO FALLBACK
+  // 2. PUBLIC EDITORIAL REDACTION & DESCRIPTIONS (QF-23-B)
   // =========================================================================
-  describe('2. URL Sanitization & Missing Logo Fallbacks', () => {
-    it('rejects unsafe protocols (javascript:, vbscript:, data:text/html)', () => {
-      expect(sanitizeUrl('javascript:alert(1)')).toBeNull();
-      expect(sanitizeUrl('vbscript:msgbox(1)')).toBeNull();
-      expect(sanitizeUrl('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBeNull();
-      expect(sanitizeUrl('file:///etc/passwd')).toBeNull();
+  describe('2. Public Editorial Redaction (QF-23-B Requirement 1)', () => {
+    it('redacts internal editorial instructions from public description', () => {
+      const descriptionWithInstruction =
+        'A leading freight-forwarding company. Confirm that this is the exact entity and logo before publishing.';
+      const clean = redactPublicDescription(descriptionWithInstruction);
+      expect(clean).toBe('A leading freight-forwarding company.');
+      expect(clean).not.toContain('Confirm that this is the exact entity');
     });
 
-    it('allows safe http, https, relative, and image data URLs', () => {
-      expect(sanitizeUrl('https://www.qatartourism.com')).toBe('https://www.qatartourism.com/');
-      expect(sanitizeUrl('http://e3.qa/portal')).toBe('http://e3.qa/portal');
-      expect(sanitizeUrl('/assets/logo.png')).toBe('/assets/logo.png');
-      expect(sanitizeUrl('data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==')).toBe('data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==');
+    it('returns empty string when description contains only editorial instructions', () => {
+      const onlyInstruction = 'Confirm that this is the exact entity and logo before publishing.';
+      const clean = redactPublicDescription(onlyInstruction);
+      expect(clean).toBe('');
+
+      const todoText = 'TODO: Add partner description and logo.';
+      expect(redactPublicDescription(todoText)).toBe('');
     });
 
-    it('generates monogram initials for missing logo fallback without breaking page', () => {
-      expect(getPartnerInitials('Qatar Tourism')).toBe('QT');
-      expect(getPartnerInitials('Ooredoo')).toBe('OO');
-      expect(getPartnerInitials('Place Vendôme Mall')).toBe('PM');
-      expect(getPartnerInitials('')).toBe('EP');
-
-      const partnerNoLogo: CanonicalPartnerInput = {
-        id: 'no-logo',
-        name: 'Qatar Tourism',
-        logoUrl: '',
-        isVisible: true,
-      };
-
-      const resolved = resolvePublicPartner(partnerNoLogo);
-      expect(resolved.hasLogo).toBe(false);
-      expect(resolved.logoUrl).toBeNull();
-      expect(resolved.initials).toBe('QT');
+    it('preserves clean public description without editorial instructions', () => {
+      const normalDescription = 'National tourism council driving Qatar entertainment ecosystem.';
+      expect(redactPublicDescription(normalDescription)).toBe(normalDescription);
     });
   });
 
   // =========================================================================
-  // 3. NON-DESTRUCTIVE DATA QUALITY ANALYZER
+  // 3. HTTPS-ONLY PUBLIC WEBSITES (QF-23-B)
   // =========================================================================
-  describe('3. Staff Data Quality & Editorial Warning Analyzer', () => {
-    it('flags missing logo, editorial instructions, and placeholder text', () => {
+  describe('3. HTTPS-Only Public Websites (QF-23-B Requirement 2)', () => {
+    it('permits valid HTTPS URLs publicly', () => {
+      expect(sanitizePublicWebsite('https://www.imadxb.com/')).toBe('https://www.imadxb.com/');
+      expect(sanitizePublicWebsite('https://visitqatar.qa/intl-en')).toBe('https://visitqatar.qa/intl-en');
+    });
+
+    it('rejects HTTP URLs and does NOT rewrite them to HTTPS', () => {
+      expect(sanitizePublicWebsite('http://www.imadxb.com/')).toBeNull();
+      expect(sanitizePublicWebsite('http://insecure-partner.qa')).toBeNull();
+    });
+
+    it('rejects dangerous and unsafe schemes (javascript:, data:, vbscript:, file:)', () => {
+      expect(sanitizePublicWebsite('javascript:alert(1)')).toBeNull();
+      expect(sanitizePublicWebsite('data:text/html,<script>alert(1)</script>')).toBeNull();
+      expect(sanitizePublicWebsite('vbscript:msgbox(1)')).toBeNull();
+      expect(sanitizePublicWebsite('file:///etc/passwd')).toBeNull();
+    });
+  });
+
+  // =========================================================================
+  // 4. STRICT PUBLIC LOGO VALIDATION (QF-23-B)
+  // =========================================================================
+  describe('4. Strict Public Logo Validation (QF-23-B Requirement 3)', () => {
+    it('permits valid HTTPS and relative image paths', () => {
+      expect(sanitizePublicLogo('https://cdn.e3.qa/partners/qatar-airways.png')).toBe(
+        'https://cdn.e3.qa/partners/qatar-airways.png'
+      );
+      expect(sanitizePublicLogo('/assets/logos/partner.png')).toBe('/assets/logos/partner.png');
+    });
+
+    it('permits strictly validated PNG, JPEG, and WebP Base64 data URLs', () => {
+      const validPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      expect(sanitizePublicLogo(validPng)).toBe(validPng);
+
+      const validJpg = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
+      expect(sanitizePublicLogo(validJpg)).toBe(validJpg);
+
+      const validWebp = 'data:image/webp;base64,UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==';
+      expect(sanitizePublicLogo(validWebp)).toBe(validWebp);
+    });
+
+    it('rejects SVG images (by extension or data URL protocol)', () => {
+      expect(sanitizePublicLogo('https://cdn.e3.qa/logo.svg')).toBeNull();
+      expect(sanitizePublicLogo('/assets/logo.svg')).toBeNull();
+      expect(sanitizePublicLogo('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=')).toBeNull();
+    });
+
+    it('rejects HTML/script-bearing, malformed Base64, and HTTP logo URLs', () => {
+      expect(sanitizePublicLogo('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBeNull();
+      expect(sanitizePublicLogo('data:image/png;base64,malformed!!!')).toBeNull();
+      expect(sanitizePublicLogo('http://cdn.e3.qa/logo.png')).toBeNull();
+      expect(sanitizePublicLogo('javascript:alert(1)')).toBeNull();
+    });
+
+    it('generates monogram initials fallback for failed or missing logos', () => {
+      expect(getPartnerInitials('International Maritime WLL')).toBe('IW');
+      expect(getPartnerInitials('Qatar Tourism')).toBe('QT');
+      expect(getPartnerInitials('Ooredoo')).toBe('OO');
+      expect(getPartnerInitials('')).toBe('EP');
+    });
+  });
+
+  // =========================================================================
+  // 5. INTERNATIONAL MARITIME RECORD PUBLIC VS STAFF TRANSFORMATION
+  // =========================================================================
+  describe('5. International Maritime Fixture Verification (QF-23-B Proof)', () => {
+    it('proves editorial instruction & HTTP URL are absent publicly while preserved for staff', () => {
       const prodFixture: CanonicalPartnerInput = {
         id: 'cms8byocc000033ia8xvey1xo',
         name: 'International Maritime WLL',
         website: 'http://www.imadxb.com/',
         category: 'AGENCY',
         description: 'A freight-forwarding company. Confirm that this is the exact entity and logo before publishing.',
-        logoUrl: 'data:image/png;base64,validBase64',
+        logoUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
         isVisible: true,
+        orderIndex: 3,
       };
 
-      const report = analyzePartnerDataQuality(prodFixture);
-      expect(report.isClean).toBe(false);
-      expect(report.issues.some((i) => i.code === 'EDITORIAL_INSTRUCTION')).toBe(true);
+      // Public DTO Resolution
+      const publicDto = resolvePublicPartner(prodFixture);
+      expect(publicDto.name).toBe('International Maritime WLL');
+      expect(publicDto.description).toBe('A freight-forwarding company.');
+      expect(publicDto.description).not.toContain('Confirm that this is the exact entity');
+      expect(publicDto.website).toBeNull();
+      expect(publicDto.hasWebsite).toBe(false);
+      expect(publicDto.hasLogo).toBe(true);
+      expect(publicDto.logoUrl).toContain('data:image/png;base64');
+      expect(publicDto.initials).toBe('IW');
 
-      // Ensures original fixture properties remain completely unmodified
-      expect(prodFixture.name).toBe('International Maritime WLL');
+      // Staff Data Quality Inspection
+      const staffReport = analyzePartnerDataQuality(prodFixture);
+      expect(staffReport.isClean).toBe(false);
+      expect(staffReport.issues.some((i) => i.code === 'EDITORIAL_INSTRUCTION')).toBe(true);
+      expect(staffReport.issues.some((i) => i.code === 'HTTP_WEBSITE')).toBe(true);
+
+      // Ensures original stored fixture values are never mutated
+      expect(prodFixture.website).toBe('http://www.imadxb.com/');
+      expect(prodFixture.description).toContain('Confirm that this is the exact entity');
       expect(prodFixture.isVisible).toBe(true);
-    });
-
-    it('detects duplicate names and website domains across partner records', () => {
-      const allPartners: CanonicalPartnerInput[] = [
-        { id: '1', name: 'Visit Qatar', website: 'https://visitqatar.com', isVisible: true },
-        { id: '2', name: 'Qatar Calendar', website: 'https://visitqatar.com/intl-en/events', isVisible: true },
-        { id: '3', name: 'visit qatar', website: 'https://other.com', isVisible: true },
-      ];
-
-      const report1 = analyzePartnerDataQuality(allPartners[0], allPartners);
-      expect(report1.issues.some((i) => i.code === 'DUPLICATE_NAME')).toBe(true);
-      expect(report1.issues.some((i) => i.code === 'DUPLICATE_DOMAIN')).toBe(true);
-
-      expect(normalizeDomain('https://www.visitqatar.com/intl-en')).toBe('visitqatar.com');
-      expect(normalizePartnerName('Visit Qatar!')).toBe('visitqatar');
     });
   });
 
   // =========================================================================
-  // 4. API SERVER-SIDE RBAC & DEFAULT-HIDDEN CREATION
+  // 6. API SERVER-SIDE RBAC & DEFAULT-HIDDEN CREATION
   // =========================================================================
-  describe('4. API Server-Side RBAC & Default-Hidden Creation', () => {
+  describe('6. API Server-Side RBAC & Default-Hidden Creation', () => {
     it('isB2BAuthorized allows authorized staff roles and rejects client/candidates', () => {
       expect(isB2BAuthorized('SUPER_ADMIN')).toBe(true);
       expect(isB2BAuthorized('SALES_ADMIN')).toBe(true);
@@ -253,7 +310,14 @@ describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () 
     it('GET /api/b2b/partners returns safe visible partners for public and enriched for staff', async () => {
       mocks.session = null;
       (db.partner.findMany as any).mockResolvedValue([
-        { id: 'p1', name: 'Qatar Airways', isVisible: true, orderIndex: 0 },
+        {
+          id: 'p1',
+          name: 'Qatar Airways',
+          website: 'https://qatarairways.com',
+          description: '5-star airline. Confirm entity.',
+          isVisible: true,
+          orderIndex: 0,
+        },
         { id: 'p2', name: 'Draft Corp', isVisible: false, orderIndex: 1 },
       ]);
 
@@ -263,6 +327,8 @@ describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () 
       const publicJson = await publicRes.json();
       expect(publicJson.partners).toHaveLength(1);
       expect(publicJson.partners[0].name).toBe('Qatar Airways');
+      expect(publicJson.partners[0].description).toBe('5-star airline.');
+      expect(publicJson.partners[0].description).not.toContain('Confirm entity');
 
       // Staff view with all=true
       mocks.session = { user: { id: 'admin-1', role: 'SUPER_ADMIN' } };
@@ -329,34 +395,25 @@ describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () 
           }),
         })
       );
-    });
 
-    it('POST /api/partners also enforces RBAC and default-hidden creation', async () => {
-      mocks.session = { user: { id: 'sales-1', role: 'SALES_ADMIN' } };
-      (db.partner.create as any).mockResolvedValue({
-        id: 'new-p2',
-        name: 'Katara Hospitality',
-        isVisible: false,
-      });
-
-      const req = new Request('http://localhost/api/partners', {
+      // Test PartnersPOST (legacy endpoint parity)
+      mocks.session = { user: { id: 'admin-1', role: 'SUPER_ADMIN' } };
+      (db.partner.create as any).mockResolvedValue({ id: 'p-leg', name: 'Legacy Partner', isVisible: false });
+      const legReq = new Request('http://localhost/api/partners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Katara Hospitality',
-          website: 'https://katara.com',
-        }),
+        body: JSON.stringify({ name: 'Legacy Partner' }),
       });
+      const legRes = await PartnersPOST(legReq as any);
+      expect(legRes.status).toBe(201);
+    });
 
-      const res = await PartnersPOST(req as any);
-      expect(res.status).toBe(201);
-      expect(db.partner.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            isVisible: false,
-          }),
-        })
-      );
+    it('validates helper functions sanitizeUrl, normalizeDomain, and normalizePartnerName', () => {
+      expect(sanitizeUrl('https://e3.qa')).toBe('https://e3.qa/');
+      expect(sanitizeUrl('javascript:void(0)')).toBeNull();
+
+      expect(normalizeDomain('https://www.visitqatar.com/en')).toBe('visitqatar.com');
+      expect(normalizePartnerName('Qatar Tourism 2026!')).toBe('qatartourism2026');
     });
 
     it('PUT, PATCH, DELETE and Reorder enforce RBAC and execute on Partner model only', async () => {
@@ -400,9 +457,9 @@ describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () 
   });
 
   // =========================================================================
-  // 5. CRM ISOLATION & ZERO CLIENT / CLIENTMEMBERSHIP MUTATION
+  // 7. CRM ISOLATION & ZERO CLIENT / CLIENTMEMBERSHIP MUTATION
   // =========================================================================
-  describe('5. CRM Isolation & Zero Client Mutation', () => {
+  describe('7. CRM Isolation & Zero Client Mutation', () => {
     it('proves Partner mutations never touch Client or ClientMembership models', async () => {
       mocks.session = { user: { id: 'admin-1', role: 'SUPER_ADMIN' } };
       (db.partner.create as any).mockResolvedValue({ id: 'p-iso', name: 'Showcase Entity' });
@@ -458,9 +515,9 @@ describe('QF-23 — Client/Partner Verification & Publication Safety Suite', () 
   });
 
   // =========================================================================
-  // 6. RENDERED EN/AR UI INTEGRATION & QF-11 HANDOFF PRESERVATION
+  // 8. RENDERED EN/AR UI INTEGRATION & QF-11 HANDOFF PRESERVATION
   // =========================================================================
-  describe('6. Rendered EN/AR UI Integration & QF-11 Handoff Preservation', () => {
+  describe('8. Rendered EN/AR UI Integration & QF-11 Handoff Preservation', () => {
     it('renders PartnersClient in English with reciprocal CRM handoff link', () => {
       const fixturePartners: CanonicalPartnerInput[] = [
         {

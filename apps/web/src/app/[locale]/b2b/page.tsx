@@ -12,6 +12,7 @@ import { SplitHeadline } from '@/components/motion/SplitHeadline'
 import { B2BBlueprintDepthSection } from '@/components/b2b/home/B2BBlueprintDepthSection'
 import { B2BInteractiveCta } from '@/components/b2b/home/B2BInteractiveCta'
 import { getPublicCaseStudies } from '@/lib/case-studies'
+import { filterAndResolvePublicPartners } from '@/lib/partners/partner-resolver'
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -188,7 +189,8 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     console.error("Error loading partners for B2B home:", error)
   }
 
-  const partnersList = dbPartners.length > 0 ? dbPartners : [
+  const resolvedPartners = filterAndResolvePublicPartners(dbPartners);
+  const partnersList = resolvedPartners.length > 0 ? resolvedPartners : [
     { id: '1', name: 'Visit Qatar', logoUrl: '' },
     { id: '2', name: 'Qatar Tourism', logoUrl: '' },
     { id: '3', name: 'Qatar Calendar', logoUrl: '' },

@@ -1,15 +1,15 @@
 /**
- * QF-23: Canonical Partner Public Resolver & Safety Engine
+ * QF-23 & QF-23-B: Canonical Partner Public Resolver & Safety Engine
  *
  * Requirements:
  * 1. Single canonical resolver for all public Partner consumers.
- * 2. Strict filtering of `isVisible: true` and deterministic ordering.
- * 3. Sanitizes URLs (rejects `javascript:`, unsafe `data:` protocols).
- * 4. Safe public field extraction (no internal or CRM tenant leakage).
- * 5. Safe missing logo fallback handling.
- * 6. Non-destructive staff data-quality warning analyzer (detects missing logos,
- *    editorial instructions like "confirm entity/logo", placeholder text, duplicate names/domains).
- * 7. Server-side RBAC verification helper for B2B management.
+ * 2. Strict filtering of `isVisible: true` and deterministic ordering (orderIndex -> name -> id).
+ * 3. Public Editorial Redaction: Redacts internal editorial instructions (e.g., "Confirm that this is the exact entity and logo before publishing.") from public descriptions.
+ * 4. HTTPS-Only Public Websites: Stored `http:`, `javascript:`, `data:`, or unsafe schemes return `website: null` and `hasWebsite: false` publicly. Original stored values and warnings preserved for authorized staff.
+ * 5. Public Logo Restriction: Restricts public logos to valid HTTPS URLs or strictly validated Base64 PNG/JPEG/WebP images. Rejects SVG, HTML/script-bearing data, malformed Base64, and HTTP protocols.
+ * 6. Safe missing logo fallback handling (monogram initials).
+ * 7. Non-destructive staff data-quality warning analyzer.
+ * 8. Server-side RBAC verification helper for B2B management.
  */
 
 export interface CanonicalPartnerInput {
@@ -43,6 +43,7 @@ export interface PartnerDataQualityIssue {
   code:
     | 'MISSING_LOGO'
     | 'UNSAFE_LOGO'
+    | 'HTTP_WEBSITE'
     | 'UNSAFE_WEBSITE'
     | 'INVALID_WEBSITE'
     | 'MISSING_DESCRIPTION'
@@ -64,19 +65,182 @@ export interface PartnerDataQualityReport {
 }
 
 /**
- * Allowed URL schemes for websites and external links.
+ * Editorial sentence patterns to redact from public descriptions.
  */
-const SAFE_URL_SCHEMES = ['http:', 'https:', 'mailto:', 'tel:'];
+export const EDITORIAL_SENTENCE_PATTERNS = [
+  /confirm\s+(that\s+)?this\s+is\s+the\s+exact\s+entity(\s+and\s+logo)?(\s+before\s+publishing)?\.?/gi,
+  /confirm\s+entity(\s+and\s+logo)?(\s+before\s+publishing)?\.?/gi,
+  /confirm\s+logo(\s+before\s+publishing)?\.?/gi,
+  /check\s+entity(\s+and\s+logo)?\.?/gi,
+  /needs\s+logo\.?/gi,
+  /pending\s+review\.?/gi,
+  /draft\s+only\.?/gi,
+  /placeholder(\s+text)?\.?/gi,
+  /lorem\s+ipsum[^\.]*\.?/gi,
+  /todo\s*:?[^\.]*\.?/gi,
+  /tbd\.?/gi,
+];
 
 /**
- * Validates and sanitizes URLs, blocking `javascript:`, `vbscript:`, `data:text/html`, etc.
+ * Redacts internal editorial instructions from public description strings.
+ * Returns clean meaningful description or empty string if only instructions were present.
+ */
+export function redactPublicDescription(description?: string | null): string {
+  if (!description || typeof description !== 'string') return '';
+  let text = description.trim();
+  if (!text) return '';
+
+  for (const pattern of EDITORIAL_SENTENCE_PATTERNS) {
+    text = text.replace(pattern, '').trim();
+  }
+
+  text = text.replace(/\s{2,}/g, ' ').trim();
+  if (text.length < 2 || /^[\s,;.-]+$/.test(text)) {
+    return '';
+  }
+
+  return text;
+}
+
+/**
+ * Validates and sanitizes public website URLs.
+ * Strictly enforces HTTPS. HTTP, javascript:, data:, and malformed schemes return null.
+ * Does NOT automatically rewrite HTTP to HTTPS.
+ */
+export function sanitizePublicWebsite(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  const lower = trimmed.toLowerCase();
+
+  // Insecure or dangerous schemes rejected
+  if (
+    lower.startsWith('http://') ||
+    lower.startsWith('javascript:') ||
+    lower.startsWith('vbscript:') ||
+    lower.startsWith('data:') ||
+    lower.startsWith('file:')
+  ) {
+    return null;
+  }
+
+  if (!lower.startsWith('https://')) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol.toLowerCase() === 'https:' && parsed.hostname.length > 0) {
+      return parsed.toString();
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+/**
+ * Strict regex for validated Base64 PNG/JPEG/WEBP image data URLs.
+ */
+const VALID_BASE64_IMAGE_REGEX = /^data:image\/(png|jpeg|jpg|webp);base64,([A-Za-z0-9+/=]+)$/i;
+
+/**
+ * Sanitizes and validates public logo URLs.
+ * Restricts to:
+ * 1. Valid HTTPS URLs (excluding .svg).
+ * 2. Strictly validated Base64 PNG, JPEG, JPG, WEBP data URLs.
+ * Rejects SVG, HTML/script-bearing data, malformed Base64, and HTTP protocols.
+ */
+export function sanitizePublicLogo(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  const lower = trimmed.toLowerCase();
+
+  // 1. Data URLs: strictly validated PNG, JPEG, JPG, WEBP Base64 images
+  if (lower.startsWith('data:')) {
+    // Explicitly disallow svg, html, text, javascript
+    if (
+      lower.startsWith('data:image/svg') ||
+      lower.startsWith('data:text/') ||
+      lower.startsWith('data:application/')
+    ) {
+      return null;
+    }
+
+    const match = trimmed.match(VALID_BASE64_IMAGE_REGEX);
+    if (!match) {
+      return null;
+    }
+
+    const base64Data = match[2];
+    try {
+      const decoded = typeof Buffer !== 'undefined'
+        ? Buffer.from(base64Data, 'base64').toString('binary')
+        : atob(base64Data);
+
+      const lowerDecoded = decoded.toLowerCase();
+      if (
+        lowerDecoded.includes('<script') ||
+        lowerDecoded.includes('javascript:') ||
+        lowerDecoded.includes('<svg') ||
+        lowerDecoded.includes('onload=') ||
+        lowerDecoded.includes('onerror=') ||
+        lowerDecoded.includes('<html') ||
+        lowerDecoded.includes('<iframe')
+      ) {
+        return null;
+      }
+    } catch {
+      return null;
+    }
+
+    return trimmed;
+  }
+
+  // 2. Reject SVG files by URL path or query
+  if (lower.endsWith('.svg') || lower.includes('.svg?')) {
+    return null;
+  }
+
+  // 3. Absolute HTTPS URLs
+  if (lower.startsWith('https://')) {
+    try {
+      const parsed = new URL(trimmed);
+      if (parsed.protocol.toLowerCase() === 'https:' && parsed.hostname.length > 0) {
+        if (parsed.pathname.toLowerCase().endsWith('.svg')) {
+          return null;
+        }
+        return parsed.toString();
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  // 4. Safe relative image paths (e.g. /assets/logos/partner.png)
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    if (lower.endsWith('.svg')) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  // Reject HTTP, javascript:, ftp:, etc.
+  return null;
+}
+
+/**
+ * Backward-compatible general URL sanitizer.
  */
 export function sanitizeUrl(url?: string | null): string | null {
   if (!url || typeof url !== 'string') return null;
   const trimmed = url.trim();
   if (!trimmed) return null;
 
-  // Reject explicit dangerous protocols
   const lower = trimmed.toLowerCase();
   if (
     lower.startsWith('javascript:') ||
@@ -88,24 +252,20 @@ export function sanitizeUrl(url?: string | null): string | null {
     return null;
   }
 
-  // Allow relative URLs starting with / or #
   if (trimmed.startsWith('/') || trimmed.startsWith('#')) {
     return trimmed;
   }
 
-  // Allow safe data URLs for images (png, jpeg, webp, svg, gif)
   if (lower.startsWith('data:image/')) {
-    return trimmed;
+    return sanitizePublicLogo(trimmed);
   }
 
-  // Parse absolute URLs
   try {
     const parsed = new URL(trimmed.includes('://') ? trimmed : `https://${trimmed}`);
-    if (SAFE_URL_SCHEMES.includes(parsed.protocol.toLowerCase())) {
+    if (parsed.protocol.toLowerCase() === 'https:' || parsed.protocol.toLowerCase() === 'http:') {
       return parsed.toString();
     }
   } catch {
-    // If not parseable as URL, reject
     return null;
   }
 
@@ -113,7 +273,7 @@ export function sanitizeUrl(url?: string | null): string | null {
 }
 
 /**
- * Generates monogram initials for fallback rendering when logo is missing.
+ * Generates monogram initials for fallback rendering when logo is missing or invalid.
  */
 export function getPartnerInitials(name?: string | null): string {
   if (!name || typeof name !== 'string') return 'EP';
@@ -172,17 +332,21 @@ export function isPartnerPubliclyEligible(partner: CanonicalPartnerInput): { eli
 
 /**
  * Resolves a single partner record into a safe public shape.
- * Exposes NO CRM tenant information, internal notes, or private identifiers.
+ * - Redacts internal editorial instructions from description.
+ * - Strictly enforces HTTPS for website links.
+ * - Validates logo protocols (HTTPS / valid Base64 PNG/JPEG/WEBP).
+ * - Exposes NO CRM tenant information, internal notes, or private identifiers.
  */
 export function resolvePublicPartner(partner: CanonicalPartnerInput): SafePublicPartner {
-  const safeLogo = sanitizeUrl(partner.logoUrl);
-  const safeWebsite = sanitizeUrl(partner.website);
+  const safeLogo = sanitizePublicLogo(partner.logoUrl);
+  const safeWebsite = sanitizePublicWebsite(partner.website);
+  const safeDescription = redactPublicDescription(partner.description);
 
   return {
     id: partner.id,
     name: partner.name?.trim() || 'Partner',
     category: (partner.category || 'PARTNER').toUpperCase(),
-    description: partner.description?.trim() || '',
+    description: safeDescription,
     logoUrl: safeLogo,
     website: safeWebsite,
     hasLogo: Boolean(safeLogo),
@@ -217,9 +381,9 @@ export function filterAndResolvePublicPartners(partners: CanonicalPartnerInput[]
 }
 
 /**
- * Editorial instruction patterns to detect in partner names or descriptions.
+ * Editorial instruction patterns to detect for staff warnings.
  */
-const EDITORIAL_PATTERNS = [
+const EDITORIAL_KEYWORDS = [
   'confirm',
   'todo',
   'tbd',
@@ -278,12 +442,12 @@ export function analyzePartnerDataQuality(
       severity: 'WARNING',
     });
   } else {
-    const safeLogo = sanitizeUrl(partner.logoUrl);
+    const safeLogo = sanitizePublicLogo(partner.logoUrl);
     if (!safeLogo) {
       issues.push({
         code: 'UNSAFE_LOGO',
-        messageEn: 'Logo URL uses an invalid or unsafe protocol and was rejected.',
-        messageAr: 'رابط الشعار يحتوي على بروتوكول غير آمن وتم استبعاده.',
+        messageEn: 'Logo URL uses an invalid, unencrypted, or unsafe protocol (e.g. SVG/HTTP) and will fallback to monogram.',
+        messageAr: 'رابط الشعار يحتوي على صيغة غير مدعومة أو غير آمنة (مثل SVG أو HTTP) وسيتم استخدام الشعار النصي بدلاً عنه.',
         severity: 'ERROR',
       });
     }
@@ -291,14 +455,24 @@ export function analyzePartnerDataQuality(
 
   // 3. Website check
   if (partner.website && partner.website.trim()) {
-    const safeWebsite = sanitizeUrl(partner.website);
-    if (!safeWebsite) {
+    const rawWeb = partner.website.trim().toLowerCase();
+    if (rawWeb.startsWith('http://')) {
       issues.push({
-        code: 'UNSAFE_WEBSITE',
-        messageEn: 'Website URL uses an invalid or unsafe protocol.',
-        messageAr: 'رابط الموقع الإلكتروني غير صالح أو غير آمن.',
+        code: 'HTTP_WEBSITE',
+        messageEn: 'Website URL uses unencrypted HTTP protocol and is hidden from public display. Upgrade to HTTPS.',
+        messageAr: 'رابط الموقع الإلكتروني يستخدم بروتوكول HTTP غير المشفر وتم إخفاؤه من العرض العام. يُرجى الترقية إلى HTTPS.',
         severity: 'WARNING',
       });
+    } else {
+      const safeWebsite = sanitizePublicWebsite(partner.website);
+      if (!safeWebsite) {
+        issues.push({
+          code: 'UNSAFE_WEBSITE',
+          messageEn: 'Website URL uses an invalid or unsafe protocol.',
+          messageAr: 'رابط الموقع الإلكتروني غير صالح أو غير آمن.',
+          severity: 'WARNING',
+        });
+      }
     }
   }
 
@@ -314,12 +488,12 @@ export function analyzePartnerDataQuality(
 
   // 5. Editorial instructions check
   const textBlob = `${partner.name || ''} ${partner.description || ''}`.toLowerCase();
-  for (const pattern of EDITORIAL_PATTERNS) {
-    if (textBlob.includes(pattern)) {
+  for (const keyword of EDITORIAL_KEYWORDS) {
+    if (textBlob.includes(keyword)) {
       issues.push({
         code: 'EDITORIAL_INSTRUCTION',
-        messageEn: `Editorial instruction / placeholder detected ("${pattern}"). Verify before public release.`,
-        messageAr: `تم رصد تعليمات تحريرية أو نص مؤقت ("${pattern}"). يُرجى التأكد قبل النشر.`,
+        messageEn: `Editorial instruction / placeholder detected ("${keyword}"). Redacted from public presentation.`,
+        messageAr: `تم رصد تعليمات تحريرية أو نص مؤقت ("${keyword}"). تم تنقيحه من العرض العام.`,
         severity: 'WARNING',
       });
       break;
