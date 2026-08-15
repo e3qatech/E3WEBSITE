@@ -205,7 +205,7 @@ describe("UX-03A-C — Team Directory Clutter Correction Suite", () => {
   /* 1. HERO — SIMPLIFIED CLEAN HERO                                  */
   /* ================================================================ */
   describe("1. CinematicPortraitWallHero Component", () => {
-    it("renders clean 70-80svh hero with centered content and horizontal 3:4 portrait strip", () => {
+    it("renders clean editorial hero with centered headline, description, and CTAs", () => {
       const html = renderToStaticMarkup(
         <LocaleProvider defaultLocale="en">
           <CinematicPortraitWallHero featuredMembers={SAMPLE_TEAM_MEMBERS} locale="en" />
@@ -213,13 +213,6 @@ describe("UX-03A-C — Team Directory Clutter Correction Suite", () => {
       );
 
       expect(html).toContain('data-testid="cinematic-portrait-wall-hero"');
-      expect(html).toContain('data-testid="portrait-wall-container"');
-      expect(html).toContain('data-testid="portrait-panel-tariq-al-mansoor"');
-      expect(html).toContain('data-testid="portrait-panel-fatima-al-khalifa"');
-      expect(html).toContain('data-testid="portrait-panel-marcus-vance"');
-
-      // Aspect ratio 3:4 verified on panels
-      expect(html).toContain("aspect-[3/4]");
 
       // Heading and CTAs
       expect(html).toContain("Meet the Minds Shaping");

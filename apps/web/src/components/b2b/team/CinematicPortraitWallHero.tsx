@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { SafePublicTeamMember } from "@/lib/team/team-resolver";
-import { resolveDepartmentAura } from "@/lib/team/department-aura";
 import { cn } from "@/lib/utils";
 
 interface CinematicPortraitWallHeroProps {
-  featuredMembers: SafePublicTeamMember[];
+  featuredMembers?: SafePublicTeamMember[];
   locale?: string;
   eyebrowEn?: string;
   eyebrowAr?: string;
@@ -29,7 +28,6 @@ interface CinematicPortraitWallHeroProps {
 }
 
 export function CinematicPortraitWallHero({
-  featuredMembers,
   locale = "en",
   eyebrowEn = "THE TALENT BEHIND THE EXPERIENCES",
   eyebrowAr = "فريق العمل وصناع التجارب الاستثنائية",
@@ -49,7 +47,6 @@ export function CinematicPortraitWallHero({
 }: CinematicPortraitWallHeroProps) {
   const isAr = locale === "ar";
   const shouldReduceMotion = useReducedMotion();
-  const heroRef = useRef<HTMLElement>(null);
 
   // Rotating Kinetic Words
   const words = isAr ? rotatingWordsAr : rotatingWordsEn;
@@ -63,41 +60,14 @@ export function CinematicPortraitWallHero({
     return () => clearInterval(interval);
   }, [words, animationSpeed, shouldReduceMotion]);
 
-  // Subtle group mouse parallax
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (shouldReduceMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMouseOffset({ x: x * 8, y: y * 6 });
-  };
-
-  const handleMouseLeave = () => {
-    setMouseOffset({ x: 0, y: 0 });
-  };
-
-  // Scroll Parallax for subtle depth
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const stripOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.85]);
-  const stripScale = useTransform(scrollYProgress, [0, 1], [1, 0.98]);
-
-  // 5–7 published team members for the strip
-  const wallMembers = featuredMembers.slice(0, 7);
   const defaultPrimaryUrl = primaryCtaUrl || `/${locale}/careers`;
 
   return (
     <section
-      ref={heroRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       dir={isAr ? "rtl" : "ltr"}
       data-testid="cinematic-portrait-wall-hero"
       aria-label={isAr ? "دليل فريق العمل الرئيسي" : "Team Directory Hero"}
-      className="relative min-h-[70svh] lg:min-h-[78svh] w-full bg-[#090c13] text-white flex flex-col items-center justify-center pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative min-h-[50svh] lg:min-h-[58svh] w-full bg-[#090c13] text-white flex flex-col items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       {/* ============================================================ */}
       {/* 1. ATMOSPHERIC GRAPHITE BACKDROP & AMBIENT AURA              */}
@@ -113,7 +83,7 @@ export function CinematicPortraitWallHero({
 
         {/* Top Radial Glow Fields */}
         <div
-          className="absolute -top-32 start-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-3xl opacity-20 pointer-events-none"
+          className="absolute -top-32 start-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-3xl opacity-25 pointer-events-none"
           style={{
             background: "radial-gradient(circle, rgba(6,182,212,0.45) 0%, rgba(99,102,241,0.25) 50%, transparent 75%)",
           }}
@@ -126,9 +96,9 @@ export function CinematicPortraitWallHero({
       {/* ============================================================ */}
       {/* 2. CENTERED CONTENT HERO (Eyebrow, Headline, Desc, CTAs)      */}
       {/* ============================================================ */}
-      <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto w-full mb-8 sm:mb-12">
+      <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto w-full">
         {/* Eyebrow Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-wider text-cyan-400 uppercase mb-4 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-wider text-cyan-400 uppercase mb-5 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span>{isAr ? eyebrowAr : eyebrowEn}</span>
         </div>
@@ -153,12 +123,12 @@ export function CinematicPortraitWallHero({
         </h1>
 
         {/* Description Paragraph */}
-        <p className="mt-4 text-sm sm:text-base md:text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
+        <p className="mt-5 text-sm sm:text-base md:text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
           {isAr ? descriptionAr : descriptionEn}
         </p>
 
         {/* Action Buttons */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           <Link
             href={defaultPrimaryUrl}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm transition-all shadow-lg shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
@@ -174,72 +144,6 @@ export function CinematicPortraitWallHero({
           </Link>
         </div>
       </div>
-
-      {/* ============================================================ */}
-      {/* 3. UNDERNEATH HORIZONTAL STRIP OF 5-7 EQUAL 3:4 PORTRAITS    */}
-      {/* ============================================================ */}
-      <motion.div
-        data-testid="portrait-wall-container"
-        style={
-          shouldReduceMotion
-            ? {}
-            : {
-                x: mouseOffset.x,
-                y: mouseOffset.y,
-                opacity: stripOpacity,
-                scale: stripScale,
-              }
-        }
-        className="relative z-10 w-full max-w-6xl mx-auto"
-      >
-        {/* Horizontal Strip: Mobile scroll-snap / Desktop clean grid flex */}
-        <div className="flex items-center justify-start md:justify-center gap-3 sm:gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory no-scrollbar px-4 sm:px-2 py-2 w-full">
-          {wallMembers.map((member, index) => {
-            const aura = resolveDepartmentAura(member.department, member.departmentKey);
-            const initials = member.initials || "E3";
-            const profileImg =
-              member.profileImage ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nameEn || member.name)}&background=0D1117&color=38BDF8&size=512`;
-
-            return (
-              <motion.div
-                key={member.id || member.slug}
-                data-testid={`portrait-panel-${member.slug}`}
-                initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: shouldReduceMotion ? 0 : index * 0.07 }}
-                className="group relative aspect-[3/4] w-28 sm:w-36 md:w-44 lg:w-48 shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-slate-900 shadow-xl transition-all duration-300 hover:border-cyan-400/50 hover:scale-[1.03] snap-center cursor-pointer"
-              >
-                {/* 3:4 Portrait Image (Muted grayscale initially, reveals vibrant color on hover) */}
-                <img
-                  src={profileImg}
-                  alt={isAr ? (member.nameAr || member.name) : member.name}
-                  className="w-full h-full object-cover object-top filter grayscale contrast-105 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0D1117&color=38BDF8&size=512`;
-                  }}
-                />
-
-                {/* Restrained Department Colored Accent Line at top */}
-                <div
-                  className="absolute top-0 inset-x-0 h-1 z-10 transition-opacity"
-                  style={{ backgroundColor: aura.primaryColor }}
-                />
-
-                {/* Initial state: Clean portrait. Hover state: Reveals Name & Designation with dark gradient scrim */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 sm:p-3.5 text-start pointer-events-none">
-                  <span className="text-xs sm:text-sm font-bold text-white truncate drop-shadow-sm">
-                    {isAr ? (member.nameAr || member.name) : (member.nameEn || member.name)}
-                  </span>
-                  <span className="text-[10px] sm:text-xs text-slate-300 truncate mt-0.5 font-medium">
-                    {isAr ? (member.designationAr || member.designation) : member.designation}
-                  </span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
     </section>
   );
 }
