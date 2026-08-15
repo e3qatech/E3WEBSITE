@@ -85,24 +85,24 @@ export function LiveFeed({ initialItems = [] }: { initialItems?: FeedItem[] }) {
   }
 
   return (
-    <div className="flex flex-col h-full glass rounded-2xl border-gradient overflow-hidden relative shadow-lg">
+    <div className="flex flex-col h-full rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] overflow-hidden relative shadow-sm">
       
       {/* Background ambient glow */}
       <div className="absolute top-0 end-0 w-64 h-64 bg-[var(--color-primary)]/5 blur-3xl rounded-full pointer-events-none" />
 
       {/* Header */}
-      <div className="p-4 border-b border-[var(--border-level-2)] flex justify-between items-center bg-[var(--surface-default)]/50 backdrop-blur-md relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-3 w-3">
-            {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-success)] opacity-75"></span>}
-            <span className={`relative inline-flex rounded-full h-3 w-3 ${isConnected ? 'bg-[var(--color-success)]' : 'bg-[var(--color-error)]'}`}></span>
+      <div className="p-4 border-b border-[var(--border-level-1)] flex justify-between items-center bg-[var(--surface-default)] relative z-10">
+        <div className="flex items-center gap-2.5">
+          <div className="relative flex h-2.5 w-2.5">
+            {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>}
+            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isConnected ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
           </div>
-          <h3 className="font-black text-sm text-[var(--text-primary)] uppercase tracking-wider">Live Action Feed</h3>
+          <h3 className="font-bold text-xs uppercase tracking-wider text-[var(--text-primary)]">Live Action Feed</h3>
         </div>
         {!autoScroll && (
           <button 
             onClick={() => setAutoScroll(true)}
-            className="text-[10px] uppercase font-black text-[var(--color-primary)] hover:text-gradient transition-all"
+            className="text-[10px] uppercase font-bold text-[var(--color-primary)] hover:underline transition-all cursor-pointer"
           >
             Resume Auto-Scroll
           </button>
@@ -111,9 +111,9 @@ export function LiveFeed({ initialItems = [] }: { initialItems?: FeedItem[] }) {
 
       {/* Connection Loss Warning */}
       {!isConnected && (
-        <div className="bg-[var(--color-error)]/10 border-b border-[var(--color-error)]/20 p-2 flex items-center justify-center gap-2 relative z-10 backdrop-blur-md">
-          <WifiOff className="w-3 h-3 text-[var(--color-error)]" />
-          <span className="text-xs font-bold text-[var(--color-error)]">Reconnecting to live stream...</span>
+        <div className="bg-rose-500/10 border-b border-rose-500/20 p-2 flex items-center justify-center gap-2 relative z-10">
+          <WifiOff className="w-3 h-3 text-rose-500" />
+          <span className="text-xs font-bold text-rose-600 dark:text-rose-400">Reconnecting to live stream...</span>
         </div>
       )}
 
@@ -121,14 +121,14 @@ export function LiveFeed({ initialItems = [] }: { initialItems?: FeedItem[] }) {
       <div 
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar relative z-10"
+        className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar relative z-10 max-h-[360px]"
       >
         <AnimatePresence initial={false}>
           {feed.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
-              className="text-center text-[var(--text-tertiary)] text-sm mt-10 font-medium"
+              className="text-center text-[var(--text-tertiary)] text-xs my-8 font-medium"
             >
               Awaiting live ecosystem events...
             </motion.div>
@@ -136,20 +136,20 @@ export function LiveFeed({ initialItems = [] }: { initialItems?: FeedItem[] }) {
             feed.map((item, index) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, y: -20, x: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95, filter: "blur(4px)" }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
-                className="relative bg-[var(--surface-active)]/50 backdrop-blur-sm border border-[var(--border-level-1)] rounded-2xl p-4 hover:bg-[var(--surface-hover)] hover:shadow-md transition-all duration-300 group"
+                transition={{ duration: 0.3 }}
+                className="relative bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl p-3 hover:border-[var(--color-primary)]/40 hover:shadow-sm transition-all group"
               >
-                {/* Timeline decorative connector */}
+                {/* Timeline connector */}
                 {index !== feed.length - 1 && (
-                  <div className="absolute start-8 top-12 bottom-[-1rem] w-0.5 bg-gradient-to-b from-[var(--border-level-2)] to-transparent z-0 pointer-events-none" />
+                  <div className="absolute start-7 top-10 bottom-[-0.75rem] w-0.5 bg-[var(--border-level-1)] z-0 pointer-events-none" />
                 )}
                 
-                <div className="relative z-10 flex justify-between items-start mb-1">
+                <div className="relative z-10 flex justify-between items-start">
                   {renderFeedItem(item)}
-                  <span className="text-[10px] font-bold text-[var(--text-tertiary)] bg-[var(--bg-level-1)] px-2 py-1 rounded-md whitespace-nowrap ms-2 border border-[var(--border-level-1)]">
+                  <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] bg-[var(--surface-default)] px-1.5 py-0.5 rounded border border-[var(--border-level-1)] whitespace-nowrap ms-2 shrink-0">
                     {format(item.timestamp, 'HH:mm:ss')}
                   </span>
                 </div>

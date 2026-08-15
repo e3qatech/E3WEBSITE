@@ -38,6 +38,56 @@ interface KanbanBoardProps {
 
 const COLUMNS: LeadStatus[] = ["New", "Contacted", "Qualified", "Proposal", "Negotiation", "Won", "Lost"]
 
+const COLUMN_CONFIG: Record<LeadStatus, {
+  label: string;
+  labelAr: string;
+  badge: string;
+  dotColor: string;
+}> = {
+  New: {
+    label: "New",
+    labelAr: "جديد",
+    badge: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
+    dotColor: "bg-sky-500",
+  },
+  Contacted: {
+    label: "Contacted",
+    labelAr: "تم التواصل",
+    badge: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+    dotColor: "bg-purple-500",
+  },
+  Qualified: {
+    label: "Qualified",
+    labelAr: "مؤهل",
+    badge: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+    dotColor: "bg-indigo-500",
+  },
+  Proposal: {
+    label: "Proposal",
+    labelAr: "عرض سعر",
+    badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    dotColor: "bg-amber-500",
+  },
+  Negotiation: {
+    label: "Negotiation",
+    labelAr: "تفاوض",
+    badge: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+    dotColor: "bg-violet-500",
+  },
+  Won: {
+    label: "Won",
+    labelAr: "تم التعاقد",
+    badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    dotColor: "bg-emerald-500",
+  },
+  Lost: {
+    label: "Lost",
+    labelAr: "خسارة",
+    badge: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+    dotColor: "bg-rose-500",
+  },
+}
+
 // --- Draggable Card Component ---
 function KanbanCard({ lead, isOverlay, onClick }: { lead: Lead, isOverlay?: boolean, onClick?: () => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -56,31 +106,36 @@ function KanbanCard({ lead, isOverlay, onClick }: { lead: Lead, isOverlay?: bool
       {...attributes}
       {...listeners}
       onClick={(_e) => {
-        // Prevent click if we dragged
         if (!isDragging && onClick) onClick();
       }}
       className={`
-        bg-[var(--surface-default)] p-4 rounded-xl border border-[var(--border-default)] shadow-sm cursor-grab active:cursor-grabbing
-        hover:border-[var(--color-primary)]/50 transition-colors relative
-        ${isDragging ? 'opacity-50' : ''}
-        ${isOverlay ? 'shadow-2xl rotate-2 scale-105 opacity-100 z-50' : ''}
+        bg-[var(--surface-default)] p-3.5 rounded-xl border border-[var(--border-level-1)] shadow-sm cursor-grab active:cursor-grabbing
+        hover:border-[var(--color-primary)]/50 hover:shadow-md transition-all relative group
+        ${isDragging ? 'opacity-40 scale-95' : ''}
+        ${isOverlay ? 'shadow-2xl rotate-1 scale-105 opacity-100 z-50 ring-2 ring-[var(--color-primary)]' : ''}
       `}
     >
-      <div className="flex justify-between items-start mb-2">
-        <h4 className="font-bold text-[var(--text-primary)] text-sm line-clamp-2 pe-6">{lead.name}</h4>
+      <div className="flex justify-between items-start mb-1.5 gap-2">
+        <h4 className="font-bold text-[var(--text-primary)] text-xs sm:text-sm line-clamp-2">{lead.name}</h4>
         <button 
-          className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] absolute top-4 end-4"
+          className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] p-1 rounded-md hover:bg-[var(--surface-hover)] transition-colors shrink-0"
           onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+          title="Lead details"
         >
-          <MoreHorizontal className="w-4 h-4" />
+          <MoreHorizontal className="w-3.5 h-3.5" />
         </button>
       </div>
-      <p className="text-xs text-[var(--text-secondary)] mb-4 line-clamp-1">{lead.company}</p>
       
-      <div className="flex justify-between items-center mt-auto">
-        <span className="text-sm font-black text-[var(--color-primary)]">{lead.value}</span>
-        {lead.assigneeAvatar && (
-          <img src={lead.assigneeAvatar} alt="Assignee" className="w-6 h-6 rounded-full border border-[var(--border-default)]" />
+      <p className="text-xs text-[var(--text-secondary)] mb-3 line-clamp-1 font-medium">{lead.company}</p>
+      
+      <div className="flex justify-between items-center pt-2 border-t border-[var(--border-level-1)]/60 text-xs">
+        <span className="font-extrabold text-[var(--color-primary)] font-mono">{lead.value}</span>
+        {lead.assigneeAvatar ? (
+          <img src={lead.assigneeAvatar} alt="Assignee" className="w-5 h-5 rounded-full border border-[var(--border-level-1)] object-cover" />
+        ) : (
+          <span className="w-5 h-5 rounded-full bg-[var(--surface-active)] text-[var(--text-tertiary)] text-[9px] font-bold flex items-center justify-center border border-[var(--border-level-1)]">
+            {lead.name.charAt(0).toUpperCase()}
+          </span>
         )}
       </div>
     </div>
@@ -88,34 +143,56 @@ function KanbanCard({ lead, isOverlay, onClick }: { lead: Lead, isOverlay?: bool
 }
 
 // --- Droppable Column Component ---
-function KanbanColumn({ id, title, leads, onLeadClick }: { id: LeadStatus, title: string, leads: Lead[], onLeadClick: (lead: Lead) => void }) {
+function KanbanColumn({ id, leads, onLeadClick, onAddLead }: { id: LeadStatus, leads: Lead[], onLeadClick: (lead: Lead) => void, onAddLead?: () => void }) {
   const { setNodeRef, isOver } = useDroppable({ id })
+  const config = COLUMN_CONFIG[id] || COLUMN_CONFIG.New
 
   return (
     <div 
       ref={setNodeRef}
       className={`
-        flex-shrink-0 w-80 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-2xl flex flex-col max-h-full
-        transition-all duration-300
-        ${isOver ? 'bg-[var(--surface-hover)] border-[var(--color-primary)] shadow-[0_0_15px_rgba(5,150,105,0.15)]' : ''}
+        flex-shrink-0 w-72 sm:w-76 bg-[var(--bg-level-1)] border rounded-2xl flex flex-col max-h-[580px]
+        transition-all duration-200
+        ${isOver 
+          ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/20 shadow-md bg-[var(--surface-hover)]/70' 
+          : 'border-[var(--border-level-1)]'
+        }
       `}
     >
-      <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between shrink-0">
-        <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
-          {title}
-          <span className="text-xs font-bold bg-[var(--surface-default)] text-[var(--text-secondary)] px-2 py-0.5 rounded-full border border-[var(--border-default)]">
+      {/* Column Header */}
+      <div className="p-3.5 border-b border-[var(--border-level-1)] flex items-center justify-between shrink-0 bg-[var(--surface-default)]/40 rounded-t-2xl">
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${config.dotColor}`} />
+          <h3 className="font-bold text-xs sm:text-sm text-[var(--text-primary)]">
+            {config.label}
+          </h3>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${config.badge}`}>
             {leads.length}
           </span>
-        </h3>
-        <button className="p-1 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-default)] transition-colors">
-          <Plus className="w-4 h-4" />
-        </button>
+        </div>
+        
+        {onAddLead && (
+          <button 
+            onClick={onAddLead}
+            className="p-1 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+            title={`Add lead to ${config.label}`}
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
       
-      <div className="p-3 overflow-y-auto flex-1 flex flex-col gap-3 min-h-[150px]">
-        {leads.map(lead => (
-          <KanbanCard key={lead.id} lead={lead} onClick={() => onLeadClick(lead)} />
-        ))}
+      {/* Column Cards Container */}
+      <div className="p-2.5 overflow-y-auto flex-1 flex flex-col gap-2.5 min-h-[140px] custom-scrollbar">
+        {leads.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 text-center border border-dashed border-[var(--border-level-1)] rounded-xl my-1 bg-[var(--surface-default)]/20">
+            <p className="text-xs text-[var(--text-tertiary)] font-medium">No leads in this stage</p>
+          </div>
+        ) : (
+          leads.map(lead => (
+            <KanbanCard key={lead.id} lead={lead} onClick={() => onLeadClick(lead)} />
+          ))
+        )}
       </div>
     </div>
   )
@@ -176,18 +253,33 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
 
   return (
     <div className="w-full relative">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h2 className="text-xl font-black text-[var(--text-primary)]">Live Pipeline</h2>
-          <p className="text-sm text-[var(--text-secondary)]">Drag and drop leads to update status</p>
+          <h2 className="text-lg sm:text-xl font-extrabold text-[var(--text-primary)] tracking-tight">Active Inquiries & Pipeline</h2>
+          <p className="text-xs text-[var(--text-secondary)] font-medium">Drag and drop leads between stages to update status in real time</p>
         </div>
-        <Button size="sm" className="gap-2">
-          <Plus className="w-4 h-4 me-2" />
-          Create Lead
-        </Button>
+        
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => router.push("/dashboard/crm/leads")}
+            variant="outline"
+            size="sm"
+            className="gap-1 h-9 px-3 rounded-xl font-semibold border-[var(--border-level-1)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          >
+            View All
+          </Button>
+          <Button 
+            onClick={() => router.push("/dashboard/crm/leads/new")}
+            size="sm" 
+            className="gap-1.5 h-9 px-3.5 rounded-xl font-bold bg-[var(--color-primary)] text-white shadow-sm hover:opacity-95 text-xs"
+          >
+            <Plus className="w-3.5 h-3.5 me-1" />
+            Create Lead
+          </Button>
+        </div>
       </div>
 
-      <div className="flex overflow-x-auto pb-6 gap-6 min-h-[600px] snap-x">
+      <div className="flex overflow-x-auto pb-4 gap-4 min-h-[340px] max-h-[580px] snap-x custom-scrollbar">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -198,9 +290,9 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
             <div key={columnId} className="snap-start">
               <KanbanColumn 
                 id={columnId} 
-                title={columnId} 
                 leads={leads.filter(l => l.status === columnId)} 
                 onLeadClick={(lead) => setSelectedLead(lead)}
+                onAddLead={() => router.push("/dashboard/crm/leads/new")}
               />
             </div>
           ))}

@@ -44,42 +44,42 @@ export function LiveOccupancy({ attractionId, initialCurrent = 0, initialMax = 1
   const textColor = getTextColor(percentage)
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`}>
+    <div className={`flex flex-col gap-2.5 ${className}`}>
       {/* Header Info */}
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           {isConnected ? (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#ff3d00] animate-pulse" />
-              <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Live</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Live</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 opacity-50">
-              <WifiOff className="w-3 h-3 text-white/50" />
-              <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider">Offline</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--surface-active)] border border-[var(--border-level-1)] opacity-70">
+              <WifiOff className="w-3 h-3 text-[var(--text-tertiary)]" />
+              <span className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase tracking-wider">Offline</span>
             </div>
           )}
           
-          <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${isOpen ? 'bg-[#00e676]/10 text-[#00e676]' : 'bg-red-500/10 text-red-500'}`}>
+          <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${isOpen ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}`}>
             {isOpen ? 'Open' : 'Closed'}
           </div>
         </div>
         
         <div className="text-right">
-          <div className="text-sm font-bold text-white/90">
-            <span className={`${textColor} text-xl me-1`}>{displayCurrent}</span>
-            <span className="text-white/40 text-xs">/ {max}</span>
+          <div className="text-sm font-bold text-[var(--text-primary)]">
+            <span className={`${textColor} text-xl font-extrabold me-1`}>{displayCurrent}</span>
+            <span className="text-[var(--text-tertiary)] text-xs font-semibold">/ {max}</span>
           </div>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/10 relative">
+      <div className="w-full h-2.5 bg-[var(--bg-level-1)] rounded-full overflow-hidden border border-[var(--border-level-1)] relative">
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`absolute top-0 start-0 bottom-0 ${barColor}`}
+          className={`absolute top-0 start-0 bottom-0 rounded-full ${barColor}`}
         />
       </div>
     </div>
