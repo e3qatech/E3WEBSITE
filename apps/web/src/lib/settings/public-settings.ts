@@ -113,47 +113,102 @@ export const PUBLIC_SETTINGS_KEYS = new Set<string>([
 ]);
 
 /**
+ * Canonical BookingQube Credential Key and Legacy Read-Only Fallback Aliases.
+ * Deterministic fallback without copying, rewriting, or duplicating stored database records.
+ */
+export const BOOKINGQUBE_CANONICAL_KEY = 'bookingQubeApiKey';
+export const BOOKINGQUBE_LEGACY_KEY_ALIASES = [
+  'BOOKINGQUBE_API_KEY',
+  'bookingqube_api_key',
+  'bookingqubeApiKey',
+  'bookingQubeSecret',
+  'bookingqube_secret',
+  'bookingqubeSecret',
+  'bookingQubeKey',
+  'bookingqube_key',
+] as const;
+
+/**
  * Known integration and secret keys that must never be exposed publicly.
  */
 export const SENSITIVE_SECRET_KEYS = new Set<string>([
-  'bookingQubeApiKey',
-  'bookingqube_api_key',
-  'bookingqubeApiKey',
+  BOOKINGQUBE_CANONICAL_KEY,
+  ...BOOKINGQUBE_LEGACY_KEY_ALIASES,
   'mapsApiKey',
   'googleMapsApiKey',
   'emailGatewayKey',
   'sendgridApiKey',
   'resendApiKey',
   'smtpPassword',
+  'smtp_password',
+  'smtpPass',
   'mailKey',
   'webhookSecret',
   'bookingqubeWebhookSecret',
   'stripeSecretKey',
   'stripeWebhookSecret',
   'privateKey',
+  'private_key',
+  'secretKey',
+  'secret_key',
   'clientSecret',
+  'client_secret',
   'accessToken',
+  'access_token',
   'refreshToken',
+  'refresh_token',
   'password',
+  'databaseUrl',
+  'database_url',
+  'connectionString',
+  'connection_string',
+  'dsn',
+  'signingSecret',
+  'signing_secret',
+  'encryptionKey',
+  'encryption_key',
+  'certificate',
+  'certKey',
+  'cert_key',
 ]);
 
 export const MASKED_SECRET_PLACEHOLDER = '••••••••••••••••';
 
 /**
  * Classifier to detect whether a setting key represents a sensitive credential or secret.
+ * Covers credential, authentication, signing, encryption, connection-string, DSN, certificate,
+ * token, password, and private-key variants.
  */
 export function isSensitiveKey(key: string): boolean {
   if (!key || typeof key !== 'string') return false;
-  if (SENSITIVE_SECRET_KEYS.has(key)) return true;
-  const lower = key.toLowerCase();
+  const trimmed = key.trim();
+  if (SENSITIVE_SECRET_KEYS.has(trimmed)) return true;
+  const lower = trimmed.toLowerCase();
   return (
     lower.includes('apikey') ||
     lower.includes('api_key') ||
     lower.includes('secret') ||
     lower.includes('token') ||
     lower.includes('password') ||
+    lower.includes('passwd') ||
+    lower.includes('pwd') ||
     lower.includes('privatekey') ||
-    lower.includes('private_key')
+    lower.includes('private_key') ||
+    lower.includes('credential') ||
+    lower.includes('auth') ||
+    lower.includes('signing') ||
+    lower.includes('signature') ||
+    lower.includes('encrypt') ||
+    lower.includes('encryption') ||
+    lower.includes('connectionstring') ||
+    lower.includes('connection_string') ||
+    lower.includes('conn_str') ||
+    lower.includes('connstring') ||
+    lower.includes('dsn') ||
+    lower.includes('database_url') ||
+    lower.includes('db_url') ||
+    lower.includes('certificate') ||
+    lower.includes('cert_key')
   );
 }
 
@@ -306,8 +361,40 @@ export function isMaskedOrBlankSecretSubmission(value: any): boolean {
  * Strictly reads from server database or environment variables. Never callable from client components.
  */
 export async function getServerSecretSetting(key: string): Promise<string | null> {
+  const settingModel = (db as any).siteSettings || (db as any).setting;
+
+  // 1. BookingQube Credential Resolution with Canonical Fallback to Legacy Aliases
+  if (key === BOOKINGQUBE_CANONICAL_KEY || (BOOKINGQUBE_LEGACY_KEY_ALIASES as readonly string[]).includes(key)) {
+    try {
+      if (settingModel) {
+        // A. Primary check: canonical key
+        const canonicalRecord = await settingModel.findUnique({
+          where: { key: BOOKINGQUBE_CANONICAL_KEY },
+        });
+        if (canonicalRecord?.value && typeof canonicalRecord.value === 'string' && canonicalRecord.value.trim().length > 0) {
+          return canonicalRecord.value.trim();
+        }
+
+        // B. Deterministic fallback to legacy aliases in stored order
+        for (const alias of BOOKINGQUBE_LEGACY_KEY_ALIASES) {
+          const aliasRecord = await settingModel.findUnique({
+            where: { key: alias },
+          });
+          if (aliasRecord?.value && typeof aliasRecord.value === 'string' && aliasRecord.value.trim().length > 0) {
+            return aliasRecord.value.trim();
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`[SERVER_SECRET_READ_ERROR] Failed to query BookingQube credential from database:`, err);
+    }
+
+    // C. Environment variable fallback
+    return process.env.BOOKINGQUBE_API_KEY || process.env.BOOKING_QUBE_API_KEY || null;
+  }
+
+  // 2. Generic Secret Resolution
   try {
-    const settingModel = (db as any).siteSettings || (db as any).setting;
     if (settingModel) {
       const record = await settingModel.findUnique({
         where: { key },
@@ -321,17 +408,17 @@ export async function getServerSecretSetting(key: string): Promise<string | null
   }
 
   // Fallback to environment variables if applicable
-  if (key === 'bookingQubeApiKey' || key === 'bookingqube_api_key') {
-    return process.env.BOOKINGQUBE_API_KEY || null;
+  if (key === 'mapsApiKey' || key === 'googleMapsApiKey') {
+    return process.env.MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY || null;
   }
-  if (key === 'mapsApiKey') {
-    return process.env.MAPS_API_KEY || null;
-  }
-  if (key === 'emailGatewayKey') {
+  if (key === 'emailGatewayKey' || key === 'sendgridApiKey' || key === 'resendApiKey') {
     return process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY || null;
   }
-  if (key === 'bookingqubeWebhookSecret') {
-    return process.env.BOOKINGQUBE_WEBHOOK_SECRET || null;
+  if (key === 'bookingqubeWebhookSecret' || key === 'webhookSecret') {
+    return process.env.BOOKINGQUBE_WEBHOOK_SECRET || process.env.WEBHOOK_SECRET || null;
+  }
+  if (key === 'stripeSecretKey') {
+    return process.env.STRIPE_SECRET_KEY || null;
   }
 
   return null;

@@ -26,11 +26,7 @@ export default async function GeneralSettingsPage({
   }
 
   const userRole = (session.user as any)?.role;
-  const isAuthorized =
-    userRole === 'SUPER_ADMIN' ||
-    userRole === 'SALES_ADMIN' ||
-    userRole === 'ADMIN' ||
-    hasPermission(userRole, 'settings.general.manage');
+  const isAuthorized = hasPermission(userRole, 'settings.general.manage');
 
   if (!isAuthorized) {
     return (

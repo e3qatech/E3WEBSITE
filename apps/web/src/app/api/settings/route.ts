@@ -17,11 +17,7 @@ export async function POST(req: Request) {
   }
 
   const userRole = (session.user as any)?.role;
-  const isAuthorized =
-    userRole === 'SUPER_ADMIN' ||
-    userRole === 'SALES_ADMIN' ||
-    userRole === 'ADMIN' ||
-    hasPermission(userRole, 'settings.general.manage');
+  const isAuthorized = hasPermission(userRole, 'settings.general.manage');
 
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
@@ -87,15 +83,39 @@ export async function GET(req: Request) {
     const type = searchParams.get('type');
     const adminMode = searchParams.get('admin') === 'true';
 
-    const session = await auth();
-    const userRole = (session?.user as any)?.role;
-    const isManager =
-      session?.user &&
-      (userRole === 'SUPER_ADMIN' ||
-        userRole === 'SALES_ADMIN' ||
-        userRole === 'ADMIN' ||
-        hasPermission(userRole, 'settings.general.manage'));
+    // 1. Admin / Manager View: Enforce strict auth and capability check
+    if (adminMode) {
+      const session = await auth();
+      if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+      }
 
+      const userRole = (session.user as any)?.role;
+      const isAuthorized = hasPermission(userRole, 'settings.general.manage');
+
+      if (!isAuthorized) {
+        return NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 });
+      }
+
+      const settingModel = (db as any).siteSettings || (db as any).setting;
+      let settings: any[] = [];
+      if (settingModel) {
+        if (type) {
+          settings = await settingModel.findMany({ where: { type: type as any } });
+        } else {
+          settings = await settingModel.findMany();
+        }
+      }
+
+      const maskedData = getMaskedAdminSettings(settings || []);
+      return NextResponse.json({
+        success: true,
+        data: maskedData,
+        isAuthorized: true,
+      });
+    }
+
+    // 2. Canonical Public View (Strict allowlist DTO only)
     const settingModel = (db as any).siteSettings || (db as any).setting;
     let settings: any[] = [];
     if (settingModel) {
@@ -106,17 +126,6 @@ export async function GET(req: Request) {
       }
     }
 
-    // 1. Authorized Manager View (Masked credentials only, zero raw secret exposure)
-    if (isManager && adminMode) {
-      const maskedData = getMaskedAdminSettings(settings || []);
-      return NextResponse.json({
-        success: true,
-        data: maskedData,
-        isAuthorized: true,
-      });
-    }
-
-    // 2. Canonical Public View (Strict allowlist DTO only)
     const publicData = resolvePublicSiteSettings(settings || []);
 
     return NextResponse.json({

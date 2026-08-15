@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { generateTicketUrl } from "@/lib/bookingqube"
+import { generateTicketUrl } from "@/lib/bookingqube-client"
 
 interface BookingQubeIframeProps {
   attractionId: string
