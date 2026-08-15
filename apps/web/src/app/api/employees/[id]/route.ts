@@ -49,9 +49,23 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const { id } = await params;
     const data = await req.json();
+
+    const { validateBilingualTeamMemberInput } = await import("@/lib/team/team-resolver");
+    const validation = validateBilingualTeamMemberInput(data);
+    if (!validation.valid) {
+      return NextResponse.json({ error: "Validation failed", details: validation.errors }, { status: 400 });
+    }
+
     const employee = await prisma.employeeProfile.update({
       where: { id },
-      data: { ...data },
+      data: {
+        ...data,
+        displayOrder: data.displayOrder !== undefined ? Number(data.displayOrder) : undefined,
+        order: data.order !== undefined ? Number(data.order) : undefined,
+        isActive: data.isActive !== undefined ? Boolean(data.isActive) : undefined,
+        showOnTeamPage: data.showOnTeamPage !== undefined ? Boolean(data.showOnTeamPage) : undefined,
+        isFeatured: data.isFeatured !== undefined ? Boolean(data.isFeatured) : undefined,
+      },
     });
     return NextResponse.json(employee);
   } catch (error: any) {

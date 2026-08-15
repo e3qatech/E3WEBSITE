@@ -11,8 +11,15 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   
   const teamMembers = await db.employeeProfile.findMany({
-    where: { isActive: true },
-    orderBy: { order: 'asc' }
+    where: {
+      isActive: true,
+      showOnTeamPage: true,
+    },
+    orderBy: [
+      { displayOrder: 'asc' },
+      { order: 'asc' },
+      { createdAt: 'asc' },
+    ],
   });
 
   const setting = await db.setting.findUnique({

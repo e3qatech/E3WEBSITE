@@ -24,7 +24,11 @@ export default async function DashboardTeamPage(props: PageProps) {
   }
 
   const employees = await prisma.employeeProfile.findMany({
-    orderBy: { order: "asc" },
+    orderBy: [
+      { displayOrder: "asc" },
+      { order: "asc" },
+      { createdAt: "asc" },
+    ],
   });
 
   return <TeamManagerClient initialEmployees={employees as any} locale={locale} />;

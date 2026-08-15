@@ -29,8 +29,15 @@ export default async function B2BTeamPage(props: PageProps) {
   let employeeProfiles: any[] = [];
   try {
     employeeProfiles = await db.employeeProfile.findMany({
-      where: { isActive: true },
-      orderBy: { order: 'asc' },
+      where: {
+        isActive: true,
+        showOnTeamPage: true,
+      },
+      orderBy: [
+        { displayOrder: 'asc' },
+        { order: 'asc' },
+        { createdAt: 'asc' },
+      ],
     });
   } catch (error) {
     console.error('[B2B_TEAM_PAGE_ERROR]', error);

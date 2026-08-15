@@ -747,44 +747,67 @@ model Subscriber {
 }
 
 model EmployeeProfile {
-  id                String                @id @default(cuid())
-  slug              String                @unique
-  firstName         String
-  lastName          String
-  designation       String
-  department        String
-  yearsOfExperience Int
-  tagline           String
-  profileImage      String?
-  aboutSummary      String
-  careerJourney     String
-  keyStrengths      String
-  expertiseTags     Json
-  coreCompetencies  Json
-  experience        Json
-  projects          Json
-  certifications    Json
-  education         Json
-  awards            Json
-  skillsMatrix      Json
-  mediaGallery      Json
-  testimonials      Json
-  contactEmail      String?
-  linkedinUrl       String?
-  isActive          Boolean               @default(true)
-  order             Int                   @default(0)
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  aboutSummaryAr    String?
-  designationAr     String?
-  firstNameAr       String?
-  lastNameAr        String?
-  availability      AvailabilitySlot[]
-  caseStudies       CaseStudyTeamMember[]
-  insights          Insight[]
+  id                 String                @id @default(cuid())
+  slug               String                @unique
+  firstName          String
+  lastName           String
+  designation        String
+  department         String
+  yearsOfExperience  Int
+  tagline            String
+  profileImage       String?
+  aboutSummary       String
+  careerJourney      String
+  keyStrengths       String
+  expertiseTags      Json
+  coreCompetencies   Json
+  experience         Json
+  projects           Json
+  certifications     Json
+  education          Json
+  awards             Json
+  skillsMatrix       Json
+  mediaGallery       Json
+  testimonials       Json
+  contactEmail       String?
+  linkedinUrl        String?
+  isActive           Boolean               @default(true)
+  showOnTeamPage     Boolean               @default(true)
+  isFeatured         Boolean               @default(false)
+  order              Int                   @default(0)
+  displayOrder       Int                   @default(0)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  
+  // Arabic Localization Fields
+  firstNameAr        String?
+  lastNameAr         String?
+  designationAr      String?
+  departmentAr       String?
+  taglineAr          String?
+  heroTaglineAr      String?
+  aboutSummaryAr     String?
+  careerJourneyAr    String?
+  keyStrengthsAr     String?
+  expertiseTagsAr    Json?
+  coreCompetenciesAr Json?
+  experienceAr       Json?
+  projectsAr         Json?
+  certificationsAr   Json?
+  educationAr        Json?
+  awardsAr           Json?
+  skillsMatrixAr     Json?
+
+  availability       AvailabilitySlot[]
+  caseStudies        CaseStudyTeamMember[]
+  insights           Insight[]
 
   @@index([department])
   @@index([isActive])
+  @@index([showOnTeamPage])
+  @@index([isFeatured])
+  @@index([displayOrder])
+  @@index([order])
 }
 
 enum RoleType {

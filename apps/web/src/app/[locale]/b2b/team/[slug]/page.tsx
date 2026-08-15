@@ -199,8 +199,27 @@ export default async function TeamMemberDetailPage(props: PageProps) {
               </div>
             ) : null}
 
+            {/* Expertise Tags */}
+            {Array.isArray(member.expertiseTags) && member.expertiseTags.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-4">
+                  {isAr ? 'مجالات الخبرة والتخصص' : 'Areas of Expertise'}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {member.expertiseTags.map((tag: string, i: number) => (
+                    <span
+                      key={i}
+                      className="px-3.5 py-1.5 bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20 rounded-xl text-xs font-bold"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Key Strengths & Competencies */}
-            {member.coreCompetencies.length > 0 && (
+            {Array.isArray(member.coreCompetencies) && member.coreCompetencies.length > 0 && (
               <div>
                 <h2 className="text-2xl font-black text-[var(--text-primary)] mb-4">
                   {isAr ? 'الكفاءات والخبرات الأساسية' : 'Core Competencies'}
@@ -225,6 +244,56 @@ export default async function TeamMemberDetailPage(props: PageProps) {
                   {isAr ? 'الخبرة العملية' : 'Professional Experience'}
                 </h2>
                 <ExperienceTimeline entries={experienceEntries} locale={locale} />
+              </div>
+            )}
+
+            {/* Projects Portfolio */}
+            {Array.isArray(member.projects) && member.projects.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-black text-[var(--text-primary)] mb-6">
+                  {isAr ? 'المشاريع والإنجازات البارزة' : 'Featured Projects & Key Deliveries'}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {member.projects.map((proj: any, idx: number) => {
+                    const title = typeof proj === 'string' ? proj : proj.name || proj.projectName || proj.title || '';
+                    const role = typeof proj === 'object' ? proj.role : '';
+                    const client = typeof proj === 'object' ? proj.client : '';
+                    const year = typeof proj === 'object' ? proj.year : '';
+                    const desc = typeof proj === 'object' ? proj.description : '';
+
+                    if (!title && !role) return null;
+
+                    return (
+                      <div
+                        key={proj.id || idx}
+                        className="p-5 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-default)] flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex justify-between items-start gap-2 mb-2">
+                            <h3 className="font-bold text-[var(--text-primary)] text-base">
+                              {title}
+                            </h3>
+                            {year && (
+                              <span className="text-xs font-mono text-[var(--text-tertiary)] bg-[var(--surface-default)] px-2 py-0.5 rounded border border-[var(--border-default)] shrink-0">
+                                {year}
+                              </span>
+                            )}
+                          </div>
+                          {role && (
+                            <p className="text-xs font-semibold text-[var(--color-primary)] mb-2">
+                              {role} {client ? `• ${client}` : ''}
+                            </p>
+                          )}
+                          {desc && (
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                              {desc}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

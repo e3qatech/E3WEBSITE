@@ -30,29 +30,45 @@ export interface CanonicalEmployeeInput {
   designation: string;
   designationAr?: string | null;
   department: string;
+  departmentAr?: string | null;
   yearsOfExperience?: number | null;
   tagline?: string | null;
+  taglineAr?: string | null;
+  heroTaglineAr?: string | null;
   aboutSummary?: string | null;
   aboutSummaryAr?: string | null;
   careerJourney?: string | null;
+  careerJourneyAr?: string | null;
   keyStrengths?: string | null;
+  keyStrengthsAr?: string | null;
   expertiseTags?: any;
+  expertiseTagsAr?: any;
   coreCompetencies?: any;
+  coreCompetenciesAr?: any;
   experience?: any;
+  experienceAr?: any;
   experienceTimeline?: any;
   projects?: any;
+  projectsAr?: any;
   projectsPortfolio?: any;
   certifications?: any;
+  certificationsAr?: any;
   education?: any;
+  educationAr?: any;
   awards?: any;
+  awardsAr?: any;
   skillsMatrix?: any;
+  skillsMatrixAr?: any;
   mediaGallery?: any;
   testimonials?: any;
   contactEmail?: string | null;
   linkedinUrl?: string | null;
   profileImage?: string | null;
   isActive?: boolean | null;
+  showOnTeamPage?: boolean | null;
+  isFeatured?: boolean | null;
   order?: number | null;
+  displayOrder?: number | null;
   createdAt?: Date | string | null;
   updatedAt?: Date | string | null;
   [key: string]: any;
@@ -75,6 +91,9 @@ export interface SafePublicTeamMember {
   linkedinUrl: string | null;
   hasLinkedin: boolean;
   order: number;
+  displayOrder: number;
+  isFeatured: boolean;
+  showOnTeamPage: boolean;
   // Complex rich profile fields (safe strings)
   careerJourney?: string;
   keyStrengths?: string;
@@ -93,7 +112,11 @@ export interface TeamDataQualityIssue {
     | 'REVIEW_REQUIRED'
     | 'MISSING_ARABIC_NAME'
     | 'MISSING_ARABIC_DESIGNATION'
+    | 'MISSING_ARABIC_DEPARTMENT'
     | 'MISSING_ARABIC_BIO'
+    | 'MISSING_ARABIC_EXPERTISE'
+    | 'MISSING_ARABIC_EXPERIENCE'
+    | 'MISSING_ARABIC_PROJECTS'
     | 'MISSING_PORTRAIT'
     | 'UNSAFE_PORTRAIT'
     | 'UNSAFE_SOCIAL_URL'
@@ -101,7 +124,8 @@ export interface TeamDataQualityIssue {
     | 'PLACEHOLDER_CONTENT'
     | 'DUPLICATE_SLUG'
     | 'DUPLICATE_NAME'
-    | 'INACTIVE_RECORD';
+    | 'INACTIVE_RECORD'
+    | 'HIDDEN_FROM_TEAM_PAGE';
   messageEn: string;
   messageAr: string;
   severity: 'WARNING' | 'ERROR' | 'INFO';
@@ -113,6 +137,126 @@ export interface TeamDataQualityReport {
   isClean: boolean;
   issues: TeamDataQualityIssue[];
   warningCount: number;
+  hasMissingArabic: boolean;
+  isArabicComplete: boolean;
+  isVisible: boolean;
+  isHidden: boolean;
+  isFeatured: boolean;
+}
+
+/**
+ * Validates expertiseTags JSON array.
+ */
+export function validateExpertiseTags(
+  tags: any,
+  fieldName = 'expertiseTags'
+): { valid: boolean; error?: string } {
+  if (tags === undefined || tags === null || tags === '') return { valid: true };
+  let parsed = tags;
+  if (typeof tags === 'string') {
+    try {
+      parsed = JSON.parse(tags);
+    } catch {
+      return { valid: false, error: `${fieldName} must be a valid JSON array of strings` };
+    }
+  }
+  if (!Array.isArray(parsed)) {
+    return { valid: false, error: `${fieldName} must be an array of strings` };
+  }
+  for (let i = 0; i < parsed.length; i++) {
+    if (typeof parsed[i] !== 'string') {
+      return { valid: false, error: `${fieldName}[${i}] must be a string` };
+    }
+  }
+  return { valid: true };
+}
+
+/**
+ * Validates experience timeline JSON array.
+ */
+export function validateExperienceArray(
+  experience: any,
+  fieldName = 'experience'
+): { valid: boolean; error?: string } {
+  if (experience === undefined || experience === null || experience === '') return { valid: true };
+  let parsed = experience;
+  if (typeof experience === 'string') {
+    try {
+      parsed = JSON.parse(experience);
+    } catch {
+      return { valid: false, error: `${fieldName} must be a valid JSON array of experience objects` };
+    }
+  }
+  if (!Array.isArray(parsed)) {
+    return { valid: false, error: `${fieldName} must be an array of experience objects` };
+  }
+  for (let i = 0; i < parsed.length; i++) {
+    const item = parsed[i];
+    if (!item || typeof item !== 'object') {
+      return { valid: false, error: `${fieldName}[${i}] must be an object with company/role/duration/description` };
+    }
+  }
+  return { valid: true };
+}
+
+/**
+ * Validates projects portfolio JSON array.
+ */
+export function validateProjectsArray(
+  projects: any,
+  fieldName = 'projects'
+): { valid: boolean; error?: string } {
+  if (projects === undefined || projects === null || projects === '') return { valid: true };
+  let parsed = projects;
+  if (typeof projects === 'string') {
+    try {
+      parsed = JSON.parse(projects);
+    } catch {
+      return { valid: false, error: `${fieldName} must be a valid JSON array of project objects` };
+    }
+  }
+  if (!Array.isArray(parsed)) {
+    return { valid: false, error: `${fieldName} must be an array of project objects` };
+  }
+  for (let i = 0; i < parsed.length; i++) {
+    const item = parsed[i];
+    if (!item || typeof item !== 'object') {
+      return { valid: false, error: `${fieldName}[${i}] must be an object with title/client/year/description` };
+    }
+  }
+  return { valid: true };
+}
+
+/**
+ * Validates entire bilingual payload.
+ */
+export function validateBilingualTeamMemberInput(
+  input: Record<string, any>
+): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  const expertiseEn = validateExpertiseTags(input.expertiseTags, 'expertiseTags');
+  if (!expertiseEn.valid && expertiseEn.error) errors.push(expertiseEn.error);
+
+  const expertiseAr = validateExpertiseTags(input.expertiseTagsAr, 'expertiseTagsAr');
+  if (!expertiseAr.valid && expertiseAr.error) errors.push(expertiseAr.error);
+
+  const experienceEn = validateExperienceArray(input.experience, 'experience');
+  if (!experienceEn.valid && experienceEn.error) errors.push(experienceEn.error);
+
+  const experienceAr = validateExperienceArray(input.experienceAr, 'experienceAr');
+  if (!experienceAr.valid && experienceAr.error) errors.push(experienceAr.error);
+
+  const projectsEn = validateProjectsArray(input.projects, 'projects');
+  if (!projectsEn.valid && projectsEn.error) errors.push(projectsEn.error);
+
+  const projectsAr = validateProjectsArray(input.projectsAr, 'projectsAr');
+  if (!projectsAr.valid && projectsAr.error) errors.push(projectsAr.error);
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
 }
 
 /**
@@ -393,23 +537,33 @@ export function getEmployeeInitials(firstName?: string | null, lastName?: string
 
 /**
  * Checks if an EmployeeProfile is publicly eligible for display on public routes.
+ * Profiles that are inactive (`isActive === false`) or hidden (`showOnTeamPage === false`) fail closed.
  */
-export function isTeamMemberPubliclyEligible(member: CanonicalEmployeeInput): { eligible: boolean; reason?: string } {
+export function isTeamMemberPubliclyEligible(
+  member: CanonicalEmployeeInput | null | undefined
+): { eligible: boolean; reason?: string } {
   if (!member) {
-    return { eligible: false, reason: 'Member record missing' };
+    return { eligible: false, reason: "Profile does not exist" };
   }
 
   if (member.isActive === false) {
-    return { eligible: false, reason: 'Profile is marked inactive' };
+    return { eligible: false, reason: "Profile is inactive" };
+  }
+
+  if (member.showOnTeamPage === false) {
+    return { eligible: false, reason: "Profile is excluded from public team page" };
   }
 
   if (!member.slug || !member.slug.trim()) {
-    return { eligible: false, reason: 'Missing canonical slug' };
+    return { eligible: false, reason: "Missing canonical slug" };
   }
 
-  const hasName = Boolean((member.firstName && member.firstName.trim()) || (member.firstNameAr && member.firstNameAr.trim()));
+  const hasName = Boolean(
+    (member.firstName && member.firstName.trim()) ||
+    (member.firstNameAr && member.firstNameAr.trim())
+  );
   if (!hasName) {
-    return { eligible: false, reason: 'Missing profile name' };
+    return { eligible: false, reason: "Missing profile name" };
   }
 
   return { eligible: true };
@@ -802,36 +956,57 @@ export function mapNestedProfileProperties(
   }
 
   // 1. Expertise Tags (fail closed)
+  // If explicitly provided in Arabic, prioritize it
+  const arabicExplicitTags = Array.isArray(member.expertiseTagsAr) ? member.expertiseTagsAr : [];
   const expertiseTags: string[] = [];
-  for (const tag of rawExpertise) {
-    const sanitized = sanitizeArabicNestedString(tag);
-    if (sanitized) expertiseTags.push(sanitized);
+  if (arabicExplicitTags.length > 0) {
+    for (const tag of arabicExplicitTags) {
+      if (typeof tag === 'string' && tag.trim()) {
+        expertiseTags.push(tag.trim());
+      }
+    }
+  } else {
+    for (const tag of rawExpertise) {
+      const sanitized = sanitizeArabicNestedString(tag);
+      if (sanitized) expertiseTags.push(sanitized);
+    }
   }
 
   // 2. Core Competencies (fail closed)
+  const arabicExplicitCompetencies = Array.isArray(member.coreCompetenciesAr) ? member.coreCompetenciesAr : [];
   const coreCompetencies: string[] = [];
-  for (const comp of rawCompetencies) {
-    const sanitized = sanitizeArabicNestedString(comp);
-    if (sanitized) coreCompetencies.push(sanitized);
+  if (arabicExplicitCompetencies.length > 0) {
+    for (const comp of arabicExplicitCompetencies) {
+      if (typeof comp === 'string' && comp.trim()) {
+        coreCompetencies.push(comp.trim());
+      }
+    }
+  } else {
+    for (const comp of rawCompetencies) {
+      const sanitized = sanitizeArabicNestedString(comp);
+      if (sanitized) coreCompetencies.push(sanitized);
+    }
   }
 
   // 3. Experience Timeline (fail closed)
-  const experience = rawExperience.map((exp: any, idx: number) => {
-    if (!exp || typeof exp !== 'object') return exp;
-    const rawRole = exp.title || exp.role || '';
+  const arabicExplicitExperience = Array.isArray(member.experienceAr) ? member.experienceAr : [];
+  const sourceExperience = arabicExplicitExperience.length > 0 ? arabicExplicitExperience : rawExperience;
+  const experience = sourceExperience.map((exp: any, idx: number) => {
+    if (!exp || typeof exp !== 'object') return null;
+    const rawRole = exp.title || exp.role || exp.roleAr || exp.titleAr || '';
     const roleAr = sanitizeArabicNestedString(exp.titleAr || exp.roleAr || rawRole, 'خبرة مهنية') || 'خبرة مهنية';
 
-    const rawCompany = exp.company || 'E3';
+    const rawCompany = exp.company || exp.companyAr || 'E3';
     const companyAr =
       rawCompany === 'E3' || rawCompany === 'eeeqa' || rawCompany === 'E3 Qatar'
         ? 'إي ثري'
         : sanitizeArabicNestedString(exp.companyAr || rawCompany, 'إي ثري') || 'إي ثري';
 
-    const rawDuration = exp.year || exp.duration || '';
+    const rawDuration = exp.year || exp.duration || exp.yearAr || exp.durationAr || '';
     const durationAr = exp.yearAr || exp.durationAr || translateDurationToArabic(rawDuration);
 
-    const rawDesc = exp.descriptionAr || exp.responsibilitiesAr || '';
-    const descriptionAr = /[\u0600-\u06FF]/.test(rawDesc) ? rawDesc : '';
+    const rawDesc = exp.descriptionAr || exp.responsibilitiesAr || (arabicExplicitExperience.length > 0 ? exp.description : '') || '';
+    const descriptionAr = /[\u0600-\u06FF]/.test(rawDesc) ? rawDesc : (arabicExplicitExperience.length > 0 ? rawDesc : '');
 
     return {
       id: exp.id || `exp-${idx}`,
@@ -843,45 +1018,50 @@ export function mapNestedProfileProperties(
       description: descriptionAr,
       responsibilities: descriptionAr,
     };
-  });
+  }).filter(Boolean);
 
   // 4. Projects Portfolio (fail closed)
-  const projects = rawProjects.map((proj: any, idx: number) => {
-    if (!proj || typeof proj !== 'object') return proj;
-    const rawRole = proj.role || '';
+  const arabicExplicitProjects = Array.isArray(member.projectsAr) ? member.projectsAr : [];
+  const sourceProjects = arabicExplicitProjects.length > 0 ? arabicExplicitProjects : rawProjects;
+  const projects = sourceProjects.map((proj: any, idx: number) => {
+    if (!proj || typeof proj !== 'object') return null;
+    const rawRole = proj.role || proj.roleAr || '';
     const roleAr = sanitizeArabicNestedString(proj.roleAr || rawRole, 'عضو فريق المشروع') || 'عضو فريق المشروع';
 
-    const rawName = proj.name || proj.projectName || '';
-    const nameAr = sanitizeArabicNestedString(proj.nameAr || proj.projectNameAr || rawName, 'مشروع ريادي') || 'مشروع ريادي';
+    const rawName = proj.name || proj.projectName || proj.title || proj.nameAr || proj.titleAr || '';
+    const nameAr = sanitizeArabicNestedString(proj.nameAr || proj.titleAr || proj.projectNameAr || rawName, 'مشروع ريادي') || 'مشروع ريادي';
 
-    const rawYear = proj.year || '';
+    const rawYear = proj.year || proj.yearAr || '';
     const yearAr = proj.yearAr || translateDurationToArabic(rawYear);
 
-    const rawDesc = proj.descriptionAr || '';
-    const descriptionAr = /[\u0600-\u06FF]/.test(rawDesc) ? rawDesc : '';
+    const rawDesc = proj.descriptionAr || (arabicExplicitProjects.length > 0 ? proj.description : '') || '';
+    const descriptionAr = /[\u0600-\u06FF]/.test(rawDesc) ? rawDesc : (arabicExplicitProjects.length > 0 ? rawDesc : '');
 
     return {
       id: proj.id || `proj-${idx}`,
       name: nameAr,
       projectName: nameAr,
+      title: nameAr,
       role: roleAr,
       year: yearAr,
       client: proj.clientAr || (isAllowlistedLatinOrNumeric(proj.client) ? proj.client : 'إي ثري'),
       description: descriptionAr,
     };
-  });
+  }).filter(Boolean);
 
   // 5. Certifications (fail closed)
-  const certifications = rawCertifications
+  const arabicExplicitCerts = Array.isArray(member.certificationsAr) ? member.certificationsAr : [];
+  const sourceCerts = arabicExplicitCerts.length > 0 ? arabicExplicitCerts : rawCertifications;
+  const certifications = sourceCerts
     .map((cert: any, idx: number) => {
       if (typeof cert === 'string') {
         const sanitized = sanitizeArabicNestedString(cert, 'شهادة مهنية معتمدة');
         return sanitized ? { id: `cert-${idx}`, name: sanitized, issuer: 'هيئة مهنية معتمدة', year: '' } : null;
       }
       if (cert && typeof cert === 'object') {
-        const rawName = cert.name || '';
-        const nameAr = sanitizeArabicNestedString(cert.nameAr || rawName, 'شهادة مهنية معتمدة') || 'شهادة مهنية معتمدة';
-        const rawIssuer = cert.issuer || '';
+        const rawName = cert.name || cert.nameAr || cert.title || cert.titleAr || '';
+        const nameAr = sanitizeArabicNestedString(cert.nameAr || cert.titleAr || rawName, 'شهادة مهنية معتمدة') || 'شهادة مهنية معتمدة';
+        const rawIssuer = cert.issuer || cert.issuerAr || '';
         const issuerAr =
           rawIssuer.toLowerCase() === 'professional organization' || !rawIssuer
             ? 'هيئة مهنية معتمدة'
@@ -902,7 +1082,7 @@ export function mapNestedProfileProperties(
   // 6. Skills Matrix (fail closed)
   const skillsMatrix = rawSkillsMatrix.map((s: any) => {
     if (!s || typeof s !== 'object') return s;
-    const rawSkill = s.skill || '';
+    const rawSkill = s.skill || s.skillAr || '';
     const skillAr = sanitizeArabicNestedString(s.skillAr || rawSkill, 'مهارة متخصصة') || 'مهارة متخصصة';
     return {
       ...s,
@@ -944,7 +1124,7 @@ export function resolvePublicTeamMember(
   const designationAr =
     member.designationAr ||
     COMMON_DESIGNATION_LOCALIZATION[designationLower] ||
-    rawDesignation;
+    (isAr ? 'عضو فريق العمل' : rawDesignation);
 
   const rawDept = (member.department || 'Events').trim();
   const deptKey = rawDept.toLowerCase();
@@ -955,17 +1135,15 @@ export function resolvePublicTeamMember(
 
   const name = isAr ? nameAr : nameEn;
   const designation = isAr ? designationAr : rawDesignation;
-  const department = isAr ? localizedDept.ar : localizedDept.en;
+  const department = isAr ? (member.departmentAr || localizedDept.ar) : localizedDept.en;
 
   const taglineEn = (member.tagline || '').trim();
-  const taglineAr = (member.taglineAr || '').trim();
-  const tagline = isAr ? (taglineAr || '') : taglineEn;
+  const taglineAr = (member.taglineAr || member.heroTaglineAr || '').trim();
+  const tagline = isAr ? taglineAr : taglineEn;
 
   const rawBio = (member.aboutSummary || '').trim();
   const rawBioAr = (member.aboutSummaryAr || '').trim();
-  const aboutSummary = isAr
-    ? rawBioAr
-    : rawBio;
+  const aboutSummary = isAr ? rawBioAr : rawBio;
 
   const careerJourney = isAr
     ? (member.careerJourneyAr || '')
@@ -980,6 +1158,8 @@ export function resolvePublicTeamMember(
   const linkedinUrl = sanitizeSocialUrl(member.linkedinUrl);
 
   const nested = mapNestedProfileProperties(member, locale);
+
+  const effectiveOrder = Number(member.displayOrder !== undefined && member.displayOrder !== null ? member.displayOrder : member.order) || 0;
 
   return {
     id: member.id,
@@ -997,7 +1177,10 @@ export function resolvePublicTeamMember(
     initials,
     linkedinUrl,
     hasLinkedin: Boolean(linkedinUrl),
-    order: Number(member.order) || 0,
+    order: effectiveOrder,
+    displayOrder: effectiveOrder,
+    isFeatured: Boolean(member.isFeatured),
+    showOnTeamPage: member.showOnTeamPage !== false,
     careerJourney: careerJourney || undefined,
     keyStrengths: keyStrengths || undefined,
     expertiseTags: nested.expertiseTags,
@@ -1022,8 +1205,8 @@ export function resolvePublicTeamList(
   return members
     .filter((m) => isTeamMemberPubliclyEligible(m).eligible)
     .sort((a, b) => {
-      const orderA = a.order ?? 999;
-      const orderB = b.order ?? 999;
+      const orderA = (a.displayOrder !== undefined && a.displayOrder !== null) ? a.displayOrder : (a.order ?? 999);
+      const orderB = (b.displayOrder !== undefined && b.displayOrder !== null) ? b.displayOrder : (b.order ?? 999);
       return orderA - orderB;
     })
     .map((m) => resolvePublicTeamMember(m, locale));
@@ -1065,11 +1248,24 @@ export function analyzeTeamMemberDataQuality(
 ): TeamDataQualityReport {
   const issues: TeamDataQualityIssue[] = [];
 
+  const isVisible = Boolean(member.isActive !== false && member.showOnTeamPage !== false);
+  const isHidden = !isVisible;
+  const isFeatured = Boolean(member.isFeatured);
+
   if (!member.isActive) {
     issues.push({
       code: 'INACTIVE_RECORD',
       messageEn: 'Profile is inactive and will be hidden from public directory.',
       messageAr: 'الملف الشخصي غير نشط وسيتم إخفاؤه من الدليل العام.',
+      severity: 'INFO',
+    });
+  }
+
+  if (member.showOnTeamPage === false) {
+    issues.push({
+      code: 'HIDDEN_FROM_TEAM_PAGE',
+      messageEn: 'Profile is excluded from public team page.',
+      messageAr: 'الملف الشخصي مستبعد من صفحة الفريق العامة.',
       severity: 'INFO',
     });
   }
@@ -1097,7 +1293,10 @@ export function analyzeTeamMemberDataQuality(
     });
   }
 
+  let hasMissingArabic = false;
+
   if (!member.firstNameAr && !member.lastNameAr) {
+    hasMissingArabic = true;
     issues.push({
       code: 'MISSING_ARABIC_NAME',
       messageEn: 'Profile is missing Arabic name fields (firstNameAr/lastNameAr).',
@@ -1107,6 +1306,7 @@ export function analyzeTeamMemberDataQuality(
   }
 
   if (!member.designationAr) {
+    hasMissingArabic = true;
     issues.push({
       code: 'MISSING_ARABIC_DESIGNATION',
       messageEn: 'Profile is missing Arabic designation field (designationAr).',
@@ -1115,12 +1315,55 @@ export function analyzeTeamMemberDataQuality(
     });
   }
 
+  if (!member.departmentAr) {
+    issues.push({
+      code: 'MISSING_ARABIC_DEPARTMENT',
+      messageEn: 'Profile is missing Arabic department field (departmentAr).',
+      messageAr: 'الملف الشخصي يفتقر إلى حقل القسم بالعربية.',
+      severity: 'INFO',
+    });
+  }
+
   if (!member.aboutSummaryAr) {
+    hasMissingArabic = true;
     issues.push({
       code: 'MISSING_ARABIC_BIO',
       messageEn: 'Profile is missing Arabic bio field (aboutSummaryAr).',
       messageAr: 'الملف الشخصي يفتقر إلى النبذة المهنية باللغة العربية.',
       severity: 'WARNING',
+    });
+  }
+
+  const hasArabicExpertise = Array.isArray(member.expertiseTagsAr) && member.expertiseTagsAr.length > 0;
+  if (!hasArabicExpertise && Array.isArray(member.expertiseTags) && member.expertiseTags.length > 0) {
+    hasMissingArabic = true;
+    issues.push({
+      code: 'MISSING_ARABIC_EXPERTISE',
+      messageEn: 'Profile has English expertise tags without Arabic equivalents.',
+      messageAr: 'الملف الشخصي يحتوي على وسوم خبرة بالإنجليزية بدون نظيراتها العربية.',
+      severity: 'INFO',
+    });
+  }
+
+  const hasArabicExperience = Array.isArray(member.experienceAr) && member.experienceAr.length > 0;
+  if (!hasArabicExperience && Array.isArray(member.experience) && member.experience.length > 0) {
+    hasMissingArabic = true;
+    issues.push({
+      code: 'MISSING_ARABIC_EXPERIENCE',
+      messageEn: 'Profile has English experience timeline without Arabic equivalents.',
+      messageAr: 'الملف الشخصي يحتوي على مسيرة مهنية بالإنجليزية بدون نظيراتها العربية.',
+      severity: 'INFO',
+    });
+  }
+
+  const hasArabicProjects = Array.isArray(member.projectsAr) && member.projectsAr.length > 0;
+  if (!hasArabicProjects && Array.isArray(member.projects) && member.projects.length > 0) {
+    hasMissingArabic = true;
+    issues.push({
+      code: 'MISSING_ARABIC_PROJECTS',
+      messageEn: 'Profile has English projects portfolio without Arabic equivalents.',
+      messageAr: 'الملف الشخصي يحتوي على سجل مشاريع بالإنجليزية بدون نظيراتها العربية.',
+      severity: 'INFO',
     });
   }
 
@@ -1166,6 +1409,7 @@ export function analyzeTeamMemberDataQuality(
 
   const isClean = issues.filter((i) => i.severity === 'ERROR').length === 0;
   const warningCount = issues.filter((i) => i.severity === 'WARNING').length;
+  const isArabicComplete = !hasMissingArabic;
 
   return {
     employeeId: member.id,
@@ -1173,6 +1417,11 @@ export function analyzeTeamMemberDataQuality(
     isClean,
     issues,
     warningCount,
+    hasMissingArabic,
+    isArabicComplete,
+    isVisible,
+    isHidden,
+    isFeatured,
   };
 }
 
