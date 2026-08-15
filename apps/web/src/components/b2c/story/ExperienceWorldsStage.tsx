@@ -1,10 +1,9 @@
- 
 "use client"
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, Clock, Ticket, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { Users, Clock, Ticket, ChevronLeft, ChevronRight, Pause, Play, Sparkles, MapPin } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
@@ -134,6 +133,7 @@ interface ExperienceWorldsStageProps {
 
 export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStageProps) {
   const isAr = locale === 'ar'
+
   const [dbAttractions, setDbAttractions] = useState<any[]>([])
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
@@ -201,7 +201,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
 
     const interval = setInterval(() => {
       setSelectedIndex(prev => (prev + 1) % worlds.length)
-    }, 3500)
+    }, 4500)
 
     return () => clearInterval(interval)
   }, [isPaused, worlds.length])
@@ -238,12 +238,13 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10">
-        {/* Section Header with Auto Slider Controls */}
+        {/* Section Header with Constellation Navigator Controls */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 border-b border-slate-800/80 pb-6">
           <div>
-            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">
-              {isAr ? "عوالم قطر الترفيهية" : "FLAGSHIP ENTERTAINMENT WORLDS"}
-            </span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{isAr ? "كوكبة عوالم قطر الترفيهية" : "QATAR ATTRACTIONS CONSTELLATION"}</span>
+            </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
               {isAr ? "عوالم إي ثري الترفيهية بقطر" : "E3 Featured Attraction Worlds"}
             </h2>
@@ -255,6 +256,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
               onClick={handlePrev}
               className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 transition-all cursor-pointer shadow-md"
               title={isAr ? "السابق" : "Previous"}
+              aria-label="Previous World"
             >
               <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
             </button>
@@ -266,9 +268,10 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   key={idx}
                   onClick={() => setSelectedIndex(idx)}
                   className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
-                    idx === selectedIndex ? 'w-6 bg-emerald-400' : 'w-2 bg-slate-700 hover:bg-slate-500'
+                    idx === selectedIndex ? 'w-6 bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'w-2 bg-slate-700 hover:bg-slate-500'
                   }`}
                   title={isAr ? `الانتقال إلى الوجهة ${idx + 1}` : `Go to world ${idx + 1}`}
+                  aria-label={`World ${idx + 1}`}
                 />
               ))}
             </div>
@@ -278,6 +281,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
               onClick={() => setIsPaused(!isPaused)}
               className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300 transition-colors cursor-pointer"
               title={isPaused ? (isAr ? "تشغيل التمرير التلقائي" : "Play Auto Slider") : (isAr ? "إيقاف التمرير التلقائي" : "Pause Auto Slider")}
+              aria-label="Toggle autoplay"
             >
               {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="w-3.5 h-3.5 text-purple-400 fill-purple-400" />}
             </button>
@@ -287,6 +291,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
               onClick={handleNext}
               className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all cursor-pointer shadow-md flex items-center gap-1 font-extrabold text-xs"
               title={isAr ? "التالي" : "Next"}
+              aria-label="Next World"
             >
               <span>{isAr ? "التالي" : "Next"}</span>
               <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
@@ -294,7 +299,41 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
           </div>
         </div>
 
-        {/* Viewport Attraction Showcase Card */}
+        {/* ============================================================ */}
+        {/* QATAR-CENTRED CONSTELLATION STRIP (Selected moves forward, neighbours recede) */}
+        {/* ============================================================ */}
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x">
+          {worlds.map((w, idx) => {
+            const isSelected = idx === selectedIndex
+            const wName = formatLocalizedText(isAr ? w.nameAr : w.nameEn, locale)
+
+            return (
+              <button
+                key={w.id || idx}
+                onClick={() => setSelectedIndex(idx)}
+                className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2 rounded-2xl border text-xs font-bold transition-all duration-500 cursor-pointer snap-center ${
+                  isSelected
+                    ? 'bg-slate-900 border-emerald-400 text-white scale-105 shadow-xl shadow-emerald-950/80 z-10'
+                    : 'bg-slate-950/60 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700 opacity-75 hover:opacity-100 scale-95'
+                }`}
+                style={{
+                  borderColor: isSelected ? w.accentColor : undefined,
+                  boxShadow: isSelected ? `0 0 20px ${w.accentColor}35` : undefined
+                }}
+              >
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: w.accentColor || '#10b981' }}
+                />
+                <span>{wName}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ============================================================ */}
+        {/* FEATURED STAGE CARD WITH CONSTELLATION DEPTH */}
+        {/* ============================================================ */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentWorld.id || selectedIndex}
@@ -304,7 +343,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
             transition={{ duration: 0.5 }}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-3xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-3xl border border-slate-800 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
           >
             {/* Left Media Stage (7 Cols) */}
             <div className="lg:col-span-7 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 group bg-slate-950">
@@ -338,6 +377,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 onClick={handlePrev}
                 className="absolute top-1/2 start-3 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/70 hover:bg-emerald-500 hover:text-slate-950 text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
                 title={isAr ? "السابق" : "Previous"}
+                aria-label="Previous Attraction"
               >
                 <ChevronLeft className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
               </button>
@@ -346,6 +386,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 onClick={handleNext}
                 className="absolute top-1/2 end-3 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/70 hover:bg-emerald-500 hover:text-slate-950 text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
                 title={isAr ? "التالي" : "Next"}
+                aria-label="Next Attraction"
               >
                 <ChevronRight className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
               </button>
@@ -362,10 +403,11 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
             <div className="lg:col-span-5 space-y-6">
               <div>
                 <span
-                  className="text-xs font-mono font-extrabold uppercase tracking-widest block mb-1"
+                  className="text-xs font-mono font-extrabold uppercase tracking-widest block mb-1 flex items-center gap-1.5"
                   style={{ color: currentWorld.accentColor || '#10b981' }}
                 >
-                  📍 {locationVal}
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{locationVal}</span>
                 </span>
                 <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
                   {nameVal}

@@ -1,11 +1,12 @@
 "use client"
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, Sparkles, MapPin, ChevronDown } from 'lucide-react'
+import { ArrowUpRight, Sparkles, MapPin, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
+import { useCapabilityTier } from '@/lib/motion/capability-context'
 
 interface StoryTaxonomyPortalsProps {
   content: any
@@ -17,11 +18,14 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   const isAr = locale === 'ar'
   const router = useRouter()
   const searchParams = useSearchParams()
+  const capabilityTier = useCapabilityTier()
+  const isReducedMotion = capabilityTier === 'minimal'
 
   const selector = content?.intentSelector || {}
   
   const [dbStoryTypes, setDbStoryTypes] = useState<any[]>(content?.storyDiscovery?.storyTypes || content?.storyTypes || [])
   const [showAllActivities, setShowAllActivities] = useState(false)
+  const mobileScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetch('/api/b2c/story-types?active=true')
@@ -42,7 +46,6 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || f.attraction.isPublished !== false)
       const jsonActivations = st.activations || st.activities || []
       
-      // Combine features from relation and JSON features
       const allActivities = [
         ...jsonActivations,
         ...publishedFeatures.map((f: any) => ({
@@ -59,7 +62,6 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         }))
       ]
 
-      // Fallback: If no specific activity match exists, fallback to unique attractions
       const uniqueAttractionsMap = new Map()
       publishedFeatures.forEach((f: any) => {
         if (f.attraction && !uniqueAttractionsMap.has(f.attraction.slug)) {
@@ -107,7 +109,6 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   
   useEffect(() => {
     if (options.length > 0 && !activeId && !paramStory) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync initial story selection
       setActiveId(options[0].id)
     }
   }, [options, activeId, paramStory])
@@ -115,13 +116,11 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   useEffect(() => {
     if (paramStory && options.length > 0) {
       const match = options.find((o: any) => o.id === paramStory || o.category === paramStory)
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync query param selection
       if (match) setActiveId(match.id)
     }
   }, [paramStory, options])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset activity pagination on track switch
     setShowAllActivities(false)
   }, [activeId])
 
@@ -137,6 +136,12 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
     router.replace(`?${newParams.toString()}`, { scroll: false })
   }
 
+  const scrollMobile = (direction: 'left' | 'right') => {
+    if (!mobileScrollRef.current) return
+    const scrollAmount = direction === 'left' ? -220 : 220
+    mobileScrollRef.current.scrollBy({ left: isAr ? -scrollAmount : scrollAmount, behavior: 'smooth' })
+  }
+
   if (options.length === 0) {
     return (
       <section
@@ -146,7 +151,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         <div className="relative max-w-4xl mx-auto px-4 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{isAr ? "استكشاف الحكايات والأنشطة" : "STORY DISCOVERY"}</span>
+            <span>{isAr ? "استكشاف مسارات الحكايات" : "STORY TRACKS & DISCOVERY"}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
             {formatLocalizedText(
@@ -187,19 +192,49 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.12),transparent_70%)] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Section Title */}
+        {/* Section Header */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{isAr ? "استكشاف الحكايات والأنشطة" : "STORY DISCOVERY"}</span>
+            <span>{isAr ? "مسارات الحكايات — DIMENSIONAL DOORWAYS" : "STORY TRACKS & DIMENSIONAL DOORWAYS"}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
             {formatLocalizedText(isAr ? (selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟") : (selector.titleEn || "What Kind of Story Do You Want Today?"), locale)}
           </h2>
         </div>
 
-        {/* Story Category Doorways Grid */}
-        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto max-w-6xl">
+        {/* ============================================================ */}
+        {/* MOBILE CONTROLS BAR (< md) */}
+        {/* ============================================================ */}
+        <div className="flex md:hidden items-center justify-between px-2">
+          <span className="text-xs font-mono font-bold text-purple-300 uppercase tracking-widest">
+            {isAr ? "اسحب لاختيار الحكاية" : "Swipe to choose story"}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => scrollMobile('left')}
+              className="w-8 h-8 rounded-full bg-slate-900 border border-purple-500/30 flex items-center justify-center text-purple-300 active:scale-90 transition-transform"
+              aria-label="Previous story doorway"
+            >
+              {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => scrollMobile('right')}
+              className="w-8 h-8 rounded-full bg-slate-900 border border-purple-500/30 flex items-center justify-center text-purple-300 active:scale-90 transition-transform"
+              aria-label="Next story doorway"
+            >
+              {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* ============================================================ */}
+        {/* DIMENSIONAL DOORWAYS TRACK CONTAINER (DESKTOP & MOBILE SWIPE) */}
+        {/* ============================================================ */}
+        <div
+          ref={mobileScrollRef}
+          className="flex flex-nowrap md:flex-wrap md:justify-center items-center gap-4.5 mx-auto max-w-6xl overflow-x-auto md:overflow-visible pb-4 md:pb-0 scroll-smooth snap-x snap-mandatory scrollbar-none [perspective:1000px]"
+        >
           {options.map((option: any) => {
             const isSelected = option.id === activeId
             const labelText = formatLocalizedText(isAr ? option.labelAr : option.labelEn, locale)
@@ -208,41 +243,49 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               <button
                 key={option.id}
                 onMouseEnter={() => handleSelect(option)}
+                onFocus={() => handleSelect(option)}
                 onClick={() => handleSelect(option)}
-                className={`relative aspect-[3/4] w-full max-w-[180px] sm:w-44 md:w-48 flex-1 min-w-[140px] max-w-[210px] rounded-3xl overflow-hidden border transition-all duration-500 group flex flex-col justify-between p-5 text-start cursor-pointer ${
+                className={`group relative aspect-[3/4] w-[170px] sm:w-44 md:w-48 flex-shrink-0 md:flex-1 min-w-[155px] max-w-[210px] rounded-3xl overflow-hidden border transition-all duration-500 flex flex-col justify-between p-5 text-start cursor-pointer snap-center focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400 ${
                   isSelected
-                    ? 'border-purple-500 bg-purple-950/60 shadow-2xl shadow-purple-950/80 scale-105 z-10'
-                    : 'border-slate-800/80 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/80'
+                    ? 'border-purple-400 bg-purple-950/70 shadow-2xl shadow-purple-950/90 scale-105 z-10'
+                    : 'border-slate-800/90 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/80'
                 }`}
-                style={isSelected ? { borderColor: option.accentColor, boxShadow: `0 0 30px ${option.accentColor}30` } : {}}
+                style={{
+                  transform: isSelected && !isReducedMotion ? 'translateZ(16px)' : 'translateZ(0px)',
+                  borderColor: isSelected ? option.accentColor : undefined,
+                  boxShadow: isSelected ? `0 0 35px ${option.accentColor}40` : undefined,
+                }}
               >
-                {/* Media Mask Background */}
+                {/* Media Mask Background with Depth Reveal */}
                 <div className="absolute inset-0 z-0 overflow-hidden">
                   <img
                     src={option.mediaUrl}
                     alt={labelText}
                     className={`w-full h-full object-cover transition-all duration-700 ${
-                      isSelected ? 'opacity-60 scale-110' : 'opacity-25 group-hover:opacity-40 group-hover:scale-105'
+                      isSelected ? 'opacity-65 scale-110' : 'opacity-25 group-hover:opacity-45 group-hover:scale-105'
                     }`}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
                 </div>
 
-                {/* Top Badge */}
+                {/* Top Doorway Category Badge */}
                 <div className="relative z-10 flex items-center justify-between">
                   <span 
-                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md transition-colors"
                     style={isSelected ? { backgroundColor: option.accentColor, color: '#000' } : { backgroundColor: '#1e293b', color: '#94a3b8' }}
                   >
                     {formatLocalizedText(option.category, locale)}
                   </span>
-                  <ArrowUpRight className={`w-4 h-4 transition-transform ${isSelected ? 'translate-x-0.5 -translate-y-0.5' : 'text-slate-600'}`} style={isSelected ? { color: option.accentColor } : {}} />
+                  <ArrowUpRight
+                    className={`w-4 h-4 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-slate-600 group-hover:text-slate-300'}`}
+                    style={isSelected ? { color: option.accentColor } : {}}
+                  />
                 </div>
 
-                {/* Oversized Typographic Label */}
+                {/* Oversized Typographic Doorway Name */}
                 <div className="relative z-10 mt-auto">
-                  <h3 className={`text-2xl sm:text-3xl font-extrabold uppercase tracking-tight transition-colors ${
-                    isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'
+                  <h3 className={`text-xl sm:text-2xl font-extrabold uppercase tracking-tight transition-colors ${
+                    isSelected ? 'text-white drop-shadow-md' : 'text-slate-300 group-hover:text-white'
                   }`}>
                     {labelText}
                   </h3>
@@ -263,7 +306,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               className="space-y-8 max-w-6xl mx-auto"
             >
               <div
-                className="p-6 rounded-3xl border border-purple-500/30 bg-purple-950/30 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl"
+                className="p-6 rounded-3xl border border-purple-500/30 bg-purple-950/30 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl transition-all duration-500"
                 style={{ borderColor: `${activeOption.accentColor}50`, backgroundColor: `${activeOption.accentColor}15` }}
               >
                 <div className="flex items-center gap-4">

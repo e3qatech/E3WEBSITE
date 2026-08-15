@@ -227,7 +227,7 @@ export function PortalGateway({
     setTimeout(() => {
       setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
     }, 620);
-  }, [isTouchDevice, isReducedMotion, effectiveTier, effectiveIsMobile, isLight, b2cWidthPercent]);
+  }, [isTouchDevice, isReducedMotion, effectiveIsMobile, isLight, b2cWidthPercent]);
 
   // Click / Selection Handler with 500ms transition
   const handleSelect = useCallback(

@@ -224,7 +224,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           </div>
         </div>
 
-        {/* Editorial Portraits Grid */}
+        {/* Editorial Portraits Grid with Project-Media Masks */}
         <div className={`grid grid-cols-1 sm:grid-cols-2 ${teamMembers.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-8 items-stretch`}>
           {teamMembers.map((member, _idx) => {
             const isActive = member.id === activeMemberId
@@ -237,10 +237,14 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
               <motion.div
                 key={member.id}
                 onMouseEnter={() => setActiveMemberId(member.id)}
+                onFocus={() => setActiveMemberId(member.id)}
                 onClick={() => setActiveMemberId(member.id)}
-                className={`relative rounded-3xl overflow-hidden border transition-all duration-500 flex flex-col justify-between p-6 cursor-pointer group ${
+                tabIndex={0}
+                role="button"
+                aria-label={memberName}
+                className={`relative rounded-3xl overflow-hidden border transition-all duration-500 flex flex-col justify-between p-6 cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
                   isActive
-                    ? 'border-purple-500 bg-purple-950/50 shadow-2xl shadow-purple-950/80 scale-105 z-10'
+                    ? 'border-purple-500 bg-purple-950/60 shadow-2xl shadow-purple-950/90 scale-105 z-10'
                     : 'border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/70'
                 }`}
               >
@@ -251,24 +255,24 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                   </div>
                 )}
 
-                {/* Portrait Image Stage */}
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-slate-950 mb-4 border border-slate-800">
+                {/* Portrait Image Stage with Architectural Mask */}
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-slate-950 mb-4 border border-slate-800 group-hover:border-purple-500/40 transition-colors shadow-lg">
                   <img
                     src={member.portrait}
                     alt={memberName}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
-                      isActive ? 'scale-105' : 'group-hover:scale-105 opacity-80'
+                      isActive ? 'scale-105' : 'group-hover:scale-103 opacity-85 group-hover:opacity-100'
                     }`}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent pointer-events-none" />
                 </div>
 
                 {/* Member Details */}
                 <div className="space-y-2">
-                  <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest">
+                  <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest block">
                     {memberRole}
                   </span>
-                  <h3 className="text-xl font-extrabold text-white">
+                  <h3 className="text-xl font-extrabold text-white group-hover:text-purple-200 transition-colors">
                     {memberName}
                   </h3>
                   <p className="text-xs text-slate-300 font-light line-clamp-3 leading-relaxed">
@@ -276,7 +280,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                   </p>
 
                   {member.showProfileLink && (
-                    <a href={`/${locale}/b2c/team/${member.slug || member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300">
+                    <a href={`/${locale}/b2c/team/${member.slug || member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
                       <span>{ctaLabel}</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>

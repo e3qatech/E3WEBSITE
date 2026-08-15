@@ -1,12 +1,13 @@
 "use client"
 
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Calendar, Pause, Play, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { localizeHref } from '@/lib/url-helper'
+import { useCapabilityTier } from '@/lib/motion/capability-context'
 
 interface CinematicHeroUniversalProps {
   content: any
@@ -15,6 +16,8 @@ interface CinematicHeroUniversalProps {
 
 export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHeroUniversalProps) {
   const isAr = locale === 'ar'
+  const capabilityTier = useCapabilityTier()
+  const isReducedMotion = capabilityTier === 'minimal'
 
   const heroMedia = content?.heroMedia || {}
   const hero = content?.hero || {}
@@ -23,6 +26,18 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
 
   const [isPlaying, setIsPlaying] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  })
+
+  // Three-layer parallax transforms (disabled in reduced-motion)
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", isReducedMotion ? "0%" : "20%"])
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1.00, isReducedMotion ? 1.00 : 1.04])
+  const midY = useTransform(scrollYProgress, [0, 1], ["0%", isReducedMotion ? "0%" : "12%"])
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", isReducedMotion ? "0%" : "-6%"])
 
   const mediaUrl = (
     heroMedia.mediaUrl ||
@@ -46,7 +61,6 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
 
   const isVideo = resolvedType === 'VIDEO'
   const isIframe = resolvedType === 'IFRAME' || resolvedType === 'MODEL_3D'
-  const _isImage = resolvedType === 'IMAGE'
 
   const headline = isAr
     ? (act1Hero.titleAr || act1.headlineAr || hero.headerAr || "أيام تمرّ… وأيام تتحول إلى حكايات.")
@@ -79,10 +93,18 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
   }
 
   return (
-    <section className="relative min-h-[92vh] flex flex-col justify-end items-center overflow-hidden bg-gradient-to-b from-[#090314] via-[#0f0728] to-[#070212] px-4 sm:px-6 lg:px-8 pt-36 pb-20 md:pb-28 text-white border-b border-purple-950/40">
-      {/* Background Universal Media Layer */}
+    <section
+      ref={containerRef}
+      className="relative min-h-[92vh] flex flex-col justify-end items-center overflow-hidden bg-gradient-to-b from-[#090314] via-[#0f0728] to-[#070212] px-4 sm:px-6 lg:px-8 pt-36 pb-20 md:pb-28 text-white border-b border-purple-950/40 select-none"
+    >
+      {/* ============================================================ */}
+      {/* LAYER 1: BACKGROUND UNIVERSAL MEDIA WITH 4% SCALE PUSH */}
+      {/* ============================================================ */}
       {mediaUrl ? (
-        <div className="absolute inset-0 z-0 overflow-hidden">
+        <motion.div
+          style={{ y: bgY, scale: bgScale }}
+          className="absolute inset-0 z-0 overflow-hidden will-change-transform"
+        >
           {isVideo ? (
             <video
               key={mediaUrl}
@@ -93,13 +115,13 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-65 sm:opacity-75 scale-105 transition-all duration-1000"
+              className="w-full h-full object-cover opacity-65 sm:opacity-75 transition-opacity duration-1000"
             />
           ) : isIframe ? (
             <iframe
               key={mediaUrl}
               src={mediaUrl}
-              className="w-full h-full border-none opacity-65 sm:opacity-75 pointer-events-none scale-105"
+              className="w-full h-full border-none opacity-65 sm:opacity-75 pointer-events-none"
               allow="autoplay; fullscreen"
             />
           ) : (
@@ -107,23 +129,33 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
               key={mediaUrl}
               src={mediaUrl}
               alt="E3 Hero Media Cover"
-              className="w-full h-full object-cover opacity-65 sm:opacity-75 scale-105 transition-all duration-1000"
+              className="w-full h-full object-cover opacity-65 sm:opacity-75 transition-opacity duration-1000"
             />
           )}
 
           {/* Ambient Bottom-to-Top Gradient Scrim Overlay for 100% text visibility */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#070212] via-[#090314]/85 to-transparent z-[1] pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_75%,rgba(168,85,247,0.3),transparent_70%)] pointer-events-none z-[1]" />
-        </div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_75%,rgba(168,85,247,0.35),transparent_70%)] pointer-events-none z-[1]" />
+        </motion.div>
       ) : null}
 
-      {/* Central Morphing E3 Arrow Device */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none scale-125 z-0">
+      {/* ============================================================ */}
+      {/* LAYER 2: MIDGROUND CENTRAL MORPHING E3 ARROW DEVICE */}
+      {/* ============================================================ */}
+      <motion.div
+        style={{ y: midY }}
+        className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none scale-125 z-0 will-change-transform"
+      >
         <E3ArrowHeroDevice variant="LIGHT_BEAM" accentColor="#a855f7" className="w-full max-w-5xl h-auto" />
-      </div>
+      </motion.div>
 
-      {/* Main Hero Content - Positioned from Bottom & Center Aligned */}
-      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 mt-auto mb-4 flex flex-col items-center justify-end">
+      {/* ============================================================ */}
+      {/* LAYER 3: FOREGROUND ILLUMINATED TYPOGRAPHY & HERO CONTENT */}
+      {/* ============================================================ */}
+      <motion.div
+        style={{ y: contentY }}
+        className="relative z-10 max-w-5xl mx-auto text-center space-y-6 mt-auto mb-4 flex flex-col items-center justify-end"
+      >
         {/* Subtle Brand Tag */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -135,12 +167,12 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
           <span>{badgeText}</span>
         </motion.div>
 
-        {/* Hero Headline */}
+        {/* Hero Headline: Starts from soft blur into sharp illuminated text */}
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-purple-300 leading-none drop-shadow-2xl"
+          initial={isReducedMotion ? { opacity: 0, y: 15 } : { opacity: 0, y: 20, filter: 'blur(10px)' }}
+          animate={isReducedMotion ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 1.0, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-purple-300 leading-none drop-shadow-[0_15px_35px_rgba(168,85,247,0.35)]"
         >
           {headline}
         </motion.h1>
@@ -167,7 +199,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
             className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-purple-900/40 hover:shadow-purple-700/60 transition-all scale-100 hover:scale-105 cursor-pointer"
           >
             <span>{isAr ? (act1Hero.tab1LabelAr || hero.tab1LabelAr || "استكشف الوجهات الترفيهية") : (act1Hero.tab1LabelEn || hero.tab1LabelEn || "EXPLORE ENTERTAINMENT WORLDS")}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
           </Link>
 
           <Link
@@ -189,7 +221,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
             </button>
           )}
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   )
 }

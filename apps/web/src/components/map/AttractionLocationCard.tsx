@@ -38,9 +38,14 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
   return (
     <div
       onClick={onSelect}
-      className={`group relative rounded-3xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+      onMouseEnter={onSelect}
+      onFocus={onSelect}
+      tabIndex={0}
+      role="button"
+      aria-pressed={isSelected}
+      className={`group relative rounded-3xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--e3-royal-blue)] ${
         isSelected
-          ? 'bg-[var(--surface-hover)] border-[var(--e3-royal-blue)] shadow-2xl ring-2 ring-[var(--e3-royal-blue)]/50'
+          ? 'bg-[var(--surface-hover)] border-[var(--e3-royal-blue)] shadow-2xl ring-2 ring-[var(--e3-royal-blue)]/50 scale-[1.02]'
           : 'bg-[var(--surface-default)] border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)]/50 hover:bg-[var(--surface-hover)]/60'
       }`}
     >

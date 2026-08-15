@@ -40,16 +40,20 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
   }
 
   return (
-    <section className="relative py-32 bg-gradient-to-b from-[#090318] via-[#0f0624] to-[#04010a] text-white overflow-hidden">
-      {/* Background Foil Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(16,185,129,0.18),transparent_70%)] pointer-events-none" />
+    <section className="relative py-32 bg-gradient-to-b from-[#090318] via-[#0f0624] to-[#04010a] text-white overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+      {/* Soft B2C Dimensional Portal Aura */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(168,85,247,0.22),rgba(16,185,129,0.12)_45%,transparent_75%)] pointer-events-none" />
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
+      {/* Subtle Portal Ring Light */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full border border-purple-500/20 pointer-events-none opacity-40 blur-sm" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full border border-emerald-500/25 pointer-events-none opacity-50 blur-xs" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
         {/* Header */}
         <div className="space-y-4 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/50 text-emerald-400 text-xs font-extrabold uppercase tracking-widest backdrop-blur-md shadow-lg shadow-emerald-950/50">
             <Ticket className="w-4 h-4 text-emerald-400 animate-pulse" />
-            <span>{isAr ? "اصنع قصتك اليوم — MAKE TODAY THE STORY" : "MAKE TODAY THE STORY — DIGITAL PASS"}</span>
+            <span>{isAr ? "بوابة الخيال إلى الذاكرة — DIGITAL PORTAL PASS" : "FROM IMAGINATION TO MEMORY — DIGITAL PASS"}</span>
           </div>
           <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
             {isAr ? (ticketData.headlineAr || "حكايتك القادمة بانتظارك.") : (ticketData.headlineEn || "Your next story is waiting.")}
@@ -61,13 +65,13 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           </p>
         </div>
 
-        {/* Tactile Digital Ticket Container */}
+        {/* Soft B2C Portal Pass Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative max-w-3xl mx-auto rounded-3xl border border-emerald-500/40 bg-slate-900/80 backdrop-blur-2xl p-8 sm:p-12 shadow-2xl shadow-emerald-950/80 overflow-hidden text-start space-y-8 group"
+          className="relative max-w-3xl mx-auto rounded-3xl border border-purple-500/30 bg-slate-900/80 backdrop-blur-2xl p-8 sm:p-12 shadow-2xl shadow-purple-950/80 overflow-hidden text-start space-y-8 group"
         >
           {/* Hologram Foil Edge Effect */}
           <div className="absolute top-0 start-0 end-0 h-2 bg-gradient-to-r from-purple-500 via-emerald-400 to-sky-400" />
@@ -75,7 +79,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           {/* Ticket Header & World Switcher */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-black text-xl border border-emerald-500/30">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-300 flex items-center justify-center font-black text-xl border border-purple-500/30">
                 E3
               </div>
               <div>

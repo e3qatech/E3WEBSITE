@@ -1,9 +1,9 @@
- 
 "use client"
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ExternalLink, Sparkles } from 'lucide-react'
+import { ExternalLink, Sparkles, Pause, Play, ChevronLeft, ChevronRight, MoveHorizontal } from 'lucide-react'
+import { DEFAULT_SOCIAL_CHANNELS, DEFAULT_SOCIAL_POSTS, SocialChannelRecord, SocialPostRecord } from '@/lib/cms-social'
 
 function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -22,7 +22,6 @@ function YoutubeIcon({ className = "w-4 h-4" }: { className?: string }) {
     </svg>
   )
 }
-import { DEFAULT_SOCIAL_CHANNELS, DEFAULT_SOCIAL_POSTS, SocialChannelRecord, SocialPostRecord } from '@/lib/cms-social'
 
 interface SocialFeedSectionProps {
   content?: any
@@ -34,8 +33,8 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
   const socialData = content?.socialFeed || {}
 
   const heading = isAr
-    ? (socialData.headlineAr || "إي ثري الآن — لحظات حية مباشرة")
-    : (socialData.headlineEn || "E3 Happening Now — Live Moments")
+    ? (socialData.headlineAr || "إي ثري الآن — جدار الذكريات الحي")
+    : (socialData.headlineEn || "E3 Happening Now — Layered Memory Wall")
 
   const subtext = isAr
     ? (socialData.subtextAr || "تابع أحدث الفعاليات واللحظات الترفيهية الحية عبر حساباتنا الرسمية.")
@@ -50,22 +49,66 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
     : DEFAULT_SOCIAL_POSTS
 
   const [activePlatform, setActivePlatform] = useState<string>('ALL')
+  const [isPaused, setIsPaused] = useState<boolean>(false)
+  const carouselContainerRef = useRef<HTMLDivElement>(null)
 
   const filteredPosts = activePlatform === 'ALL'
     ? posts.filter(p => p.isApproved && p.isVisible)
     : posts.filter(p => p.isApproved && p.isVisible && p.platform === activePlatform)
 
+  // Scroll step navigation
+  const scrollStep = (direction: 'left' | 'right') => {
+    if (!carouselContainerRef.current) return
+    const stepAmount = direction === 'left' ? -350 : 350
+    carouselContainerRef.current.scrollBy({ left: isAr ? -stepAmount : stepAmount, behavior: 'smooth' })
+  }
+
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      scrollStep(isAr ? 'right' : 'left')
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      scrollStep(isAr ? 'left' : 'right')
+    } else if (e.key === ' ') {
+      e.preventDefault()
+      setIsPaused(prev => !prev)
+    }
+  }
+
+  // Auto slow scroll when not paused
+  useEffect(() => {
+    if (isPaused || !carouselContainerRef.current) return
+
+    const interval = setInterval(() => {
+      if (!carouselContainerRef.current) return
+      const { scrollLeft, scrollWidth, clientWidth } = carouselContainerRef.current
+      if (scrollLeft + clientWidth >= scrollWidth - 10) {
+        carouselContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        carouselContainerRef.current.scrollBy({ left: isAr ? -1 : 1, behavior: 'auto' })
+      }
+    }, 40)
+
+    return () => clearInterval(interval)
+  }, [isPaused, isAr])
+
   return (
-    <section id="social-feed" className="relative py-28 bg-[#050110] text-white border-b border-purple-950/40 overflow-hidden">
+    <section
+      id="social-feed"
+      className="relative py-28 bg-[#050110] text-white border-b border-purple-950/40 overflow-hidden"
+      dir={isAr ? "rtl" : "ltr"}
+    >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(236,72,153,0.12),transparent_70%)] pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-slate-800/80 pb-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-pink-500/30 bg-pink-950/40 text-pink-400 text-xs font-bold uppercase tracking-widest mb-3">
               <Sparkles className="w-3.5 h-3.5 text-pink-400" />
-              <span>{isAr ? "البث المباشر — E3 HAPPENING NOW" : "E3 HAPPENING NOW — LIVE FEED"}</span>
+              <span>{isAr ? "جدار الذكريات التفاعلي — LIVE MEMORY WALL" : "LIVE MEMORY WALL — HAPPENING NOW"}</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
               {heading}
@@ -75,17 +118,18 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
             </p>
           </div>
 
-          {/* Platform Filter Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Controls: Platform filter + Pause + Arrow Navigation */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Filter buttons */}
             <button
               onClick={() => setActivePlatform('ALL')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activePlatform === 'ALL'
                   ? 'bg-pink-500 text-slate-950 font-extrabold shadow-md'
                   : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
-              {isAr ? "الكل" : "All Feeds"}
+              {isAr ? "الكل" : "All"}
             </button>
             {channels.map((ch) => (
               <a
@@ -93,26 +137,69 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
                 href={ch.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-pink-500/50 text-slate-300 hover:text-white text-xs font-bold transition-all"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-pink-500/50 text-slate-300 hover:text-white text-xs font-bold transition-all"
               >
                 {ch.platform === 'INSTAGRAM' ? <InstagramIcon className="w-3.5 h-3.5 text-pink-400" /> : <YoutubeIcon className="w-3.5 h-3.5 text-red-500" />}
                 <span>{ch.handle}</span>
                 <ExternalLink className="w-3 h-3 opacity-60" />
               </a>
             ))}
+
+            {/* Pause / Play Toggle & Manual Stepping Controls */}
+            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+              <button
+                onClick={() => scrollStep('left')}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-pink-500 hover:text-slate-950 text-slate-300 transition-colors"
+                title={isAr ? "السابق (مفتاح سهم اليسار)" : "Scroll Left (Left Arrow)"}
+                aria-label="Scroll Left"
+              >
+                <ChevronLeft className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
+              </button>
+              <button
+                onClick={() => setIsPaused(p => !p)}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                title={isPaused ? (isAr ? "تشغيل الحركة التلقائية (مسافة)" : "Resume Auto Scroll (Space)") : (isAr ? "إيقاف مؤقت (مسافة)" : "Pause Auto Scroll (Space)")}
+                aria-label={isPaused ? "Resume auto scroll" : "Pause auto scroll"}
+              >
+                {isPaused ? <Play className="w-3.5 h-3.5 text-pink-400 fill-pink-400" /> : <Pause className="w-3.5 h-3.5 text-slate-300" />}
+              </button>
+              <button
+                onClick={() => scrollStep('right')}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-pink-500 hover:text-slate-950 text-slate-300 transition-colors"
+                title={isAr ? "التالي (مفتاح سهم اليمين)" : "Scroll Right (Right Arrow)"}
+                aria-label="Scroll Right"
+              >
+                <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Social Feed Editorial Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Drag Hint Bar */}
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <MoveHorizontal className="w-4 h-4 text-pink-400 animate-pulse" />
+          <span>{isAr ? "اسحب للتصفح أو استخدم مفاتيح الأسهم للتحكم في جدار الذكريات" : "Drag or use arrow keys to navigate the layered memory wall"}</span>
+        </div>
+
+        {/* Draggable Layered Memory Wall */}
+        <div
+          ref={carouselContainerRef}
+          tabIndex={0}
+          role="region"
+          aria-label={isAr ? "جدار الذكريات الحي التفاعلي" : "Interactive live memory wall"}
+          onKeyDown={handleKeyDown}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          className="flex gap-6 overflow-x-auto pb-6 pt-2 scrollbar-none snap-x cursor-grab active:cursor-grabbing focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-500/50 rounded-3xl"
+        >
           {filteredPosts.map((post, idx) => (
             <motion.div
               key={post.id || idx}
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-xl hover:border-pink-500/50 transition-all duration-300 group flex flex-col justify-between"
+              transition={{ duration: 0.5, delay: idx * 0.08 }}
+              className="flex-shrink-0 w-[300px] sm:w-[340px] rounded-3xl border border-slate-800 bg-slate-900/70 overflow-hidden shadow-2xl hover:border-pink-500/60 hover:shadow-pink-950/40 transition-all duration-300 group flex flex-col justify-between snap-center hover:-translate-y-1.5"
             >
               {/* Media Preview Container */}
               <div className="relative aspect-video bg-slate-950 overflow-hidden">
@@ -135,7 +222,7 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
 
-                <div className="absolute top-4 start-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-700 text-[10px] font-mono font-bold text-pink-400 backdrop-blur-md">
+                <div className="absolute top-3.5 start-3.5 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-700 text-[10px] font-mono font-bold text-pink-400 backdrop-blur-md">
                   {post.platform === 'INSTAGRAM' ? <InstagramIcon className="w-3 h-3" /> : <YoutubeIcon className="w-3 h-3 text-red-400" />}
                   <span>{post.platform}</span>
                 </div>
@@ -157,7 +244,7 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-xs font-bold text-pink-400 hover:text-pink-300 transition-colors"
                   >
-                    <span>{isAr ? "مشاهدة المنشور" : "View Original Post"}</span>
+                    <span>{isAr ? "مشاهدة المنشور" : "View Post"}</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
