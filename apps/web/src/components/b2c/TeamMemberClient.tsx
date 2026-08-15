@@ -154,31 +154,41 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
 
           {/* Data Dense Sections */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24 text-start">
-            <B2CCard className="lg:col-span-2 p-8 border-[rgba(75,0,143,0.3)]">
-               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-magenta)]">
-                 <h3 className="font-bold text-sm tracking-widest uppercase font-display">System Bio</h3>
-               </div>
-               <p className="text-[var(--text-secondary)] leading-relaxed font-medium">{member.aboutSummary}</p>
-            </B2CCard>
+            {member.aboutSummary ? (
+              <B2CCard className="lg:col-span-2 p-8 border-[rgba(75,0,143,0.3)]">
+                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-magenta)]">
+                   <h3 className="font-bold text-sm tracking-widest uppercase font-display">
+                     {isAr ? "نبذة مهنية" : "System Bio"}
+                   </h3>
+                 </div>
+                 <p className="text-[var(--text-secondary)] leading-relaxed font-medium">{member.aboutSummary}</p>
+              </B2CCard>
+            ) : null}
 
-            <B2CCard className="p-8 border-[rgba(75,0,143,0.3)]">
-               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-royal-blue)]">
-                 <h3 className="font-bold text-sm tracking-widest uppercase font-display">Core Skills</h3>
-               </div>
-               <div className="flex flex-wrap gap-2">
-                 {expertise.map((tag: string) => (
-                   <span key={tag} className="px-3 py-1.5 bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-lg text-xs font-bold text-[var(--text-primary)]">
-                     {tag}
-                   </span>
-                 ))}
-               </div>
-            </B2CCard>
+            {expertise.length > 0 && (
+              <B2CCard className={`${member.aboutSummary ? '' : 'lg:col-span-3'} p-8 border-[rgba(75,0,143,0.3)]`}>
+                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-level-2)] text-[var(--e3-royal-blue)]">
+                   <h3 className="font-bold text-sm tracking-widest uppercase font-display">
+                     {isAr ? "المهارات الأساسية" : "Core Skills"}
+                   </h3>
+                 </div>
+                 <div className="flex flex-wrap gap-2">
+                   {expertise.map((tag: string) => (
+                     <span key={tag} className="px-3 py-1.5 bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-lg text-xs font-bold text-[var(--text-primary)]">
+                       {tag}
+                     </span>
+                   ))}
+                 </div>
+              </B2CCard>
+            )}
           </div>
 
           {/* Bento Box Projects */}
           {projects.length > 0 && (
             <div className="mb-24 text-start">
-              <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-8 border-b border-[var(--border-level-2)] pb-4 font-display">Key Projects</h3>
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-8 border-b border-[var(--border-level-2)] pb-4 font-display">
+                {isAr ? "المشاريع الرئيسية" : "Key Projects"}
+              </h3>
               <B2CGrid columns={3} gap="md">
                 {projects.map((project: any, idx: number) => (
                   <InteractiveCard key={idx} className="group h-full border-[rgba(75,0,143,0.3)]">
@@ -192,10 +202,12 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                         </div>
                       )}
                       <h4 className="text-xl font-black text-[var(--text-primary)] mb-4 group-hover:text-[var(--e3-royal-blue)] transition-colors font-display uppercase">{project.name || project.projectName}</h4>
-                      <p className="text-[var(--text-secondary)] text-sm font-medium flex-1 mb-6">{project.description}</p>
+                      {project.description && (
+                        <p className="text-[var(--text-secondary)] text-sm font-medium flex-1 mb-6">{project.description}</p>
+                      )}
                       <div className="mt-auto">
                         <span className="text-xs font-black text-[var(--e3-magenta)] bg-[rgba(176,19,184,0.1)] px-3 py-1.5 rounded-lg border border-[var(--e3-magenta)]/20 uppercase tracking-wider">
-                          ROLE: {project.role}
+                          {isAr ? "الدور:" : "ROLE:"} {project.role}
                         </span>
                       </div>
                     </div>
@@ -208,7 +220,9 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
           {/* Timeline */}
           {experience.length > 0 && (
             <div className="mb-24 text-start">
-              <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-12 border-b border-[var(--border-level-2)] pb-4 font-display">History Log</h3>
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[var(--text-tertiary)] mb-12 border-b border-[var(--border-level-2)] pb-4 font-display">
+                {isAr ? "سجل الخبرات" : "History Log"}
+              </h3>
               <div className="space-y-12 ps-4 border-s border-[var(--border-level-2)]">
                 {experience.map((exp: any, idx: number) => (
                   <motion.div 
@@ -224,7 +238,9 @@ export function TeamMemberClient({ locale, member, initialSettings }: { locale: 
                       <span className="text-[var(--e3-royal-blue)] font-bold text-sm">{exp.company}</span>
                     </div>
                     <div className="text-[var(--text-tertiary)] font-bold text-xs mb-4">{exp.duration || exp.year}</div>
-                    <p className="text-[var(--text-secondary)] font-medium max-w-3xl whitespace-pre-wrap leading-relaxed text-sm md:text-base">{exp.responsibilities || exp.description}</p>
+                    {(exp.responsibilities || exp.description) && (
+                      <p className="text-[var(--text-secondary)] font-medium max-w-3xl whitespace-pre-wrap leading-relaxed text-sm md:text-base">{exp.responsibilities || exp.description}</p>
+                    )}
                   </motion.div>
                 ))}
               </div>

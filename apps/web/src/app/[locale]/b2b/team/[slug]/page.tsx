@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound, redirect, RedirectType } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import { Award, ArrowLeft, ArrowRight } from 'lucide-react';
 import db from '@/lib/db';
@@ -20,12 +20,14 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const isAr = locale === 'ar';
 
   try {
-    const rawMember = await db.employeeProfile.findFirst({
-      where: {
-        OR: [{ slug }, { id: slug }],
-        isActive: true,
-      },
+    let rawMember = await db.employeeProfile.findUnique({
+      where: { slug },
     });
+    if (!rawMember) {
+      rawMember = await db.employeeProfile.findUnique({
+        where: { id: slug },
+      });
+    }
 
     if (!rawMember || !isTeamMemberPubliclyEligible(rawMember).eligible) {
       return {
@@ -49,18 +51,18 @@ export default async function TeamMemberDetailPage(props: PageProps) {
   const { locale, slug } = await props.params;
   const isAr = locale === 'ar';
 
-  // 1. Query database for team member by slug or legacy ID
+  // 1. Query database for team member by slug
   const rawMember = await db.employeeProfile.findUnique({
     where: { slug },
   });
 
-  // 2. Legacy CUID resolution & 301 redirect helper
-  if (!rawMember && (slug.startsWith('c') || slug.length > 20)) {
+  // 2. Legacy CUID resolution & permanent redirect helper
+  if (!rawMember) {
     const legacyMember = await db.employeeProfile.findUnique({
       where: { id: slug },
     });
     if (legacyMember && isTeamMemberPubliclyEligible(legacyMember).eligible && legacyMember.slug) {
-      redirect(`/${locale}/b2b/team/${legacyMember.slug}`, RedirectType.replace);
+      permanentRedirect(`/${locale}/b2b/team/${legacyMember.slug}`);
     }
   }
 

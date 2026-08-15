@@ -296,8 +296,441 @@ export function isTeamMemberPubliclyEligible(member: CanonicalEmployeeInput): { 
 }
 
 /**
+ * Translates duration and timeline markers (e.g. "Present", "Ongoing", "2024-Present") to canonical Arabic.
+ */
+export function translateDurationToArabic(rawDuration?: string | null): string {
+  if (!rawDuration || typeof rawDuration !== 'string') return '';
+  let res = rawDuration.trim();
+  if (res.toLowerCase() === 'present') return 'حتى الآن';
+  if (res.toLowerCase() === 'ongoing') return 'مستمر';
+  res = res.replace(/\bpresent\b/gi, 'حتى الآن');
+  res = res.replace(/\bongoing\b/gi, 'مستمر');
+  res = res.replace(/\s*-\s*/g, ' - ');
+  return res;
+}
+
+/**
+ * Standard nested tags and competencies localization dictionary for Arabic profile parity.
+ */
+export const NESTED_TAGS_LOCALIZATION: Record<string, string> = {
+  'executive leadership': 'القيادة التنفيذية',
+  'event strategy': 'استراتيجية الفعاليات',
+  'entertainment development': 'تطوير قطاع الترفيه',
+  'sports events': 'الفعاليات الرياضية',
+  'public activations': 'العروض والفعاليات العامة',
+  'business growth': 'نمو وتطوير الأعمال',
+  'stakeholder management': 'إدارة الشركاء وأصحاب المصلحة',
+  'organizational leadership': 'القيادة المؤسسية',
+  'general management': 'الإدارة العامة',
+  'business operations': 'العمليات التجارية والتشغيلية',
+  'commercial oversight': 'الإشراف التجاري',
+  'project coordination': 'تنسيق المشاريع',
+  'venue performance': 'كفاءة وتشغيل المواقع',
+  'partnership development': 'تطوير الشراكات الاستراتيجية',
+  'compliance review': 'مراجعة الامتثال والمعايير',
+  'event operations': 'عمليات وإدارة الفعاليات',
+  'venue management': 'إدارة المواقع والمنشآت',
+  'live activations': 'العروض والفعاليات الحية',
+  'guest experience': 'تجربة وخدمة الزوار',
+  'logistics': 'الخدمات اللوجستية',
+  'graphic design': 'التصميم الجرافيكي',
+  'ai-assisted creative': 'التصميم الإبداعي بالذكاء الاصطناعي',
+  'event branding': 'الهوية البصرية للفعاليات',
+  'wayfinding design': 'تصميم اللوحات الإرشادية والمسارات',
+  'visual identity': 'الهوية البصرية المؤسسية',
+  'production artwork': 'الأعمال الفنية للإنتاج',
+  'campaign design': 'تصميم الحملات الترويجية',
+  'brand implementation': 'تطبيق الهوية المؤسسية',
+  '3d visualization': 'التجسيد والتصميم ثلاثي الأبعاد',
+  'technical drafting': 'الرسم الهندسي الفني',
+  'floor-plan development': 'تطوير المخططات والتوزيع المكاني',
+  'spatial design': 'التصميم المكاني والبيئي',
+  'mood-board development': 'إعداد لوحات الإلهام والمفاهيم',
+  'technical drawing': 'الرسم والمخططات التقنية',
+  'site supervision': 'الإشراف الميداني على المواقع',
+  'ai visualization tools': 'أدوات الذكاء الاصطناعي للتجسيد البصري',
+  'digital campaigns': 'الحملات التسويقية الرقمية',
+  'brand growth': 'تطوير وتنمية العلامة التجارية',
+  'content strategy': 'استراتيجية المحتوى الرقمي',
+  'social media': 'إدارة وسائل التواصل الاجتماعي',
+  'influencer marketing': 'التسويق عبر المؤثرين',
+  'strategic investments': 'الاستثمارات الاستراتيجية',
+  'global partnerships': 'الشراكات العالمية',
+  'business development': 'تطوير الأعمال والفرص',
+  'experiential design': 'تصميم التجارب التفاعلية',
+  '3d modeling': 'النمذجة ثلاثية الأبعاد',
+  'interactive environments': 'البيئات والمساحات التفاعلية',
+  'creative direction': 'الإدارة والتوجيه الإبداعي',
+  'logistics operations': 'العمليات اللوجستية وسلاسل الإمداد',
+  'event installation': 'تركيب وتجهيز الفعاليات',
+  'site management': 'إدارة وتنسيق المواقع',
+  'inflatable operations': 'تشغيل مدن الألعاب المطاطية',
+  'supply-chain management': 'إدارة سلاسل الإمداد والتوريد',
+  'event delivery': 'تسليم وتنفيذ الفعاليات',
+  'procurement': 'المشتريات والتوريد التجاري',
+  'production supervision': 'الإشراف على خطوط الإنتاج',
+  'large-format printing': 'الطباعة ذات الأحجام الكبرى',
+  'event fabrication': 'تصنيع وهندسة مجسمات الفعاليات',
+  'branding installation': 'تركيب الهويات واللافتات',
+  'digital marketing': 'التسويق الرقمي الحديث',
+  'social media strategy': 'استراتيجية منصات التواصل الاجتماعي',
+  'campaign production': 'إنتاج وتنسيق الحملات',
+  'b2b partnerships': 'شراكات الأعمال B2B',
+  'influencer management': 'إدارة علاقات المؤثرين',
+  'operations management': 'إدارة وتنسيق العمليات التشغيلية',
+  'project management': 'إدارة المشاريع المتكاملة',
+  'fec operations': 'تشغيل مراكز الترفيه العائلي FEC',
+  'technology and ticketing systems': 'الأنظمة التقنية وبوابات التذاكر',
+  'end-to-end event operations': 'العمليات التشغيلية المتكاملة للفعاليات',
+  'supplier management': 'إدارة الموردين والشركاء',
+  'venue setup': 'تجهيز وتهيئة المنشآت',
+  'creative concept development': 'تطوير المفاهيم والأفكار الإبداعية',
+  'full-stack product engineering': 'هندسة البرمجيات والأنظمة المتكاملة',
+  'azure cloud operations': 'إدارة السحابة والبنية التحتية Azure',
+  'ticketing and pos systems': 'أنظمة التذاكر ونقاط البيع POS',
+  'access control': 'أنظمة التحكم في الدخول وإدارة البوابات',
+  'hybrid venue technology': 'تقنيات المواقع الهجينة والذكية',
+  'birthday-event coordination': 'تنسيق فعاليات أعياد الميلاد والمناسبات',
+  'artist and performer management': 'إدارة الفنانين والفرق الاستعراضية',
+  'live entertainment': 'العروض والترفيه الحي',
+  'programme design': 'تصميم البرامج والأنشطة',
+  'team leadership': 'القيادة وإدارة فرق العمل',
+  'venue coordination': 'تنسيق إدارة المواقع',
+  'food & beverage operations': 'عمليات الأغذية والمشروبات F&B',
+  'outlet management': 'إدارة منافذ البيع والخدمة',
+  'menu development': 'تطوير وتصميم قوائم الطعام',
+  'cost control': 'ضبط التكاليف والرقابة المالية',
+  'food safety and haccp': 'سلامة الأغذية وتطبيق معايير الهاسب HACCP',
+  'large-scale crowd control': 'إدارة الحشود الكبرى وتدفق الزوار',
+  'technical production coordination': 'تنسيق الإنتاج الفني والتقني',
+  'health & safety compliance': 'الامتثال لمعايير الصحة والسلامة المهنية',
+  'vendor management': 'إدارة الموردين ومزودي الخدمات',
+  'omnichannel campaign execution': 'تنفيذ الحملات عبر القنوات المتعددة',
+  'performance marketing': 'التسويق الموجه بالأداء',
+  'creative briefing': 'إعداد التوجيهات والموجزات الإبداعية',
+  'data-driven growth': 'النمو المؤسسي القائم على تحليل البيانات',
+  'project planning': 'تخطيط وجدولة المشاريع',
+  'crisis management': 'إدارة الأزمات والطوارئ',
+  'digital strategy': 'الاستراتيجية الرقمية المتطورة',
+  'content creation': 'صناعة وإنتاج المحتوى',
+  'analytics & seo': 'التحليلات الرقمية وتحسين محركات البحث SEO',
+  'strategic planning': 'التخطيط الاستراتيجي المؤسسي',
+  'negotiation': 'التفاوض وإبرام العقود',
+  'visionary leadership': 'القيادة الاستشرافية والرؤية الاستراتيجية',
+  'ux/ui for physical spaces': 'تصميم التجربة الرقمية للمساحات الواقعية',
+  'p&l management': 'إدارة الأرباح والخسائر P&L',
+  'logistics planning and coordination': 'تخطيط وتنسيق العمليات اللوجستية',
+  'customs and regulatory compliance': 'الامتثال الجمركي والتنظيمي',
+  'site supervision and handover reporting': 'الإشراف على المواقع وتقارير التسليم',
+  'vendor and contract negotiation': 'التفاوض مع الموردين وإدارة العقود',
+  'third party logistics management': 'إدارة الخدمات اللوجستية للطرف الثالث 3PL',
+  'productivity and throughput optimization': 'تحسين الإنتاجية وتدفق العمليات',
+  'delivery-experience management': 'إدارة تجربة تسليم الفعاليات',
+  'large- and small-format printing': 'الطباعة للأحجام الكبيرة والصغيرة',
+  'cnc and laser-cutting machine operation': 'تشغيل أجهزة القص بالليزر و CNC',
+  'storyboarding and scripting': 'إعداد لوحات القصة وكتابة السيناريو',
+  'proposal and pitch-deck development': 'إعداد العروض التقديمية وملفات المشاريع',
+  'vendor and project coordination': 'تنسيق المشاريع والموردين',
+  'event build-up and closure': 'تجهيز الفعاليات وإغلاق المواقع',
+  'reporting and presentations': 'إعداد التقارير والعروض التقديمية',
+  'react and typescript development': 'تطوير البرمجيات بـ React و TypeScript',
+  'hardware and pos integration': 'تكامل الأجهزة ونقاط البيع POS',
+  'hosting and dj support': 'تقديم العروض والدعم الموسيقي DJ',
+  'theme development': 'تطوير المفاهيم والموضوعات',
+  'costume and prop coordination': 'تنسيق الأزياء والإكسسوارات',
+  'client and stakeholder communication': 'التواصل مع العملاء وأصحاب المصلحة',
+  'administration and reporting': 'الإدارة وإعداد التقارير',
+  'customer-experience management': 'إدارة تجربة العملاء',
+};
+
+/**
+ * Canonical Arabic Name Mapping for Roster Members.
+ */
+export const CANONICAL_NAME_LOCALIZATION_MAP: Record<string, string> = {
+  'adil-ahmed': 'عادل أحمد',
+  'mohammad-ali-awada': 'محمد علي عواضة',
+  'raja-abbas-khan': 'راجا عباس خان',
+  'amaan-malik': 'أمان مالك',
+  'mohasin-mohammadaly-parayil': 'محاسن محمد علي بارييل',
+  'abdullah-al-kubaisi': 'عبدالله الكبيسي',
+  'ahmad-faraz': 'أحمد فراز',
+  'abdulla-alkuwari': 'عبدالله الكواري',
+  'sarah-haddad': 'سارة حداد',
+  'arslan-arshad': 'أرسلان أرشد',
+  'asghar-bhatti': 'أصغر بهاتي',
+  'quasain-ali': 'قوسين علي',
+  'amal-jose': 'أمل خوسيه',
+  'nicole-bernido': 'نيكول بيرنيدو',
+  'rajan-pathak': 'راجان باثاك',
+  'mohasin-mohammadaly': 'محاسن محمد علي',
+  'waqar-asghar': 'وقار أصغر',
+  'ebrahim-karolia': 'إبراهيم كاروليا',
+  'muhammad-izaan-shahid': 'محمد إذعان شاهد',
+  'marcialou-macatangay': 'مارسيالو ماكاتانغاي',
+  'lucian-moldovan': 'لوسيان مولدوفان',
+  'ruben-yaralyan': 'روبين ياراليان',
+};
+
+/**
+ * Standard nested experience/project roles localization dictionary for Arabic profile parity.
+ */
+export const NESTED_ROLES_LOCALIZATION: Record<string, string> = {
+  'managing director & ceo': 'العضو المنتدب والرئيس التنفيذي',
+  'founder & ceo': 'المؤسس والرئيس التنفيذي',
+  'general manager': 'المدير العام',
+  'business growth manager': 'مدير تنمية الأعمال',
+  'partnerships, external collaborations & f&b commercial management': 'إدارة الشراكات والتعاون الخارجي والأغذية والمشروبات',
+  'bid coordination, master tracker & final compliance review': 'تنسيق المناقصات والمتابعة الشاملة ومراجعة الامتثال',
+  'commercial oversight': 'الإشراف التجاري',
+  'general management & venue performance': 'الإدارة العامة وكفاءة المواقع',
+  'management oversight': 'الإشراف الإداري',
+  'events director': 'مدير الفعاليات',
+  'senior events manager': 'مدير الفعاليات الأول',
+  'operations lead': 'مسؤول العمليات التشغيلية',
+  'ai generalist & senior graphic designer': 'مصمم جرافيك أول وخبير ذكاء اصطناعي',
+  'event branding & graphic design': 'الهوية البصرية وتصميم الجرافيك للفعاليات',
+  'branding & wayfinding lead': 'مسؤول الهوية واللوحات الإرشادية',
+  'venue branding & wayfinding': 'هوية المنشآت واللوحات الإرشادية',
+  'venue branding & graphic design': 'هوية المنشآت والتصميم الجرافيكي',
+  'booth branding & graphic design': 'تصميم وهوية الأجنحة والمعارض',
+  '3d visualizer': 'مصمم ثلاثي الأبعاد',
+  '3d visualization, drafting & site supervision': 'التجسيد ثلاثي الأبعاد والرسم الفني والإشراف الميداني',
+  'marketing manager': 'مدير التسويق',
+  'creative marketing lead': 'رئيس التسويق الإبداعي',
+  'marketing lead': 'مسؤول التسويق',
+  'campaign strategist': 'مخطط الحملات الترويجية',
+  'director of investments': 'مدير الاستثمارات',
+  'ceo & founder': 'الرئيس التنفيذي والمؤسس',
+  founder: 'المؤسس',
+  'executive sponsor': 'الراعي التنفيذي',
+  'lead environment designer': 'رئيس مصممي البيئات التفاعلية',
+  'head of experiential design': 'رئيس قسم التصميم التجريبي',
+  'lead designer': 'رئيس المصممين',
+  'creative director': 'المدير الإبداعي',
+  'logistics & operations lead': 'مسؤول اللوجستيات والعمليات',
+  'logistics coordinator': 'منسق الخدمات اللوجستية',
+  'site supervisor': 'مشرف الموقع',
+  'logistics manager': 'مدير العمليات اللوجستية',
+  production: 'الإنتاج والتنفيذ',
+  'campaign lead / director': 'مدير الحملات الإعلانية',
+  'schools outreach lead': 'مسؤول التواصل مع المدارس والمؤسسات',
+  'programme & partnership lead': 'مسؤول البرامج والشراكات',
+  'social, media & partnerships lead': 'مسؤول الإعلام والتواصل والشراكات',
+  'project manager / operations lead': 'مدير المشاريع ومسؤول العمليات',
+  'project manager': 'مدير المشاريع',
+  'operations & it lead': 'مسؤول العمليات وتقنية المعلومات',
+  'event supervisor': 'مشرف الفعاليات',
+  'software engineer - product, cloud & systems': 'مهندس برمجيات - المنتجات والسحابة والأنظمة',
+  'software engineer': 'مهندس برمجيات',
+  'artist coordinator': 'منسق الفنانين والعروض',
+  'birthday event coordinator': 'منسق فعاليات أعياد الميلاد',
+  'artist & performer coordinator': 'منسق الفنانين والفرق الاستعراضية',
+  'sports area manager': 'مدير المنطقة الرياضية',
+  'operations manager': 'مدير العمليات',
+  'f&b manager': 'مدير الأغذية والمشروبات',
+};
+
+/**
+ * Standard certifications localization dictionary for Arabic profile parity.
+ */
+export const NESTED_CERTS_LOCALIZATION: Record<string, string> = {
+  'certified special events professional (csep)': 'شهادة محترف فعاليات خاصة معتمد (CSEP)',
+  'advanced crowd management certification': 'شهادة إدارة الحشود المتقدمة',
+  'google digital marketing expert': 'شهادة خبير التسويق الرقمي من Google',
+  'meta certified creative strategy professional': 'شهادة محترف الاستراتيجيات الإبداعية المعتمد من Meta',
+  'executive leadership program - harvard business school': 'برنامج القيادة التنفيذية - كلية هارفارد للأعمال',
+  'autodesk certified professional': 'شهادة محترف معتمد من Autodesk',
+  'interactive architecture certificate': 'شهادة العمارة التفاعلية',
+  'certified lean six sigma black belt (ai-powered) - mf treinamentos, 2025': 'شهادة الحزام الأسود لين ستة سيجما بالذكاء الاصطناعي - MF Treinamentos، 2025',
+  'market2win strategic account management & dimark2win - market2win, 2023': 'إدارة الحسابات الاستراتيجية والتسويق الرقمي - Market2Win، 2023',
+  'cesim global qualifier - cesim business simulations, 2023': 'المؤهل العالمي لمحاكاة الأعمال - Cesim، 2023',
+  'injaz qatar - junior achievement worldwide, 2024': 'إنجاز قطر - مؤسسة جونيور أتشيفمنت العالمية، 2024',
+  'pmp - project management professional - project management institute, 2024-2027': 'شهادة محترف إدارة المشاريع (PMP) - معهد إدارة المشاريع PMI، 2024-2027',
+  'pmi-acp - agile certified practitioner - project management institute, 2022-2028': 'ممارس معتمد للمنهجية الرشيقة (PMI-ACP) - معهد PMI، 2022-2028',
+  'lean six sigma ai belt - mf treinamentos, 2026': 'حزام لين ستة سيجما المعزز بالذكاء الاصطناعي - MF Treinamentos، 2026',
+  '3d visualization certificate - cadd international, 2009': 'شهادة التجسيد ثلاثي الأبعاد - CADD International، 2009',
+  'architectural certificate - cadd international, 2009': 'شهادة الرسم المعماري - CADD International، 2009',
+  'basic first aid & cpr - enertech qatar, 2026-2028': 'الإسعافات الأولية والإنعاش القلبي الرئوي - Enertech قطر، 2026-2028',
+  'microsoft certified: azure administrator associate (az-104) - microsoft, 2026': 'مسؤول معتمد لـ Microsoft Azure (AZ-104) - Microsoft، 2026',
+  'microsoft certified: azure fundamentals (az-900) - microsoft, 2026': 'أساسيات Microsoft Azure (AZ-900) - Microsoft، 2026',
+  'first aid - qatar foundation, 2017': 'شهادة الإسعافات الأولية - مؤسسة قطر، 2017',
+  'habc level 2 award in haccp for catering - highfield international qualifications, 2018': 'شهادة الهاسب للمطاعم والضيافة المستوى الثاني - Highfield International، 2018',
+  'habc level 3 award in supervising haccp for catering - highfield international qualifications, 2018': 'شهادة الإشراف على نظام الهاسب المستوى الثالث - Highfield International، 2018',
+};
+
+/**
+ * Applies unified Arabic nested profile presentation mapping across B2B and B2C consumers.
+ * Guarantees zero prohibited English nested prose on Arabic profile views while preserving English outputs.
+ */
+export function mapNestedProfileProperties(
+  member: CanonicalEmployeeInput,
+  locale: 'en' | 'ar' = 'en'
+) {
+  const isAr = locale === 'ar';
+  const rawExpertise = Array.isArray(member.expertiseTags) ? member.expertiseTags : [];
+  const rawCompetencies = Array.isArray(member.coreCompetencies) ? member.coreCompetencies : [];
+  const rawExperience = Array.isArray(member.experience)
+    ? member.experience
+    : Array.isArray(member.experienceTimeline)
+    ? member.experienceTimeline
+    : [];
+  const rawProjects = Array.isArray(member.projects)
+    ? member.projects
+    : Array.isArray(member.projectsPortfolio)
+    ? member.projectsPortfolio
+    : [];
+  const rawCertifications = Array.isArray(member.certifications) ? member.certifications : [];
+  const rawEducation = Array.isArray(member.education) ? member.education : [];
+  const rawAwards = Array.isArray(member.awards) ? member.awards : [];
+  const rawSkillsMatrix = Array.isArray(member.skillsMatrix) ? member.skillsMatrix : [];
+
+  if (!isAr) {
+    return {
+      expertiseTags: rawExpertise,
+      coreCompetencies: rawCompetencies,
+      experience: rawExperience,
+      projects: rawProjects,
+      certifications: rawCertifications,
+      education: rawEducation,
+      awards: rawAwards,
+      skillsMatrix: rawSkillsMatrix,
+    };
+  }
+
+  // 1. Expertise Tags
+  const expertiseTags = rawExpertise.map((tag: string) => {
+    if (typeof tag !== 'string') return tag;
+    const lower = tag.trim().toLowerCase();
+    return NESTED_TAGS_LOCALIZATION[lower] || tag;
+  });
+
+  // 2. Core Competencies
+  const coreCompetencies = rawCompetencies.map((comp: string) => {
+    if (typeof comp !== 'string') return comp;
+    const lower = comp.trim().toLowerCase();
+    return NESTED_TAGS_LOCALIZATION[lower] || comp;
+  });
+
+  // 3. Experience Timeline
+  const experience = rawExperience.map((exp: any, idx: number) => {
+    if (!exp || typeof exp !== 'object') return exp;
+    const rawRole = exp.title || exp.role || '';
+    const rawRoleLower = rawRole.toLowerCase().trim();
+    const roleAr =
+      exp.titleAr ||
+      exp.roleAr ||
+      NESTED_ROLES_LOCALIZATION[rawRoleLower] ||
+      COMMON_DESIGNATION_LOCALIZATION[rawRoleLower] ||
+      rawRole;
+
+    const rawCompany = exp.company || 'E3';
+    const companyAr =
+      rawCompany === 'E3' || rawCompany === 'eeeqa' || rawCompany === 'E3 Qatar'
+        ? 'إي ثري'
+        : exp.companyAr || rawCompany;
+
+    const rawDuration = exp.year || exp.duration || '';
+    const durationAr = exp.yearAr || exp.durationAr || translateDurationToArabic(rawDuration);
+
+    const descriptionAr = exp.descriptionAr || exp.responsibilitiesAr || '';
+
+    return {
+      id: exp.id || `exp-${idx}`,
+      role: roleAr,
+      title: roleAr,
+      company: companyAr,
+      duration: durationAr,
+      year: durationAr,
+      description: descriptionAr,
+      responsibilities: descriptionAr,
+    };
+  });
+
+  // 4. Projects Portfolio
+  const projects = rawProjects.map((proj: any, idx: number) => {
+    if (!proj || typeof proj !== 'object') return proj;
+    const rawRole = proj.role || '';
+    const rawRoleLower = rawRole.toLowerCase().trim();
+    const roleAr =
+      proj.roleAr ||
+      NESTED_ROLES_LOCALIZATION[rawRoleLower] ||
+      COMMON_DESIGNATION_LOCALIZATION[rawRoleLower] ||
+      rawRole;
+
+    const rawName = proj.name || proj.projectName || '';
+    const nameAr = proj.nameAr || proj.projectNameAr || rawName;
+
+    const rawYear = proj.year || '';
+    const yearAr = proj.yearAr || translateDurationToArabic(rawYear);
+
+    const descriptionAr = proj.descriptionAr || '';
+
+    return {
+      id: proj.id || `proj-${idx}`,
+      name: nameAr,
+      projectName: nameAr,
+      role: roleAr,
+      year: yearAr,
+      client: proj.clientAr || proj.client || '',
+      description: descriptionAr,
+    };
+  });
+
+  // 5. Certifications
+  const certifications = rawCertifications.map((cert: any, idx: number) => {
+    if (typeof cert === 'string') {
+      const lower = cert.toLowerCase().trim();
+      return NESTED_CERTS_LOCALIZATION[lower] || cert;
+    }
+    if (cert && typeof cert === 'object') {
+      const rawName = cert.name || '';
+      const lower = rawName.toLowerCase().trim();
+      const nameAr = cert.nameAr || NESTED_CERTS_LOCALIZATION[lower] || rawName;
+      const rawIssuer = cert.issuer || '';
+      const issuerAr =
+        rawIssuer.toLowerCase() === 'professional organization'
+          ? 'هيئة مهنية معتمدة'
+          : cert.issuerAr || rawIssuer;
+      const yearAr = cert.yearAr || translateDurationToArabic(cert.year);
+
+      return {
+        id: cert.id || `cert-${idx}`,
+        name: nameAr,
+        issuer: issuerAr,
+        year: yearAr,
+      };
+    }
+    return cert;
+  });
+
+  // 6. Skills Matrix
+  const skillsMatrix = rawSkillsMatrix.map((s: any) => {
+    if (!s || typeof s !== 'object') return s;
+    const rawSkill = s.skill || '';
+    const lower = rawSkill.toLowerCase().trim();
+    const skillAr = s.skillAr || NESTED_TAGS_LOCALIZATION[lower] || rawSkill;
+    return {
+      ...s,
+      skill: skillAr,
+    };
+  });
+
+  return {
+    expertiseTags,
+    coreCompetencies,
+    experience,
+    projects,
+    certifications,
+    education: rawEducation,
+    awards: rawAwards,
+    skillsMatrix,
+  };
+}
+
+/**
  * Resolves a single EmployeeProfile into a safe public DTO.
  * - Localizes name, designation, department, and bio cleanly for English and Arabic.
+ * - Applies shared Arabic nested profile presentation mapping (skills, experience, certifications, projects).
  * - Prevents English biography residue in Arabic mode.
  * - Strips personal email and phone numbers (staff privacy).
  * - Enforces HTTPS for social links.
@@ -309,11 +742,12 @@ export function resolvePublicTeamMember(
   const isAr = locale === 'ar';
 
   const nameEn = `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Team Member';
+  const mappedArName = member.slug ? CANONICAL_NAME_LOCALIZATION_MAP[member.slug] : null;
   const nameAr = member.firstNameAr && member.lastNameAr
     ? `${member.firstNameAr} ${member.lastNameAr}`.trim()
     : member.firstNameAr
     ? member.firstNameAr.trim()
-    : nameEn; // Fallback to Latin name as last resort identity label
+    : mappedArName || nameEn;
 
   const displayFullName = isAr ? nameAr : nameEn;
 
@@ -345,14 +779,8 @@ export function resolvePublicTeamMember(
   const safeLinkedin = sanitizeSocialUrl(member.linkedinUrl);
   const safePortrait = sanitizePortraitUrl(member.profileImage);
 
-  // Safe Arrays
-  const expertiseTags = Array.isArray(member.expertiseTags) ? member.expertiseTags : [];
-  const coreCompetencies = Array.isArray(member.coreCompetencies) ? member.coreCompetencies : [];
-  const experience = Array.isArray(member.experience) ? member.experience : [];
-  const projects = Array.isArray(member.projects) ? member.projects : [];
-  const certifications = Array.isArray(member.certifications) ? member.certifications : [];
-  const education = Array.isArray(member.education) ? member.education : [];
-  const awards = Array.isArray(member.awards) ? member.awards : [];
+  // Apply unified Arabic nested profile presentation mapping
+  const nested = mapNestedProfileProperties(member, locale);
 
   return {
     id: member.id,
@@ -373,13 +801,13 @@ export function resolvePublicTeamMember(
     order: typeof member.order === 'number' ? member.order : 0,
     careerJourney: isAr ? (member.careerJourneyAr || '') : (member.careerJourney || ''),
     keyStrengths: isAr ? (member.keyStrengthsAr || '') : (member.keyStrengths || ''),
-    expertiseTags,
-    coreCompetencies,
-    experience,
-    projects,
-    certifications,
-    education,
-    awards,
+    expertiseTags: nested.expertiseTags,
+    coreCompetencies: nested.coreCompetencies,
+    experience: nested.experience,
+    projects: nested.projects,
+    certifications: nested.certifications,
+    education: nested.education,
+    awards: nested.awards,
   };
 }
 

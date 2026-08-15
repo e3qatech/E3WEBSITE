@@ -68,6 +68,10 @@ vi.mock('next/navigation', () => ({
     mockRedirect(url, type);
     throw new Error(`NEXT_REDIRECT:${url}`);
   }),
+  permanentRedirect: vi.fn((url: string) => {
+    mockRedirect(url);
+    throw new Error(`NEXT_REDIRECT:${url}`);
+  }),
   RedirectType: {
     push: 'push',
     replace: 'replace',
@@ -547,7 +551,7 @@ describe('QF-24 & QF-24-B — Complete 22-Person Roster, Arabic Parity & HTTP Ca
         expect(err.message).toContain('NEXT_REDIRECT:/ar/b2b/team/abdulla-alkuwari');
       }
 
-      expect(mockRedirect).toHaveBeenCalledWith('/ar/b2b/team/abdulla-alkuwari', expect.anything());
+      expect(mockRedirect).toHaveBeenCalledWith('/ar/b2b/team/abdulla-alkuwari');
     });
 
     it('TeamMemberDetailPage returns 404 for unknown or inactive member', async () => {
