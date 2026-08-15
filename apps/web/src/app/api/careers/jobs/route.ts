@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
-    const isHR = session?.user && isHRAuthorized(userRole);
+    const userPermissions = (session?.user as any)?.permissions;
+    const isHR = session?.user && isHRAuthorized(userRole, userPermissions);
 
     const { searchParams } = new URL(req.url);
     const locale = (searchParams.get('locale') || 'en') as 'en' | 'ar';
@@ -72,7 +73,8 @@ export async function POST(req: NextRequest) {
     }
 
     const userRole = (session.user as any)?.role;
-    if (!isHRAuthorized(userRole)) {
+    const userPermissions = (session.user as any)?.permissions;
+    if (!isHRAuthorized(userRole, userPermissions)) {
       return NextResponse.json(
         { error: 'Forbidden: HR permissions required to create job postings' },
         { status: 403 }

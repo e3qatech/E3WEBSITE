@@ -10,22 +10,44 @@
 export const QATAR_TIMEZONE = 'Asia/Qatar';
 export const QATAR_UTC_OFFSET_HOURS = 3; // Fixed UTC+3 (no DST in Qatar)
 
+import { hasPermission } from '@/lib/permissions';
+
 /**
- * Checks if a user role has HR / Careers administrative capabilities.
+ * Checks if a user has HR / Careers administrative capabilities.
+ * Canonical permissions: SUPER_ADMIN, HR_ADMIN, or accounts with explicit 'hr.jobs.manage' / 'hr.applications.manage' capabilities.
+ * Generic STAFF without explicit HR capability receives false (403).
  */
-export function isHRAuthorized(userRole?: string | null): boolean {
+export function isHRAuthorized(
+  userRole?: string | null,
+  userPermissions?: string[] | null
+): boolean {
   if (!userRole) return false;
-  const clean = String(userRole).trim().toUpperCase();
-  return [
-    'SUPER_ADMIN',
-    'SUPERADMIN',
-    'ADMIN',
-    'HR_ADMIN',
-    'HRADMIN',
-    'HR',
-    'STAFF',
-    'EMPLOYEE'
-  ].includes(clean);
+  const cleanRole = String(userRole).trim().toUpperCase();
+
+  // 1. Explicit user permissions override (e.g. from user session or database token)
+  if (Array.isArray(userPermissions)) {
+    if (
+      userPermissions.includes('*') ||
+      userPermissions.includes('hr.*') ||
+      userPermissions.includes('hr.jobs.manage') ||
+      userPermissions.includes('hr.applications.manage') ||
+      userPermissions.includes('hr.team.manage') ||
+      userPermissions.includes('manage:careers')
+    ) {
+      return true;
+    }
+  }
+
+  // 2. Canonical role permission resolution (SUPER_ADMIN, HR_ADMIN)
+  if (
+    hasPermission(cleanRole, 'hr.jobs.manage') ||
+    hasPermission(cleanRole, 'hr.applications.manage') ||
+    hasPermission(cleanRole, 'hr.team.manage')
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 export interface CanonicalJobInput {
@@ -236,16 +258,13 @@ export function toTitleCase(str?: string | null): string {
     e3: 'E3',
   };
 
-  return trimmed
-    .split(/\s+/)
-    .map((word) => {
-      const lower = word.toLowerCase().replace(/[^a-z0-9]/g, '');
-      if (acronyms[lower]) {
-        return word.replace(new RegExp(lower, 'i'), acronyms[lower]);
-      }
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join(' ');
+  return trimmed.replace(/[a-zA-Z0-9]+/g, (word) => {
+    const lower = word.toLowerCase();
+    if (acronyms[lower]) {
+      return acronyms[lower];
+    }
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
 }
 
 /**

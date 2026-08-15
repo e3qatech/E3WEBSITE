@@ -28,8 +28,9 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
 
   const session = await auth();
   const userRole = (session?.user as any)?.role;
+  const userPermissions = (session?.user as any)?.permissions;
 
-  if (!session || !session.user || !isHRAuthorized(userRole)) {
+  if (!session || !session.user || !isHRAuthorized(userRole, userPermissions)) {
     redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/careers`);
   }
 

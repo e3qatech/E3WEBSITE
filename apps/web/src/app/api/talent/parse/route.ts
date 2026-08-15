@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
+import { isHRAuthorized } from '@/lib/careers/job-eligibility';
 
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    const userRole = (session?.user as any)?.role;
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+    }
 
-    if (!session || (userRole !== 'SUPER_ADMIN' && userRole !== 'SUPPORT_ADMIN')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const userRole = (session.user as any)?.role;
+    const userPermissions = (session.user as any)?.permissions;
+    if (!isHRAuthorized(userRole, userPermissions)) {
+      return NextResponse.json({ error: 'Forbidden: HR permissions required' }, { status: 403 });
     }
 
     const formData = await request.formData();

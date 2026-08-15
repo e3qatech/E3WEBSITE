@@ -10,12 +10,12 @@ export async function GET(
   try {
     const session = await auth();
     if (!session || !session.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
     }
 
     const { id } = await params;
     const user = session.user as any;
-    const isStaffOrAdmin = isHRAuthorized(user.role);
+    const isStaffOrAdmin = isHRAuthorized(user.role, user.permissions);
 
     const application = await db.jobApplication.findUnique({
       where: { id },
@@ -40,7 +40,7 @@ export async function GET(
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
 
-    // Candidate ownership check (Prevent cross-candidate IDOR)
+    // Candidate ownership check (Prevent cross-candidate IDOR and generic STAFF snooping)
     if (!isStaffOrAdmin && application.userId !== user.id && (!user.email || application.email.toLowerCase() !== user.email.toLowerCase())) {
       return NextResponse.json({ error: 'Forbidden: Access denied to other candidate applications' }, { status: 403 });
     }
@@ -68,9 +68,9 @@ export async function GET(
   }
 }
 
-export async function PUT(
+async function handleStatusUpdate(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  params: Promise<{ id: string }>
 ) {
   try {
     const session = await auth();
@@ -79,7 +79,8 @@ export async function PUT(
     }
 
     const userRole = (session.user as any)?.role;
-    if (!isHRAuthorized(userRole)) {
+    const userPermissions = (session.user as any)?.permissions;
+    if (!isHRAuthorized(userRole, userPermissions)) {
       return NextResponse.json({ error: 'Forbidden: HR permissions required to update application status' }, { status: 403 });
     }
 
@@ -91,6 +92,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
+    const existing = await db.jobApplication.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+    }
+
     const application = await db.jobApplication.update({
       where: { id },
       data: { status }
@@ -98,7 +104,21 @@ export async function PUT(
 
     return NextResponse.json({ success: true, application });
   } catch (error) {
-    console.error("[PUT /api/careers/[id]/status] error:", error);
+    console.error("[STATUS_UPDATE /api/careers/[id]/status] error:", error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return handleStatusUpdate(req, params);
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return handleStatusUpdate(req, params);
 }

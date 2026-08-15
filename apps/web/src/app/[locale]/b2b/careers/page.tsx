@@ -35,7 +35,7 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
   const footerMediaType = content?.footer?.mediaType || "IMAGE";
   const footerMediaUrl = content?.footer?.mediaUrl || "";
 
-  // 1. Fetch canonical jobs from db.job
+  // 1. Fetch canonical jobs exclusively from db.job (QF-22-B Requirement 2)
   let displayJobs: any[] = [];
   try {
     const rawDbJobs = await db.job.findMany({
@@ -49,28 +49,6 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
     }
   } catch (err) {
     console.error("Error fetching db.job for B2B careers:", err);
-  }
-
-  // 2. Fallback to page content jobs if no DB jobs exist yet
-  if (displayJobs.length === 0) {
-    const fallbackRaw = Array.isArray(content.jobs) && content.jobs.length > 0 ? content.jobs : [
-      {
-        titleEn: "Senior Full Stack Engineer",
-        titleAr: "مهندس برمجيات أول",
-        department: "Engineering",
-        location: "Doha, Qatar",
-        type: "Full-time",
-      },
-      {
-        titleEn: "Event Operations Manager",
-        titleAr: "مدير عمليات الفعاليات",
-        department: "Operations",
-        location: "Doha, Qatar",
-        type: "Full-time",
-      }
-    ];
-
-    displayJobs = fallbackRaw.map((j: any) => formatJobPresentation(j, isAr ? 'ar' : 'en'));
   }
 
   return (

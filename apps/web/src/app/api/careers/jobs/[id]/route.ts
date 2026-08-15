@@ -27,7 +27,8 @@ export async function GET(
     const { id } = await params;
     const session = await auth();
     const userRole = (session?.user as any)?.role;
-    const isHR = session?.user && isHRAuthorized(userRole);
+    const userPermissions = (session?.user as any)?.permissions;
+    const isHR = session?.user && isHRAuthorized(userRole, userPermissions);
 
     const { searchParams } = new URL(req.url);
     const locale = (searchParams.get('locale') || 'en') as 'en' | 'ar';
@@ -96,7 +97,8 @@ export async function PUT(
     }
 
     const userRole = (session.user as any)?.role;
-    if (!isHRAuthorized(userRole)) {
+    const userPermissions = (session.user as any)?.permissions;
+    if (!isHRAuthorized(userRole, userPermissions)) {
       return NextResponse.json(
         { error: 'Forbidden: HR permissions required to edit job listings' },
         { status: 403 }
@@ -150,7 +152,8 @@ export async function DELETE(
     }
 
     const userRole = (session.user as any)?.role;
-    if (!isHRAuthorized(userRole)) {
+    const userPermissions = (session.user as any)?.permissions;
+    if (!isHRAuthorized(userRole, userPermissions)) {
       return NextResponse.json(
         { error: 'Forbidden: HR permissions required to delete job listings' },
         { status: 403 }

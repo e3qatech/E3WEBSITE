@@ -15,8 +15,9 @@ export default async function ApplicationsPage(props: { params: Promise<{ locale
   const { locale } = await props.params;
   const session = await auth();
   const userRole = (session?.user as any)?.role;
+  const userPermissions = (session?.user as any)?.permissions;
 
-  if (!session || !session.user || !isHRAuthorized(userRole)) {
+  if (!session || !session.user || !isHRAuthorized(userRole, userPermissions)) {
     redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/careers/applications`);
   }
 

@@ -14,7 +14,8 @@ export async function POST(
     }
 
     const userRole = (session.user as any)?.role;
-    if (!isHRAuthorized(userRole)) {
+    const userPermissions = (session.user as any)?.permissions;
+    if (!isHRAuthorized(userRole, userPermissions)) {
       return NextResponse.json({ error: 'Forbidden: HR permissions required to parse CV documents' }, { status: 403 });
     }
 
