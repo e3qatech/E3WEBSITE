@@ -30,7 +30,7 @@ const SECTIONS: EditorSectionItem[] = [
 export function AttractionsPageEditor() {
   const router = useRouter();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -38,16 +38,53 @@ export function AttractionsPageEditor() {
   const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
 
   const [pageConfig, setPageConfig] = useState({
-    titleEn: "EXPERIENCES & ATTRACTIONS",
-    titleAr: "التجارب والوجهات المميزة",
-    descEn: "Explore all flagship E3 entertainment worlds across Qatar.",
-    descAr: "استكشف كافة وجهات إي ثري الترفيهية في قطر.",
+    eyebrowEn: "ALL-ACCESS ENTERTAINMENT DIRECTORY",
+    eyebrowAr: "دليل الوجهات والتجارب الترفيهية الشامل",
+    fixedHeadlineEn: "STEP INTO A WORLD OF {{animated}}",
+    fixedHeadlineAr: "ادخل إلى عالم من {{animated}}",
+    headlineTemplateEn: "STEP INTO A WORLD OF {{animated}}",
+    headlineTemplateAr: "ادخل إلى عالم من {{animated}}",
+    titleEn: "STEP INTO A WORLD OF {{animated}}",
+    titleAr: "ادخل إلى عالم من {{animated}}",
+    rotatingWordsEn: ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
+    rotatingWordsAr: ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
+    descEn: "Search, filter, and book world-class entertainment attractions, indoor kinetic parks, and live character activations across Qatar.",
+    descAr: "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر.",
+    descriptionEn: "Search, filter, and book world-class entertainment attractions, indoor kinetic parks, and live character activations across Qatar.",
+    descriptionAr: "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر.",
+    primaryCta: {
+      labelEn: "Explore Attractions",
+      labelAr: "استكشف الوجهات",
+      url: "#attractions-grid"
+    },
+    secondaryCta: {
+      labelEn: "View Live Calendar",
+      labelAr: "عرض جدول الفعاليات",
+      url: "/b2c/calendar"
+    },
+    primaryCtaEn: "Explore Attractions",
+    primaryCtaAr: "استكشف الوجهات",
+    primaryCtaUrl: "#attractions-grid",
+    secondaryCtaEn: "View Live Calendar",
+    secondaryCtaAr: "عرض جدول الفعاليات",
+    secondaryCtaUrl: "/b2c/calendar",
+    preset: "e3-universe",
+    accentColor: "#7c3aed",
+    animationType: "blur-morph",
+    wordStyle: "static-gradient",
+    alignmentEn: "center",
+    alignmentAr: "center",
+    alignment: "center",
+    animationSpeed: 2800,
+    animationDuration: 600,
+    enableRotatingWords: true,
     showFilters: true,
     showSearchBar: true,
     heroMedia: {
       ...DEFAULT_UNIVERSAL_MEDIA,
       mediaType: "VIDEO",
       mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
+      posterUrl: ""
     } as UniversalMediaConfig,
     footerMedia: {
       ...DEFAULT_UNIVERSAL_MEDIA,
@@ -56,6 +93,7 @@ export function AttractionsPageEditor() {
     } as UniversalMediaConfig,
     seoTitle: "Experiences & Attractions | E3 Qatar",
     seoDescription: "Discover live events, family attractions, InflataPark, and tactical arenas.",
+    e3LivingHero: undefined as any
   });
 
   useEffect(() => {
@@ -175,36 +213,37 @@ export function AttractionsPageEditor() {
       {activeSectionId === "titles" && (
         <E3LivingHeroEditor
           value={{
-            eyebrowEn: (pageConfig as any).eyebrowEn || "ALL-ACCESS ENTERTAINMENT DIRECTORY",
-            eyebrowAr: (pageConfig as any).eyebrowAr || "دليل الوجهات والتجارب الترفيهية الشامل",
-            fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || (pageConfig as any).headlineTemplateEn || "STEP INTO A WORLD OF {{animated}}",
-            fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || (pageConfig as any).headlineTemplateAr || "ادخل إلى عالم من {{animated}}",
-            headlineTemplateEn: (pageConfig as any).headlineTemplateEn || (pageConfig as any).fixedHeadlineEn,
-            headlineTemplateAr: (pageConfig as any).headlineTemplateAr || (pageConfig as any).fixedHeadlineAr,
-            rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
-            rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
-            descriptionEn: pageConfig.descEn,
-            descriptionAr: pageConfig.descAr,
-            primaryCta: {
-              labelEn: "Explore Attractions",
-              labelAr: "استكشف الوجهات",
-              url: "#attractions-grid"
+            eyebrowEn: pageConfig.eyebrowEn || "ALL-ACCESS ENTERTAINMENT DIRECTORY",
+            eyebrowAr: pageConfig.eyebrowAr || "دليل الوجهات والتجارب الترفيهية الشامل",
+            fixedHeadlineEn: pageConfig.fixedHeadlineEn || pageConfig.headlineTemplateEn || "STEP INTO A WORLD OF {{animated}}",
+            fixedHeadlineAr: pageConfig.fixedHeadlineAr || pageConfig.headlineTemplateAr || "ادخل إلى عالم من {{animated}}",
+            headlineTemplateEn: pageConfig.headlineTemplateEn || pageConfig.fixedHeadlineEn || "STEP INTO A WORLD OF {{animated}}",
+            headlineTemplateAr: pageConfig.headlineTemplateAr || pageConfig.fixedHeadlineAr || "ادخل إلى عالم من {{animated}}",
+            rotatingWordsEn: pageConfig.rotatingWordsEn || ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
+            rotatingWordsAr: pageConfig.rotatingWordsAr || ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
+            descriptionEn: pageConfig.descriptionEn || pageConfig.descEn,
+            descriptionAr: pageConfig.descriptionAr || pageConfig.descAr,
+            primaryCta: pageConfig.primaryCta || {
+              labelEn: pageConfig.primaryCtaEn || "Explore Attractions",
+              labelAr: pageConfig.primaryCtaAr || "استكشف الوجهات",
+              url: pageConfig.primaryCtaUrl || "#attractions-grid"
             },
-            secondaryCta: {
-              labelEn: "View Live Calendar",
-              labelAr: "عرض جدول الفعاليات",
-              url: "/b2c/calendar"
+            secondaryCta: pageConfig.secondaryCta || {
+              labelEn: pageConfig.secondaryCtaEn || "View Live Calendar",
+              labelAr: pageConfig.secondaryCtaAr || "عرض جدول الفعاليات",
+              url: pageConfig.secondaryCtaUrl || "/b2c/calendar"
             },
             media: pageConfig.heroMedia,
-            preset: (pageConfig as any).preset || "e3-universe",
-            animationSpeed: (pageConfig as any).animationSpeed || 2800,
-            animationDuration: (pageConfig as any).animationDuration || 600,
-            animationType: (pageConfig as any).animationType || "blur-morph",
-            wordStyle: (pageConfig as any).wordStyle || "static-gradient",
-            alignmentEn: (pageConfig as any).alignmentEn || (pageConfig as any).alignment || "center",
-            alignmentAr: (pageConfig as any).alignmentAr || (pageConfig as any).alignment || "center",
-            alignment: (pageConfig as any).alignment,
-            enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
+            preset: (pageConfig.preset as any) || "e3-universe",
+            accentColor: pageConfig.accentColor || "#7c3aed",
+            animationSpeed: pageConfig.animationSpeed || 2800,
+            animationDuration: pageConfig.animationDuration || 600,
+            animationType: (pageConfig.animationType as any) || "blur-morph",
+            wordStyle: (pageConfig.wordStyle as any) || "static-gradient",
+            alignmentEn: (pageConfig.alignmentEn as any) || (pageConfig.alignment as any) || "center",
+            alignmentAr: (pageConfig.alignmentAr as any) || (pageConfig.alignment as any) || "center",
+            alignment: (pageConfig.alignment as any) || "center",
+            enableRotatingWords: pageConfig.enableRotatingWords !== false
           }}
           onChange={(updated) => {
             updateField((p: any) => ({
@@ -215,17 +254,28 @@ export function AttractionsPageEditor() {
               fixedHeadlineAr: updated.fixedHeadlineAr,
               headlineTemplateEn: updated.headlineTemplateEn,
               headlineTemplateAr: updated.headlineTemplateAr,
-              titleEn: updated.fixedHeadlineEn,
-              titleAr: updated.fixedHeadlineAr,
+              titleEn: updated.headlineTemplateEn || updated.fixedHeadlineEn,
+              titleAr: updated.headlineTemplateAr || updated.fixedHeadlineAr,
               rotatingWordsEn: updated.rotatingWordsEn,
               rotatingWordsAr: updated.rotatingWordsAr,
               descEn: updated.descriptionEn,
               descAr: updated.descriptionAr,
+              descriptionEn: updated.descriptionEn,
+              descriptionAr: updated.descriptionAr,
+              primaryCta: updated.primaryCta,
+              secondaryCta: updated.secondaryCta,
+              primaryCtaEn: updated.primaryCta?.labelEn,
+              primaryCtaAr: updated.primaryCta?.labelAr,
+              primaryCtaUrl: updated.primaryCta?.url,
+              secondaryCtaEn: updated.secondaryCta?.labelEn,
+              secondaryCtaAr: updated.secondaryCta?.labelAr,
+              secondaryCtaUrl: updated.secondaryCta?.url,
               heroMedia: {
                 ...(p.heroMedia || {}),
                 ...updated.media
               },
               preset: updated.preset,
+              accentColor: updated.accentColor,
               animationSpeed: updated.animationSpeed,
               animationDuration: updated.animationDuration,
               animationType: updated.animationType,
@@ -233,7 +283,8 @@ export function AttractionsPageEditor() {
               alignmentEn: updated.alignmentEn,
               alignmentAr: updated.alignmentAr,
               alignment: updated.alignment,
-              enableRotatingWords: updated.enableRotatingWords
+              enableRotatingWords: updated.enableRotatingWords,
+              e3LivingHero: updated
             }))
           }}
           isAr={false}

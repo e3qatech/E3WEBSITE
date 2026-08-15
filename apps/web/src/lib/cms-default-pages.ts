@@ -1706,28 +1706,48 @@ export const DEFAULT_B2C_PACKAGES_PAGE_CONTENT = {
 };
 
 export const DEFAULT_B2C_ATTRACTIONS_PAGE_CONTENT = {
-  eyebrowEn: "IMMERSIVE ATTRACTION WORLDS",
-  eyebrowAr: "عوالِم الوجهات الترفيهية الغامرة",
-  fixedHeadlineEn: "STEP INTO A WORLD OF",
-  fixedHeadlineAr: "ادخل إلى عالم من",
+  eyebrowEn: "ALL-ACCESS ENTERTAINMENT DIRECTORY",
+  eyebrowAr: "دليل الوجهات والتجارب الترفيهية الشامل",
+  fixedHeadlineEn: "STEP INTO A WORLD OF {{animated}}",
+  fixedHeadlineAr: "ادخل إلى عالم من {{animated}}",
+  headlineTemplateEn: "STEP INTO A WORLD OF {{animated}}",
+  headlineTemplateAr: "ادخل إلى عالم من {{animated}}",
+  titleEn: "STEP INTO A WORLD OF {{animated}}",
+  titleAr: "ادخل إلى عالم من {{animated}}",
   rotatingWordsEn: ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
   rotatingWordsAr: ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
   descriptionEn: "Search, filter, and book world-class entertainment attractions, indoor kinetic parks, and live character activations across Qatar.",
   descriptionAr: "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر.",
+  descEn: "Search, filter, and book world-class entertainment attractions, indoor kinetic parks, and live character activations across Qatar.",
+  descAr: "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر.",
   primaryCtaEn: "Explore Attractions",
   primaryCtaAr: "استكشف الوجهات",
   primaryCtaUrl: "#attractions-grid",
-  secondaryCtaEn: "View Interactive Map",
-  secondaryCtaAr: "الخريطة التفاعلية",
-  secondaryCtaUrl: "#attractions-map",
+  secondaryCtaEn: "View Live Calendar",
+  secondaryCtaAr: "عرض جدول الفعاليات",
+  secondaryCtaUrl: "/{locale}/b2c/calendar",
   preset: "e3-universe",
+  animationType: "blur-morph",
+  wordStyle: "static-gradient",
+  alignmentEn: "center",
+  alignmentAr: "center",
+  alignment: "center",
   animationSpeed: 2800,
+  animationDuration: 600,
   enableRotatingWords: true,
+  showFilters: true,
+  showSearchBar: true,
   heroMedia: {
-    mediaType: "IMAGE",
-    mediaUrl: "",
+    mediaType: "VIDEO",
+    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
     posterUrl: ""
-  }
+  },
+  footerMedia: {
+    mediaType: "IMAGE",
+    mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+  },
+  seoTitle: "Experiences & Attractions | E3 Qatar",
+  seoDescription: "Discover live events, family attractions, InflataPark, and tactical arenas."
 };
 
 export const DEFAULT_B2C_CALENDAR_PAGE_CONTENT = {
@@ -1773,10 +1793,111 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
   if (slug === 'b2c-attractions-page' || slug === 'b2c-attractions') {
     const raw = rawContent || {};
     const defaults = DEFAULT_B2C_ATTRACTIONS_PAGE_CONTENT;
+    const mergedHeroMedia = { ...defaults.heroMedia, ...(raw.heroMedia || {}) };
+    const mergedFooterMedia = { ...(defaults.footerMedia || {}), ...(raw.footerMedia || {}) };
+
+    const eyebrowEn = raw.eyebrowEn || raw.e3LivingHero?.eyebrowEn || defaults.eyebrowEn;
+    const eyebrowAr = raw.eyebrowAr || raw.e3LivingHero?.eyebrowAr || defaults.eyebrowAr;
+    const fixedHeadlineEn = raw.fixedHeadlineEn || raw.headlineTemplateEn || raw.e3LivingHero?.fixedHeadlineEn || defaults.fixedHeadlineEn;
+    const fixedHeadlineAr = raw.fixedHeadlineAr || raw.headlineTemplateAr || raw.e3LivingHero?.fixedHeadlineAr || defaults.fixedHeadlineAr;
+    const headlineTemplateEn = raw.headlineTemplateEn || raw.fixedHeadlineEn || raw.e3LivingHero?.headlineTemplateEn || defaults.headlineTemplateEn;
+    const headlineTemplateAr = raw.headlineTemplateAr || raw.fixedHeadlineAr || raw.e3LivingHero?.headlineTemplateAr || defaults.headlineTemplateAr;
+    const rotatingWordsEn = Array.isArray(raw.rotatingWordsEn) && raw.rotatingWordsEn.length > 0
+      ? raw.rotatingWordsEn
+      : (Array.isArray(raw.e3LivingHero?.rotatingWordsEn) && raw.e3LivingHero.rotatingWordsEn.length > 0
+          ? raw.e3LivingHero.rotatingWordsEn
+          : defaults.rotatingWordsEn);
+    const rotatingWordsAr = Array.isArray(raw.rotatingWordsAr) && raw.rotatingWordsAr.length > 0
+      ? raw.rotatingWordsAr
+      : (Array.isArray(raw.e3LivingHero?.rotatingWordsAr) && raw.e3LivingHero.rotatingWordsAr.length > 0
+          ? raw.e3LivingHero.rotatingWordsAr
+          : defaults.rotatingWordsAr);
+    const descriptionEn = raw.descriptionEn || raw.descEn || raw.e3LivingHero?.descriptionEn || defaults.descriptionEn;
+    const descriptionAr = raw.descriptionAr || raw.descAr || raw.e3LivingHero?.descriptionAr || defaults.descriptionAr;
+    const preset = raw.preset || raw.e3LivingHero?.preset || defaults.preset;
+    const animationType = raw.animationType || raw.e3LivingHero?.animationType || defaults.animationType;
+    const wordStyle = raw.wordStyle || raw.e3LivingHero?.wordStyle || defaults.wordStyle;
+    const alignmentEn = raw.alignmentEn || raw.e3LivingHero?.alignmentEn || defaults.alignmentEn;
+    const alignmentAr = raw.alignmentAr || raw.e3LivingHero?.alignmentAr || defaults.alignmentAr;
+    const alignment = raw.alignment || raw.e3LivingHero?.alignment;
+    const animationSpeed = raw.animationSpeed || raw.e3LivingHero?.animationSpeed || defaults.animationSpeed;
+    const animationDuration = raw.animationDuration || raw.e3LivingHero?.animationDuration || defaults.animationDuration;
+    const enableRotatingWords = raw.enableRotatingWords !== undefined
+      ? raw.enableRotatingWords
+      : (raw.e3LivingHero?.enableRotatingWords !== undefined ? raw.e3LivingHero.enableRotatingWords : defaults.enableRotatingWords);
+
+    const primaryCta = raw.primaryCta || {
+      labelEn: raw.primaryCtaEn || raw.e3LivingHero?.primaryCta?.labelEn || defaults.primaryCtaEn,
+      labelAr: raw.primaryCtaAr || raw.e3LivingHero?.primaryCta?.labelAr || defaults.primaryCtaAr,
+      url: raw.primaryCtaUrl || raw.e3LivingHero?.primaryCta?.url || defaults.primaryCtaUrl,
+    };
+    const secondaryCta = raw.secondaryCta || {
+      labelEn: raw.secondaryCtaEn || raw.e3LivingHero?.secondaryCta?.labelEn || defaults.secondaryCtaEn,
+      labelAr: raw.secondaryCtaAr || raw.e3LivingHero?.secondaryCta?.labelAr || defaults.secondaryCtaAr,
+      url: raw.secondaryCtaUrl || raw.e3LivingHero?.secondaryCta?.url || defaults.secondaryCtaUrl,
+    };
+
     return {
       ...defaults,
       ...raw,
-      heroMedia: { ...defaults.heroMedia, ...(raw.heroMedia || {}) },
+      eyebrowEn,
+      eyebrowAr,
+      fixedHeadlineEn,
+      fixedHeadlineAr,
+      headlineTemplateEn,
+      headlineTemplateAr,
+      titleEn: headlineTemplateEn || fixedHeadlineEn,
+      titleAr: headlineTemplateAr || fixedHeadlineAr,
+      rotatingWordsEn,
+      rotatingWordsAr,
+      descriptionEn,
+      descriptionAr,
+      descEn: descriptionEn,
+      descAr: descriptionAr,
+      preset,
+      animationType,
+      wordStyle,
+      alignmentEn,
+      alignmentAr,
+      alignment,
+      animationSpeed,
+      animationDuration,
+      enableRotatingWords,
+      primaryCta,
+      secondaryCta,
+      primaryCtaEn: primaryCta.labelEn,
+      primaryCtaAr: primaryCta.labelAr,
+      primaryCtaUrl: primaryCta.url,
+      secondaryCtaEn: secondaryCta.labelEn,
+      secondaryCtaAr: secondaryCta.labelAr,
+      secondaryCtaUrl: secondaryCta.url,
+      heroMedia: mergedHeroMedia,
+      footerMedia: mergedFooterMedia,
+      e3LivingHero: {
+        eyebrowEn,
+        eyebrowAr,
+        fixedHeadlineEn,
+        fixedHeadlineAr,
+        headlineTemplateEn,
+        headlineTemplateAr,
+        rotatingWordsEn,
+        rotatingWordsAr,
+        descriptionEn,
+        descriptionAr,
+        preset,
+        animationType,
+        wordStyle,
+        alignmentEn,
+        alignmentAr,
+        alignment,
+        animationSpeed,
+        animationDuration,
+        enableRotatingWords,
+        primaryCta,
+        secondaryCta,
+        media: mergedHeroMedia,
+        ...(raw.e3LivingHero || {})
+      }
     };
   }
   if (slug === 'b2c-calendar-page' || slug === 'b2c-calendar') {

@@ -20,35 +20,53 @@ export function CinematicHeroUniversal({
   const act1 = content?.act1 || {}
   const livingHeroData = content?.e3LivingHero || {}
 
-  const eyebrowEn = livingHeroData.eyebrowEn || heroMedia.badgeEn || hero.badgeEn || act1Hero.badgeEn || "E3 QATAR ENTERTAINMENT WORLDS"
-  const eyebrowAr = livingHeroData.eyebrowAr || heroMedia.badgeAr || hero.badgeAr || act1Hero.badgeAr || "عالم إي ثري الترفيهي بقطر"
+  const eyebrowEn = livingHeroData.eyebrowEn || content?.eyebrowEn || heroMedia.badgeEn || hero.badgeEn || act1Hero.badgeEn || "ALL-ACCESS ENTERTAINMENT DIRECTORY"
+  const eyebrowAr = livingHeroData.eyebrowAr || content?.eyebrowAr || heroMedia.badgeAr || hero.badgeAr || act1Hero.badgeAr || "دليل الوجهات والتجارب الترفيهية الشامل"
 
-  const fixedHeadlineEn = livingHeroData.fixedHeadlineEn || act1Hero.fixedHeadlineEn || hero.headerEn || act1Hero.titleEn || "SOME DAYS PASS. OTHERS BECOME"
-  const fixedHeadlineAr = livingHeroData.fixedHeadlineAr || act1Hero.fixedHeadlineAr || hero.headerAr || act1Hero.titleAr || "بعض الأيام تمضي. وأخرى تصبح"
+  const headlineTemplateEn = livingHeroData.headlineTemplateEn || content?.headlineTemplateEn || livingHeroData.fixedHeadlineEn || content?.fixedHeadlineEn || act1Hero.headlineTemplateEn || act1Hero.fixedHeadlineEn || hero.headerEn || act1Hero.titleEn || content?.titleEn || "STEP INTO A WORLD OF {{animated}}"
+  const headlineTemplateAr = livingHeroData.headlineTemplateAr || content?.headlineTemplateAr || livingHeroData.fixedHeadlineAr || content?.fixedHeadlineAr || act1Hero.headlineTemplateAr || act1Hero.fixedHeadlineAr || hero.headerAr || act1Hero.titleAr || content?.titleAr || "ادخل إلى عالم من {{animated}}"
 
-  const hasExplicitLivingHero = Boolean(livingHeroData.fixedHeadlineEn || livingHeroData.rotatingWordsEn?.length || act1Hero.fixedHeadlineEn)
+  const fixedHeadlineEn = livingHeroData.fixedHeadlineEn || content?.fixedHeadlineEn || headlineTemplateEn
+  const fixedHeadlineAr = livingHeroData.fixedHeadlineAr || content?.fixedHeadlineAr || headlineTemplateAr
+
+  const hasExplicitLivingHero = Boolean(
+    livingHeroData.fixedHeadlineEn ||
+    livingHeroData.headlineTemplateEn ||
+    content?.fixedHeadlineEn ||
+    content?.headlineTemplateEn ||
+    livingHeroData.rotatingWordsEn?.length ||
+    content?.rotatingWordsEn?.length ||
+    act1Hero.fixedHeadlineEn
+  )
 
   const rotatingWordsEn = Array.isArray(livingHeroData.rotatingWordsEn) && livingHeroData.rotatingWordsEn.length > 0
     ? livingHeroData.rotatingWordsEn
-    : (Array.isArray(act1Hero.rotatingWordsEn) && act1Hero.rotatingWordsEn.length > 0
-        ? act1Hero.rotatingWordsEn
-        : (hasExplicitLivingHero ? ["STORIES", "ADVENTURES", "MOMENTS", "MEMORIES"] : []))
+    : (Array.isArray(content?.rotatingWordsEn) && content.rotatingWordsEn.length > 0
+        ? content.rotatingWordsEn
+        : (Array.isArray(act1Hero.rotatingWordsEn) && act1Hero.rotatingWordsEn.length > 0
+            ? act1Hero.rotatingWordsEn
+            : (hasExplicitLivingHero ? ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"] : [])))
 
   const rotatingWordsAr = Array.isArray(livingHeroData.rotatingWordsAr) && livingHeroData.rotatingWordsAr.length > 0
     ? livingHeroData.rotatingWordsAr
-    : (Array.isArray(act1Hero.rotatingWordsAr) && act1Hero.rotatingWordsAr.length > 0
-        ? act1Hero.rotatingWordsAr
-        : (hasExplicitLivingHero ? ["حكايات", "مغامرات", "لحظات", "ذكريات"] : []))
+    : (Array.isArray(content?.rotatingWordsAr) && content.rotatingWordsAr.length > 0
+        ? content.rotatingWordsAr
+        : (Array.isArray(act1Hero.rotatingWordsAr) && act1Hero.rotatingWordsAr.length > 0
+            ? act1Hero.rotatingWordsAr
+            : (hasExplicitLivingHero ? ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"] : [])))
 
   const enableRotating = livingHeroData.enableRotatingWords !== undefined
     ? livingHeroData.enableRotatingWords
-    : (hasExplicitLivingHero || rotatingWordsEn.length > 0)
+    : (content?.enableRotatingWords !== undefined
+        ? content.enableRotatingWords
+        : (hasExplicitLivingHero || rotatingWordsEn.length > 0))
 
-  const descriptionEn = livingHeroData.descriptionEn || act1Hero.subtextEn || act1.subtextEn || hero.subHeaderEn || "Enter a world of attractions, live experiences and unforgettable moments created by E3 in Qatar."
-  const descriptionAr = livingHeroData.descriptionAr || act1Hero.subtextAr || act1.subtextAr || hero.subHeaderAr || "ادخل عالمًا من الوجهات الترفيهية والتجارب الحية واللحظات التي لا تُنسى مع E3 في قطر."
+  const descriptionEn = livingHeroData.descriptionEn || content?.descriptionEn || content?.descEn || act1Hero.subtextEn || act1.subtextEn || hero.subHeaderEn || "Search, filter, and book world-class entertainment attractions, indoor kinetic parks, and live character activations across Qatar."
+  const descriptionAr = livingHeroData.descriptionAr || content?.descriptionAr || content?.descAr || act1Hero.subtextAr || act1.subtextAr || hero.subHeaderAr || "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر."
 
   const mediaUrl = (
     livingHeroData.media?.mediaUrl ||
+    content?.heroMedia?.mediaUrl ||
     heroMedia.mediaUrl ||
     hero.mediaUrl ||
     act1Hero.desktopVideoUrl ||
@@ -57,8 +75,16 @@ export function CinematicHeroUniversal({
     ""
   ).trim()
 
+  const mobileMediaUrl = (
+    livingHeroData.media?.mobileMediaUrl ||
+    content?.heroMedia?.mobileMediaUrl ||
+    heroMedia.mobileMediaUrl ||
+    ""
+  ).trim()
+
   const posterUrl = (
     livingHeroData.media?.posterUrl ||
+    content?.heroMedia?.posterUrl ||
     heroMedia.posterUrl ||
     hero.posterUrl ||
     act1Hero.posterUrl ||
@@ -66,27 +92,33 @@ export function CinematicHeroUniversal({
     ""
   ).trim()
 
-  const rawMediaType = (livingHeroData.media?.mediaType || heroMedia.mediaType || hero.mediaType || act1Hero.mediaType || 'IMAGE').toUpperCase()
+  const rawMediaType = (
+    livingHeroData.media?.mediaType ||
+    content?.heroMedia?.mediaType ||
+    heroMedia.mediaType ||
+    hero.mediaType ||
+    act1Hero.mediaType ||
+    'IMAGE'
+  ).toUpperCase()
 
-  const primaryLabelEn = livingHeroData.primaryCta?.labelEn || act1Hero.tab1LabelEn || hero.tab1LabelEn || act1.primaryCtaEn || "Begin Your Story"
-  const primaryLabelAr = livingHeroData.primaryCta?.labelAr || act1Hero.tab1LabelAr || hero.tab1LabelAr || act1.primaryCtaAr || "ابدأ حكايتك"
-  const primaryUrl = livingHeroData.primaryCta?.url || act1Hero.tab1Url || hero.tab1Url || act1.primaryCtaUrl || "/{locale}/b2c/attractions"
+  const primaryLabelEn = livingHeroData.primaryCta?.labelEn || content?.primaryCta?.labelEn || content?.primaryCtaEn || act1Hero.tab1LabelEn || hero.tab1LabelEn || act1.primaryCtaEn || "Explore Attractions"
+  const primaryLabelAr = livingHeroData.primaryCta?.labelAr || content?.primaryCta?.labelAr || content?.primaryCtaAr || act1Hero.tab1LabelAr || hero.tab1LabelAr || act1.primaryCtaAr || "استكشف الوجهات"
+  const primaryUrl = livingHeroData.primaryCta?.url || content?.primaryCta?.url || content?.primaryCtaUrl || act1Hero.tab1Url || hero.tab1Url || act1.primaryCtaUrl || "#attractions-grid"
 
-  const secondaryLabelEn = livingHeroData.secondaryCta?.labelEn || act1Hero.tab2LabelEn || hero.tab2LabelEn || act1.secondaryCtaEn || "See What's On Today"
-  const secondaryLabelAr = livingHeroData.secondaryCta?.labelAr || act1Hero.tab2LabelAr || hero.tab2LabelAr || act1.secondaryCtaAr || "اكتشف فعاليات اليوم"
-  const secondaryUrl = livingHeroData.secondaryCta?.url || act1Hero.tab2Url || hero.tab2Url || act1.secondaryCtaUrl || "/{locale}/b2c/calendar"
+  const secondaryLabelEn = livingHeroData.secondaryCta?.labelEn || content?.secondaryCta?.labelEn || content?.secondaryCtaEn || act1Hero.tab2LabelEn || hero.tab2LabelEn || act1.secondaryCtaEn || "View Live Calendar"
+  const secondaryLabelAr = livingHeroData.secondaryCta?.labelAr || content?.secondaryCta?.labelAr || content?.secondaryCtaAr || act1Hero.tab2LabelAr || hero.tab2LabelAr || act1.secondaryCtaAr || "عرض جدول الفعاليات"
+  const secondaryUrl = livingHeroData.secondaryCta?.url || content?.secondaryCta?.url || content?.secondaryCtaUrl || act1Hero.tab2Url || hero.tab2Url || act1.secondaryCtaUrl || "/{locale}/b2c/calendar"
 
-  const resolvedPreset: E3LivingHeroPreset = livingHeroData.preset || preset
+  const resolvedPreset: E3LivingHeroPreset = livingHeroData.preset || content?.preset || preset
 
-  const headlineTemplateEn = livingHeroData.headlineTemplateEn || act1Hero.headlineTemplateEn || fixedHeadlineEn
-  const headlineTemplateAr = livingHeroData.headlineTemplateAr || act1Hero.headlineTemplateAr || fixedHeadlineAr
-  const animationType = livingHeroData.animationType || act1Hero.animationType || 'blur-morph'
-  const wordStyle = livingHeroData.wordStyle || act1Hero.wordStyle || 'static-gradient'
-  const alignmentEn = livingHeroData.alignmentEn || act1Hero.alignmentEn || hero.alignmentEn || livingHeroData.alignment || act1Hero.alignment || hero.alignment || 'center'
-  const alignmentAr = livingHeroData.alignmentAr || act1Hero.alignmentAr || hero.alignmentAr || livingHeroData.alignment || act1Hero.alignment || hero.alignment || 'center'
-  const alignment = livingHeroData.alignment || act1Hero.alignment || hero.alignment
-  const animationDuration = livingHeroData.animationDuration || act1Hero.animationDuration || 600
-  const animationSpeed = livingHeroData.animationSpeed || act1Hero.animationSpeed || 2800
+  const animationType = livingHeroData.animationType || content?.animationType || act1Hero.animationType || 'blur-morph'
+  const wordStyle = livingHeroData.wordStyle || content?.wordStyle || act1Hero.wordStyle || 'static-gradient'
+  const alignmentEn = livingHeroData.alignmentEn || content?.alignmentEn || act1Hero.alignmentEn || hero.alignmentEn || 'center'
+  const alignmentAr = livingHeroData.alignmentAr || content?.alignmentAr || act1Hero.alignmentAr || hero.alignmentAr || 'center'
+  const alignment = livingHeroData.alignment || content?.alignment || act1Hero.alignment || hero.alignment
+  const animationDuration = livingHeroData.animationDuration || content?.animationDuration || act1Hero.animationDuration || 600
+  const animationSpeed = livingHeroData.animationSpeed || content?.animationSpeed || act1Hero.animationSpeed || 2800
+  const accentColor = livingHeroData.accentColor || content?.accentColor
 
   return (
     <E3LivingHero
@@ -113,11 +145,13 @@ export function CinematicHeroUniversal({
       media={{
         mediaType: rawMediaType,
         mediaUrl,
+        mobileMediaUrl,
         posterUrl,
-        overlayOpacity: livingHeroData.media?.overlayOpacity !== undefined ? livingHeroData.media.overlayOpacity : 0.6,
-        gradientScrim: livingHeroData.media?.gradientScrim !== false
+        overlayOpacity: livingHeroData.media?.overlayOpacity !== undefined ? livingHeroData.media.overlayOpacity : (content?.heroMedia?.overlayOpacity !== undefined ? content.heroMedia.overlayOpacity : 0.6),
+        gradientScrim: livingHeroData.media?.gradientScrim !== undefined ? livingHeroData.media.gradientScrim : (content?.heroMedia?.gradientScrim !== false)
       }}
       preset={resolvedPreset}
+      accentColor={accentColor}
       animationSpeed={animationSpeed}
       animationDuration={animationDuration}
       animationType={animationType}
