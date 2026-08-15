@@ -9,6 +9,7 @@ import { ProjectDeliveryReel } from '@/components/b2b/team/profile/ProjectDelive
 import { CredentialTimelineSection } from '@/components/b2b/team/profile/CredentialTimelineSection'
 import { FullWidthConsultationSection } from '@/components/b2b/team/profile/FullWidthConsultationSection'
 import { CinematicTeamProfileClient } from '@/components/b2b/team/profile/CinematicTeamProfileClient'
+import { resolveDepartmentAura } from '@/lib/team/department-aura'
 
 const MOCK_MEMBER_EN: SafePublicTeamMember = {
   id: 'emp-101',
@@ -101,13 +102,70 @@ const MOCK_MEMBER_AR: SafePublicTeamMember = {
   coreCompetencies: ['الحوكمة التنفيذية', 'الإدارة التقنية', 'الإنتاج عالي الحساسية', 'اللوجستيات الدولية']
 }
 
-describe('UX-03B: Cinematic Team Profile Redesign Suite', () => {
+describe('UX-03B & UX-03B-B: Cinematic Team Profile & Department Aura Suite', () => {
   
+  /* ================================================================ */
+  /* 0. DEPARTMENT AURA THEME SYSTEM TESTS                             */
+  /* ================================================================ */
+  describe('0. Department Aura Theme System', () => {
+    it('maps all 6 standard departments and unmapped fallback accurately', () => {
+      // 1. Executive Management: Emerald + Champagne
+      const exec = resolveDepartmentAura('Executive Management', 'executive');
+      expect(exec.key).toBe('executive');
+      expect(exec.primaryColor).toBe('#10b981'); // Emerald
+      expect(exec.secondaryColor).toBe('#e2b774'); // Champagne
+
+      // 2. Creative & Marketing: Violet + Magenta
+      const creative = resolveDepartmentAura('Creative & Marketing', 'marketing');
+      expect(creative.key).toBe('creative');
+      expect(creative.primaryColor).toBe('#8b5cf6'); // Violet
+      expect(creative.secondaryColor).toBe('#ec4899'); // Magenta
+
+      // 3. Operations: Amber + Red
+      const ops = resolveDepartmentAura('Operations & Logistics', 'operations');
+      expect(ops.key).toBe('operations');
+      expect(ops.primaryColor).toBe('#f59e0b'); // Amber
+      expect(ops.secondaryColor).toBe('#ef4444'); // Red
+
+      // 4. Technical & Production: Cyan + Electric Blue
+      const tech = resolveDepartmentAura('Technical Engineering', 'technology-systems');
+      expect(tech.key).toBe('technical');
+      expect(tech.primaryColor).toBe('#06b6d4'); // Cyan
+      expect(tech.secondaryColor).toBe('#3b82f6'); // Electric Blue
+
+      // 5. Finance & Administration: Cobalt + Silver
+      const finance = resolveDepartmentAura('Finance & Accounting', 'finance');
+      expect(finance.key).toBe('finance');
+      expect(finance.primaryColor).toBe('#1d4ed8'); // Cobalt
+      expect(finance.secondaryColor).toBe('#cbd5e1'); // Silver
+
+      // 6. Food & Beverage: Copper + Warm Green
+      const fnb = resolveDepartmentAura('Food & Beverage Operations', 'fnb');
+      expect(fnb.key).toBe('foodBeverage');
+      expect(fnb.primaryColor).toBe('#c2410c'); // Copper
+      expect(fnb.secondaryColor).toBe('#15803d'); // Warm Green
+
+      // 7. Unmapped Fallback: Neutral E3 Cyan + Teal
+      const fallback = resolveDepartmentAura('Unknown Mystery Department', null);
+      expect(fallback.key).toBe('fallback');
+      expect(fallback.primaryColor).toBe('#06b6d4');
+      expect(fallback.secondaryColor).toBe('#14b8a6');
+    });
+
+    it('resolves Arabic department names accurately', () => {
+      expect(resolveDepartmentAura('الإدارة التنفيذية').key).toBe('executive');
+      expect(resolveDepartmentAura('التسويق والإعلام').key).toBe('creative');
+      expect(resolveDepartmentAura('العمليات والتشغيل').key).toBe('operations');
+      expect(resolveDepartmentAura('الإنتاج والأنظمة التقنية').key).toBe('technical');
+      expect(resolveDepartmentAura('المطاعم والمشروبات').key).toBe('foodBeverage');
+    });
+  });
+
   /* ================================================================ */
   /* 1. CINEMATIC PROFILE HERO TESTS                                  */
   /* ================================================================ */
   describe('1. Cinematic Profile Hero', () => {
-    it('renders 90svh editorial hero with 4:5 portrait, translucent initials, and identity', () => {
+    it('renders editorial hero with 55-60vh portrait, outlined initial, department aura, and identity', () => {
       const html = renderToStaticMarkup(
         <CinematicProfileHero member={MOCK_MEMBER_EN} locale="en" />
       )
@@ -115,8 +173,13 @@ describe('UX-03B: Cinematic Team Profile Redesign Suite', () => {
       expect(html).toContain('data-testid="cinematic-profile-hero"')
       expect(html).toContain('data-testid="portrait-4-5-frame"')
       expect(html).toContain('aspect-[4/5]')
-      expect(html).toContain('data-testid="hero-translucent-initials"')
-      expect(html).toContain('TM')
+      expect(html).toContain('data-testid="hero-outlined-initial"')
+      expect(html).toContain('T') // Single outlined initial for Tariq
+      expect(html).toContain('data-testid="department-radial-aura"')
+      expect(html).toContain('data-testid="identity-warm-illumination"')
+      expect(html).toContain('data-testid="hero-contour-lines"')
+      expect(html).toContain('data-testid="hero-lower-grid"')
+      expect(html).toContain('data-testid="hero-film-grain"')
       expect(html).toContain('Tariq Al-Mansoori')
       expect(html).toContain('Managing Director of Experiential Architecture')
       expect(html).toContain('Executive Engineering')
@@ -135,7 +198,7 @@ describe('UX-03B: Cinematic Team Profile Redesign Suite', () => {
       expect(html).toContain('href="https://linkedin.com/in/tariqalmansoori"')
     })
 
-    it('renders bespoke monogram title card when portrait image is absent', () => {
+    it('renders bespoke monogram title card with department aura when portrait image is absent', () => {
       const memberWithoutImage = { ...MOCK_MEMBER_EN, profileImage: null }
       const html = renderToStaticMarkup(
         <CinematicProfileHero member={memberWithoutImage} locale="en" />
