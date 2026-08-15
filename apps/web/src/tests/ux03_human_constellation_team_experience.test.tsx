@@ -365,7 +365,7 @@ describe('UX-03 — Human Constellation Team Experience', () => {
   });
 
   describe('8. Master B2B Team Client Orchestrator', () => {
-    it('renders master team experience with hero, navigator, and editorial grid', () => {
+    it('renders master team experience with cinematic portrait wall hero, spotlight, toolbar, and chapters', () => {
       const publicList = resolvePublicTeamList(SAMPLE_ROSTER, 'en');
       const html = renderToStaticMarkup(
         <B2BTeamClient
@@ -375,10 +375,10 @@ describe('UX-03 — Human Constellation Team Experience', () => {
         />
       );
 
-      expect(html).toContain('data-testid="human-constellation-hero"');
-      expect(html).toContain('data-testid="department-navigator"');
-      expect(html).toContain('data-testid="editorial-team-grid"');
-      expect(html).toContain('data-testid="featured-member-story"');
+      expect(html).toContain('data-testid="cinematic-portrait-wall-hero"');
+      expect(html).toContain('data-testid="mastermind-spotlight-section"');
+      expect(html).toContain('data-testid="team-directory-toolbar"');
+      expect(html).toContain('data-testid="department-chapters-directory"');
     });
   });
 });

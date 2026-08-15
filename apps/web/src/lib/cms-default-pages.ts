@@ -567,8 +567,8 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
 };
 
 export const DEFAULT_B2B_TEAM_PAGE_CONTENT = {
-  eyebrowEn: "E3 MASTERMINDS & LEADERSHIP",
-  eyebrowAr: "قيادة وفريق عمل إي ثري",
+  eyebrowEn: "The Masterminds — E3 Leadership",
+  eyebrowAr: "العقول المدبرة — قيادة وفريق عمل إي ثري",
   fixedHeadlineEn: "MEET THE PEOPLE WHO BUILD",
   fixedHeadlineAr: "تعرّف على الأشخاص الذين يصنعون",
   rotatingWordsEn: ["EXPERIENCES", "DESTINATIONS", "MOMENTS", "THE IMPOSSIBLE"],

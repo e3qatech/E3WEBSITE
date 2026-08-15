@@ -82,19 +82,24 @@ export interface SafePublicTeamMember {
   nameEn: string;
   nameAr: string;
   designation: string;
+  designationAr?: string;
   department: string;
+  departmentAr?: string;
   departmentKey: string;
   presentationGroup: string;
   presentationGroupKey: string;
   yearsOfExperience: number;
   tagline: string;
+  taglineAr?: string;
   aboutSummary: string;
+  aboutSummaryAr?: string;
   profileImage: string | null;
   initials: string;
   linkedinUrl: string | null;
   hasLinkedin: boolean;
   order: number;
   displayOrder: number;
+  sequenceOrder?: number;
   isFeatured: boolean;
   showOnTeamPage: boolean;
   // Complex rich profile fields (safe strings)
@@ -1314,13 +1319,17 @@ export function resolvePublicTeamMember(
     nameEn,
     nameAr,
     designation,
+    designationAr,
     department,
+    departmentAr: member.departmentAr || localizedDept.ar,
     departmentKey: deptKey,
     presentationGroup: presGroup.label,
     presentationGroupKey: presGroup.key,
     yearsOfExperience: Number(member.yearsOfExperience) || 0,
     tagline,
+    taglineAr: taglineAr || undefined,
     aboutSummary,
+    aboutSummaryAr: rawBioAr || undefined,
     profileImage,
     initials,
     linkedinUrl,
