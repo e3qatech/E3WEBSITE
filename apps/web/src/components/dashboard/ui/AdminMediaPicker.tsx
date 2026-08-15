@@ -1,6 +1,8 @@
 "use client"
 
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { useLocale } from "@/components/layout/LocaleProvider"
+import { usePathname } from "next/navigation"
 import { uploadFile } from "@/lib/upload"
 import { safeFetchJson } from "@/lib/utils"
 import { Check, FileText, Image as ImageIcon, Trash2, UploadCloud, Video } from "lucide-react"
@@ -24,7 +26,14 @@ interface AdminMediaPickerProps {
   onUploadStatusChange?: (uploading: boolean) => void
 }
 
-export function AdminMediaPicker({ value, onChange, label = "Media", accept = "image/*", onUploadStatusChange }: AdminMediaPickerProps) {
+export function AdminMediaPicker({ value, onChange, label, accept = "image/*", onUploadStatusChange }: AdminMediaPickerProps) {
+  const pathname = usePathname()
+  const { locale: contextLocale } = useLocale()
+  const locale = pathname?.startsWith("/ar") ? "ar" : contextLocale || "en"
+  const isAr = locale === "ar"
+
+  const displayLabel = label !== undefined ? label : (isAr ? "الوسائط" : "Media")
+
   const [isOpen, setIsOpen] = useState(false)
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [loading, setLoading] = useState(false)
@@ -77,12 +86,22 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
     const MAX_MB = isVideo ? 50 : 15
 
     if (file.size > MAX_MB * 1024 * 1024) {
-      toast(`Upload Failed: File "${file.name}" (${fileSizeMB}MB) exceeds maximum allowed size (${MAX_MB}MB). Please compress file or use a direct URL.`, "error")
+      toast(
+        isAr
+          ? `فشل الرفع: الملف "${file.name}" (${fileSizeMB} ميغابايت) يتجاوز الحد الأقصى المسموح به (${MAX_MB} ميغابايت). يرجى ضغط الملف أو استخدام رابط مباشر.`
+          : `Upload Failed: File "${file.name}" (${fileSizeMB}MB) exceeds maximum allowed size (${MAX_MB}MB). Please compress file or use a direct URL.`,
+        "error"
+      )
       if (fileInputRef.current) fileInputRef.current.value = ""
       return
     }
 
-    toast(`Uploading "${file.name}" (${fileSizeMB}MB)...`, "info")
+    toast(
+      isAr
+        ? `جاري رفع "${file.name}" (${fileSizeMB} ميغابايت)...`
+        : `Uploading "${file.name}" (${fileSizeMB}MB)...`,
+      "info"
+    )
     setUploading(true)
     onUploadStatusChange?.(true)
     try {
@@ -115,15 +134,20 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         
         onChange(finalUrl);
         
-        toast(`Media "${fileName}" uploaded & published successfully!`, "success");
+        toast(
+          isAr
+            ? `تم رفع ونشر الملف "${fileName}" بنجاح!`
+            : `Media "${fileName}" uploaded & published successfully!`,
+          "success"
+        );
         setIsOpen(false);
       } else {
-        throw new Error("Storage provider returned an invalid temporary URL.");
+        throw new Error(isAr ? "أرجع مزود التخزين رابطاً مؤقتاً غير صالح." : "Storage provider returned an invalid temporary URL.");
       }
     } catch (err: any) {
       console.error("Upload error:", err)
-      const msg = err?.message || "Failed to upload file."
-      toast(`Upload Error: ${msg}`, "error")
+      const msg = err?.message || (isAr ? "فشل رفع الملف." : "Failed to upload file.")
+      toast(isAr ? `خطأ أثناء الرفع: ${msg}` : `Upload Error: ${msg}`, "error")
     } finally {
       setUploading(false)
       onUploadStatusChange?.(false)
@@ -140,7 +164,10 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    if (!confirm("Are you sure you want to delete this media? This cannot be undone.")) return
+    const confirmDeleteMsg = isAr
+      ? "هل أنت متأكد من رغبتك في حذف هذا الملف من الوسائط؟ لا يمكن التراجع عن هذا الإجراء."
+      : "Are you sure you want to delete this media? This cannot be undone."
+    if (!confirm(confirmDeleteMsg)) return
     
     try {
       const mediaToDelete = mediaList.find(m => m.id === id)
@@ -149,17 +176,17 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
         onChange("")
       }
       await fetch(`/api/cms/media/${id}`, { method: "DELETE" })
-      toast("Media deleted", "info")
+      toast(isAr ? "تم حذف الملف" : "Media deleted", "info")
     } catch (err) {
       console.error(err)
-      toast("Failed to delete media", "error")
+      toast(isAr ? "فشل حذف الملف" : "Failed to delete media", "error")
       fetchMedia()
     }
   }
 
   return (
     <div className="flex flex-col gap-2.5 w-full">
-      {label && <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{label}</span>}
+      {displayLabel && <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{displayLabel}</span>}
       
       <input
         ref={fileInputRef}
@@ -184,7 +211,9 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
             <div className="flex flex-col items-center justify-center p-4 text-center space-y-2 bg-slate-900 text-slate-300 w-full h-full">
               <ImageIcon className="w-8 h-8 text-sky-400/80 animate-pulse" />
               <span className="text-xs font-mono break-all line-clamp-2 px-2">{value}</span>
-              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">Media Link Set</span>
+              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
+                {isAr ? "تم تعيين رابط الوسائط" : "Media Link Set"}
+              </span>
             </div>
           ) : (
             <img
@@ -206,7 +235,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                 }}
               >
                 <UploadCloud className="w-3.5 h-3.5 mr-1" />
-                Upload New File
+                {isAr ? "رفع ملف جديد" : "Upload New File"}
               </AdminButton>
               <AdminButton 
                 type="button" 
@@ -217,7 +246,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                   setIsOpen(true);
                 }}
               >
-                Library / URL
+                {isAr ? "المكتبة / الرابط" : "Library / URL"}
               </AdminButton>
               <AdminButton 
                 type="button" 
@@ -228,10 +257,12 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                   onChange("");
                 }}
               >
-                Remove
+                {isAr ? "إزالة" : "Remove"}
               </AdminButton>
             </div>
-            <span className="text-[11px] text-slate-300 font-medium">Click image to upload new file from computer</span>
+            <span className="text-[11px] text-slate-300 font-medium">
+              {isAr ? "انقر على الصورة لرفع ملف جديد من جهازك" : "Click image to upload new file from computer"}
+            </span>
           </div>
         </div>
       ) : (
@@ -245,15 +276,17 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           <div className="text-center space-y-1">
             <span className="text-sm font-bold text-[var(--text-primary)] block">
               {uploading 
-                ? "Uploading file..." 
+                ? (isAr ? "جاري رفع الملف..." : "Uploading file...") 
                 : accept.includes("image") && !accept.includes("video") 
-                  ? "Click to Upload Image File" 
+                  ? (isAr ? "انقر لرفع ملف صورة" : "Click to Upload Image File") 
                   : accept.includes("video") && !accept.includes("image") 
-                    ? "Click to Upload Video File" 
-                    : "Click to Upload Local File"}
+                    ? (isAr ? "انقر لرفع ملف فيديو" : "Click to Upload Video File") 
+                    : (isAr ? "انقر لرفع ملف من جهازك" : "Click to Upload Local File")}
             </span>
             <span className="text-xs text-[var(--text-tertiary)] block">
-              Select image or video from your computer or device
+              {isAr
+                ? "اختر ملف صورة أو فيديو من جهازك"
+                : "Select image or video from your computer or device"}
             </span>
           </div>
         </div>
@@ -268,7 +301,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
         >
           <UploadCloud className="w-3.5 h-3.5" />
-          <span>{uploading ? "Uploading..." : "Upload File"}</span>
+          <span>{uploading ? (isAr ? "جاري الرفع..." : "Uploading...") : (isAr ? "رفع ملف" : "Upload File")}</span>
         </button>
 
         <button
@@ -276,19 +309,21 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
           onClick={() => setIsOpen(true)}
           className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold transition-all cursor-pointer"
         >
-          Library / Paste URL
+          {isAr ? "المكتبة / لصق الرابط" : "Library / Paste URL"}
         </button>
       </div>
 
-      <SlideOver isOpen={isOpen} onClose={() => setIsOpen(false)} title="Media Library">
-        <div className="flex flex-col gap-6">
+      <SlideOver isOpen={isOpen} onClose={() => setIsOpen(false)} title={isAr ? "مكتبة الوسائط" : "Media Library"}>
+        <div className="flex flex-col gap-6" dir={isAr ? "rtl" : "ltr"}>
           {/* Direct URL Input Bar */}
           <div className="p-4 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl flex flex-col gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Direct Media URL Input</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              {isAr ? "إدخال رابط الوسائط المباشر" : "Direct Media URL Input"}
+            </span>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Paste video/image URL (e.g. https://.../video.mp4)"
+                placeholder={isAr ? "الصق رابط الفيديو أو الصورة (مثال: https://.../video.mp4)" : "Paste video/image URL (e.g. https://.../video.mp4)"}
                 value={directUrl}
                 onChange={(e) => setDirectUrl(e.target.value)}
                 className="flex-1 bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
@@ -299,20 +334,22 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                 onClick={() => {
                   if (!directUrl.trim()) return
                   onChange(directUrl.trim())
-                  toast("Applied direct media URL", "success")
+                  toast(isAr ? "تم تطبيق رابط الوسائط المباشر" : "Applied direct media URL", "success")
                   setIsOpen(false)
                 }}
               >
-                Apply URL
+                {isAr ? "تطبيق الرابط" : "Apply URL"}
               </AdminButton>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[var(--text-secondary)]">Select a file from your library or upload a new one.</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {isAr ? "اختر ملفاً من مكتبتك أو ارفع ملفاً جديداً." : "Select a file from your library or upload a new one."}
+            </p>
             <div className="relative">
               <input 
-                ref={fileInputRef}
+                ref={fileInputRef} 
                 type="file" 
                 className="hidden" 
                 onChange={handleUpload}
@@ -324,14 +361,14 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
               >
-                {uploading ? "Uploading..." : "Upload New File"}
+                {uploading ? (isAr ? "جاري الرفع..." : "Uploading...") : (isAr ? "رفع ملف جديد" : "Upload New File")}
               </AdminButton>
             </div>
           </div>
 
           {loading ? (
             <div className="h-40 flex items-center justify-center text-[var(--text-tertiary)] text-sm font-bold">
-              Loading library...
+              {isAr ? "جاري تحميل المكتبة..." : "Loading library..."}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -355,7 +392,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                         <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center">{media.url.split('/').pop()}</span>
                       </div>
                     ) : (
-                      <img src={media.url} alt={media.alt || 'Media'} className="w-full h-full object-contain" />
+                      <img src={media.url} alt={media.alt || (isAr ? 'وسائط' : 'Media')} className="w-full h-full object-contain" />
                     )}
                   </div>
                   {value === media.url && (
@@ -366,7 +403,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
                   <button
                     onClick={(e) => handleDelete(e, media.id)}
                     className="absolute top-2 start-2 w-7 h-7 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"
-                    title="Delete Media"
+                    title={isAr ? "حذف الملف" : "Delete Media"}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -376,7 +413,7 @@ export function AdminMediaPicker({ value, onChange, label = "Media", accept = "i
               {mediaList.length === 0 && (
                 <div className="col-span-full py-12 flex flex-col items-center justify-center text-[var(--text-tertiary)] border border-dashed border-[var(--border-default)] rounded-xl">
                   <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-                  <span className="text-sm font-bold">No media found</span>
+                  <span className="text-sm font-bold">{isAr ? "لا توجد وسائط" : "No media found"}</span>
                 </div>
               )}
             </div>

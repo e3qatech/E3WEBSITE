@@ -8,12 +8,24 @@ export const metadata = {
   title: "Event Schedules | Operations | E3 Admin",
 }
 
-export default async function OperationsEventsPage() {
+export const dynamic = "force-dynamic"
+
+export default async function OperationsEventsPage(props?: {
+  params?: Promise<{ locale: string }>
+}) {
   const session = await auth()
+  const params = props?.params
+  const resolvedParams = params ? await params : { locale: "en" }
+  const locale = resolvedParams.locale || "en"
+
   const userRole = (session?.user as any)?.role
-  const isAuthorized = userRole && (hasPermission(userRole, 'operations.events.manage') || ["SUPER_ADMIN", "OPERATIONS", "OPERATIONS_ADMIN"].includes(userRole))
+  const isAuthorized =
+    userRole &&
+    (hasPermission(userRole, "operations.events.manage") ||
+      ["SUPER_ADMIN", "OPERATIONS", "OPERATIONS_ADMIN"].includes(userRole))
+
   if (!isAuthorized) {
-    redirect("/login")
+    redirect(locale === "ar" ? "/ar/login" : "/login")
   }
 
   // Get next 30 days of schedules
@@ -25,19 +37,19 @@ export default async function OperationsEventsPage() {
     db.eventSchedule.findMany({
       where: {
         startTime: {
-          gte: new Date(now.setHours(0,0,0,0)),
-          lte: thirtyDaysFromNow
-        }
+          gte: new Date(now.setHours(0, 0, 0, 0)),
+          lte: thirtyDaysFromNow,
+        },
       },
       orderBy: { startTime: "asc" },
       include: {
-        attraction: { select: { id: true, nameEn: true } }
-      }
+        attraction: { select: { id: true, nameEn: true, nameAr: true } },
+      },
     }),
     db.attraction.findMany({
-      select: { id: true, nameEn: true },
-      orderBy: { nameEn: "asc" }
-    })
+      select: { id: true, nameEn: true, nameAr: true },
+      orderBy: { nameEn: "asc" },
+    }),
   ])
 
   // Format dates for client
@@ -47,5 +59,10 @@ export default async function OperationsEventsPage() {
     endTime: s.endTime.toISOString(),
   }))
 
-  return <EventScheduleManager initialSchedules={formattedSchedules as any} attractions={attractions} />
+  return (
+    <EventScheduleManager
+      initialSchedules={formattedSchedules as any}
+      attractions={attractions as any}
+    />
+  )
 }

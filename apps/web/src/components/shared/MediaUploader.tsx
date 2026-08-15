@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useState, useRef } from "react"
+import { usePathname } from "next/navigation"
+import { useLocale } from "@/components/layout/LocaleProvider"
 import { UploadCloud, X, File as FileIcon, Loader2, Box } from "lucide-react"
 
 import { uploadFile } from "@/lib/upload"
@@ -15,6 +17,11 @@ interface MediaUploaderProps {
 }
 
 export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.svg,image/svg+xml", className = "", context }: MediaUploaderProps) {
+  const pathname = usePathname()
+  const { locale: contextLocale } = useLocale()
+  const locale = pathname?.startsWith("/ar") ? "ar" : contextLocale || "en"
+  const isAr = locale === "ar"
+
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -38,7 +45,7 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
 
       onChange(result.url)
     } catch (err: any) {
-      setError(err.message || "Something went wrong")
+      setError(err.message || (isAr ? "حدث خطأ أثناء الرفع" : "Something went wrong"))
     } finally {
       setIsUploading(false)
       setTimeout(() => setProgress(0), 1000)
@@ -71,25 +78,25 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
 
   if (value) {
     return (
-      <div className={`relative rounded-xl border border-[var(--border-default)] overflow-hidden group ${className}`}>
+      <div className={`relative rounded-xl border border-[var(--border-default)] overflow-hidden group ${className}`} dir={isAr ? "rtl" : "ltr"}>
         {value.match(/\.(mp4|webm)$/i) ? (
           <video src={value} className="w-full h-48 object-cover" controls />
         ) : value.match(/\.(glb|gltf)$/i) ? (
           <div className="w-full h-48 bg-[var(--surface-hover)] flex flex-col items-center justify-center text-[var(--text-secondary)]">
             <Box className="w-12 h-12 mb-2 text-[var(--color-primary)] opacity-50" />
-            <span className="text-sm font-bold">3D Model Uploaded</span>
+            <span className="text-sm font-bold">{isAr ? "تم تحميل النموذج ثلاثي الأبعاد" : "3D Model Uploaded"}</span>
             <span className="text-xs max-w-[80%] truncate mt-1">{value.split('/').pop()}</span>
           </div>
         ) : value.match(/\.(pdf)$/i) ? (
           <div className="w-full h-48 bg-[var(--surface-hover)] flex flex-col items-center justify-center text-[var(--text-secondary)]">
             <FileIcon className="w-12 h-12 mb-2 text-red-500" />
-            <span className="text-sm font-bold text-white">PDF Document</span>
+            <span className="text-sm font-bold text-white">{isAr ? "مستند PDF" : "PDF Document"}</span>
             <span className="text-xs max-w-[80%] truncate mt-1 text-zinc-400">{value.split('/').pop()}</span>
           </div>
         ) : value.match(/\.(doc|docx)$/i) ? (
           <div className="w-full h-48 bg-[var(--surface-hover)] flex flex-col items-center justify-center text-[var(--text-secondary)]">
             <FileIcon className="w-12 h-12 mb-2 text-blue-500" />
-            <span className="text-sm font-bold text-white">Word Document</span>
+            <span className="text-sm font-bold text-white">{isAr ? "مستند Word" : "Word Document"}</span>
             <span className="text-xs max-w-[80%] truncate mt-1 text-zinc-400">{value.split('/').pop()}</span>
           </div>
         ) : (
@@ -102,7 +109,8 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
           <button 
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors"
+            className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors cursor-pointer"
+            title={isAr ? "رفع ملف جديد" : "Upload new file"}
           >
             <UploadCloud size={20} />
           </button>
@@ -113,7 +121,8 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
               if (onRemove) onRemove()
               else onChange("")
             }}
-            className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md transition-colors"
+            className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md transition-colors cursor-pointer"
+            title={isAr ? "إزالة" : "Remove"}
           >
             <X size={20} />
           </button>
@@ -135,6 +144,7 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
         ${isDragging ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5" : "border-[var(--border-default)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--surface-hover)]"}
         ${className}
       `}
+      dir={isAr ? "rtl" : "ltr"}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -158,16 +168,23 @@ export function MediaUploader({ value, onChange, onRemove, accept = "image/*,.sv
               style={{ width: `${progress}%` }}
             />
           </div>
-          <span className="text-xs font-bold text-[var(--text-secondary)] mt-2">Uploading {progress}%</span>
+          <span className="text-xs font-bold text-[var(--text-secondary)] mt-2">
+            {isAr ? `جاري التحميل ${progress}٪` : `Uploading ${progress}%`}
+          </span>
         </div>
       ) : (
         <>
           <div className="w-12 h-12 rounded-full bg-[var(--surface-active)] flex items-center justify-center mb-4 text-[var(--text-secondary)]">
             <UploadCloud size={24} />
           </div>
-          <h4 className="font-bold text-[var(--text-primary)] mb-1">Click to upload or drag and drop</h4>
+          <h4 className="font-bold text-[var(--text-primary)] mb-1">
+            {isAr ? "انقر للتحميل أو اسحب الملف وأفلته هنا" : "Click to upload or drag and drop"}
+          </h4>
           <p className="text-xs text-[var(--text-secondary)] mb-4">
-            {accept === "image/*" ? "SVG, PNG, JPG, GIF or MP4" : accept.replace(/,/g, ", ").toUpperCase()} (max. 50MB)
+            {accept === "image/*" 
+              ? (isAr ? "ملفات SVG أو PNG أو JPG أو GIF أو MP4" : "SVG, PNG, JPG, GIF or MP4") 
+              : accept.replace(/,/g, ", ").toUpperCase()}{" "}
+            {isAr ? "(الحد الأقصى ٥٠ ميغابايت)" : "(max. 50MB)"}
           </p>
           
           {error && (
