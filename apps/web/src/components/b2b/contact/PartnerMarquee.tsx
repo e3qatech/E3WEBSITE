@@ -1,14 +1,19 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
+import React from "react";
+import { motion } from "framer-motion";
+import { sanitizeUrl } from "@/lib/partners/partner-resolver";
 
 interface PartnerMarqueeProps {
-  logos: string[]
+  logos: string[];
 }
 
 export function PartnerMarquee({ logos }: PartnerMarqueeProps) {
+  const safeLogos = (logos || []).map(sanitizeUrl).filter((l): l is string => Boolean(l));
+  if (safeLogos.length === 0) return null;
+
   // Duplicate array to ensure seamless infinite scrolling
-  const duplicatedLogos = [...logos, ...logos, ...logos]
+  const duplicatedLogos = [...safeLogos, ...safeLogos, ...safeLogos];
 
   return (
     <div className="relative w-full overflow-hidden bg-[var(--surface-hover)] border-y border-[var(--border-default)] py-12">
@@ -33,5 +38,5 @@ export function PartnerMarquee({ logos }: PartnerMarqueeProps) {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

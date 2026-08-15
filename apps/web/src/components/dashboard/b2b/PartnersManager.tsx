@@ -40,7 +40,7 @@ export function PartnersManager({ initialPartners }: PartnersManagerProps) {
     category: "SPONSOR",
     description: "",
     logoUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=120&auto=format&fit=crop",
-    isVisible: true
+    isVisible: false
   })
   const router = useRouter()
 

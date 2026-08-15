@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { formatLocalizedText } from '@/lib/utils';
+import { sanitizeUrl } from '@/lib/partners/partner-resolver';
 
 interface Partner {
   name?: string;
@@ -20,8 +21,14 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
     return null;
   }
 
+  const sanitized = partners.map(p => ({
+    ...p,
+    websiteUrl: sanitizeUrl(p.websiteUrl),
+    logoUrl: sanitizeUrl(p.logoUrl || (p as any).logo || (p as any).image),
+  }));
+
   // To create a continuous marquee, we duplicate the items if there are few
-  const displayPartners = partners.length < 8 ? [...partners, ...partners, ...partners] : partners;
+  const displayPartners = sanitized.length < 8 ? [...sanitized, ...sanitized, ...sanitized] : sanitized;
 
   return (
     <section className="py-24 bg-zinc-950 border-t border-zinc-900 overflow-hidden relative">

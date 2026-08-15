@@ -1,11 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Save } from "lucide-react"
-import { Button } from "@/components/ui/Button"
+import { Save } from "lucide-react"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/dashboard/ui/MediaUploader"
-import Link from "next/link"
 
 import {
   DashboardPageShell,
@@ -21,15 +19,36 @@ export default function NewPartnerPage() {
     category: "Government",
     website: "",
     description: "",
-    visible: true,
+    visible: false,
     logo: ""
   })
 
   const handleSave = async () => {
+    if (!formData.name.trim()) {
+      toast("Partner name is required", "error")
+      return
+    }
     setIsSaving(true)
-    await new Promise(r => setTimeout(r, 800))
-    toast("Partner added successfully.", "success")
-    setIsSaving(false)
+    try {
+      const res = await fetch("/api/b2b/partners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          category: formData.category,
+          website: formData.website,
+          description: formData.description,
+          logoUrl: formData.logo,
+          isVisible: formData.visible,
+        })
+      })
+      if (!res.ok) throw new Error("Failed to create partner")
+      toast("Partner added successfully.", "success")
+    } catch (err: any) {
+      toast(err.message || "Failed to create partner", "error")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
