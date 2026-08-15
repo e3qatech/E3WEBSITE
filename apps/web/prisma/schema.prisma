@@ -389,6 +389,8 @@ model CaseStudy {
   challengeAr        String?
   solutionEn         String?
   solutionAr         String?
+  resultEn           String?
+  resultAr           String?
   metrics            Json?
   gallery            Json?
   beforeAfter        Json?

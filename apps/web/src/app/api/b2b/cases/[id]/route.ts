@@ -19,7 +19,7 @@ export async function PUT(
       heroMediaType, heroImageUrl, 
       thumbnailMediaType, thumbnailUrl, 
       clientLogoUrl,
-      challengeEn, challengeAr, solutionEn, solutionAr,
+      challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
       isFeatured, isPublished,
       gallery, metrics, technicalSpecs, servicesUsed,
       attractionId, teamMembers, testimonials
@@ -40,7 +40,7 @@ export async function PUT(
           heroMediaType, heroImageUrl, 
           thumbnailMediaType, thumbnailUrl, 
           clientLogoUrl,
-          challengeEn, challengeAr, solutionEn, solutionAr,
+          challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
           isFeatured, isPublished,
           attractionId: attractionId || null,
           gallery: gallery || [],

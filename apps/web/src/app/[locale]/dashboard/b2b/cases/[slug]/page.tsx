@@ -64,6 +64,8 @@ export default async function EditCasePage({
     challengeAr: caseStudy.challengeAr || "",
     solutionEn: caseStudy.solutionEn || "",
     solutionAr: caseStudy.solutionAr || "",
+    resultEn: caseStudy.resultEn || "",
+    resultAr: caseStudy.resultAr || "",
     heroMediaType: caseStudy.heroMediaType || "IMAGE",
     heroImageUrl: caseStudy.heroImageUrl || "",
     thumbnailMediaType: caseStudy.thumbnailMediaType || "IMAGE",

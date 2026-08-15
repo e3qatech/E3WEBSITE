@@ -52,6 +52,8 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
   const [challengeAr, setChallengeAr] = useState(initialData?.challengeAr || "")
   const [solutionEn, setSolutionEn] = useState(initialData?.solutionEn || "")
   const [solutionAr, setSolutionAr] = useState(initialData?.solutionAr || "")
+  const [resultEn, setResultEn] = useState(initialData?.resultEn || "")
+  const [resultAr, setResultAr] = useState(initialData?.resultAr || "")
 
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
   const [isVisible, setIsVisible] = useState(initialData?.isPublished ?? false)
@@ -78,7 +80,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
         heroMediaType, heroImageUrl, 
         thumbnailMediaType, thumbnailUrl, 
         clientLogoUrl,
-        challengeEn, challengeAr, solutionEn, solutionAr,
+        challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
         isFeatured, isPublished: isVisible,
         attractionId, metrics, gallery,
         technicalSpecs, servicesUsed, testimonials,
@@ -316,6 +318,17 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-emerald-500 uppercase tracking-wider">Our Solution (AR)</label>
                     <textarea value={solutionAr} dir="rtl" rows={4} onChange={e => setSolutionAr(e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-3 focus:border-accent focus:outline-none resize-none font-arabic" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-border-default pb-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-cyan-400 uppercase tracking-wider">The Result (EN)</label>
+                    <textarea value={resultEn} rows={4} onChange={e => setResultEn(e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-3 focus:border-accent focus:outline-none resize-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-cyan-400 uppercase tracking-wider">The Result (AR)</label>
+                    <textarea value={resultAr} dir="rtl" rows={4} onChange={e => setResultAr(e.target.value)} className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-3 focus:border-accent focus:outline-none resize-none font-arabic" />
                   </div>
                 </div>
 
