@@ -488,7 +488,7 @@ export function E3LivingHeroEditor({
                       <button
                         key={align.id}
                         type="button"
-                        onClick={() => handleUpdate((p) => ({ ...p, alignmentEn: align.id as HeroAlignment }))}
+                        onClick={() => handleUpdate((p) => ({ ...p, alignmentEn: align.id as HeroAlignment, alignment: align.id as HeroAlignment }))}
                         className={cn(
                           "flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all",
                           isSelected
@@ -670,7 +670,7 @@ export function E3LivingHeroEditor({
                       <button
                         key={align.id}
                         type="button"
-                        onClick={() => handleUpdate((p) => ({ ...p, alignmentAr: align.id as HeroAlignment }))}
+                        onClick={() => handleUpdate((p) => ({ ...p, alignmentAr: align.id as HeroAlignment, alignment: align.id as HeroAlignment }))}
                         className={cn(
                           "flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all",
                           isSelected
@@ -873,6 +873,7 @@ export function E3LivingHeroEditor({
                 wordStyle={data.wordStyle}
                 alignmentEn={data.alignmentEn}
                 alignmentAr={data.alignmentAr}
+                alignment={activeComposerLang === 'AR' ? (data.alignmentAr || data.alignment) : (data.alignmentEn || data.alignment)}
                 locale={activeComposerLang === 'AR' ? 'ar' : 'en'}
                 scrollIndicator={false}
               />

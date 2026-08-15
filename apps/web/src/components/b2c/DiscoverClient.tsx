@@ -98,8 +98,10 @@ export function DiscoverClient({
               <E3LivingHero
                 eyebrowEn={hero.eyebrowEn || "E3 CORPORATE STORY & ECOSYSTEM"}
                 eyebrowAr={hero.eyebrowAr || "قصة إي ثري الترفيهية والتنفيذية"}
-                fixedHeadlineEn={hero.fixedHeadlineEn || "CHOOSE HOW YOU WANT TO"}
-                fixedHeadlineAr={hero.fixedHeadlineAr || "اختر كيف ترغب في أن"}
+                fixedHeadlineEn={hero.fixedHeadlineEn || hero.headlineTemplateEn || "CHOOSE HOW YOU WANT TO"}
+                fixedHeadlineAr={hero.fixedHeadlineAr || hero.headlineTemplateAr || "اختر كيف ترغب في أن"}
+                headlineTemplateEn={hero.headlineTemplateEn || hero.fixedHeadlineEn}
+                headlineTemplateAr={hero.headlineTemplateAr || hero.fixedHeadlineAr}
                 rotatingWordsEn={
                   Array.isArray(hero.rotatingWordsEn) && hero.rotatingWordsEn.length > 0
                     ? hero.rotatingWordsEn
@@ -134,6 +136,12 @@ export function DiscoverClient({
                 }}
                 preset={hero.preset || "story-portal"}
                 animationSpeed={hero.animationSpeed || 2800}
+                animationDuration={hero.animationDuration || 600}
+                animationType={hero.animationType || "blur-morph"}
+                wordStyle={hero.wordStyle || "static-gradient"}
+                alignmentEn={hero.alignmentEn || hero.alignment || "center"}
+                alignmentAr={hero.alignmentAr || hero.alignment || "center"}
+                alignment={hero.alignment}
                 enableRotatingWords={hero.enableRotatingWords !== false}
                 locale={locale}
               />

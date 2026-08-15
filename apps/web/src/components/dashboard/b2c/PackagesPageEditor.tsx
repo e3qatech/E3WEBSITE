@@ -236,8 +236,10 @@ export function PackagesPageEditor() {
                 value={{
                   eyebrowEn: pageConfig.eyebrowEn,
                   eyebrowAr: pageConfig.eyebrowAr,
-                  fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || pageConfig.titleEn || "BUILD A DAY FILLED WITH",
-                  fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || pageConfig.titleAr || "اصنع يوماً مليئاً بـ",
+                  fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || (pageConfig as any).headlineTemplateEn || pageConfig.titleEn || "BUILD A DAY FILLED WITH {{animated}}",
+                  fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || (pageConfig as any).headlineTemplateAr || pageConfig.titleAr || "اصنع يوماً مليئاً بـ {{animated}}",
+                  headlineTemplateEn: (pageConfig as any).headlineTemplateEn || (pageConfig as any).fixedHeadlineEn,
+                  headlineTemplateAr: (pageConfig as any).headlineTemplateAr || (pageConfig as any).fixedHeadlineAr,
                   rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["PLAY", "CELEBRATION", "DISCOVERY", "MEMORIES"],
                   rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["المرح", "الاحتفال", "الاكتشاف", "الذكريات"],
                   descriptionEn: pageConfig.descEn,
@@ -255,6 +257,12 @@ export function PackagesPageEditor() {
                   media: pageConfig.heroMedia,
                   preset: (pageConfig as any).preset || "day-builder",
                   animationSpeed: (pageConfig as any).animationSpeed || 2800,
+                  animationDuration: (pageConfig as any).animationDuration || 600,
+                  animationType: (pageConfig as any).animationType || "blur-morph",
+                  wordStyle: (pageConfig as any).wordStyle || "static-gradient",
+                  alignmentEn: (pageConfig as any).alignmentEn || (pageConfig as any).alignment || "center",
+                  alignmentAr: (pageConfig as any).alignmentAr || (pageConfig as any).alignment || "center",
+                  alignment: (pageConfig as any).alignment,
                   enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
                 }}
                 onChange={(updated) => {
@@ -264,6 +272,8 @@ export function PackagesPageEditor() {
                     eyebrowAr: updated.eyebrowAr,
                     fixedHeadlineEn: updated.fixedHeadlineEn,
                     fixedHeadlineAr: updated.fixedHeadlineAr,
+                    headlineTemplateEn: updated.headlineTemplateEn,
+                    headlineTemplateAr: updated.headlineTemplateAr,
                     titleEn: updated.fixedHeadlineEn,
                     titleAr: updated.fixedHeadlineAr,
                     rotatingWordsEn: updated.rotatingWordsEn,
@@ -280,6 +290,12 @@ export function PackagesPageEditor() {
                     },
                     preset: updated.preset,
                     animationSpeed: updated.animationSpeed,
+                    animationDuration: updated.animationDuration,
+                    animationType: updated.animationType,
+                    wordStyle: updated.wordStyle,
+                    alignmentEn: updated.alignmentEn,
+                    alignmentAr: updated.alignmentAr,
+                    alignment: updated.alignment,
                     enableRotatingWords: updated.enableRotatingWords
                   }))
                 }}

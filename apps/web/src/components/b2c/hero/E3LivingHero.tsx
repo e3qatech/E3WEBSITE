@@ -398,14 +398,14 @@ export function E3LivingHero({
       case 'left':
         return {
           container: 'items-start text-left',
-          h1: 'text-left',
-          description: 'text-left mx-0',
+          h1: 'text-left me-auto',
+          description: 'text-left me-auto ms-0',
           ctaGroup: 'justify-start',
         }
       case 'right':
         return {
           container: 'items-end text-right',
-          h1: 'text-right',
+          h1: 'text-right ms-auto',
           description: 'text-right ms-auto me-0',
           ctaGroup: 'justify-end',
         }
@@ -413,7 +413,7 @@ export function E3LivingHero({
       default:
         return {
           container: 'items-center text-center',
-          h1: 'text-center',
+          h1: 'text-center mx-auto',
           description: 'text-center mx-auto',
           ctaGroup: 'justify-center',
         }
@@ -430,8 +430,12 @@ export function E3LivingHero({
         }
       case 'moving-gradient':
         return {
-          className: "inline-block font-black select-none bg-clip-text text-transparent drop-shadow-sm bg-[length:200%_auto] animate-gradient-x",
-          style: { backgroundImage: dynamicSweep }
+          className: "inline-block font-black select-none bg-clip-text text-transparent drop-shadow-sm animate-gradient-x",
+          style: {
+            backgroundImage: dynamicSweep || "linear-gradient(135deg, #a855f7 0%, #10b981 35%, #06b6d4 70%, #a855f7 100%)",
+            backgroundSize: '250% 250%',
+            animation: 'e3-living-hero-gradient-flow 3.5s ease infinite alternate'
+          }
         }
       case 'static-gradient':
       default:
@@ -453,7 +457,7 @@ export function E3LivingHero({
       }
     }
 
-    const dur = Math.max(0.2, animationDuration / 1000)
+    const dur = Math.max(0.2, (animationDuration || 600) / 1000)
 
     switch (animationType) {
       case 'typewriter':
@@ -465,38 +469,38 @@ export function E3LivingHero({
         }
       case 'fade':
         return {
-          initial: { opacity: 0, y: 4 },
+          initial: { opacity: 0, y: 14 },
           animate: { opacity: 1, y: 0 },
-          exit: { opacity: 0, y: -4 },
+          exit: { opacity: 0, y: -14 },
           transition: { duration: dur, ease: [0.42, 0, 0.58, 1] } as any
         }
       case 'zoom':
         return {
-          initial: { opacity: 0, scale: 0.82 },
+          initial: { opacity: 0, scale: 0.55 },
           animate: { opacity: 1, scale: 1 },
-          exit: { opacity: 0, scale: 1.15 },
+          exit: { opacity: 0, scale: 1.35 },
           transition: { duration: dur, ease: [0.16, 1, 0.3, 1] } as any
         }
       case 'wipe':
         return {
-          initial: { opacity: 0, clipPath: "polygon(0 0, 0 0, 0 100%, 0% 100%)" },
-          animate: { opacity: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" },
-          exit: { opacity: 0, clipPath: "polygon(100% 0, 100% 0, 100% 100%, 100% 100%)" },
+          initial: { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+          animate: { opacity: 1, clipPath: "inset(0 0% 0 0)" },
+          exit: { opacity: 0, clipPath: "inset(0 0 0 100%)" },
           transition: { duration: dur, ease: [0.22, 1, 0.36, 1] } as any
         }
       case 'slide-up':
         return {
-          initial: { opacity: 0, y: "100%" },
+          initial: { opacity: 0, y: "115%" },
           animate: { opacity: 1, y: "0%" },
-          exit: { opacity: 0, y: "-100%" },
+          exit: { opacity: 0, y: "-115%" },
           transition: { duration: dur, ease: [0.16, 1, 0.3, 1] } as any
         }
       case 'blur-morph':
       default:
         return {
-          initial: { opacity: 0, y: "75%", filter: "blur(12px)", scale: 0.94 },
+          initial: { opacity: 0, y: "85%", filter: "blur(14px)", scale: 0.92 },
           animate: { opacity: 1, y: "0%", filter: "blur(0px)", scale: 1 },
-          exit: { opacity: 0, y: "-75%", filter: "blur(12px)", scale: 1.06 },
+          exit: { opacity: 0, y: "-85%", filter: "blur(14px)", scale: 1.08 },
           transition: { duration: dur, ease: [0.16, 1, 0.3, 1] } as any
         }
     }
@@ -531,7 +535,7 @@ export function E3LivingHero({
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
-              key={currentWord}
+              key={`${currentWord}-${animationType}-${wordStyle}`}
               initial={animationVariants.initial}
               animate={animationVariants.animate}
               exit={animationVariants.exit}
@@ -544,9 +548,10 @@ export function E3LivingHero({
                   <span>{typewriterText}</span>
                   <span
                     className={cn(
-                      "inline-block w-[2px] h-[0.85em] bg-current align-middle ms-0.5",
+                      "inline-block w-[2px] h-[0.85em] align-middle ms-0.5",
                       isTyping ? "animate-pulse" : "opacity-0"
                     )}
+                    style={{ backgroundColor: wordStyle === 'solid' ? resolvedAccent : 'currentColor' }}
                   />
                 </>
               ) : (
@@ -582,6 +587,14 @@ export function E3LivingHero({
         ['--living-hero-accent' as any]: resolvedAccent
       }}
     >
+      <style>{`
+        @keyframes e3-living-hero-gradient-flow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
+
       {/* ============================================================ */}
       {/* 1. ATMOSPHERIC BACKDROP MEDIA & SCRIM LAYERS                 */}
       {/* ============================================================ */}

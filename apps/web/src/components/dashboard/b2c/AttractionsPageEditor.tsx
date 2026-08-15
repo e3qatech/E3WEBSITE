@@ -177,8 +177,10 @@ export function AttractionsPageEditor() {
           value={{
             eyebrowEn: (pageConfig as any).eyebrowEn || "ALL-ACCESS ENTERTAINMENT DIRECTORY",
             eyebrowAr: (pageConfig as any).eyebrowAr || "دليل الوجهات والتجارب الترفيهية الشامل",
-            fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || "STEP INTO A WORLD OF",
-            fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || "ادخل إلى عالم من",
+            fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || (pageConfig as any).headlineTemplateEn || "STEP INTO A WORLD OF {{animated}}",
+            fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || (pageConfig as any).headlineTemplateAr || "ادخل إلى عالم من {{animated}}",
+            headlineTemplateEn: (pageConfig as any).headlineTemplateEn || (pageConfig as any).fixedHeadlineEn,
+            headlineTemplateAr: (pageConfig as any).headlineTemplateAr || (pageConfig as any).fixedHeadlineAr,
             rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
             rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
             descriptionEn: pageConfig.descEn,
@@ -196,6 +198,12 @@ export function AttractionsPageEditor() {
             media: pageConfig.heroMedia,
             preset: (pageConfig as any).preset || "e3-universe",
             animationSpeed: (pageConfig as any).animationSpeed || 2800,
+            animationDuration: (pageConfig as any).animationDuration || 600,
+            animationType: (pageConfig as any).animationType || "blur-morph",
+            wordStyle: (pageConfig as any).wordStyle || "static-gradient",
+            alignmentEn: (pageConfig as any).alignmentEn || (pageConfig as any).alignment || "center",
+            alignmentAr: (pageConfig as any).alignmentAr || (pageConfig as any).alignment || "center",
+            alignment: (pageConfig as any).alignment,
             enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
           }}
           onChange={(updated) => {
@@ -205,6 +213,8 @@ export function AttractionsPageEditor() {
               eyebrowAr: updated.eyebrowAr,
               fixedHeadlineEn: updated.fixedHeadlineEn,
               fixedHeadlineAr: updated.fixedHeadlineAr,
+              headlineTemplateEn: updated.headlineTemplateEn,
+              headlineTemplateAr: updated.headlineTemplateAr,
               titleEn: updated.fixedHeadlineEn,
               titleAr: updated.fixedHeadlineAr,
               rotatingWordsEn: updated.rotatingWordsEn,
@@ -217,6 +227,12 @@ export function AttractionsPageEditor() {
               },
               preset: updated.preset,
               animationSpeed: updated.animationSpeed,
+              animationDuration: updated.animationDuration,
+              animationType: updated.animationType,
+              wordStyle: updated.wordStyle,
+              alignmentEn: updated.alignmentEn,
+              alignmentAr: updated.alignmentAr,
+              alignment: updated.alignment,
               enableRotatingWords: updated.enableRotatingWords
             }))
           }}

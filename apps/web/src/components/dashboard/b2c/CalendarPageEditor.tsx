@@ -105,8 +105,10 @@ export function CalendarPageEditor() {
         value={{
           eyebrowEn: (pageConfig as any).eyebrowEn || "EVENTS & OCCURRENCES TIMELINE",
           eyebrowAr: (pageConfig as any).eyebrowAr || "جدول الفعاليات والمواعيد الحية",
-          fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || "YOUR NEXT MOMENT STARTS",
-          fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || "لحظتك القادمة تبدأ",
+          fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || (pageConfig as any).headlineTemplateEn || "YOUR NEXT MOMENT STARTS {{animated}}",
+          fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || (pageConfig as any).headlineTemplateAr || "لحظتك القادمة تبدأ {{animated}}",
+          headlineTemplateEn: (pageConfig as any).headlineTemplateEn || (pageConfig as any).fixedHeadlineEn,
+          headlineTemplateAr: (pageConfig as any).headlineTemplateAr || (pageConfig as any).fixedHeadlineAr,
           rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["TODAY", "THIS WEEK", "THIS WEEKEND", "SOON"],
           rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["اليوم", "هذا الأسبوع", "عطلة نهاية الأسبوع", "قريباً"],
           descriptionEn: pageConfig.descEn,
@@ -124,6 +126,12 @@ export function CalendarPageEditor() {
           media: pageConfig.heroMedia,
           preset: (pageConfig as any).preset || "living-timeline",
           animationSpeed: (pageConfig as any).animationSpeed || 2800,
+          animationDuration: (pageConfig as any).animationDuration || 600,
+          animationType: (pageConfig as any).animationType || "blur-morph",
+          wordStyle: (pageConfig as any).wordStyle || "static-gradient",
+          alignmentEn: (pageConfig as any).alignmentEn || (pageConfig as any).alignment || "center",
+          alignmentAr: (pageConfig as any).alignmentAr || (pageConfig as any).alignment || "center",
+          alignment: (pageConfig as any).alignment,
           enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
         }}
         onChange={(updated) => {
@@ -133,6 +141,8 @@ export function CalendarPageEditor() {
             eyebrowAr: updated.eyebrowAr,
             fixedHeadlineEn: updated.fixedHeadlineEn,
             fixedHeadlineAr: updated.fixedHeadlineAr,
+            headlineTemplateEn: updated.headlineTemplateEn,
+            headlineTemplateAr: updated.headlineTemplateAr,
             titleEn: updated.fixedHeadlineEn,
             titleAr: updated.fixedHeadlineAr,
             rotatingWordsEn: updated.rotatingWordsEn,
@@ -145,6 +155,12 @@ export function CalendarPageEditor() {
             },
             preset: updated.preset,
             animationSpeed: updated.animationSpeed,
+            animationDuration: updated.animationDuration,
+            animationType: updated.animationType,
+            wordStyle: updated.wordStyle,
+            alignmentEn: updated.alignmentEn,
+            alignmentAr: updated.alignmentAr,
+            alignment: updated.alignment,
             enableRotatingWords: updated.enableRotatingWords
           }))
         }}

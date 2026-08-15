@@ -118,8 +118,10 @@ export function PackagesClient({
       <E3LivingHero
         eyebrowEn={initialSettings?.eyebrowEn || "E3 CELEBRATIONS & GROUP PACKAGES"}
         eyebrowAr={initialSettings?.eyebrowAr || "باقات الفعاليات والاحتفالات الاستثنائية"}
-        fixedHeadlineEn={initialSettings?.fixedHeadlineEn || initialSettings?.titleEn || "BUILD A DAY FILLED WITH"}
-        fixedHeadlineAr={initialSettings?.fixedHeadlineAr || initialSettings?.titleAr || "اصنع يوماً مليئاً بـ"}
+        fixedHeadlineEn={initialSettings?.fixedHeadlineEn || initialSettings?.headlineTemplateEn || initialSettings?.titleEn || "BUILD A DAY FILLED WITH"}
+        fixedHeadlineAr={initialSettings?.fixedHeadlineAr || initialSettings?.headlineTemplateAr || initialSettings?.titleAr || "اصنع يوماً مليئاً بـ"}
+        headlineTemplateEn={initialSettings?.headlineTemplateEn || initialSettings?.fixedHeadlineEn}
+        headlineTemplateAr={initialSettings?.headlineTemplateAr || initialSettings?.fixedHeadlineAr}
         rotatingWordsEn={
           Array.isArray(initialSettings?.rotatingWordsEn) && initialSettings.rotatingWordsEn.length > 0
             ? initialSettings.rotatingWordsEn
@@ -148,6 +150,12 @@ export function PackagesClient({
         media={heroMedia}
         preset={initialSettings?.preset || "day-builder"}
         animationSpeed={initialSettings?.animationSpeed || 2800}
+        animationDuration={initialSettings?.animationDuration || 600}
+        animationType={initialSettings?.animationType || "blur-morph"}
+        wordStyle={initialSettings?.wordStyle || "static-gradient"}
+        alignmentEn={initialSettings?.alignmentEn || initialSettings?.alignment || "center"}
+        alignmentAr={initialSettings?.alignmentAr || initialSettings?.alignment || "center"}
+        alignment={initialSettings?.alignment}
         enableRotatingWords={initialSettings?.enableRotatingWords !== undefined ? initialSettings.enableRotatingWords : Boolean(initialSettings?.fixedHeadlineEn || initialSettings?.rotatingWordsEn?.length)}
         locale={locale}
       />

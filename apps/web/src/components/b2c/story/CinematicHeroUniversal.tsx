@@ -78,12 +78,24 @@ export function CinematicHeroUniversal({
 
   const resolvedPreset: E3LivingHeroPreset = livingHeroData.preset || preset
 
+  const headlineTemplateEn = livingHeroData.headlineTemplateEn || act1Hero.headlineTemplateEn || fixedHeadlineEn
+  const headlineTemplateAr = livingHeroData.headlineTemplateAr || act1Hero.headlineTemplateAr || fixedHeadlineAr
+  const animationType = livingHeroData.animationType || act1Hero.animationType || 'blur-morph'
+  const wordStyle = livingHeroData.wordStyle || act1Hero.wordStyle || 'static-gradient'
+  const alignmentEn = livingHeroData.alignmentEn || act1Hero.alignmentEn || livingHeroData.alignment || 'center'
+  const alignmentAr = livingHeroData.alignmentAr || act1Hero.alignmentAr || livingHeroData.alignment || 'center'
+  const alignment = livingHeroData.alignment || act1Hero.alignment
+  const animationDuration = livingHeroData.animationDuration || act1Hero.animationDuration || 600
+  const animationSpeed = livingHeroData.animationSpeed || act1Hero.animationSpeed || 2800
+
   return (
     <E3LivingHero
       eyebrowEn={eyebrowEn}
       eyebrowAr={eyebrowAr}
       fixedHeadlineEn={fixedHeadlineEn}
       fixedHeadlineAr={fixedHeadlineAr}
+      headlineTemplateEn={headlineTemplateEn}
+      headlineTemplateAr={headlineTemplateAr}
       rotatingWordsEn={rotatingWordsEn}
       rotatingWordsAr={rotatingWordsAr}
       descriptionEn={descriptionEn}
@@ -106,7 +118,13 @@ export function CinematicHeroUniversal({
         gradientScrim: livingHeroData.media?.gradientScrim !== false
       }}
       preset={resolvedPreset}
-      animationSpeed={livingHeroData.animationSpeed || 2800}
+      animationSpeed={animationSpeed}
+      animationDuration={animationDuration}
+      animationType={animationType}
+      wordStyle={wordStyle}
+      alignmentEn={alignmentEn}
+      alignmentAr={alignmentAr}
+      alignment={alignment}
       enableRotatingWords={enableRotating}
       locale={locale}
     />

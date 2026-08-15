@@ -316,8 +316,10 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               value={{
                 eyebrowEn: data.hero?.eyebrowEn || "E3 CORPORATE STORY & ECOSYSTEM",
                 eyebrowAr: data.hero?.eyebrowAr || "قصة إي ثري الترفيهية والتنفيذية",
-                fixedHeadlineEn: data.hero?.fixedHeadlineEn || "CHOOSE HOW YOU WANT TO",
-                fixedHeadlineAr: data.hero?.fixedHeadlineAr || "اختر كيف ترغب في أن",
+                fixedHeadlineEn: data.hero?.fixedHeadlineEn || data.hero?.headlineTemplateEn || "CHOOSE HOW YOU WANT TO {{animated}}",
+                fixedHeadlineAr: data.hero?.fixedHeadlineAr || data.hero?.headlineTemplateAr || "اختر كيف ترغب في أن {{animated}}",
+                headlineTemplateEn: data.hero?.headlineTemplateEn || data.hero?.fixedHeadlineEn,
+                headlineTemplateAr: data.hero?.headlineTemplateAr || data.hero?.fixedHeadlineAr,
                 rotatingWordsEn: data.hero?.rotatingWordsEn || ["EXPLORE", "COMPETE", "CREATE", "DISCOVER"],
                 rotatingWordsAr: data.hero?.rotatingWordsAr || ["تستكشف", "تنافس", "تبتكر", "تكتشف"],
                 descriptionEn: data.hero?.subtitleEn || data.hero?.subtextEn || "",
@@ -340,6 +342,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                 },
                 preset: data.hero?.preset || "story-portal",
                 animationSpeed: data.hero?.animationSpeed || 2800,
+                animationDuration: data.hero?.animationDuration || 600,
+                animationType: data.hero?.animationType || "blur-morph",
+                wordStyle: data.hero?.wordStyle || "static-gradient",
+                alignmentEn: data.hero?.alignmentEn || data.hero?.alignment || "center",
+                alignmentAr: data.hero?.alignmentAr || data.hero?.alignment || "center",
+                alignment: data.hero?.alignment,
                 enableRotatingWords: data.hero?.enableRotatingWords !== false
               }}
               onChange={(updated) => {
@@ -352,6 +360,8 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     eyebrowAr: updated.eyebrowAr,
                     fixedHeadlineEn: updated.fixedHeadlineEn,
                     fixedHeadlineAr: updated.fixedHeadlineAr,
+                    headlineTemplateEn: updated.headlineTemplateEn,
+                    headlineTemplateAr: updated.headlineTemplateAr,
                     headlineEn: updated.fixedHeadlineEn,
                     headlineAr: updated.fixedHeadlineAr,
                     rotatingWordsEn: updated.rotatingWordsEn,
@@ -383,6 +393,12 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     mobileMediaUrl: updated.media?.mobileMediaUrl,
                     preset: updated.preset,
                     animationSpeed: updated.animationSpeed,
+                    animationDuration: updated.animationDuration,
+                    animationType: updated.animationType,
+                    wordStyle: updated.wordStyle,
+                    alignmentEn: updated.alignmentEn,
+                    alignmentAr: updated.alignmentAr,
+                    alignment: updated.alignment,
                     enableRotatingWords: updated.enableRotatingWords
                   }
                 }))

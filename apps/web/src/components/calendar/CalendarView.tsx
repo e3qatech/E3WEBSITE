@@ -238,6 +238,8 @@ export function CalendarView({
           eyebrowAr={eyebrowAr || cmsContent?.hero?.eyebrowAr || cmsContent?.eyebrowAr || "جدول الفعاليات"}
           fixedHeadlineEn={cmsContent?.hero?.fixedHeadlineEn || cmsContent?.fixedHeadlineEn || (titleEn || title ? sanitizeHeroTitle(titleEn || title) : null) || heroTitle}
           fixedHeadlineAr={cmsContent?.hero?.fixedHeadlineAr || cmsContent?.fixedHeadlineAr || (titleAr || title ? sanitizeHeroTitle(titleAr || title) : null) || heroTitle}
+          headlineTemplateEn={cmsContent?.hero?.headlineTemplateEn || cmsContent?.headlineTemplateEn || cmsContent?.hero?.fixedHeadlineEn || cmsContent?.fixedHeadlineEn}
+          headlineTemplateAr={cmsContent?.hero?.headlineTemplateAr || cmsContent?.headlineTemplateAr || cmsContent?.hero?.fixedHeadlineAr || cmsContent?.fixedHeadlineAr}
           rotatingWordsEn={
             Array.isArray(cmsContent?.hero?.rotatingWordsEn || cmsContent?.rotatingWordsEn) && (cmsContent?.hero?.rotatingWordsEn || cmsContent?.rotatingWordsEn).length > 0
               ? (cmsContent?.hero?.rotatingWordsEn || cmsContent?.rotatingWordsEn)
@@ -266,7 +268,13 @@ export function CalendarView({
             posterUrl: cmsContent?.hero?.posterUrl || cmsContent?.heroMedia?.posterUrl || ""
           }}
           preset={cmsContent?.preset || "living-timeline"}
-          animationSpeed={cmsContent?.animationSpeed || 2800}
+          animationSpeed={cmsContent?.hero?.animationSpeed || cmsContent?.animationSpeed || 2800}
+          animationDuration={cmsContent?.hero?.animationDuration || cmsContent?.animationDuration || 600}
+          animationType={cmsContent?.hero?.animationType || cmsContent?.animationType || "blur-morph"}
+          wordStyle={cmsContent?.hero?.wordStyle || cmsContent?.wordStyle || "static-gradient"}
+          alignmentEn={cmsContent?.hero?.alignmentEn || cmsContent?.alignmentEn || cmsContent?.alignment || "center"}
+          alignmentAr={cmsContent?.hero?.alignmentAr || cmsContent?.alignmentAr || cmsContent?.alignmentAr || "center"}
+          alignment={cmsContent?.hero?.alignment || cmsContent?.alignment}
           enableRotatingWords={Boolean(cmsContent?.enableRotatingWords || (cmsContent?.hero?.rotatingWordsEn && cmsContent.hero.rotatingWordsEn.length > 0))}
           locale={locale}
           scrollIndicator={false}
