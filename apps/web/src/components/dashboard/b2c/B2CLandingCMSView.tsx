@@ -403,7 +403,24 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
             tab2LabelAr: currentAct1Hero.tab2LabelAr || "",
             tab2Url: currentAct1Hero.tab2Url || "",
           },
-          act2Curtain: content.act2Curtain || {},
+          act2Curtain: {
+            ...DEFAULT_B2C_LANDING_CONTENT.act2Curtain,
+            ...(content.act2Curtain || {}),
+            headingEn: content.act2Curtain?.headingEn || content.act2Curtain?.headlineEn || content.act2?.headlineEn || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingEn,
+            headingAr: content.act2Curtain?.headingAr || content.act2Curtain?.headlineAr || content.act2?.headlineAr || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingAr,
+            subtextEn: content.act2Curtain?.subtextEn || content.act2Curtain?.descriptionEn || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextEn,
+            subtextAr: content.act2Curtain?.subtextAr || content.act2Curtain?.descriptionAr || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextAr,
+          },
+          brandManifesto: {
+            ...DEFAULT_B2C_LANDING_CONTENT.brandManifesto,
+            ...(content.brandManifesto || {}),
+            ...(content.act2Curtain || {}),
+          },
+          act2: {
+            ...(content.act2 || {}),
+            headlineEn: content.act2Curtain?.headingEn || content.act2Curtain?.headlineEn || content.act2?.headlineEn || DEFAULT_B2C_LANDING_CONTENT.act2.headlineEn,
+            headlineAr: content.act2Curtain?.headingAr || content.act2Curtain?.headlineAr || content.act2?.headlineAr || DEFAULT_B2C_LANDING_CONTENT.act2.headlineAr,
+          },
           coreTeam: {
             ...(content.coreTeam || {}),
             headlineEn: content.coreTeam?.headlineEn || "The people behind the experience",
@@ -1115,33 +1132,278 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
           title={isAr ? "بيان وفلسفة العلامة التجارية" : "Act 2: Brand Manifesto & Subtext"}
           description={
             isAr
-              ? "نص بيان فلسفة إي ثري قطر الذي يظهر عند التمرير بعد ستارة الهيرو."
-              : "E3 Qatar brand philosophy statement displayed upon scrolling past the hero curtain."
+              ? "إدارة بيان رؤية وفلسفة إي ثري قطر، العنوان الرئيسي، السرد الفلسفي الموسّع، الوسائط البصرية الخلفية، والدعوة للاستكشاف."
+              : "Manage E3 Qatar brand philosophy statement, curtain headline, expanded narrative subtext, background visual media, and conversion actions."
           }
           icon={<Quote className="w-5 h-5 text-[var(--color-primary)]" />}
+          headerAction={
+            <button
+              type="button"
+              onClick={() => {
+                updateContent((p) => ({
+                  ...p,
+                  act2Curtain: {
+                    ...DEFAULT_B2C_LANDING_CONTENT.act2Curtain,
+                    ...(p.act2Curtain || {}),
+                    badgeEn: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.badgeEn,
+                    badgeAr: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.badgeAr,
+                    headingEn: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingEn,
+                    headingAr: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingAr,
+                    subtextEn: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextEn,
+                    subtextAr: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextAr,
+                    quoteEn: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteEn,
+                    quoteAr: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteAr,
+                    quoteAuthorEn: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteAuthorEn,
+                    quoteAuthorAr: DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteAuthorAr,
+                  },
+                }));
+                toast(
+                  isAr ? "تم تحميل نصوص بيان العلامة الافتراضية بنجاح" : "Loaded official E3 brand manifesto defaults",
+                  "success"
+                );
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all shadow-xs cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>{isAr ? "استعادة النصوص المعتمدة" : "Load Official Manifesto"}</span>
+            </button>
+          }
         >
+          {/* 1. Category Eyebrow / Badge */}
           <DashboardBilingualField
-            label={isAr ? "نص بيان العلامة" : "Manifesto Headline"}
-            type="textarea"
-            rows={4}
-            valueEn={content.act2Curtain?.headingEn || ""}
-            valueAr={content.act2Curtain?.headingAr || ""}
+            label={isAr ? "شارة / وسام الفلسفة" : "Philosophy Eyebrow / Badge"}
+            valueEn={content.act2Curtain?.badgeEn ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.badgeEn}
+            valueAr={content.act2Curtain?.badgeAr ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.badgeAr}
             onChangeEn={(val) =>
               updateContent((p) => ({
                 ...p,
-                act2Curtain: { ...p.act2Curtain, headingEn: val },
+                act2Curtain: { ...p.act2Curtain, badgeEn: val },
               }))
             }
             onChangeAr={(val) =>
               updateContent((p) => ({
                 ...p,
-                act2Curtain: { ...p.act2Curtain, headingAr: val },
+                act2Curtain: { ...p.act2Curtain, badgeAr: val },
+              }))
+            }
+            placeholderEn="e.g. E3 BRAND PHILOSOPHY & MANIFESTO"
+            placeholderAr="مثال: بيان وفلسفة العلامة التجارية"
+            mode={languageMode}
+          />
+
+          {/* 2. Primary Manifesto Headline */}
+          <DashboardBilingualField
+            label={isAr ? "عنوان بيان العلامة الرئيسي" : "Manifesto Headline"}
+            type="textarea"
+            rows={3}
+            valueEn={content.act2Curtain?.headingEn ?? (content.act2?.headlineEn || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingEn)}
+            valueAr={content.act2Curtain?.headingAr ?? (content.act2?.headlineAr || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingAr)}
+            onChangeEn={(val) =>
+              updateContent((p) => ({
+                ...p,
+                act2Curtain: { ...p.act2Curtain, headingEn: val, headlineEn: val },
+                act2: { ...(p.act2 || {}), headlineEn: val },
+              }))
+            }
+            onChangeAr={(val) =>
+              updateContent((p) => ({
+                ...p,
+                act2Curtain: { ...p.act2Curtain, headingAr: val, headlineAr: val },
+                act2: { ...(p.act2 || {}), headlineAr: val },
               }))
             }
             placeholderEn="Enter English brand manifesto text..."
             placeholderAr="أدخل نص بيان العلامة التجارية..."
             mode={languageMode}
           />
+
+          {/* 3. Detailed Narrative Subtext */}
+          <DashboardBilingualField
+            label={isAr ? "السرد الفلسفي والبيان الموسّع" : "Expanded Narrative Subtext & Philosophy Statement"}
+            type="textarea"
+            rows={4}
+            valueEn={content.act2Curtain?.subtextEn ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextEn}
+            valueAr={content.act2Curtain?.subtextAr ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextAr}
+            onChangeEn={(val) =>
+              updateContent((p) => ({
+                ...p,
+                act2Curtain: { ...p.act2Curtain, subtextEn: val, descriptionEn: val },
+              }))
+            }
+            onChangeAr={(val) =>
+              updateContent((p) => ({
+                ...p,
+                act2Curtain: { ...p.act2Curtain, subtextAr: val, descriptionAr: val },
+              }))
+            }
+            placeholderEn="Enter expanded brand narrative and philosophy statement..."
+            placeholderAr="أدخل السرد الموسع وبيان رؤية وفلسفة العلامة..."
+            mode={languageMode}
+          />
+
+          {/* 4. Signature Quote & Attribution */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border-level-1)]">
+            <DashboardBilingualField
+              label={isAr ? "اقتباس مميز أو عبارة توقيع" : "Accent Quote / Signature Motto"}
+              valueEn={content.act2Curtain?.quoteEn ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteEn}
+              valueAr={content.act2Curtain?.quoteAr ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteAr}
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  act2Curtain: { ...p.act2Curtain, quoteEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  act2Curtain: { ...p.act2Curtain, quoteAr: val },
+                }))
+              }
+              placeholderEn="e.g. Some days pass. Others become stories."
+              placeholderAr="مثال: أيام تمرّ… وأيام تتحول إلى حكايات."
+              mode={languageMode}
+            />
+
+            <DashboardBilingualField
+              label={isAr ? "الجهة المنسوبة أو التوقيع" : "Quote Attribution / Signoff"}
+              valueEn={content.act2Curtain?.quoteAuthorEn ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteAuthorEn}
+              valueAr={content.act2Curtain?.quoteAuthorAr ?? DEFAULT_B2C_LANDING_CONTENT.act2Curtain.quoteAuthorAr}
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  act2Curtain: { ...p.act2Curtain, quoteAuthorEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  act2Curtain: { ...p.act2Curtain, quoteAuthorAr: val },
+                }))
+              }
+              placeholderEn="e.g. E3 Creative & Engineering Atelier"
+              placeholderAr="مثال: استوديو إي ثري للإبداع والهندسة"
+              mode={languageMode}
+            />
+          </div>
+
+          {/* 5. Direct Media Upload Controls */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border-level-1)]">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  {isAr ? "وسائط خلفية ستارة بيان العلامة" : "Manifesto Backdrop Media (Video / Image)"}
+                </label>
+                <p className="text-[11px] text-[var(--text-tertiary)] mb-3">
+                  {isAr
+                    ? "فيديو أو صورة سينمائية تظهر في خلفية ستارة بيان العلامة."
+                    : "Cinematic video loop or high-resolution backdrop image behind the manifesto."}
+                </p>
+              </div>
+
+              <MediaUploader
+                value={content.act2Curtain?.mediaUrl || ""}
+                onChange={(url) =>
+                  updateContent((p) => ({
+                    ...p,
+                    act2Curtain: { ...p.act2Curtain, mediaUrl: url },
+                  }))
+                }
+                accept="video/*,image/*"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  {isAr ? "صورة البوستر / البديل" : "Manifesto Poster / Fallback Image"}
+                </label>
+                <p className="text-[11px] text-[var(--text-tertiary)] mb-3">
+                  {isAr
+                    ? "صورة ثابتة تظهر قبل تحميل الفيديو وعلى الأجهزة المحمولة."
+                    : "Static poster displayed prior to video buffering and on mobile devices."}
+                </p>
+              </div>
+
+              <MediaUploader
+                value={content.act2Curtain?.posterUrl || ""}
+                onChange={(url) =>
+                  updateContent((p) => ({
+                    ...p,
+                    act2Curtain: { ...p.act2Curtain, posterUrl: url },
+                  }))
+                }
+                accept="image/*"
+              />
+            </div>
+          </div>
+
+          {/* 6. Live Manifesto Visual Preview Card */}
+          <div className="p-5 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
+                <Quote className="w-4 h-4 text-purple-400" />
+                <span>{isAr ? "معاينة ستارة بيان العلامة" : "Manifesto Curtain Preview"}</span>
+              </span>
+              <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
+                {content.act2Curtain?.mediaUrl ? "Custom Media Set" : "Ambient Scrim"}
+              </span>
+            </div>
+
+            <div className="relative w-full rounded-2xl overflow-hidden bg-[#090e1a] border border-white/10 p-6 sm:p-8 text-center flex flex-col items-center justify-center min-h-[220px]">
+              {content.act2Curtain?.mediaUrl && (
+                <div className="absolute inset-0 z-0 opacity-25">
+                  {content.act2Curtain.mediaUrl.endsWith(".mp4") || content.act2Curtain.mediaType === "VIDEO" ? (
+                    <video src={content.act2Curtain.mediaUrl} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={content.act2Curtain.mediaUrl} alt="Manifesto Background" className="w-full h-full object-cover" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#090e1a] via-[#090e1a]/80 to-[#090e1a]/40" />
+                </div>
+              )}
+
+              <div className="relative z-10 max-w-2xl mx-auto space-y-3">
+                <span className="inline-block px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono font-bold tracking-widest uppercase">
+                  {isAr
+                    ? content.act2Curtain?.badgeAr || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.badgeAr
+                    : content.act2Curtain?.badgeEn || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.badgeEn}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-white font-syne tracking-tight">
+                  {isAr
+                    ? content.act2Curtain?.headingAr || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingAr
+                    : content.act2Curtain?.headingEn || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.headingEn}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+                  {isAr
+                    ? content.act2Curtain?.subtextAr || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextAr
+                    : content.act2Curtain?.subtextEn || DEFAULT_B2C_LANDING_CONTENT.act2Curtain.subtextEn}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 7. Quick link to Ideas to Life 6-Step Evolution Manager */}
+          <div className="p-4 rounded-xl border border-sky-500/20 bg-sky-500/5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-sky-400 shrink-0" />
+              <div>
+                <h5 className="text-xs font-bold text-[var(--text-primary)]">
+                  {isAr ? "مدير رحلة تحويل الأفكار إلى واقع (Ideas to Life)" : "Ideas to Life 6-Step Evolution Manager"}
+                </h5>
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  {isAr
+                    ? "إدارة المراحل الست التفاعلية التي تلي ستارة بيان العلامة في صفحة التجارب."
+                    : "Manage the interactive 6-step evolution stages following the brand manifesto."}
+                </p>
+              </div>
+            </div>
+            <a
+              href={`/${locale}/dashboard/b2c/content/ideas`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white transition-all shadow-xs shrink-0"
+            >
+              <span>{isAr ? "فتح مدير الأفكار" : "Open Ideas Manager"}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
         </DashboardSectionCard>
       )}
 
