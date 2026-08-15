@@ -53,26 +53,26 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
   const currentItem = selectedIndex !== null ? filteredItems[selectedIndex] : null;
 
   return (
-    <section className="py-24 bg-zinc-950 relative border-t border-white/5" dir={isAr ? "rtl" : "ltr"}>
+    <section className="py-24 bg-[var(--bg-level-1)] text-[var(--text-primary)] relative border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-6 space-y-12">
         
         {/* Header & Filter Tabs */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-white/10 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+            <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block mb-2">
               {isAr ? "المعرض المرئي للتجربة" : "MEDIA GALLERY"}
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
+            <h2 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-none">
               {isAr ? "معرض الصور والفيديوهات" : "Captured Moments"}
             </h2>
           </div>
 
           {/* Filter Switcher Tabs */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] backdrop-blur-md shadow-sm">
             <button
               onClick={() => { setFilter('ALL'); setShowAll(false); }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === 'ALL' ? 'bg-emerald-500 text-zinc-950 font-black shadow-md' : 'text-zinc-400 hover:text-white'
+                filter === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Grid className="w-3.5 h-3.5" />
@@ -82,7 +82,7 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
             <button
               onClick={() => { setFilter('PHOTOS'); setShowAll(false); }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === 'PHOTOS' ? 'bg-emerald-500 text-zinc-950 font-black shadow-md' : 'text-zinc-400 hover:text-white'
+                filter === 'PHOTOS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
@@ -92,7 +92,7 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
             <button
               onClick={() => { setFilter('VIDEOS'); setShowAll(false); }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === 'VIDEOS' ? 'bg-emerald-500 text-zinc-950 font-black shadow-md' : 'text-zinc-400 hover:text-white'
+                filter === 'VIDEOS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Film className="w-3.5 h-3.5" />
@@ -114,7 +114,7 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: (idx % 3) * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="relative group cursor-pointer overflow-hidden rounded-3xl border border-white/10 aspect-[4/3] bg-zinc-900 shadow-2xl"
+                className="relative group cursor-pointer overflow-hidden rounded-3xl border border-[var(--border-level-2)] aspect-[4/3] bg-[var(--surface-hover)] shadow-xl"
                 onClick={() => openLightbox(idx)}
               >
                 {itemIsVideo ? (
@@ -136,9 +136,9 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
                 )}
 
                 {/* Video / Zoom Hover Overlay */}
-                <div className="absolute inset-0 bg-zinc-950/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-between p-6 backdrop-blur-[2px]">
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-between p-6 backdrop-blur-[2px]">
                   <div className="flex justify-end">
-                    <span className="p-2.5 rounded-full bg-zinc-950/80 border border-white/20 text-white shadow-lg">
+                    <span className="p-2.5 rounded-full bg-black/70 border border-white/20 text-white shadow-lg">
                       {itemIsVideo ? <Play className="w-4 h-4 fill-white" /> : <Maximize2 className="w-4 h-4" />}
                     </span>
                   </div>
@@ -159,7 +159,7 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
           <div className="text-center pt-6">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white/10 hover:bg-emerald-500 text-white hover:text-zinc-950 font-black text-xs uppercase tracking-widest border border-white/15 transition-all shadow-xl hover:scale-105 cursor-pointer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-black text-xs uppercase tracking-widest border border-[var(--border-level-2)] transition-all shadow-xl hover:scale-105 cursor-pointer"
             >
               <span>
                 {showAll 

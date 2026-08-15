@@ -23,15 +23,14 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
   const _stepMediaFallbacks: string[] = []
 
   return (
-    <section id="bring-it-to-life" className="relative py-24 bg-[#070310] border-b border-purple-950/40 text-white overflow-hidden">
+    <section id="bring-it-to-life" className="relative py-24 bg-[var(--bg-level-1)] border-b border-[var(--border-level-2)] text-[var(--text-primary)] overflow-hidden transition-colors duration-300">
       {/* Structural Wireframe Grid Lines */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e1b4b_1px,transparent_1px),linear-gradient(to_bottom,#1e1b4b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-level-2)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-level-2)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
             {isAr ? (act.headlineAr || "لا نكتفي بتخيّل المتعة… بل نحوّلها إلى واقع.") : (act.headlineEn || "We don’t just imagine fun. We bring it to life.")}
           </h2>
         </div>
@@ -48,25 +47,24 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                   onMouseEnter={() => setActiveStepIndex(idx)}
                   className={`w-full text-start p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between cursor-pointer ${
                     isActive
-                      ? 'border-sky-500 bg-sky-950/40 text-white shadow-lg shadow-sky-950/50 translate-x-1'
-                      : 'border-slate-800/80 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                      ? 'border-sky-500 bg-sky-500/15 text-[var(--text-primary)] shadow-lg shadow-sky-500/20 translate-x-1'
+                      : 'border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-secondary)] hover:border-sky-500/50 hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <div className="flex items-center gap-4">
-
                     <div>
-                      <div className="font-bold text-sm text-white">
+                      <div className="font-bold text-sm text-[var(--text-primary)]">
                         {isAr ? step.titleAr : step.titleEn}
                       </div>
-                      <div className="text-xs text-slate-400 line-clamp-1">
+                      <div className="text-xs text-[var(--text-secondary)] line-clamp-1">
                         {isAr ? step.descAr : step.descEn}
                       </div>
                     </div>
                   </div>
                   {isActive ? (
-                    <CheckCircle2 className="w-5 h-5 text-sky-400 shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-sky-500 shrink-0" />
                   ) : (
-                    <ChevronRight className={`w-4 h-4 text-slate-600 ${isAr ? 'rotate-180' : ''}`} />
+                    <ChevronRight className={`w-4 h-4 text-[var(--text-tertiary)] ${isAr ? 'rotate-180' : ''}`} />
                   )}
                 </button>
               )
@@ -74,7 +72,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
           </div>
 
           {/* Right Column — Transformation Visual Display (7 Cols) */}
-          <div className="lg:col-span-7 relative aspect-video rounded-3xl overflow-hidden border border-sky-500/30 bg-slate-950 shadow-2xl group">
+          <div className="lg:col-span-7 relative aspect-video rounded-3xl overflow-hidden border border-sky-500/30 bg-[var(--surface-default)] shadow-2xl group">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeStepIndex}
@@ -104,22 +102,21 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                     />
                   )
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950/90 text-slate-500 text-xs font-mono p-6 text-center space-y-2 border border-slate-800/80">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--surface-hover)] text-[var(--text-secondary)] text-xs font-mono p-6 text-center space-y-2 border border-[var(--border-level-2)]">
                     <Layers className="w-8 h-8 text-sky-500/40 animate-pulse" />
                     <span>Upload stage visual media from Ideas to Life Content Manager in CMS</span>
                   </div>
                 )}
                 {activeStepIndex < 2 && (
-                  <div className="absolute inset-0 bg-blue-950/60 backdrop-blur-[2px] border-4 border-dashed border-sky-400/40 mix-blend-overlay" />
+                  <div className="absolute inset-0 bg-blue-950/40 backdrop-blur-[2px] border-4 border-dashed border-sky-400/40 mix-blend-overlay" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/90 via-[var(--surface-default)]/30 to-transparent" />
 
-                <div className="absolute bottom-6 start-6 end-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 backdrop-blur-md">
-
-                  <h3 className="text-xl font-extrabold text-white mt-1">
+                <div className="absolute bottom-6 start-6 end-6 p-4 rounded-2xl bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] backdrop-blur-md shadow-lg">
+                  <h3 className="text-xl font-extrabold text-[var(--text-primary)] mt-1">
                     {isAr ? activeStep.titleAr : activeStep.titleEn}
                   </h3>
-                  <p className="text-xs text-slate-300 mt-1">
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {isAr ? activeStep.descAr : activeStep.descEn}
                   </p>
                 </div>

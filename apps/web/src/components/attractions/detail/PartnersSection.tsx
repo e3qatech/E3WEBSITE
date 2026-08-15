@@ -31,13 +31,13 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
   const displayPartners = sanitized.length < 8 ? [...sanitized, ...sanitized, ...sanitized] : sanitized;
 
   return (
-    <section className="py-24 bg-zinc-950 border-t border-zinc-900 overflow-hidden relative">
+    <section className="py-24 bg-[var(--surface-default)] border-t border-[var(--border-level-2)] overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white"
+          className="text-3xl md:text-4xl font-black uppercase tracking-tight text-[var(--text-primary)]"
         >
           {locale === 'ar' ? 'شركاؤنا' : 'Our Partners'}
         </motion.h2>
@@ -50,8 +50,8 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
       </div>
 
       <div className="relative w-full flex overflow-x-hidden">
-        <div className="absolute top-0 start-0 w-32 h-full bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
-        <div className="absolute top-0 end-0 w-32 h-full bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 start-0 w-32 h-full bg-gradient-to-r from-[var(--surface-default)] to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 end-0 w-32 h-full bg-gradient-to-l from-[var(--surface-default)] to-transparent z-10 pointer-events-none" />
         
         <motion.div 
           className="flex whitespace-nowrap gap-16 items-center py-4"

@@ -154,7 +154,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
   return (
     <section 
       id="our-brands" 
-      className="relative py-28 bg-[#070212] text-white border-b border-purple-950/40 overflow-hidden transition-colors duration-1000"
+      className="relative py-28 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       dir={isAr ? "rtl" : "ltr"}
@@ -162,7 +162,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
       {/* Ambient Brand Color Tint Glow */}
       {activeBrand && (
         <div
-          className="absolute inset-0 opacity-25 transition-colors duration-1000 pointer-events-none"
+          className="absolute inset-0 opacity-15 dark:opacity-25 transition-colors duration-1000 pointer-events-none"
           style={{
             background: `radial-gradient(circle at 50% 40%, ${activeBrand.brandColor || '#3b82f6'}, transparent 75%)`
           }}
@@ -174,24 +174,24 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
         {/* Section Header & Ticker Status */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-3 text-center md:text-start max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-[var(--surface-default)] text-purple-600 dark:text-purple-300 text-xs font-bold uppercase tracking-widest shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
               <span>{isAr ? "منظومة إي ثري — OUR BRANDS" : "OUR BRANDS — CREATED BY E3"}</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
               {heading}
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 font-light">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] font-light">
               {subtext}
             </p>
           </div>
 
           {/* Ticker Controls */}
           {brands.length > 1 && (
-            <div className="flex items-center gap-3 bg-slate-900/80 border border-slate-800 rounded-2xl p-2 backdrop-blur-md">
+            <div className="flex items-center gap-3 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-2 backdrop-blur-md shadow-md">
               <button
                 onClick={handlePrev}
-                className="p-2 rounded-xl bg-slate-800/80 hover:bg-purple-600 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-purple-600 text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
                 title={isAr ? "العلامة التجارية السابقة" : "Previous Brand"}
               >
                 <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
@@ -199,15 +199,15 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
               <button
                 onClick={() => setIsPaused(!isPaused)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300 transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-xs font-mono font-bold text-[var(--text-primary)] transition-colors cursor-pointer"
               >
-                {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="w-3.5 h-3.5 text-purple-400 fill-purple-400" />}
+                {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" /> : <Pause className="w-3.5 h-3.5 text-purple-500 fill-purple-500" />}
                 <span>{isPaused ? (isAr ? "موقوف" : "PAUSED") : (isAr ? "جاري العرض" : "AUTO-TICKER")}</span>
               </button>
 
               <button
                 onClick={handleNext}
-                className="p-2 rounded-xl bg-slate-800/80 hover:bg-purple-600 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-purple-600 text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
                 title={isAr ? "العلامة التجارية التالية" : "Next Brand"}
               >
                 <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
@@ -219,8 +219,8 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
         {/* Continuous Horizontal Running Ticker Reel */}
         <div className="relative group/ticker">
           {/* Side Fade Overlays */}
-          <div className="absolute top-0 bottom-0 start-0 w-16 bg-gradient-to-r from-[#070212] to-transparent z-20 pointer-events-none" />
-          <div className="absolute top-0 bottom-0 end-0 w-16 bg-gradient-to-l from-[#070212] to-transparent z-20 pointer-events-none" />
+          <div className="absolute top-0 bottom-0 start-0 w-16 bg-gradient-to-r from-[var(--bg-level-1)] to-transparent z-20 pointer-events-none" />
+          <div className="absolute top-0 bottom-0 end-0 w-16 bg-gradient-to-l from-[var(--bg-level-1)] to-transparent z-20 pointer-events-none" />
 
           <div 
             ref={scrollContainerRef}
@@ -244,12 +244,12 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                   }}
                   className={`relative shrink-0 w-56 p-5 rounded-3xl border text-start transition-all duration-500 cursor-pointer flex flex-col justify-between h-40 group snap-center ${
                     isActive
-                      ? 'border-purple-500 bg-purple-950/70 shadow-2xl shadow-purple-950/90 scale-105 z-10'
-                      : 'border-slate-800/80 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/80 opacity-70 hover:opacity-100'
+                      ? 'border-purple-500 bg-[var(--surface-default)] shadow-2xl scale-105 z-10'
+                      : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/70 hover:border-purple-400 hover:bg-[var(--surface-default)] opacity-80 hover:opacity-100 shadow-sm'
                   }`}
                   style={{
                     borderColor: isActive ? (brand.brandColor || '#a855f7') : undefined,
-                    boxShadow: isActive ? `0 0 30px ${brand.brandColor || '#a855f7'}40` : undefined
+                    boxShadow: isActive ? `0 0 30px ${brand.brandColor || '#a855f7'}30` : undefined
                   }}
                 >
                   {/* Constellation Indicator Arrow */}
@@ -263,7 +263,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-1">
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-1">
                       <img
                         src={brand.logoPrimary}
                         alt={brandName}
@@ -276,13 +276,13 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block">
+                    <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase tracking-widest block">
                       {brand.relationship === 'SUBSIDIARY' ? (isAr ? 'شركة تابعة' : 'Subsidiary') :
                        brand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة' : 'Owned Concept') :
                        brand.relationship === 'OPERATED' ? (isAr ? 'مفهوم مُشغّل' : 'Operated Concept') :
                        (isAr ? 'تجربة منفّذة' : 'Delivered Experience')}
                     </span>
-                    <h3 className="text-base font-extrabold text-white line-clamp-1 mt-0.5">
+                    <h3 className="text-base font-extrabold text-[var(--text-primary)] line-clamp-1 mt-0.5">
                       {brandName}
                     </h3>
                   </div>
@@ -301,13 +301,13 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.4 }}
-              className="p-8 md:p-10 rounded-3xl border border-purple-500/30 bg-slate-900/80 backdrop-blur-xl shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+              className="p-8 md:p-10 rounded-3xl border border-purple-500/30 bg-[var(--surface-default)] backdrop-blur-xl shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
               style={{ borderColor: activeBrand.brandColor || '#a855f7' }}
             >
               {/* Left Info & Description (7 Cols) */}
               <div className="lg:col-span-7 space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-1 shrink-0 shadow-lg">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-1 shrink-0 shadow-lg">
                     <img src={activeBrand.logoPrimary} alt={activeName} className="w-full h-full object-cover rounded-xl" />
                   </div>
                   <div>
@@ -316,14 +316,14 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                         {activeTagline}
                       </span>
                     )}
-                    <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
+                    <h3 className="text-2xl sm:text-4xl font-extrabold text-[var(--text-primary)]">
                       {activeName}
                     </h3>
                   </div>
                 </div>
 
                 {activeDesc && (
-                  <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
+                  <p className="text-sm sm:text-base text-[var(--text-secondary)] font-light leading-relaxed">
                     {activeDesc}
                   </p>
                 )}
@@ -344,9 +344,9 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                   {activeBrand.bookingUrl && (
                     <Link
                       href={localizeHref(activeBrand.bookingUrl, locale)}
-                      className="flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-slate-700 bg-slate-950 hover:bg-slate-900 text-xs font-extrabold text-slate-200 hover:text-white transition-all cursor-pointer"
+                      className="flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-xs font-extrabold text-[var(--text-primary)] transition-all shadow-sm cursor-pointer"
                     >
-                      <Ticket className="w-4 h-4 text-emerald-400" />
+                      <Ticket className="w-4 h-4 text-emerald-500" />
                       <span>{isAr ? "حجز التذاكر" : "Book Tickets"}</span>
                     </Link>
                   )}
@@ -354,7 +354,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
               </div>
 
               {/* Right Brand Hero Cover Image Stage (5 Cols) */}
-              <div className="lg:col-span-5 relative aspect-[16/10] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl group">
+              <div className="lg:col-span-5 relative aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] shadow-2xl group">
                 {activeBrand.heroImage || activeBrand.logoPrimary ? (
                   <img
                     src={activeBrand.heroImage || activeBrand.logoPrimary}
@@ -362,11 +362,11 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
-                  <div className="w-full h-full bg-slate-950 flex items-center justify-center p-6 text-center">
-                    <span className="text-xs font-mono text-slate-500 uppercase">{activeName}</span>
+                  <div className="w-full h-full bg-[var(--surface-hover)] flex items-center justify-center p-6 text-center">
+                    <span className="text-xs font-mono text-[var(--text-tertiary)] uppercase">{activeName}</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/80 via-transparent to-transparent" />
               </div>
 
             </motion.div>

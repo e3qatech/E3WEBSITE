@@ -84,30 +84,30 @@ export function SocialNewsSection({
   const activeNews = (Array.isArray(newsCoverage) && newsCoverage.length > 0) ? newsCoverage : defaultNews;
 
   return (
-    <section className="py-24 bg-zinc-950 text-white border-t border-white/5 overflow-hidden relative" dir={isAr ? "rtl" : "ltr"}>
+    <section className="py-24 bg-[var(--surface-default)] text-[var(--text-primary)] border-t border-[var(--border-level-2)] overflow-hidden relative" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Subtle Radial Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-950/20 via-black to-black pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 space-y-12">
         
         {/* Header & Category Switcher */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs font-mono font-bold uppercase tracking-widest mb-3 shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{isAr ? "أصداء المجتمع والصحافة" : "SOCIAL PULSE & MEDIA HONORS"}</span>
             </span>
-            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white">
+            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-[var(--text-primary)]">
               {isAr ? "الجميع يتحدث عن إي ثري" : "Everyone is Talking"}
             </h2>
           </div>
 
           {/* Filter Switcher */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] backdrop-blur-md shadow-sm">
             <button
               onClick={() => setActiveTab('ALL')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'ALL' ? 'bg-emerald-500 text-zinc-950 font-black shadow-md' : 'text-zinc-400 hover:text-white'
+                activeTab === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {isAr ? "الكل" : "All Buzz"}
@@ -115,7 +115,7 @@ export function SocialNewsSection({
             <button
               onClick={() => setActiveTab('REVIEWS')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'REVIEWS' ? 'bg-emerald-500 text-zinc-950 font-black shadow-md' : 'text-zinc-400 hover:text-white'
+                activeTab === 'REVIEWS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {isAr ? "آراء الزوار" : "Visitor Quotes"}
@@ -123,7 +123,7 @@ export function SocialNewsSection({
             <button
               onClick={() => setActiveTab('NEWS')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'NEWS' ? 'bg-emerald-500 text-zinc-950 font-black shadow-md' : 'text-zinc-400 hover:text-white'
+                activeTab === 'NEWS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {isAr ? "الصحافة والإعلام" : "In the News"}
@@ -142,11 +142,11 @@ export function SocialNewsSection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="bg-white/[0.02] border border-white/10 hover:border-purple-500/40 rounded-3xl p-8 backdrop-blur-xl flex flex-col justify-between space-y-6 shadow-xl transition-all hover:bg-white/[0.04]"
+              className="bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-purple-500/40 rounded-3xl p-8 backdrop-blur-xl flex flex-col justify-between space-y-6 shadow-lg transition-all hover:bg-[var(--surface-hover)]"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Quote className="w-8 h-8 text-purple-400 opacity-60" />
+                  <Quote className="w-8 h-8 text-purple-500 opacity-70" />
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star key={star} className="w-4 h-4 text-amber-400 fill-amber-400" />
@@ -154,14 +154,14 @@ export function SocialNewsSection({
                   </div>
                 </div>
 
-                <p className="text-zinc-300 text-sm leading-relaxed font-light italic">
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed font-normal italic">
                   &quot;{t.quote}&quot;
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs">
-                <span className="font-bold text-white">{t.author}</span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
+              <div className="pt-4 border-t border-[var(--border-level-2)] flex items-center justify-between text-xs">
+                <span className="font-bold text-[var(--text-primary)]">{t.author}</span>
+                <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">
                   {t.source || "VERIFIED VISITOR"}
                 </span>
               </div>
@@ -179,24 +179,24 @@ export function SocialNewsSection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="group bg-white/[0.02] border border-white/10 hover:border-emerald-500/40 rounded-3xl p-8 backdrop-blur-xl flex flex-col justify-between space-y-6 shadow-xl transition-all hover:bg-white/[0.04]"
+              className="group bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/40 rounded-3xl p-8 backdrop-blur-xl flex flex-col justify-between space-y-6 shadow-lg transition-all hover:bg-[var(--surface-hover)]"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Newspaper className="w-7 h-7 text-emerald-400" />
-                  <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <Newspaper className="w-7 h-7 text-emerald-500" />
+                  <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                     {news.publisher || "PRESS"}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                <h3 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors leading-snug">
                   {news.title}
                 </h3>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400 font-mono">
+              <div className="pt-4 border-t border-[var(--border-level-2)] flex items-center justify-between text-xs text-[var(--text-secondary)] font-mono">
                 <span>{news.date || "2026"}</span>
-                <span className="text-emerald-400 group-hover:underline flex items-center gap-1 font-bold">
+                <span className="text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-1 font-bold">
                   {isAr ? "قراءة المقال ↗" : "Read Article ↗"}
                 </span>
               </div>
@@ -213,19 +213,19 @@ export function SocialNewsSection({
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="group bg-white/[0.02] border border-white/10 hover:border-sky-500/40 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between space-y-4 shadow-xl transition-all hover:bg-white/[0.04]"
+              className="group bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-sky-500/40 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between space-y-4 shadow-lg transition-all hover:bg-[var(--surface-hover)]"
             >
               {social.imageUrl && (
-                <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 relative">
+                <div className="aspect-video w-full rounded-2xl overflow-hidden border border-[var(--border-level-2)] relative bg-[var(--surface-hover)]">
                   <img src={social.imageUrl} alt={social.title || 'Social media'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-3 end-3 p-2 rounded-full bg-zinc-950/80 backdrop-blur-md text-sky-400">
+                  <div className="absolute top-3 end-3 p-2 rounded-full bg-[var(--surface-default)]/80 backdrop-blur-md text-sky-500 shadow-md">
                     <Globe className="w-4 h-4" />
                   </div>
                 </div>
               )}
               <div>
-                <h4 className="font-bold text-white text-sm group-hover:text-sky-300 transition-colors">{social.title}</h4>
-                {social.snippet && <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{social.snippet}</p>}
+                <h4 className="font-bold text-[var(--text-primary)] text-sm group-hover:text-sky-500 transition-colors">{social.title}</h4>
+                {social.snippet && <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{social.snippet}</p>}
               </div>
             </motion.a>
           ))}

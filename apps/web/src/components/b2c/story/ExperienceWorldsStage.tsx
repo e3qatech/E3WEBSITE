@@ -228,10 +228,10 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   const ctaVal = formatLocalizedText(isAr ? (currentWorld.ctaAr || "احجز التذكرة") : (currentWorld.ctaEn || "Book Pass & Ticket"), locale)
 
   return (
-    <section id="attraction-worlds" className="relative min-h-screen pt-28 pb-20 bg-[#080214] text-white flex flex-col justify-center overflow-hidden border-b border-purple-950/40" dir={isAr ? "rtl" : "ltr"}>
+    <section id="attraction-worlds" className="relative min-h-screen pt-28 pb-20 bg-[var(--bg-level-1)] text-[var(--text-primary)] flex flex-col justify-center overflow-hidden border-b border-[var(--border-level-2)] transition-colors duration-300" dir={isAr ? "rtl" : "ltr"}>
       {/* Dynamic Background Material Accent Glow */}
       <div
-        className="absolute inset-0 opacity-25 transition-colors duration-1000 pointer-events-none"
+        className="absolute inset-0 opacity-15 dark:opacity-25 transition-colors duration-1000 pointer-events-none"
         style={{
           background: `radial-gradient(circle at 60% 40%, ${currentWorld.accentColor || '#10b981'}, transparent 70%)`
         }}
@@ -239,22 +239,22 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10">
         {/* Section Header with Constellation Navigator Controls */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 border-b border-slate-800/80 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? "كوكبة عوالم قطر الترفيهية" : "QATAR ATTRACTIONS CONSTELLATION"}</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
               {isAr ? "عوالم إي ثري الترفيهية بقطر" : "E3 Featured Attraction Worlds"}
             </h2>
           </div>
 
           {/* Clean Auto Slider Controls Bar */}
-          <div className="flex items-center gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-2 backdrop-blur-md shadow-xl">
+          <div className="flex items-center gap-3 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-2 backdrop-blur-md shadow-md">
             <button
               onClick={handlePrev}
-              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 transition-all cursor-pointer shadow-md"
+              className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all cursor-pointer shadow-sm"
               title={isAr ? "السابق" : "Previous"}
               aria-label="Previous World"
             >
@@ -268,7 +268,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   key={idx}
                   onClick={() => setSelectedIndex(idx)}
                   className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
-                    idx === selectedIndex ? 'w-6 bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'w-2 bg-slate-700 hover:bg-slate-500'
+                    idx === selectedIndex ? 'w-6 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-2 bg-[var(--border-level-2)] hover:bg-[var(--text-tertiary)]'
                   }`}
                   title={isAr ? `الانتقال إلى الوجهة ${idx + 1}` : `Go to world ${idx + 1}`}
                   aria-label={`World ${idx + 1}`}
@@ -279,17 +279,17 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
             {/* Pause / Play Toggle */}
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300 transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-xs font-mono font-bold text-[var(--text-primary)] transition-colors cursor-pointer"
               title={isPaused ? (isAr ? "تشغيل التمرير التلقائي" : "Play Auto Slider") : (isAr ? "إيقاف التمرير التلقائي" : "Pause Auto Slider")}
               aria-label="Toggle autoplay"
             >
-              {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="w-3.5 h-3.5 text-purple-400 fill-purple-400" />}
+              {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" /> : <Pause className="w-3.5 h-3.5 text-purple-500 fill-purple-500" />}
             </button>
 
             {/* Next Button */}
             <button
               onClick={handleNext}
-              className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all cursor-pointer shadow-md flex items-center gap-1 font-extrabold text-xs"
+              className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white dark:text-slate-950 transition-all cursor-pointer shadow-md flex items-center gap-1 font-extrabold text-xs"
               title={isAr ? "التالي" : "Next"}
               aria-label="Next World"
             >
@@ -313,8 +313,8 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 onClick={() => setSelectedIndex(idx)}
                 className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2 rounded-2xl border text-xs font-bold transition-all duration-500 cursor-pointer snap-center ${
                   isSelected
-                    ? 'bg-slate-900 border-emerald-400 text-white scale-105 shadow-xl shadow-emerald-950/80 z-10'
-                    : 'bg-slate-950/60 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700 opacity-75 hover:opacity-100 scale-95'
+                    ? 'bg-[var(--surface-default)] border-emerald-500 text-[var(--text-primary)] scale-105 shadow-xl z-10'
+                    : 'bg-[var(--surface-default)]/70 border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-emerald-500/50 opacity-80 hover:opacity-100 scale-95'
                 }`}
                 style={{
                   borderColor: isSelected ? w.accentColor : undefined,
@@ -343,10 +343,10 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
             transition={{ duration: 0.5 }}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-3xl border border-slate-800 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
           >
             {/* Left Media Stage (7 Cols) */}
-            <div className="lg:col-span-7 relative aspect-video rounded-2xl overflow-hidden border border-slate-800 group bg-slate-950">
+            <div className="lg:col-span-7 relative aspect-video rounded-2xl overflow-hidden border border-[var(--border-level-2)] group bg-[var(--surface-hover)]">
               {resolveMediaType({ url: currentWorld.mediaUrl, explicitType: currentWorld?.mediaType || undefined }) === 'VIDEO' ? (
                 <video
                   key={currentWorld.mediaUrl}
@@ -365,17 +365,17 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/90 via-transparent to-transparent" />
 
-              <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-700 text-xs font-bold text-emerald-400 backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] text-xs font-bold text-emerald-500 backdrop-blur-md shadow-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                 <span>{statusVal}</span>
               </div>
 
               {/* Floating Next/Prev Arrow Controls on Media Overlay */}
               <button
                 onClick={handlePrev}
-                className="absolute top-1/2 start-3 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/70 hover:bg-emerald-500 hover:text-slate-950 text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
+                className="absolute top-1/2 start-3 -translate-y-1/2 z-20 p-3 rounded-full bg-[var(--surface-default)]/80 hover:bg-emerald-500 hover:text-white text-[var(--text-primary)] border border-[var(--border-level-2)] backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
                 title={isAr ? "السابق" : "Previous"}
                 aria-label="Previous Attraction"
               >
@@ -384,7 +384,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
 
               <button
                 onClick={handleNext}
-                className="absolute top-1/2 end-3 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/70 hover:bg-emerald-500 hover:text-slate-950 text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
+                className="absolute top-1/2 end-3 -translate-y-1/2 z-20 p-3 rounded-full bg-[var(--surface-default)]/80 hover:bg-emerald-500 hover:text-white text-[var(--text-primary)] border border-[var(--border-level-2)] backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-2xl cursor-pointer"
                 title={isAr ? "التالي" : "Next"}
                 aria-label="Next Attraction"
               >
@@ -409,32 +409,32 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   <MapPin className="w-3.5 h-3.5" />
                   <span>{locationVal}</span>
                 </span>
-                <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                <h3 className="text-2xl sm:text-4xl font-extrabold text-[var(--text-primary)] leading-tight">
                   {nameVal}
                 </h3>
-                <p className="text-sm text-slate-300 font-light mt-2 leading-relaxed">
+                <p className="text-sm text-[var(--text-secondary)] font-light mt-2 leading-relaxed">
                   {taglineVal}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-800/80">
+              <div className="grid grid-cols-2 gap-4 py-4 border-y border-[var(--border-level-2)]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-slate-800 text-slate-400">
-                    <Users className="w-4 h-4 text-sky-400" />
+                  <div className="p-2 rounded-xl bg-[var(--surface-hover)] text-[var(--text-secondary)]">
+                    <Users className="w-4 h-4 text-sky-500" />
                   </div>
                   <div>
-                    <span className="text-[11px] text-slate-400 font-medium block">{isAr ? "الفئة المستهدفة" : "Audience"}</span>
-                    <span className="text-xs font-bold text-white">{audienceVal}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)] font-medium block">{isAr ? "الفئة المستهدفة" : "Audience"}</span>
+                    <span className="text-xs font-bold text-[var(--text-primary)]">{audienceVal}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-slate-800 text-slate-400">
-                    <Clock className="w-4 h-4 text-emerald-400" />
+                  <div className="p-2 rounded-xl bg-[var(--surface-hover)] text-[var(--text-secondary)]">
+                    <Clock className="w-4 h-4 text-emerald-500" />
                   </div>
                   <div>
-                    <span className="text-[11px] text-slate-400 font-medium block">{isAr ? "أوقات العمل" : "Timings"}</span>
-                    <span className="text-xs font-bold text-white">{timingsVal}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)] font-medium block">{isAr ? "أوقات العمل" : "Timings"}</span>
+                    <span className="text-xs font-bold text-[var(--text-primary)]">{timingsVal}</span>
                   </div>
                 </div>
               </div>
@@ -442,16 +442,16 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
               {/* Pricing & Booking Action */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 uppercase block">{isAr ? "تبدأ الأسعار من" : "Starting From"}</span>
+                  <span className="text-[11px] font-mono text-[var(--text-secondary)] uppercase block">{isAr ? "تبدأ الأسعار من" : "Starting From"}</span>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-extrabold text-white">{currentWorld.price || 45}</span>
-                    <span className="text-xs font-mono font-bold text-emerald-400">{currentWorld.currency || 'QAR'}</span>
+                    <span className="text-3xl font-extrabold text-[var(--text-primary)]">{currentWorld.price || 45}</span>
+                    <span className="text-xs font-mono font-bold text-emerald-500">{currentWorld.currency || 'QAR'}</span>
                   </div>
                 </div>
 
                 <Link
                   href={localizeHref(`/b2c/attractions/${currentWorld.slug || 'urban-arena-doha'}`, locale)}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs tracking-wider uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />
                   <span>{ctaVal}</span>

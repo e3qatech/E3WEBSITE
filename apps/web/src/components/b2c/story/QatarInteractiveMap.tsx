@@ -125,31 +125,31 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
   }, [filteredFeatures, selectedLocationId])
 
   return (
-    <section id="qatar-map" className="relative py-24 bg-[#050110] text-white border-b border-purple-950/40 overflow-hidden">
+    <section id="qatar-map" className="relative py-24 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300">
       {/* Background Radial Shading */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(59,130,246,0.12),transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(59,130,246,0.08),transparent_70%)] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-slate-800/80 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-sky-500/30 bg-sky-950/40 text-sky-400 text-xs font-bold uppercase tracking-widest">
-                <MapPin className="w-3.5 h-3.5 text-sky-400" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-sky-500/30 bg-[var(--surface-default)] text-sky-600 dark:text-sky-400 text-xs font-bold uppercase tracking-widest shadow-sm">
+                <MapPin className="w-3.5 h-3.5 text-sky-500" />
                 <span>{isAr ? "الخريطة الحية — LIVE QATAR MAP" : "EXPLORE E3 ACROSS QATAR"}</span>
               </div>
 
               {/* Active Attractions Pill */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-mono font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
                 <span>{isAr ? `${filteredFeatures.length} ` + "وجهة نشطة (حسب التاريخ)" : `${filteredFeatures.length} Active Attractions (By Date)`}</span>
               </div>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
               {isAr ? (mapData.headlineAr || "رحلة عبر أنحاء قطر") : (mapData.headlineEn || "A Journey Across Qatar")}
             </h2>
-            <p className="text-sm text-slate-300 font-light max-w-xl mt-2">
+            <p className="text-sm text-[var(--text-secondary)] font-light max-w-xl mt-2">
               {isAr
                 ? (mapData.subtextAr || "استكشف وجهات إي ثري الترفيهية النشطة حالياً في كافة مناطق الدوحة عبر الخريطة التفاعلية.")
                 : (mapData.subtextEn || "Discover E3's active attraction worlds across Doha using interactive vector cartography.")}
@@ -169,9 +169,9 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
 
         {/* Near Me Active Alert Box */}
         {userCoords && (
-          <div className="p-4 rounded-2xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-300 flex items-center justify-between text-xs backdrop-blur-md">
+          <div className="p-4 rounded-2xl border border-emerald-500/40 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-300 flex items-center justify-between text-xs backdrop-blur-md shadow-md">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>{isAr ? "تم حساب المسافات لأقرب الوجهات النشطة في قطر بأمان." : "Distances to nearest active Qatar attractions calculated privately."}</span>
             </div>
             <span className="font-mono font-bold">LAT: {userCoords.lat.toFixed(2)} | LNG: {userCoords.lng.toFixed(2)}</span>
@@ -183,11 +183,11 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
           {/* Active Attraction Location Cards (5 Cols) */}
           <div className="lg:col-span-5 space-y-4 max-h-[600px] overflow-y-auto pe-2 no-scrollbar">
             {loading ? (
-              <div className="p-8 text-center rounded-3xl border border-slate-800 bg-slate-950 text-slate-400 font-medium">
+              <div className="p-8 text-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-secondary)] font-medium shadow-md">
                 {isAr ? "جاري تحميل الخريطة التفاعلية والوجهات النشطة..." : "Loading active map system & destinations..."}
               </div>
             ) : filteredFeatures.length === 0 ? (
-              <div className="p-8 text-center rounded-3xl border border-slate-800 bg-slate-950 text-slate-400 font-medium">
+              <div className="p-8 text-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-secondary)] font-medium shadow-md">
                 {isAr ? "لا توجد وجهات نشطة بتاريخ اليوم." : "No active attractions currently available by date."}
               </div>
             ) : (
@@ -204,7 +204,7 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
           </div>
 
           {/* MapLibre GL Vector Cartography Canvas (7 Cols) */}
-          <div className="lg:col-span-7 h-[600px] sticky top-24">
+          <div className="lg:col-span-7 h-[600px] sticky top-24 rounded-3xl overflow-hidden border border-[var(--border-level-2)] shadow-xl">
             <AttractionMapCanvas
               geoJson={filteredGeoJson}
               selectedLocationId={selectedLocation?.locationId}

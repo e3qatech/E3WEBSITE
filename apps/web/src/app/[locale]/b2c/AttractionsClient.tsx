@@ -105,7 +105,7 @@ export function AttractionsClient({
   const activeAttractions = initialAttractions.length > 0 ? initialAttractions : (_attractions as any);
 
   return (
-    <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
+    <div className="relative min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] selection:bg-purple-500 selection:text-white">
       {/* 1. HERO SECTION */}
       <CinematicHeroUniversal content={liveCmsContent} locale={locale} />
 

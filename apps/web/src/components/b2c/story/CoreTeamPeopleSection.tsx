@@ -191,9 +191,9 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
   const activeMember = teamMembers.find(m => m.id === activeMemberId) || teamMembers[0] || DEFAULT_CORE_TEAM[0]
 
   return (
-    <section id="core-team" className="relative py-28 bg-[#060111] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+    <section id="core-team" className="relative py-28 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Project Footage / Glow Layer */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-15 dark:opacity-20">
         {activeMember.backgroundFootage && (
           <video
             src={activeMember.backgroundFootage}
@@ -204,21 +204,21 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
             className="w-full h-full object-cover filter blur-md"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#060111] via-[#060111]/70 to-[#060111]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-level-1)] via-[var(--bg-level-1)]/70 to-[var(--bg-level-1)]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-slate-800/80 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-sky-500/30 bg-sky-950/40 text-sky-400 text-xs font-bold uppercase tracking-widest mb-3">
-              <Users className="w-3.5 h-3.5 text-sky-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-sky-500/30 bg-[var(--surface-default)] text-sky-600 dark:text-sky-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+              <Users className="w-3.5 h-3.5 text-sky-500" />
               <span>{isAr ? "صنّاع المتعة — CORE TEAM" : "CORE TEAM — HUMAN PROOF"}</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
               {heading}
             </h2>
-            <p className="text-sm text-slate-300 font-light max-w-xl mt-2">
+            <p className="text-sm text-[var(--text-secondary)] font-light max-w-xl mt-2">
               {subtext}
             </p>
           </div>
@@ -244,8 +244,8 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                 aria-label={memberName}
                 className={`relative rounded-3xl overflow-hidden border transition-all duration-500 flex flex-col justify-between p-6 cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
                   isActive
-                    ? 'border-purple-500 bg-purple-950/60 shadow-2xl shadow-purple-950/90 scale-105 z-10'
-                    : 'border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/70'
+                    ? 'border-purple-500 bg-[var(--surface-default)] shadow-2xl scale-105 z-10'
+                    : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/70 hover:border-purple-400 hover:bg-[var(--surface-default)] shadow-sm'
                 }`}
               >
                 {/* Connecting E3 Arrow Device */}
@@ -256,31 +256,31 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
                 )}
 
                 {/* Portrait Image Stage with Architectural Mask */}
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-slate-950 mb-4 border border-slate-800 group-hover:border-purple-500/40 transition-colors shadow-lg">
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-[var(--surface-hover)] mb-4 border border-[var(--border-level-2)] group-hover:border-purple-500/40 transition-colors shadow-md">
                   <img
                     src={member.portrait}
                     alt={memberName}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
-                      isActive ? 'scale-105' : 'group-hover:scale-103 opacity-85 group-hover:opacity-100'
+                      isActive ? 'scale-105' : 'group-hover:scale-103 opacity-90 group-hover:opacity-100'
                     }`}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/80 via-transparent to-transparent pointer-events-none" />
                 </div>
 
                 {/* Member Details */}
                 <div className="space-y-2">
-                  <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest block">
+                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest block">
                     {memberRole}
                   </span>
-                  <h3 className="text-xl font-extrabold text-white group-hover:text-purple-200 transition-colors">
+                  <h3 className="text-xl font-extrabold text-[var(--text-primary)] group-hover:text-purple-600 dark:group-hover:text-purple-200 transition-colors">
                     {memberName}
                   </h3>
-                  <p className="text-xs text-slate-300 font-light line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-[var(--text-secondary)] font-light line-clamp-3 leading-relaxed">
                     {memberBio}
                   </p>
 
                   {member.showProfileLink && (
-                    <a href={`/${locale}/b2c/team/${member.slug || member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
+                    <a href={`/${locale}/b2c/team/${member.slug || member.id}`} className="pt-2 flex items-center gap-1.5 text-xs font-bold text-sky-600 dark:text-sky-400 group-hover:underline transition-colors">
                       <span>{ctaLabel}</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>

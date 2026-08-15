@@ -126,35 +126,35 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
   }
 
   return (
-    <section id="living-day" className="relative py-24 bg-[#060212] text-white border-b border-purple-950/40 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+    <section id="living-day" className="relative py-24 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300" dir={isAr ? "rtl" : "ltr"}>
       {/* Living Day-to-Evening Atmospheric Radial Lighting */}
       <div
-        className="absolute inset-0 transition-all duration-1000 pointer-events-none"
+        className="absolute inset-0 transition-all duration-1000 pointer-events-none opacity-40 dark:opacity-100"
         style={{ background: auraGradients[activeTab] }}
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-slate-800/80 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3">
-              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+              <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
               <span>{isAr ? "الفصل الرابع — جدول اليوم الحي" : "ACT IV — THE LIVING DAY TIMELINE"}</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
               {isAr ? "جدول فعاليات ووجهات اليوم" : "Today's Live Schedule & Timings"}
             </h2>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Living Day-to-Evening Timeline Switcher Tabs */}
-            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md shadow-xl">
+            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] backdrop-blur-md shadow-md">
               <button
                 onClick={() => setActiveTab('NOW')}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'NOW'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 font-black'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-500 text-white dark:text-slate-950 shadow-md shadow-emerald-500/30 font-black'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5" />
@@ -165,8 +165,8 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
                 onClick={() => setActiveTab('LATER')}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'LATER'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30 font-black'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-amber-500 text-white dark:text-slate-950 shadow-md shadow-amber-500/30 font-black'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Sunset className="w-3.5 h-3.5" />
@@ -178,7 +178,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'SOON'
                     ? 'bg-purple-500 text-white shadow-md shadow-purple-500/30 font-black'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5" />
@@ -188,21 +188,21 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
             {/* Slide Navigation Controls when cards > 1 */}
             {isSlider && (
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-2xl p-1.5">
+              <div className="flex items-center gap-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-1.5 shadow-md">
                 <button
                   onClick={handlePrevSlide}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-white text-[var(--text-secondary)] transition-colors cursor-pointer"
                   title={isAr ? "الشريحة السابقة" : "Previous Slide"}
                   aria-label="Previous Slide"
                 >
                   <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                 </button>
-                <span className="text-xs font-mono font-bold text-slate-400 px-2">
+                <span className="text-xs font-mono font-bold text-[var(--text-secondary)] px-2">
                   {currentSlide + 1} / {totalSlides}
                 </span>
                 <button
                   onClick={handleNextSlide}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-white text-[var(--text-secondary)] transition-colors cursor-pointer"
                   title={isAr ? "الشريحة التالية" : "Next Slide"}
                   aria-label="Next Slide"
                 >
@@ -233,36 +233,36 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
               return (
                 <div
                   key={item.id}
-                  className="p-6 rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-md flex flex-col justify-between space-y-6 hover:border-emerald-500/50 hover:bg-slate-900/80 transition-all group shadow-xl"
+                  className="p-6 rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] backdrop-blur-md flex flex-col justify-between space-y-6 hover:border-emerald-500/50 transition-all group shadow-xl"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2 ${item.badgeColor}`}>
                         {statusVal}
                       </span>
-                      <h3 className="text-xl font-extrabold text-white group-hover:text-emerald-400 transition-colors">
+                      <h3 className="text-xl font-extrabold text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors">
                         {titleVal}
                       </h3>
-                      <span className="text-xs text-slate-400 block mt-1">
+                      <span className="text-xs text-[var(--text-secondary)] block mt-1">
                         📍 {venueVal}
                       </span>
                     </div>
 
                     <div className="text-end">
-                      <span className="text-xs text-slate-400 block">{isAr ? "التذكرة" : "Ticket"}</span>
-                      <span className="text-lg font-extrabold text-white">{item.price > 0 ? `${item.price} QAR` : (isAr ? "مجاني" : "Free")}</span>
+                      <span className="text-xs text-[var(--text-secondary)] block">{isAr ? "التذكرة" : "Ticket"}</span>
+                      <span className="text-lg font-extrabold text-[var(--text-primary)]">{item.price > 0 ? `${item.price} QAR` : (isAr ? "مجاني" : "Free")}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-slate-800/80 pt-4">
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
-                      <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                  <div className="flex items-center justify-between border-t border-[var(--border-level-2)] pt-4">
+                    <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
                       <span>{timeVal}</span>
                     </div>
 
                     <a
                       href={targetUrl}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
                     >
                       <Ticket className="w-3.5 h-3.5" />
                       <span>{isAr ? "احجز الآن" : "Book Ticket"}</span>
@@ -282,7 +282,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
                 className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  currentSlide === idx ? 'w-8 bg-emerald-400' : 'w-2 bg-slate-700 hover:bg-slate-500'
+                  currentSlide === idx ? 'w-8 bg-emerald-500' : 'w-2 bg-[var(--border-level-2)] hover:bg-[var(--text-tertiary)]'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

@@ -158,7 +158,7 @@ export function B2CLandingClient({
   };
 
   return (
-    <div className="relative min-h-screen bg-[#05020c] text-white selection:bg-purple-500 selection:text-white">
+    <div className="relative min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] selection:bg-purple-500 selection:text-white">
       {activeSections.map((sec) => renderSection(sec.id))}
 
       {/* Persistent Story Trail Journey Indicator */}

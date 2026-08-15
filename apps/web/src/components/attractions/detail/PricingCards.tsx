@@ -59,9 +59,9 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
     : (pricingNoteEn || "Package access is subject to attraction availability, operating requirements, age restrictions and venue safety rules. Premium activities excluded from the entry passes must be purchased separately.");
 
   return (
-    <section className="py-32 bg-zinc-950 text-white relative overflow-hidden border-t border-white/5" dir={isAr ? "rtl" : "ltr"}>
+    <section className="py-32 bg-[var(--bg-level-1)] text-[var(--text-primary)] relative overflow-hidden border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Subtle Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-20">
         
@@ -73,14 +73,14 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center max-w-3xl mx-auto space-y-4"
         >
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest shadow-sm">
             <Ticket className="w-3.5 h-3.5" />
             <span>{isAr ? "الباقات والأسعار" : "PRICING & TICKETS"}</span>
           </span>
-          <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none text-white">
+          <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none text-[var(--text-primary)]">
             {isAr ? "باقات الدخول والأنشطة" : "Access Passes & Tickets"}
           </h2>
-          <p className="text-lg md:text-xl text-zinc-400 font-light">
+          <p className="text-lg md:text-xl text-[var(--text-secondary)] font-normal">
             {isAr ? "اختر الباقة المناسبة لتجربتك في أوربان أرينا" : "Select your pass or add-on activity"}
           </p>
         </motion.div>
@@ -99,10 +99,10 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className={`relative group bg-white/[0.02] border backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between transition-all duration-700 hover:bg-white/[0.05] hover:-translate-y-2 ${
+                className={`relative group bg-[var(--surface-default)] border backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between transition-all duration-700 hover:bg-[var(--surface-hover)] hover:-translate-y-2 shadow-xl ${
                   isFeatured 
-                    ? 'border-emerald-500/40 shadow-[0_0_40px_rgba(16,185,129,0.15)] hover:border-emerald-500 hover:shadow-[0_0_60px_rgba(16,185,129,0.25)] md:-translate-y-4' 
-                    : 'border-white/10 hover:border-white/20'
+                    ? 'border-emerald-500/50 shadow-2xl md:-translate-y-4' 
+                    : 'border-[var(--border-level-2)] hover:border-emerald-500/30'
                 }`}
               >
                 {/* Glow Effect for Featured */}
@@ -111,13 +111,13 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
                 )}
 
                 <div className="mb-8 relative z-10">
-                  <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-6 ${isFeatured ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-white/70 border border-white/10'}`}>
+                  <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-6 shadow-sm ${isFeatured ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-[var(--surface-hover)] text-[var(--text-secondary)] border border-[var(--border-level-2)]'}`}>
                     <Ticket className="w-3.5 h-3.5 me-2" />
                     {isAr ? "باقة دخول" : "ACCESS PASS"}
                   </span>
-                  <h3 className="text-3xl font-black mb-4 tracking-tight text-white">{titleVal}</h3>
+                  <h3 className="text-3xl font-black mb-4 tracking-tight text-[var(--text-primary)]">{titleVal}</h3>
                   {descVal && (
-                    <p className="text-zinc-400 text-sm leading-relaxed font-light min-h-[4rem]">
+                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed font-normal min-h-[4rem]">
                       {descVal}
                     </p>
                   )}
@@ -125,16 +125,16 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
                 <div className="mb-10 relative z-10">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-black tracking-tighter text-white">{tier.price}</span>
-                    <span className="text-emerald-400 font-extrabold uppercase tracking-widest text-sm">{tier.currency || 'QAR'}</span>
+                    <span className="text-5xl font-black tracking-tighter text-[var(--text-primary)]">{tier.price}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase tracking-widest text-sm">{tier.currency || 'QAR'}</span>
                   </div>
                 </div>
 
-                <div className="mt-auto pt-6 border-t border-white/10 relative z-10">
+                <div className="mt-auto pt-6 border-t border-[var(--border-level-2)] relative z-10">
                   <Link
                     href={safeBookingUrl}
                     className={`relative group/btn w-full flex justify-center items-center py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-lg ${
-                      isFeatured ? 'bg-emerald-500 text-zinc-950 hover:bg-emerald-400' : 'bg-white text-zinc-950 hover:bg-zinc-200'
+                      isFeatured ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400' : 'bg-[var(--surface-hover)] hover:bg-[var(--border-level-2)] text-[var(--text-primary)] border border-[var(--border-level-2)]'
                     }`}
                   >
                     <span className="relative z-10">{isAr ? "احجز الباقة" : "Secure Pass"}</span>
@@ -147,13 +147,13 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
         {/* 2. Premium Activity Add-Ons */}
         {addOnPasses.length > 0 && (
-          <div className="space-y-8 max-w-6xl mx-auto pt-10 border-t border-white/10">
+          <div className="space-y-8 max-w-6xl mx-auto pt-10 border-t border-[var(--border-level-2)]">
             <div className="text-start">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono font-bold uppercase tracking-widest mb-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs font-mono font-bold uppercase tracking-widest mb-2 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{isAr ? "الأنشطة المميزة والإضافية" : "PREMIUM ACTIVITIES"}</span>
               </span>
-              <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tight text-white">
+              <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tight text-[var(--text-primary)]">
                 {isAr ? "أنشطة إضافية وتجارب حصرية" : "Premium Activity Add-Ons"}
               </h3>
             </div>
@@ -166,22 +166,22 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
                 return (
                   <div
                     key={addon.id}
-                    className="bg-white/[0.02] border border-white/10 hover:border-purple-500/40 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between transition-all duration-500 hover:bg-white/[0.04]"
+                    className="bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-purple-500/40 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between transition-all duration-500 hover:bg-[var(--surface-hover)] shadow-lg"
                   >
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        <span className="px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30">
                           {isAr ? "نشاط إضافي" : "ADD-ON ACTIVITY"}
                         </span>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black text-white">{addon.price}</span>
-                          <span className="text-xs font-bold text-purple-400">{addon.currency || 'QAR'}</span>
+                          <span className="text-2xl font-black text-[var(--text-primary)]">{addon.price}</span>
+                          <span className="text-xs font-bold text-purple-600 dark:text-purple-400">{addon.currency || 'QAR'}</span>
                         </div>
                       </div>
 
-                      <h4 className="text-xl font-bold text-white">{addTitle}</h4>
+                      <h4 className="text-xl font-bold text-[var(--text-primary)]">{addTitle}</h4>
                       {addDesc && (
-                        <p className="text-xs text-zinc-400 font-light leading-relaxed">
+                        <p className="text-xs text-[var(--text-secondary)] font-normal leading-relaxed">
                           {addDesc}
                         </p>
                       )}
@@ -189,7 +189,7 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
                     <Link
                       href={safeBookingUrl}
-                      className="w-full text-center py-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 text-xs font-bold uppercase tracking-wider transition-all"
+                      className="w-full text-center py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md"
                     >
                       {isAr ? "إضافة التجربة" : "Book Activity"}
                     </Link>
@@ -201,10 +201,10 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
         )}
 
         {/* 3. Pricing & Venue Safety Note */}
-        <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/10 rounded-2xl p-6 flex items-start gap-4 backdrop-blur-md">
-          <Info className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-          <div className="space-y-1 text-xs text-zinc-400 font-light leading-relaxed">
-            <span className="font-bold text-white block">{isAr ? "ملاحظة التشغيل والسلامة:" : "Operations & Safety Notice:"}</span>
+        <div className="max-w-4xl mx-auto bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-6 flex items-start gap-4 backdrop-blur-md shadow-md">
+          <Info className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+          <div className="space-y-1 text-xs text-[var(--text-secondary)] font-normal leading-relaxed">
+            <span className="font-bold text-[var(--text-primary)] block">{isAr ? "ملاحظة التشغيل والسلامة:" : "Operations & Safety Notice:"}</span>
             <p>{noteText}</p>
           </div>
         </div>
@@ -218,30 +218,30 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
             transition={{ duration: 0.8 }}
             className="pt-10 max-w-3xl mx-auto"
           >
-            <h3 className="text-xl font-bold text-center mb-8 flex items-center justify-center gap-3 text-zinc-300 uppercase tracking-widest">
-              <Tag className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-xl font-bold text-center mb-8 flex items-center justify-center gap-3 text-[var(--text-secondary)] uppercase tracking-widest">
+              <Tag className="w-5 h-5 text-emerald-500" />
               <span>{isAr ? "عروض الشركاء والخصومات" : "Special Perks & Promo Codes"}</span>
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {offers.map((offer) => (
-                <div key={offer.id} className="relative group bg-white/[0.01] border border-white/10 border-dashed rounded-2xl p-6 flex items-center justify-between hover:bg-white/[0.03] transition-colors duration-500 overflow-hidden">
+                <div key={offer.id} className="relative group bg-[var(--surface-default)] border border-[var(--border-level-2)] border-dashed rounded-2xl p-6 flex items-center justify-between hover:bg-[var(--surface-hover)] transition-colors duration-500 overflow-hidden shadow-md">
                   <div className="relative z-10">
-                    <div className="text-3xl font-black text-emerald-400 mb-1 tracking-tighter">{offer.discount}% OFF</div>
-                    <div className="text-xs text-zinc-500 uppercase tracking-wider">
+                    <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1 tracking-tighter">{offer.discount}% OFF</div>
+                    <div className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">
                       {offer.validUntil ? `Until ${new Date(offer.validUntil).toLocaleDateString()}` : 'Limited Time'}
                     </div>
                   </div>
                   
                   <button
                     onClick={() => handleCopy(offer.code)}
-                    className="relative z-10 flex items-center gap-3 bg-zinc-950/50 border border-white/10 px-5 py-3 rounded-xl hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm"
+                    className="relative z-10 flex items-center gap-3 bg-[var(--surface-hover)] border border-[var(--border-level-2)] px-5 py-3 rounded-xl hover:bg-[var(--border-level-2)] transition-colors duration-300 backdrop-blur-sm shadow-sm"
                   >
-                    <span className="font-mono font-bold tracking-[0.2em] text-sm">{offer.code}</span>
+                    <span className="font-mono font-bold tracking-[0.2em] text-sm text-[var(--text-primary)]">{offer.code}</span>
                     {copiedCode === offer.code ? (
-                      <Check className="w-4 h-4 text-emerald-400" />
+                      <Check className="w-4 h-4 text-emerald-500" />
                     ) : (
-                      <Copy className="w-4 h-4 text-zinc-400" />
+                      <Copy className="w-4 h-4 text-[var(--text-secondary)]" />
                     )}
                   </button>
                 </div>

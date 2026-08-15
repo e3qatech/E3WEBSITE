@@ -208,20 +208,20 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         {/* MOBILE CONTROLS BAR (< md) */}
         {/* ============================================================ */}
         <div className="flex md:hidden items-center justify-between px-2">
-          <span className="text-xs font-mono font-bold text-purple-300 uppercase tracking-widest">
+          <span className="text-xs font-mono font-bold text-purple-500 dark:text-purple-300 uppercase tracking-widest">
             {isAr ? "اسحب لاختيار الحكاية" : "Swipe to choose story"}
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => scrollMobile('left')}
-              className="w-8 h-8 rounded-full bg-slate-900 border border-purple-500/30 flex items-center justify-center text-purple-300 active:scale-90 transition-transform"
+              className="w-8 h-8 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-primary)] active:scale-90 transition-transform shadow-sm"
               aria-label="Previous story doorway"
             >
               {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
             <button
               onClick={() => scrollMobile('right')}
-              className="w-8 h-8 rounded-full bg-slate-900 border border-purple-500/30 flex items-center justify-center text-purple-300 active:scale-90 transition-transform"
+              className="w-8 h-8 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-primary)] active:scale-90 transition-transform shadow-sm"
               aria-label="Next story doorway"
             >
               {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -248,8 +248,8 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 onClick={() => handleSelect(option)}
                 className={`group relative aspect-[3/4] w-[170px] sm:w-44 md:w-48 flex-shrink-0 md:flex-1 min-w-[155px] max-w-[210px] rounded-3xl overflow-hidden border transition-all duration-500 flex flex-col justify-between p-5 text-start cursor-pointer snap-center focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400 ${
                   isSelected
-                    ? 'border-purple-400 bg-purple-950/70 shadow-2xl shadow-purple-950/90 scale-105 z-10'
-                    : 'border-slate-800/90 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/80'
+                    ? 'border-purple-400 bg-purple-950/70 shadow-2xl shadow-purple-950/40 scale-105 z-10'
+                    : 'border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-purple-400/50 hover:bg-[var(--surface-hover)] shadow-md'
                 }`}
                 style={{
                   transform: isSelected && !isReducedMotion ? 'translateZ(16px)' : 'translateZ(0px)',
@@ -263,22 +263,22 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     src={option.mediaUrl}
                     alt={labelText}
                     className={`w-full h-full object-cover transition-all duration-700 ${
-                      isSelected ? 'opacity-65 scale-110' : 'opacity-25 group-hover:opacity-45 group-hover:scale-105'
+                      isSelected ? 'opacity-65 scale-110' : 'opacity-30 dark:opacity-25 group-hover:opacity-50 group-hover:scale-105'
                     }`}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/60 to-transparent" />
                 </div>
 
                 {/* Top Doorway Category Badge */}
                 <div className="relative z-10 flex items-center justify-between">
                   <span 
-                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md transition-colors"
-                    style={isSelected ? { backgroundColor: option.accentColor, color: '#000' } : { backgroundColor: '#1e293b', color: '#94a3b8' }}
+                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md transition-colors shadow-sm"
+                    style={isSelected ? { backgroundColor: option.accentColor, color: '#fff' } : { backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
                   >
                     {formatLocalizedText(option.category, locale)}
                   </span>
                   <ArrowUpRight
-                    className={`w-4 h-4 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-slate-600 group-hover:text-slate-300'}`}
+                    className={`w-4 h-4 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}`}
                     style={isSelected ? { color: option.accentColor } : {}}
                   />
                 </div>
@@ -286,7 +286,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 {/* Oversized Typographic Doorway Name */}
                 <div className="relative z-10 mt-auto">
                   <h3 className={`text-xl sm:text-2xl font-extrabold uppercase tracking-tight transition-colors ${
-                    isSelected ? 'text-white drop-shadow-md' : 'text-slate-300 group-hover:text-white'
+                    isSelected ? 'text-white drop-shadow-md' : 'text-[var(--text-primary)] group-hover:text-purple-500'
                   }`}>
                     {labelText}
                   </h3>
@@ -307,25 +307,25 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               className="space-y-8 max-w-6xl mx-auto"
             >
               <div
-                className="p-6 rounded-3xl border border-purple-500/30 bg-purple-950/30 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl transition-all duration-500"
-                style={{ borderColor: `${activeOption.accentColor}50`, backgroundColor: `${activeOption.accentColor}15` }}
+                className="p-6 rounded-3xl border border-purple-500/30 bg-[var(--surface-default)] backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl transition-all duration-500"
+                style={{ borderColor: `${activeOption.accentColor}50`, backgroundColor: `color-mix(in srgb, ${activeOption.accentColor} 10%, var(--surface-default))` }}
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-lg border border-purple-500/40 shrink-0" style={{ backgroundColor: `${activeOption.accentColor}30`, borderColor: `${activeOption.accentColor}60`, color: activeOption.accentColor }}>
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-500 flex items-center justify-center font-bold text-lg border border-purple-500/40 shrink-0" style={{ backgroundColor: `${activeOption.accentColor}30`, borderColor: `${activeOption.accentColor}60`, color: activeOption.accentColor }}>
                     ✦
                   </div>
                   <div>
                     <span className="text-xs font-mono font-bold uppercase tracking-widest block" style={{ color: activeOption.accentColor }}>
                       {isAr ? "الحكاية المختارة" : "SELECTED STORY TYPE"}
                     </span>
-                    <h4 className="text-xl font-extrabold text-white">
+                    <h4 className="text-xl font-extrabold text-[var(--text-primary)]">
                       {selectedTitle} — {isAr ? "الأنشطة والتجارب المتاحة اليوم" : "Active Experiences Available Today"}
                     </h4>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-slate-900/80 text-slate-300 border border-slate-700/80 font-bold">
+                  <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] font-bold shadow-sm">
                     {isAr ? `${totalCount} تجارب متاحة` : `${totalCount} Experiences Available`}
                   </span>
                 </div>
@@ -343,7 +343,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     <a
                       key={act.id || idx}
                       href={localizeHref(`/b2c/attractions/${act.attractionSlug}`, locale)}
-                      className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between min-h-[220px] w-full max-w-sm flex-1 min-w-[280px] transition-all duration-500 hover:border-purple-500/50 hover:bg-slate-900/90 hover:shadow-2xl hover:-translate-y-1"
+                      className="group relative overflow-hidden rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 flex flex-col justify-between min-h-[220px] w-full max-w-sm flex-1 min-w-[280px] transition-all duration-500 hover:border-purple-500/50 hover:bg-[var(--surface-hover)] hover:shadow-2xl hover:-translate-y-1 shadow-md"
                     >
                       {/* Background Image overlay */}
                       {act.imageUrl && (
@@ -351,41 +351,41 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                           <img
                             src={act.imageUrl}
                             alt={actTitle}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-30 group-hover:opacity-50"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-25 dark:opacity-30 group-hover:opacity-45"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#090418] via-[#090418]/80 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/80 to-transparent" />
                         </div>
                       )}
 
                       {/* Header Badge */}
                       <div className="relative z-10 flex items-center justify-between gap-2">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30">
                           {badgeText}
                         </span>
-                        <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center backdrop-blur-md opacity-70 group-hover:opacity-100 transition-all group-hover:scale-110">
-                          <ArrowUpRight className="w-4 h-4 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center backdrop-blur-md opacity-80 group-hover:opacity-100 transition-all group-hover:scale-110 shadow-sm">
+                          <ArrowUpRight className="w-4 h-4 text-[var(--text-primary)]" />
                         </div>
                       </div>
 
                       {/* Content */}
                       <div className="relative z-10 space-y-2 mt-6">
-                        <h5 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors leading-snug">
+                        <h5 className="text-xl font-bold text-[var(--text-primary)] group-hover:text-purple-500 transition-colors leading-snug">
                           {actTitle}
                         </h5>
                         {actDesc && (
-                          <p className="text-xs text-slate-300 font-light line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-[var(--text-secondary)] font-normal line-clamp-2 leading-relaxed">
                             {actDesc}
                           </p>
                         )}
 
                         {/* Venue Tag */}
                         {venueName && (
-                          <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
-                            <span className="flex items-center gap-1.5 text-purple-400 font-bold">
+                          <div className="pt-3 border-t border-[var(--border-level-2)] flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)]">
+                            <span className="flex items-center gap-1.5 text-purple-500 dark:text-purple-400 font-bold">
                               <MapPin className="w-3.5 h-3.5" />
                               <span>{venueName}</span>
                             </span>
-                            <span className="group-hover:text-white transition-colors">
+                            <span className="group-hover:text-[var(--text-primary)] transition-colors">
                               {isAr ? "عرض التفاصيل ↗" : "Explore ↗"}
                             </span>
                           </div>
@@ -401,7 +401,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 <div className="flex justify-center pt-2">
                   <button
                     onClick={() => setShowAllActivities(!showAllActivities)}
-                    className="px-6 py-3 rounded-2xl border border-purple-500/40 bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 font-bold text-xs uppercase tracking-wider transition-all shadow-xl hover:scale-105 flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-3 rounded-2xl border border-purple-500/40 bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-purple-600 dark:text-purple-300 font-bold text-xs uppercase tracking-wider transition-all shadow-xl hover:scale-105 flex items-center gap-2 cursor-pointer"
                     style={{ borderColor: activeOption.accentColor ? `${activeOption.accentColor}60` : undefined }}
                   >
                     <span>

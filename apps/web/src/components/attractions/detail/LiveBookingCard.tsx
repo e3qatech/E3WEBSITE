@@ -91,19 +91,19 @@ export function LiveBookingCard({
   */
 
   return (
-    <section className="py-24 bg-zinc-950 text-white relative border-t border-white/5" dir={isAr ? "rtl" : "ltr"}>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-950/20 via-black to-black pointer-events-none" />
+    <section className="py-24 bg-[var(--surface-default)] text-[var(--text-primary)] relative border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-10">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-white/10 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest mb-3 shadow-sm">
               <MapPin className="w-3.5 h-3.5" />
               <span>{isAr ? "الموقع الجغرافي والوصول" : "LOCATION & GIS MAP"}</span>
             </span>
-            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--text-primary)]">
               {isAr ? `موقع ${formattedName}` : `Location & Map`}
             </h2>
           </div>
@@ -113,9 +113,9 @@ export function LiveBookingCard({
               href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white uppercase tracking-wider transition-all shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[var(--surface-hover)] hover:bg-[var(--border-level-2)] border border-[var(--border-level-2)] text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider transition-all shadow-md cursor-pointer"
             >
-              <Navigation className="w-4 h-4 text-emerald-400" />
+              <Navigation className="w-4 h-4 text-emerald-500" />
               <span>{isAr ? "احصل على الاتجاهات" : "Get Directions"}</span>
             </a>
 
@@ -125,7 +125,7 @@ export function LiveBookingCard({
                   href={normalizeExternalUrl(bookingUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />
                   <span>{isAr ? "احجز تذكرتك" : "Book Tickets"}</span>
@@ -133,7 +133,7 @@ export function LiveBookingCard({
               ) : (
                 <Link
                   href={localizeHref(bookingUrl, locale)}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />
                   <span>{isAr ? "احجز تذكرتك" : "Book Tickets"}</span>
@@ -149,7 +149,7 @@ export function LiveBookingCard({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative h-[480px] md:h-[580px] w-full rounded-3xl overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl group"
+          className="relative h-[480px] md:h-[580px] w-full rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] shadow-2xl group"
         >
           {/* E3 Interactive Vector Map Engine */}
           <AttractionMapCanvas 
@@ -160,37 +160,37 @@ export function LiveBookingCard({
           />
 
           {/* Floating Location Details Badge */}
-          <div className="absolute bottom-6 start-6 end-6 md:end-auto max-w-md p-6 bg-zinc-950/90 backdrop-blur-xl rounded-2xl border border-white/15 shadow-2xl z-20 space-y-3 pointer-events-auto">
+          <div className="absolute bottom-6 start-6 end-6 md:end-auto max-w-md p-6 bg-[var(--surface-default)]/95 backdrop-blur-xl rounded-2xl border border-[var(--border-level-2)] shadow-2xl z-20 space-y-3 pointer-events-auto">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+              <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5" />
                 <span>{isAr ? "عنوان الوجهة" : "VENUE ADDRESS"}</span>
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
                 {isAr ? "مفتوح الآن" : "OPEN NOW"}
               </span>
             </div>
 
-            <h3 className="font-bold text-lg text-white leading-snug">
+            <h3 className="font-bold text-lg text-[var(--text-primary)] leading-snug">
               {formattedName}
             </h3>
-            <p className="text-zinc-300 text-xs leading-relaxed font-light">
+            <p className="text-[var(--text-secondary)] text-xs leading-relaxed font-normal">
               {formattedAddress}
             </p>
 
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-4 text-xs font-bold">
+            <div className="pt-2 border-t border-[var(--border-level-2)] flex items-center justify-between gap-4 text-xs font-bold">
               <a 
                 href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors"
+                className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors"
               >
                 <Navigation className="w-3.5 h-3.5" />
                 <span>{isAr ? "فتح الخريطة الخارجية ↗" : "Open Navigation ↗"}</span>
               </a>
 
               {operations?.venueContactPhone && (
-                <a href={`tel:${operations.venueContactPhone}`} className="text-zinc-400 hover:text-white font-mono text-[11px]">
+                <a href={`tel:${operations.venueContactPhone}`} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-mono text-[11px]">
                   📞 {operations.venueContactPhone}
                 </a>
               )}

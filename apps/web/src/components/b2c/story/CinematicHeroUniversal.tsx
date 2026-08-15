@@ -95,7 +95,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[92vh] flex flex-col justify-end items-center overflow-hidden bg-gradient-to-b from-[#090314] via-[#0f0728] to-[#070212] px-4 sm:px-6 lg:px-8 pt-36 pb-20 md:pb-28 text-white border-b border-purple-950/40 select-none"
+      className="relative min-h-[92vh] flex flex-col justify-end items-center overflow-hidden bg-[var(--bg-level-1)] px-4 sm:px-6 lg:px-8 pt-36 pb-20 md:pb-28 text-[var(--text-primary)] border-b border-[var(--border-level-2)] select-none transition-colors duration-300"
     >
       {/* ============================================================ */}
       {/* LAYER 1: BACKGROUND UNIVERSAL MEDIA WITH 4% SCALE PUSH */}
@@ -115,13 +115,13 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-65 sm:opacity-75 transition-opacity duration-1000"
+              className="w-full h-full object-cover opacity-50 dark:opacity-75 transition-opacity duration-1000"
             />
           ) : isIframe ? (
             <iframe
               key={mediaUrl}
               src={mediaUrl}
-              className="w-full h-full border-none opacity-65 sm:opacity-75 pointer-events-none"
+              className="w-full h-full border-none opacity-50 dark:opacity-75 pointer-events-none"
               allow="autoplay; fullscreen"
             />
           ) : (
@@ -129,13 +129,13 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
               key={mediaUrl}
               src={mediaUrl}
               alt="E3 Hero Media Cover"
-              className="w-full h-full object-cover opacity-65 sm:opacity-75 transition-opacity duration-1000"
+              className="w-full h-full object-cover opacity-50 dark:opacity-75 transition-opacity duration-1000"
             />
           )}
 
           {/* Ambient Bottom-to-Top Gradient Scrim Overlay for 100% text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070212] via-[#090314]/85 to-transparent z-[1] pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_75%,rgba(168,85,247,0.35),transparent_70%)] pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/80 to-transparent z-[1] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_75%,rgba(168,85,247,0.15),transparent_70%)] pointer-events-none z-[1]" />
         </motion.div>
       ) : null}
 
@@ -144,7 +144,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
       {/* ============================================================ */}
       <motion.div
         style={{ y: midY }}
-        className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none scale-125 z-0 will-change-transform"
+        className="absolute inset-0 flex items-center justify-center opacity-20 dark:opacity-30 pointer-events-none scale-125 z-0 will-change-transform"
       >
         <E3ArrowHeroDevice variant="LIGHT_BEAM" accentColor="#a855f7" className="w-full max-w-5xl h-auto" />
       </motion.div>
@@ -161,18 +161,18 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-950/60 text-purple-300 text-xs font-bold uppercase tracking-widest backdrop-blur-md shadow-xl shadow-purple-950/80"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-[var(--surface-default)] text-purple-600 dark:text-purple-300 dark:bg-purple-950/60 text-xs font-bold uppercase tracking-widest backdrop-blur-md shadow-lg shadow-purple-950/20"
         >
-          <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5 text-purple-500 animate-pulse" />
           <span>{badgeText}</span>
         </motion.div>
 
-        {/* Hero Headline: Starts from soft blur into sharp illuminated text */}
+        {/* Hero Headline */}
         <motion.h1
           initial={isReducedMotion ? { opacity: 0, y: 15 } : { opacity: 0, y: 20, filter: 'blur(10px)' }}
           animate={isReducedMotion ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 1.0, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-purple-300 leading-none drop-shadow-[0_15px_35px_rgba(168,85,247,0.35)]"
+          className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-[var(--text-primary)] leading-none"
         >
           {headline}
         </motion.h1>
@@ -182,7 +182,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-base sm:text-xl text-purple-200/80 max-w-3xl mx-auto font-normal leading-relaxed"
+          className="text-base sm:text-xl text-[var(--text-secondary)] max-w-3xl mx-auto font-normal leading-relaxed"
         >
           {subtext}
         </motion.p>
@@ -196,7 +196,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
         >
           <Link
             href={localizeHref((act1Hero.tab1Url || hero.tab1Url || '/b2c/attractions').replace('{locale}', locale), locale)}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-purple-900/40 hover:shadow-purple-700/60 transition-all scale-100 hover:scale-105 cursor-pointer"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-purple-900/30 hover:shadow-purple-700/50 transition-all scale-100 hover:scale-105 cursor-pointer"
           >
             <span>{isAr ? (act1Hero.tab1LabelAr || hero.tab1LabelAr || "استكشف الوجهات الترفيهية") : (act1Hero.tab1LabelEn || hero.tab1LabelEn || "EXPLORE ENTERTAINMENT WORLDS")}</span>
             <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
@@ -204,20 +204,20 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
 
           <Link
             href={localizeHref((act1Hero.tab2Url || hero.tab2Url || '/b2c/calendar').replace('{locale}', locale), locale)}
-            className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/30 text-purple-200 font-bold text-sm backdrop-blur-md transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold text-sm backdrop-blur-md transition-all shadow-md cursor-pointer"
           >
-            <Calendar className="w-4 h-4 text-purple-400" />
+            <Calendar className="w-4 h-4 text-purple-500" />
             <span>{isAr ? (act1Hero.tab2LabelAr || hero.tab2LabelAr || "جدول الفعاليات والتذاكر") : (act1Hero.tab2LabelEn || hero.tab2LabelEn || "LIVE EVENTS & CALENDAR")}</span>
           </Link>
 
           {isVideo && (
             <button
               onClick={togglePlayback}
-              className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/30 text-purple-200 backdrop-blur-md transition-all cursor-pointer"
+              className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] backdrop-blur-md transition-all shadow-md cursor-pointer"
               title={isPlaying ? (isAr ? "إيقاف مؤقت" : "Pause Video") : (isAr ? "تشغيل" : "Play Video")}
               aria-label="Toggle Hero Video Playback"
             >
-              {isPlaying ? <Pause className="w-4 h-4 text-purple-300" /> : <Play className="w-4 h-4 text-purple-300 ms-0.5" />}
+              {isPlaying ? <Pause className="w-4 h-4 text-purple-500" /> : <Play className="w-4 h-4 text-purple-500 ms-0.5" />}
             </button>
           )}
         </motion.div>
