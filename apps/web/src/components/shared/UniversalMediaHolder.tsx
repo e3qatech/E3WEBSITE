@@ -64,8 +64,10 @@ export function UniversalMediaHolder({
     altAr: '',
   };
 
-  const altText = locale === 'ar' ? safeConfig.altAr || safeConfig.altEn : safeConfig.altEn || safeConfig.altAr;
-  const captionText = locale === 'ar' ? safeConfig.captionAr || safeConfig.captionEn : safeConfig.captionEn || safeConfig.captionAr;
+  const isAr = locale === 'ar';
+  const defaultAlt = isAr ? 'صورة إي ثري' : 'E3 Media Image';
+  const altText = isAr ? (safeConfig.altAr || defaultAlt) : (safeConfig.altEn || defaultAlt);
+  const captionText = isAr ? (safeConfig.captionAr || '') : (safeConfig.captionEn || '');
   const fallbackUrl = safeConfig.fallbackImageUrl || safeConfig.mediaUrl;
 
   const parsedMediaUrl = React.useMemo(() => {
@@ -144,14 +146,14 @@ export function UniversalMediaHolder({
     <div
       className={cn('relative w-full h-full overflow-hidden select-none bg-zinc-950', className)}
       role="region"
-      aria-label={config.mediaTitle || altText || 'Media Asset Holder'}
+      aria-label={config.mediaTitle || altText || (isAr ? 'عنصر وسائط إي ثري' : 'Media Asset Holder')}
     >
       {/* FALLBACK IMAGE RENDERING */}
       {shouldUseFallback ? (
         <img
           key={fallbackUrl}
           src={fallbackUrl}
-          alt={altText || 'Media Fallback Asset'}
+          alt={altText || (isAr ? 'صورة احتياطية' : 'Media Fallback Asset')}
           style={focalStyle}
           className="w-full h-full object-cover opacity-100 filter contrast-[1.05] brightness-[0.95]"
           loading={config.loadingStrategy}
@@ -165,7 +167,7 @@ export function UniversalMediaHolder({
               key={config.mediaUrl}
               ref={imgRef}
               src={config.mediaUrl}
-              alt={altText || 'E3 Media Image'}
+              alt={altText || (isAr ? 'صورة إي ثري' : 'E3 Media Image')}
               style={focalStyle}
               className={cn(
                 "w-full h-full object-cover filter contrast-[1.05] brightness-[0.95] transition-opacity duration-300",
@@ -216,7 +218,7 @@ export function UniversalMediaHolder({
             <iframe
               key={parsedMediaUrl || config.mediaUrl}
               src={parsedMediaUrl || config.mediaUrl}
-              title={config.mediaTitle || altText || 'Embedded Content'}
+              title={config.mediaTitle || altText || (isAr ? 'محتوى تفاعلي مدمج' : 'Embedded Content')}
               className="w-full h-full border-0"
               loading={config.loadingStrategy}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"

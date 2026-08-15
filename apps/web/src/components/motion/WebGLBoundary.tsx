@@ -32,7 +32,7 @@ class InnerWebGLCrashBoundary extends Component<ErrorBoundaryProps, ErrorBoundar
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
+      if (this.props.fallback !== undefined) {
         return this.props.fallback;
       }
 
@@ -142,36 +142,28 @@ export function WebGLBoundary({
     ? (isAr ? "تقنية WebGL غير متوفرة" : "WebGL Unsupported")
     : (isAr ? "وضع سهولة الوصول نشط" : "Accessibility Mode Active");
 
-  // If in minimal tier or WebGL is completely missing, immediately render safe fallback
-  if (!isSupported || tier === 'minimal') {
-    return fallback ? (
-      <>{fallback}</>
-    ) : (
-      <DefaultWebGLFallback
-        title={title}
-        description={description}
-        badgeText={badgeText}
-        locale={locale}
-        minHeight={minHeight}
-        reason={defaultReason}
-      />
-    );
-  }
-
-  return (
-    <InnerWebGLCrashBoundary
-      fallback={
-        fallback || (
+  const resolvedFallback =
+    fallback !== undefined
+      ? fallback
+      : (
           <DefaultWebGLFallback
             title={title}
             description={description}
             badgeText={badgeText}
             locale={locale}
             minHeight={minHeight}
-            reason={isAr ? "خطأ في معالجة المشهد ثلاثي الأبعاد" : "Rendering Error"}
+            reason={defaultReason}
           />
-        )
-      }
+        );
+
+  // If in minimal tier or WebGL is completely missing, immediately render safe fallback
+  if (!isSupported || tier === 'minimal') {
+    return <>{resolvedFallback}</>;
+  }
+
+  return (
+    <InnerWebGLCrashBoundary
+      fallback={resolvedFallback}
       title={title}
       minHeight={minHeight}
     >

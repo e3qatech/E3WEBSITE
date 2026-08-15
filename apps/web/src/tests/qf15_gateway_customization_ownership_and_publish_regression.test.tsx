@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { LocaleProvider } from '@/components/layout/LocaleProvider';
 import { PortalGateway } from '@/components/home/PortalGateway';
+import { WebGLBoundary } from '@/components/motion/WebGLBoundary';
 import { GeneralSettingsView } from '@/components/dashboard/settings/GeneralSettingsView';
 import GatewayLocalePage from '@/app/[locale]/page';
 import Home from '@/app/page';
@@ -513,6 +514,199 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
       expect(htmlWebGL).not.toContain('°C');
 
       resetMockWebGLSupport();
+    });
+  });
+
+  // =========================================================================
+  // 9. QF-15-C: GATEWAY FALLBACK PRESENTATION, SINGLE H1 & ARABIC CLEANLINESS
+  // =========================================================================
+  describe('9. QF-15-C: Gateway Fallback Presentation, Single H1 & Arabic Cleanliness', () => {
+    it('Explicit fallback={null} renders nothing when WebGL is unsupported, while omitted fallback preserves default diagnostic card', () => {
+      setMockWebGLSupport(false);
+
+      // 1. Explicit fallback={null} MUST render nothing
+      const htmlExplicitNull = renderToStaticMarkup(
+        <WebGLBoundary fallback={null} minHeight="400px">
+          <div id="unsupported-child">3D Canvas Scene</div>
+        </WebGLBoundary>
+      );
+      expect(htmlExplicitNull).toBe('');
+      expect(htmlExplicitNull).not.toContain('3D Interactive View');
+      expect(htmlExplicitNull).not.toContain('عرض تفاعلي ثلاثي الأبعاد');
+      expect(htmlExplicitNull).not.toContain('High-Performance Accessible Mode');
+      expect(htmlExplicitNull).not.toContain('WebGL Unsupported');
+
+      // 2. Omitted fallback preserves default diagnostic card for standard consumers
+      const htmlOmitted = renderToStaticMarkup(
+        <WebGLBoundary minHeight="400px">
+          <div id="unsupported-child">3D Canvas Scene</div>
+        </WebGLBoundary>
+      );
+      expect(htmlOmitted).toContain('3D Interactive View');
+      expect(htmlOmitted).toContain('High-Performance Accessible Mode');
+      expect(htmlOmitted).toContain('WebGL Unsupported');
+      expect(htmlOmitted).toContain('role="region"');
+
+      // 3. Arabic omitted fallback produces localized diagnostic card
+      const htmlOmittedAr = renderToStaticMarkup(
+        <WebGLBoundary minHeight="400px" locale="ar">
+          <div id="unsupported-child">3D Canvas Scene</div>
+        </WebGLBoundary>
+      );
+      expect(htmlOmittedAr).toContain('عرض تفاعلي ثلاثي الأبعاد');
+      expect(htmlOmittedAr).toContain('وضع الأداء العالي وسهولة الوصول');
+      expect(htmlOmittedAr).toContain('تقنية WebGL غير متوفرة');
+
+      resetMockWebGLSupport();
+    });
+
+    it('Rendered English Gateway (/) and (/en) contains exactly one localized H1, two H2 panel titles, and zero visible diagnostics', async () => {
+      // 1. Root / route
+      const homePage = await Home();
+      const htmlHome = renderToStaticMarkup(homePage);
+
+      const homeH1Matches = Array.from(htmlHome.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi));
+      expect(homeH1Matches).toHaveLength(1);
+      expect(homeH1Matches[0][1]).toContain('TWO WORLDS. ONE E3.');
+
+      const homeH2Matches = Array.from(htmlHome.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi));
+      expect(homeH2Matches).toHaveLength(2);
+      expect(htmlHome).toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlHome).toContain('BUILD WHAT’S NEXT');
+
+      // Zero visible diagnostics on /
+      expect(htmlHome).not.toContain('3D Interactive View');
+      expect(htmlHome).not.toContain('WebGL Unsupported');
+      expect(htmlHome).not.toContain('Rendering Error');
+      expect(htmlHome).not.toContain('High-Performance Accessible Mode');
+      expect(htmlHome).not.toContain('<canvas');
+
+      // Unchanged CTA destinations
+      expect(htmlHome).toContain('href="/en/b2c"');
+      expect(htmlHome).toContain('href="/en/b2b"');
+
+      // 2. Canonical /en route
+      const pageEn = await GatewayLocalePage({
+        params: Promise.resolve({ locale: 'en' }),
+      });
+      const htmlEn = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          {pageEn}
+        </LocaleProvider>
+      );
+
+      const enH1Matches = Array.from(htmlEn.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi));
+      expect(enH1Matches).toHaveLength(1);
+      expect(enH1Matches[0][1]).toContain('TWO WORLDS. ONE E3.');
+
+      const enH2Matches = Array.from(htmlEn.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi));
+      expect(enH2Matches).toHaveLength(2);
+      expect(htmlEn).toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlEn).toContain('BUILD WHAT’S NEXT');
+
+      // Zero visible diagnostics on /en
+      expect(htmlEn).not.toContain('3D Interactive View');
+      expect(htmlEn).not.toContain('WebGL Unsupported');
+      expect(htmlEn).not.toContain('High-Performance Accessible Mode');
+      expect(htmlEn).not.toContain('<canvas');
+      expect(htmlEn).toContain('dir="ltr"');
+      expect(htmlEn).toContain('href="/en/b2c"');
+      expect(htmlEn).toContain('href="/en/b2b"');
+    });
+
+    it('Rendered Arabic Gateway (/ar) contains exactly one localized Arabic H1, two H2 panel titles, zero diagnostics, and zero English fallback copy', async () => {
+      const pageAr = await GatewayLocalePage({
+        params: Promise.resolve({ locale: 'ar' }),
+      });
+      const htmlAr = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="ar">
+          {pageAr}
+        </LocaleProvider>
+      );
+
+      // Exactly one localized H1
+      const arH1Matches = Array.from(htmlAr.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi));
+      expect(arH1Matches).toHaveLength(1);
+      expect(arH1Matches[0][1]).toContain('عالمان. وجهة واحدة: E3');
+
+      // Two H2 panel titles
+      const arH2Matches = Array.from(htmlAr.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi));
+      expect(arH2Matches).toHaveLength(2);
+      expect(htmlAr).toContain('عِش التجربة القادمة');
+      expect(htmlAr).toContain('لنصنع القادم');
+
+      // RTL Direction
+      expect(htmlAr).toContain('dir="rtl"');
+
+      // Zero visible diagnostics
+      expect(htmlAr).not.toContain('3D Interactive View');
+      expect(htmlAr).not.toContain('عرض تفاعلي ثلاثي الأبعاد');
+      expect(htmlAr).not.toContain('WebGL Unsupported');
+      expect(htmlAr).not.toContain('تقنية WebGL غير متوفرة');
+      expect(htmlAr).not.toContain('High-Performance Accessible Mode');
+      expect(htmlAr).not.toContain('وضع الأداء العالي وسهولة الوصول');
+      expect(htmlAr).not.toContain('<canvas');
+
+      // Arabic Must Contain No English Fallback Copy in labels, descriptions, CTAs, and ARIA labels
+      expect(htmlAr).not.toContain('TWO WORLDS. ONE E3.');
+      expect(htmlAr).not.toContain('EXPERIENCE WHAT’S NEXT');
+      expect(htmlAr).not.toContain('BUILD WHAT’S NEXT');
+      expect(htmlAr).not.toContain('EXPERIENCES & ATTRACTIONS');
+      expect(htmlAr).not.toContain('FOR BRANDS & ORGANIZATIONS');
+      expect(htmlAr).not.toContain('Explore Experiences');
+      expect(htmlAr).not.toContain('Work With E3');
+      expect(htmlAr).not.toContain('E3 Qatar Portal Selection Gateway');
+      expect(htmlAr).not.toContain('E3 B2C Experiences Portal');
+      expect(htmlAr).not.toContain('E3 B2B Enterprise Solutions Portal');
+      expect(htmlAr).not.toContain('Official E3 Qatar Logo');
+      expect(htmlAr).not.toContain('Toggle Light/Dark Theme');
+      expect(htmlAr).not.toContain('1.2M+ Annual Visitors');
+      expect(htmlAr).not.toContain('450+ Corporate Activations');
+
+      // Localized Arabic content verified
+      expect(htmlAr).toContain('التجارب والوجهات');
+      expect(htmlAr).toContain('للعلامات التجارية والمؤسسات');
+      expect(htmlAr).toContain('استكشف التجارب');
+      expect(htmlAr).toContain('تعاون مع E3');
+      expect(htmlAr).toContain('+١.٢ مليون زائر سنوياً');
+      expect(htmlAr).toContain('+٤٥٠ مشروع مؤسسي');
+      expect(htmlAr).toContain('شعار إي ثري قطر الرسمي');
+      expect(htmlAr).toContain('بوابة الاختيار الرئيسية لمنصة إي ثري قطر');
+
+      // Language Switcher displays ENGLISH to switch back to English
+      expect(htmlAr).toContain('ENGLISH');
+
+      // Unchanged localized destinations
+      expect(htmlAr).toContain('href="/ar/b2c"');
+      expect(htmlAr).toContain('href="/ar/b2b"');
+    });
+
+    it('In Preview Mode simulation, respects Arabic locale override and correctly updates H1 and panel H2s without diagnostic cards', () => {
+      const htmlPreviewAr = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <PortalGateway
+            cmsData={DEFAULT_GATEWAY_CMS_PAYLOAD}
+            previewMode={true}
+            simulation={{
+              locale: 'ar',
+              theme: 'dark',
+              viewport: 'desktop-1440',
+              portalFocus: 'none',
+              reducedMotion: false,
+              useFallbackMedia: true,
+            }}
+          />
+        </LocaleProvider>
+      );
+
+      const h1Matches = Array.from(htmlPreviewAr.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi));
+      expect(h1Matches).toHaveLength(1);
+      expect(h1Matches[0][1]).toContain('عالمان. وجهة واحدة: E3');
+
+      expect(htmlPreviewAr).toContain('dir="rtl"');
+      expect(htmlPreviewAr).toContain('عِش التجربة القادمة');
+      expect(htmlPreviewAr).toContain('لنصنع القادم');
+      expect(htmlPreviewAr).not.toContain('3D Interactive View');
     });
   });
 });

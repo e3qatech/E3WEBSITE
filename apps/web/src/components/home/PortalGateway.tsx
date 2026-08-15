@@ -87,31 +87,31 @@ export function PortalGateway({
   const visual = activeCmsData.visual || DEFAULT_GATEWAY_CMS_PAYLOAD.visual;
   const seo = activeCmsData.seoAccess || DEFAULT_GATEWAY_CMS_PAYLOAD.seoAccess;
 
-  const headline = isAr ? ar.headlineAr || en.headlineEn : en.headlineEn || ar.headlineAr;
+  const headline = isAr ? (ar.headlineAr || "عالمان. وجهة واحدة: E3") : (en.headlineEn || "TWO WORLDS. ONE E3.");
 
   // B2C Content
-  const b2cLabel = isAr ? ar.b2cLabelAr || en.b2cLabelEn : en.b2cLabelEn || ar.b2cLabelAr;
-  const b2cTitle = isAr ? ar.b2cTitleAr || en.b2cTitleEn : en.b2cTitleEn || ar.b2cLabelAr;
-  const b2cDesc = isAr ? ar.b2cDescAr || en.b2cDescEn : en.b2cDescEn || ar.b2cDescAr;
-  const b2cCta = isAr ? ar.b2cCtaLabelAr || en.b2cCtaLabelEn : en.b2cCtaLabelEn || ar.b2cCtaLabelAr;
-  const b2cStat = isAr ? ar.b2cStatLabelAr || en.b2cStatLabelEn : en.b2cStatLabelEn || ar.b2cStatLabelAr;
+  const b2cLabel = isAr ? (ar.b2cLabelAr || "التجارب والوجهات") : (en.b2cLabelEn || "EXPERIENCES & ATTRACTIONS");
+  const b2cTitle = isAr ? (ar.b2cTitleAr || "عِش التجربة القادمة") : (en.b2cTitleEn || "EXPERIENCE WHAT’S NEXT");
+  const b2cDesc = isAr ? (ar.b2cDescAr || "اكتشف الفعاليات الحية والوجهات العائلية وتجارب الترفيه الاستثنائية في مختلف أنحاء قطر.") : (en.b2cDescEn || "Discover live events, family attractions and unforgettable entertainment experiences across Qatar.");
+  const b2cCta = isAr ? (ar.b2cCtaLabelAr || "استكشف التجارب") : (en.b2cCtaLabelEn || "Explore Experiences");
+  const b2cStat = isAr ? (ar.b2cStatLabelAr ?? "+١.٢ مليون زائر سنوياً") : (en.b2cStatLabelEn ?? "1.2M+ Annual Visitors");
   const rawB2cDest = isAr
-    ? ar.b2cDestinationUrl || en.b2cDestinationUrl || "/ar/b2c"
-    : en.b2cDestinationUrl || ar.b2cDestinationUrl || "/en/b2c";
+    ? ar.b2cDestinationUrl || "/ar/b2c"
+    : en.b2cDestinationUrl || "/en/b2c";
   const b2cDest = localizeHref(rawB2cDest, activeLocale);
-  const b2cAria = isAr ? ar.b2cAriaLabelAr : en.b2cAriaLabelEn;
+  const b2cAria = isAr ? (ar.b2cAriaLabelAr || "بوابة تجارب الأفراد والجمهور") : (en.b2cAriaLabelEn || "E3 B2C Experiences Portal");
 
   // B2B Content
-  const b2bLabel = isAr ? ar.b2bLabelAr || en.b2bLabelEn : en.b2bLabelEn || ar.b2bLabelAr;
-  const b2bTitle = isAr ? ar.b2bTitleAr || en.b2bTitleEn : en.b2bTitleEn || ar.b2bLabelAr;
-  const b2bDesc = isAr ? ar.b2bDescAr || en.b2bDescEn : en.b2bDescEn || ar.b2bDescAr;
-  const b2bCta = isAr ? ar.b2bCtaLabelAr || en.b2bCtaLabelEn : en.b2bCtaLabelEn || ar.b2bCtaLabelAr;
-  const b2bStat = isAr ? ar.b2bStatLabelAr || en.b2bStatLabelEn : en.b2bStatLabelEn || ar.b2bStatLabelAr;
+  const b2bLabel = isAr ? (ar.b2bLabelAr || "للعلامات التجارية والمؤسسات") : (en.b2bLabelEn || "FOR BRANDS & ORGANIZATIONS");
+  const b2bTitle = isAr ? (ar.b2bTitleAr || "لنصنع القادم") : (en.b2bTitleEn || "BUILD WHAT’S NEXT");
+  const b2bDesc = isAr ? (ar.b2bDescAr || "تعاون مع E3 لتصميم وإنتاج وتشغيل فعاليات ووجهات وتجارب غامرة تترك أثراً استثنائياً.") : (en.b2bDescEn || "Partner with E3 to design, produce and operate remarkable events, destinations and immersive brand experiences.");
+  const b2bCta = isAr ? (ar.b2bCtaLabelAr || "تعاون مع E3") : (en.b2bCtaLabelEn || "Work With E3");
+  const b2bStat = isAr ? (ar.b2bStatLabelAr ?? "+٤٥٠ مشروع مؤسسي") : (en.b2bStatLabelEn ?? "450+ Corporate Activations");
   const rawB2bDest = isAr
-    ? ar.b2bDestinationUrl || en.b2bDestinationUrl || "/ar/b2b"
-    : en.b2bDestinationUrl || ar.b2bDestinationUrl || "/en/b2b";
+    ? ar.b2bDestinationUrl || "/ar/b2b"
+    : en.b2bDestinationUrl || "/en/b2b";
   const b2bDest = localizeHref(rawB2bDest, activeLocale);
-  const b2bAria = isAr ? ar.b2bAriaLabelAr : en.b2bAriaLabelEn;
+  const b2bAria = isAr ? (ar.b2bAriaLabelAr || "بوابة حلول الشركات والمؤسسات") : (en.b2bAriaLabelEn || "E3 B2B Enterprise Solutions Portal");
 
   // Portal selection handler
   const handleSelect = useCallback(
@@ -169,7 +169,7 @@ export function PortalGateway({
         )}
         dir={activeDir}
         role="region"
-        aria-label={seo.ariaGatewayLabelEn || "E3 Qatar Portal Selection Gateway"}
+        aria-label={isAr ? (seo.ariaGatewayLabelAr || "بوابة الاختيار الرئيسية لمنصة إي ثري قطر") : (seo.ariaGatewayLabelEn || "E3 Qatar main gateway portal selection")}
       >
         {/* Optional 3D Wireframe Background */}
         {visual.backgroundStyle === 'wireframe' && (
@@ -199,7 +199,7 @@ export function PortalGateway({
               href={logo?.destinationUrl || "/"}
               onClick={(e) => { if (previewMode) e.preventDefault(); }}
               className="inline-flex items-center gap-3 transition-transform hover:scale-105 focus:outline-none rounded-lg"
-              aria-label={isAr ? logo?.altAr || "شعار إي ثري قطر" : logo?.altEn || "E3 Qatar Official Logo"}
+              aria-label={isAr ? logo?.altAr || "شعار إي ثري قطر الرسمي" : logo?.altEn || "Official E3 Qatar Logo"}
             >
               <E3Logo
                 isLight={isLight}
@@ -209,11 +209,11 @@ export function PortalGateway({
               />
             </a>
 
-            {/* Center Brand Badge (Desktop) */}
-            <div className="hidden lg:flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/15 text-xs md:text-sm font-mono font-bold tracking-widest text-slate-200 uppercase">
-              <span className={cn("w-2.5 h-2.5 rounded-full bg-purple-400", !isReducedMotion && "animate-pulse")} />
+            {/* Center Brand Badge (Single H1) */}
+            <h1 className="sr-only lg:not-sr-only lg:flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/15 text-xs md:text-sm font-mono font-bold tracking-widest text-slate-200 uppercase m-0">
+              <span className={cn("w-2.5 h-2.5 rounded-full bg-purple-400", !isReducedMotion && "animate-pulse")} aria-hidden="true" />
               <span>{headline}</span>
-            </div>
+            </h1>
 
             {/* Controls: Language & Theme Switcher (Top Right in LTR / Top Left in RTL) */}
             <div className="flex items-center gap-2.5 md:gap-4">
@@ -254,7 +254,8 @@ export function PortalGateway({
                     }
                   }}
                   className="p-2.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-all cursor-pointer shadow-md"
-                  title="Toggle Light/Dark Theme"
+                  title={isAr ? "تبديل المظهر النهاري والليلي" : "Toggle Light/Dark Theme"}
+                  aria-label={isAr ? "تبديل المظهر" : "Toggle Theme"}
                 >
                   {isLight ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
                 </button>

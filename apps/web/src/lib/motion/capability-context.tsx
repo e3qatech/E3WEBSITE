@@ -200,7 +200,10 @@ export function useWebGLCapability(): {
   tier: CapabilityTier;
 } {
   const { isWebGLAvailable, isWebGL2Available, tier } = useContext(MotionCapabilityContext);
-  return { isWebGLAvailable, isWebGL2Available, tier };
+  const gl1 = isWebGLAvailable && isWebGLSupported();
+  const gl2 = isWebGL2Available && isWebGL2Supported();
+  const effectiveTier = (!gl1 || tier === 'minimal') ? 'minimal' : tier;
+  return { isWebGLAvailable: gl1, isWebGL2Available: gl2, tier: effectiveTier };
 }
 
 export function useReducedMotion(): boolean {
