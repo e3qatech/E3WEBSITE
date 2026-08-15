@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Calendar, Pause, Play, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { localizeHref } from '@/lib/url-helper'
 import { useCapabilityTier } from '@/lib/motion/capability-context'
@@ -33,10 +32,9 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
     offset: ["start start", "end start"]
   })
 
-  // Three-layer parallax transforms (disabled in reduced-motion)
+  // Parallax transforms (disabled in reduced-motion)
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", isReducedMotion ? "0%" : "20%"])
   const bgScale = useTransform(scrollYProgress, [0, 1], [1.00, isReducedMotion ? 1.00 : 1.04])
-  const midY = useTransform(scrollYProgress, [0, 1], ["0%", isReducedMotion ? "0%" : "12%"])
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", isReducedMotion ? "0%" : "-6%"])
 
   const mediaUrl = (
@@ -140,17 +138,7 @@ export function CinematicHeroUniversal({ content, locale = 'en' }: CinematicHero
       ) : null}
 
       {/* ============================================================ */}
-      {/* LAYER 2: MIDGROUND CENTRAL MORPHING E3 ARROW DEVICE */}
-      {/* ============================================================ */}
-      <motion.div
-        style={{ y: midY }}
-        className="absolute inset-0 flex items-center justify-center opacity-20 dark:opacity-30 pointer-events-none scale-125 z-0 will-change-transform"
-      >
-        <E3ArrowHeroDevice variant="LIGHT_BEAM" accentColor="#a855f7" className="w-full max-w-5xl h-auto" />
-      </motion.div>
-
-      {/* ============================================================ */}
-      {/* LAYER 3: FOREGROUND ILLUMINATED TYPOGRAPHY & HERO CONTENT */}
+      {/* FOREGROUND ILLUMINATED TYPOGRAPHY & HERO CONTENT */}
       {/* ============================================================ */}
       <motion.div
         style={{ y: contentY }}

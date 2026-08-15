@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Sparkles, ArrowRight, Calendar } from 'lucide-react'
-import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 
 interface Act1ImagineItProps {
   content: any
@@ -19,11 +18,6 @@ export function Act1ImagineIt({ content, locale }: Act1ImagineItProps) {
       {/* Background Ambient Glow & Starfield Particles */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(168,85,247,0.15),transparent_70%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(59,130,246,0.12),transparent_60%)] pointer-events-none" />
-
-      {/* Central Morphing Arrow Motif Background */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none scale-125">
-        <E3ArrowHeroDevice variant="LIGHT_BEAM" accentColor="#a855f7" className="w-full max-w-5xl h-auto" />
-      </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 my-auto">
         {/* Subtle Brand Tag */}
