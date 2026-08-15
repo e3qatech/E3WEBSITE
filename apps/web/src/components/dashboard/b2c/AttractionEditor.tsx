@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import { 
   Save, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
-  Users, List, Calendar, X, Eye, ExternalLink
+  Users, List, X, Eye, ExternalLink,
+  Clock, Sparkles, AlertCircle, CalendarRange, Sun, Moon
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -31,7 +32,7 @@ const ATTRACTION_SECTIONS: EditorSectionItem[] = [
   { id: "social", label: "7. Social & News" },
   { id: "ops", label: "8. Locations & Ops" },
   { id: "brands", label: "9. Brands & IP" },
-  { id: "visibility", label: "10. Visibility" },
+  { id: "visibility", label: "10. Visibility & Timing" },
   { id: "gallery", label: "11. Gallery" },
   { id: "faqs", label: "12. FAQs" },
   { id: "seo", label: "13. SEO Settings" },
@@ -156,9 +157,165 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     initialData?.operations || { venueName: "", ageGroup: "", hours: "", schedules: [], contactDetails: { phone: "", email: "", whatsapp: "", chatLink: "" } }
   )
 
-  const [temporalStatus, setTemporalStatus] = useState<any>(
-    initialData?.temporalStatus || { isPermanent: true, startDate: "", endDate: "", statusOverride: "", isSpecialEvent: false }
-  )
+  const [temporalStatus, setTemporalStatus] = useState<any>(() => {
+    const existing = initialData?.temporalStatus || {}
+    const existingRules = Array.isArray(existing?.temporalRules)
+      ? existing.temporalRules
+      : (Array.isArray(initialData?.temporalRules) ? initialData.temporalRules : [])
+
+    return {
+      isPermanent: existing.isPermanent !== undefined ? Boolean(existing.isPermanent) : true,
+      isSpecialEvent: Boolean(existing.isSpecialEvent),
+      isComingSoon: Boolean(existing.isComingSoon),
+      startDate: existing.startDate || "",
+      endDate: existing.endDate || "",
+      bookingStartDate: existing.bookingStartDate || "",
+      statusOverride: existing.statusOverride || "",
+      // Daily Operating Hours
+      openTime: existing.openTime || "10:00",
+      closeTime: existing.closeTime || "22:00",
+      lastEntryTime: existing.lastEntryTime || "21:15",
+      daysOfWeek: Array.isArray(existing.daysOfWeek) && existing.daysOfWeek.length > 0 
+        ? existing.daysOfWeek 
+        : [0, 1, 2, 3, 4, 5, 6],
+      // Bilingual Display Summaries
+      operatingHoursEn: existing.operatingHoursEn || "",
+      operatingHoursAr: existing.operatingHoursAr || "",
+      // Weekend & Shift Overrides
+      hasWeekendHours: Boolean(existing.hasWeekendHours),
+      weekendDays: Array.isArray(existing.weekendDays) && existing.weekendDays.length > 0 
+        ? existing.weekendDays 
+        : [4, 5, 6], // Thu, Fri, Sat
+      weekendOpenTime: existing.weekendOpenTime || "10:00",
+      weekendCloseTime: existing.weekendCloseTime || "00:00",
+      hasFridayBreak: Boolean(existing.hasFridayBreak),
+      fridayOpenTime: existing.fridayOpenTime || "13:30",
+      // Seasonal & Special Notes
+      seasonalNotesEn: existing.seasonalNotesEn || "",
+      seasonalNotesAr: existing.seasonalNotesAr || "",
+      timezone: existing.timezone || "Asia/Qatar",
+      // Custom Exception Rules
+      temporalRules: existingRules
+    }
+  })
+
+  // Helper to toggle a day in standard daysOfWeek
+  const toggleDayOfWeek = (dayIndex: number) => {
+    setTemporalStatus((prev: any) => {
+      const currentDays = Array.isArray(prev.daysOfWeek) ? [...prev.daysOfWeek] : []
+      const exists = currentDays.includes(dayIndex)
+      const nextDays = exists 
+        ? currentDays.filter((d: number) => d !== dayIndex) 
+        : [...currentDays, dayIndex].sort((a: number, b: number) => a - b)
+      return { ...prev, daysOfWeek: nextDays }
+    })
+  }
+
+  // Helper to toggle weekend days
+  const toggleWeekendDay = (dayIndex: number) => {
+    setTemporalStatus((prev: any) => {
+      const currentDays = Array.isArray(prev.weekendDays) ? [...prev.weekendDays] : []
+      const exists = currentDays.includes(dayIndex)
+      const nextDays = exists 
+        ? currentDays.filter((d: number) => d !== dayIndex) 
+        : [...currentDays, dayIndex].sort((a: number, b: number) => a - b)
+      return { ...prev, weekendDays: nextDays }
+    })
+  }
+
+  // Auto-compose bilingual formatted operating hours from current timings
+  const handleAutoGenerateOperatingHours = () => {
+    const dayNamesEn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    const dayNamesAr = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+
+    const formatTimeEn = (timeStr?: string) => {
+      if (!timeStr) return ""
+      const [hStr, mStr] = timeStr.split(":")
+      const h = parseInt(hStr || "0", 10)
+      const m = parseInt(mStr || "0", 10)
+      const period = h >= 12 ? "PM" : "AM"
+      const hour12 = h % 12 || 12
+      return `${hour12}:${String(m).padStart(2, "0")} ${period}`
+    }
+
+    const formatTimeAr = (timeStr?: string) => {
+      if (!timeStr) return ""
+      const [hStr, mStr] = timeStr.split(":")
+      const h = parseInt(hStr || "0", 10)
+      const m = parseInt(mStr || "0", 10)
+      const period = h >= 12 ? "م" : "ص"
+      const hour12 = h % 12 || 12
+      return `${hour12}:${String(m).padStart(2, "0")} ${period}`
+    }
+
+    const stdOpenEn = formatTimeEn(temporalStatus.openTime || "10:00")
+    const stdCloseEn = formatTimeEn(temporalStatus.closeTime || "22:00")
+    const stdOpenAr = formatTimeAr(temporalStatus.openTime || "10:00")
+    const stdCloseAr = formatTimeAr(temporalStatus.closeTime || "22:00")
+
+    let enText = ""
+    let arText = ""
+
+    if (temporalStatus.hasWeekendHours) {
+      const wkOpenEn = formatTimeEn(temporalStatus.weekendOpenTime || "10:00")
+      const wkCloseEn = formatTimeEn(temporalStatus.weekendCloseTime || "00:00")
+      const wkOpenAr = formatTimeAr(temporalStatus.weekendOpenTime || "10:00")
+      const wkCloseAr = formatTimeAr(temporalStatus.weekendCloseTime || "00:00")
+
+      enText = `Sun – Wed: ${stdOpenEn} – ${stdCloseEn} | Thu – Sat: ${wkOpenEn} – ${wkCloseEn}`
+      arText = `الأحد – الأربعاء: ${stdOpenAr} – ${stdCloseAr} | الخميس – السبت: ${wkOpenAr} – ${wkCloseAr}`
+    } else if (temporalStatus.daysOfWeek?.length === 7) {
+      enText = `Daily: ${stdOpenEn} – ${stdCloseEn}`
+      arText = `يومياً: ${stdOpenAr} – ${stdCloseAr}`
+    } else {
+      const daysEn = (temporalStatus.daysOfWeek || []).map((d: number) => dayNamesEn[d]).join(", ")
+      const daysAr = (temporalStatus.daysOfWeek || []).map((d: number) => dayNamesAr[d]).join("، ")
+      enText = `${daysEn || "Selected Days"}: ${stdOpenEn} – ${stdCloseEn}`
+      arText = `${daysAr || "أيام محددة"}: ${stdOpenAr} – ${stdCloseAr}`
+    }
+
+    setTemporalStatus((prev: any) => ({
+      ...prev,
+      operatingHoursEn: enText,
+      operatingHoursAr: arText
+    }))
+  }
+
+  // Helper to add an exception rule
+  const handleAddTemporalRule = () => {
+    const newRule = {
+      id: `rule-${Date.now()}`,
+      ruleType: "OVERRIDE",
+      nameEn: "Special Hours Override",
+      nameAr: "ساعات عمل خاصة",
+      startDate: "",
+      endDate: "",
+      openTime: "10:00",
+      closeTime: "23:00",
+      notes: ""
+    }
+    setTemporalStatus((prev: any) => ({
+      ...prev,
+      temporalRules: [...(prev.temporalRules || []), newRule]
+    }))
+  }
+
+  const handleRemoveTemporalRule = (index: number) => {
+    setTemporalStatus((prev: any) => ({
+      ...prev,
+      temporalRules: (prev.temporalRules || []).filter((_: any, i: number) => i !== index)
+    }))
+  }
+
+  const handleUpdateTemporalRule = (index: number, field: string, value: any) => {
+    setTemporalStatus((prev: any) => {
+      const updated = [...(prev.temporalRules || [])]
+      if (updated[index]) {
+        updated[index] = { ...updated[index], [field]: value }
+      }
+      return { ...prev, temporalRules: updated }
+    })
+  }
   const [testimonials, setTestimonials] = useState<any[]>(
     Array.isArray(initialData?.testimonials) ? initialData.testimonials : []
   )
@@ -347,7 +504,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
     { id: "social", label: "Social & News", icon: Share2 },
     { id: "ops", label: "Locations & Ops", icon: MapPin },
     { id: "brands", label: "Brands & IP", icon: Users },
-    { id: "visibility", label: "Visibility", icon: Calendar },
+    { id: "visibility", label: "Visibility & Timing", icon: Clock },
     { id: "gallery", label: "Gallery", icon: ImageIcon },
     { id: "faqs", label: "FAQs", icon: HelpCircle },
     { id: "seo", label: "SEO Settings", icon: Settings },
@@ -1344,43 +1501,653 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
             </div>
           )}
 
-          {/* 9. VISIBILITY TAB */}
+          {/* 10. VISIBILITY & TIMING TAB */}
           {activeTab === "visibility" && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <h2 className="text-lg font-black mb-6">Visibility & Temporal Rules</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--surface-subtle)] p-6 rounded-2xl border border-[var(--border-default)]">
-                <div className="md:col-span-2 flex flex-col sm:flex-row gap-6">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={temporalStatus.isPermanent} onChange={e => setTemporalStatus({...temporalStatus, isPermanent: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
-                    <span className="text-sm font-bold text-[var(--text-primary)]">Is Permanent Attraction</span>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              
+              {/* Header & Live Qatar Status Bar */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[var(--surface-subtle)] p-6 rounded-2xl border border-[var(--border-default)]">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
+                      <Clock className="w-5 h-5" />
+                    </span>
+                    <h2 className="text-xl font-black text-[var(--text-primary)]">Visibility, Timings & Dates</h2>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Configure attraction lifecycle dates, weekly opening hours, weekend shifts, and Qatar real-time schedule rules.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] text-xs font-mono">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[var(--text-secondary)] font-bold">QATAR TIME (GMT+3)</span>
+                  </div>
+
+                  <div className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>
+                      {temporalStatus.statusOverride
+                        ? `OVERRIDE: ${temporalStatus.statusOverride}`
+                        : temporalStatus.isPermanent
+                        ? "PERMANENT VENUE"
+                        : temporalStatus.isComingSoon
+                        ? "COMING SOON"
+                        : "SEASONAL RUN"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 1. ATTRACTION LIFECYCLE & CALENDAR DATES */}
+              <div className="bg-[var(--surface-default)] p-6 md:p-8 rounded-2xl border border-[var(--border-default)] space-y-6">
+                <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
+                  <div className="flex items-center gap-2">
+                    <CalendarRange className="w-5 h-5 text-[var(--color-primary)]" />
+                    <h3 className="text-base font-black text-[var(--text-primary)]">1. Attraction Lifecycle & Calendar Dates</h3>
+                  </div>
+                  <span className="text-xs font-bold text-[var(--text-secondary)] uppercase">Run & Season Window</span>
+                </div>
+
+                {/* Primary Mode Checkboxes */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <label className={cn(
+                    "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                    temporalStatus.isPermanent 
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-bold" 
+                      : "bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)]"
+                  )}>
+                    <input 
+                      type="checkbox" 
+                      checked={temporalStatus.isPermanent} 
+                      onChange={e => setTemporalStatus({...temporalStatus, isPermanent: e.target.checked})} 
+                      className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500" 
+                    />
+                    <div>
+                      <div className="text-sm font-bold">Permanent Attraction</div>
+                      <div className="text-[11px] opacity-75">Open year-round with regular schedule</div>
+                    </div>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={temporalStatus.isSpecialEvent} onChange={e => setTemporalStatus({...temporalStatus, isSpecialEvent: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
-                    <span className="text-sm font-bold text-[var(--text-primary)] px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full">★ Mark as Special Event</span>
+
+                  <label className={cn(
+                    "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                    temporalStatus.isSpecialEvent 
+                      ? "bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400 font-bold" 
+                      : "bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)]"
+                  )}>
+                    <input 
+                      type="checkbox" 
+                      checked={temporalStatus.isSpecialEvent} 
+                      onChange={e => setTemporalStatus({...temporalStatus, isSpecialEvent: e.target.checked})} 
+                      className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500" 
+                    />
+                    <div>
+                      <div className="text-sm font-bold">★ Special Event / Activation</div>
+                      <div className="text-[11px] opacity-75">Highlighted with gold event badge</div>
+                    </div>
+                  </label>
+
+                  <label className={cn(
+                    "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                    temporalStatus.isComingSoon 
+                      ? "bg-blue-500/10 border-blue-500/40 text-blue-600 dark:text-blue-400 font-bold" 
+                      : "bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)]"
+                  )}>
+                    <input 
+                      type="checkbox" 
+                      checked={temporalStatus.isComingSoon} 
+                      onChange={e => setTemporalStatus({...temporalStatus, isComingSoon: e.target.checked})} 
+                      className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500" 
+                    />
+                    <div>
+                      <div className="text-sm font-bold">Coming Soon / Pre-Launch</div>
+                      <div className="text-[11px] opacity-75">Show teaser and countdown banner</div>
+                    </div>
                   </label>
                 </div>
-                {!temporalStatus.isPermanent && (
-                  <>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Start Date</label>
-                      <input type="datetime-local" value={temporalStatus.startDate} onChange={e => setTemporalStatus({...temporalStatus, startDate: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">End Date</label>
-                      <input type="datetime-local" value={temporalStatus.endDate} onChange={e => setTemporalStatus({...temporalStatus, endDate: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" />
-                    </div>
-                  </>
-                )}
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Admin Status Override</label>
-                  <select value={temporalStatus.statusOverride} onChange={e => setTemporalStatus({...temporalStatus, statusOverride: e.target.value})} className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none">
-                    <option value="">None (Auto-Calculate)</option>
-                    <option value="FORCE_ACTIVE">FORCE ACTIVE</option>
-                    <option value="FORCE_INCOMING">FORCE INCOMING</option>
-                    <option value="FORCE_PAST">FORCE PAST</option>
+
+                {/* Date Ranges (Shown if not permanent or when custom seasonal dates are configured) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center justify-between">
+                      <span>Season / Event Start Date</span>
+                      <span className="text-[10px] text-emerald-500 font-bold">Opens</span>
+                    </label>
+                    <input 
+                      type="datetime-local" 
+                      value={temporalStatus.startDate ? String(temporalStatus.startDate).substring(0, 16) : ""} 
+                      onChange={e => setTemporalStatus({...temporalStatus, startDate: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center justify-between">
+                      <span>Season / Event End Date</span>
+                      <span className="text-[10px] text-red-500 font-bold">Closes</span>
+                    </label>
+                    <input 
+                      type="datetime-local" 
+                      value={temporalStatus.endDate ? String(temporalStatus.endDate).substring(0, 16) : ""} 
+                      onChange={e => setTemporalStatus({...temporalStatus, endDate: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center justify-between">
+                      <span>Ticket Booking Launch Date</span>
+                      <span className="text-[10px] text-amber-500 font-bold">Pre-Sale</span>
+                    </label>
+                    <input 
+                      type="datetime-local" 
+                      value={temporalStatus.bookingStartDate ? String(temporalStatus.bookingStartDate).substring(0, 16) : ""} 
+                      onChange={e => setTemporalStatus({...temporalStatus, bookingStartDate: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Date Range Preset Buttons */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[var(--border-default)]">
+                  <span className="text-xs font-bold text-[var(--text-secondary)] me-2">Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setTemporalStatus({ ...temporalStatus, isPermanent: true, startDate: "", endDate: "" })}
+                    className="px-3 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-medium text-[var(--text-primary)] transition-colors"
+                  >
+                    Annual All-Year
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date()
+                      const start = new Date(now.getFullYear(), now.getMonth(), 1, 10, 0)
+                      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59)
+                      setTemporalStatus({
+                        ...temporalStatus,
+                        isPermanent: false,
+                        startDate: start.toISOString().substring(0, 16),
+                        endDate: end.toISOString().substring(0, 16)
+                      })
+                    }}
+                    className="px-3 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-medium text-[var(--text-primary)] transition-colors"
+                  >
+                    Current Month
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const year = new Date().getFullYear()
+                      setTemporalStatus({
+                        ...temporalStatus,
+                        isPermanent: false,
+                        isSpecialEvent: true,
+                        startDate: `${year}-12-01T10:00`,
+                        endDate: `${year}-12-20T23:59`
+                      })
+                    }}
+                    className="px-3 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-medium text-[var(--text-primary)] transition-colors"
+                  >
+                    Qatar National Day Season (Dec 1–20)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const year = new Date().getFullYear()
+                      setTemporalStatus({
+                        ...temporalStatus,
+                        isPermanent: false,
+                        startDate: `${year}-11-15T10:00`,
+                        endDate: `${year + 1}-03-01T23:59`
+                      })
+                    }}
+                    className="px-3 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-medium text-[var(--text-primary)] transition-colors"
+                  >
+                    Winter Peak Season (Nov 15 – Mar 1)
+                  </button>
+                </div>
+
+                {/* Admin Status Override */}
+                <div className="space-y-2 pt-2 border-t border-[var(--border-default)]">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center justify-between">
+                    <span>Admin Status Override</span>
+                    <span className="text-[11px] text-[var(--text-secondary)]">Force attraction status regardless of dates</span>
+                  </label>
+                  <select 
+                    value={temporalStatus.statusOverride || ""} 
+                    onChange={e => setTemporalStatus({...temporalStatus, statusOverride: e.target.value})} 
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none font-medium"
+                  >
+                    <option value="">None (Auto-Calculate based on Qatar local time & dates)</option>
+                    <option value="FORCE_ACTIVE">🟢 FORCE ACTIVE (Always show as Open & Bookable)</option>
+                    <option value="FORCE_INCOMING">🟡 FORCE INCOMING (Show as Coming Soon / Booking Open)</option>
+                    <option value="FORCE_PAST">⚪ FORCE PAST (Show as Past Event / Archived)</option>
+                    <option value="FORCE_CLOSED">🔴 FORCE CLOSED (Show as Temporarily Closed / Maintenance)</option>
                   </select>
                 </div>
               </div>
+
+              {/* 2. DAILY OPERATING HOURS & WEEKLY SCHEDULE */}
+              <div className="bg-[var(--surface-default)] p-6 md:p-8 rounded-2xl border border-[var(--border-default)] space-y-6">
+                <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-emerald-500" />
+                    <h3 className="text-base font-black text-[var(--text-primary)]">2. Daily Operating Hours & Weekly Schedule</h3>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-500 uppercase">Standard Timings</span>
+                </div>
+
+                {/* Core Daily Timing Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
+                      <Sun className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Standard Opening Time</span>
+                    </label>
+                    <input 
+                      type="time" 
+                      value={temporalStatus.openTime || "10:00"} 
+                      onChange={e => setTemporalStatus({...temporalStatus, openTime: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
+                      <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Standard Closing Time</span>
+                    </label>
+                    <input 
+                      type="time" 
+                      value={temporalStatus.closeTime || "22:00"} 
+                      onChange={e => setTemporalStatus({...temporalStatus, closeTime: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                      <span>Last Entry / Gate Cutoff</span>
+                    </label>
+                    <input 
+                      type="time" 
+                      value={temporalStatus.lastEntryTime || "21:15"} 
+                      onChange={e => setTemporalStatus({...temporalStatus, lastEntryTime: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+                </div>
+
+                {/* 7 Days of the Week Selector */}
+                <div className="space-y-3 pt-2 border-t border-[var(--border-default)]">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                      Weekly Operating Days ({temporalStatus.daysOfWeek?.length || 0}/7 Days Active)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setTemporalStatus({ ...temporalStatus, daysOfWeek: [0, 1, 2, 3, 4, 5, 6] })}
+                        className="text-[11px] font-bold text-emerald-500 hover:underline cursor-pointer"
+                      >
+                        All 7 Days
+                      </button>
+                      <span className="text-[var(--border-default)]">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setTemporalStatus({ ...temporalStatus, daysOfWeek: [0, 1, 2, 3, 4] })}
+                        className="text-[11px] font-bold text-blue-500 hover:underline cursor-pointer"
+                      >
+                        Sun–Thu (Weekdays)
+                      </button>
+                      <span className="text-[var(--border-default)]">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setTemporalStatus({ ...temporalStatus, daysOfWeek: [4, 5, 6] })}
+                        className="text-[11px] font-bold text-amber-500 hover:underline cursor-pointer"
+                      >
+                        Thu–Sat (Weekends)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                    {[
+                      { index: 0, labelEn: "Sunday", labelAr: "الأحد", shortEn: "Sun" },
+                      { index: 1, labelEn: "Monday", labelAr: "الإثنين", shortEn: "Mon" },
+                      { index: 2, labelEn: "Tuesday", labelAr: "الثلاثاء", shortEn: "Tue" },
+                      { index: 3, labelEn: "Wednesday", labelAr: "الأربعاء", shortEn: "Wed" },
+                      { index: 4, labelEn: "Thursday", labelAr: "الخميس", shortEn: "Thu" },
+                      { index: 5, labelEn: "Friday", labelAr: "الجمعة", shortEn: "Fri" },
+                      { index: 6, labelEn: "Saturday", labelAr: "السبت", shortEn: "Sat" },
+                    ].map(day => {
+                      const isActive = (temporalStatus.daysOfWeek || []).includes(day.index)
+                      return (
+                        <button
+                          key={day.index}
+                          type="button"
+                          onClick={() => toggleDayOfWeek(day.index)}
+                          className={cn(
+                            "flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer",
+                            isActive
+                              ? "bg-emerald-500 text-slate-950 border-emerald-500 font-black shadow-sm"
+                              : "bg-[var(--surface-subtle)] text-[var(--text-secondary)] border-[var(--border-default)] hover:bg-[var(--surface-hover)] opacity-60"
+                          )}
+                        >
+                          <span className="text-xs uppercase tracking-wider">{day.shortEn}</span>
+                          <span className="text-[10px] mt-0.5 opacity-90">{day.labelAr}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Formatted Bilingual Operating Hours Display */}
+                <div className="space-y-4 pt-2 border-t border-[var(--border-default)]">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                      Formatted Schedule Description (Shown to Visitors)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAutoGenerateOperatingHours}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Auto-Generate from Timings</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">English Schedule Text</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Sun – Wed: 10:00 AM – 10:00 PM | Thu – Sat: 10:00 AM – 12:00 AM" 
+                        value={temporalStatus.operatingHoursEn || ""} 
+                        onChange={e => setTemporalStatus({...temporalStatus, operatingHoursEn: e.target.value})} 
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase text-right block">النص باللغة العربية</label>
+                      <input 
+                        type="text" 
+                        dir="rtl"
+                        placeholder="مثال: الأحد – الأربعاء: ١٠:٠٠ ص – ١٠:٠٠ م | الخميس – السبت: ١٠:٠٠ ص – ١٢:٠٠ منتصف الليل" 
+                        value={temporalStatus.operatingHoursAr || ""} 
+                        onChange={e => setTemporalStatus({...temporalStatus, operatingHoursAr: e.target.value})} 
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right" 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. WEEKEND & SHIFT OVERRIDES */}
+              <div className="bg-[var(--surface-default)] p-6 md:p-8 rounded-2xl border border-[var(--border-default)] space-y-6">
+                <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
+                  <div className="flex items-center gap-2">
+                    <Sun className="w-5 h-5 text-amber-500" />
+                    <h3 className="text-base font-black text-[var(--text-primary)]">3. Weekend Shifts & Friday Prayer Schedule</h3>
+                  </div>
+                  <span className="text-xs font-bold text-amber-500 uppercase">Extended Shifts</span>
+                </div>
+
+                {/* Weekend Shift Toggle */}
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={temporalStatus.hasWeekendHours} 
+                      onChange={e => setTemporalStatus({...temporalStatus, hasWeekendHours: e.target.checked})} 
+                      className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500" 
+                    />
+                    <span className="text-sm font-bold text-[var(--text-primary)]">
+                      Enable Separate Weekend / Peak Operating Hours
+                    </span>
+                  </label>
+
+                  {temporalStatus.hasWeekendHours && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] animate-in fade-in duration-200">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">Weekend Opening Time</label>
+                        <input 
+                          type="time" 
+                          value={temporalStatus.weekendOpenTime || "10:00"} 
+                          onChange={e => setTemporalStatus({...temporalStatus, weekendOpenTime: e.target.value})} 
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" 
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">Weekend Closing Time</label>
+                        <input 
+                          type="time" 
+                          value={temporalStatus.weekendCloseTime || "00:00"} 
+                          onChange={e => setTemporalStatus({...temporalStatus, weekendCloseTime: e.target.value})} 
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" 
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">Weekend Days</label>
+                        <div className="flex items-center gap-2 pt-1">
+                          {[
+                            { index: 4, short: "Thu" },
+                            { index: 5, short: "Fri" },
+                            { index: 6, short: "Sat" }
+                          ].map(d => {
+                            const isWk = (temporalStatus.weekendDays || []).includes(d.index)
+                            return (
+                              <button
+                                key={d.index}
+                                type="button"
+                                onClick={() => toggleWeekendDay(d.index)}
+                                className={cn(
+                                  "px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer",
+                                  isWk 
+                                    ? "bg-amber-500 text-slate-950 border-amber-500" 
+                                    : "bg-[var(--surface-default)] text-[var(--text-secondary)] border-[var(--border-default)]"
+                                )}
+                              >
+                                {d.short}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Friday Prayer Break */}
+                <div className="space-y-4 pt-2 border-t border-[var(--border-default)]">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={temporalStatus.hasFridayBreak} 
+                      onChange={e => setTemporalStatus({...temporalStatus, hasFridayBreak: e.target.checked})} 
+                      className="w-4 h-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500" 
+                    />
+                    <span className="text-sm font-bold text-[var(--text-primary)]">
+                      Friday Midday Prayer Pause (Re-opens after Jummah Prayer)
+                    </span>
+                  </label>
+
+                  {temporalStatus.hasFridayBreak && (
+                    <div className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-2 max-w-sm animate-in fade-in duration-200">
+                      <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">Friday Re-Opening Time</label>
+                      <input 
+                        type="time" 
+                        value={temporalStatus.fridayOpenTime || "13:30"} 
+                        onChange={e => setTemporalStatus({...temporalStatus, fridayOpenTime: e.target.value})} 
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm font-mono focus:border-[var(--color-primary)] focus:outline-none" 
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 4. SEASONAL NOTES & HOLIDAY EXCEPTION RULES */}
+              <div className="bg-[var(--surface-default)] p-6 md:p-8 rounded-2xl border border-[var(--border-default)] space-y-6">
+                <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-indigo-400" />
+                    <h3 className="text-base font-black text-[var(--text-primary)]">4. Seasonal Notes & Holiday Exception Rules</h3>
+                  </div>
+                  <Button 
+                    type="button" 
+                    onClick={handleAddTemporalRule}
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 rounded-xl"
+                  >
+                    <Plus className="w-4 h-4" /> Add Exception Rule
+                  </Button>
+                </div>
+
+                {/* Seasonal Notes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">Seasonal & Special Notice (EN)</label>
+                    <textarea 
+                      rows={2}
+                      placeholder="e.g. Ramadan Schedule: 8:00 PM – 2:00 AM daily. Prior booking is mandatory." 
+                      value={temporalStatus.seasonalNotesEn || ""} 
+                      onChange={e => setTemporalStatus({...temporalStatus, seasonalNotesEn: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none" 
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] uppercase text-right block">ملاحظات الموسم والعطلات (AR)</label>
+                    <textarea 
+                      rows={2}
+                      dir="rtl"
+                      placeholder="مثال: أوقات شهر رمضان المبارك: ٨:٠٠ م – ٢:٠٠ ص يومياً. الحجز المسبق إلزامي." 
+                      value={temporalStatus.seasonalNotesAr || ""} 
+                      onChange={e => setTemporalStatus({...temporalStatus, seasonalNotesAr: e.target.value})} 
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right" 
+                    />
+                  </div>
+                </div>
+
+                {/* Exception Rules List */}
+                <div className="space-y-4 pt-2 border-t border-[var(--border-default)]">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
+                    Custom Date Rules & Closures ({(temporalStatus.temporalRules || []).length} Rules Configured)
+                  </label>
+
+                  {(!temporalStatus.temporalRules || temporalStatus.temporalRules.length === 0) ? (
+                    <div className="p-6 rounded-xl border border-dashed border-[var(--border-default)] text-center text-[var(--text-secondary)] text-sm">
+                      No custom holiday or closure rules defined. Click <strong>Add Exception Rule</strong> above to add National Day, Eid, or Maintenance timings.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {temporalStatus.temporalRules.map((rule: any, rIdx: number) => (
+                        <div key={rule.id || rIdx} className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-4 relative group">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-[var(--surface-default)] border border-[var(--border-default)] flex items-center justify-center text-xs font-bold">
+                                {rIdx + 1}
+                              </span>
+                              <span className="text-xs font-black uppercase text-[var(--text-primary)]">
+                                {rule.nameEn || `Exception Rule #${rIdx + 1}`}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTemporalRule(rIdx)}
+                              className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                              title="Delete rule"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Rule Type</label>
+                              <select 
+                                value={rule.ruleType || "OVERRIDE"} 
+                                onChange={e => handleUpdateTemporalRule(rIdx, "ruleType", e.target.value)}
+                                className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-bold focus:border-[var(--color-primary)] focus:outline-none"
+                              >
+                                <option value="OVERRIDE">OVERRIDE (Special Hours)</option>
+                                <option value="CLOSURE">CLOSURE (Full Day Closed)</option>
+                                <option value="SEASONAL">SEASONAL (Special Shift)</option>
+                                <option value="RECURRING">RECURRING</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Rule Name (EN)</label>
+                              <input 
+                                type="text"
+                                placeholder="e.g. National Day Extended"
+                                value={rule.nameEn || ""}
+                                onChange={e => handleUpdateTemporalRule(rIdx, "nameEn", e.target.value)}
+                                className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs focus:border-[var(--color-primary)] focus:outline-none"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Start Date & Time</label>
+                              <input 
+                                type="datetime-local"
+                                value={rule.startDate ? String(rule.startDate).substring(0, 16) : ""}
+                                onChange={e => handleUpdateTemporalRule(rIdx, "startDate", e.target.value)}
+                                className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-mono focus:border-[var(--color-primary)] focus:outline-none"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">End Date & Time</label>
+                              <input 
+                                type="datetime-local"
+                                value={rule.endDate ? String(rule.endDate).substring(0, 16) : ""}
+                                onChange={e => handleUpdateTemporalRule(rIdx, "endDate", e.target.value)}
+                                className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-mono focus:border-[var(--color-primary)] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          {rule.ruleType !== "CLOSURE" && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                              <div className="space-y-1">
+                                <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Special Open Time</label>
+                                <input 
+                                  type="time"
+                                  value={rule.openTime || "10:00"}
+                                  onChange={e => handleUpdateTemporalRule(rIdx, "openTime", e.target.value)}
+                                  className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-mono focus:border-[var(--color-primary)] focus:outline-none"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">Special Close Time</label>
+                                <input 
+                                  type="time"
+                                  value={rule.closeTime || "23:00"}
+                                  onChange={e => handleUpdateTemporalRule(rIdx, "closeTime", e.target.value)}
+                                  className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs font-mono focus:border-[var(--color-primary)] focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
             </div>
           )}
 
