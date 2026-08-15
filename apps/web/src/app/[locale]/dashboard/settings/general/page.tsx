@@ -44,7 +44,7 @@ export default async function GeneralSettingsPage({
   }
 
   const settingsRecords = await db.setting.findMany({
-    where: { type: "GENERAL" },
+    where: { type: { in: ["GENERAL", "INTEGRATION"] } },
   });
 
   const maskedSettings = getMaskedAdminSettings(settingsRecords || []);

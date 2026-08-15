@@ -10,24 +10,30 @@ import type { TimeSlot } from './bookingqube-client';
 export type { TimeSlot };
 
 const BOOKINGQUBE_BASE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.e3.qa';
-const DEFAULT_FALLBACK_API_KEY = process.env.BOOKINGQUBE_API_KEY || 'mock_api_key';
 
 /**
  * Canonical BookingQube API Key resolution with deterministic read-only fallback to legacy aliases.
  * Does not copy, rewrite, or duplicate stored records.
+ * Fails closed with null if no credential is configured.
  */
-export async function resolveBookingQubeApiKey(): Promise<string> {
+export async function resolveBookingQubeApiKey(): Promise<string | null> {
   const secret = await getServerSecretSetting('bookingQubeApiKey');
-  return secret || DEFAULT_FALLBACK_API_KEY;
+  return secret || null;
 }
 
 /**
  * Checks live ticket availability using Next.js fetch cache (30 seconds).
  * Protected server-side execution only.
+ * Fails closed without making any provider fetch request if no protected credential resolves.
  */
 export async function checkAvailability(attractionId: string, date: string): Promise<TimeSlot[]> {
   try {
     const apiKey = await resolveBookingQubeApiKey();
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      // Fail closed: no network request, safe unavailable result
+      return [];
+    }
+
     const response = await fetch(
       `${BOOKINGQUBE_BASE_URL}/api/v1/availability?attraction=${encodeURIComponent(attractionId)}&date=${encodeURIComponent(date)}`,
       {

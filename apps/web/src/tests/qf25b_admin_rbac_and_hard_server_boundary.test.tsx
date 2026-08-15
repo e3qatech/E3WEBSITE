@@ -393,7 +393,22 @@ describe('QF-25-B — ADMIN RBAC & HARD SERVER-ONLY INTEGRATION BOUNDARY', () =>
         testSecretKeys.map((key) => ({ key, value: 'super_secret_plain_value' }))
       );
 
-      for (const key of testSecretKeys) {
+      // Canonical BookingQube presence
+      expect(masked.bookingQubeApiKey).toBe(MASKED_SECRET_PLACEHOLDER);
+      expect(masked.has_bookingQubeApiKey).toBe(true);
+
+      const genericSecretKeys = [
+        'db_connection_string',
+        'postgres_dsn',
+        'jwt_signing_secret',
+        'ssl_certificate_key',
+        'client_secret',
+        'access_token',
+        'admin_password',
+        'smtp_passwd',
+      ];
+
+      for (const key of genericSecretKeys) {
         expect(masked[key]).toBe(MASKED_SECRET_PLACEHOLDER);
         expect(masked[`has_${key}`]).toBe(true);
       }

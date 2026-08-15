@@ -20,9 +20,15 @@ export function BookingQubeIframe({ attractionId, ticketTypeId, className = "" }
     // Listen for cross-origin messages from the BookingQube iframe
     // so it can dynamically resize based on the checkout steps
     const handleMessage = (event: MessageEvent) => {
-      // Security check: only accept messages from the trusted domain
+      // Security check: exact trusted-origin equality
       const BOOKINGQUBE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.e3.qa'
-      if (!event.origin.includes(new URL(BOOKINGQUBE_URL).hostname)) return
+      let trustedOrigin = 'https://booking.e3.qa'
+      try {
+        trustedOrigin = new URL(BOOKINGQUBE_URL).origin
+      } catch (_e) {
+        // Safe fallback
+      }
+      if (event.origin !== trustedOrigin) return
 
       try {
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data

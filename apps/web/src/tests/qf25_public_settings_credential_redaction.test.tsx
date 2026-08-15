@@ -153,8 +153,18 @@ describe('QF-25 — Public Settings Credential Redaction & Server-Only Integrati
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.session = null;
-    (db.setting.findMany as any).mockResolvedValue(MOCK_DB_SETTINGS_RECORDS);
-    (db.siteSettings.findMany as any).mockResolvedValue(MOCK_DB_SETTINGS_RECORDS);
+    (db.setting.findMany as any).mockImplementation((args?: any) => {
+      if (args?.where?.key?.in) {
+        return Promise.resolve(MOCK_DB_SETTINGS_RECORDS.filter((s) => args.where.key.in.includes(s.key)));
+      }
+      return Promise.resolve(MOCK_DB_SETTINGS_RECORDS);
+    });
+    (db.siteSettings.findMany as any).mockImplementation((args?: any) => {
+      if (args?.where?.key?.in) {
+        return Promise.resolve(MOCK_DB_SETTINGS_RECORDS.filter((s) => args.where.key.in.includes(s.key)));
+      }
+      return Promise.resolve(MOCK_DB_SETTINGS_RECORDS);
+    });
     (db.setting.findUnique as any).mockImplementation(({ where }: any) => {
       const match = MOCK_DB_SETTINGS_RECORDS.find((s) => s.key === where.key);
       return Promise.resolve(match || null);
@@ -165,6 +175,8 @@ describe('QF-25 — Public Settings Credential Redaction & Server-Only Integrati
     });
     (db.setting.upsert as any).mockResolvedValue({ id: 's-1', key: 'bookingQubeApiKey' });
     (db.siteSettings.upsert as any).mockResolvedValue({ id: 's-1', key: 'bookingQubeApiKey' });
+    (db.setting.update as any).mockResolvedValue({ id: 's-1', key: 'bookingQubeApiKey', type: 'INTEGRATION', updatedAt: new Date('2026-08-15') });
+    (db.siteSettings.update as any).mockResolvedValue({ id: 's-1', key: 'bookingQubeApiKey', type: 'INTEGRATION', updatedAt: new Date('2026-08-15') });
     (db.pages.findUnique as any).mockResolvedValue(null);
     (db.pages.findMany as any).mockResolvedValue([]);
     (db.attraction.findMany as any).mockResolvedValue([]);
