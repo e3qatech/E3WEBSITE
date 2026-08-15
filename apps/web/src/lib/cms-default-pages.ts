@@ -120,8 +120,10 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   e3LivingHero: {
     eyebrowEn: "E3 QATAR ENTERTAINMENT WORLDS",
     eyebrowAr: "عالم إي ثري الترفيهي بقطر",
-    fixedHeadlineEn: "SOME DAYS PASS. OTHERS BECOME",
-    fixedHeadlineAr: "بعض الأيام تمضي. وأخرى تصبح",
+    fixedHeadlineEn: "SOME DAYS PASS. OTHERS BECOME {{animated}}",
+    fixedHeadlineAr: "بعض الأيام تمضي. وأخرى تصبح {{animated}}",
+    headlineTemplateEn: "SOME DAYS PASS. OTHERS BECOME {{animated}}",
+    headlineTemplateAr: "بعض الأيام تمضي. وأخرى تصبح {{animated}}",
     rotatingWordsEn: ["STORIES", "ADVENTURES", "MOMENTS", "MEMORIES"],
     rotatingWordsAr: ["حكايات", "مغامرات", "لحظات", "ذكريات"],
     descriptionEn: "Enter a world of attractions, live experiences and unforgettable moments created by E3.",
@@ -138,7 +140,12 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     },
     preset: "memory-engine",
     animationSpeed: 2800,
-    enableRotatingWords: true
+    animationDuration: 600,
+    enableRotatingWords: true,
+    animationType: "blur-morph" as const,
+    wordStyle: "static-gradient" as const,
+    alignmentEn: "center" as const,
+    alignmentAr: "center" as const,
   },
   heroMedia: {
     mediaType: "IMAGE",

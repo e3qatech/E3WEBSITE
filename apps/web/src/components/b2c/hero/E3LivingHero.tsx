@@ -19,11 +19,28 @@ export type E3LivingHeroPreset =
   | 'team'              // B2B Team alias
   | 'record-accent';    // Detail pages: inherits record's accent color
 
+export type HeadlineAnimationType =
+  | 'typewriter'
+  | 'fade'
+  | 'zoom'
+  | 'wipe'
+  | 'slide-up'
+  | 'blur-morph';
+
+export type AnimatedWordStyle =
+  | 'solid'
+  | 'static-gradient'
+  | 'moving-gradient';
+
+export type HeroAlignment = 'left' | 'center' | 'right';
+
 export interface E3LivingHeroProps {
   eyebrowEn?: string
   eyebrowAr?: string
   fixedHeadlineEn: string
   fixedHeadlineAr: string
+  headlineTemplateEn?: string
+  headlineTemplateAr?: string
   rotatingWordsEn?: string[]
   rotatingWordsAr?: string[]
   descriptionEn?: string
@@ -49,7 +66,8 @@ export interface E3LivingHeroProps {
     overlayOpacity?: number
     gradientScrim?: boolean
   }
-  animationSpeed?: number // Interval in ms, default 2800
+  animationSpeed?: number // Interval between word changes in ms, default 2800
+  animationDuration?: number // Duration of transition in ms, default 600
   enableRotatingWords?: boolean
   preset?: E3LivingHeroPreset
   accentColor?: string
@@ -62,6 +80,13 @@ export interface E3LivingHeroProps {
   titleTestId?: string
   descriptionTestId?: string
   children?: React.ReactNode // Slot for extra in-hero widgets (e.g. date search / filters)
+
+  // UX-02B-B: Headline Composer Extensions
+  animationType?: HeadlineAnimationType
+  wordStyle?: AnimatedWordStyle
+  alignmentEn?: HeroAlignment
+  alignmentAr?: HeroAlignment
+  alignment?: HeroAlignment // Direct override
 }
 
 // Preset-specific visual palettes and aura glows
@@ -121,11 +146,86 @@ const PRESET_STYLES: Record<E3LivingHeroPreset, {
   }
 }
 
+/**
+ * Parses headline template into exactly two visual lines, isolating the animated token.
+ */
+export function parseTwoLineHeadline(rawText: string): {
+  line1: { text: string; hasToken: boolean; prefix: string; suffix: string }
+  line2: { text: string; hasToken: boolean; prefix: string; suffix: string }
+  hasToken: boolean
+} {
+  let text = (rawText || "").trim()
+
+  // If no {{animated}} token, inject it at the end of the text
+  const hasTokenInitially = text.includes("{{animated}}")
+  if (!hasTokenInitially) {
+    text = text ? `${text} {{animated}}` : "{{animated}}"
+  }
+
+  // Split into 2 lines based on newline or sentence boundary
+  let l1 = ""
+  let l2 = ""
+
+  if (text.includes("\n")) {
+    const parts = text.split("\n")
+    l1 = parts[0].trim()
+    l2 = parts.slice(1).join(" ").trim()
+  } else if (text.includes(". ") || text.includes(".\t")) {
+    const periodIdx = text.indexOf(". ")
+    l1 = text.substring(0, periodIdx + 1).trim()
+    l2 = text.substring(periodIdx + 1).trim()
+  } else if (text.includes("! ") || text.includes("? ") || text.includes("؛ ") || text.includes(". ")) {
+    const match = text.match(/([.!?؛])\s+/)
+    if (match && match.index !== undefined) {
+      l1 = text.substring(0, match.index + match[1].length).trim()
+      l2 = text.substring(match.index + match[0].length).trim()
+    } else {
+      const words = text.split(/\s+/)
+      const mid = Math.ceil(words.length / 2)
+      l1 = words.slice(0, mid).join(" ")
+      l2 = words.slice(mid).join(" ")
+    }
+  } else {
+    // If short single sentence, split around midpoint or keep line1 static and line2 token
+    const words = text.split(/\s+/)
+    if (words.length <= 3) {
+      if (text.includes("{{animated}}")) {
+        l1 = text.replace("{{animated}}", "").trim()
+        l2 = "{{animated}}"
+      } else {
+        l1 = text
+        l2 = "{{animated}}"
+      }
+    } else {
+      const mid = Math.ceil(words.length / 2)
+      l1 = words.slice(0, mid).join(" ")
+      l2 = words.slice(mid).join(" ")
+    }
+  }
+
+  const parseLine = (lineStr: string) => {
+    const hasTok = lineStr.includes("{{animated}}")
+    if (!hasTok) {
+      return { text: lineStr, hasToken: false, prefix: lineStr, suffix: "" }
+    }
+    const [prefix = "", suffix = ""] = lineStr.split("{{animated}}")
+    return { text: lineStr, hasToken: true, prefix, suffix }
+  }
+
+  return {
+    line1: parseLine(l1),
+    line2: parseLine(l2),
+    hasToken: true
+  }
+}
+
 export function E3LivingHero({
   eyebrowEn,
   eyebrowAr,
   fixedHeadlineEn,
   fixedHeadlineAr,
+  headlineTemplateEn,
+  headlineTemplateAr,
   rotatingWordsEn = [],
   rotatingWordsAr = [],
   descriptionEn,
@@ -134,6 +234,7 @@ export function E3LivingHero({
   secondaryCta,
   media,
   animationSpeed = 2800,
+  animationDuration = 600,
   enableRotatingWords = true,
   preset = 'memory-engine',
   accentColor,
@@ -145,29 +246,58 @@ export function E3LivingHero({
   eyebrowTestId,
   titleTestId,
   descriptionTestId,
-  children
+  children,
+  animationType = 'blur-morph',
+  wordStyle = 'static-gradient',
+  alignmentEn = 'center',
+  alignmentAr = 'center',
+  alignment
 }: E3LivingHeroProps) {
   const isAr = locale === 'ar'
   const containerRef = useRef<HTMLElement>(null)
   const systemReducedMotion = useReducedMotion()
   const capabilityTier = useCapabilityTier()
-  const isReducedMotion = systemReducedMotion || capabilityTier === 'minimal'
+  const isReducedMotion = Boolean(systemReducedMotion || capabilityTier === 'minimal')
 
   // Resolve locale-aware texts strictly
   const eyebrow = isAr ? (eyebrowAr || eyebrowEn) : (eyebrowEn || eyebrowAr)
-  const fixedHeadline = isAr ? fixedHeadlineAr : fixedHeadlineEn
   const description = isAr ? (descriptionAr || descriptionEn) : (descriptionEn || descriptionAr)
 
-  const activeRotatingWords = isAr
-    ? (Array.isArray(rotatingWordsAr) && rotatingWordsAr.length > 0 ? rotatingWordsAr : [])
-    : (Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0 ? rotatingWordsEn : [])
+  // Resolve template text
+  const rawHeadlineTemplate = isAr
+    ? (headlineTemplateAr || fixedHeadlineAr || 'بعض الأيام تمضي. وأخرى تصبح {{animated}}')
+    : (headlineTemplateEn || fixedHeadlineEn || 'SOME DAYS PASS. OTHERS BECOME {{animated}}')
+
+  const parsedHeadline = useMemo(() => {
+    return parseTwoLineHeadline(rawHeadlineTemplate)
+  }, [rawHeadlineTemplate])
+
+  // Resolve rotating words
+  const activeRotatingWords = useMemo(() => {
+    return isAr
+      ? (Array.isArray(rotatingWordsAr) && rotatingWordsAr.length > 0 ? rotatingWordsAr : ['حكايات', 'مغامرات', 'لحظات', 'ذكريات'])
+      : (Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0 ? rotatingWordsEn : ['STORIES', 'ADVENTURES', 'MOMENTS', 'MEMORIES'])
+  }, [isAr, rotatingWordsAr, rotatingWordsEn])
 
   const hasRotatingWords = enableRotatingWords && activeRotatingWords.length > 0
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [hasCompletedFirstCycle, setHasCompletedFirstCycle] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
 
-  // Rotating words timer
+  // Typewriter effect state
+  const [typewriterText, setTypewriterText] = useState('')
+  const [isTyping, setIsTyping] = useState(true)
+
+  // Longest replacement word for layout space reservation
+  const longestWord = useMemo(() => {
+    if (!activeRotatingWords || activeRotatingWords.length === 0) return ''
+    return activeRotatingWords.reduce((longest, current) =>
+      current.length > longest.length ? current : longest,
+      activeRotatingWords[0]
+    )
+  }, [activeRotatingWords])
+
+  // Active word index rotation interval
   useEffect(() => {
     if (!hasRotatingWords || isPaused || activeRotatingWords.length <= 1) return
 
@@ -183,6 +313,34 @@ export function E3LivingHero({
 
     return () => clearInterval(interval)
   }, [hasRotatingWords, isPaused, activeRotatingWords.length, animationSpeed])
+
+  const currentWord = hasRotatingWords ? activeRotatingWords[currentWordIndex] || activeRotatingWords[0] : ""
+
+  // Typewriter character reveal simulation
+  useEffect(() => {
+    if (animationType !== 'typewriter' || isReducedMotion) {
+      setTypewriterText(currentWord)
+      return
+    }
+
+    let charIndex = 0
+    setIsTyping(true)
+    setTypewriterText('')
+
+    const stepSpeed = Math.max(30, Math.min(100, Math.floor(animationDuration / (currentWord.length || 1))))
+
+    const typingInterval = setInterval(() => {
+      if (charIndex < currentWord.length) {
+        setTypewriterText(currentWord.substring(0, charIndex + 1))
+        charIndex++
+      } else {
+        setIsTyping(false)
+        clearInterval(typingInterval)
+      }
+    }, stepSpeed)
+
+    return () => clearInterval(typingInterval)
+  }, [currentWord, animationType, isReducedMotion, animationDuration])
 
   // Parallax Scroll Animation
   const { scrollYProgress } = useScroll({
@@ -226,13 +384,186 @@ export function E3LivingHero({
     return presetConfig.gradientSweep
   }, [preset, accentColor, presetConfig.gradientSweep])
 
-  const currentWord = hasRotatingWords ? activeRotatingWords[currentWordIndex] || activeRotatingWords[0] : ""
-
   const mediaUrl = (media?.mediaUrl || "").trim()
   const posterUrl = (media?.posterUrl || media?.mobileMediaUrl || "").trim()
   const rawMediaType = (media?.mediaType || "IMAGE").toUpperCase() as UniversalMediaType
   const overlayOpacity = media?.overlayOpacity !== undefined ? media.overlayOpacity : 0.6
   const gradientScrim = media?.gradientScrim !== false
+
+  // Physical alignment resolution
+  const activeAlignment: HeroAlignment = alignment || (isAr ? alignmentAr : alignmentEn) || 'center'
+
+  const alignmentStyles = useMemo(() => {
+    switch (activeAlignment) {
+      case 'left':
+        return {
+          container: 'items-start text-left',
+          h1: 'text-left',
+          description: 'text-left mx-0',
+          ctaGroup: 'justify-start',
+        }
+      case 'right':
+        return {
+          container: 'items-end text-right',
+          h1: 'text-right',
+          description: 'text-right ms-auto me-0',
+          ctaGroup: 'justify-end',
+        }
+      case 'center':
+      default:
+        return {
+          container: 'items-center text-center',
+          h1: 'text-center',
+          description: 'text-center mx-auto',
+          ctaGroup: 'justify-center',
+        }
+    }
+  }, [activeAlignment])
+
+  // Word style styling classes
+  const wordStyleProps = useMemo(() => {
+    switch (wordStyle) {
+      case 'solid':
+        return {
+          className: "inline-block font-black select-none text-[var(--living-hero-accent)] drop-shadow-sm",
+          style: { color: resolvedAccent }
+        }
+      case 'moving-gradient':
+        return {
+          className: "inline-block font-black select-none bg-clip-text text-transparent drop-shadow-sm bg-[length:200%_auto] animate-gradient-x",
+          style: { backgroundImage: dynamicSweep }
+        }
+      case 'static-gradient':
+      default:
+        return {
+          className: "inline-block font-black select-none bg-clip-text text-transparent drop-shadow-sm",
+          style: { backgroundImage: dynamicSweep }
+        }
+    }
+  }, [wordStyle, resolvedAccent, dynamicSweep])
+
+  // Animation variants per selected type
+  const animationVariants = useMemo(() => {
+    if (isReducedMotion) {
+      return {
+        initial: { opacity: 1, filter: "none", y: 0, scale: 1 },
+        animate: { opacity: 1, filter: "none", y: 0, scale: 1 },
+        exit: { opacity: 1, filter: "none", y: 0, scale: 1 },
+        transition: { duration: 0 }
+      }
+    }
+
+    const dur = Math.max(0.2, animationDuration / 1000)
+
+    switch (animationType) {
+      case 'typewriter':
+        return {
+          initial: { opacity: 1 },
+          animate: { opacity: 1 },
+          exit: { opacity: 0 },
+          transition: { duration: 0.15 } as any
+        }
+      case 'fade':
+        return {
+          initial: { opacity: 0, y: 4 },
+          animate: { opacity: 1, y: 0 },
+          exit: { opacity: 0, y: -4 },
+          transition: { duration: dur, ease: [0.42, 0, 0.58, 1] } as any
+        }
+      case 'zoom':
+        return {
+          initial: { opacity: 0, scale: 0.82 },
+          animate: { opacity: 1, scale: 1 },
+          exit: { opacity: 0, scale: 1.15 },
+          transition: { duration: dur, ease: [0.16, 1, 0.3, 1] } as any
+        }
+      case 'wipe':
+        return {
+          initial: { opacity: 0, clipPath: "polygon(0 0, 0 0, 0 100%, 0% 100%)" },
+          animate: { opacity: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" },
+          exit: { opacity: 0, clipPath: "polygon(100% 0, 100% 0, 100% 100%, 100% 100%)" },
+          transition: { duration: dur, ease: [0.22, 1, 0.36, 1] } as any
+        }
+      case 'slide-up':
+        return {
+          initial: { opacity: 0, y: "100%" },
+          animate: { opacity: 1, y: "0%" },
+          exit: { opacity: 0, y: "-100%" },
+          transition: { duration: dur, ease: [0.16, 1, 0.3, 1] } as any
+        }
+      case 'blur-morph':
+      default:
+        return {
+          initial: { opacity: 0, y: "75%", filter: "blur(12px)", scale: 0.94 },
+          animate: { opacity: 1, y: "0%", filter: "blur(0px)", scale: 1 },
+          exit: { opacity: 0, y: "-75%", filter: "blur(12px)", scale: 1.06 },
+          transition: { duration: dur, ease: [0.16, 1, 0.3, 1] } as any
+        }
+    }
+  }, [animationType, isReducedMotion, animationDuration])
+
+  // Helper renderer for inline animated word container with exact width reservation
+  const renderInlineAnimatedWord = () => {
+    return (
+      <span
+        className="inline-grid align-baseline relative px-1 mx-1 text-start"
+        style={{
+          gridTemplateAreas: '"stack"',
+          display: 'inline-grid',
+          verticalAlign: 'baseline',
+        }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {/* Invisible sizing anchor for longest replacement word to eliminate layout shift */}
+        <span
+          className="invisible pointer-events-none select-none opacity-0 font-black"
+          style={{ gridArea: 'stack' }}
+          aria-hidden="true"
+        >
+          {longestWord || "MOMENTS"}
+        </span>
+
+        {/* Active Animated Word */}
+        <span
+          className="relative inline-flex items-baseline overflow-hidden"
+          style={{ gridArea: 'stack' }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={currentWord}
+              initial={animationVariants.initial}
+              animate={animationVariants.animate}
+              exit={animationVariants.exit}
+              transition={animationVariants.transition}
+              className={wordStyleProps.className}
+              style={wordStyleProps.style}
+            >
+              {animationType === 'typewriter' && !isReducedMotion ? (
+                <>
+                  <span>{typewriterText}</span>
+                  <span
+                    className={cn(
+                      "inline-block w-[2px] h-[0.85em] bg-current align-middle ms-0.5",
+                      isTyping ? "animate-pulse" : "opacity-0"
+                    )}
+                  />
+                </>
+              ) : (
+                currentWord
+              )}
+            </motion.span>
+          </AnimatePresence>
+        </span>
+      </span>
+    )
+  }
+
+  // Stable complete headline for screen readers
+  const accessibleFullHeadline = useMemo(() => {
+    const raw = rawHeadlineTemplate.replace("{{animated}}", currentWord || activeRotatingWords[0] || "").replace(/\s+/g, " ").trim()
+    return raw
+  }, [rawHeadlineTemplate, currentWord, activeRotatingWords])
 
   return (
     <section
@@ -240,14 +571,14 @@ export function E3LivingHero({
       data-testid="e3-living-hero"
       dir={isAr ? "rtl" : "ltr"}
       className={cn(
-        "relative min-h-[88vh] md:min-h-[94vh] flex flex-col justify-end items-center overflow-hidden",
+        "relative min-h-[88vh] md:min-h-[94vh] flex flex-col justify-end overflow-hidden",
         "bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)]",
         "pt-32 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8",
+        alignmentStyles.container,
         theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : '',
         className
       )}
       style={{
-        // Define dynamic preset accents in component CSS variables
         ['--living-hero-accent' as any]: resolvedAccent
       }}
     >
@@ -263,7 +594,7 @@ export function E3LivingHero({
             <UniversalMediaRenderer
               src={mediaUrl}
               type={rawMediaType}
-              alt={fixedHeadline}
+              alt={accessibleFullHeadline}
               className="w-full h-full object-cover"
               poster={posterUrl}
               autoPlay={true}
@@ -301,7 +632,10 @@ export function E3LivingHero({
       {/* ============================================================ */}
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
-        className="relative z-10 max-w-6xl mx-auto text-center w-full flex flex-col items-center justify-end space-y-6 sm:space-y-8"
+        className={cn(
+          "relative z-10 max-w-6xl mx-auto w-full flex flex-col justify-end space-y-6 sm:space-y-8",
+          alignmentStyles.container
+        )}
       >
         {/* Eyebrow Pill */}
         {eyebrow && (
@@ -320,67 +654,63 @@ export function E3LivingHero({
           </motion.div>
         )}
 
-        {/* Main Semantic H1 with Masked Reveal & Rotating Words Engine */}
-        <div className="max-w-5xl mx-auto">
+        {/* Main Semantic H1: Exactly 1 H1 with strict 2-Line visual presentation */}
+        <div className={cn("max-w-5xl w-full", alignmentStyles.h1)}>
           {/* Accessible Full Headline for Screen Readers */}
           <h1 data-testid={titleTestId || "living-hero-h1"} className="sr-only">
-            {fixedHeadline}
+            {accessibleFullHeadline}
           </h1>
 
-          {/* Visual Presentation Element */}
+          {/* Visual Presentation Element: strictly 2 visual lines with inline animated token */}
           <div
             aria-hidden="true"
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-[1.08] sm:leading-[1.04] text-[var(--text-primary)]"
+            data-testid="hero-two-line-visual"
+            className={cn(
+              "text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-[1.08] sm:leading-[1.04] text-[var(--text-primary)]",
+              alignmentStyles.h1
+            )}
           >
-            {/* Masked Upward Reveal for Fixed Headline */}
-            <div className="overflow-hidden inline-block align-bottom py-1">
-              <motion.span
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: "0%", opacity: 1 }}
-                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-block me-2 sm:me-3"
-              >
-                {fixedHeadline}
-              </motion.span>
-            </div>
+            {/* Visual Line 1 */}
+            {parsedHeadline.line1.text && (
+              <div data-testid="hero-line-1" className="block overflow-hidden py-0.5">
+                <motion.div
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: "0%", opacity: 1 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="inline-block"
+                >
+                  {parsedHeadline.line1.hasToken ? (
+                    <>
+                      {parsedHeadline.line1.prefix && <span>{parsedHeadline.line1.prefix}</span>}
+                      {renderInlineAnimatedWord()}
+                      {parsedHeadline.line1.suffix && <span>{parsedHeadline.line1.suffix}</span>}
+                    </>
+                  ) : (
+                    <span>{parsedHeadline.line1.text}</span>
+                  )}
+                </motion.div>
+              </div>
+            )}
 
-            {/* Rotating Words Container (Zero Layout Shift via inline-flex container) */}
-            {hasRotatingWords && (
-              <div
-                className="inline-flex items-baseline justify-center relative overflow-hidden align-bottom min-w-[160px] sm:min-w-[280px] md:min-w-[340px] h-[1.2em] px-1"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={currentWord}
-                    initial={
-                      isReducedMotion
-                        ? { opacity: 0 }
-                        : { y: "85%", opacity: 0, filter: "blur(10px)", scale: 0.92 }
-                    }
-                    animate={
-                      isReducedMotion
-                        ? { opacity: 1 }
-                        : { y: "0%", opacity: 1, filter: "blur(0px)", scale: 1 }
-                    }
-                    exit={
-                      isReducedMotion
-                        ? { opacity: 0 }
-                        : { y: "-85%", opacity: 0, filter: "blur(10px)", scale: 1.06 }
-                    }
-                    transition={{
-                      duration: isReducedMotion ? 0.3 : 0.65,
-                      ease: [0.16, 1, 0.3, 1]
-                    }}
-                    className="inline-block font-black text-transparent bg-clip-text drop-shadow-sm select-none"
-                    style={{
-                      backgroundImage: dynamicSweep
-                    }}
-                  >
-                    {currentWord}
-                  </motion.span>
-                </AnimatePresence>
+            {/* Visual Line 2 */}
+            {parsedHeadline.line2.text && (
+              <div data-testid="hero-line-2" className="block overflow-hidden py-0.5">
+                <motion.div
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: "0%", opacity: 1 }}
+                  transition={{ duration: 0.85, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className="inline-block"
+                >
+                  {parsedHeadline.line2.hasToken ? (
+                    <>
+                      {parsedHeadline.line2.prefix && <span>{parsedHeadline.line2.prefix}</span>}
+                      {renderInlineAnimatedWord()}
+                      {parsedHeadline.line2.suffix && <span>{parsedHeadline.line2.suffix}</span>}
+                    </>
+                  ) : (
+                    <span>{parsedHeadline.line2.text}</span>
+                  )}
+                </motion.div>
               </div>
             )}
           </div>
@@ -393,13 +723,16 @@ export function E3LivingHero({
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.25, ease: "easeOut" }}
-            className="text-sm sm:text-lg md:text-xl text-[var(--text-secondary)] font-normal max-w-2xl mx-auto leading-relaxed"
+            className={cn(
+              "text-sm sm:text-lg md:text-xl text-[var(--text-secondary)] font-normal max-w-2xl leading-relaxed",
+              alignmentStyles.description
+            )}
           >
             {description}
           </motion.p>
         )}
 
-        {/* Primary and Secondary Action CTAs (Enters after first word transition or 0.35s delay) */}
+        {/* Primary and Secondary Action CTAs */}
         {(primaryCta || secondaryCta) && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -409,7 +742,10 @@ export function E3LivingHero({
               delay: hasCompletedFirstCycle ? 0 : 0.4,
               ease: "easeOut"
             }}
-            className="flex flex-wrap items-center justify-center gap-3.5 sm:gap-4 pt-2 sm:pt-4"
+            className={cn(
+              "flex flex-wrap items-center gap-3.5 sm:gap-4 pt-2 sm:pt-4 w-full",
+              alignmentStyles.ctaGroup
+            )}
           >
             {primaryCta && (
               primaryCta.url ? (
