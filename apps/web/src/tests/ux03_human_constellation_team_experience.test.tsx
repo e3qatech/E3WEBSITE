@@ -285,40 +285,47 @@ describe('UX-03 — Human Constellation Team Experience', () => {
     });
   });
 
-  describe('5. Department Navigator Component', () => {
-    it('renders 6 presentation group tabs + All tab with live member counts', () => {
+  describe('5. Department Navigator Component (Search & Dropdown)', () => {
+    it('renders search input and department dropdown with live member counts', () => {
       const publicList = resolvePublicTeamList(SAMPLE_ROSTER, 'en');
       const html = renderToStaticMarkup(
         <DepartmentNavigator
           members={publicList}
-          activeGroupKey="all"
-          onSelectGroup={() => {}}
+          searchQuery=""
+          onSearchChange={() => {}}
+          selectedDepartment="all"
+          onSelectDepartment={() => {}}
+          filteredCount={publicList.length}
           locale="en"
         />
       );
 
       expect(html).toContain('data-testid="department-navigator"');
-      expect(html).toContain('data-tab-key="all"');
-      expect(html).toContain('data-tab-key="leadership"');
-      expect(html).toContain('data-tab-key="creative-marketing"');
-      expect(html).toContain('data-tab-key="technology-systems"');
+      expect(html).toContain('data-testid="team-search-input"');
+      expect(html).toContain('data-testid="department-select-dropdown"');
+      expect(html).toContain(`All Departments (${publicList.length})`);
+      expect(html).toContain('Executive (1)');
+      expect(html).toContain('Marketing (1)');
     });
 
-    it('renders Arabic labels without English leakage in Arabic mode', () => {
+    it('renders Arabic search and department dropdown without English leakage in Arabic mode', () => {
       const publicList = resolvePublicTeamList(SAMPLE_ROSTER, 'ar');
       const html = renderToStaticMarkup(
         <DepartmentNavigator
           members={publicList}
-          activeGroupKey="all"
-          onSelectGroup={() => {}}
+          searchQuery=""
+          onSearchChange={() => {}}
+          selectedDepartment="all"
+          onSelectDepartment={() => {}}
+          filteredCount={publicList.length}
           locale="ar"
         />
       );
 
-      expect(html).toContain('جميع القادة والمبدعين');
-      expect(html).toContain('القيادة والإدارة التنفيذية');
-      expect(html).toContain('الإبداع والتسويق');
-      expect(html).toContain('التكنولوجيا والأنظمة');
+      expect(html).toContain('data-testid="team-search-input"');
+      expect(html).toContain('data-testid="department-select-dropdown"');
+      expect(html).toContain('جميع الأقسام');
+      expect(html).toContain('الإدارة التنفيذية');
     });
   });
 

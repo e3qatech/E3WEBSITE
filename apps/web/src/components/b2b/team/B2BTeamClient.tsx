@@ -19,13 +19,36 @@ export function B2BTeamClient({
   cmsContent = {},
 }: B2BTeamClientProps) {
   const isAr = locale === "ar";
-  const [activeGroupKey, setActiveGroupKey] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
 
-  // Filter members by presentation group
-  const filteredMembers =
-    activeGroupKey === "all"
-      ? members
-      : members.filter((m) => (m.presentationGroupKey || "events-production") === activeGroupKey);
+  // Filter members by department and search query
+  const filteredMembers = members.filter((member) => {
+    // 1. Department matching
+    const matchesDept =
+      selectedDepartment === "all" ||
+      member.department === selectedDepartment ||
+      member.departmentKey === selectedDepartment ||
+      member.presentationGroupKey === selectedDepartment;
+
+    if (!matchesDept) return false;
+
+    // 2. Search query matching (name, designation, department, expertise tags)
+    if (!searchQuery.trim()) return true;
+
+    const q = searchQuery.toLowerCase().trim();
+    const nameMatch =
+      member.name?.toLowerCase().includes(q) ||
+      member.nameEn?.toLowerCase().includes(q) ||
+      member.nameAr?.includes(q);
+    const designationMatch = member.designation?.toLowerCase().includes(q);
+    const departmentMatch = member.department?.toLowerCase().includes(q);
+    const expertiseMatch =
+      Array.isArray(member.expertiseTags) &&
+      member.expertiseTags.some((tag: string) => typeof tag === "string" && tag.toLowerCase().includes(q));
+
+    return Boolean(nameMatch || designationMatch || departmentMatch || expertiseMatch);
+  });
 
   // Extract featured members for Constellation Hero (5 max) and Story Carousel
   const featuredMembers = members.filter((m) => m.isFeatured);
@@ -54,11 +77,14 @@ export function B2BTeamClient({
         animationSpeed={cmsContent.animationSpeed || 2800}
       />
 
-      {/* 2. Department Navigator (Sticky Filter Rail) */}
+      {/* 2. Department Navigator (Compact Search Bar & Department Dropdown) */}
       <DepartmentNavigator
         members={members}
-        activeGroupKey={activeGroupKey}
-        onSelectGroup={setActiveGroupKey}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedDepartment={selectedDepartment}
+        onSelectDepartment={setSelectedDepartment}
+        filteredCount={filteredMembers.length}
         locale={locale}
       />
 

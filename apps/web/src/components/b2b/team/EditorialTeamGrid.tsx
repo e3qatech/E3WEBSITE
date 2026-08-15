@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SafePublicTeamMember } from "@/lib/team/team-resolver";
 
 function LinkedinIcon({ className }: { className?: string }) {
@@ -89,14 +89,6 @@ export function EditorialTeamGrid({
                     </div>
                   )}
 
-                  {/* Top Badge: Department / Leadership */}
-                  <div className="absolute top-4 start-4 z-20 pointer-events-none flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-slate-950/70 backdrop-blur-md text-white border border-white/10 shadow-sm flex items-center gap-1.5">
-                      {member.isFeatured && <Sparkles className="w-3 h-3 text-cyan-400" />}
-                      <span>{member.presentationGroup || member.department}</span>
-                    </span>
-                  </div>
-
                   {/* Top-End Actions: LinkedIn (if available) */}
                   {member.linkedinUrl && (
                     <div className="absolute top-4 end-4 z-30 pointer-events-auto">
@@ -113,15 +105,8 @@ export function EditorialTeamGrid({
                     </div>
                   )}
 
-                  {/* Gradient Scrim & Information Layer (Always Visible identity + reveal tagline) */}
+                  {/* Gradient Scrim & Information Layer (Clean: Name, Designation & Action Bar) */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-end p-6 md:p-7 z-20 pointer-events-none">
-                    {/* Tagline snippet (shown cleanly without flip) */}
-                    {member.tagline && (
-                      <p className="text-xs md:text-sm font-medium text-cyan-300 dark:text-cyan-400 line-clamp-1 mb-2 tracking-wide opacity-90 group-hover:opacity-100 transition-opacity">
-                        &ldquo;{member.tagline}&rdquo;
-                      </p>
-                    )}
-
                     {/* Always-Visible Name */}
                     <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug mb-1 group-hover:text-cyan-200 transition-colors">
                       {member.name}
