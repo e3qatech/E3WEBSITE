@@ -25,7 +25,15 @@ import {
   Film,
   Ticket,
   CheckCircle2,
+  Image as ImageIcon,
+  Box,
+  Globe,
+  Play,
+  Radio,
+  Send,
+  ShieldCheck,
 } from "lucide-react";
+import { UniversalMediaRenderer, UniversalMediaType } from "@/components/shared/UniversalMediaRenderer";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import {
   DEFAULT_B2C_LANDING_CONTENT,
@@ -111,7 +119,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       },
       {
         id: "footer-cta",
-        label: isAr ? "٨. خاتمة الصفحة" : "8. Footer Framing",
+        label: isAr ? "٨. خاتمة الصفحة ووسائط الفوتر" : "8. Footer Framing & Universal Media",
         icon: <Layers className="w-3.5 h-3.5" />,
       },
     ],
@@ -327,6 +335,11 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
       const currentHero = content.hero || {};
       const currentCta = content.cta || {};
       const currentFooterMedia = content.footerMedia || {};
+      const footerMediaUrl = currentFooterMedia.mediaUrl || currentFooterMedia.backgroundImage || currentCta.mediaUrl || currentCta.backgroundImage || content.footerMediaUrl || content.footerBackgroundMediaUrl || "";
+      const footerMediaType = currentFooterMedia.mediaType || currentCta.mediaType || content.footerMediaType || "IMAGE";
+      const footerPosterUrl = currentFooterMedia.posterMediaUrl || currentFooterMedia.posterUrl || currentCta.posterMediaUrl || content.footerPosterUrl || "";
+      const footerDescEn = content.footerDescriptionEn || currentFooterMedia.descriptionEn || "";
+      const footerDescAr = content.footerDescriptionAr || currentFooterMedia.descriptionAr || "";
 
       const payload = {
         content: {
@@ -392,21 +405,36 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
             buttonLabelEn: currentCta.buttonLabelEn || "",
             buttonLabelAr: currentCta.buttonLabelAr || "",
             buttonUrl: currentCta.buttonUrl || "",
-            backgroundImage: currentCta.backgroundImage || currentFooterMedia.mediaUrl || "",
-            mediaUrl: currentCta.backgroundImage || currentFooterMedia.mediaUrl || "",
+            backgroundImage: footerMediaUrl,
+            mediaUrl: footerMediaUrl,
+            mediaType: footerMediaType,
+            posterMediaUrl: footerPosterUrl,
           },
           footerMedia: {
             ...currentFooterMedia,
-            backgroundImage: currentCta.backgroundImage || currentFooterMedia.mediaUrl || "",
-            mediaUrl: currentCta.backgroundImage || currentFooterMedia.mediaUrl || "",
+            backgroundImage: footerMediaUrl,
+            mediaUrl: footerMediaUrl,
+            mediaType: footerMediaType,
+            posterMediaUrl: footerPosterUrl,
+            posterUrl: footerPosterUrl,
+            descriptionEn: footerDescEn,
+            descriptionAr: footerDescAr,
           },
+          footerMediaUrl: footerMediaUrl,
+          footerMediaType: footerMediaType,
+          footerPosterUrl: footerPosterUrl,
+          footerBackgroundMediaUrl: footerMediaUrl,
+          footerBackgroundMediaType: footerMediaType,
+          footerBackgroundPosterUrl: footerPosterUrl,
+          footerDescriptionEn: footerDescEn,
+          footerDescriptionAr: footerDescAr,
           act7Ticket: {
             ...(content.act7Ticket || {}),
             headlineEn: currentCta.titleEn || content.act7Ticket?.headlineEn || "",
             headlineAr: currentCta.titleAr || content.act7Ticket?.headlineAr || "",
             subtextEn: currentCta.subtitleEn || content.act7Ticket?.subtextEn || "",
             subtextAr: currentCta.subtitleAr || content.act7Ticket?.subtextAr || "",
-            backgroundImage: currentCta.backgroundImage || content.act7Ticket?.backgroundImage || "",
+            backgroundImage: footerMediaUrl || content.act7Ticket?.backgroundImage || "",
           },
         },
       };
@@ -461,7 +489,12 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
   const guestMemoriesInfo = content.guestMemories || DEFAULT_B2C_LANDING_CONTENT.guestMemories;
   const momentsCount = Array.isArray(guestMemoriesInfo.moments) ? guestMemoriesInfo.moments.length : 0;
   const ctaData = content.cta || {};
-  const footerBgMedia = ctaData.backgroundImage || content.footerMedia?.mediaUrl || "";
+  const footerMedia = content.footerMedia || {};
+  const footerBgMedia = footerMedia.mediaUrl || footerMedia.backgroundImage || ctaData.mediaUrl || ctaData.backgroundImage || content.footerMediaUrl || content.footerBackgroundMediaUrl || "";
+  const footerMediaType = (footerMedia.mediaType || ctaData.mediaType || content.footerMediaType || "IMAGE").toUpperCase();
+  const footerPosterMedia = footerMedia.posterMediaUrl || footerMedia.posterUrl || ctaData.posterMediaUrl || content.footerPosterUrl || "";
+  const footerDescEn = content.footerDescriptionEn || footerMedia.descriptionEn || "";
+  const footerDescAr = content.footerDescriptionAr || footerMedia.descriptionAr || "";
 
   const activeCount = sequence.filter(
     (s: any) => s.enabled !== false && s.isVisible !== false
@@ -1280,128 +1313,508 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         </DashboardSectionCard>
       )}
 
-      {/* 8. FOOTER FRAMING & MEDIA */}
+      {/* 8. FOOTER FRAMING & UNIVERSAL MEDIA */}
       {activeSectionId === "footer-cta" && (
         <DashboardSectionCard
-          title={isAr ? "خاتمة الصفحة ووسائط الفوتر" : "Footer Framing, Media & Final Call to Action"}
+          title={isAr ? "خاتمة الصفحة ووسائط الفوتر الشامل" : "Footer Framing, Universal Media & Final Call to Action"}
           description={
             isAr
-              ? "العنوان، نص الدعوة للحجز، صورة/فيديو الخلفية التفاعلي للفوتر، ورابط التذاكر."
-              : "Final booking conversion headline, button destination, and atmospheric footer backdrop media."
+              ? "العنوان، نص الدعوة للحجز، وسائط خلفية الفوتر لجميع أنواع الميديا (فيديو، صور، 3D، يوتيوب)، ووصف الفوتر الشامل."
+              : "Configure final booking conversion headline, universal multi-type footer backdrop media (video, 3D, image, embed), and global footer bio."
           }
           icon={<Layers className="w-5 h-5 text-[var(--color-primary)]" />}
+          badge={
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20">
+              {footerMediaType}
+            </span>
+          }
         >
-          <DashboardBilingualField
-            label={isAr ? "عنوان الدعوة للتفاعل" : "CTA Headline"}
-            valueEn={content.cta?.titleEn || "Step into the stories"}
-            valueAr={content.cta?.titleAr || "ادخل إلى عالم الحكايات"}
-            onChangeEn={(val) =>
-              updateContent((p) => ({
-                ...p,
-                cta: { ...p.cta, titleEn: val },
-                act7Ticket: { ...p.act7Ticket, headlineEn: val },
-              }))
-            }
-            onChangeAr={(val) =>
-              updateContent((p) => ({
-                ...p,
-                cta: { ...p.cta, titleAr: val },
-                act7Ticket: { ...p.act7Ticket, headlineAr: val },
-              }))
-            }
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label={isAr ? "نص الزر" : "CTA Button Label"}
-            valueEn={content.cta?.buttonLabelEn || "EXPLORE TICKETS & PASSES"}
-            valueAr={content.cta?.buttonLabelAr || "استكشف التذاكر والباقات"}
-            onChangeEn={(val) =>
-              updateContent((p) => ({
-                ...p,
-                cta: { ...p.cta, buttonLabelEn: val },
-                act7Ticket: { ...p.act7Ticket, primaryCtaEn: val },
-              }))
-            }
-            onChangeAr={(val) =>
-              updateContent((p) => ({
-                ...p,
-                cta: { ...p.cta, buttonLabelAr: val },
-                act7Ticket: { ...p.act7Ticket, primaryCtaAr: val },
-              }))
-            }
-            mode={languageMode}
-          />
-
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-              {isAr ? "رابط زر الخاتمة" : "CTA Button Destination URL"}
-            </label>
-            <input
-              type="text"
-              value={content.cta?.buttonUrl || "/{locale}/b2c/tickets"}
-              onChange={(e) =>
-                updateContent((p) => ({
-                  ...p,
-                  cta: { ...p.cta, buttonUrl: e.target.value },
-                }))
-              }
-              className="w-full h-10 px-3.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-            />
-          </div>
-
-          {/* Footer Background Media Upload (NEW FEATURE) */}
-          <div className="space-y-3 pt-4 border-t border-[var(--border-level-1)]">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-                {isAr ? "صورة / وسائط خلفية الفوتر (Footer Background Media)" : "Footer Atmospheric Background Media"}
-              </label>
-              <p className="text-[11px] text-[var(--text-tertiary)] mb-3">
-                {isAr
-                  ? "ارفع صورة خلفية أو نقش جمالي يظهر خلف بطاقة التذكرة الرقمية في أسفل الصفحة."
-                  : "Upload a decorative background image or event visual displayed behind the Digital Portal Pass."}
-              </p>
+          {/* Sub-section 1: Booking CTA Pass */}
+          <div className="space-y-4 pb-6 border-b border-[var(--border-level-1)]">
+            <div className="flex items-center gap-2">
+              <Ticket className="w-4 h-4 text-emerald-400" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                {isAr ? "١. بطاقة الحجز والدعوة للتفاعل (Digital Portal Pass)" : "1. Final Booking Call to Action (Digital Portal Pass)"}
+              </h4>
             </div>
 
-            <MediaUploader
-              value={footerBgMedia}
-              onChange={(url) =>
+            <DashboardBilingualField
+              label={isAr ? "عنوان الدعوة للتفاعل" : "CTA Headline"}
+              valueEn={content.cta?.titleEn || "Step into the stories"}
+              valueAr={content.cta?.titleAr || "ادخل إلى عالم الحكايات"}
+              onChangeEn={(val) =>
                 updateContent((p) => ({
                   ...p,
-                  cta: { ...p.cta, backgroundImage: url, mediaUrl: url },
-                  footerMedia: { ...p.footerMedia, backgroundImage: url, mediaUrl: url },
-                  act7Ticket: { ...p.act7Ticket, backgroundImage: url },
+                  cta: { ...p.cta, titleEn: val },
+                  act7Ticket: { ...p.act7Ticket, headlineEn: val },
                 }))
               }
-              accept="image/*,video/*"
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  cta: { ...p.cta, titleAr: val },
+                  act7Ticket: { ...p.act7Ticket, headlineAr: val },
+                }))
+              }
+              mode={languageMode}
+            />
+
+            <DashboardBilingualField
+              label={isAr ? "نص الزر" : "CTA Button Label"}
+              valueEn={content.cta?.buttonLabelEn || "EXPLORE TICKETS & PASSES"}
+              valueAr={content.cta?.buttonLabelAr || "استكشف التذاكر والباقات"}
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  cta: { ...p.cta, buttonLabelEn: val },
+                  act7Ticket: { ...p.act7Ticket, primaryCtaEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  cta: { ...p.cta, buttonLabelAr: val },
+                  act7Ticket: { ...p.act7Ticket, primaryCtaAr: val },
+                }))
+              }
+              mode={languageMode}
+            />
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                {isAr ? "رابط زر الخاتمة" : "CTA Button Destination URL"}
+              </label>
+              <input
+                type="text"
+                value={content.cta?.buttonUrl || "/{locale}/b2c/tickets"}
+                onChange={(e) =>
+                  updateContent((p) => ({
+                    ...p,
+                    cta: { ...p.cta, buttonUrl: e.target.value },
+                  }))
+                }
+                className="w-full h-10 px-3.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+          </div>
+
+          {/* Sub-section 2: Universal Brand Footer Bio */}
+          <div className="space-y-4 pt-2 pb-6 border-b border-[var(--border-level-1)]">
+            <div className="flex items-center gap-2">
+              <Quote className="w-4 h-4 text-purple-400" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                {isAr ? "٢. وصف وخلاصة العلامة في الفوتر الشامل" : "2. Universal Brand Footer Description"}
+              </h4>
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)] -mt-2">
+              {isAr
+                ? "يتم عرض هذا النص في العمود الأول للفوتر عبر جميع صفحات B2C تحت شعار إي ثري قطر."
+                : "Displayed under the brand logo in the first column of the universal footer across all public B2C pages."}
+            </p>
+
+            <DashboardBilingualField
+              label={isAr ? "وصف الفوتر الشامل" : "Universal Footer Brand Bio"}
+              type="textarea"
+              rows={3}
+              valueEn={footerDescEn || "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation."}
+              valueAr={footerDescAr || "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار."}
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  footerDescriptionEn: val,
+                  footerMedia: { ...p.footerMedia, descriptionEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  footerDescriptionAr: val,
+                  footerMedia: { ...p.footerMedia, descriptionAr: val },
+                }))
+              }
+              placeholderEn="Enter universal footer brand statement..."
+              placeholderAr="أدخل بيان وهوية العلامة في الفوتر..."
+              mode={languageMode}
             />
           </div>
 
-          {/* Footer Preview Card */}
-          <div className="p-5 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
-              <Ticket className="w-4 h-4 text-emerald-400" />
-              <span>{isAr ? "معاينة بطاقة التذكرة وخاتمة الفوتر" : "Footer Pass Live Preview"}</span>
-            </span>
-
-            <div className="relative rounded-2xl overflow-hidden border border-emerald-500/20 bg-zinc-950 p-6 text-center space-y-3">
-              {footerBgMedia && (
-                <div className="absolute inset-0 pointer-events-none opacity-20">
-                  <img src={footerBgMedia} alt="Footer BG" className="w-full h-full object-cover" />
-                </div>
-              )}
-              <div className="relative z-10 space-y-2">
-                <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {isAr ? "بوابة الخيال إلى الذاكرة" : "DIGITAL PORTAL PASS"}
-                </span>
-                <h4 className="text-lg font-black text-white">
-                  {isAr ? content.cta?.titleAr || "ادخل إلى عالم الحكايات" : content.cta?.titleEn || "Step into the stories"}
+          {/* Sub-section 3: Universal Footer Atmospheric Media Studio */}
+          <div className="space-y-5 pt-2 pb-6 border-b border-[var(--border-level-1)]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Film className="w-4 h-4 text-sky-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  {isAr ? "٣. محرك وسائط خلفية الفوتر الشامل (Universal Media Studio)" : "3. Universal Footer Atmospheric Media Studio"}
                 </h4>
-                <div className="pt-2">
-                  <span className="inline-block px-6 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs">
-                    {isAr ? content.cta?.buttonLabelAr || "استكشف التذاكر والباقات" : content.cta?.buttonLabelEn || "EXPLORE TICKETS & PASSES"}
-                  </span>
+              </div>
+              <span className="text-[11px] font-mono text-[var(--text-tertiary)]">
+                {isAr ? "يدعم كافة التنسيقات" : "Supports All Formats"}
+              </span>
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)] -mt-2">
+              {isAr
+                ? "اختر نوع الوسائط وارفع ملف الفيديو أو الصورة أو مشهد 3D التفاعلي الذي سيظهر في خلفية الفوتر الشامل عبر الموقع."
+                : "Choose media format and provide stream URL, Spline 3D scene, or upload high-res video/visuals for the universal footer backdrop."}
+            </p>
+
+            {/* Media Type Selector Grid */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                {isAr ? "نوع وسائط الفوتر" : "Footer Media Format"}
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                {[
+                  { id: "IMAGE", label: isAr ? "صورة ثابتة" : "Image", icon: <ImageIcon className="w-4 h-4" />, desc: "WEBP / JPG / PNG / GIF" },
+                  { id: "VIDEO", label: isAr ? "فيديو مباشر" : "Video", icon: <Video className="w-4 h-4" />, desc: "MP4 / WEBM Direct" },
+                  { id: "YOUTUBE", label: isAr ? "يوتيوب" : "YouTube", icon: <Play className="w-4 h-4" />, desc: "Stream Link / Embed" },
+                  { id: "VIMEO", label: isAr ? "فيميو" : "Vimeo", icon: <Radio className="w-4 h-4" />, desc: "Vimeo Player Link" },
+                  { id: "THREE_D", label: isAr ? "مشهد 3D" : "3D / Spline", icon: <Box className="w-4 h-4" />, desc: "Spline Scene / 3D Canvas" },
+                  { id: "IFRAME", label: isAr ? "تضمين مخصص" : "Iframe Embed", icon: <Globe className="w-4 h-4" />, desc: "Interactive Frame / Code" },
+                ].map((typeOption) => {
+                  const isSelected = footerMediaType === typeOption.id;
+                  return (
+                    <button
+                      key={typeOption.id}
+                      type="button"
+                      onClick={() =>
+                        updateContent((p) => ({
+                          ...p,
+                          footerMediaType: typeOption.id,
+                          footerBackgroundMediaType: typeOption.id,
+                          footerMedia: { ...p.footerMedia, mediaType: typeOption.id },
+                          cta: { ...p.cta, mediaType: typeOption.id },
+                        }))
+                      }
+                      className={cn(
+                        "p-3 rounded-xl border text-start transition-all flex flex-col justify-between gap-1.5 cursor-pointer select-none",
+                        isSelected
+                          ? "border-[var(--color-primary)] bg-[var(--surface-selected)] text-[var(--color-primary)] shadow-sm ring-1 ring-[var(--color-primary)]/30"
+                          : "border-[var(--border-level-1)] bg-[var(--surface-default)] text-[var(--text-secondary)] hover:border-[var(--color-primary)]/40 hover:bg-[var(--surface-hover)]"
+                      )}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className={isSelected ? "text-[var(--color-primary)]" : "text-[var(--text-tertiary)]"}>
+                          {typeOption.icon}
+                        </span>
+                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-primary)]" />}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-[var(--text-primary)]">{typeOption.label}</div>
+                        <div className="text-[10px] text-[var(--text-tertiary)] leading-tight">{typeOption.desc}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Media URL Input & Direct Uploader */}
+            <div className="space-y-3 pt-2">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  {isAr ? "رابط / مسار وسائط الفوتر" : "Footer Media URL or Stream Source"}
+                </label>
+                <input
+                  type="text"
+                  value={footerBgMedia}
+                  placeholder={
+                    footerMediaType === "VIDEO"
+                      ? "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-in-motion-42589-large.mp4"
+                      : footerMediaType === "YOUTUBE"
+                      ? "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                      : footerMediaType === "VIMEO"
+                      ? "https://vimeo.com/123456789"
+                      : footerMediaType === "THREE_D"
+                      ? "https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
+                      : "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop"
+                  }
+                  onChange={(e) =>
+                    updateContent((p) => ({
+                      ...p,
+                      footerMediaUrl: e.target.value,
+                      footerBackgroundMediaUrl: e.target.value,
+                      footerMedia: { ...p.footerMedia, mediaUrl: e.target.value, backgroundImage: e.target.value },
+                      cta: { ...p.cta, mediaUrl: e.target.value, backgroundImage: e.target.value },
+                      act7Ticket: { ...p.act7Ticket, backgroundImage: e.target.value },
+                    }))
+                  }
+                  className="w-full h-10 px-3.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+
+              {/* Direct File Upload Component */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  {isAr ? "رفع ملف وسائط الفوتر مباشرة" : "Direct Media Upload (Image / Video)"}
+                </label>
+                <MediaUploader
+                  value={footerBgMedia}
+                  onChange={(url) =>
+                    updateContent((p) => {
+                      const detectedType = url.endsWith('.mp4') || url.endsWith('.webm') ? 'VIDEO' : 'IMAGE';
+                      return {
+                        ...p,
+                        footerMediaUrl: url,
+                        footerBackgroundMediaUrl: url,
+                        footerMediaType: detectedType,
+                        footerBackgroundMediaType: detectedType,
+                        footerMedia: { ...p.footerMedia, mediaUrl: url, backgroundImage: url, mediaType: detectedType },
+                        cta: { ...p.cta, mediaUrl: url, backgroundImage: url, mediaType: detectedType },
+                        act7Ticket: { ...p.act7Ticket, backgroundImage: url },
+                      };
+                    })
+                  }
+                  accept="image/*,video/*"
+                />
+              </div>
+            </div>
+
+            {/* Mobile Fallback & Preload Poster Image */}
+            <div className="space-y-3 pt-2">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                  {isAr ? "صورة البوستر البديلة (Mobile Poster / Preload Fallback)" : "Mobile Poster / Preload Fallback Image"}
+                </label>
+                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">
+                  {isAr
+                    ? "صورة عالية الجودة تُعرض كخلفية بديلة أثناء تحميل الفيديو أو على الهواتف منخفضة النطاق الترددي."
+                    : "High-performance fallback poster image displayed while video/3D buffers or on low-bandwidth mobile devices."}
+                </p>
+                <input
+                  type="text"
+                  value={footerPosterMedia}
+                  placeholder="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop"
+                  onChange={(e) =>
+                    updateContent((p) => ({
+                      ...p,
+                      footerPosterUrl: e.target.value,
+                      footerBackgroundPosterUrl: e.target.value,
+                      footerMedia: { ...p.footerMedia, posterMediaUrl: e.target.value, posterUrl: e.target.value },
+                      cta: { ...p.cta, posterMediaUrl: e.target.value },
+                    }))
+                  }
+                  className="w-full h-10 px-3.5 bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-xs font-mono font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] mb-2"
+                />
+                <MediaUploader
+                  value={footerPosterMedia}
+                  onChange={(url) =>
+                    updateContent((p) => ({
+                      ...p,
+                      footerPosterUrl: url,
+                      footerBackgroundPosterUrl: url,
+                      footerMedia: { ...p.footerMedia, posterMediaUrl: url, posterUrl: url },
+                      cta: { ...p.cta, posterMediaUrl: url },
+                    }))
+                  }
+                  accept="image/*"
+                />
+              </div>
+            </div>
+
+            {/* Quick Atmospheric Visual Presets */}
+            <div className="pt-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+                {isAr ? "نماذج جاهزة وسريعة للتطبيق (Atmospheric Presets)" : "Quick Atmospheric Visual Presets"}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  {
+                    name: isAr ? "🌌 مهرجان ليلي متوهج" : "🌌 Ambient Night",
+                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
+                    poster: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+                    type: "IMAGE"
+                  },
+                  {
+                    name: isAr ? "🌃 أفق الدوحة وليالي قطر" : "🌃 Qatar Skyline",
+                    url: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=2000&auto=format&fit=crop",
+                    poster: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop",
+                    type: "IMAGE"
+                  },
+                  {
+                    name: isAr ? "⚡ أشعة ليزر حركية" : "⚡ Kinetic Lasers",
+                    url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2000&auto=format&fit=crop",
+                    poster: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+                    type: "IMAGE"
+                  },
+                  {
+                    name: isAr ? "🌀 حلقة فيديو ليزرية" : "🌀 Flow Video Loop",
+                    url: "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-in-motion-42589-large.mp4",
+                    poster: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+                    type: "VIDEO"
+                  },
+                  {
+                    name: isAr ? "🪐 مشهد Spline 3D" : "🪐 Spline 3D Scene",
+                    url: "https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode",
+                    poster: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+                    type: "THREE_D"
+                  }
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() =>
+                      updateContent((p) => ({
+                        ...p,
+                        footerMediaUrl: preset.url,
+                        footerBackgroundMediaUrl: preset.url,
+                        footerMediaType: preset.type,
+                        footerBackgroundMediaType: preset.type,
+                        footerPosterUrl: preset.poster,
+                        footerBackgroundPosterUrl: preset.poster,
+                        footerMedia: {
+                          ...p.footerMedia,
+                          mediaUrl: preset.url,
+                          backgroundImage: preset.url,
+                          mediaType: preset.type,
+                          posterMediaUrl: preset.poster,
+                          posterUrl: preset.poster,
+                        },
+                        cta: {
+                          ...p.cta,
+                          mediaUrl: preset.url,
+                          backgroundImage: preset.url,
+                          mediaType: preset.type,
+                          posterMediaUrl: preset.poster,
+                        },
+                        act7Ticket: { ...p.act7Ticket, backgroundImage: preset.url },
+                      }))
+                    }
+                    className="px-3 py-1.5 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer shadow-2xs"
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sub-section 4: Live Universal Footer Interactive Preview */}
+          <div className="p-5 sm:p-6 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
+                <Ticket className="w-4 h-4 text-emerald-400" />
+                <span>{isAr ? "معاينة الفوتر الشامل التفاعلي (Live Universal Footer)" : "Universal Footer Live Interactive Preview"}</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                  {footerMediaType}
+                </span>
+                <span className="text-[10px] text-[var(--text-tertiary)]">
+                  {isAr ? "مباشر وتفاعلي" : "Active Scrim & Layering"}
+                </span>
+              </div>
+            </div>
+
+            {/* Simulated Public Universal Footer Container */}
+            <div className="relative rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-default)] text-center shadow-lg">
+              
+              {/* Full-Bleed Live Media Backdrop */}
+              {footerBgMedia ? (
+                <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+                  <UniversalMediaRenderer
+                    src={footerBgMedia}
+                    type={(footerMediaType as UniversalMediaType) || "IMAGE"}
+                    alt="Footer Live Backdrop"
+                    className="w-full h-full object-cover"
+                    poster={footerPosterMedia}
+                    autoPlay={true}
+                    loop={true}
+                    muted={true}
+                  />
+                  {/* Legibility Gradient Scrim */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface-default)]/90 via-[var(--surface-default)]/85 to-[var(--surface-default)]/95 z-[1] pointer-events-none" />
                 </div>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/90 via-zinc-900/80 to-zinc-950 z-0" />
+              )}
+
+              <div className="relative z-10 p-6 sm:p-8 space-y-8">
+                
+                {/* Floating Digital Portal Pass Card */}
+                <div className="max-w-md mx-auto p-6 rounded-2xl border border-emerald-500/30 bg-black/40 backdrop-blur-md text-center space-y-3 shadow-xl">
+                  <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    {isAr ? "بوابة الخيال إلى الذاكرة" : "DIGITAL PORTAL PASS"}
+                  </span>
+                  <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                    {isAr ? content.cta?.titleAr || "ادخل إلى عالم الحكايات" : content.cta?.titleEn || "Step into the stories"}
+                  </h4>
+                  <div className="pt-2">
+                    <span className="inline-block px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs shadow-md">
+                      {isAr ? content.cta?.buttonLabelAr || "استكشف التذاكر والباقات" : content.cta?.buttonLabelEn || "EXPLORE TICKETS & PASSES"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Simulated 4-Column Footer Strip */}
+                <div className="pt-6 border-t border-[var(--border-level-1)] grid grid-cols-1 md:grid-cols-4 gap-6 text-start text-xs">
+                  {/* Col 1: Brand Logo & Bio */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-bold text-xs font-mono">
+                        E3
+                      </div>
+                      <span className="font-extrabold text-[var(--text-primary)]">
+                        {isAr ? "إي ثري قطر" : "E3 Qatar"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                      {isAr
+                        ? footerDescAr || "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار."
+                        : footerDescEn || "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation."}
+                    </p>
+                  </div>
+
+                  {/* Col 2: Quick Links */}
+                  <div className="space-y-2">
+                    <span className="font-bold text-[var(--text-primary)] uppercase text-[10px] tracking-wider">
+                      {isAr ? "روابط سريعة" : "Quick Links"}
+                    </span>
+                    <ul className="space-y-1 text-[11px] text-[var(--text-secondary)]">
+                      <li>• {isAr ? "الفعاليات" : "Events & Calendar"}</li>
+                      <li>• {isAr ? "الوجهات الترفيهية" : "Attractions & Worlds"}</li>
+                      <li>• {isAr ? "الباقات والأسعار" : "Packages & Passes"}</li>
+                    </ul>
+                  </div>
+
+                  {/* Col 3: Contact */}
+                  <div className="space-y-2">
+                    <span className="font-bold text-[var(--text-primary)] uppercase text-[10px] tracking-wider">
+                      {isAr ? "التواصل والمقر" : "Contact"}
+                    </span>
+                    <p className="text-[11px] text-[var(--text-secondary)]">
+                      Doha, State of Qatar<br />
+                      contact@e3.qa • +974 4400 0000
+                    </p>
+                  </div>
+
+                  {/* Col 4: Newsletter */}
+                  <div className="space-y-2">
+                    <span className="font-bold text-[var(--text-primary)] uppercase text-[10px] tracking-wider">
+                      {isAr ? "النشرة البريدية" : "Newsletter"}
+                    </span>
+                    <div className="flex items-center gap-1.5 p-1 bg-[var(--surface-active)] border border-[var(--border-level-2)] rounded-lg">
+                      <input
+                        type="text"
+                        disabled
+                        placeholder={isAr ? "بريدك الإلكتروني..." : "Enter your email..."}
+                        className="w-full bg-transparent px-2 text-[11px] text-[var(--text-secondary)] outline-none"
+                      />
+                      <div className="p-1 rounded bg-[var(--color-primary)] text-white">
+                        <Send className="w-3 h-3" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Simulated Bottom Bar */}
+                <div className="pt-4 border-t border-[var(--border-level-1)] flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-[var(--text-tertiary)]">
+                  <span>© {new Date().getFullYear()} E3 Qatar. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                    <ShieldCheck className="w-3 h-3" />
+                    <span>{isAr ? "متوافق مع قانون حماية البيانات الشخصية القطري (PDPL)" : "Qatar PDPL Compliant"}</span>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>

@@ -76,34 +76,41 @@ export default async function B2CLayout({
   const packagesContent = getMergedCMSPageContent("b2c-packages", pageContentMap["b2c-packages"]);
 
   const activeFooterMedia = 
+    landingContent?.footerMedia?.mediaUrl || landingContent?.footerMediaUrl || landingContent?.footerBackgroundMediaUrl || landingContent?.footerMedia?.backgroundImage || landingContent?.cta?.backgroundImage || landingContent?.cta?.mediaUrl ||
     discoverContent?.footerMediaUrl || discoverContent?.footer?.backgroundMediaUrl ||
     attractionsContent?.footerMedia?.mediaUrl ||
     calendarContent?.footerMedia?.mediaUrl ||
     packagesContent?.footerMedia?.mediaUrl ||
-    landingContent?.footerMedia?.mediaUrl ||
     settingsMap.footerMediaUrl || settingsMap.footerBackgroundMediaUrl;
 
   const activeFooterMediaType = 
+    landingContent?.footerMedia?.mediaType || landingContent?.footerMediaType || landingContent?.footerBackgroundMediaType || landingContent?.cta?.mediaType ||
     discoverContent?.footerMediaType || discoverContent?.footer?.backgroundMediaType ||
     attractionsContent?.footerMedia?.mediaType ||
     calendarContent?.footerMedia?.mediaType ||
     packagesContent?.footerMedia?.mediaType ||
-    landingContent?.footerMedia?.mediaType ||
     settingsMap.footerMediaType || settingsMap.footerBackgroundMediaType || "IMAGE";
 
   const activeFooterPosterUrl = 
+    landingContent?.footerMedia?.posterMediaUrl || landingContent?.footerPosterUrl || landingContent?.footerBackgroundPosterUrl || landingContent?.footerMedia?.posterUrl || landingContent?.cta?.posterMediaUrl ||
     discoverContent?.footerPosterUrl || discoverContent?.footer?.backgroundPosterUrl ||
     attractionsContent?.footerMedia?.posterMediaUrl ||
     calendarContent?.footerMedia?.posterMediaUrl ||
     packagesContent?.footerMedia?.posterMediaUrl ||
-    landingContent?.footerMedia?.posterMediaUrl ||
     settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl;
+
+  const activeFooterDescriptionEn = 
+    landingContent?.footerDescriptionEn || landingContent?.footerMedia?.descriptionEn || settingsMap.footerDescriptionEn;
+  const activeFooterDescriptionAr = 
+    landingContent?.footerDescriptionAr || landingContent?.footerMedia?.descriptionAr || settingsMap.footerDescriptionAr;
 
   const mergedFooterSettings = resolvePublicSiteSettings({
     ...settingsMap,
-    footerMediaUrl: activeFooterMedia,
-    footerMediaType: activeFooterMediaType,
-    footerPosterUrl: activeFooterPosterUrl
+    ...(activeFooterMedia ? { footerMediaUrl: activeFooterMedia } : {}),
+    ...(activeFooterMediaType ? { footerMediaType: activeFooterMediaType } : {}),
+    ...(activeFooterPosterUrl ? { footerPosterUrl: activeFooterPosterUrl } : {}),
+    ...(activeFooterDescriptionEn ? { footerDescriptionEn: activeFooterDescriptionEn } : {}),
+    ...(activeFooterDescriptionAr ? { footerDescriptionAr: activeFooterDescriptionAr } : {}),
   });
 
   const orbitData = getMergedCMSPageContent("b2c-pulse-orbit", orbitPage?.content);

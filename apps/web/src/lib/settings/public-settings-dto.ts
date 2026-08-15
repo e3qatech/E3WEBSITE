@@ -36,6 +36,8 @@ export interface PublicSiteSettings {
   footerBackgroundMediaUrl?: string;
   footerBackgroundMediaType?: string;
   footerBackgroundPosterUrl?: string;
+  footerDescriptionEn?: string;
+  footerDescriptionAr?: string;
   googleAnalyticsId?: string;
   tagManagerId?: string;
   metaTitleEn?: string;
@@ -91,6 +93,8 @@ export const PUBLIC_SETTINGS_KEYS = new Set<string>([
   'footerBackgroundMediaUrl',
   'footerBackgroundMediaType',
   'footerBackgroundPosterUrl',
+  'footerDescriptionEn',
+  'footerDescriptionAr',
   'googleAnalyticsId',
   'tagManagerId',
   'metaTitleEn',
@@ -304,6 +308,8 @@ export function resolvePublicSiteSettings(
     ...(map.footerBackgroundMediaUrl ? { footerBackgroundMediaUrl: String(map.footerBackgroundMediaUrl) } : {}),
     ...(map.footerBackgroundMediaType ? { footerBackgroundMediaType: String(map.footerBackgroundMediaType) } : {}),
     ...(map.footerBackgroundPosterUrl ? { footerBackgroundPosterUrl: String(map.footerBackgroundPosterUrl) } : {}),
+    ...(map.footerDescriptionEn ? { footerDescriptionEn: String(map.footerDescriptionEn) } : {}),
+    ...(map.footerDescriptionAr ? { footerDescriptionAr: String(map.footerDescriptionAr) } : {}),
     ...(map.googleAnalyticsId ? { googleAnalyticsId: String(map.googleAnalyticsId) } : {}),
     ...(map.tagManagerId ? { tagManagerId: String(map.tagManagerId) } : {}),
     ...(map.metaTitleEn ? { metaTitleEn: String(map.metaTitleEn) } : {}),

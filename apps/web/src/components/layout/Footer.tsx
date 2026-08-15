@@ -73,9 +73,17 @@ export function Footer({ portal, settings = {} }: FooterProps) {
   const footerMediaObj: any = typeof settings.footerMedia === "object" ? settings.footerMedia : null;
   const backgroundMediaObj: any = settings.backgroundMedia ? (typeof settings.backgroundMedia === "string" ? (settings.backgroundMedia.startsWith("{") ? JSON.parse(settings.backgroundMedia) : { mediaUrl: settings.backgroundMedia }) : settings.backgroundMedia) : null;
   
-  const bgMediaUrl = settings.footerMediaUrl || settings.footerBackgroundMediaUrl || settings.backgroundMediaUrl || (typeof settings.footerMedia === "string" ? settings.footerMedia : footerMediaObj?.mediaUrl || footerMediaObj?.url) || backgroundMediaObj?.mediaUrl || backgroundMediaObj?.url;
-  const rawType = (settings.footerMediaType || settings.backgroundMediaType || settings.mediaType || footerMediaObj?.mediaType || backgroundMediaObj?.mediaType || "IMAGE").toString().toUpperCase();
-  const bgMediaType = rawType === "MODEL_3D" ? "THREE_D" : rawType;
+  const bgMediaUrl = settings.footerMediaUrl || settings.footerBackgroundMediaUrl || settings.backgroundMediaUrl || (typeof settings.footerMedia === "string" ? settings.footerMedia : footerMediaObj?.mediaUrl || footerMediaObj?.url || footerMediaObj?.backgroundImage) || backgroundMediaObj?.mediaUrl || backgroundMediaObj?.url;
+  let rawType = (settings.footerMediaType || settings.backgroundMediaType || settings.mediaType || footerMediaObj?.mediaType || backgroundMediaObj?.mediaType || "").toString().toUpperCase();
+
+  if (!rawType && bgMediaUrl) {
+    if (bgMediaUrl.includes('youtube.com') || bgMediaUrl.includes('youtu.be')) rawType = 'YOUTUBE';
+    else if (bgMediaUrl.includes('vimeo.com')) rawType = 'VIMEO';
+    else if (bgMediaUrl.endsWith('.mp4') || bgMediaUrl.endsWith('.webm')) rawType = 'VIDEO';
+    else if (bgMediaUrl.includes('.splinecode') || bgMediaUrl.includes('spline.design')) rawType = 'THREE_D';
+    else rawType = 'IMAGE';
+  }
+  const bgMediaType = rawType === "MODEL_3D" ? "THREE_D" : (rawType || "IMAGE");
   const bgPosterUrl = settings.footerPosterUrl || settings.backgroundPosterUrl || footerMediaObj?.posterMediaUrl || footerMediaObj?.posterUrl || backgroundMediaObj?.posterMediaUrl || backgroundMediaObj?.posterUrl;
 
   return (
