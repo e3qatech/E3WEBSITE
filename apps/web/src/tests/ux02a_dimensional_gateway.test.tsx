@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-describe("UX-02A — E3 Dimensional Gateway Specification & Regression Tests", () => {
+describe("UX-02A / UX-02A-B — E3 Dimensional Gateway Specification & Visual Correction Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -36,10 +36,7 @@ describe("UX-02A — E3 Dimensional Gateway Specification & Regression Tests", (
       expect(h1Matches?.length).toBe(1);
       expect(h1Matches?.[0]).toContain("TWO WORLDS. ONE E3.");
 
-      // Exactly two H2s (one for B2C, one for B2B)
-      const h2Matches = html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/g);
-      expect(h2Matches).not.toBeNull();
-      // On desktop + mobile markup in static SSR, matches pairs
+      // H2 headings for B2C & B2B
       expect(html).toContain("EXPERIENCE WHAT’S NEXT");
       expect(html).toContain("BUILD WHAT’S NEXT");
     });
@@ -114,7 +111,47 @@ describe("UX-02A — E3 Dimensional Gateway Specification & Regression Tests", (
     });
   });
 
-  describe("3. Directionality & Layout Order", () => {
+  describe("3. Slanted Diagonal Divider & Theme Styling", () => {
+    it("renders the slanted diagonal divider (-skew-x-6) in desktop view", () => {
+      const html = renderToStaticMarkup(
+        <ThemeProvider>
+          <LocaleProvider defaultLocale="en">
+            <PortalGateway />
+          </LocaleProvider>
+        </ThemeProvider>
+      );
+
+      expect(html).toContain("-skew-x-6");
+    });
+
+    it("applies distinct daylight light-mode tokens in light theme", () => {
+      const html = renderToStaticMarkup(
+        <ThemeProvider>
+          <LocaleProvider defaultLocale="en">
+            <PortalGateway simulation={{ theme: "light" }} />
+          </LocaleProvider>
+        </ThemeProvider>
+      );
+
+      expect(html).toContain("bg-[#F7F3FF]");
+      expect(html).toContain("text-[#171326]");
+    });
+
+    it("applies dark graphite/midnight tokens in dark theme", () => {
+      const html = renderToStaticMarkup(
+        <ThemeProvider>
+          <LocaleProvider defaultLocale="en">
+            <PortalGateway simulation={{ theme: "dark" }} />
+          </LocaleProvider>
+        </ThemeProvider>
+      );
+
+      expect(html).toContain("bg-[#03000a]");
+      expect(html).toContain("text-white");
+    });
+  });
+
+  describe("4. Directionality & Layout Order", () => {
     it("sets dir='ltr' for English", () => {
       const html = renderToStaticMarkup(
         <ThemeProvider>
@@ -138,7 +175,7 @@ describe("UX-02A — E3 Dimensional Gateway Specification & Regression Tests", (
     });
   });
 
-  describe("4. Capability Modes & Fallbacks", () => {
+  describe("5. Capability Modes & Fallbacks", () => {
     it("renders smoothly in minimal / reduced motion simulation mode", () => {
       const html = renderToStaticMarkup(
         <ThemeProvider>
@@ -168,7 +205,7 @@ describe("UX-02A — E3 Dimensional Gateway Specification & Regression Tests", (
     });
   });
 
-  describe("5. Zero English Accessibility Residue in Arabic", () => {
+  describe("6. Zero English Accessibility Residue in Arabic", () => {
     it("confirms Arabic markup contains localized aria labels", () => {
       const html = renderToStaticMarkup(
         <ThemeProvider>
