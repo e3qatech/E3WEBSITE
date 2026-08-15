@@ -1,4 +1,7 @@
 import { Metadata } from "next"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { hasPermission } from "@/lib/permissions"
 import db from "@/lib/db"
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
 import { PulseOrbitCMSView } from "@/components/dashboard/b2c/PulseOrbitCMSView"
@@ -45,17 +48,38 @@ async function getRawCMSPageContentServer(slug: string) {
   return content
 }
 
-export default async function B2CPulseOrbitCMSPage() {
-  const b2cRawContent = await getRawCMSPageContentServer("b2c-pulse-orbit")
-  const b2bRawContent = await getRawCMSPageContentServer("b2b-pulse-orbit")
+export default async function B2CPulseOrbitCMSPage({
+  params,
+}: {
+  params?: Promise<{ locale: string }>
+}) {
+  const session = await auth()
+  const resolvedParams = params ? await params : { locale: 'en' }
+  const locale = resolvedParams.locale || 'en'
 
+  if (!session?.user && process.env.NODE_ENV === 'production') {
+    redirect(`/${locale}/login`)
+  }
+
+  const userRole = (session?.user as any)?.role
+  const isAuthorized =
+    userRole &&
+    (hasPermission(userRole, 'b2c.content.read') ||
+      hasPermission(userRole, 'b2c.content.write') ||
+      userRole === 'SUPER_ADMIN')
+
+  if (userRole && !isAuthorized) {
+    redirect(`/${locale}/dashboard`)
+  }
+
+  const b2cRawContent = await getRawCMSPageContentServer("b2c-pulse-orbit")
   const initialB2CData = getMergedCMSPageContent("b2c-pulse-orbit", b2cRawContent)
-  const initialB2BData = getMergedCMSPageContent("b2b-pulse-orbit", b2bRawContent)
 
   return (
     <PulseOrbitCMSView
       initialData={initialB2CData as any}
-      initialB2BData={initialB2BData as any}
+      scopedPortal="B2C"
+      allowedTabs={['B2C']}
       defaultTab="B2C"
     />
   )

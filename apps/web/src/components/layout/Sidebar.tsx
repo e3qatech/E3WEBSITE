@@ -16,7 +16,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Bell
+  Bell,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMounted } from "@/hooks/useMounted";
@@ -41,7 +42,8 @@ const sidebarConfig = [
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
     { label: "Social Media Hub", href: "/dashboard/social-media" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
-    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" }
+    { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
+    { label: "Pulse Orbit (B2C)", href: "/dashboard/b2c/pulse-orbit" }
   ] },
   { label: "B2B Pages", icon: Briefcase, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Homepage Editor", href: "/dashboard/b2b/home" },
@@ -58,14 +60,19 @@ const sidebarConfig = [
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Team Page Editor", href: "/dashboard/b2b/team-page" },
     { label: "Clients CMS", href: "/dashboard/b2b/clients" },
-    { label: "Partners", href: "/dashboard/b2b/partners" }
+    { label: "Partners", href: "/dashboard/b2b/partners" },
+    { label: "Pulse Orbit (B2B)", href: "/dashboard/b2b/pulse-orbit" }
   ] },
   { label: "HR & Careers", icon: Briefcase, href: "/dashboard/team", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Team Profiles", href: "/dashboard/team" },
     { label: "Job Listings", href: "/dashboard/b2b/careers" },
-    { label: "Job Applications", href: "/dashboard/careers/applications" },
-    { label: "Team Scheduling", href: "/dashboard/b2b/team" },
+    { label: "Applications", href: "/dashboard/careers/applications" },
     { label: "Talent AI Parser", href: "/dashboard/crm/talent" }
+  ] },
+  { label: "Media", icon: FileText, href: "/dashboard/cms/media", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
+    { label: "Media Library", href: "/dashboard/cms/media" },
+    { label: "CMS Pages Index", href: "/dashboard/cms/pages" },
+    { label: "Social Media Hub", href: "/dashboard/social-media" }
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Events", href: "/dashboard/operations/events" },
@@ -80,7 +87,7 @@ const sidebarConfig = [
   ] },
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
-    { label: "Pulse Orbit Editor", href: "/dashboard/settings/pulse-orbit" },
+    { label: "Pulse Orbit Hub", href: "/dashboard/settings/pulse-orbit" },
     { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
     { label: "General", href: "/dashboard/settings/general" },
     { label: "SEO", href: "/dashboard/settings/seo" },

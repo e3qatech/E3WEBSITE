@@ -1,10 +1,25 @@
 "use client"
 
+import React, { useState, useEffect } from "react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { ArrowDown, ArrowUp, Building2, Eye, EyeOff, Image as ImageIcon, Plus, Save, Trash2, Type, User } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { AdminButton } from "../ui/AdminButton"
+import { useLocale } from "@/components/layout/LocaleProvider"
+import { cn } from "@/lib/utils"
+import {
+  ArrowDown,
+  ArrowUp,
+  Building2,
+  Eye,
+  EyeOff,
+  Image as ImageIcon,
+  Plus,
+  Save,
+  Trash2,
+  Type,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
 import {
@@ -15,11 +30,6 @@ import {
   DashboardUnsavedChangesGuard,
   EditorSectionItem,
 } from "@/components/dashboard/ui"
-
-const SECTIONS: EditorSectionItem[] = [
-  { id: "B2C", label: "1. B2C Entertainment Orbit" },
-  { id: "B2B", label: "2. B2B Enterprise Orbit" },
-]
 
 export interface OrbitDestinationItem {
   id: string
@@ -138,22 +148,46 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
   },
 ]
 
-interface PulseOrbitCMSViewProps {
+export interface PulseOrbitCMSViewProps {
   initialData?: any
   initialB2BData?: any
   defaultTab?: 'B2C' | 'B2B'
+  scopedPortal?: 'B2C' | 'B2B' | 'ALL'
+  allowedTabs?: ('B2C' | 'B2B')[]
 }
 
-export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B2C' }: PulseOrbitCMSViewProps) {
+export function PulseOrbitCMSView({
+  initialData,
+  initialB2BData,
+  defaultTab = 'B2C',
+  scopedPortal = 'ALL',
+  allowedTabs = ['B2C', 'B2B'],
+}: PulseOrbitCMSViewProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState<'B2C' | 'B2B'>(defaultTab)
+  const { locale: contextLocale } = useLocale()
+  const pathname = usePathname()
+  const locale = pathname?.startsWith("/ar") ? "ar" : contextLocale || "en"
+  const isAr = locale === "ar"
+
+  const effectiveDefaultTab: 'B2C' | 'B2B' =
+    scopedPortal === 'B2C'
+      ? 'B2C'
+      : scopedPortal === 'B2B'
+      ? 'B2B'
+      : defaultTab && allowedTabs.includes(defaultTab)
+      ? defaultTab
+      : 'B2C'
+
+  const [activeTab, setActiveTab] = useState<'B2C' | 'B2B'>(effectiveDefaultTab)
   const [saving, setSaving] = useState(false)
   const [uploadingCount, setUploadingCount] = useState(0)
 
   // B2C Orbit State
   const rawB2CDestinations = initialData?.destinations || DEFAULT_B2C_DESTINATIONS
-  const filteredB2CDestinations = rawB2CDestinations.filter((d: any) => d.id !== 'tickets' && !d.href?.includes('/tickets'))
+  const filteredB2CDestinations = rawB2CDestinations.filter(
+    (d: any) => d.id !== 'tickets' && !d.href?.includes('/tickets')
+  )
   const [b2cDestinations, setB2CDestinations] = useState<OrbitDestinationItem[]>(
     filteredB2CDestinations.length > 0 ? filteredB2CDestinations : DEFAULT_B2C_DESTINATIONS
   )
@@ -189,72 +223,81 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
   // Fetch latest CMS data from API to ensure state matches DB 100%
   const fetchLatestCMSData = async () => {
     try {
-      const [resB2C, resB2B] = await Promise.all([
-        fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }),
-        fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }),
-      ]);
+      const shouldFetchB2C = scopedPortal === 'B2C' || scopedPortal === 'ALL'
+      const shouldFetchB2B = scopedPortal === 'B2B' || scopedPortal === 'ALL'
 
-      if (resB2C.ok) {
-        const json = await resB2C.json();
-        const c = json?.data?.content;
+      const [resB2C, resB2B] = await Promise.all([
+        shouldFetchB2C
+          ? fetch('/api/cms/pages/b2c-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+          : null,
+        shouldFetchB2B
+          ? fetch('/api/cms/pages/b2b-pulse-orbit?t=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+          : null,
+      ])
+
+      if (resB2C && resB2C.ok) {
+        const json = await resB2C.json()
+        const c = json?.data?.content
         if (c) {
-          if (c.titleEn !== undefined) setB2CTitleEn(c.titleEn);
-          if (c.titleAr !== undefined) setB2CTitleAr(c.titleAr);
-          if (c.navButtonTextEn !== undefined) setB2CNavButtonTextEn(c.navButtonTextEn);
-          if (c.navButtonTextAr !== undefined) setB2CNavButtonTextAr(c.navButtonTextAr);
-          if (c.logoUrl !== undefined) setB2CLogoUrl(c.logoUrl);
+          if (c.titleEn !== undefined) setB2CTitleEn(c.titleEn)
+          if (c.titleAr !== undefined) setB2CTitleAr(c.titleAr)
+          if (c.navButtonTextEn !== undefined) setB2CNavButtonTextEn(c.navButtonTextEn)
+          if (c.navButtonTextAr !== undefined) setB2CNavButtonTextAr(c.navButtonTextAr)
+          if (c.logoUrl !== undefined) setB2CLogoUrl(c.logoUrl)
           if (Array.isArray(c.destinations) && c.destinations.length > 0) {
-            setB2CDestinations(c.destinations.filter((d: any) => d.id !== 'tickets' && !d.href?.includes('/tickets')));
+            setB2CDestinations(
+              c.destinations.filter((d: any) => d.id !== 'tickets' && !d.href?.includes('/tickets'))
+            )
           }
-          if (c.bookTicketsUrl !== undefined) setB2CTicketsUrl(c.bookTicketsUrl);
-          if (c.bookTicketsLabelEn !== undefined) setB2CTicketsLabelEn(c.bookTicketsLabelEn);
-          if (c.bookTicketsLabelAr !== undefined) setB2CTicketsLabelAr(c.bookTicketsLabelAr);
-          if (c.bookTicketsEnabled !== undefined) setB2CTicketsEnabled(Boolean(c.bookTicketsEnabled));
-          if (c.bookTicketsExternal !== undefined) setB2CTicketsExternal(Boolean(c.bookTicketsExternal));
+          if (c.bookTicketsUrl !== undefined) setB2CTicketsUrl(c.bookTicketsUrl)
+          if (c.bookTicketsLabelEn !== undefined) setB2CTicketsLabelEn(c.bookTicketsLabelEn)
+          if (c.bookTicketsLabelAr !== undefined) setB2CTicketsLabelAr(c.bookTicketsLabelAr)
+          if (c.bookTicketsEnabled !== undefined) setB2CTicketsEnabled(Boolean(c.bookTicketsEnabled))
+          if (c.bookTicketsExternal !== undefined) setB2CTicketsExternal(Boolean(c.bookTicketsExternal))
         }
       }
 
-      if (resB2B.ok) {
-        const json = await resB2B.json();
-        const c = json?.data?.content;
+      if (resB2B && resB2B.ok) {
+        const json = await resB2B.json()
+        const c = json?.data?.content
         if (c) {
-          if (c.titleEn !== undefined) setB2BTitleEn(c.titleEn);
-          if (c.titleAr !== undefined) setB2BTitleAr(c.titleAr);
-          if (c.navButtonTextEn !== undefined) setB2BNavButtonTextEn(c.navButtonTextEn);
-          if (c.navButtonTextAr !== undefined) setB2BNavButtonTextAr(c.navButtonTextAr);
-          if (c.logoUrl !== undefined) setB2BLogoUrl(c.logoUrl);
+          if (c.titleEn !== undefined) setB2BTitleEn(c.titleEn)
+          if (c.titleAr !== undefined) setB2BTitleAr(c.titleAr)
+          if (c.navButtonTextEn !== undefined) setB2BNavButtonTextEn(c.navButtonTextEn)
+          if (c.navButtonTextAr !== undefined) setB2BNavButtonTextAr(c.navButtonTextAr)
+          if (c.logoUrl !== undefined) setB2BLogoUrl(c.logoUrl)
           if (Array.isArray(c.destinations) && c.destinations.length > 0) {
-            setB2BDestinations(c.destinations);
+            setB2BDestinations(c.destinations)
           }
-          if (c.bookTicketsUrl !== undefined) setB2BProposalUrl(c.bookTicketsUrl);
-          if (c.bookTicketsLabelEn !== undefined) setB2BProposalLabelEn(c.bookTicketsLabelEn);
-          if (c.bookTicketsLabelAr !== undefined) setB2BProposalLabelAr(c.bookTicketsLabelAr);
-          if (c.bookTicketsEnabled !== undefined) setB2BProposalEnabled(Boolean(c.bookTicketsEnabled));
-          if (c.bookTicketsExternal !== undefined) setB2BProposalExternal(Boolean(c.bookTicketsExternal));
+          if (c.bookTicketsUrl !== undefined) setB2BProposalUrl(c.bookTicketsUrl)
+          if (c.bookTicketsLabelEn !== undefined) setB2BProposalLabelEn(c.bookTicketsLabelEn)
+          if (c.bookTicketsLabelAr !== undefined) setB2BProposalLabelAr(c.bookTicketsLabelAr)
+          if (c.bookTicketsEnabled !== undefined) setB2BProposalEnabled(Boolean(c.bookTicketsEnabled))
+          if (c.bookTicketsExternal !== undefined) setB2BProposalExternal(Boolean(c.bookTicketsExternal))
         }
       }
     } catch (_e) {}
-  };
+  }
 
   useEffect(() => {
-// eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchLatestCMSData();
-    window.addEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData);
-    let bc: BroadcastChannel | null = null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchLatestCMSData()
+    window.addEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData)
+    let bc: BroadcastChannel | null = null
     try {
-      bc = new BroadcastChannel('e3_cms_sync');
+      bc = new BroadcastChannel('e3_cms_sync')
       bc.onmessage = (event) => {
         if (event.data?.type === 'pulse_orbit_updated') {
-          fetchLatestCMSData();
+          fetchLatestCMSData()
         }
-      };
+      }
     } catch (_e) {}
 
     return () => {
-      window.removeEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData);
-      if (bc) bc.close();
-    };
-  }, []);
+      window.removeEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData)
+      if (bc) bc.close()
+    }
+  }, [scopedPortal])
 
   const currentDestinations = activeTab === 'B2C' ? b2cDestinations : b2bDestinations
   const setCurrentDestinations = (updater: (prev: OrbitDestinationItem[]) => OrbitDestinationItem[]) => {
@@ -361,7 +404,12 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
           } catch (_bcErr) {}
         }
         await fetchLatestCMSData()
-        toast("B2C Pulse Orbit media & destinations saved successfully.", "success")
+        toast(
+          isAr
+            ? "تم حفظ وسائط ووجهات مدار الفعاليات (B2C) بنجاح."
+            : "B2C Pulse Orbit media & destinations saved successfully.",
+          "success"
+        )
       } else {
         const payload = {
           titleEn: b2bTitleEn,
@@ -394,43 +442,183 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
           } catch (_bcErr) {}
         }
         await fetchLatestCMSData()
-        toast("B2B Enterprise Orbit media & destinations saved successfully.", "success")
+        toast(
+          isAr
+            ? "تم حفظ وسائط ووجهات مدار قطاع الأعمال (B2B) بنجاح."
+            : "B2B Enterprise Orbit media & destinations saved successfully.",
+          "success"
+        )
       }
 
       router.refresh()
     } catch (e: any) {
       console.error(e)
-      toast(e?.message || "Failed to save Pulse Orbit CMS.", "error")
+      toast(e?.message || (isAr ? "فشل حفظ إعدادات مدار إي ثري." : "Failed to save Pulse Orbit CMS."), "error")
     } finally {
       setSaving(false)
     }
   }
+
+  // Section Navigator items
+  const SECTIONS: EditorSectionItem[] =
+    scopedPortal === 'B2C'
+      ? [{ id: "B2C", label: isAr ? "١. مدار الفعاليات والترفيه (B2C)" : "1. B2C Entertainment Orbit" }]
+      : scopedPortal === 'B2B'
+      ? [{ id: "B2B", label: isAr ? "١. مدار قطاع الأعمال والشركات (B2B)" : "1. B2B Enterprise Orbit" }]
+      : [
+          { id: "B2C", label: isAr ? "١. مدار الفعاليات والترفيه (B2C)" : "1. B2C Entertainment Orbit" },
+          { id: "B2B", label: isAr ? "٢. مدار قطاع الأعمال والشركات (B2B)" : "2. B2B Enterprise Orbit" },
+        ]
+
+  // Page Header Details
+  const pageTitle =
+    scopedPortal === 'B2C'
+      ? isAr
+        ? "محرر نبض الفعاليات ثلاثي الأبعاد (B2C)"
+        : "B2C Pulse Orbit 3D Navigation"
+      : scopedPortal === 'B2B'
+      ? isAr
+        ? "محرر نبض قطاع الأعمال ثلاثي الأبعاد (B2B)"
+        : "B2B Pulse Orbit 3D Navigation"
+      : isAr
+      ? "مركز نبض الأنظمة ثلاثي الأبعاد (Pulse Orbit Hub)"
+      : "Pulse Orbit 3D Portal Settings"
+
+  const pageDescription =
+    scopedPortal === 'B2C'
+      ? isAr
+        ? "إدارة وتعديل وجهات مدار الفعاليات العامة، والوسائط ثلاثية الأبعاد، وزر حجز التذاكر للأفراد."
+        : "Configure B2C entertainment orbit destinations, interactive media nodes, and header ticket CTAs."
+      : scopedPortal === 'B2B'
+      ? isAr
+        ? "إدارة وتعديل وجهات مدار قطاع الأعمال، والحلول المؤسسية، وزر طلب عروض الأسعار."
+        : "Configure B2B enterprise orbit destinations, corporate solutions, and header proposal CTAs."
+      : isAr
+      ? "إدارة الوسائط التفاعلية، العقد والوجهات، شارات الشعارات، وروابط المسارات لمدار الأفراد والشركات (/settings/pulse-orbit)."
+      : "Manage live media, destination nodes, logo overlays, and route links for B2C and B2B Pulse Orbit modal navigation (/settings/pulse-orbit)."
+
+  const breadcrumbs =
+    scopedPortal === 'B2C'
+      ? [
+          { label: isAr ? "محتوى الأفراد" : "B2C Content", href: `/${locale}/dashboard/b2c/landing` },
+          { label: isAr ? "نبض الفعاليات (B2C)" : "Pulse Orbit (B2C)" },
+        ]
+      : scopedPortal === 'B2B'
+      ? [
+          { label: isAr ? "محتوى الشركات" : "B2B Content", href: `/${locale}/dashboard/b2b/home` },
+          { label: isAr ? "نبض الشركات (B2B)" : "Pulse Orbit (B2B)" },
+        ]
+      : [
+          { label: isAr ? "الإعدادات" : "Settings", href: `/${locale}/dashboard/settings/general` },
+          { label: isAr ? "مركز نبض الأنظمة" : "Pulse Orbit Hub" },
+        ]
+
+  const badgeVariant: 'purple' | 'cyan' = scopedPortal === 'B2B' ? 'cyan' : 'purple'
+  const badgeLabel =
+    scopedPortal === 'B2C'
+      ? isAr
+        ? "ترفيه للأفراد"
+        : "B2C Public"
+      : scopedPortal === 'B2B'
+      ? isAr
+        ? "قطاع الأعمال"
+        : "B2B Enterprise"
+      : isAr
+      ? "شامل المنصة"
+      : "Cross-Portal Hub"
 
   return (
     <DashboardPageShell variant="focused">
       <DashboardUnsavedChangesGuard isDirty={uploadingCount > 0} />
 
       <DashboardPageHeader
-        title="Pulse Orbit 3D Portal Settings"
-        description="Manage live media, destination nodes, logo overlays, and route links for B2C and B2B Pulse Orbit modal navigation (/settings/pulse-orbit)."
-        breadcrumbs={[
-          { label: "Settings", href: "/dashboard/settings/general" },
-          { label: "Pulse Orbit Settings" },
-        ]}
-        badge={{ label: "3D Nav", variant: "purple" }}
+        title={pageTitle}
+        description={pageDescription}
+        breadcrumbs={breadcrumbs}
+        badge={{ label: badgeLabel, variant: badgeVariant }}
+        previewUrl={`/${locale}/b2c`}
         primaryAction={{
-          label: saving ? "Saving..." : uploadingCount > 0 ? "Uploading Media..." : `Save ${activeTab} Orbit`,
+          label: saving
+            ? isAr
+              ? "جاري الحفظ..."
+              : "Saving..."
+            : uploadingCount > 0
+            ? isAr
+              ? "جاري رفع الوسائط..."
+              : "Uploading Media..."
+            : isAr
+            ? `حفظ مدار ${activeTab === 'B2C' ? 'الفعاليات' : 'الشركات'}`
+            : `Save ${activeTab} Orbit`,
           onClick: handleSave,
           isLoading: saving,
           icon: <Save className="w-4 h-4" />,
         }}
       />
 
-      <DashboardSectionNavigator
-        sections={SECTIONS}
-        activeSectionId={activeTab}
-        onSectionChange={(id) => setActiveTab(id as any)}
-      />
+      {/* Reciprocal Handoff Banners */}
+      {scopedPortal === 'B2C' && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 backdrop-blur-md mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center shrink-0">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                {isAr ? "مدار قطاع الأعمال والشركات (B2B)" : "B2B Enterprise Orbit (Corporate)"}
+              </h3>
+              <p className="text-xs text-[var(--text-secondary)]">
+                {isAr
+                  ? "لتعديل وجهات مدار الشركات والحلول المؤسسية وزر طلب العروض، انتقل إلى محرر B2B."
+                  : "To edit B2B enterprise destinations, corporate solutions, and proposal request CTA, switch to the B2B Pulse Orbit editor."}
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href={`/${locale}/dashboard/b2b/pulse-orbit`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-xs font-bold text-cyan-200 transition-all shrink-0 cursor-pointer"
+          >
+            <span>{isAr ? "فتح محرر B2B" : "Open B2B Orbit"}</span>
+            <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+          </Link>
+        </div>
+      )}
+
+      {scopedPortal === 'B2B' && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border border-purple-500/30 bg-purple-950/20 backdrop-blur-md mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                {isAr ? "مدار الفعاليات والترفيه للأفراد (B2C)" : "B2C Entertainment Orbit (Public)"}
+              </h3>
+              <p className="text-xs text-[var(--text-secondary)]">
+                {isAr
+                  ? "لتعديل وجهات مدار الفعاليات الترفيهية والتجارب العامة وزر التذاكر، انتقل إلى محرر B2C."
+                  : "To edit B2C public entertainment destinations and ticket booking CTA, switch to the B2C Pulse Orbit editor."}
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href={`/${locale}/dashboard/b2c/pulse-orbit`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-xs font-bold text-purple-200 transition-all shrink-0 cursor-pointer"
+          >
+            <span>{isAr ? "فتح محرر B2C" : "Open B2C Orbit"}</span>
+            <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+          </Link>
+        </div>
+      )}
+
+      {scopedPortal === 'ALL' && SECTIONS.length > 1 && (
+        <DashboardSectionNavigator
+          sections={SECTIONS}
+          activeSectionId={activeTab}
+          onSectionChange={(id) => setActiveTab(id as any)}
+        />
+      )}
 
       <AdminFormLayout>
 
@@ -438,10 +626,16 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
         <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
           <ImageIcon className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>{activeTab} Pulse Orbit Dropdown Logo Manager</span>
+          <span>
+            {isAr
+              ? `مدير شعار مدار ${activeTab === 'B2C' ? 'الفعاليات' : 'الشركات'}`
+              : `${activeTab} Pulse Orbit Dropdown Logo Manager`}
+          </span>
         </h3>
         <p className="text-xs text-[var(--text-secondary)]">
-          Upload or specify a custom brand logo image to display exclusively inside the header of the {activeTab} Pulse Orbit dropdown modal overlay. (Note: Main site navigation bar logo is managed globally in General Settings).
+          {isAr
+            ? `قم برفع أو تعيين رابط صورة شعار مخصصة لعرضها حصرياً داخل رأس القائمة التفاعلية لمدار ${activeTab === 'B2C' ? 'الفعاليات (B2C)' : 'الشركات (B2B)'}.`
+            : `Upload or specify a custom brand logo image to display exclusively inside the header of the ${activeTab} Pulse Orbit dropdown modal overlay. (Note: Main site navigation bar logo is managed globally in General Settings).`}
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
@@ -450,22 +644,30 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
               value={activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl}
               onChange={(url) => activeTab === 'B2C' ? setB2CLogoUrl(url) : setB2BLogoUrl(url)}
               onUploadStatusChange={handleUploadStatus}
-              label={`Upload ${activeTab} Orbit Logo`}
+              label={
+                isAr
+                  ? `رفع شعار مدار ${activeTab === 'B2C' ? 'الفعاليات' : 'الشركات'}`
+                  : `Upload ${activeTab} Orbit Logo`
+              }
               accept="image/*"
             />
           </div>
           <div className="lg:col-span-2 space-y-3">
-            <label className="block text-xs font-semibold text-[var(--text-secondary)]">Direct Image URL / Asset Link</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)]">
+              {isAr ? "رابط ملف الصورة المباشر / الأصول" : "Direct Image URL / Asset Link"}
+            </label>
             <input
               type="text"
               value={activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl}
               onChange={(e) => activeTab === 'B2C' ? setB2CLogoUrl(e.target.value) : setB2BLogoUrl(e.target.value)}
-              placeholder="https://... (Leave blank to use default site global logo)"
+              placeholder={isAr ? "https://... (اتركه فارغاً لاستخدام الشعار العام للموقع)" : "https://... (Leave blank to use default site global logo)"}
               className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
             />
             { (activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl) && (
               <div className="p-3 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl flex items-center gap-4 w-fit">
-                <span className="text-xs font-bold text-[var(--text-secondary)]">Logo Preview:</span>
+                <span className="text-xs font-bold text-[var(--text-secondary)]">
+                  {isAr ? "معاينة الشعار:" : "Logo Preview:"}
+                </span>
                 <img src={activeTab === 'B2C' ? b2cLogoUrl : b2bLogoUrl} alt="Orbit Logo Preview" className="h-8 w-auto object-contain" />
               </div>
             )}
@@ -477,15 +679,23 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
         <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
           <Type className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>Header Navigation Button Custom Name (Change "Pulse Orbit" Tab Label)</span>
+          <span>
+            {isAr
+              ? "تخصيص نص زر القائمة الرئيسية في الهيدر"
+              : `Header Navigation Button Custom Name (Change "${activeTab === 'B2C' ? 'Pulse Orbit' : 'B2B Orbit'}" Tab Label)`}
+          </span>
         </h3>
         <p className="text-xs text-[var(--text-secondary)]">
-          Customize the exact text displayed on the header menu trigger button on public {activeTab} pages (e.g. "PULSE ORBIT", "NAVIGATE", "DESTINATIONS", etc.).
+          {isAr
+            ? `تخصيص النص الدقيق المعروض على زر تشغيل القائمة في الهيدر لصفحات ${activeTab === 'B2C' ? 'الأفراد العامة' : 'الشركات'}.`
+            : `Customize the exact text displayed on the header menu trigger button on public ${activeTab} pages (e.g. "PULSE ORBIT", "NAVIGATE", "DESTINATIONS", etc.).`}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Header Button Text (English)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              {isAr ? "نص زر الهيدر (الإنجليزية)" : "Header Button Text (English)"}
+            </label>
             <input
               type="text"
               value={activeTab === 'B2C' ? b2cNavButtonTextEn : b2bNavButtonTextEn}
@@ -495,7 +705,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Header Button Text (Arabic)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              {isAr ? "نص زر الهيدر (العربية)" : "Header Button Text (Arabic)"}
+            </label>
             <input
               type="text"
               value={activeTab === 'B2C' ? b2cNavButtonTextAr : b2bNavButtonTextAr}
@@ -510,14 +722,22 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
 
       {/* Global Orbit Header Titles */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
-        <h3 className="text-lg font-bold text-[var(--text-primary)]">{activeTab} Orbit Overlay Banner Titles</h3>
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">
+          {isAr
+            ? `عناوين بانر نافذة مدار ${activeTab === 'B2C' ? 'الفعاليات' : 'الشركات'}`
+            : `${activeTab} Orbit Overlay Banner Titles`}
+        </h3>
         <p className="text-xs text-[var(--text-secondary)]">
-          Configure the top headline text shown inside the full-screen Pulse Orbit modal overlay header.
+          {isAr
+            ? "تعيين العنوان الرئيسي المعروض في أعلى نافذة القائمة التفاعلية ثلاثية الأبعاد."
+            : "Configure the top headline text shown inside the full-screen Pulse Orbit modal overlay header."}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Overlay Banner Title (English)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              {isAr ? "عنوان البانر (الإنجليزية)" : "Overlay Banner Title (English)"}
+            </label>
             <input
               type="text"
               value={activeTab === 'B2C' ? b2cTitleEn : b2bTitleEn}
@@ -527,7 +747,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Overlay Banner Title (Arabic)</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              {isAr ? "عنوان البانر (العربية)" : "Overlay Banner Title (Arabic)"}
+            </label>
             <input
               type="text"
               value={activeTab === 'B2C' ? b2cTitleAr : b2bTitleAr}
@@ -543,15 +765,27 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
       {/* Header CTA Manager for active tab */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
         <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <span>{activeTab === 'B2C' ? 'B2C "Book Tickets" CTA Manager' : 'B2B "Request Proposal" CTA Manager'}</span>
+          <span>
+            {isAr
+              ? activeTab === 'B2C'
+                ? 'مدير زر "احجز التذاكر" في الهيدر (B2C)'
+                : 'مدير زر "اطلب عرض سعر" في الهيدر (B2B)'
+              : activeTab === 'B2C'
+              ? 'B2C "Book Tickets" CTA Manager'
+              : 'B2B "Request Proposal" CTA Manager'}
+          </span>
         </h3>
         <p className="text-xs text-[var(--text-secondary)]">
-          Configure hyperlink destination URL and button labels for the header CTA tab on public {activeTab} pages.
+          {isAr
+            ? `إدارة وجهة الرابط وتسمية الأزرار الخاصة بالزر الترويجي في الهيدر لصفحات ${activeTab === 'B2C' ? 'الأفراد (B2C)' : 'الشركات (B2B)'}.`
+            : `Configure hyperlink destination URL and button labels for the header CTA tab on public ${activeTab} pages.`}
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Target Hyperlink URL</label>
+            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              {isAr ? "رابط الوجهة المستهدفة" : "Target Hyperlink URL"}
+            </label>
             <input
               type="text"
               value={activeTab === 'B2C' ? b2cTicketsUrl : b2bProposalUrl}
@@ -563,7 +797,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Button Label (English)</label>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                {isAr ? "تسمية الزر (الإنجليزية)" : "Button Label (English)"}
+              </label>
               <input
                 type="text"
                 value={activeTab === 'B2C' ? b2cTicketsLabelEn : b2bProposalLabelEn}
@@ -572,7 +808,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Button Label (Arabic)</label>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                {isAr ? "تسمية الزر (العربية)" : "Button Label (Arabic)"}
+              </label>
               <input
                 type="text"
                 value={activeTab === 'B2C' ? b2cTicketsLabelAr : b2bProposalLabelAr}
@@ -591,7 +829,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                 onChange={(e) => activeTab === 'B2C' ? setB2CTicketsEnabled(e.target.checked) : setB2BProposalEnabled(e.target.checked)}
                 className="rounded border-[var(--border-level-1)] accent-[var(--color-primary)] w-4 h-4 cursor-pointer"
               />
-              Show CTA Button in Header
+              {isAr ? "إظهار زر الدعوة للإجراء في الهيدر" : "Show CTA Button in Header"}
             </label>
 
             <label className="flex items-center gap-2 text-xs font-semibold text-[var(--text-primary)] cursor-pointer select-none">
@@ -601,7 +839,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                 onChange={(e) => activeTab === 'B2C' ? setB2CTicketsExternal(e.target.checked) : setB2BProposalExternal(e.target.checked)}
                 className="rounded border-[var(--border-level-1)] accent-[var(--color-primary)] w-4 h-4 cursor-pointer"
               />
-              Open in New Tab (_blank)
+              {isAr ? "فتح الرابط في علامة تبويب جديدة (_blank)" : "Open in New Tab (_blank)"}
             </label>
           </div>
         </div>
@@ -611,8 +849,16 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
       <div className="space-y-6 mt-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-extrabold text-[var(--text-primary)]">{activeTab} Destinations & Media Portfolio</h3>
-            <p className="text-xs text-[var(--text-secondary)] mt-1">Reorder, replace media, edit labels, or add custom destination worlds to Pulse Orbit.</p>
+            <h3 className="text-xl font-extrabold text-[var(--text-primary)]">
+              {isAr
+                ? `معرض وجهات ووسائط مدار ${activeTab === 'B2C' ? 'الفعاليات (B2C)' : 'الشركات (B2B)'}`
+                : `${activeTab} Destinations & Media Portfolio`}
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)] mt-1">
+              {isAr
+                ? "إعادة ترتيب، استبدال الوسائط، تعديل التسميات والمسارات، أو إضافة وجهات جديدة."
+                : "Reorder, replace media, edit labels, or add custom destination worlds to Pulse Orbit."}
+            </p>
           </div>
           <button
             type="button"
@@ -620,7 +866,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-extrabold transition-all shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            Add Destination World
+            {isAr ? "إضافة وجهة جديدة" : "Add Destination World"}
           </button>
         </div>
 
@@ -635,7 +881,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                   {idx + 1}
                 </span>
                 <div>
-                  <h4 className="font-bold text-[var(--text-primary)] text-base">{dest.labelEn || `Destination ${idx + 1}`}</h4>
+                  <h4 className="font-bold text-[var(--text-primary)] text-base">
+                    {isAr ? dest.labelAr || dest.labelEn || `وجهة ${idx + 1}` : dest.labelEn || `Destination ${idx + 1}`}
+                  </h4>
                   <span className="text-xs font-mono text-[var(--text-secondary)]">{dest.href}</span>
                 </div>
               </div>
@@ -647,7 +895,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                   onClick={() => moveUp(idx)}
                   disabled={idx === 0}
                   className="p-1.5 rounded-lg border border-[var(--border-level-1)] bg-[var(--bg-level-1)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                  title="Move Up"
+                  title={isAr ? "تحريك لأعلى" : "Move Up"}
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
                 </button>
@@ -658,7 +906,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                   onClick={() => moveDown(idx)}
                   disabled={idx === currentDestinations.length - 1}
                   className="p-1.5 rounded-lg border border-[var(--border-level-1)] bg-[var(--bg-level-1)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                  title="Move Down"
+                  title={isAr ? "تحريك لأسفل" : "Move Down"}
                 >
                   <ArrowDown className="w-3.5 h-3.5" />
                 </button>
@@ -674,7 +922,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                   }`}
                 >
                   {dest.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                  <span>{dest.enabled ? "Visible" : "Hidden"}</span>
+                  <span>{dest.enabled ? (isAr ? "مرئي" : "Visible") : (isAr ? "مخفي" : "Hidden")}</span>
                 </button>
 
                 {/* Delete Destination */}
@@ -682,7 +930,7 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                   type="button"
                   onClick={() => removeDestination(dest.id)}
                   className="p-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors cursor-pointer"
-                  title="Remove Destination"
+                  title={isAr ? "حذف الوجهة" : "Remove Destination"}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -692,7 +940,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Media Picker & Direct URL Field */}
               <div className="space-y-3">
-                <label className="block text-xs font-semibold text-[var(--text-secondary)]">Destination Media Cover (Video, Image, 3D Iframe)</label>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)]">
+                  {isAr ? "غلاف وسائط الوجهة (فيديو، صورة، تضمين ثلاثي الأبعاد)" : "Destination Media Cover (Video, Image, 3D Iframe)"}
+                </label>
                 <AdminMediaPicker
                   value={dest.mediaUrl}
                   onChange={(url) => handleDestinationChange(dest.id, "mediaUrl", url)}
@@ -701,12 +951,14 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                   accept="video/*,image/*"
                 />
                 <div>
-                  <label className="block text-[11px] font-semibold text-[var(--text-tertiary)] mb-1">Direct Media URL / File Link</label>
+                  <label className="block text-[11px] font-semibold text-[var(--text-tertiary)] mb-1">
+                    {isAr ? "رابط ملف الوسائط المباشر" : "Direct Media URL / File Link"}
+                  </label>
                   <input
                     type="text"
                     value={dest.mediaUrl || ''}
                     onChange={(e) => handleDestinationChange(dest.id, "mediaUrl", e.target.value)}
-                    placeholder="https://... or upload local file above"
+                    placeholder={isAr ? "https://... أو قم برفع الملف أعلاه" : "https://... or upload local file above"}
                     className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
                   />
                 </div>
@@ -716,7 +968,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
               <div className="lg:col-span-2 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Label (English)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                      {isAr ? "التسمية (الإنجليزية)" : "Label (English)"}
+                    </label>
                     <input
                       type="text"
                       value={dest.labelEn}
@@ -725,7 +979,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Label (Arabic)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                      {isAr ? "التسمية (العربية)" : "Label (Arabic)"}
+                    </label>
                     <input
                       type="text"
                       value={dest.labelAr}
@@ -737,7 +993,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Target Route URL</label>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "مسار الوجهة (URL)" : "Target Route URL"}
+                  </label>
                   <input
                     type="text"
                     value={dest.href}
@@ -748,7 +1006,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Description (English)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                      {isAr ? "الوصف (الإنجليزية)" : "Description (English)"}
+                    </label>
                     <textarea
                       rows={2}
                       value={dest.descEn}
@@ -757,7 +1017,9 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Description (Arabic)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                      {isAr ? "الوصف (العربية)" : "Description (Arabic)"}
+                    </label>
                     <textarea
                       rows={2}
                       value={dest.descAr}
@@ -779,8 +1041,11 @@ export function PulseOrbitCMSView({ initialData, initialB2BData, defaultTab = 'B
         isSaving={saving}
         isUnsaved={uploadingCount > 0}
         onDiscard={() => {
-          if (confirm("Discard unsaved changes?")) {
-            window.location.reload();
+          const confirmMessage = isAr
+            ? "هل أنت متأكد من إلغاء التغييرات غير المحفوظة؟"
+            : "Discard unsaved changes?"
+          if (confirm(confirmMessage)) {
+            window.location.reload()
           }
         }}
       />
