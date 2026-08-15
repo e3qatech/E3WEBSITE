@@ -109,8 +109,8 @@ export function DashboardPageHeader({
       </div>
 
       {/* Middle/Main row: Title, Description, & Actions */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-        <div className="space-y-1 min-w-0">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+        <div className="space-y-1.5 flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
               {title}
@@ -119,7 +119,7 @@ export function DashboardPageHeader({
             {badge && (
               <span
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider border",
+                  "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider border shrink-0",
                   badgeColors
                 )}
               >
@@ -136,7 +136,7 @@ export function DashboardPageHeader({
         </div>
 
         {/* Right side actions */}
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0 self-start lg:self-center">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0 self-start xl:self-center">
           {localizedPreviewUrl && (
             <Link
               href={localizedPreviewUrl}

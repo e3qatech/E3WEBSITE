@@ -155,7 +155,7 @@ export function PackagesPageEditor() {
   };
 
   return (
-    <DashboardPageShell variant="focused">
+    <DashboardPageShell variant="wide">
       <div dir={dir} className="space-y-6">
         <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
@@ -182,14 +182,7 @@ export function PackagesPageEditor() {
             icon: <Save className="w-4 h-4" />,
           }}
           secondaryAction={
-            <div className="flex items-center gap-3">
-              <Link href={localizeHref("/dashboard/b2c/packages", locale)}>
-                <AdminButton variant="outline" size="sm" leftIcon={<Package className="w-4 h-4" />}>
-                  {isAr ? "إدارة الباقات الفردية" : "Manage Individual Packages"}
-                </AdminButton>
-              </Link>
-              <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
-            </div>
+            <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
           }
         />
 
