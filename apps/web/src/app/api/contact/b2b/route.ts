@@ -42,6 +42,16 @@ const generalInquirySchema = z.object({
   message: z.string().min(1).max(2000),
 }).strict();
 
+const careerEnquirySchema = z.object({
+  actionType: z.literal('CAREER_ENQUIRY'),
+  website_hp: z.string().optional(),
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  phone: z.string().max(20).optional(),
+  enquiryType: z.string().max(100).optional(),
+  message: z.string().min(1).max(2000),
+}).strict();
+
 const bookMeetingSchema = z.object({
   actionType: z.literal('BOOK_MEETING'),
   website_hp: z.string().optional(),
@@ -222,6 +232,41 @@ export async function POST(req: NextRequest) {
             email: parsed.email,
             phone: parsed.phone,
             message: parsed.message,
+          }),
+          category: 'CONTACT',
+          replyTo: parsed.email,
+        });
+      });
+
+      return NextResponse.json(inquiry, { status: 201 });
+    }
+
+    if (actionType === 'CAREER_ENQUIRY') {
+      const parsed = careerEnquirySchema.parse(body);
+      const inquiry = await db.inquiry.create({
+        data: {
+          type: 'CAREERS',
+          name: parsed.name,
+          email: parsed.email,
+          phone: parsed.phone,
+          message: parsed.enquiryType
+            ? `[Enquiry Type: ${parsed.enquiryType}]\n\n${parsed.message}`
+            : parsed.message,
+        }
+      });
+
+      // Dispatch admin career inquiry email notification
+      getNotificationTargetEmail('CONTACT').then(adminEmail => {
+        safelySendEmail({
+          to: adminEmail,
+          subject: `[E3 Career Enquiry] ${parsed.name} (${parsed.enquiryType || 'General'})`,
+          html: renderAdminGeneralInquiryEmail({
+            name: parsed.name,
+            email: parsed.email,
+            phone: parsed.phone,
+            message: parsed.enquiryType
+              ? `[Enquiry Type: ${parsed.enquiryType}]\n\n${parsed.message}`
+              : parsed.message,
           }),
           category: 'CONTACT',
           replyTo: parsed.email,

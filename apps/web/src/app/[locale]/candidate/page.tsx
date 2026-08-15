@@ -109,7 +109,7 @@ export default async function CandidateDashboardPage({
 
           <div className="flex items-center gap-3">
             <Link
-              href={`/${locale}/careers`}
+              href={`/${locale}/b2b/careers`}
               className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-zinc-200 transition-colors"
             >
               <Briefcase className="w-3.5 h-3.5" />

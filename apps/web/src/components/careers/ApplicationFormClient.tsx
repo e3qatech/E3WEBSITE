@@ -140,7 +140,7 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
           </Link>
           <Button
             variant="outline"
-            onClick={() => router.push(`/${locale}/careers`)}
+            onClick={() => router.push(`/${locale}/b2b/careers`)}
             className="flex-1 border-zinc-700 text-white hover:bg-zinc-800 py-6 rounded-xl"
           >
             {isAr ? "العودة إلى الوظائف" : "Back to Careers"}
@@ -158,7 +158,7 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
       {/* Header & Navigation */}
       <div className="mb-6">
         <Link
-          href={`/${locale}/careers`}
+          href={`/${locale}/b2b/careers`}
           className="text-zinc-400 hover:text-white inline-flex items-center text-sm mb-6 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 me-2 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform" />

@@ -15,7 +15,7 @@ export function TeamCareersCtaSection({
   primaryUrl,
 }: TeamCareersCtaSectionProps) {
   const isAr = locale === "ar";
-  const defaultCareersUrl = primaryUrl || `/${locale}/careers`;
+  const defaultCareersUrl = primaryUrl || `/${locale}/b2b/careers`;
   const contactUrl = `/${locale}/contact`;
 
   return (

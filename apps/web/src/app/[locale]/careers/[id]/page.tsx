@@ -47,7 +47,7 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
         
         <div className="mb-12">
           <Link 
-            href={`/${locale}/careers`}
+            href={`/${locale}/b2b/careers`}
             className="inline-flex items-center text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors mb-8"
           >
             <ArrowLeft className={`w-4 h-4 me-2 ${isRTL ? 'rotate-180 ms-2 me-0' : ''}`} />
@@ -90,7 +90,7 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
               </div>
             </div>
             <Link
-              href={`/${locale}/careers`}
+              href={`/${locale}/b2b/careers`}
               className="inline-flex items-center justify-center px-5 py-2.5 bg-amber-500 text-zinc-950 font-bold text-sm rounded-xl hover:bg-amber-400 transition-colors shrink-0"
             >
               {locale === 'ar' ? 'استعراض الشواغر المتاحة' : 'View Open Roles'}

@@ -393,7 +393,7 @@ describe("UX-03A-C — Team Directory Clutter Correction Suite", () => {
       expect(html).toContain('data-testid="team-careers-cta"');
       expect(html).toContain("Shape the Future of Live Experiential Engineering");
       expect(html).toContain("Explore Careers &amp; Roles");
-      expect(html).toContain("/en/careers");
+      expect(html).toContain("/en/b2b/careers");
       expect(html).toContain("/en/contact");
     });
   });
