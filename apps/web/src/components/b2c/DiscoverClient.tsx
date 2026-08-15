@@ -251,17 +251,12 @@ export function DiscoverClient({
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                           </div>
 
-                          {/* Right Column: Text Content (Avatar, Title, Quote, Subtext & CTA) */}
+                          {/* Right Column: Text Content (Title, Quote, Subtext & CTA) */}
                           <div className="sm:col-span-7 flex flex-col justify-between space-y-4 py-1">
                             <div className="space-y-3">
-                              <div className="flex items-center gap-3">
-                                {portrait && (
-                                  <img src={portrait} alt={name || "Leader"} className="w-10 h-10 rounded-full object-cover border border-[var(--e3-royal-blue)] shadow-md shrink-0" />
-                                )}
-                                <div>
-                                  <h3 className="font-extrabold text-base md:text-lg text-[var(--text-primary)] font-display uppercase leading-tight">{name}</h3>
-                                  <p className="text-xs text-[var(--e3-royal-blue)] font-mono font-bold uppercase tracking-wider">{title}</p>
-                                </div>
+                              <div>
+                                <h3 className="font-extrabold text-base md:text-lg text-[var(--text-primary)] font-display uppercase leading-tight">{name}</h3>
+                                <p className="text-xs text-[var(--e3-royal-blue)] font-mono font-bold uppercase tracking-wider">{title}</p>
                               </div>
 
                               {(msg.pullQuoteEn || msg.pullQuoteAr) && (
