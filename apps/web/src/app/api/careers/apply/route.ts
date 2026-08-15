@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 
 import { rateLimit } from '@/lib/rate-limit';
 import { enforceBodyLimit } from '@/lib/body-limit';
+import { isJobPubliclyEligible } from '@/lib/careers/job-eligibility';
 
 const applicationSchema = z.object({
   website_hp: z.string().optional(),
@@ -13,6 +14,7 @@ const applicationSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  jobId: z.string().optional(),
   jobTitle: z.string().min(1, "Job title is required"),
   department: z.string().optional(),
   cvUrl: z.string().url("Valid CV URL is required"),
@@ -69,9 +71,45 @@ export async function POST(req: NextRequest) {
     const validatedData = applicationSchema.parse(body);
     const cleanEmail = validatedData.email.trim().toLowerCase();
 
+    // 1. Verify target job existence and eligibility if jobId is provided
+    let verifiedJobTitle = validatedData.jobTitle.trim();
+    let verifiedDepartment = validatedData.department?.trim() || null;
+
+    if (validatedData.jobId) {
+      const targetJob = await db.job.findUnique({
+        where: { id: validatedData.jobId },
+      });
+
+      if (!targetJob) {
+        return NextResponse.json(
+          {
+            error: 'The requested job posting was not found or has been removed.',
+            code: 'JOB_NOT_FOUND',
+          },
+          { status: 404 }
+        );
+      }
+
+      const eligibility = isJobPubliclyEligible(targetJob);
+      if (!eligibility.eligible) {
+        return NextResponse.json(
+          {
+            error: eligibility.reason || 'Applications for this position are closed or no longer accepting submissions.',
+            errorAr: eligibility.reasonAr || 'باب التقديم لهذه الوظيفة مغلق حالياً.',
+            code: 'JOB_CLOSED',
+            eligibility,
+          },
+          { status: 422 }
+        );
+      }
+
+      if (targetJob.title) verifiedJobTitle = targetJob.title;
+      if (targetJob.department) verifiedDepartment = targetJob.department;
+    }
+
     const session = await auth();
 
-    // 1. Check if user exists or create them
+    // 2. Check if user exists or create them
     let user = await db.user.findUnique({
       where: { email: cleanEmail }
     });
@@ -99,27 +137,27 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 2. Create the application and link it to the user
+    // 3. Create the application and link it to the user
     const application = await db.jobApplication.create({
       data: {
         firstName: validatedData.firstName.trim(),
         lastName: validatedData.lastName.trim(),
         email: cleanEmail,
         phone: validatedData.phone?.trim() || null,
-        jobTitle: validatedData.jobTitle.trim(),
-        department: validatedData.department?.trim() || null,
+        jobTitle: verifiedJobTitle,
+        department: verifiedDepartment,
         cvUrl: validatedData.cvUrl,
         portal: validatedData.portal,
         userId: user.id
       }
     });
 
-    // 3. Simulated AI Parse and optional CRM Talent Record
+    // 4. Simulated AI Parse and optional CRM Talent Record
     let parsedData = { experienceLevel: "Unknown", skills: [] as string[], languages: [] as string[] };
     if (validatedData.cvText) {
       parsedData = simulateAIParse(validatedData.cvText);
     } else {
-      parsedData = simulateAIParse(validatedData.jobTitle + " " + (validatedData.department || ""));
+      parsedData = simulateAIParse(verifiedJobTitle + " " + (verifiedDepartment || ""));
     }
 
     let talentId: string | null = null;
@@ -130,8 +168,9 @@ export async function POST(req: NextRequest) {
             name: `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`,
             email: cleanEmail,
             phone: validatedData.phone?.trim() || null,
-            position: validatedData.jobTitle.trim(),
-            department: validatedData.department?.trim() || null,
+            position: verifiedJobTitle,
+            department: verifiedDepartment,
+            jobId: validatedData.jobId || null,
             resumeUrl: validatedData.cvUrl,
             experienceLevel: parsedData.experienceLevel,
             skills: parsedData.skills,

@@ -102,13 +102,22 @@ export function ApplicationForm({ jobId, jobTitle, locale }: { jobId: string, jo
         </select>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-4 space-y-3">
         <Button type="submit" disabled={loading} className="w-full gap-2 text-lg py-6 font-bold">
           {loading && <Loader2 className="w-5 h-5 animate-spin" />}
           {loading 
             ? (locale === "ar" ? "جاري الإرسال..." : "Submitting...") 
-            : (locale === "ar" ? "تقديم الطلب" : "Submit Application")}
+            : (locale === "ar" ? "تقديم سريع" : "Quick Submit")}
         </Button>
+
+        <div className="text-center">
+          <a
+            href={`/${locale}/apply?jobId=${encodeURIComponent(jobId)}&jobTitle=${encodeURIComponent(jobTitle)}`}
+            className="text-xs text-[var(--color-primary)] hover:underline font-bold"
+          >
+            {locale === "ar" ? "أو التقديم الكامل مع رفع السيرة الذاتية ←" : "Or complete full application with CV upload →"}
+          </a>
+        </div>
       </div>
     </form>
   )

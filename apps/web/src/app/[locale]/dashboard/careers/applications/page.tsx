@@ -1,17 +1,28 @@
-import { Metadata } from "next"
-import db from "@/lib/db"
-import { ApplicationsManager } from "@/components/dashboard/careers/ApplicationsManager"
+import { Metadata } from "next";
+import db from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { isHRAuthorized } from "@/lib/careers/job-eligibility";
+import { ApplicationsManager } from "@/components/dashboard/careers/ApplicationsManager";
 
 export const metadata: Metadata = {
   title: "Job Applications | E3 Admin",
-}
+};
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-export default async function ApplicationsPage() {
+export default async function ApplicationsPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  const session = await auth();
+  const userRole = (session?.user as any)?.role;
+
+  if (!session || !session.user || !isHRAuthorized(userRole)) {
+    redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/careers/applications`);
+  }
+
   const applications = await db.jobApplication.findMany({
-    orderBy: { createdAt: 'desc' }
-  })
+    orderBy: { createdAt: 'desc' },
+  });
 
-  return <ApplicationsManager initialApplications={applications} />
+  return <ApplicationsManager initialApplications={applications} />;
 }

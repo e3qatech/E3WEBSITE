@@ -1,30 +1,37 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { ArrowRight, MapPin, Clock } from "lucide-react"
-import prisma from "@/lib/db"
+import { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, MapPin, Clock } from "lucide-react";
+import prisma from "@/lib/db";
+import {
+  filterPubliclyEligibleJobs,
+  formatJobPresentation,
+} from "@/lib/careers/job-eligibility";
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const params = await props.params;
   return {
     title: params.locale === 'ar' ? 'الوظائف | E3 Qatar' : 'Careers | E3 Qatar',
     description: params.locale === 'ar' ? 'انضم إلى فريق E3 وساهم في بناء مستقبل الفعاليات الترفيهية.' : 'Join the E3 team and help build the future of entertainment experiences.'
-  }
+  };
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default async function CareersPage(props: { params: Promise<{ locale: string }> }) {
   const params = await props.params;
   const { locale } = params;
-  const isRTL = locale === 'ar'
+  const isRTL = locale === 'ar';
 
-  const jobs = await prisma.job.findMany({
+  const rawJobs = await prisma.job.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: "desc" }
-  })
+  });
+
+  const eligibleJobs = filterPubliclyEligibleJobs(rawJobs);
+  const formattedJobs = eligibleJobs.map((j) => formatJobPresentation(j, locale as 'en' | 'ar'));
 
   return (
-    <main className="bg-[var(--surface-default)] min-h-screen pt-32 pb-24">
+    <main className="bg-[var(--surface-default)] min-h-screen pt-32 pb-24" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -41,17 +48,23 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
 
         {/* Jobs List */}
         <div className="space-y-6">
-          {jobs.length === 0 ? (
+          {formattedJobs.length === 0 ? (
             <div className="text-center py-20 bg-[var(--surface-hover)] rounded-3xl border border-[var(--border-default)]">
               <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
                 {locale === 'ar' ? 'لا توجد وظائف شاغرة حالياً' : 'No Open Positions'}
               </h3>
-              <p className="text-[var(--text-secondary)]">
-                {locale === 'ar' ? 'يرجى التحقق مرة أخرى لاحقاً أو إرسال سيرتك الذاتية.' : 'Please check back later or submit a general application.'}
+              <p className="text-[var(--text-secondary)] mb-6">
+                {locale === 'ar' ? 'يرجى التحقق مرة أخرى لاحقاً أو تقديم طلب عام.' : 'Please check back later or submit a general application.'}
               </p>
+              <Link
+                href={`/${locale}/apply`}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-zinc-950 font-bold rounded-xl hover:opacity-90 transition-opacity"
+              >
+                {locale === 'ar' ? 'تقديم طلب عام' : 'Submit General Application'}
+              </Link>
             </div>
           ) : (
-            jobs.map((job: any) => (
+            formattedJobs.map((job) => (
               <Link 
                 href={`/${locale}/careers/${job.id}`} 
                 key={job.id}
@@ -60,7 +73,7 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
                     <div className="text-xs font-bold px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full uppercase tracking-wider inline-block mb-4">
-                      {job.department || "General"}
+                      {job.department}
                     </div>
                     <h2 className="text-2xl md:text-3xl font-black text-[var(--text-primary)] mb-4 group-hover:text-[var(--color-primary)] transition-colors">
                       {job.title}
@@ -68,16 +81,16 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
                     <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--text-secondary)]">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-4 h-4" />
-                        {job.location || (locale === 'ar' ? 'الدوحة، قطر' : 'Doha, Qatar')}
+                        {job.location}
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4" />
-                        {job.type.replace("_", " ")}
+                        {job.type}
                       </div>
                     </div>
                   </div>
                   
-                  <div className={`shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[var(--surface-hover)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors text-[var(--text-secondary)] ${isRTL ? 'rotate-180' : ''}`}>
+                  <div className={`shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[var(--surface-hover)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors text-[var(--text-secondary)]`}>
                     <ArrowRight className="w-6 h-6 rtl:-scale-x-100" />
                   </div>
                 </div>
@@ -88,5 +101,5 @@ export default async function CareersPage(props: { params: Promise<{ locale: str
 
       </div>
     </main>
-  )
+  );
 }

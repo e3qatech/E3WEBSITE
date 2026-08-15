@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
+import { isHRAuthorized } from '@/lib/careers/job-eligibility';
 
 export async function POST(
   req: NextRequest,
@@ -8,10 +9,13 @@ export async function POST(
 ) {
   try {
     const session = await auth();
-    // Only allow admins to parse CVs
-    const userRole = (session?.user as any)?.role;
-    if (!session || !session.user || userRole === 'CLIENT') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+    }
+
+    const userRole = (session.user as any)?.role;
+    if (!isHRAuthorized(userRole)) {
+      return NextResponse.json({ error: 'Forbidden: HR permissions required to parse CV documents' }, { status: 403 });
     }
 
     const { id } = await params;

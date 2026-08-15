@@ -1,25 +1,28 @@
-import React from 'react'
-import 'next/link'
-import { db } from "@/lib/db"
-import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
-import { CareerListings } from '@/components/careers/CareerListings'
+import React from 'react';
+import { db } from "@/lib/db";
+import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer';
+import { CareerListings } from '@/components/careers/CareerListings';
+import {
+  filterPubliclyEligibleJobs,
+  formatJobPresentation,
+} from '@/lib/careers/job-eligibility';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default async function B2BCareersPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const isAr = locale === 'ar'
+  const isAr = locale === 'ar';
 
-  let pageData: any = null
+  let pageData: any = null;
   try {
     pageData = await db.pages.findUnique({
       where: { slug: 'b2b-careers' }
-    })
+    });
   } catch (error) {
-    console.error("Error loading b2b careers page:", error)
+    console.error("Error loading b2b careers page:", error);
   }
 
-  const content = pageData?.content as any || {}
+  const content = pageData?.content as any || {};
 
   const heroTitle = isAr ? (content?.hero?.titleAr || "انضم لفريقنا") : (content?.hero?.titleEn || "Join Our Team");
   const heroSubtitle = isAr ? (content?.hero?.subtitleAr || "اصنع مستقبل الترفيه معنا.") : (content?.hero?.subtitleEn || "Build the future of entertainment with us.");
@@ -32,24 +35,43 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
   const footerMediaType = content?.footer?.mediaType || "IMAGE";
   const footerMediaUrl = content?.footer?.mediaUrl || "";
 
-  const jobs = Array.isArray(content.jobs) && content.jobs.length > 0 ? content.jobs : [
-    {
-      titleEn: "Senior Full Stack Engineer",
-      titleAr: "مهندس برمجيات أول",
-      department: "Engineering",
-      location: "Doha, Qatar",
-      type: "Full-time",
-      applicationLink: "mailto:careers@e3.qa"
-    },
-    {
-      titleEn: "Event Operations Manager",
-      titleAr: "مدير عمليات الفعاليات",
-      department: "Operations",
-      location: "Doha, Qatar",
-      type: "Full-time",
-      applicationLink: "mailto:careers@e3.qa"
+  // 1. Fetch canonical jobs from db.job
+  let displayJobs: any[] = [];
+  try {
+    const rawDbJobs = await db.job.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const eligibleDbJobs = filterPubliclyEligibleJobs(rawDbJobs);
+    if (eligibleDbJobs.length > 0) {
+      displayJobs = eligibleDbJobs.map((j) => formatJobPresentation(j, isAr ? 'ar' : 'en'));
     }
-  ]
+  } catch (err) {
+    console.error("Error fetching db.job for B2B careers:", err);
+  }
+
+  // 2. Fallback to page content jobs if no DB jobs exist yet
+  if (displayJobs.length === 0) {
+    const fallbackRaw = Array.isArray(content.jobs) && content.jobs.length > 0 ? content.jobs : [
+      {
+        titleEn: "Senior Full Stack Engineer",
+        titleAr: "مهندس برمجيات أول",
+        department: "Engineering",
+        location: "Doha, Qatar",
+        type: "Full-time",
+      },
+      {
+        titleEn: "Event Operations Manager",
+        titleAr: "مدير عمليات الفعاليات",
+        department: "Operations",
+        location: "Doha, Qatar",
+        type: "Full-time",
+      }
+    ];
+
+    displayJobs = fallbackRaw.map((j: any) => formatJobPresentation(j, isAr ? 'ar' : 'en'));
+  }
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20 relative" dir={isAr ? 'rtl' : 'ltr'}>
@@ -86,10 +108,10 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
           <h2 className="text-3xl font-bold text-white tracking-tight">
             {isAr ? "الوظائف المتاحة" : "Open Roles"}
           </h2>
-          <span className="text-zinc-500 font-medium">{jobs.length} {isAr ? "وظيفة" : "Positions"}</span>
+          <span className="text-zinc-500 font-medium">{displayJobs.length} {isAr ? "وظيفة" : "Positions"}</span>
         </div>
 
-        <CareerListings jobs={jobs} isAr={isAr} portal="B2B" />
+        <CareerListings jobs={displayJobs} isAr={isAr} portal="B2B" />
       </section>
 
       {/* Footer Media */}
@@ -101,5 +123,5 @@ export default async function B2BCareersPage({ params }: { params: Promise<{ loc
       )}
       
     </div>
-  )
+  );
 }

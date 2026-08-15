@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { MediaUploader } from "@/components/shared/MediaUploader";
-import { Send, CheckCircle2, FileText, ArrowLeft, ArrowRight, Lock } from "lucide-react";
+import { Send, CheckCircle2, FileText, ArrowLeft, ArrowRight, Lock, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { toTitleCase } from "@/lib/careers/job-eligibility";
 
 interface ApplicationFormClientProps {
   locale: string;
@@ -18,8 +19,16 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
   const isAr = locale === "ar";
   const dir = isAr ? "rtl" : "ltr";
 
-  const jobTitle = searchParams?.get("jobTitle") || (isAr ? "فرصة وظيفية متاحة" : "Open Position");
-  const department = searchParams?.get("department") || "";
+  const jobId = searchParams?.get("jobId") || "";
+  const rawJobTitle = searchParams?.get("jobTitle") || "";
+  const jobTitle = rawJobTitle
+    ? toTitleCase(rawJobTitle)
+    : isAr
+    ? "طلب توظيف عام"
+    : "General Application";
+
+  const rawDept = searchParams?.get("department") || "";
+  const department = rawDept ? toTitleCase(rawDept) : "";
   const portal = searchParams?.get("portal") || "SHARED";
 
   const [formData, setFormData] = useState({
@@ -34,12 +43,14 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isJobClosed, setIsJobClosed] = useState(false);
   const [accountExists, setAccountExists] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setAccountExists(false);
+    setIsJobClosed(false);
 
     if (!formData.cvUrl) {
       setError(
@@ -57,6 +68,7 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          jobId: jobId || undefined,
           jobTitle,
           department,
           portal,
@@ -75,6 +87,17 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
           );
           return;
         }
+
+        if (res.status === 422 || json.code === "JOB_CLOSED") {
+          setIsJobClosed(true);
+          setError(
+            isAr
+              ? (json.errorAr || "باب التقديم لهذه الوظيفة مغلق حالياً.")
+              : (json.error || "Applications for this position are closed.")
+          );
+          return;
+        }
+
         throw new Error(json.error || (isAr ? "تعذر تقديم طلب التوظيف." : "Failed to submit application"));
       }
 
@@ -117,7 +140,7 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
           </Link>
           <Button
             variant="outline"
-            onClick={() => router.back()}
+            onClick={() => router.push(`/${locale}/careers`)}
             className="flex-1 border-zinc-700 text-white hover:bg-zinc-800 py-6 rounded-xl"
           >
             {isAr ? "العودة إلى الوظائف" : "Back to Careers"}
@@ -134,13 +157,13 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
     >
       {/* Header & Navigation */}
       <div className="mb-6">
-        <button
-          onClick={() => router.back()}
-          className="text-zinc-400 hover:text-white flex items-center text-sm mb-6 transition-colors group"
+        <Link
+          href={`/${locale}/careers`}
+          className="text-zinc-400 hover:text-white inline-flex items-center text-sm mb-6 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 me-2 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform" />
           <span>{isAr ? "العودة إلى الوظائف" : "Back to Careers"}</span>
-        </button>
+        </Link>
 
         <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight font-display mb-2">
           {isAr ? `التقديم على: ${jobTitle}` : `Apply for ${jobTitle}`}
@@ -151,6 +174,30 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
           </p>
         )}
       </div>
+
+      {/* Closed Position Callout */}
+      {isJobClosed && (
+        <div className="p-5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-200 text-sm mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-white">
+                {isAr ? "باب التقديم لهذه الوظيفة مغلق" : "Position Closed"}
+              </p>
+              <p className="text-xs text-zinc-300 mt-1">
+                {error}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/${locale}/apply`}
+            className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold bg-emerald-500 text-zinc-950 hover:bg-emerald-400 rounded-lg shrink-0 transition-colors"
+          >
+            <span>{isAr ? "تقديم طلب عام بدلاً من ذلك" : "Submit General Application"}</span>
+            <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 ms-1.5" />
+          </Link>
+        </div>
+      )}
 
       {/* Existing Account Conflict Callout */}
       {accountExists && (
@@ -180,7 +227,7 @@ export function ApplicationFormClient({ locale }: ApplicationFormClientProps) {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {error && !accountExists && (
+        {error && !accountExists && !isJobClosed && (
           <div className="p-4 bg-red-500/10 border border-red-500/40 rounded-xl text-red-400 text-sm">
             {error}
           </div>

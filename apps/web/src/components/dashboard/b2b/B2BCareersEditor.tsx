@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
-import { Plus, Trash2, Save } from "lucide-react"
+import { Plus, Trash2, Save, ExternalLink } from "lucide-react"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 import {
   DashboardPageShell,
@@ -211,11 +212,24 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
         {/* Jobs Section */}
         <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Open Roles</h2>
-            <AdminButton variant="outline" size="sm" onClick={addJob}>
-              <Plus className="w-4 h-4 me-2" />
-              Add Job
-            </AdminButton>
+            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Open Roles (Page Fallback)</h2>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/dashboard/careers"
+                className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-medium px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 transition-colors"
+              >
+                <span>Manage Canonical Jobs</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+              <AdminButton variant="outline" size="sm" onClick={addJob}>
+                <Plus className="w-4 h-4 me-2" />
+                Add Fallback Role
+              </AdminButton>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-lg bg-surface-default border border-border-default text-xs text-text-secondary">
+            Positions published in the <Link href="/dashboard/careers" className="text-primary hover:underline font-bold">Canonical Careers Manager</Link> automatically appear on the public B2B and B2C Careers portals.
           </div>
           
           <div className="space-y-4">
