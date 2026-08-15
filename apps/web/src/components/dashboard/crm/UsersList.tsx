@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useLocale } from "@/components/layout/LocaleProvider";
 import { Search, Plus, Shield, UserCheck, KeyRound, Building, Edit, Lock, Snowflake } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
-type UserItem = {
+export type UserItem = {
   id: string;
   name: string | null;
   email: string;
@@ -24,21 +25,25 @@ type UserItem = {
   }>;
 };
 
-const ROLES = [
-  { value: "SUPER_ADMIN", label: "Super Admin", variant: "error" },
-  { value: "B2C_ADMIN", label: "B2C Admin", variant: "purple" },
-  { value: "B2B_ADMIN", label: "B2B Admin", variant: "warning" },
-  { value: "HR_ADMIN", label: "HR Admin", variant: "info" },
-  { value: "OPERATIONS_ADMIN", label: "Operations Admin", variant: "warning" },
-  { value: "STAFF", label: "Staff", variant: "purple" },
-  { value: "CLIENT", label: "Client / Business User", variant: "success" },
-  { value: "CANDIDATE", label: "Candidate / Applicant", variant: "default" },
-  { value: "SALES_ADMIN", label: "Sales Admin (B2B)", variant: "warning" },
-  { value: "SUPPORT_ADMIN", label: "Support Admin (B2C)", variant: "info" },
+export const ROLES = [
+  { value: "SUPER_ADMIN", label: "Super Admin", labelAr: "المدير العام", variant: "error" },
+  { value: "B2C_ADMIN", label: "B2C Admin", labelAr: "مدير الأفراد (B2C)", variant: "purple" },
+  { value: "B2B_ADMIN", label: "B2B Admin", labelAr: "مدير الشركات (B2B)", variant: "warning" },
+  { value: "HR_ADMIN", label: "HR Admin", labelAr: "مدير الموارد البشرية", variant: "info" },
+  { value: "OPERATIONS_ADMIN", label: "Operations Admin", labelAr: "مدير العمليات", variant: "warning" },
+  { value: "STAFF", label: "Staff", labelAr: "طاقم العمل", variant: "purple" },
+  { value: "CLIENT", label: "Client / Business User", labelAr: "عميل / حساب أعمال", variant: "success" },
+  { value: "CANDIDATE", label: "Candidate / Applicant", labelAr: "مرشح / متقدم للوظيفة", variant: "default" },
+  { value: "SALES_ADMIN", label: "Sales Admin (B2B)", labelAr: "مدير المبيعات (B2B)", variant: "warning" },
+  { value: "SUPPORT_ADMIN", label: "Support Admin (B2C)", labelAr: "مدير الدعم (B2C)", variant: "info" },
 ] as const;
 
 export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { locale: contextLocale } = useLocale();
+  const isAr = pathname?.startsWith("/ar") || contextLocale === "ar";
+
   const [users, setUsers] = useState<UserItem[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
@@ -69,13 +74,13 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to create user");
+      if (!res.ok) throw new Error(result.error || (isAr ? "فشل إنشاء المستخدم" : "Failed to create user"));
 
       setUsers((prev) => [result, ...prev]);
       setIsAdding(false);
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Failed to create user");
+      alert(err.message || (isAr ? "فشل إنشاء المستخدم" : "Failed to create user"));
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +99,10 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     };
 
     if (editingUser.role !== data.role) {
-      if (!confirm(`Are you sure you want to change the security role for ${editingUser.email} from "${editingUser.role}" to "${data.role}"?`)) {
+      const confirmRoleMsg = isAr
+        ? `هل أنت متأكد من رغبتك في تغيير دور الأمان للمستخدم ${editingUser.email} من "${editingUser.role}" إلى "${data.role}"؟`
+        : `Are you sure you want to change the security role for ${editingUser.email} from "${editingUser.role}" to "${data.role}"?`;
+      if (!confirm(confirmRoleMsg)) {
         setIsSubmitting(false);
         return;
       }
@@ -108,15 +116,15 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to update user");
+      if (!res.ok) throw new Error(result.error || (isAr ? "فشل تحديث بيانات المستخدم" : "Failed to update user"));
 
       setUsers((prev) =>
         prev.map((u) => (u.id === editingUser.id ? { ...u, ...result } : u))
       );
       setEditingUser(null);
-      alert("User credentials updated successfully.");
+      alert(isAr ? "تم تحديث بيانات المستخدم وصلاحياته بنجاح." : "User credentials updated successfully.");
     } catch (err: any) {
-      alert(err.message || "Failed to update user");
+      alert(err.message || (isAr ? "فشل تحديث بيانات المستخدم" : "Failed to update user"));
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +133,10 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const handleAdminChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordUser || !newPassword) return;
-    if (!confirm(`Are you sure you want to reset the password for ${passwordUser.email}? This will immediately invalidate all active sessions for this account.`)) return;
+    const confirmPwdMsg = isAr
+      ? `هل أنت متأكد من إعادة تعيين كلمة المرور لـ ${passwordUser.email}؟ سيؤدي ذلك فوراً إلى إلغاء جميع الجلسات النشطة لهذا الحساب.`
+      : `Are you sure you want to reset the password for ${passwordUser.email}? This will immediately invalidate all active sessions for this account.`;
+    if (!confirm(confirmPwdMsg)) return;
     setIsSubmitting(true);
 
     try {
@@ -136,24 +147,27 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to update password");
+      if (!res.ok) throw new Error(result.error || (isAr ? "فشل تحديث كلمة المرور" : "Failed to update password"));
 
       setUsers((prev) =>
         prev.map((u) => (u.id === passwordUser.id ? { ...u, sessionVersion: result.sessionVersion } : u))
       );
       setPasswordUser(null);
       setNewPassword("");
-      alert("User password updated successfully. Active sessions revoked.");
+      alert(isAr ? "تم تحديث كلمة المرور بنجاح وإلغاء جميع الجلسات القديمة." : "User password updated successfully. Active sessions revoked.");
     } catch (err: any) {
-      alert(err.message || "Failed to update password");
+      alert(err.message || (isAr ? "فشل تحديث كلمة المرور" : "Failed to update password"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleToggleFreezeStatus = async (userId: string, currentStatus: boolean) => {
-    const actionName = currentStatus ? "Freeze" : "Unfreeze";
-    if (!confirm(`${actionName} this user account? ${currentStatus ? "Their active login sessions will be immediately terminated." : ""}`)) return;
+    const actionName = currentStatus ? (isAr ? "تجميد" : "Freeze") : (isAr ? "إلغاء تجميد" : "Unfreeze");
+    const confirmFreezeMsg = isAr
+      ? `هل تريد ${actionName} هذا الحساب؟ ${currentStatus ? "سيتم إنهاء جميع الجلسات النشطة فوراً." : ""}`
+      : `${actionName} this user account? ${currentStatus ? "Their active login sessions will be immediately terminated." : ""}`;
+    if (!confirm(confirmFreezeMsg)) return;
     setUpdatingId(userId);
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
@@ -163,20 +177,23 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || `Failed to ${actionName.toLowerCase()} account`);
+      if (!res.ok) throw new Error(result.error || (isAr ? `فشل ${actionName} الحساب` : `Failed to ${actionName.toLowerCase()} account`));
 
       setUsers((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, isActive: !currentStatus, sessionVersion: result.sessionVersion || u.sessionVersion } : u))
       );
     } catch (err: any) {
-      alert(err.message || "Failed to update account status");
+      alert(err.message || (isAr ? "فشل تحديث حالة الحساب" : "Failed to update account status"));
     } finally {
       setUpdatingId(null);
     }
   };
 
   const handleRevokeSessions = async (userId: string) => {
-    if (!confirm("Revoke all active sessions for this user? They will be forced to log in again.")) return;
+    const confirmRevokeMsg = isAr
+      ? "هل تريد إلغاء جميع الجلسات النشطة لهذا المستخدم؟ سيُطلب منه تسجيل الدخول مجدداً."
+      : "Revoke all active sessions for this user? They will be forced to log in again.";
+    if (!confirm(confirmRevokeMsg)) return;
     setUpdatingId(userId);
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
@@ -186,14 +203,14 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to revoke sessions");
+      if (!res.ok) throw new Error(result.error || (isAr ? "فشل إلغاء الجلسات" : "Failed to revoke sessions"));
 
       setUsers((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, sessionVersion: result.sessionVersion } : u))
       );
-      alert("User sessions revoked successfully.");
+      alert(isAr ? "تم إلغاء جميع جلسات المستخدم بنجاح." : "User sessions revoked successfully.");
     } catch (err: any) {
-      alert(err.message || "Failed to revoke sessions");
+      alert(err.message || (isAr ? "فشل إلغاء الجلسات" : "Failed to revoke sessions"));
     } finally {
       setUpdatingId(null);
     }
@@ -209,7 +226,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
 
   const getRoleBadge = (role: string) => {
     const roleObj = ROLES.find((r) => r.value === role);
-    const label = roleObj?.label || role;
+    const label = (isAr ? roleObj?.labelAr : roleObj?.label) || role;
     switch (role) {
       case "SUPER_ADMIN":
         return <Badge variant="error">{label}</Badge>;
@@ -234,15 +251,21 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-text-primary">Platform Accounts & Role Assignments</h2>
-          <p className="text-xs text-text-secondary">View active accounts, assign permissions, revoke sessions, or freeze compromised credentials.</p>
+          <h2 className="text-base font-bold text-text-primary">
+            {isAr ? "حسابات المنصة وتعيين صلاحيات الأدوار" : "Platform Accounts & Role Assignments"}
+          </h2>
+          <p className="text-xs text-text-secondary">
+            {isAr
+              ? "استعراض الحسابات النشطة، تعيين الأدوار والصلاحيات، تجميد الحسابات المشبوهة، وإلغاء الجلسات."
+              : "View active accounts, assign permissions, revoke sessions, or freeze compromised credentials."}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               type="text"
-              placeholder="Search user or email..."
+              placeholder={isAr ? "بحث بالاسم أو البريد..." : "Search user or email..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm focus:outline-none focus:border-accent w-full md:w-64"
@@ -254,16 +277,16 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
             onChange={(e) => setRoleFilter(e.target.value)}
             className="px-3 py-2 bg-surface-default border border-border-default rounded-lg text-sm"
           >
-            <option value="">All Roles</option>
+            <option value="">{isAr ? "جميع الأدوار" : "All Roles"}</option>
             {ROLES.map((r) => (
               <option key={r.value} value={r.value}>
-                {r.label}
+                {isAr ? r.labelAr : r.label}
               </option>
             ))}
           </select>
 
           <Button className="gap-2" onClick={() => setIsAdding(true)}>
-            <Plus className="w-4 h-4" /> Create User
+            <Plus className="w-4 h-4" /> {isAr ? "إضافة مستخدم جديد" : "Create User"}
           </Button>
         </div>
       </div>
@@ -276,33 +299,67 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
             className="bg-surface-default rounded-2xl w-full max-w-lg p-6 border border-border-default shadow-xl animate-in fade-in zoom-in duration-200 space-y-4"
           >
             <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-bold text-text-primary">Create Platform User</h2>
-              <button type="button" onClick={() => setIsAdding(false)} className="text-text-tertiary hover:text-text-primary">
+              <h2 className="text-xl font-bold text-text-primary">
+                {isAr ? "إضافة مستخدم جديد للمنصة" : "Create Platform User"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsAdding(false)}
+                className="text-text-tertiary hover:text-text-primary"
+              >
                 ✕
               </button>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Full Name</label>
-              <input name="name" placeholder="John Doe" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "الاسم الكامل" : "Full Name"}
+              </label>
+              <input
+                name="name"
+                placeholder={isAr ? "محمد عبد الله" : "John Doe"}
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Email Address *</label>
-              <input required type="email" name="email" placeholder="user@e3.qa" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "البريد الإلكتروني *" : "Email Address *"}
+              </label>
+              <input
+                required
+                type="email"
+                name="email"
+                placeholder="user@e3.qa"
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Initial Password (Optional)</label>
-              <input type="password" name="password" placeholder="Leave empty for magic claim link" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "كلمة المرور الأولية (اختياري)" : "Initial Password (Optional)"}
+              </label>
+              <input
+                type="password"
+                name="password"
+                placeholder={isAr ? "اتركه فارغاً لإرسال رابط التفعيل" : "Leave empty for magic claim link"}
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Canonical RBAC Role *</label>
-              <select required name="role" defaultValue="STAFF" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm">
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "الدور الأمني (RBAC) *" : "Canonical RBAC Role *"}
+              </label>
+              <select
+                required
+                name="role"
+                defaultValue="STAFF"
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+              >
                 {ROLES.map((r) => (
                   <option key={r.value} value={r.value}>
-                    {r.label}
+                    {isAr ? r.labelAr : r.label}
                   </option>
                 ))}
               </select>
@@ -310,10 +367,16 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
 
             <div className="pt-4 flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>
-                Cancel
+                {isAr ? "إلغاء" : "Cancel"}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Save User"}
+                {isSubmitting
+                  ? isAr
+                    ? "جاري الحفظ..."
+                    : "Creating..."
+                  : isAr
+                  ? "حفظ المستخدم"
+                  : "Save User"}
               </Button>
             </div>
           </form>
@@ -328,28 +391,57 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
             className="bg-surface-default rounded-2xl w-full max-w-lg p-6 border border-border-default shadow-xl animate-in fade-in zoom-in duration-200 space-y-4"
           >
             <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-bold text-text-primary">Edit User Credentials</h2>
-              <button type="button" onClick={() => setEditingUser(null)} className="text-text-tertiary hover:text-text-primary">
+              <h2 className="text-xl font-bold text-text-primary">
+                {isAr ? "تعديل بيانات المستخدم والدور" : "Edit User Credentials"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="text-text-tertiary hover:text-text-primary"
+              >
                 ✕
               </button>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Full Name</label>
-              <input name="name" defaultValue={editingUser.name || ""} placeholder="John Doe" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "الاسم الكامل" : "Full Name"}
+              </label>
+              <input
+                name="name"
+                defaultValue={editingUser.name || ""}
+                placeholder={isAr ? "محمد عبد الله" : "John Doe"}
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Email Address *</label>
-              <input required type="email" name="email" defaultValue={editingUser.email} placeholder="user@e3.qa" className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm" />
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "البريد الإلكتروني *" : "Email Address *"}
+              </label>
+              <input
+                required
+                type="email"
+                name="email"
+                defaultValue={editingUser.email}
+                placeholder="user@e3.qa"
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">Canonical RBAC Role *</label>
-              <select required name="role" defaultValue={editingUser.role} className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm">
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "الدور الأمني (RBAC) *" : "Canonical RBAC Role *"}
+              </label>
+              <select
+                required
+                name="role"
+                defaultValue={editingUser.role}
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+              >
                 {ROLES.map((r) => (
                   <option key={r.value} value={r.value}>
-                    {r.label}
+                    {isAr ? r.labelAr : r.label}
                   </option>
                 ))}
               </select>
@@ -357,10 +449,16 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
 
             <div className="pt-4 flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>
-                Cancel
+                {isAr ? "إلغاء" : "Cancel"}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Updating..." : "Update Credentials"}
+                {isSubmitting
+                  ? isAr
+                    ? "جاري التحديث..."
+                    : "Updating..."
+                  : isAr
+                  ? "تحديث البيانات"
+                  : "Update Credentials"}
               </Button>
             </div>
           </form>
@@ -377,35 +475,57 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <Lock className="w-5 h-5 text-accent" />
-                <h2 className="text-xl font-bold text-text-primary">Set User Password</h2>
+                <h2 className="text-xl font-bold text-text-primary">
+                  {isAr ? "تعيين كلمة مرور للمستخدم" : "Set User Password"}
+                </h2>
               </div>
-              <button type="button" onClick={() => setPasswordUser(null)} className="text-text-tertiary hover:text-text-primary">
+              <button
+                type="button"
+                onClick={() => setPasswordUser(null)}
+                className="text-text-tertiary hover:text-text-primary"
+              >
                 ✕
               </button>
             </div>
 
             <p className="text-xs text-text-secondary">
-              Set a new password for <strong className="text-text-primary">{passwordUser.email}</strong>. This will automatically invalidate all existing login sessions for this account.
+              {isAr ? (
+                <>
+                  تعيين كلمة مرور جديدة للحساب <strong className="text-text-primary font-mono">{passwordUser.email}</strong>. سيؤدي هذا الإجراء تلقائياً إلى إلغاء جميع جلسات تسجيل الدخول الحالية لهذا الحساب.
+                </>
+              ) : (
+                <>
+                  Set a new password for <strong className="text-text-primary font-mono">{passwordUser.email}</strong>. This will automatically invalidate all existing login sessions for this account.
+                </>
+              )}
             </p>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-text-secondary">New Password *</label>
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "كلمة المرور الجديدة *" : "New Password *"}
+              </label>
               <input
                 required
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+                placeholder={isAr ? "٦ أحرف على الأقل" : "At least 6 characters"}
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
               />
             </div>
 
             <div className="pt-4 flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setPasswordUser(null)}>
-                Cancel
+                {isAr ? "إلغاء" : "Cancel"}
               </Button>
               <Button type="submit" disabled={isSubmitting || !newPassword}>
-                {isSubmitting ? "Saving..." : "Set Password"}
+                {isSubmitting
+                  ? isAr
+                    ? "جاري الحفظ..."
+                    : "Saving..."
+                  : isAr
+                  ? "تعيين كلمة المرور"
+                  : "Set Password"}
               </Button>
             </div>
           </form>
@@ -417,12 +537,12 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               <tr>
-                <th className="px-6 py-4 font-medium">User</th>
-                <th className="px-6 py-4 font-medium">Canonical Role</th>
-                <th className="px-6 py-4 font-medium">Tenant Memberships</th>
-                <th className="px-6 py-4 font-medium">Account Status</th>
-                <th className="px-6 py-4 font-medium">Session Version</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
+                <th className="px-6 py-4 font-medium">{isAr ? "المستخدم" : "User"}</th>
+                <th className="px-6 py-4 font-medium">{isAr ? "الدور الأمني" : "Canonical Role"}</th>
+                <th className="px-6 py-4 font-medium">{isAr ? "عضويات المنظمة" : "Tenant Memberships"}</th>
+                <th className="px-6 py-4 font-medium">{isAr ? "حالة الحساب" : "Account Status"}</th>
+                <th className="px-6 py-4 font-medium">{isAr ? "إصدار الجلسة" : "Session Version"}</th>
+                <th className="px-6 py-4 font-medium text-right">{isAr ? "الإجراءات" : "Actions"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-default">
@@ -430,15 +550,15 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-text-tertiary">
                     <Shield className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                    No users found matching query.
+                    {isAr ? "لم يتم العثور على مستخدمين يطابقون البحث." : "No users found matching query."}
                   </td>
                 </tr>
               ) : (
                 filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-surface-hover transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-text-primary">{u.name || "Unnamed User"}</div>
-                      <div className="text-xs text-text-tertiary">{u.email}</div>
+                      <div className="font-bold text-text-primary">{u.name || (isAr ? "مستخدم بدون اسم" : "Unnamed User")}</div>
+                      <div className="text-xs text-text-tertiary font-mono">{u.email}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -456,17 +576,17 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-text-tertiary">None</span>
+                        <span className="text-xs text-text-tertiary">{isAr ? "لا يوجد" : "None"}</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       {u.isActive ? (
                         <span className="inline-flex items-center gap-1 text-xs text-green-400 font-medium bg-green-500/10 px-2 py-1 rounded border border-green-500/20">
-                          <UserCheck className="w-3.5 h-3.5" /> ACTIVE
+                          <UserCheck className="w-3.5 h-3.5" /> {isAr ? "نشط" : "ACTIVE"}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-xs text-rose-400 font-bold bg-rose-500/15 px-2 py-1 rounded border border-rose-500/30 animate-pulse">
-                          <Snowflake className="w-3.5 h-3.5" /> FROZEN
+                          <Snowflake className="w-3.5 h-3.5" /> {isAr ? "مجمد" : "FROZEN"}
                         </span>
                       )}
                     </td>
@@ -479,10 +599,10 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                         size="sm"
                         disabled={updatingId === u.id}
                         onClick={() => setEditingUser(u)}
-                        className="text-text-secondary hover:text-text-primary"
-                        title="Edit credentials (name, email, role)"
+                        className="text-text-secondary hover:text-text-primary cursor-pointer"
+                        title={isAr ? "تعديل البيانات والدور" : "Edit credentials (name, email, role)"}
                       >
-                        <Edit className="w-3.5 h-3.5 me-1" /> Edit
+                        <Edit className="w-3.5 h-3.5 me-1" /> {isAr ? "تعديل" : "Edit"}
                       </Button>
 
                       <Button
@@ -490,10 +610,10 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                         size="sm"
                         disabled={updatingId === u.id}
                         onClick={() => setPasswordUser(u)}
-                        className="text-accent hover:bg-accent/10"
-                        title="Set new password"
+                        className="text-accent hover:bg-accent/10 cursor-pointer"
+                        title={isAr ? "تعيين كلمة مرور جديدة" : "Set new password"}
                       >
-                        <Lock className="w-3.5 h-3.5 me-1" /> Password
+                        <Lock className="w-3.5 h-3.5 me-1" /> {isAr ? "كلمة المرور" : "Password"}
                       </Button>
 
                       <Button
@@ -501,16 +621,16 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                         size="sm"
                         disabled={updatingId === u.id}
                         onClick={() => handleToggleFreezeStatus(u.id, u.isActive)}
-                        className={u.isActive ? "text-rose-400 hover:bg-rose-400/10" : "text-emerald-400 hover:bg-emerald-400/10"}
-                        title={u.isActive ? "Freeze account and revoke sessions" : "Unfreeze account"}
+                        className={`cursor-pointer ${u.isActive ? "text-rose-400 hover:bg-rose-400/10" : "text-emerald-400 hover:bg-emerald-400/10"}`}
+                        title={u.isActive ? (isAr ? "تجميد الحساب وإلغاء الجلسات" : "Freeze account and revoke sessions") : (isAr ? "إلغاء تجميد الحساب" : "Unfreeze account")}
                       >
                         {u.isActive ? (
                           <>
-                            <Snowflake className="w-3.5 h-3.5 me-1" /> Freeze
+                            <Snowflake className="w-3.5 h-3.5 me-1" /> {isAr ? "تجميد" : "Freeze"}
                           </>
                         ) : (
                           <>
-                            <UserCheck className="w-3.5 h-3.5 me-1" /> Unfreeze
+                            <UserCheck className="w-3.5 h-3.5 me-1" /> {isAr ? "إلغاء التجميد" : "Unfreeze"}
                           </>
                         )}
                       </Button>
@@ -520,8 +640,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                         size="sm"
                         disabled={updatingId === u.id}
                         onClick={() => handleRevokeSessions(u.id)}
-                        className="text-amber-400 hover:bg-amber-400/10"
-                        title="Revoke active sessions"
+                        className="text-amber-400 hover:bg-amber-400/10 cursor-pointer"
+                        title={isAr ? "إلغاء الجلسات النشطة" : "Revoke active sessions"}
                       >
                         <KeyRound className="w-3.5 h-3.5" />
                       </Button>

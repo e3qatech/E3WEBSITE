@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { requireAdmin } from "@/lib/server-auth";
+import { requireCurrentUser, AppAuthError } from "@/lib/server-auth";
 import bcrypt from "bcryptjs";
 
 export async function PATCH(
@@ -8,7 +8,19 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    const user = await requireCurrentUser();
+    const isAuthorized =
+      user.role === "SUPER_ADMIN" ||
+      user.permissions.includes("rbac.manage") ||
+      user.permissions.includes("*");
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: "Forbidden: Only Super Admin and RBAC managers can update user credentials or roles" },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { name, email, role, isActive, password, revokeSessions } = body;
@@ -16,6 +28,14 @@ export async function PATCH(
     const existingUser = await db.user.findUnique({ where: { id } });
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Prevent self-role demotion or self-freeze if last super admin
+    if (existingUser.id === user.id && ((role && role !== existingUser.role) || isActive === false)) {
+      const superAdminsCount = await db.user.count({ where: { role: "SUPER_ADMIN", isActive: true } });
+      if (superAdminsCount <= 1) {
+        return NextResponse.json({ error: "Cannot modify last active SUPER_ADMIN" }, { status: 403 });
+      }
     }
 
     const data: any = {};
@@ -77,6 +97,9 @@ export async function PATCH(
 
     return NextResponse.json(updatedUser);
   } catch (error: any) {
+    if (error instanceof AppAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     const status = error.statusCode || 500;
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status });
   }

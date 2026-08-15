@@ -88,11 +88,10 @@ const sidebarConfig = [
   { label: "Settings", icon: Settings, href: "/dashboard/settings/general", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"], subItems: [
     { label: "Gateway Customization", href: "/dashboard/settings/gateway" },
     { label: "Pulse Orbit Hub", href: "/dashboard/settings/pulse-orbit" },
-    { label: "Auth Control & RBAC", href: "/dashboard/crm/users" },
+    { label: "Users & RBAC", href: "/dashboard/settings/users" },
     { label: "General", href: "/dashboard/settings/general" },
     { label: "SEO", href: "/dashboard/settings/seo" },
-    { label: "UI", href: "/dashboard/settings/ui" },
-    { label: "Users", href: "/dashboard/settings/users" }
+    { label: "UI", href: "/dashboard/settings/ui" }
   ] },
 ];
 
