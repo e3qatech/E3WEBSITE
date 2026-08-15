@@ -3,8 +3,6 @@ import { put } from "@vercel/blob"
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client"
 import { randomUUID } from "crypto"
 import { auth } from "@/lib/auth"
-import { promises as _fs } from 'fs';
-import _path from 'path';
 import { isValidMagicBytes } from "@/lib/security"
 import { rateLimit } from "@/lib/rate-limit"
 

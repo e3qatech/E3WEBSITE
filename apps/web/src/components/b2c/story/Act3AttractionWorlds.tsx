@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client"
 
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Users, Clock, Ticket, ArrowRight, ShieldCheck } from 'lucide-react'
+import { Users, Clock, Ticket } from 'lucide-react'
 
 interface Act3AttractionWorldsProps {
   content: any
   locale: string
 }
 
-import { resolveMediaType } from '@/lib/media-resolver'
 import { localizeHref } from '@/lib/url-helper'
 
 export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsProps) {

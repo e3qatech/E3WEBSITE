@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { 
   Save, ArrowLeft, Settings, Image as ImageIcon, 
-  Tags, LayoutTemplate, Briefcase, Plus, Trash2 
+  Tags, LayoutTemplate, Briefcase 
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -20,7 +20,7 @@ export function BrandEditor({
   onClose: () => void,
   onSave: () => void
 }) {
-  const router = useRouter()
+  const _router = useRouter()
   const isEditing = !!initialData?.id
   
   const [activeTab, setActiveTab] = useState("identity")
@@ -33,26 +33,26 @@ export function BrandEditor({
   const [slug, setSlug] = useState(initialData?.slug || "")
   const [taglineEn, setTaglineEn] = useState(initialData?.taglineEn || "")
   const [taglineAr, setTaglineAr] = useState(initialData?.taglineAr || "")
-  const [shortDescriptionEn, setShortDescriptionEn] = useState(initialData?.shortDescriptionEn || "")
-  const [shortDescriptionAr, setShortDescriptionAr] = useState(initialData?.shortDescriptionAr || "")
-  const [fullStoryEn, setFullStoryEn] = useState(initialData?.fullStoryEn || "")
-  const [fullStoryAr, setFullStoryAr] = useState(initialData?.fullStoryAr || "")
-  const [launchYear, setLaunchYear] = useState<number | "">(initialData?.launchYear || "")
-  const [parentEntity, setParentEntity] = useState(initialData?.parentEntity || "")
+  const [shortDescriptionEn, _setShortDescriptionEn] = useState(initialData?.shortDescriptionEn || "")
+  const [shortDescriptionAr, _setShortDescriptionAr] = useState(initialData?.shortDescriptionAr || "")
+  const [fullStoryEn, _setFullStoryEn] = useState(initialData?.fullStoryEn || "")
+  const [fullStoryAr, _setFullStoryAr] = useState(initialData?.fullStoryAr || "")
+  const [launchYear, _setLaunchYear] = useState<number | "">(initialData?.launchYear || "")
+  const [parentEntity, _setParentEntity] = useState(initialData?.parentEntity || "")
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true)
-  const [lifecycleStatus, setLifecycleStatus] = useState(initialData?.lifecycleStatus || "ACTIVE")
+  const [lifecycleStatus, _setLifecycleStatus] = useState(initialData?.lifecycleStatus || "ACTIVE")
 
   // 2. Logos & Media
   const [primaryLogoUrl, setPrimaryLogoUrl] = useState(initialData?.primaryLogoUrl || "")
-  const [lightLogoUrl, setLightLogoUrl] = useState(initialData?.lightLogoUrl || "")
-  const [darkLogoUrl, setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
+  const [lightLogoUrl, _setLightLogoUrl] = useState(initialData?.lightLogoUrl || "")
+  const [darkLogoUrl, _setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
   const [compactLogoUrl, setCompactLogoUrl] = useState(initialData?.compactLogoUrl || "")
   
-  const [mediaType, setMediaType] = useState(initialData?.mediaType || "IMAGE")
+  const [mediaType, _setMediaType] = useState(initialData?.mediaType || "IMAGE")
   const [primaryMediaUrl, setPrimaryMediaUrl] = useState(initialData?.primaryMediaUrl || "")
   const [coverMediaUrl, setCoverMediaUrl] = useState(initialData?.coverMediaUrl || "")
-  const [detailMediaUrl, setDetailMediaUrl] = useState(initialData?.detailMediaUrl || "")
-  const [fallbackImageUrl, setFallbackImageUrl] = useState(initialData?.fallbackImageUrl || "")
+  const [detailMediaUrl, _setDetailMediaUrl] = useState(initialData?.detailMediaUrl || "")
+  const [fallbackImageUrl, _setFallbackImageUrl] = useState(initialData?.fallbackImageUrl || "")
   const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnailUrl || "")
 
   // 3. Taxonomies & Relationships
@@ -79,16 +79,16 @@ export function BrandEditor({
   // 4. B2C Presentation
   const [showOnB2C, setShowOnB2C] = useState(initialData?.showOnB2C ?? true)
   const [showInWorldsCreated, setShowInWorldsCreated] = useState(initialData?.showInWorldsCreated ?? true)
-  const [featureOnB2C, setFeatureOnB2C] = useState(initialData?.featureOnB2C ?? false)
+  const [featureOnB2C, _setFeatureOnB2C] = useState(initialData?.featureOnB2C ?? false)
   const [b2cTitleOverrideEn, setB2cTitleOverrideEn] = useState(initialData?.b2cTitleOverrideEn || "")
-  const [b2cTitleOverrideAr, setB2cTitleOverrideAr] = useState(initialData?.b2cTitleOverrideAr || "")
-  const [b2cShortDescOverrideEn, setB2cShortDescOverrideEn] = useState(initialData?.b2cShortDescOverrideEn || "")
-  const [b2cShortDescOverrideAr, setB2cShortDescOverrideAr] = useState(initialData?.b2cShortDescOverrideAr || "")
+  const [b2cTitleOverrideAr, _setB2cTitleOverrideAr] = useState(initialData?.b2cTitleOverrideAr || "")
+  const [b2cShortDescOverrideEn, _setB2cShortDescOverrideEn] = useState(initialData?.b2cShortDescOverrideEn || "")
+  const [b2cShortDescOverrideAr, _setB2cShortDescOverrideAr] = useState(initialData?.b2cShortDescOverrideAr || "")
   
   // 5. B2B Presentation
   const [showOnB2B, setShowOnB2B] = useState(initialData?.showOnB2B ?? true)
   const [showInB2BPortfolio, setShowInB2BPortfolio] = useState(initialData?.showInB2BPortfolio ?? true)
-  const [featureOnB2B, setFeatureOnB2B] = useState(initialData?.featureOnB2B ?? false)
+  const [featureOnB2B, _setFeatureOnB2B] = useState(initialData?.featureOnB2B ?? false)
   const [b2bBusinessOverviewEn, setB2bBusinessOverviewEn] = useState(initialData?.b2bBusinessOverviewEn || "")
   const [b2bBusinessOverviewAr, setB2bBusinessOverviewAr] = useState(initialData?.b2bBusinessOverviewAr || "")
   const [b2bBusinessValueEn, setB2bBusinessValueEn] = useState(initialData?.b2bBusinessValueEn || "")
@@ -318,7 +318,7 @@ export function BrandEditor({
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={showInWorldsCreated} onChange={e => setShowInWorldsCreated(e.target.checked)} className="rounded" />
-                    <span className="text-sm font-bold">List in "Worlds Created"</span>
+                    <span className="text-sm font-bold">List in &quot;Worlds Created&quot;</span>
                   </label>
                 </div>
                 <div className="space-y-2">

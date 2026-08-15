@@ -3,9 +3,7 @@ import { db } from '@/lib/db';
 import { isValidMagicBytes } from '@/lib/security';
 import { put } from '@vercel/blob';
 import { randomUUID } from 'crypto';
-import { promises as _fs } from 'fs';
 import { NextResponse } from 'next/server';
-import _path from 'path';
 
 // Helper function to extract all media URLs recursively from any JSON structure
 function _extractMediaUrlsFromObject(obj: any, urls = new Set<string>()): Set<string> {

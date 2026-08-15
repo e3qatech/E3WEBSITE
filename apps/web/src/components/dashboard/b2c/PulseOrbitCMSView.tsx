@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
@@ -221,7 +221,7 @@ export function PulseOrbitCMSView({
   const [b2bProposalExternal, setB2BProposalExternal] = useState(Boolean(initialB2BData?.bookTicketsExternal))
 
   // Fetch latest CMS data from API to ensure state matches DB 100%
-  const fetchLatestCMSData = async () => {
+  const fetchLatestCMSData = useCallback(async () => {
     try {
       const shouldFetchB2C = scopedPortal === 'B2C' || scopedPortal === 'ALL'
       const shouldFetchB2B = scopedPortal === 'B2B' || scopedPortal === 'ALL'
@@ -277,10 +277,9 @@ export function PulseOrbitCMSView({
         }
       }
     } catch (_e) {}
-  }
+  }, [scopedPortal])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLatestCMSData()
     window.addEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData)
     let bc: BroadcastChannel | null = null
@@ -297,7 +296,7 @@ export function PulseOrbitCMSView({
       window.removeEventListener('e3_cms_pulse_orbit_updated', fetchLatestCMSData)
       if (bc) bc.close()
     }
-  }, [scopedPortal])
+  }, [fetchLatestCMSData])
 
   const currentDestinations = activeTab === 'B2C' ? b2cDestinations : b2bDestinations
   const setCurrentDestinations = (updater: (prev: OrbitDestinationItem[]) => OrbitDestinationItem[]) => {

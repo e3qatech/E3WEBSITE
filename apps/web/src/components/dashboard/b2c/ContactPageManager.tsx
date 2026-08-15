@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/Button"
-import { CheckCircle2, Loader2, Plus, Save, Trash2 } from "lucide-react"
+import { CheckCircle2, Plus, Save, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 import { DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig, UniversalMediaSectionEditor } from "../ui/UniversalMediaSectionEditor"

@@ -1,6 +1,10 @@
-const { execSync } = require('child_process');
-const { readdirSync } = require('fs');
-const path = require('path');
+import { execSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const migrationsDir = path.join(__dirname, '../prisma/migrations');
 const dirs = readdirSync(migrationsDir, { withFileTypes: true })
@@ -23,13 +27,13 @@ for (const dir of dirs) {
 
   try {
     mainBlob = execSync(`git rev-parse origin/main:${sqlRelPath}`, { encoding: 'utf8' }).trim();
-  } catch (e) {
+  } catch (_e) {
     mainBlob = 'N/A (New in branch)';
   }
 
   try {
     headBlob = execSync(`git rev-parse HEAD:${sqlRelPath}`, { encoding: 'utf8' }).trim();
-  } catch (e) {
+  } catch (_e) {
     headBlob = 'N/A';
   }
 
@@ -37,7 +41,7 @@ for (const dir of dirs) {
   if (!mainBlob.startsWith('N/A')) {
     try {
       execSync(`git diff --exit-code origin/main -- ${sqlRelPath}`, { encoding: 'utf8' });
-    } catch (e) {
+    } catch (e: any) {
       diffExitCode = e.status || 1;
       diffStatus = `DIFF DETECTED (exit-code ${diffExitCode})`;
       allHistoricalMatch = false;

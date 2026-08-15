@@ -4,12 +4,7 @@ import React, { useState } from 'react';
 import { 
   Link, 
   Sparkles, 
-  Save, 
-  Image as ImageIcon, 
-  Plus, 
-  CheckCircle2, 
-  AlertCircle,
-  FilePlus
+  Save
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 import { AdminMediaPicker } from '@/components/dashboard/ui/AdminMediaPicker';

@@ -1,6 +1,6 @@
-const { PrismaClient } = require('@prisma/client')
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function audit() {
   console.log('Auditing CMS Pages for Media Type Mismatches...');
@@ -9,7 +9,7 @@ async function audit() {
   let fixes = 0;
 
   for (const page of pages) {
-    let rawContent = {};
+    let rawContent: any = {};
     if (page.rawContent && typeof page.rawContent === 'object') {
       rawContent = page.rawContent;
     }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { 
   Plus, Search, Edit2, Archive, ExternalLink, Globe, 
-  Building2, CheckCircle2, XCircle, Sparkles, Layers, Image as ImageIcon,
+  Building2, Sparkles, Layers, Image as ImageIcon,
   Check, X
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
@@ -20,7 +20,7 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
   const [brands, setBrands] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [portalFilter, setPortalFilter] = useState<"all" | "b2c" | "b2b">(defaultPortalFilter)
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
+  const [categoryFilter, _setCategoryFilter] = useState<string>("all")
   const [search, setSearch] = useState("")
 
   const [editingBrand, setEditingBrand] = useState<any | null>(null)
@@ -32,8 +32,8 @@ export function UnifiedBrandsManager({ defaultPortalFilter = "all" }: UnifiedBra
       const res = await fetch('/api/b2c/brands')
       const data = await res.json()
       setBrands(Array.isArray(data) ? data : [])
-    } catch (e) {
-      console.error(e)
+    } catch (_e) {
+      console.error(_e)
     } finally {
       setLoading(false)
     }
@@ -325,7 +325,7 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
   const [taglineEn, setTaglineEn] = useState(initialData?.taglineEn || "")
   const [taglineAr, setTaglineAr] = useState(initialData?.taglineAr || "")
   const [shortDescriptionEn, setShortDescriptionEn] = useState(initialData?.shortDescriptionEn || "")
-  const [shortDescriptionAr, setShortDescriptionAr] = useState(initialData?.shortDescriptionAr || "")
+  const [shortDescriptionAr, _setShortDescriptionAr] = useState(initialData?.shortDescriptionAr || "")
   const [lifecycleStatus, setLifecycleStatus] = useState(initialData?.lifecycleStatus || "ACTIVE")
 
   // B2C Flags & Copy
@@ -333,7 +333,7 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
   const [showInWorldsCreated, setShowInWorldsCreated] = useState(initialData?.showInWorldsCreated ?? true)
   const [featureOnB2C, setFeatureOnB2C] = useState(initialData?.featureOnB2C ?? false)
   const [b2cCtaLabelEn, setB2cCtaLabelEn] = useState(initialData?.b2cCtaLabelEn || "Explore Brand")
-  const [b2cCtaLabelAr, setB2cCtaLabelAr] = useState(initialData?.b2cCtaLabelAr || "استكشف العلامة")
+  const [b2cCtaLabelAr, _setB2cCtaLabelAr] = useState(initialData?.b2cCtaLabelAr || "استكشف العلامة")
   const [b2cCtaUrl, setB2cCtaUrl] = useState(initialData?.b2cCtaUrl || "")
 
   // B2B Flags & Copy
@@ -341,13 +341,13 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
   const [showInB2BPortfolio, setShowInB2BPortfolio] = useState(initialData?.showInB2BPortfolio ?? true)
   const [featureOnB2B, setFeatureOnB2B] = useState(initialData?.featureOnB2B ?? false)
   const [b2bBusinessOverviewEn, setB2bBusinessOverviewEn] = useState(initialData?.b2bBusinessOverviewEn || "")
-  const [b2bBusinessOverviewAr, setB2bBusinessOverviewAr] = useState(initialData?.b2bBusinessOverviewAr || "")
+  const [b2bBusinessOverviewAr, _setB2bBusinessOverviewAr] = useState(initialData?.b2bBusinessOverviewAr || "")
   const [b2bInquiryUrl, setB2bInquiryUrl] = useState(initialData?.b2bInquiryUrl || "")
 
   // Logos & Media
   const [primaryLogoUrl, setPrimaryLogoUrl] = useState(initialData?.primaryLogoUrl || "")
   const [lightLogoUrl, setLightLogoUrl] = useState(initialData?.lightLogoUrl || "")
-  const [darkLogoUrl, setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
+  const [darkLogoUrl, _setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
   const [primaryMediaUrl, setPrimaryMediaUrl] = useState(initialData?.primaryMediaUrl || "")
 
   const handleSave = async () => {

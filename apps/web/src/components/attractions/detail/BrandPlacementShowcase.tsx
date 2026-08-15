@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react"
-import { formatLocalizedText } from "@/lib/utils"
 
 interface BrandItem {
   id: string

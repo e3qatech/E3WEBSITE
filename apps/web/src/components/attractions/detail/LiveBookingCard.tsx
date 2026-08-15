@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Clock, MapPin, Navigation, Ticket, ExternalLink, Sparkles } from 'lucide-react';
+import { MapPin, Navigation, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import { formatLocalizedText } from '@/lib/utils';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
@@ -27,7 +27,7 @@ export function LiveBookingCard({
   attractionId,
   name,
   bookingUrl,
-  mapUrl,
+  mapUrl: _mapUrl,
   latitude,
   longitude,
   locationAddress,

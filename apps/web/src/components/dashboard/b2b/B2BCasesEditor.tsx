@@ -6,7 +6,7 @@ import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
-import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Clock, Flame, BarChart3, CheckSquare, Eye, ArrowUpRight, Save } from "lucide-react"
+import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Flame, BarChart3, CheckSquare, Save } from "lucide-react"
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -34,7 +34,7 @@ const SECTIONS: EditorSectionItem[] = [
 export function B2BCasesEditor({ 
   initialData, 
   caseStudies = [], 
-  services = [],
+  services: _services = [],
   employeeProfiles = []
 }: { 
   initialData: any, 
@@ -82,7 +82,7 @@ export function B2BCasesEditor({
   }
 
   // Fact Stream repeatable actions
-  const addFact = () => {
+  const _addFact = () => {
     const newFact = {
       id: `f_${Date.now()}`,
       value: "100+",
@@ -105,7 +105,7 @@ export function B2BCasesEditor({
     }))
   }
 
-  const removeFact = (index: number) => {
+  const _removeFact = (index: number) => {
     setData((prev: any) => ({
       ...prev,
       factStream: {
@@ -115,7 +115,7 @@ export function B2BCasesEditor({
     }))
   }
 
-  const updateFact = (index: number, field: string, value: any) => {
+  const _updateFact = (index: number, field: string, value: any) => {
     setData((prev: any) => {
       const facts = [...(prev.factStream?.facts || [])]
       facts[index] = { ...facts[index], [field]: value }
@@ -530,7 +530,7 @@ export function B2BCasesEditor({
                     className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
                   />
                   {data.hero?.primaryLink && !['/', '#', 'http'].some(prefix => data.hero.primaryLink.trim().startsWith(prefix)) && (
-                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with '/', '#', or 'https://'</div>
+                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with &apos;/&apos;, &apos;#&apos;, or &apos;https://&apos;</div>
                   )}
                 </div>
               </div>
@@ -565,7 +565,7 @@ export function B2BCasesEditor({
                     className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
                   />
                   {data.hero?.secondaryLink && !['/', '#', 'http'].some(prefix => data.hero.secondaryLink.trim().startsWith(prefix)) && (
-                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with '/', '#', or 'https://'</div>
+                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with &apos;/&apos;, &apos;#&apos;, or &apos;https://&apos;</div>
                   )}
                 </div>
               </div>
@@ -667,7 +667,7 @@ export function B2BCasesEditor({
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Sparkles className="w-5 h-5 text-amber-400" />
-              <h2 className="text-lg font-bold text-text-primary">3. Verified "Did You Know?" Fact Stream</h2>
+              <h2 className="text-lg font-bold text-text-primary">3. Verified &quot;Did You Know?&quot; Fact Stream</h2>
             </div>
             <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
               <input 
@@ -979,7 +979,7 @@ export function B2BCasesEditor({
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Users className="w-5 h-5 text-purple-400" />
-              <h2 className="text-lg font-bold text-text-primary">5. Team Stories — "Behind the Build"</h2>
+              <h2 className="text-lg font-bold text-text-primary">5. Team Stories — &quot;Behind the Build&quot;</h2>
             </div>
             <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
               <input 

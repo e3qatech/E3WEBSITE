@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const publishedOnly = searchParams.get('published') === 'true';
     const portal = searchParams.get('portal'); // 'b2c' | 'b2b' | 'all'
 
-    let whereClause: any = {};
+    const whereClause: any = {};
     if (publishedOnly) {
       whereClause.isActive = true;
     }
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
 
     // Default values mapping
     const slug = data.slug || data.nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const { category, relationships, placements, linkedHighlights, relationshipIds, categoryId, ...brandData } = data;
+    const { category: _category, relationships: _relationships, placements: _placements, linkedHighlights: _linkedHighlights, relationshipIds, categoryId, ...brandData } = data;
     
     const brand = await db.brandIP.create({
       data: {

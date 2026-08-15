@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'node:crypto';
 import { runGlobalSocialSync } from '@/lib/social-media/sync-engine';
 
 export const dynamic = 'force-dynamic';
@@ -81,6 +82,3 @@ function timingSafeEqual(a: string, b: string): boolean {
   const bufB = Buffer.from(b);
   return crypto.timingSafeEqual(bufA, bufB);
 }
-
-// Node.js crypto is available in Next.js App Router server context
-const crypto = require('crypto');

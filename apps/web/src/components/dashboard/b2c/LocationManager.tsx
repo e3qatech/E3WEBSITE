@@ -10,7 +10,6 @@ import {
   Trash2, 
   Edit3, 
   X, 
-  Compass, 
   Upload,
   Loader2,
   AlertCircle
@@ -22,7 +21,6 @@ import { DARK_MAP_STYLE } from '@/components/map/map-config';
 import {
   DashboardPageShell,
   DashboardPageHeader,
-  DashboardLoadingState,
 } from '@/components/dashboard/ui';
 
 export function LocationManager() {
@@ -180,13 +178,13 @@ export function LocationManager() {
       }
       markerRef.current = null;
     };
-  }, [isDrawerOpen]);
+  }, [isDrawerOpen, editingLocation?.latitude, editingLocation?.longitude]);
 
   // Keep Map Marker Position Sync'd with State
   useEffect(() => {
-    if (markerRef.current && mapInstanceRef.current && editingLocation) {
-      const lat = parseFloat(editingLocation.latitude);
-      const lng = parseFloat(editingLocation.longitude);
+    if (markerRef.current && mapInstanceRef.current && editingLocation?.latitude && editingLocation?.longitude) {
+      const lat = parseFloat(String(editingLocation.latitude));
+      const lng = parseFloat(String(editingLocation.longitude));
       if (!isNaN(lat) && !isNaN(lng)) {
         markerRef.current.setLngLat([lng, lat]);
         mapInstanceRef.current.flyTo({ center: [lng, lat], zoom: 13, duration: 800 });

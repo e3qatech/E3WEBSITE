@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client";
 
 import * as React from "react";
@@ -18,14 +18,7 @@ import {
   LogOut,
   FileText,
   Star,
-  ShieldCheck,
-  Globe,
-  Radio,
-  Layers,
-  Sparkles,
-  Sliders,
-  Calendar,
-  Gift
+  Radio
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";

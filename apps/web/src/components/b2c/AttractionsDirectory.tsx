@@ -5,15 +5,11 @@ import { motion } from 'framer-motion';
 import { 
   MapPin, 
   Clock, 
-  Calendar as CalendarIcon, 
   Sparkles, 
   Ticket, 
   ArrowRight,
   Map as MapIcon,
-  Search,
-  SlidersHorizontal,
-  Compass,
-  Navigation
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 import { Attraction } from '@/store/useAttractionsStore';
@@ -336,8 +332,8 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
       }
 
       setGeoJson({ type: 'FeatureCollection', features: mapFeatures });
-      if (mapFeatures.length > 0 && !selectedLocationId) {
-        setSelectedLocationId(mapFeatures[0].properties.locationId);
+      if (mapFeatures.length > 0) {
+        setSelectedLocationId(prev => prev || mapFeatures[0].properties.locationId);
       }
     }
     loadMapData();

@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client";
 
 import { useState } from "react";
 import { AdminFormLayout } from "../ui/AdminFormLayout";
 import { AdminPageHeader } from "../ui/AdminPageHeader";
 import { AdminButton } from "../ui/AdminButton";
-import { Save, Plus, Trash2, CheckCircle, Sparkles } from "lucide-react";
+import { Save, Plus, Trash2, Sparkles } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 
 export function PackagesCMSView({ initialData }: { initialData: any }) {

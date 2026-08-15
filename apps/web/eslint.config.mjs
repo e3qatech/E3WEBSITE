@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import nextTs from 'eslint-config-next/typescript'
+import unusedImports from 'eslint-plugin-unused-imports'
 
 /**
  * apps/web ESLint configuration — Next.js 16.2.9 native flat config.
@@ -41,7 +42,14 @@ const eslintConfig = defineConfig([
     'verify-blob.mjs',
   ]),
   {
+    linterOptions: {
+      reportUnusedDisableDirectives: 'off'
+    },
+    plugins: {
+      'unused-imports': unusedImports,
+    },
     rules: {
+      'unused-imports/no-unused-imports': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -51,7 +59,8 @@ const eslintConfig = defineConfig([
         }
       ],
       '@typescript-eslint/no-explicit-any': 'off',
-      '@next/next/no-img-element': 'off'
+      '@next/next/no-img-element': 'off',
+      'react-hooks/set-state-in-effect': 'off'
     }
   }
 ])

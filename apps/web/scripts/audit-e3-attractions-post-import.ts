@@ -98,6 +98,10 @@ async function runAudit() {
     console.error(`[DB ERROR] Database connection failed:`, err?.message || err);
   }
 
+  if (!dbConnected) {
+    console.warn(`[WARN] Audit proceeding in offline database mode.`);
+  }
+
   // 1. VERIFY TOTAL RECORDS
   console.log(`-------------------------------------------------------`);
   console.log(`1. VERIFY TOTAL RECORDS FOR THE 34 INTENDED SLUGS`);
@@ -216,9 +220,9 @@ async function runAudit() {
 
   let newlyCreatedCount = 0;
   let preExistingUpdatedCount = 0;
-  let unchangedCount = 0;
+  const unchangedCount = 0;
 
-  intendedAuditResults.forEach((res, idx) => {
+  intendedAuditResults.forEach((res) => {
     if (res.status === 'FOUND') {
       const isPreExisting = PRE_EXISTING_SLUGS.includes(res.slug);
       let sourceCategory: 'PRE-EXISTING AND UPDATED' | 'NEWLY CREATED BY THIS IMPORT' | 'PRE-EXISTING BUT UNCHANGED' = 'NEWLY CREATED BY THIS IMPORT';

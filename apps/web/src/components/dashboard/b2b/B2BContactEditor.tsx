@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Phone, MapPin, Save, Briefcase, HelpCircle, MessageSquare, Globe } from "lucide-react";
+import { Mail, Phone, Save, Briefcase, MessageSquare } from "lucide-react";
 import { AdminMediaPicker } from "../ui/AdminMediaPicker";
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
@@ -96,7 +96,7 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
       setIsDirty(false);
       setLastSaved(new Date());
       toast("B2B Contact page updated successfully.", "success");
-    } catch (e) {
+    } catch (_e) {
       toast("Failed to save B2B Contact page.", "error");
     } finally {
       setSaving(false);

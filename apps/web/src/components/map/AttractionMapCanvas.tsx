@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { MapGeoJSONCollection, MapLocationProperties } from './map-types';
 import { VOYAGER_ENGLISH_MAP_STYLE } from './map-config';
 import { MapUnavailableFallback } from './MapUnavailableFallback';
-import { Compass, Maximize, Box, Eye, Loader2 } from 'lucide-react';
+import { Maximize, Box, Eye, Loader2 } from 'lucide-react';
 import { isMapLibreSupported, isValidLngLat } from '@/lib/webgl-capability';
 
 interface AttractionMapCanvasProps {
@@ -190,7 +190,7 @@ export function AttractionMapCanvas({
       isMountedRef.current = false;
       performSafeCleanup();
     };
-  }, [performSafeCleanup]);
+  }, [performSafeCleanup, pitch3d]);
 
   // Render HTML Custom High-Visibility Pins on Map (Only when ready)
   useEffect(() => {

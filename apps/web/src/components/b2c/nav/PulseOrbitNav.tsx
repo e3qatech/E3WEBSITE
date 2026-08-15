@@ -24,7 +24,6 @@ import {
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PulseOrbitDropdown as _PulseOrbitDropdown } from './PulseOrbitDropdown';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
 import { E3Logo } from '@/components/shared/E3Logo';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';

@@ -3,7 +3,7 @@
 import { CoreTeamRecord, DEFAULT_CORE_TEAM } from '@/lib/cms-team'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Users } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
 import { formatLocalizedText } from '@/lib/utils'
 
@@ -21,7 +21,7 @@ function getValidPortraitUrl(url?: string): string {
 
 export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeopleSectionProps) {
   const isAr = locale === 'ar'
-  const teamSectionData = content?.coreTeam || {}
+  const teamSectionData = useMemo(() => content?.coreTeam || {}, [content?.coreTeam])
 
   const [dbTeamMembers, setDbTeamMembers] = useState<any[]>([])
 
@@ -50,35 +50,84 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
     locale
   )
 
-  // Check if explicit team selection configuration exists in CMS
-  const hasSelectedIdsProp = Array.isArray(teamSectionData.selectedMemberIds)
-  const hasMembersProp = Array.isArray(teamSectionData.members)
-  const isSelectionConfigured = hasSelectedIdsProp || hasMembersProp
+  const [activeMemberId, setActiveMemberId] = useState<string>(DEFAULT_CORE_TEAM[0].id)
 
-  // Extract selected IDs list from CMS configuration
-  const selectedIds: string[] = hasSelectedIdsProp
-    ? teamSectionData.selectedMemberIds
-    : (hasMembersProp ? teamSectionData.members.map((m: any) => m.id) : [])
+  const teamMembers = useMemo<CoreTeamRecord[]>(() => {
+    // Check if explicit team selection configuration exists in CMS
+    const hasSelectedIdsProp = Array.isArray(teamSectionData.selectedMemberIds)
+    const hasMembersProp = Array.isArray(teamSectionData.members)
+    const isSelectionConfigured = hasSelectedIdsProp || hasMembersProp
 
-  let teamMembers: CoreTeamRecord[] = []
+    // Extract selected IDs list from CMS configuration
+    const selectedIds: string[] = hasSelectedIdsProp
+      ? teamSectionData.selectedMemberIds
+      : (hasMembersProp ? teamSectionData.members.map((m: any) => m.id) : [])
 
-  if (isSelectionConfigured) {
-    if (selectedIds.length === 0) {
-      // User explicitly selected 0 team members in CMS editor -> hide section
-      return null
-    }
+    let members: CoreTeamRecord[] = []
 
-    // 1. Resolve selected members from live database profiles
-    if (dbTeamMembers.length > 0) {
-      teamMembers = selectedIds
-        .map(id => dbTeamMembers.find(m =>
-          m.id === id ||
-          m.slug === id ||
-          `team-${m.slug}` === id ||
-          (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
-        ))
-        .filter(Boolean)
-        .map(m => ({
+    if (isSelectionConfigured) {
+      if (selectedIds.length === 0) {
+        return []
+      }
+
+      // 1. Resolve selected members from live database profiles
+      if (dbTeamMembers.length > 0) {
+        members = selectedIds
+          .map(id => dbTeamMembers.find(m =>
+            m.id === id ||
+            m.slug === id ||
+            `team-${m.slug}` === id ||
+            (typeof id === 'string' && (id.includes(m.id) || m.id.includes(id)))
+          ))
+          .filter(Boolean)
+          .map(m => ({
+            id: m.id,
+            slug: m.slug || m.id,
+            nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+            nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+            roleEn: m.designation || "Executive",
+            roleAr: m.designationAr || m.designation || "قيادي",
+            bioEn: m.aboutSummary || m.tagline || "",
+            bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+            portrait: getValidPortraitUrl(m.profileImage),
+            showProfileLink: true,
+            profileCtaLabelEn: "View Profile",
+            profileCtaLabelAr: "عرض الملف",
+            featureOnB2CLanding: true,
+            isCoreTeam: true,
+            b2cOrder: 1,
+            b2cVisibility: true,
+            status: 'PUBLISHED' as const
+          }))
+      }
+
+      // 2. Fallback to CMS-saved member objects (filtered strictly by selectedIds)
+      if (members.length === 0 && hasMembersProp && teamSectionData.members.length > 0) {
+        members = teamSectionData.members
+          .filter((m: any) => selectedIds.length === 0 || selectedIds.includes(m.id) || selectedIds.includes(m.slug))
+          .map((m: any) => ({
+            id: m.id,
+            slug: m.slug || m.id,
+            nameEn: m.nameEn || `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+            nameAr: m.nameAr || (m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : m.nameEn),
+            roleEn: m.roleEn || m.designation || "Executive",
+            roleAr: m.roleAr || m.designationAr || m.roleEn || "قيادي",
+            bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
+            bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || "",
+            portrait: getValidPortraitUrl(m.portrait || m.profileImage),
+            showProfileLink: true,
+            profileCtaLabelEn: "View Profile",
+            profileCtaLabelAr: "عرض الملف",
+            featureOnB2CLanding: true,
+            isCoreTeam: true,
+            b2cOrder: 1,
+            b2cVisibility: true,
+            status: 'PUBLISHED' as const
+          }))
+      }
+
+      if (members.length === 0 && dbTeamMembers.length > 0) {
+        members = dbTeamMembers.map(m => ({
           id: m.id,
           slug: m.slug || m.id,
           nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
@@ -87,7 +136,7 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           roleAr: m.designationAr || m.designation || "قيادي",
           bioEn: m.aboutSummary || m.tagline || "",
           bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-          portrait: getValidPortraitUrl(m.profileImage),
+          portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
           showProfileLink: true,
           profileCtaLabelEn: "View Profile",
           profileCtaLabelAr: "عرض الملف",
@@ -97,22 +146,22 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           b2cVisibility: true,
           status: 'PUBLISHED' as const
         }))
-    }
-
-    // 2. Fallback to CMS-saved member objects (filtered strictly by selectedIds)
-    if (teamMembers.length === 0 && hasMembersProp && teamSectionData.members.length > 0) {
-      teamMembers = teamSectionData.members
-        .filter((m: any) => selectedIds.length === 0 || selectedIds.includes(m.id) || selectedIds.includes(m.slug))
-        .map((m: any) => ({
+      } else if (members.length === 0) {
+        return []
+      }
+    } else {
+      // Selection has NOT been configured in CMS:
+      if (dbTeamMembers.length > 0) {
+        members = dbTeamMembers.map(m => ({
           id: m.id,
           slug: m.slug || m.id,
-          nameEn: m.nameEn || `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-          nameAr: m.nameAr || (m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : m.nameEn),
-          roleEn: m.roleEn || m.designation || "Executive",
-          roleAr: m.roleAr || m.designationAr || m.roleEn || "قيادي",
-          bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
-          bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || "",
-          portrait: getValidPortraitUrl(m.portrait || m.profileImage),
+          nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
+          nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
+          roleEn: m.designation || "Executive",
+          roleAr: m.designationAr || m.designation || "قيادي",
+          bioEn: m.aboutSummary || m.tagline || "",
+          bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
+          portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
           showProfileLink: true,
           profileCtaLabelEn: "View Profile",
           profileCtaLabelAr: "عرض الملف",
@@ -122,61 +171,14 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
           b2cVisibility: true,
           status: 'PUBLISHED' as const
         }))
+      } else if (hasMembersProp && teamSectionData.members.length > 0) {
+        members = teamSectionData.members
+      } else {
+        members = DEFAULT_CORE_TEAM
+      }
     }
-
-    if (teamMembers.length === 0 && dbTeamMembers.length > 0) {
-      teamMembers = dbTeamMembers.map(m => ({
-        id: m.id,
-        slug: m.slug || m.id,
-        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
-        roleEn: m.designation || "Executive",
-        roleAr: m.designationAr || m.designation || "قيادي",
-        bioEn: m.aboutSummary || m.tagline || "",
-        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-        showProfileLink: true,
-        profileCtaLabelEn: "View Profile",
-        profileCtaLabelAr: "عرض الملف",
-        featureOnB2CLanding: true,
-        isCoreTeam: true,
-        b2cOrder: 1,
-        b2cVisibility: true,
-        status: 'PUBLISHED' as const
-      }))
-    } else if (teamMembers.length === 0) {
-      return null
-    }
-  } else {
-    // Selection has NOT been configured in CMS:
-    if (dbTeamMembers.length > 0) {
-      teamMembers = dbTeamMembers.map(m => ({
-        id: m.id,
-        slug: m.slug || m.id,
-        nameEn: `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
-        nameAr: m.firstNameAr ? `${m.firstNameAr} ${m.lastNameAr || ''}`.trim() : `${m.firstName || ''} ${m.lastName || ''}`.trim(),
-        roleEn: m.designation || "Executive",
-        roleAr: m.designationAr || m.designation || "قيادي",
-        bioEn: m.aboutSummary || m.tagline || "",
-        bioAr: m.aboutSummaryAr || m.aboutSummary || m.tagline || "",
-        portrait: m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
-        showProfileLink: true,
-        profileCtaLabelEn: "View Profile",
-        profileCtaLabelAr: "عرض الملف",
-        featureOnB2CLanding: true,
-        isCoreTeam: true,
-        b2cOrder: 1,
-        b2cVisibility: true,
-        status: 'PUBLISHED' as const
-      }))
-    } else if (hasMembersProp && teamSectionData.members.length > 0) {
-      teamMembers = teamSectionData.members
-    } else {
-      teamMembers = DEFAULT_CORE_TEAM
-    }
-  }
-
-  const [activeMemberId, setActiveMemberId] = useState(teamMembers[0]?.id || DEFAULT_CORE_TEAM[0].id)
+    return members
+  }, [dbTeamMembers, teamSectionData])
 
   useEffect(() => {
     if (teamMembers.length > 0 && !teamMembers.some(m => m.id === activeMemberId)) {

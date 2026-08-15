@@ -2,10 +2,9 @@
 
 import React, { useState } from "react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminButton } from "../ui/AdminButton"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
-import { ExternalLink, Plus, Trash2, ArrowUp, ArrowDown, Save } from "lucide-react"
+import { Plus, Trash2, ArrowUp, ArrowDown, Save } from "lucide-react"
 import {
   DashboardPageShell,
   DashboardPageHeader,

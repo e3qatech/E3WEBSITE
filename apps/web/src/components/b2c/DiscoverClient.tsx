@@ -22,7 +22,6 @@ import { AnimatedText } from "@/components/ui/AnimatedText";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
 import { B2CGrid } from "@/components/ui/B2CGrid";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
-import { Footer } from "@/components/layout/Footer";
 
 export function DiscoverClient({
   locale,

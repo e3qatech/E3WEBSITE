@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { 
-  Plus, Search, Edit2, Trash2, Globe, Sparkles, FileText, Newspaper, 
-  Megaphone, Calendar, Tag, User, Check, X, ShieldAlert
+  Plus, Search, Edit2, Trash2, Sparkles, User
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -53,7 +52,7 @@ export function InsightsManager() {
     try {
       await fetch(`/api/insights/${id}`, { method: "DELETE" })
       fetchInsights()
-    } catch (e) {
+    } catch (_e) {
       alert("Failed to delete record")
     }
   }
@@ -188,13 +187,13 @@ function InsightEditor({ initialData, onClose, onSave }: { initialData?: any; on
 
   const [titleEn, setTitleEn] = useState(initialData?.titleEn || "")
   const [titleAr, setTitleAr] = useState(initialData?.titleAr || "")
-  const [slugEn, setSlugEn] = useState(initialData?.slugEn || "")
+  const [slugEn, _setSlugEn] = useState(initialData?.slugEn || "")
   const [contentType, setContentType] = useState(initialData?.contentType || "ARTICLE")
   const [publishStatus, setPublishStatus] = useState(initialData?.publishStatus || "DRAFT")
   const [excerptEn, setExcerptEn] = useState(initialData?.excerptEn || "")
-  const [excerptAr, setExcerptAr] = useState(initialData?.excerptAr || "")
+  const [excerptAr, _setExcerptAr] = useState(initialData?.excerptAr || "")
   const [bodyEn, setBodyEn] = useState(initialData?.bodyEn || "")
-  const [bodyAr, setBodyAr] = useState(initialData?.bodyAr || "")
+  const [bodyAr, _setBodyAr] = useState(initialData?.bodyAr || "")
   const [featuredMediaId, setFeaturedMediaId] = useState(initialData?.featuredMediaId || "")
   const [authorEmployeeProfileId, setAuthorEmployeeProfileId] = useState(initialData?.authorEmployeeProfileId || "")
 

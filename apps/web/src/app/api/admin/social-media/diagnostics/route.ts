@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         lastConfigUpdate: p.updatedAt,
       })),
       accounts: accounts.map((a: any) => {
-        const { encryptedData, encryptedAccessToken, encryptedRefreshToken, ...rest } = a;
+        const { encryptedData: _encryptedData, encryptedAccessToken: _encryptedAccessToken, encryptedRefreshToken: _encryptedRefreshToken, ...rest } = a;
         return rest;
       }),
       recentSyncJobs: syncJobs,

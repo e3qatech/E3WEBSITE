@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Building2, ArrowRight, ExternalLink, Activity, Briefcase } from 'lucide-react'
+import { Building2, ArrowRight, Activity, Briefcase } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { localizeHref } from '@/lib/url-helper'
 

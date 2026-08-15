@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const insights = await db.insight.findMany({
       where: { publishStatus: "PUBLISHED" },
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "s-maxage=3600, stale-while-revalidate"
       }
     });
-  } catch (error: any) {
+  } catch (_error: any) {
     return NextResponse.json({ error: "Failed to generate RSS feed" }, { status: 500 });
   }
 }

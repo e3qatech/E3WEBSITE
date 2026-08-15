@@ -4,14 +4,7 @@ import React, { useState } from 'react';
 import { 
   Users, 
   Plus, 
-  RefreshCw, 
-  Trash2, 
-  ExternalLink, 
-  CheckCircle2, 
-  AlertCircle, 
-  Sliders, 
-  Building2, 
-  MapPin,
+  Trash2,
   Play
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
@@ -26,7 +19,7 @@ interface AccountsTabProps {
 
 export function AccountsTab({
   accounts,
-  providers,
+  providers: _providers,
   onRefresh,
   onRunSync,
   syncing,
@@ -36,7 +29,7 @@ export function AccountsTab({
   const [selectedProvider, setSelectedProvider] = useState('META_INSTAGRAM');
   const [internalName, setInternalName] = useState('');
   const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, _setDisplayName] = useState('');
   const [creating, setCreating] = useState(false);
 
   const handleOAuthConnect = (providerKey: string) => {

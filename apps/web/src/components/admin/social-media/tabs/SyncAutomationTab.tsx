@@ -3,12 +3,7 @@
 import React from 'react';
 import { 
   RefreshCw, 
-  Clock, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Play, 
-  ShieldCheck, 
-  Layers
+  Clock
 } from 'lucide-react';
 
 interface SyncAutomationTabProps {
@@ -20,7 +15,7 @@ interface SyncAutomationTabProps {
 
 export function SyncAutomationTab({
   syncJobs,
-  accounts,
+  accounts: _accounts,
   onRunSync,
   syncing,
 }: SyncAutomationTabProps) {

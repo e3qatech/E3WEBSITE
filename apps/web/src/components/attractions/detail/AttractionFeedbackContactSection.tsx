@@ -35,7 +35,7 @@ export function AttractionFeedbackContactSection({
 
     try {
       // Submit feedback to API endpoint
-      const res = await fetch("/api/b2c/feedback", {
+      const _res = await fetch("/api/b2c/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -50,7 +50,7 @@ export function AttractionFeedbackContactSection({
       }).catch(() => null)
 
       setSubmitted(true)
-    } catch (err) {
+    } catch (_err) {
       setSubmitted(true)
     } finally {
       setIsSubmitting(false)

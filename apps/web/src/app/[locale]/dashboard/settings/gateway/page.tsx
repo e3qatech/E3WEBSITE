@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -15,20 +15,14 @@ import {
   Save,
   Globe,
   Smartphone,
-  Eye,
   Sliders,
   ShieldAlert,
   CheckCircle2,
   FileText,
   Layers,
   History,
-  Activity,
-  Play,
   RotateCcw,
-  Upload,
   Image as ImageIcon,
-  Link as LinkIcon,
-  X,
   Sparkles,
   ShieldCheck,
 } from 'lucide-react';
@@ -37,7 +31,6 @@ import {
   DashboardPageShell,
   DashboardPageHeader,
   DashboardLoadingState,
-  DashboardStickyActions,
   DashboardSectionNavigator,
   EditorSectionItem,
 } from '@/components/dashboard/ui';

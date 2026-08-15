@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client";
 
 import React, { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { User, LogIn, UserPlus, LayoutDashboard, LogOut, Shield, ChevronDown } from 'lucide-react';
+import { User, LogIn, UserPlus, LayoutDashboard, LogOut, ChevronDown } from 'lucide-react';
 import { getAuthorizedLandingRoute } from '@/lib/landing-route';
 import { AuthModal } from './AuthModal';
 import { cn } from '@/lib/utils';

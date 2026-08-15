@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Save, Globe, Users2 } from "lucide-react";
+import { Save, Users2 } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { MediaUploader } from "@/components/shared/MediaUploader";
 import {
@@ -45,7 +45,7 @@ export function B2BPartnersEditor({ initialData }: { initialData: any }) {
       setIsDirty(false);
       setLastSaved(new Date());
       toast("B2B Partners page updated successfully.", "success");
-    } catch (e) {
+    } catch (_e) {
       toast("Failed to save B2B Partners page.", "error");
     } finally {
       setSaving(false);

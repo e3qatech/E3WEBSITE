@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client"
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Play, ExternalLink, Sparkles, CheckCircle2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ExternalLink, Sparkles } from 'lucide-react'
 
 function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (

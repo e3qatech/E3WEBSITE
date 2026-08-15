@@ -44,7 +44,7 @@ const prismaClientSingleton = () => {
       parsedUrl.searchParams.delete('channel_binding');
       finalUrl = parsedUrl.toString();
     }
-  } catch (e) {
+  } catch (_e) {
     // Ignore URL parse errors
   }
 

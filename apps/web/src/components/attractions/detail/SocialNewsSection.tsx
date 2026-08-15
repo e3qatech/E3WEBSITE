@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, Quote, Newspaper, Star, Sparkles, Globe, Share2 } from 'lucide-react';
-import { formatLocalizedText } from '@/lib/utils';
+import { Quote, Newspaper, Star, Sparkles, Globe } from 'lucide-react';
 
 interface SocialPreview {
   platform?: string;
@@ -156,7 +155,7 @@ export function SocialNewsSection({
                 </div>
 
                 <p className="text-zinc-300 text-sm leading-relaxed font-light italic">
-                  "{t.quote}"
+                  &quot;{t.quote}&quot;
                 </p>
               </div>
 

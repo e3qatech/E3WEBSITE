@@ -2,15 +2,9 @@
 
 import React, { useState } from 'react';
 import { 
-  MapPin, 
   Plus, 
   Trash2, 
-  ExternalLink, 
-  Layers, 
-  Layout, 
-  CheckCircle2,
-  Save,
-  Globe
+  Layers
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 

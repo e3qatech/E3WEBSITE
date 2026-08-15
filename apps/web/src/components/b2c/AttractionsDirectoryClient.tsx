@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client"
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, Filter, MapPin, Calendar, ArrowRight, Check, X, Shield, Compass, Sparkles, Map } from 'lucide-react'
+import { Search, Filter, MapPin, X, Compass, Map } from 'lucide-react'
 import { resolveAvailabilityStatus, resolveBookingUrl, filterAttractionsByUrlParams } from '@/lib/cms-attractions'
-import { DynamicSpatialHub } from '@/components/shared/DynamicWrappers'
 import { AttractionsDirectory } from '@/components/b2c/AttractionsDirectory'
 
 interface AttractionsDirectoryClientProps {

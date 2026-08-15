@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { 
-  Search, Filter, Check, Clock, User, Users, Building2, Phone, Mail, MessageSquare, 
-  Calendar, FileText, Download, ShieldCheck, Eye, Trash2, ArrowUpRight, Tag
+  Search, Users, Phone, Mail, FileText, Download, Trash2
 } from "lucide-react"
-import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 import {
   DashboardPageShell,
@@ -16,7 +14,7 @@ export function PackageLeadsManager() {
   const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState("ALL")
-  const [typeFilter, setTypeFilter] = useState("ALL")
+  const [typeFilter, _setTypeFilter] = useState("ALL")
   const [search, setSearch] = useState("")
   const [selectedLead, setSelectedLead] = useState<any | null>(null)
 
@@ -26,8 +24,8 @@ export function PackageLeadsManager() {
       const res = await fetch("/api/b2c/package-leads")
       const json = await res.json()
       setLeads(Array.isArray(json.data) ? json.data : [])
-    } catch (e) {
-      console.error(e)
+    } catch (_e) {
+      console.error(_e)
     } finally {
       setLoading(false)
     }
@@ -45,7 +43,7 @@ export function PackageLeadsManager() {
         body: JSON.stringify({ status: newStatus })
       })
       fetchLeads()
-    } catch (e) {
+    } catch (_e) {
       alert("Failed to update lead status")
     }
   }
@@ -56,7 +54,7 @@ export function PackageLeadsManager() {
       await fetch(`/api/b2c/package-leads/${id}`, { method: "DELETE" })
       if (selectedLead?.id === id) setSelectedLead(null)
       fetchLeads()
-    } catch (e) {
+    } catch (_e) {
       alert("Failed to delete lead")
     }
   }

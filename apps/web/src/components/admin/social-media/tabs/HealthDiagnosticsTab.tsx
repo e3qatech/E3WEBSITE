@@ -5,10 +5,7 @@ import {
   ShieldAlert, 
   Copy, 
   Check, 
-  RefreshCw, 
-  AlertCircle, 
-  CheckCircle2,
-  FileText
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 
@@ -18,7 +15,7 @@ interface HealthDiagnosticsTabProps {
   syncJobs: any[];
 }
 
-export function HealthDiagnosticsTab({ accounts, providers, syncJobs }: HealthDiagnosticsTabProps) {
+export function HealthDiagnosticsTab({ accounts, providers: _providers, syncJobs: _syncJobs }: HealthDiagnosticsTabProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);

@@ -1,6 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'node:fs';
+import path from 'node:path';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Auto-load env files if not set
 if (!process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
@@ -47,7 +51,7 @@ try {
     parsedUrl.searchParams.delete('channel_binding');
     dbUrl = parsedUrl.toString();
   }
-} catch (e) {
+} catch (_e) {
   // Ignore URL parse errors
 }
 
@@ -68,13 +72,13 @@ try {
   try {
     execSync("npx prisma migrate resolve --applied 20260805000000_add_rbac_portals_and_memberships --schema=prisma/schema.prisma", { stdio: 'inherit', env });
     execSync("npx prisma migrate resolve --applied 20260813130000_add_b2b_attraction_fields --schema=prisma/schema.prisma", { stdio: 'inherit', env });
-  } catch (e) {
+  } catch (_e) {
     console.log("[BUILD] Migration resolve step completed.");
   }
 
   try {
     execSync("npx prisma migrate deploy --schema=prisma/schema.prisma", { stdio: 'inherit', env });
-  } catch (e) {
+  } catch (_e) {
     console.log("[BUILD] Migration deploy step completed.");
   }
 

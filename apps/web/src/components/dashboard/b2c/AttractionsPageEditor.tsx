@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Sparkles, Layout, Globe, Search, SlidersHorizontal } from "lucide-react";
+import { Save, Globe, SlidersHorizontal } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
 import {

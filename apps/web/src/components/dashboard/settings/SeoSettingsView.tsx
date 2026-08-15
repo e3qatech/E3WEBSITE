@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Save, CheckCircle2, Globe, FileJson, Search, ExternalLink, RefreshCw } from "lucide-react";
+import { Save, Globe, FileJson, Search, ExternalLink, RefreshCw } from "lucide-react";
 import { AdminFormLayout } from "../ui/AdminFormLayout";
 import { AdminButton } from "../ui/AdminButton";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";

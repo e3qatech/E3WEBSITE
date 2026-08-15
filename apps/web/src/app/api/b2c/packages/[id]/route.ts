@@ -38,7 +38,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
     const body = await req.json()
-    const { attraction, brand, location, leads, createdAt, updatedAt, ...updateData } = body
+    const { attraction: _attraction, brand: _brand, location: _location, leads: _leads, createdAt: _createdAt, updatedAt: _updatedAt, ...updateData } = body
 
     const updated = await db.package.update({
       where: { id },
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const original = await db.package.findUnique({ where: { id } })
     if (!original) return NextResponse.json({ error: "Package not found" }, { status: 404 })
 
-    const { id: _origId, slug, code, createdAt, updatedAt, ...copyData } = original
+    const { id: _origId, slug: _slug, code: _code, createdAt: _createdAt, updatedAt: _updatedAt, ...copyData } = original
     const duplicated = await db.package.create({
       data: {
         ...copyData,

@@ -8,8 +8,6 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
-  ChevronsUp,
-  ChevronsDown,
   Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

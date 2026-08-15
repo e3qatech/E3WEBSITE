@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client"
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Users, Clock, Ticket, ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Sparkles } from 'lucide-react'
+import { Users, Clock, Ticket, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'

@@ -2,17 +2,8 @@
 
 import React, { useState } from 'react';
 import { 
-  Layers, 
   Plus, 
-  Trash2, 
-  CheckCircle2, 
-  Sliders, 
-  Grid, 
-  Columns, 
-  Monitor, 
-  Sparkles,
-  Save,
-  Tag
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 
@@ -22,7 +13,7 @@ interface FeedsTabProps {
   onRefresh: () => void;
 }
 
-export function FeedsTab({ feeds, accounts, onRefresh }: FeedsTabProps) {
+export function FeedsTab({ feeds, accounts: _accounts, onRefresh }: FeedsTabProps) {
   const { toast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [editingFeed, setEditingFeed] = useState<any | null>(null);

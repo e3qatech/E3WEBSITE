@@ -26,7 +26,7 @@ export async function GET() {
       host = parsed.hostname
       dbName = parsed.pathname.replace(/^\//, "")
     }
-  } catch (e) {
+  } catch (_e) {
     host = rawDbUrl.split("@")[1]?.split("/")[0] || "parse-error"
   }
 

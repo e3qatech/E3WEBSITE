@@ -5,13 +5,8 @@ import {
   Key, 
   ShieldCheck, 
   Save, 
-  Trash2, 
-  CheckCircle2, 
-  XCircle, 
-  Info, 
   Lock,
-  RefreshCw,
-  ExternalLink
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 

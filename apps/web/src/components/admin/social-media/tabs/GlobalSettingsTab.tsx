@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Sliders, 
   Save, 
-  ShieldCheck, 
-  CheckCircle2, 
   ToggleLeft, 
   ToggleRight
 } from 'lucide-react';
@@ -26,7 +23,7 @@ export function GlobalSettingsTab() {
     enableManualEmbeds: true,
   });
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/social-media/settings');
       const json = await res.json();
@@ -38,11 +35,11 @@ export function GlobalSettingsTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
   const handleSave = async () => {
     setSaving(true);

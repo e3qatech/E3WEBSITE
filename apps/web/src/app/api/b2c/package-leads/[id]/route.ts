@@ -29,7 +29,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
     const body = await req.json()
-    const { package: _pkg, assignedTo: _user, createdAt, updatedAt, ...updateData } = body
+    const { package: _pkg, assignedTo: _user, createdAt: _createdAt, updatedAt: _updatedAt, ...updateData } = body
 
     const updated = await db.packageLead.update({
       where: { id },

@@ -90,7 +90,7 @@ async function main() {
   try {
     const parsed = new URL(dbUrl);
     maskedHost = `${parsed.hostname} (DB: ${parsed.pathname.replace('/', '')})`;
-  } catch (e) {
+  } catch (_e) {
     maskedHost = dbUrl.split('@')[1] || dbUrl;
   }
 
@@ -112,7 +112,7 @@ async function main() {
 
   console.log(`Loaded dataset containing ${attractions.length} attraction records.\n`);
 
-  let totalDataset = attractions.length;
+  const totalDataset = attractions.length;
   let matchedExisting = 0;
   let newRecords = 0;
   let wouldUpdate = 0;
@@ -142,7 +142,7 @@ async function main() {
             temporalRules: true,
           },
         });
-      } catch (e) {
+      } catch (_e) {
         // Local DB offline or unreachable during dry-run
       }
 
@@ -176,14 +176,14 @@ async function main() {
             ambiguous++;
             console.warn(`[AMBIGUOUS] Multiple database matches found for ${nameEn}`);
           }
-        } catch (e) {
+        } catch (_e) {
           // Ignore DB connection errors during dry run
         }
       }
 
       const scalarFieldsToAdd: string[] = [];
       const missingVerifiedData: string[] = [];
-      let totalSectionsCount = 17;
+      const totalSectionsCount = 17;
       let populatedSectionsCount = 0;
 
       // Section 1: Core Details

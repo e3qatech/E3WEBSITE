@@ -29,7 +29,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
     const body = await req.json()
-    const { author, createdAt, updatedAt, ...updateData } = body
+    const { author: _author, createdAt: _createdAt, updatedAt: _updatedAt, ...updateData } = body
 
     if (updateData.publishStatus === "PUBLISHED" && !updateData.publishedAt) {
       updateData.publishedAt = new Date()

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import db from "@/lib/db";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import Link from "next/link";
-import { Calendar, User, ArrowLeft, Tag, Share2 } from "lucide-react";
+import { Calendar, ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Save, Globe, BookOpen, Heart, Sparkles } from "lucide-react";
+import { Plus, Trash2, Save, Globe, BookOpen, Heart } from "lucide-react";
 import { AdminMediaPicker } from "../ui/AdminMediaPicker";
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
@@ -70,7 +70,7 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       setIsDirty(false);
       setLastSaved(new Date());
       toast("B2B About Us page updated successfully.", "success");
-    } catch (e) {
+    } catch (_e) {
       toast("Failed to save B2B About Us page.", "error");
     } finally {
       setSaving(false);

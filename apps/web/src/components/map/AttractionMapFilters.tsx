@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Search, Locate, Compass, Filter } from 'lucide-react';
+import { Search, Locate } from 'lucide-react';
 
 interface AttractionMapFiltersProps {
   searchQuery: string;

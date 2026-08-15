@@ -2,26 +2,12 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { motion } from "framer-motion"
 import {
-  ArrowLeft,
   Save,
-  Globe,
   Building2,
   Layers,
-  FileText,
-  Calendar,
-  MapPin,
-  Ticket,
-  Eye,
-  EyeOff,
-  Star,
-  Sparkles,
-  CheckCircle2
+  Ticket
 } from "lucide-react"
-import { AdminButton } from "@/components/dashboard/ui/AdminButton"
-import { Badge } from "@/components/ui/Badge"
 import {
   DashboardPageShell,
   DashboardPageHeader,

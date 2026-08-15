@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, User, Building2, Sparkles, Calendar as CalendarIcon, Compass, PartyPopper, PhoneCall, Layers } from 'lucide-react';
+import { ChevronDown, User, Building2, Sparkles, Calendar as CalendarIcon, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface PulseOrbitDropdownProps {

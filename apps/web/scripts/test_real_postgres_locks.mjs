@@ -1,5 +1,10 @@
-const { execSync } = require('child_process');
-const { PrismaClient } = require('@prisma/client');
+import { execSync } from 'node:child_process';
+import { PrismaClient } from '@prisma/client';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const BASE_URL = 'postgresql://postgres:postgres@127.0.0.1:5432';
 
@@ -20,7 +25,7 @@ async function runRealPostgresLockTest() {
     console.log('2. Provisioning database schema with baseline workflow & `prisma migrate deploy`...');
     execSync('npx prisma db push --skip-generate --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: lockDbUrl },
-      cwd: __dirname + '/..',
+      cwd: path.join(__dirname, '..'),
       encoding: 'utf8'
     });
 
@@ -35,30 +40,29 @@ async function runRealPostgresLockTest() {
     for (const mig of preSocialMigrations) {
       execSync(`npx prisma migrate resolve --applied ${mig}`, {
         env: { ...process.env, DATABASE_URL: lockDbUrl },
-        cwd: __dirname + '/..',
+        cwd: path.join(__dirname, '..'),
         encoding: 'utf8'
       });
     }
 
     execSync('npx prisma migrate deploy', {
       env: { ...process.env, DATABASE_URL: lockDbUrl },
-      cwd: __dirname + '/..',
+      cwd: path.join(__dirname, '..'),
       encoding: 'utf8'
     });
 
     // Set DATABASE_URL for sync-lock module
     process.env.DATABASE_URL = lockDbUrl;
 
-    // Dynamically import sync-lock module after DATABASE_URL is bound
     const {
       acquireSyncLock,
       releaseSyncLock,
       renewSyncLock,
-      cleanupExpiredLocks,
       buildLockKey
-    } = require('../src/lib/social-media/sync-lock');
+    } = await import('../src/lib/social-media/sync-lock.js');
 
-    const db = (require('../src/lib/db')).default;
+    const dbModule = await import('../src/lib/db.js');
+    const db = dbModule.default || dbModule.db;
 
     console.log('\n--- 1. CONCURRENT WORKERS COMPETITION ---');
     const accountId1 = 'acc_real_pg_001';

@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     // Safely exclude relation arrays if they are being updated via separate operations
     // or handle nested writes.
     const { 
-        category, relationships, placements, linkedHighlights, 
+        category: _category, relationships: _relationships, placements: _placements, linkedHighlights: _linkedHighlights, 
         relationshipIds, categoryId, ...updateData 
     } = data;
 

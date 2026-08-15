@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { describe, it, expect } from 'vitest';
 import { getMergedCMSPageContent } from '../lib/cms-default-pages';
-import { normalizeRole, allowedRolesForPortal } from '../lib/auth-roles';
 import { getAuthorizedLandingRoute, sanitizeCallbackUrl } from '../lib/landing-route';
 import { POST as registerPOST } from '../app/api/auth/register/route';
 import { NextRequest } from 'next/server';

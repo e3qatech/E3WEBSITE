@@ -5,19 +5,11 @@ import {
   Grid, 
   List, 
   Search, 
-  Filter, 
   Pin, 
   Star, 
-  Eye, 
-  EyeOff, 
   Check, 
   X, 
-  Edit3, 
-  Trash2, 
-  ExternalLink,
-  MessageSquare,
-  ThumbsUp,
-  Share2
+  ExternalLink
 } from 'lucide-react';
 import { useToast } from '@/components/dashboard/ui/ToastProvider';
 
@@ -33,7 +25,7 @@ export function ContentLibraryTab({ posts, onRefresh }: ContentLibraryTabProps) 
   const [filterProvider, setFilterProvider] = useState<string>('ALL');
   const [filterModeration, setFilterModeration] = useState<string>('ALL');
   const [selectedPostIds, setSelectedPostIds] = useState<string[]>([]);
-  const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [_editingPost, _setEditingPost] = useState<any | null>(null);
 
   const filteredPosts = posts.filter(post => {
     if (search) {

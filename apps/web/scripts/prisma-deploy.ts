@@ -5,7 +5,7 @@ function run(cmd: string) {
   try {
     execSync(cmd, { stdio: 'inherit' });
     return true;
-  } catch (err) {
+  } catch (_err) {
     console.error(`Command failed: ${cmd}`);
     return false;
   }

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
+import { Save, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"

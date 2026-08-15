@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { 
-  Save, ArrowLeft, Settings, DollarSign, HelpCircle, 
+  Save, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
   Users, List, Calendar, X, Eye, ExternalLink
 } from "lucide-react"
@@ -35,6 +35,15 @@ const ATTRACTION_SECTIONS: EditorSectionItem[] = [
   { id: "gallery", label: "11. Gallery" },
   { id: "faqs", label: "12. FAQs" },
   { id: "seo", label: "13. SEO Settings" },
+];
+
+const DEFAULT_STORY_TYPES = [
+  { id: 'st-drive', slug: 'drive', titleEn: 'Drive', titleAr: 'القيادة', accentColor: '#3b82f6' },
+  { id: 'st-bounce', slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز والمرح', accentColor: '#f59e0b' },
+  { id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'التحدي والمنافسة', accentColor: '#ef4444' },
+  { id: 'st-explore', slug: 'explore', titleEn: 'Explore', titleAr: 'الاستكشاف', accentColor: '#10b981' },
+  { id: 'st-celebrate', slug: 'celebrate', titleEn: 'Celebrate', titleAr: 'الاحتفال', accentColor: '#8b5cf6' },
+  { id: 'st-family-time', slug: 'family-time', titleEn: 'Family Time', titleAr: 'وقت العائلة', accentColor: '#ec4899' },
 ];
 
 export function AttractionEditor({ initialData }: { initialData?: any }) {
@@ -76,15 +85,6 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
       ? initialData.featuresList.map((f: any) => ({ ...f, storyTypeIds: f.storyTypes?.map((st: any) => st.id) || [] }))
       : Array.isArray(initialData?.features) ? initialData.features : []
   )
-
-const DEFAULT_STORY_TYPES = [
-  { id: 'st-drive', slug: 'drive', titleEn: 'Drive', titleAr: 'القيادة', accentColor: '#3b82f6' },
-  { id: 'st-bounce', slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز والمرح', accentColor: '#f59e0b' },
-  { id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'التحدي والمنافسة', accentColor: '#ef4444' },
-  { id: 'st-explore', slug: 'explore', titleEn: 'Explore', titleAr: 'الاستكشاف', accentColor: '#10b981' },
-  { id: 'st-celebrate', slug: 'celebrate', titleEn: 'Celebrate', titleAr: 'الاحتفال', accentColor: '#8b5cf6' },
-  { id: 'st-family-time', slug: 'family-time', titleEn: 'Family Time', titleAr: 'وقت العائلة', accentColor: '#ec4899' },
-];
 
   const [availableStoryTypes, setAvailableStoryTypes] = useState<any[]>(DEFAULT_STORY_TYPES)
   const [availableBrands, setAvailableBrands] = useState<any[]>([])
@@ -150,9 +150,9 @@ const DEFAULT_STORY_TYPES = [
   )
   
   // Temporary legacy fields for backward compatibility
-  const [mapUrl, setMapUrl] = useState(initialData?.mapUrl || "")
-  const [ticketingUrl, setTicketingUrl] = useState(initialData?.ticketingUrl || "")
-  const [operations, setOperations] = useState<any>(
+  const [mapUrl, _setMapUrl] = useState(initialData?.mapUrl || "")
+  const [ticketingUrl, _setTicketingUrl] = useState(initialData?.ticketingUrl || "")
+  const [operations, _setOperations] = useState<any>(
     initialData?.operations || { venueName: "", ageGroup: "", hours: "", schedules: [], contactDetails: { phone: "", email: "", whatsapp: "", chatLink: "" } }
   )
 
@@ -657,7 +657,7 @@ const DEFAULT_STORY_TYPES = [
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-black text-[var(--text-primary)]">What's Inside (Experience & Highlights)</h2>
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">What&apos;s Inside (Experience &amp; Highlights)</h2>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">Configure bilingual titles, Arabic descriptions, and media covers for attraction highlights.</p>
                 </div>
                 <Button
@@ -1430,7 +1430,7 @@ const DEFAULT_STORY_TYPES = [
                 <div>
                   <h2 className="text-xl font-bold text-[var(--text-primary)]">Media Gallery</h2>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    Upload images and videos for the attraction's lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
+                    Upload images and videos for the attraction&apos;s lightbox gallery. Supports .jpg, .png, .mp4, .mov, etc.
                   </p>
                 </div>
                 <div className="flex gap-2">

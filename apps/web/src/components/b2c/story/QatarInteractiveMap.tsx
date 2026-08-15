@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from 'react'
-import { MapPin, Locate, ShieldCheck, Sparkles, Calendar, CheckCircle2 } from 'lucide-react'
+import { MapPin, Locate, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas'
 import { AttractionLocationCard } from '@/components/map/AttractionLocationCard'
 import { useNearestLocations } from '@/hooks/useNearestLocations'

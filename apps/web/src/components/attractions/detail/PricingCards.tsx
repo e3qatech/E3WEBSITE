@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Ticket, Tag, Copy, Check, Info, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { formatLocalizedText } from '@/lib/utils';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
 
 interface PricingTier {

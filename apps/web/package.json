@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
-    "build": "node scripts/build-with-env.js",
+    "build": "node scripts/build-with-env.mjs",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint . --max-warnings=0",
     "seed:events": "tsx prisma/seed-events.ts",
