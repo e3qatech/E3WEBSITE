@@ -587,4 +587,291 @@ describe('QF-16 — Story Discovery vs Discover Page Ownership Regression Suite'
       expect(managerJson[0]._count).toBeDefined();
     });
   });
+
+  // =========================================================================
+  // 6. QF-16-C: PUBLIC STORY-TRACK DELIVERY INTEGRATION
+  // =========================================================================
+  describe('6. QF-16-C: Public Story-Track Delivery Integration', () => {
+    const fixtureStoryTracks = [
+      {
+        id: 'st-drive',
+        slug: 'drive',
+        titleEn: 'Drive Track',
+        titleAr: 'مسار القيادة',
+        icon: 'car',
+        accentColor: '#3b82f6',
+        orderIndex: 0,
+        isActive: true,
+        coverMediaUrl: 'https://images.unsplash.com/photo-1511882150382-421056c89033',
+        features: [],
+        _count: { features: 0 },
+      },
+      {
+        id: 'st-bounce',
+        slug: 'bounce',
+        titleEn: 'Bounce Track',
+        titleAr: 'مسار القفز',
+        icon: 'activity',
+        accentColor: '#f59e0b',
+        orderIndex: 1,
+        isActive: true,
+        coverMediaUrl: 'https://images.unsplash.com/photo-1511882150382-421056c89033',
+        features: [],
+        _count: { features: 0 },
+      },
+      {
+        id: 'st-compete',
+        slug: 'compete',
+        titleEn: 'Compete Track',
+        titleAr: 'مسار التحدي',
+        icon: 'trophy',
+        accentColor: '#ef4444',
+        orderIndex: 2,
+        isActive: true,
+        coverMediaUrl: 'https://images.unsplash.com/photo-1511882150382-421056c89033',
+        features: [],
+        _count: { features: 0 },
+      },
+      {
+        id: 'st-explore',
+        slug: 'explore',
+        titleEn: 'Explore Track',
+        titleAr: 'مسار الاستكشاف',
+        icon: 'compass',
+        accentColor: '#10b981',
+        orderIndex: 3,
+        isActive: true,
+        coverMediaUrl: 'https://images.unsplash.com/photo-1511882150382-421056c89033',
+        features: [],
+        _count: { features: 0 },
+      },
+      {
+        id: 'st-celebrate',
+        slug: 'celebrate',
+        titleEn: 'Celebrate Track',
+        titleAr: 'مسار الاحتفال',
+        icon: 'gift',
+        accentColor: '#8b5cf6',
+        orderIndex: 4,
+        isActive: true,
+        coverMediaUrl: 'https://images.unsplash.com/photo-1511882150382-421056c89033',
+        features: [],
+        _count: { features: 0 },
+      },
+      {
+        id: 'st-family',
+        slug: 'family-time',
+        titleEn: 'Family Time Track',
+        titleAr: 'مسار العائلة',
+        icon: 'users',
+        accentColor: '#ec4899',
+        orderIndex: 5,
+        isActive: true,
+        coverMediaUrl: 'https://images.unsplash.com/photo-1511882150382-421056c89033',
+        features: [],
+        _count: { features: 0 },
+      },
+    ];
+
+    it('passes six active fixtures through the public GET boundary into landing composition rendering in EN and AR with orderIndex preserved', async () => {
+      vi.mocked(auth).mockResolvedValue(null as any);
+      vi.spyOn(db.storyType, 'count').mockResolvedValue(6);
+      vi.spyOn(db.storyType, 'findMany').mockResolvedValue(fixtureStoryTracks as any);
+      vi.spyOn(db.attraction, 'findMany').mockResolvedValue([]);
+
+      // 1. Invoke actual public GET route boundary
+      const publicReq = new NextRequest('http://localhost:3000/api/b2c/story-types?active=true');
+      const publicRes = await getStoryTypes(publicReq);
+      const publicData = await publicRes.json();
+
+      expect(publicRes.status).toBe(200);
+      expect(Array.isArray(publicData)).toBe(true);
+      expect(publicData.length).toBe(6);
+
+      // Verify safe response shape (no admin leakage)
+      for (const track of publicData) {
+        expect(track.id).toBeDefined();
+        expect(track.slug).toBeDefined();
+        expect(track.titleEn).toBeDefined();
+        expect(track.titleAr).toBeDefined();
+        expect(track.accentColor).toBeDefined();
+        expect(track.orderIndex).toBeDefined();
+        expect(track.isActive).toBe(true);
+        expect(track._count).toBeUndefined();
+        expect(track.features).toBeUndefined();
+      }
+
+      // 2. Render into StoryTaxonomyPortals landing composition (EN)
+      const landingContent = {
+        intentSelector: {
+          titleEn: 'What Kind of Story Do You Want Today?',
+          titleAr: 'أي نوع من الحكايات تريد أن تعيشها اليوم؟',
+        },
+        storyDiscovery: {
+          storyTypes: publicData,
+        },
+      };
+
+      const htmlEn = renderToStaticMarkup(
+        <StoryTaxonomyPortals
+          content={landingContent}
+          locale="en"
+        />
+      );
+
+      // Section framing and header
+      expect(htmlEn).toContain('STORY DISCOVERY');
+      expect(htmlEn).toContain('What Kind of Story Do You Want Today?');
+
+      // Assert all 6 active track titles render in EN
+      expect(htmlEn).toContain('Drive Track');
+      expect(htmlEn).toContain('Bounce Track');
+      expect(htmlEn).toContain('Compete Track');
+      expect(htmlEn).toContain('Explore Track');
+      expect(htmlEn).toContain('Celebrate Track');
+      expect(htmlEn).toContain('Family Time Track');
+
+      // Assert orderIndex ordering in rendered output
+      const posDriveEn = htmlEn.indexOf('Drive Track');
+      const posBounceEn = htmlEn.indexOf('Bounce Track');
+      const posCompeteEn = htmlEn.indexOf('Compete Track');
+      const posExploreEn = htmlEn.indexOf('Explore Track');
+      const posCelebrateEn = htmlEn.indexOf('Celebrate Track');
+      const posFamilyEn = htmlEn.indexOf('Family Time Track');
+
+      expect(posDriveEn).toBeLessThan(posBounceEn);
+      expect(posBounceEn).toBeLessThan(posCompeteEn);
+      expect(posCompeteEn).toBeLessThan(posExploreEn);
+      expect(posExploreEn).toBeLessThan(posCelebrateEn);
+      expect(posCelebrateEn).toBeLessThan(posFamilyEn);
+
+      // Empty state must NOT be rendered
+      expect(htmlEn).not.toContain('No story tracks currently published.');
+
+      // 3. Render into StoryTaxonomyPortals landing composition (AR)
+      const htmlAr = renderToStaticMarkup(
+        <StoryTaxonomyPortals
+          content={landingContent}
+          locale="ar"
+        />
+      );
+
+      expect(htmlAr).toContain('استكشاف الحكايات والأنشطة');
+      expect(htmlAr).toContain('أي نوع من الحكايات تريد أن تعيشها اليوم؟');
+      expect(htmlAr).toContain('dir="rtl"');
+
+      // Assert all 6 active track titles render in AR
+      expect(htmlAr).toContain('مسار القيادة');
+      expect(htmlAr).toContain('مسار القفز');
+      expect(htmlAr).toContain('مسار التحدي');
+      expect(htmlAr).toContain('مسار الاستكشاف');
+      expect(htmlAr).toContain('مسار الاحتفال');
+      expect(htmlAr).toContain('مسار العائلة');
+
+      // Assert orderIndex ordering in AR rendered output
+      const posDriveAr = htmlAr.indexOf('مسار القيادة');
+      const posBounceAr = htmlAr.indexOf('مسار القفز');
+      const posCompeteAr = htmlAr.indexOf('مسار التحدي');
+      const posExploreAr = htmlAr.indexOf('مسار الاستكشاف');
+      const posCelebrateAr = htmlAr.indexOf('مسار الاحتفال');
+      const posFamilyAr = htmlAr.indexOf('مسار العائلة');
+
+      expect(posDriveAr).toBeLessThan(posBounceAr);
+      expect(posBounceAr).toBeLessThan(posCompeteAr);
+      expect(posCompeteAr).toBeLessThan(posExploreAr);
+      expect(posExploreAr).toBeLessThan(posCelebrateAr);
+      expect(posFamilyAr).toBeGreaterThan(posCelebrateAr);
+
+      // Empty state must NOT be rendered
+      expect(htmlAr).not.toContain('لا توجد مسارات حكايات مفعلة حالياً.');
+    });
+
+    it('excludes inactive tracks through public GET boundary and landing composition', async () => {
+      vi.mocked(auth).mockResolvedValue(null as any);
+      vi.spyOn(db.storyType, 'count').mockResolvedValue(7);
+
+      // Mock database returning 6 active and 1 inactive track
+      const mixedTracks = [
+        ...fixtureStoryTracks,
+        {
+          id: 'st-inactive',
+          slug: 'draft-mystery',
+          titleEn: 'Draft Mystery Track',
+          titleAr: 'مسار مسودة سري',
+          icon: 'help-circle',
+          accentColor: '#64748b',
+          orderIndex: 6,
+          isActive: false,
+          features: [],
+          _count: { features: 0 },
+        },
+      ];
+
+      // Prisma `findMany` filters `where: { isActive: true }` for public calls
+      const findManySpy = vi.spyOn(db.storyType, 'findMany').mockImplementation(async (args: any) => {
+        if (args?.where?.isActive === true) {
+          return mixedTracks.filter(t => t.isActive);
+        }
+        return mixedTracks;
+      });
+
+      const publicReq = new NextRequest('http://localhost:3000/api/b2c/story-types');
+      const publicRes = await getStoryTypes(publicReq);
+      const publicData = await publicRes.json();
+
+      expect(findManySpy).toHaveBeenCalledWith(expect.objectContaining({
+        where: { isActive: true },
+      }));
+      expect(publicData.length).toBe(6);
+      expect(publicData.some((t: any) => t.slug === 'draft-mystery')).toBe(false);
+
+      // Landing composition render check
+      const htmlEn = renderToStaticMarkup(
+        <StoryTaxonomyPortals
+          content={{ storyDiscovery: { storyTypes: publicData } }}
+          locale="en"
+        />
+      );
+
+      expect(htmlEn).not.toContain('Draft Mystery Track');
+      expect(htmlEn).toContain('Drive Track');
+    });
+
+    it('preserves genuine zero-record fallback when database contains zero active tracks', async () => {
+      vi.mocked(auth).mockResolvedValue(null as any);
+      vi.spyOn(db.storyType, 'count').mockResolvedValue(1); // seed not triggered
+      vi.spyOn(db.storyType, 'findMany').mockResolvedValue([]);
+      vi.spyOn(db.attraction, 'findMany').mockResolvedValue([]);
+
+      const publicReq = new NextRequest('http://localhost:3000/api/b2c/story-types?active=true');
+      const publicRes = await getStoryTypes(publicReq);
+      const publicData = await publicRes.json();
+
+      expect(publicData).toEqual([]);
+
+      // EN Empty State
+      const htmlEn = renderToStaticMarkup(
+        <StoryTaxonomyPortals
+          content={{ storyDiscovery: { storyTypes: publicData } }}
+          locale="en"
+        />
+      );
+      expect(htmlEn).toContain('STORY DISCOVERY');
+      expect(htmlEn).toContain('No story tracks currently published.');
+      expect(htmlEn).toContain('href="/en/b2c/attractions"');
+      expect(htmlEn).toContain('Explore All Attractions');
+
+      // AR Empty State
+      const htmlAr = renderToStaticMarkup(
+        <StoryTaxonomyPortals
+          content={{ storyDiscovery: { storyTypes: publicData } }}
+          locale="ar"
+        />
+      );
+      expect(htmlAr).toContain('استكشاف الحكايات والأنشطة');
+      expect(htmlAr).toContain('لا توجد مسارات حكايات مفعلة حالياً.');
+      expect(htmlAr).toContain('href="/ar/b2c/attractions"');
+      expect(htmlAr).toContain('استكشف جميع التجارب');
+    });
+  });
 });

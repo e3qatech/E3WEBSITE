@@ -54,7 +54,37 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
     console.error("[B2C_PAGE_EMPLOYEES_FETCH_ERROR]", error);
   }
 
+  let dbStoryTypes: any[] = [];
+  try {
+    dbStoryTypes = await db.storyType.findMany({
+      where: { isActive: true },
+      orderBy: { orderIndex: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        titleEn: true,
+        titleAr: true,
+        descriptionEn: true,
+        descriptionAr: true,
+        icon: true,
+        coverMediaUrl: true,
+        coverMediaType: true,
+        accentColor: true,
+        orderIndex: true,
+        isActive: true,
+      }
+    });
+  } catch (error) {
+    console.error("[B2C_PAGE_STORY_TYPES_FETCH_ERROR]", error);
+  }
+
   if (cmsData) {
+    if (!cmsData.storyDiscovery) cmsData.storyDiscovery = {};
+    if (dbStoryTypes.length > 0) {
+      cmsData.storyDiscovery.storyTypes = dbStoryTypes;
+      cmsData.storyTypes = dbStoryTypes;
+    }
+
     if (!cmsData.ourBrands) cmsData.ourBrands = {};
     if (dbBrands.length > 0) {
       cmsData.ourBrands.brands = dbBrands;

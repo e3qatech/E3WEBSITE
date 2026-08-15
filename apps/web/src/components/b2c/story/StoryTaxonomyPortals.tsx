@@ -35,65 +35,69 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   }, [])
 
   // Map database Story Types to frontend options, extracting actual activations / activities
-  const options = dbStoryTypes.map(st => {
-    const publishedFeatures = st.features?.filter((f: any) => f.attraction?.isPublished) || []
-    const jsonActivations = st.activations || st.activities || []
-    
-    // Combine features from relation and JSON features
-    const allActivities = [
-      ...jsonActivations,
-      ...publishedFeatures.map((f: any) => ({
-        id: f.id,
-        titleEn: f.titleEn || f.nameEn,
-        titleAr: f.titleAr || f.nameAr,
-        descriptionEn: f.descriptionEn,
-        descriptionAr: f.descriptionAr,
-        highlightType: f.highlightType || "Activity",
-        imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl,
-        attractionSlug: f.attraction?.slug,
-        attractionNameEn: f.attraction?.nameEn,
-        attractionNameAr: f.attraction?.nameAr
-      }))
-    ]
+  const options = dbStoryTypes
+    .filter((st: any) => st && st.isActive !== false)
+    .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+    .map(st => {
+      const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || f.attraction.isPublished !== false)
+      const jsonActivations = st.activations || st.activities || []
+      
+      // Combine features from relation and JSON features
+      const allActivities = [
+        ...jsonActivations,
+        ...publishedFeatures.map((f: any) => ({
+          id: f.id,
+          titleEn: f.titleEn || f.nameEn,
+          titleAr: f.titleAr || f.nameAr,
+          descriptionEn: f.descriptionEn,
+          descriptionAr: f.descriptionAr,
+          highlightType: f.highlightType || "Activity",
+          imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl,
+          attractionSlug: f.attraction?.slug,
+          attractionNameEn: f.attraction?.nameEn,
+          attractionNameAr: f.attraction?.nameAr
+        }))
+      ]
 
-    // Fallback: If no specific activity match exists, fallback to unique attractions
-    const uniqueAttractionsMap = new Map()
-    publishedFeatures.forEach((f: any) => {
-      if (f.attraction && !uniqueAttractionsMap.has(f.attraction.slug)) {
-        uniqueAttractionsMap.set(f.attraction.slug, f.attraction)
+      // Fallback: If no specific activity match exists, fallback to unique attractions
+      const uniqueAttractionsMap = new Map()
+      publishedFeatures.forEach((f: any) => {
+        if (f.attraction && !uniqueAttractionsMap.has(f.attraction.slug)) {
+          uniqueAttractionsMap.set(f.attraction.slug, f.attraction)
+        }
+      })
+      const attractions = Array.from(uniqueAttractionsMap.values())
+
+      const displayActivities = allActivities.length > 0 ? allActivities : attractions.map((attr: any) => ({
+        id: attr.slug,
+        titleEn: attr.nameEn,
+        titleAr: attr.nameAr,
+        descriptionEn: attr.taglineEn,
+        descriptionAr: attr.taglineAr,
+        highlightType: "Venue",
+        imageUrl: attr.heroThumbnailUrl || attr.heroMediaUrl,
+        attractionSlug: attr.slug,
+        attractionNameEn: attr.nameEn,
+        attractionNameAr: attr.nameAr
+      }))
+
+      const titleEnStr = formatLocalizedText(st.titleEn || st.nameEn || st.slug || '', 'en')
+      const titleArStr = formatLocalizedText(st.titleAr || st.nameAr || st.titleEn || st.slug || '', 'ar')
+
+      return {
+        id: st.slug || st.id || 'story-type',
+        labelEn: titleEnStr || st.slug || st.id || 'Story Type',
+        labelAr: titleArStr || titleEnStr || st.slug || st.id || 'نوع القصة',
+        category: String(titleEnStr || st.slug || st.id || 'CATEGORY').toUpperCase(),
+        mediaUrl: st.coverMediaUrl 
+          || displayActivities[0]?.imageUrl 
+          || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
+        accentColor: st.accentColor || '#a855f7',
+        orderIndex: st.orderIndex ?? 0,
+        hasPublishedActivities: displayActivities.length > 0,
+        activities: displayActivities
       }
     })
-    const attractions = Array.from(uniqueAttractionsMap.values())
-
-    const displayActivities = allActivities.length > 0 ? allActivities : attractions.map((attr: any) => ({
-      id: attr.slug,
-      titleEn: attr.nameEn,
-      titleAr: attr.nameAr,
-      descriptionEn: attr.taglineEn,
-      descriptionAr: attr.taglineAr,
-      highlightType: "Venue",
-      imageUrl: attr.heroThumbnailUrl || attr.heroMediaUrl,
-      attractionSlug: attr.slug,
-      attractionNameEn: attr.nameEn,
-      attractionNameAr: attr.nameAr
-    }))
-
-    const titleEnStr = formatLocalizedText(st.titleEn || st.nameEn || st.slug || '', 'en')
-    const titleArStr = formatLocalizedText(st.titleAr || st.nameAr || st.titleEn || st.slug || '', 'ar')
-
-    return {
-      id: st.slug || st.id || 'story-type',
-      labelEn: titleEnStr || st.slug || st.id || 'Story Type',
-      labelAr: titleArStr || titleEnStr || st.slug || st.id || 'نوع القصة',
-      category: String(titleEnStr || st.slug || st.id || 'CATEGORY').toUpperCase(),
-      mediaUrl: st.coverMediaUrl 
-        || displayActivities[0]?.imageUrl 
-        || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
-      accentColor: st.accentColor || '#a855f7',
-      hasPublishedActivities: displayActivities.length > 0,
-      activities: displayActivities
-    }
-  }).filter(opt => opt.hasPublishedActivities)
 
   // Initialize active taxonomy from URL parameter ?story=... or default
   const paramStory = searchParams?.get('story')
