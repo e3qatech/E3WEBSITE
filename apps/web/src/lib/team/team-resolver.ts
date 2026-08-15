@@ -111,17 +111,20 @@ export interface TeamDataQualityReport {
 }
 
 /**
- * Standard department localization dictionary for Arabic parity.
+ * Standard department localization dictionary for Arabic parity across all 22 active roster roles.
  */
 export const TEAM_DEPARTMENT_LOCALIZATION: Record<string, { en: string; ar: string }> = {
   events: { en: 'Events', ar: 'الفعاليات والترفيه' },
   'events & entertainment': { en: 'Events & Entertainment', ar: 'الفعاليات والترفيه' },
   marketing: { en: 'Marketing', ar: 'التسويق' },
   'marketing & sales': { en: 'Marketing & Sales', ar: 'التسويق والمبيعات' },
+  'branding, design & marketing': { en: 'Branding, Design & Marketing', ar: 'التصميم والهوية والتسويق' },
   sales: { en: 'Sales', ar: 'المبيعات' },
   executive: { en: 'Executive Management', ar: 'الإدارة التنفيذية' },
+  'executive management': { en: 'Executive Management', ar: 'الإدارة التنفيذية' },
   management: { en: 'Management', ar: 'الإدارة العامة' },
   design: { en: 'Design & Creative', ar: 'التصميم والإبداع' },
+  'design & creative': { en: 'Design & Creative', ar: 'التصميم والإبداع' },
   creative: { en: 'Creative', ar: 'الإبداع الفني' },
   logistics: { en: 'Logistics', ar: 'الخدمات اللوجستية' },
   'logistics & production': { en: 'Logistics & Production', ar: 'اللوجستيات والإنتاج' },
@@ -130,6 +133,7 @@ export const TEAM_DEPARTMENT_LOCALIZATION: Record<string, { en: string; ar: stri
   'operations & guest experience': { en: 'Operations & Guest Experience', ar: 'العمليات وتجربة الزوار' },
   'operations / it': { en: 'Operations & IT', ar: 'العمليات وتقنية المعلومات' },
   it: { en: 'Information Technology', ar: 'تقنية المعلومات' },
+  'information technology': { en: 'Information Technology', ar: 'تقنية المعلومات' },
   technical: { en: 'Technical Engineering', ar: 'الهندسة والتقنية' },
   engineering: { en: 'Engineering', ar: 'الهندسة الإنشائية' },
   'food & beverage': { en: 'Food & Beverage', ar: 'الأغذية والمشروبات' },
@@ -137,23 +141,41 @@ export const TEAM_DEPARTMENT_LOCALIZATION: Record<string, { en: string; ar: stri
 };
 
 /**
- * Standard designation translations for common corporate roles.
+ * Standard designation translations for common corporate roles across the 22-person roster.
  */
 export const COMMON_DESIGNATION_LOCALIZATION: Record<string, string> = {
+  'managing director & ceo': 'العضو المنتدب والرئيس التنفيذي',
+  'general manager': 'المدير العام',
   'senior events manager': 'مدير الفعاليات الأول',
+  'ai generalist & senior graphic designer': 'مصمم جرافيك أول وخبير ذكاء اصطناعي',
+  'senior 3d visualizer': 'مصمم ثلاثي الأبعاد أول',
+  chairman: 'رئيس مجلس الإدارة',
+  'creative marketing lead': 'رئيس التسويق الإبداعي',
+  'chief executive officer': 'الرئيس التنفيذي',
+  'head of experiential design': 'رئيس قسم التصميم التجريبي',
+  'project & logistics coordinator': 'منسق المشاريع والخدمات اللوجستية',
+  'site manager - city center': 'مدير الموقع - سيتي سنتر',
+  'site manager': 'مدير الموقع',
+  'logistics operations manager': 'مدير العمليات اللوجستية',
+  'production supervisor': 'مشرف الإنتاج',
+  'marketing & partnerships': 'مسؤول التسويق والشراكات',
+  'head of operations - fec / it': 'رئيس العمليات - المراكز الترفيهية وتقنية المعلومات',
+  '3d visualizer': 'مصمم ثلاثي الأبعاد',
+  'event supervisor': 'مشرف الفعاليات',
+  'project manager': 'مدير المشاريع',
+  'software engineer': 'مهندس برمجيات',
+  'events & entertainment coordinator': 'منسق الفعاليات والترفيه',
+  'operations manager': 'مدير العمليات',
+  'f&b manager': 'مدير الأغذية والمشروبات',
   'events manager': 'مدير الفعاليات',
   'events director': 'مدير إدارة الفعاليات',
   'creative director': 'المدير الإبداعي',
   'lead structural engineer': 'كبير المهندسين الإنشائيين',
   'structural engineer': 'مهندس إنشائي',
-  'operations manager': 'مدير العمليات',
   'operations lead': 'رئيس فريق العمليات',
   'logistics manager': 'مدير الخدمات اللوجستية',
   'marketing manager': 'مدير التسويق',
-  'general manager': 'المدير العام',
   'managing director': 'العضو المنتدب',
-  'chief executive officer': 'الرئيس التنفيذي',
-  'project manager': 'مدير المشاريع',
 };
 
 /**

@@ -84,18 +84,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })),
       ...teamMembers
         .filter((item: any) => Boolean(item.slug))
-        .map((item: any) => ({
-          url: `${baseUrl}/b2b/team/${item.slug}`,
-          lastModified: item.updatedAt,
-          changeFrequency: 'monthly' as const,
-          priority: 0.6,
-          alternates: {
-            languages: {
-              en: `${baseUrl}/en/b2b/team/${item.slug}`,
-              ar: `${baseUrl}/ar/b2b/team/${item.slug}`,
+        .flatMap((item: any) => [
+          {
+            url: `${baseUrl}/en/b2b/team/${item.slug}`,
+            lastModified: item.updatedAt,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+            alternates: {
+              languages: {
+                en: `${baseUrl}/en/b2b/team/${item.slug}`,
+                ar: `${baseUrl}/ar/b2b/team/${item.slug}`,
+              },
             },
           },
-        })),
+          {
+            url: `${baseUrl}/ar/b2b/team/${item.slug}`,
+            lastModified: item.updatedAt,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+            alternates: {
+              languages: {
+                en: `${baseUrl}/en/b2b/team/${item.slug}`,
+                ar: `${baseUrl}/ar/b2b/team/${item.slug}`,
+              },
+            },
+          },
+        ]),
     ];
 
     return [...routes, ...dynamicRoutes];

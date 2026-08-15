@@ -38,7 +38,7 @@ export function ExperienceTimeline({ entries, locale }: ExperienceTimelineProps)
             
             <div className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-2">
               <h4 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">
-                {entry.role[locale] || entry.role.en}
+                {entry.role[locale] || (isRTL ? 'خبرة مهنية' : entry.role.en)}
               </h4>
               <span className="text-sm font-bold px-3 py-1 bg-[var(--surface-hover)] border border-[var(--border-default)] text-[var(--text-secondary)] rounded-full shrink-0 w-fit">
                 {entry.duration[locale] || entry.duration.en}
@@ -49,9 +49,9 @@ export function ExperienceTimeline({ entries, locale }: ExperienceTimelineProps)
               {entry.company[locale] || entry.company.en}
             </h5>
             
-            {entry.description && (
+            {(entry.description?.[locale] || (!isRTL && entry.description?.en)) && (
               <p className="text-[var(--text-secondary)] leading-relaxed">
-                {entry.description[locale] || entry.description.en}
+                {entry.description?.[locale] || entry.description?.en}
               </p>
             )}
           </motion.div>
