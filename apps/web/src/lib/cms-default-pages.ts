@@ -1580,15 +1580,60 @@ export const DEFAULT_B2B_CASES_CONTENT = {
   transformations: {
     enabled: true,
     titleEn: "Before & After Transformations",
-    titleAr: "التحول قبل وبعد التنفيذ",
-    items: []
+    titleAr: "التحول الفضائي قبل وبعد التنفيذ",
+    items: [
+      {
+        id: "trans-lego-world",
+        beforeUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC04842.jpg",
+        afterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/9927c4f3-ac81-4cc9-9e6b-8e944102cf38.jpg",
+        titleEn: "LEGO® Shows Qatar",
+        titleAr: "عروض ليغو قطر",
+        beforeLabelEn: "Empty Exhibition Halls",
+        beforeLabelAr: "قاعات المعرض قبل التنفيذ",
+        afterLabelEn: "An Immersive LEGO® World",
+        afterLabelAr: "عالم LEGO® غامر",
+        captionEn: "Transformation from bare exhibition halls to dynamic brick-built universe with 4M+ bricks",
+        captionAr: "التحول من قاعات فارغة إلى فضاء ترفيهي وتفاعلي متكامل يضم أكثر من 4 ملايين قطعة ليغو"
+      },
+      {
+        id: "trans-balloon-parade",
+        beforeUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/8.webp",
+        afterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DJI_0132.jpg",
+        titleEn: "Doha Balloon Parade",
+        titleAr: "مهرجان المنطاد بالدوحة",
+        beforeLabelEn: "The Corniche Before Build",
+        beforeLabelAr: "الكورنيش قبل التجهيز",
+        afterLabelEn: "Qatar’s Landmark Parade",
+        afterLabelAr: "استعراض جماهيري استثنائي في قطر",
+        captionEn: "Transforming 2.5km of open coastline into a national festival parade route with live telemetry",
+        captionAr: "تحويل 2.5 كم من الواجهة البحرية إلى مسار استعراضي وطني متكامل مع مراقبة حية للرياح"
+      },
+      {
+        id: "trans-inflatapark",
+        beforeUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/af64d2a7-af84-4e08-83c7-5d12791f094c.avif",
+        afterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DG8A5873.jpg",
+        titleEn: "InflataPark Doha",
+        titleAr: "إنفلاتا بارك الدوحة",
+        beforeLabelEn: "30,000 sqm of Possibility",
+        beforeLabelAr: "30,000 متر مربع من الإمكانات",
+        afterLabelEn: "The World’s Largest Indoor Inflatable Event",
+        afterLabelAr: "أكبر فعالية ألعاب هوائية داخلية في العالم",
+        captionEn: "Fabrication & staging of world-record obstacle infrastructure and turnkey crowd control",
+        captionAr: "تصنيع وتجهيز بنية تحتية عملاقة للألعاب الهوائية مع إدارة حشود تشغيلية متكاملة"
+      }
+    ]
   },
   impactOverview: {
     enabled: true,
     titleEn: "Impact You Can Measure",
-    titleAr: "أثر يمكن قياسه",
+    titleAr: "أثر يمكن قياسه بالأرقام",
     sourceMode: "CURATED",
-    stats: []
+    stats: [
+      { prefix: "", value: "760,000+", suffix: "", labelEn: "Attendees at a Single Landmark Event", labelAr: "زائر في فعالية جماهيرية استثنائية واحدة" },
+      { prefix: "", value: "30,000", suffix: " sqm", labelEn: "Large-Scale Indoor Event Footprint", labelAr: "مساحة فعالية داخلية واسعة النطاق" },
+      { prefix: "", value: "23M+", suffix: "", labelEn: "Marketing Impressions for InflataCity", labelAr: "ظهور للحملة التسويقية لإنفلاتا سيتي" },
+      { prefix: "", value: "1,055", suffix: " m", labelEn: "Guinness World Record Inflatable Course", labelAr: "مسار ألعاب هوائية حائز على رقم قياسي من غينيس" }
+    ]
   },
   servicesSection: {
     enabled: true,
