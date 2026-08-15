@@ -7,6 +7,7 @@ import { useAdminTheme } from "./AdminThemeProvider"
 import { useLocale } from "@/components/layout/LocaleProvider"
 import { cn } from "@/lib/utils"
 import { NotificationDropdown } from "./NotificationDropdown"
+import { CommandPaletteModal } from "./CommandPaletteModal"
 import { getBreadcrumbTranslation } from "@/lib/i18n"
 
 export function AdminTopBar() {
@@ -16,14 +17,27 @@ export function AdminTopBar() {
   const { theme, setTheme, resolvedTheme } = useAdminTheme();
   
   const [themeMenuOpen, setThemeMenuOpen] = React.useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
   const themeMenuRef = React.useRef<HTMLDivElement>(null);
 
   // Determine current active locale from pathname or context
-  const currentLocale = pathname.startsWith('/ar') ? 'ar' : (locale || 'en');
+  const currentLocale = (locale === 'ar' || pathname.startsWith('/ar')) ? 'ar' : (locale || 'en');
 
   // Strip locale and dashboard prefix for breadcrumbs
   const rawPaths = pathname.split('/').filter(Boolean);
   const paths = rawPaths.filter((p) => p !== 'en' && p !== 'ar' && p !== 'dashboard');
+
+  // Global Cmd+K / Ctrl+K keyboard shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Close theme menu when clicking outside
   React.useEffect(() => {
@@ -93,24 +107,31 @@ export function AdminTopBar() {
       {/* Right Actions: Search, Language Switcher, Theme Toggle & Bell */}
       <div className="flex items-center gap-3 sm:gap-4 ms-auto md:ms-0">
         
-        {/* Search */}
-        <div className="relative hidden sm:block w-64 lg:w-80 group">
-          <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-[var(--color-primary)] transition-colors" />
-          <input 
-            type="text" 
-            placeholder={currentLocale === 'ar' ? 'البحث في لوحة التحكم...' : 'Search Command Center...'}
-            className="w-full ps-9 pe-12 h-9 bg-[var(--bg-level-2)] border border-[var(--border-level-1)] rounded-xl text-[13px] font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all placeholder:text-[var(--text-tertiary)] shadow-sm"
-          />
-          <div className="absolute end-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[var(--text-tertiary)] bg-[var(--surface-default)] px-1.5 py-0.5 rounded border border-[var(--border-level-1)] pointer-events-none">
+        {/* Search Command Center Button / Trigger */}
+        <button
+          type="button"
+          onClick={() => setCommandPaletteOpen(true)}
+          data-testid="command-palette-trigger"
+          aria-label={currentLocale === 'ar' ? 'البحث في لوحة التحكم (Ctrl+K)' : 'Search Command Center (Ctrl+K)'}
+          className="relative hidden sm:flex items-center w-64 lg:w-80 h-9 bg-[var(--bg-level-2)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-1)] hover:border-[var(--color-primary)] rounded-xl px-3 text-[13px] font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-all shadow-sm cursor-pointer group"
+        >
+          <Search className="w-4 h-4 me-2 text-[var(--text-tertiary)] group-hover:text-[var(--color-primary)] transition-colors shrink-0" />
+          <span className="truncate text-start flex-1">
+            {currentLocale === 'ar' ? 'البحث في لوحة التحكم...' : 'Search Command Center...'}
+          </span>
+          <div className="flex items-center gap-1 text-[10px] font-bold text-[var(--text-tertiary)] bg-[var(--surface-default)] px-1.5 py-0.5 rounded border border-[var(--border-level-1)] shrink-0 group-hover:border-[var(--color-primary)]/40 transition-colors">
             <Command className="w-3 h-3" />
             <span>K</span>
           </div>
-        </div>
+        </button>
         
         {/* Mobile Search Button */}
         <button
+          type="button"
+          onClick={() => setCommandPaletteOpen(true)}
+          data-testid="command-palette-mobile-trigger"
           aria-label={currentLocale === 'ar' ? 'بحث' : 'Search'}
-          className="sm:hidden p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors"
+          className="sm:hidden p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
         >
           <Search className="w-5 h-5" />
         </button>
@@ -199,6 +220,12 @@ export function AdminTopBar() {
         <NotificationDropdown />
       </div>
 
+      {/* Global Command Center Search Palette Modal */}
+      <CommandPaletteModal
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        locale={currentLocale}
+      />
     </header>
   )
 }
