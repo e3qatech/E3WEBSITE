@@ -29,6 +29,7 @@ import {
   DashboardStickyActions,
   DashboardUnsavedChangesGuard,
 } from "@/components/dashboard/ui"
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor"
 
 export function DiscoverPageManager({ initialData }: { initialData: any }) {
   const { locale } = useLocale()
@@ -295,11 +296,11 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       />
 
       <AdminFormLayout>
-        {/* 1. HERO TAB */}
+        {/* 1. HERO TAB (E3 Living Hero System) */}
         {activeTab === "hero" && (
-          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-border-default">
-              <h2 className="text-lg font-bold text-text-primary">1. Hero Section</h2>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center bg-surface-default border border-border-default rounded-xl p-4">
+              <h2 className="text-lg font-bold text-text-primary">{isAr ? "قسم الهيرو الرئيسي" : "1. Hero Section"}</h2>
               <button 
                 onClick={() => toggleSectionEnabled("hero")}
                 className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
@@ -311,166 +312,84 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.eyebrowEn || "The E3 Qatar Ecosystem"} 
-                  onChange={e => updateSectionField("hero", "eyebrowEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Eyebrow (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero?.eyebrowAr || "منظومة إي ثري الترفيهية"} 
-                  onChange={e => updateSectionField("hero", "eyebrowAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Headline (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.headlineEn || ""} 
-                  onChange={e => updateSectionField("hero", "headlineEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Headline (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero?.headlineAr || ""} 
-                  onChange={e => updateSectionField("hero", "headlineAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Subtext (En)</label>
-                <textarea 
-                  rows={2}
-                  value={data.hero?.subtextEn || ""} 
-                  onChange={e => updateSectionField("hero", "subtextEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Subtext (Ar)</label>
-                <textarea 
-                  rows={2}
-                  dir="rtl"
-                  value={data.hero?.subtextAr || ""} 
-                  onChange={e => updateSectionField("hero", "subtextAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none resize-none"
-                />
-              </div>
-
-              {/* Primary CTA — EN label, AR label, destination URL */}
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.primaryCtaLabelEn || "Explore Ecosystem"} 
-                  onChange={e => updateSectionField("hero", "primaryCtaLabelEn", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Label (Ar)</label>
-                <input 
-                  type="text"
-                  dir="rtl"
-                  value={data.hero?.primaryCtaLabelAr || "استكشف المنظومة"} 
-                  onChange={e => updateSectionField("hero", "primaryCtaLabelAr", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="text-xs font-bold text-text-secondary uppercase">Primary CTA Destination (internal route, #anchor, or https://)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.primaryCtaUrl || "#about"} 
-                  onChange={e => updateSectionField("hero", "primaryCtaUrl", e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none font-mono"
-                />
-              </div>
-
-              {/* Universal Media Controls */}
-              <div className="col-span-2 p-4 bg-surface-subtle rounded-xl border border-border-default space-y-4">
-                <label className="text-xs font-extrabold text-text-primary uppercase block">Universal Hero Media (Image / Video / 3D Model / Iframe)</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Media Type</label>
-                    <select
-                      value={data.hero?.mediaType || "IMAGE"}
-                      onChange={e => updateSectionField("hero", "mediaType", e.target.value)}
-                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
-                    >
-                      <option value="IMAGE">Image</option>
-                      <option value="VIDEO">Video</option>
-                      <option value="MODEL_3D">3D GLB Model</option>
-                      <option value="IFRAME">Iframe / Embed</option>
-                      <option value="SPLINE">Spline 3D</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Theme</label>
-                    <select
-                      value={data.hero?.theme || "DARK"}
-                      onChange={e => updateSectionField("hero", "theme", e.target.value)}
-                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none"
-                    >
-                      <option value="DARK">Dark Cinematic</option>
-                      <option value="LIGHT">Light Clean</option>
-                    </select>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Media Picker (File Upload / Asset Browser)</label>
-                    <AdminMediaPicker
-                      value={data.hero?.mediaUrl || ""}
-                      onChange={url => updateSectionField("hero", "mediaUrl", url)}
-                      accept="image/*,video/*"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Or Paste 3D Scene / Spline / Iframe Embed URL</label>
-                    <input
-                      type="text"
-                      value={data.hero?.mediaUrl || ""}
-                      onChange={e => updateSectionField("hero", "mediaUrl", e.target.value)}
-                      placeholder="https://my.spline.design/... or https://prod.spline.design/.../scene.splinecode"
-                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none font-mono"
-                    />
-                    <p className="text-[10px] text-text-secondary opacity-70 mt-1">Paste any Spline 3D link, YouTube/Vimeo Iframe URL, or GLB 3D model path directly.</p>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Mobile Fallback Media URL</label>
-                    <input
-                      type="text"
-                      value={data.hero?.mobileMediaUrl || ""}
-                      onChange={e => updateSectionField("hero", "mobileMediaUrl", e.target.value)}
-                      placeholder="https://..."
-                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-text-secondary uppercase">Video / 3D Fallback Poster Image</label>
-                    <input
-                      type="text"
-                      value={data.hero?.posterMediaUrl || ""}
-                      onChange={e => updateSectionField("hero", "posterMediaUrl", e.target.value)}
-                      placeholder="https://..."
-                      className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <E3LivingHeroEditor
+              value={{
+                eyebrowEn: data.hero?.eyebrowEn || "E3 CORPORATE STORY & ECOSYSTEM",
+                eyebrowAr: data.hero?.eyebrowAr || "قصة إي ثري الترفيهية والتنفيذية",
+                fixedHeadlineEn: data.hero?.fixedHeadlineEn || "CHOOSE HOW YOU WANT TO",
+                fixedHeadlineAr: data.hero?.fixedHeadlineAr || "اختر كيف ترغب في أن",
+                rotatingWordsEn: data.hero?.rotatingWordsEn || ["EXPLORE", "COMPETE", "CREATE", "DISCOVER"],
+                rotatingWordsAr: data.hero?.rotatingWordsAr || ["تستكشف", "تنافس", "تبتكر", "تكتشف"],
+                descriptionEn: data.hero?.subtitleEn || data.hero?.subtextEn || "",
+                descriptionAr: data.hero?.subtitleAr || data.hero?.subtextAr || "",
+                primaryCta: {
+                  labelEn: data.hero?.primaryCtaLabelEn || data.hero?.primaryCta?.labelEn || "Explore Ecosystem",
+                  labelAr: data.hero?.primaryCtaLabelAr || data.hero?.primaryCta?.labelAr || "استكشف المنظومة",
+                  url: data.hero?.primaryCtaUrl || data.hero?.primaryCta?.customUrl || "#about"
+                },
+                secondaryCta: {
+                  labelEn: data.hero?.secondaryCtaLabelEn || data.hero?.secondaryCta?.labelEn || "Leadership Message",
+                  labelAr: data.hero?.secondaryCtaLabelAr || data.hero?.secondaryCta?.labelAr || "كلمة القيادة",
+                  url: data.hero?.secondaryCtaUrl || data.hero?.secondaryCta?.customUrl || "#leadership"
+                },
+                media: {
+                  mediaType: data.hero?.mediaType || "IMAGE",
+                  mediaUrl: data.hero?.mediaUrl || "",
+                  posterUrl: data.hero?.posterUrl || data.hero?.posterMediaUrl || "",
+                  mobileMediaUrl: data.hero?.mobileMediaUrl || ""
+                },
+                preset: data.hero?.preset || "story-portal",
+                animationSpeed: data.hero?.animationSpeed || 2800,
+                enableRotatingWords: data.hero?.enableRotatingWords !== false
+              }}
+              onChange={(updated) => {
+                setIsDirty(true)
+                setData((prev: any) => ({
+                  ...prev,
+                  hero: {
+                    ...prev.hero,
+                    eyebrowEn: updated.eyebrowEn,
+                    eyebrowAr: updated.eyebrowAr,
+                    fixedHeadlineEn: updated.fixedHeadlineEn,
+                    fixedHeadlineAr: updated.fixedHeadlineAr,
+                    headlineEn: updated.fixedHeadlineEn,
+                    headlineAr: updated.fixedHeadlineAr,
+                    rotatingWordsEn: updated.rotatingWordsEn,
+                    rotatingWordsAr: updated.rotatingWordsAr,
+                    subtitleEn: updated.descriptionEn,
+                    subtitleAr: updated.descriptionAr,
+                    subtextEn: updated.descriptionEn,
+                    subtextAr: updated.descriptionAr,
+                    primaryCtaLabelEn: updated.primaryCta?.labelEn,
+                    primaryCtaLabelAr: updated.primaryCta?.labelAr,
+                    primaryCtaUrl: updated.primaryCta?.url,
+                    primaryCta: {
+                      labelEn: updated.primaryCta?.labelEn,
+                      labelAr: updated.primaryCta?.labelAr,
+                      customUrl: updated.primaryCta?.url
+                    },
+                    secondaryCtaLabelEn: updated.secondaryCta?.labelEn,
+                    secondaryCtaLabelAr: updated.secondaryCta?.labelAr,
+                    secondaryCtaUrl: updated.secondaryCta?.url,
+                    secondaryCta: {
+                      labelEn: updated.secondaryCta?.labelEn,
+                      labelAr: updated.secondaryCta?.labelAr,
+                      customUrl: updated.secondaryCta?.url
+                    },
+                    mediaType: updated.media?.mediaType,
+                    mediaUrl: updated.media?.mediaUrl,
+                    posterUrl: updated.media?.posterUrl,
+                    posterMediaUrl: updated.media?.posterUrl,
+                    mobileMediaUrl: updated.media?.mobileMediaUrl,
+                    preset: updated.preset,
+                    animationSpeed: updated.animationSpeed,
+                    enableRotatingWords: updated.enableRotatingWords
+                  }
+                }))
+              }}
+              isAr={isAr}
+              defaultPreset="story-portal"
+            />
           </div>
         )}
 

@@ -56,6 +56,7 @@ import {
   EditorSectionItem,
 } from "@/components/dashboard/ui";
 import { MediaUploader } from "@/components/shared/MediaUploader";
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
 
 interface B2CLandingCMSViewProps {
   initialData?: any;
@@ -345,6 +346,19 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         content: {
           sectionSequence: sequence,
           sequence: sequence,
+          e3LivingHero: content.e3LivingHero || {
+            eyebrowEn: currentHeroMedia.badgeEn || currentHero.badgeEn || "E3 QATAR ENTERTAINMENT WORLDS",
+            eyebrowAr: currentHeroMedia.badgeAr || currentHero.badgeAr || "عالم إي ثري الترفيهي بقطر",
+            fixedHeadlineEn: currentAct1Hero.titleEn || currentHero.headerEn || "SOME DAYS PASS. OTHERS BECOME",
+            fixedHeadlineAr: currentAct1Hero.titleAr || currentHero.headerAr || "بعض الأيام تمضي. وأخرى تصبح",
+            rotatingWordsEn: ["STORIES", "ADVENTURES", "MOMENTS", "MEMORIES"],
+            rotatingWordsAr: ["حكايات", "مغامرات", "لحظات", "ذكريات"],
+            descriptionEn: currentAct1Hero.subtextEn || currentHero.subHeaderEn || "",
+            descriptionAr: currentAct1Hero.subtextAr || currentHero.subHeaderAr || "",
+            preset: "memory-engine",
+            animationSpeed: 2800,
+            enableRotatingWords: true
+          },
           heroMedia: {
             ...currentHeroMedia,
             mediaType: currentHeroMedia.mediaType || "IMAGE",
@@ -690,82 +704,90 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         </DashboardSectionCard>
       )}
 
-      {/* 2. HERO COPY & HEADLINES */}
+      {/* 2. HERO COPY & HEADLINES (E3 Living Hero System) */}
       {activeSectionId === "hero-content" && (
-        <DashboardSectionCard
-          title={isAr ? "عناوين ونصوص الهيرو الافتتاحية" : "Act 1: Hero Title & Headlines"}
-          description={
-            isAr
-              ? "العنوان الرئيسي والوصف التوضيحي الذي يظهر في شاشة البداية عند فتح الصفحة."
-              : "Main opening headline and subtitle copy displayed on initial viewport entrance."
-          }
-          icon={<Sparkles className="w-5 h-5 text-[var(--color-primary)]" />}
-        >
-          <DashboardBilingualField
-            label={isAr ? "عنوان الهيرو الرئيسي" : "Main Hero Headline"}
-            valueEn={content.act1Hero?.titleEn || content.hero?.headerEn || ""}
-            valueAr={content.act1Hero?.titleAr || content.hero?.headerAr || ""}
-            onChangeEn={(val) =>
-              updateContent((p) => ({
-                ...p,
-                act1Hero: { ...p.act1Hero, titleEn: val },
-                hero: { ...p.hero, headerEn: val },
-              }))
-            }
-            onChangeAr={(val) =>
-              updateContent((p) => ({
-                ...p,
-                act1Hero: { ...p.act1Hero, titleAr: val },
-                hero: { ...p.hero, headerAr: val },
-              }))
-            }
-            placeholderEn="e.g. Some days pass. Others become stories."
-            placeholderAr="مثال: أيام تمرّ… وأيام تتحول إلى حكايات."
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label={isAr ? "الوصف التوضيحي للهيرو" : "Hero Subtext Description"}
-            type="textarea"
-            rows={3}
-            valueEn={content.act1Hero?.subtextEn || content.hero?.subHeaderEn || ""}
-            valueAr={content.act1Hero?.subtextAr || content.hero?.subHeaderAr || ""}
-            onChangeEn={(val) =>
-              updateContent((p) => ({
-                ...p,
-                act1Hero: { ...p.act1Hero, subtextEn: val },
-                hero: { ...p.hero, subHeaderEn: val },
-              }))
-            }
-            onChangeAr={(val) =>
-              updateContent((p) => ({
-                ...p,
-                act1Hero: { ...p.act1Hero, subtextAr: val },
-                hero: { ...p.hero, subHeaderAr: val },
-              }))
-            }
-            placeholderEn="Enter hero subtitle narrative description..."
-            placeholderAr="أدخل الوصف السردي للهيرو..."
-            mode={languageMode}
-          />
-
-          {/* Headline Preview Box */}
-          <div className="p-5 rounded-2xl border border-purple-500/20 bg-purple-500/5 space-y-2">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-purple-400">
-              {isAr ? "معاينة النص في الهيرو" : "Live Typography Preview"}
-            </span>
-            <h3 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
-              {isAr
-                ? content.act1Hero?.titleAr || content.hero?.headerAr || "أيام تمرّ… وأيام تتحول إلى حكايات."
-                : content.act1Hero?.titleEn || content.hero?.headerEn || "Some days pass. Others become stories."}
-            </h3>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-              {isAr
-                ? content.act1Hero?.subtextAr || content.hero?.subHeaderAr || "ادخل عالمًا من الوجهات الترفيهية والتجارب الحية."
-                : content.act1Hero?.subtextEn || content.hero?.subHeaderEn || "Enter a world of attractions, live experiences and unforgettable moments."}
-            </p>
-          </div>
-        </DashboardSectionCard>
+        <E3LivingHeroEditor
+          value={content.e3LivingHero || {
+            eyebrowEn: content.heroMedia?.badgeEn || content.hero?.badgeEn || "E3 QATAR ENTERTAINMENT WORLDS",
+            eyebrowAr: content.heroMedia?.badgeAr || content.hero?.badgeAr || "عالم إي ثري الترفيهي بقطر",
+            fixedHeadlineEn: content.act1Hero?.titleEn || content.hero?.headerEn || "SOME DAYS PASS. OTHERS BECOME",
+            fixedHeadlineAr: content.act1Hero?.titleAr || content.hero?.headerAr || "بعض الأيام تمضي. وأخرى تصبح",
+            rotatingWordsEn: ["STORIES", "ADVENTURES", "MOMENTS", "MEMORIES"],
+            rotatingWordsAr: ["حكايات", "مغامرات", "لحظات", "ذكريات"],
+            descriptionEn: content.act1Hero?.subtextEn || content.hero?.subHeaderEn || "",
+            descriptionAr: content.act1Hero?.subtextAr || content.hero?.subHeaderAr || "",
+            primaryCta: {
+              labelEn: content.act1Hero?.tab1LabelEn || content.hero?.tab1LabelEn || "Begin Your Story",
+              labelAr: content.act1Hero?.tab1LabelAr || content.hero?.tab1LabelAr || "ابدأ حكايتك",
+              url: content.act1Hero?.tab1Url || content.hero?.tab1Url || "#bring-it-to-life"
+            },
+            secondaryCta: {
+              labelEn: content.act1Hero?.tab2LabelEn || content.hero?.tab2LabelEn || "See What's On Today",
+              labelAr: content.act1Hero?.tab2LabelAr || content.hero?.tab2LabelAr || "اكتشف فعاليات اليوم",
+              url: content.act1Hero?.tab2Url || content.hero?.tab2Url || "#living-day"
+            },
+            media: {
+              mediaType: content.heroMedia?.mediaType || "IMAGE",
+              mediaUrl: content.heroMedia?.mediaUrl || content.hero?.mediaUrl || "",
+              posterUrl: content.heroMedia?.posterUrl || content.hero?.posterUrl || ""
+            },
+            preset: "memory-engine",
+            animationSpeed: 2800,
+            enableRotatingWords: true
+          }}
+          onChange={(updated) => {
+            updateContent((p) => ({
+              ...p,
+              e3LivingHero: updated,
+              heroMedia: {
+                ...p.heroMedia,
+                mediaType: updated.media?.mediaType || "IMAGE",
+                mediaUrl: updated.media?.mediaUrl || "",
+                posterUrl: updated.media?.posterUrl || "",
+                badgeEn: updated.eyebrowEn || "",
+                badgeAr: updated.eyebrowAr || "",
+              },
+              hero: {
+                ...p.hero,
+                badgeEn: updated.eyebrowEn || "",
+                badgeAr: updated.eyebrowAr || "",
+                headerEn: updated.fixedHeadlineEn || "",
+                headerAr: updated.fixedHeadlineAr || "",
+                subHeaderEn: updated.descriptionEn || "",
+                subHeaderAr: updated.descriptionAr || "",
+                tab1LabelEn: updated.primaryCta?.labelEn || "",
+                tab1LabelAr: updated.primaryCta?.labelAr || "",
+                tab1Url: updated.primaryCta?.url || "",
+                tab2LabelEn: updated.secondaryCta?.labelEn || "",
+                tab2LabelAr: updated.secondaryCta?.labelAr || "",
+                tab2Url: updated.secondaryCta?.url || "",
+                mediaType: updated.media?.mediaType || "IMAGE",
+                mediaUrl: updated.media?.mediaUrl || "",
+                posterUrl: updated.media?.posterUrl || ""
+              },
+              act1Hero: {
+                ...p.act1Hero,
+                titleEn: updated.fixedHeadlineEn || "",
+                titleAr: updated.fixedHeadlineAr || "",
+                subtextEn: updated.descriptionEn || "",
+                subtextAr: updated.descriptionAr || "",
+                tab1LabelEn: updated.primaryCta?.labelEn || "",
+                tab1LabelAr: updated.primaryCta?.labelAr || "",
+                tab1Url: updated.primaryCta?.url || "",
+                tab2LabelEn: updated.secondaryCta?.labelEn || "",
+                tab2LabelAr: updated.secondaryCta?.labelAr || "",
+                tab2Url: updated.secondaryCta?.url || "",
+                mediaType: updated.media?.mediaType || "IMAGE",
+                mediaUrl: updated.media?.mediaUrl || "",
+                desktopVideoUrl: updated.media?.mediaUrl || "",
+                posterUrl: updated.media?.posterUrl || ""
+              }
+            }));
+          }}
+          isAr={isAr}
+          languageMode={languageMode === 'ar' ? 'AR' : languageMode === 'en' ? 'EN' : 'BOTH'}
+          defaultPreset="memory-engine"
+        />
       )}
 
       {/* 3. HERO NAVIGATION & ACTIONS */}

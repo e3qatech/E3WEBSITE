@@ -73,7 +73,7 @@ export default async function AttractionsPage(props: { params: Promise<{ locale:
     if (page?.content) rawContent = page.content
   } catch (_e) {}
 
-  const cmsData = getMergedCMSPageContent("b2c-landing", rawContent)
+  const cmsData = getMergedCMSPageContent("b2c-attractions", rawContent)
   const initialAttractions = dbAttractions.length > 0 ? dbAttractions : SEED_FALLBACK_ATTRACTIONS
 
   return (

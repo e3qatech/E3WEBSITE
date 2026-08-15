@@ -107,7 +107,7 @@ export function AttractionsClient({
   return (
     <div className="relative min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] selection:bg-purple-500 selection:text-white">
       {/* 1. HERO SECTION */}
-      <CinematicHeroUniversal content={liveCmsContent} locale={locale} />
+      <CinematicHeroUniversal content={liveCmsContent} locale={locale} preset="e3-universe" />
 
       {/* 2. SHOW ALL THE ATTRACTIONS AVAILABLE */}
       <AttractionsGridSection initialAttractions={activeAttractions} locale={locale} />

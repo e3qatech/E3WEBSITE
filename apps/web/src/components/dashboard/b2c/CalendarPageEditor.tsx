@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Sparkles, Calendar, Globe, Search } from 'lucide-react'
+import { Save, Sparkles, Calendar, Search } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import { E3LivingHeroEditor } from '@/components/dashboard/b2c/E3LivingHeroEditor'
 
 export function CalendarPageEditor() {
   const router = useRouter()
@@ -99,57 +100,57 @@ export function CalendarPageEditor() {
         </button>
       </div>
 
-      {/* Hero Header Controls */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Globe className="w-5 h-5 text-purple-500" />
-          <span>Page Hero Titles & Intro</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Title (English)</label>
-            <input
-              type="text"
-              value={pageConfig.titleEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Title (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.titleAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (English)</label>
-            <textarea
-              rows={2}
-              value={pageConfig.descEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (Arabic)</label>
-            <textarea
-              rows={2}
-              dir="rtl"
-              value={pageConfig.descAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-        </div>
-      </div>
+      {/* Hero Header Controls (E3 Living Hero System) */}
+      <E3LivingHeroEditor
+        value={{
+          eyebrowEn: (pageConfig as any).eyebrowEn || "EVENTS & OCCURRENCES TIMELINE",
+          eyebrowAr: (pageConfig as any).eyebrowAr || "جدول الفعاليات والمواعيد الحية",
+          fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || "YOUR NEXT MOMENT STARTS",
+          fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || "لحظتك القادمة تبدأ",
+          rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["TODAY", "THIS WEEK", "THIS WEEKEND", "SOON"],
+          rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["اليوم", "هذا الأسبوع", "عطلة نهاية الأسبوع", "قريباً"],
+          descriptionEn: pageConfig.descEn,
+          descriptionAr: pageConfig.descAr,
+          primaryCta: {
+            labelEn: "Browse Schedule",
+            labelAr: "تصفح الجدول",
+            url: "#calendar-schedule"
+          },
+          secondaryCta: {
+            labelEn: "Book Group Pass",
+            labelAr: "باقات المجموعات",
+            url: "/b2c/packages"
+          },
+          media: pageConfig.heroMedia,
+          preset: (pageConfig as any).preset || "living-timeline",
+          animationSpeed: (pageConfig as any).animationSpeed || 2800,
+          enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
+        }}
+        onChange={(updated) => {
+          setPageConfig((prev: any) => ({
+            ...prev,
+            eyebrowEn: updated.eyebrowEn,
+            eyebrowAr: updated.eyebrowAr,
+            fixedHeadlineEn: updated.fixedHeadlineEn,
+            fixedHeadlineAr: updated.fixedHeadlineAr,
+            titleEn: updated.fixedHeadlineEn,
+            titleAr: updated.fixedHeadlineAr,
+            rotatingWordsEn: updated.rotatingWordsEn,
+            rotatingWordsAr: updated.rotatingWordsAr,
+            descEn: updated.descriptionEn,
+            descAr: updated.descriptionAr,
+            heroMedia: {
+              ...(prev.heroMedia || {}),
+              ...updated.media
+            },
+            preset: updated.preset,
+            animationSpeed: updated.animationSpeed,
+            enableRotatingWords: updated.enableRotatingWords
+          }))
+        }}
+        isAr={false}
+        defaultPreset="living-timeline"
+      />
 
       {/* Universal Hero Media Controls */}
       <UniversalMediaSectionEditor

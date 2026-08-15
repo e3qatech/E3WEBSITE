@@ -43,6 +43,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
+
 export default async function CalendarPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
 
@@ -69,7 +71,8 @@ export default async function CalendarPage({ params }: { params: Promise<{ local
     return acc;
   }, {} as Record<string, any>);
 
-  const cmsContent = (pageData?.content as any) || uiSettings.B2C_CALENDAR_PAGE_SETTINGS || {};
+  const rawCmsContent = (pageData?.content as any) || uiSettings.B2C_CALENDAR_PAGE_SETTINGS || {};
+  const cmsContent = getMergedCMSPageContent('b2c-calendar', rawCmsContent);
 
   // Fetch active attractions offers for partner discounts ticker
   let discounts: any[] = [];
@@ -104,8 +107,9 @@ export default async function CalendarPage({ params }: { params: Promise<{ local
   return (
     <div className="pt-20">
       <CalendarView 
-        heroMediaType={cmsContent.hero?.mediaType || cmsContent.heroMediaType || "IMAGE"}
-        heroMediaUrl={cmsContent.hero?.mediaUrl || cmsContent.heroMediaUrl || ""}
+        cmsContent={cmsContent}
+        heroMediaType={cmsContent.hero?.mediaType || cmsContent.heroMedia?.mediaType || cmsContent.heroMediaType || "IMAGE"}
+        heroMediaUrl={cmsContent.hero?.mediaUrl || cmsContent.heroMedia?.mediaUrl || cmsContent.heroMediaUrl || ""}
         eyebrowEn={cmsContent.hero?.eyebrowEn || cmsContent.eyebrowEn}
         eyebrowAr={cmsContent.hero?.eyebrowAr || cmsContent.eyebrowAr}
         titleEn={cmsContent.hero?.titleEn || cmsContent.titleEn}

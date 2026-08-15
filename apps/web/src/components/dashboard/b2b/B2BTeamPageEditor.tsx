@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Globe, Search } from 'lucide-react'
+import { Save, Search } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
-import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import { UniversalMediaSectionEditor, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
+import { E3LivingHeroEditor, E3LivingHeroEditorData } from '@/components/dashboard/b2c/E3LivingHeroEditor'
+import { DEFAULT_B2B_TEAM_PAGE_CONTENT } from '@/lib/cms-default-pages'
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -17,15 +19,15 @@ export function B2BTeamPageEditor() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   
-  const [pageConfig, setPageConfig] = useState({
-    titleEn: 'OUR LEADERSHIP & EVENT ATELIER TEAM',
-    titleAr: 'قيادة وفريق عمل إي ثري',
-    descEn: 'Meet the visionaries, engineers, and creative producers powering E3 events across Qatar.',
-    descAr: 'تعرف على قادة، مهندسي ومخرجي الفعاليات في إي ثري قطر.',
-    heroMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'IMAGE', mediaUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop' } as UniversalMediaConfig,
-    footerMedia: { ...DEFAULT_UNIVERSAL_MEDIA, mediaType: 'VIDEO', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4' } as UniversalMediaConfig,
-    seoTitle: 'Our Team & Leadership | E3 Qatar B2B',
-    seoDescription: 'Meet the executive leadership, spatial engineers, and event atelier directors at E3.'
+  const [pageConfig, setPageConfig] = useState<Record<string, any>>({
+    ...DEFAULT_B2B_TEAM_PAGE_CONTENT,
+    titleEn: 'MEET THE PEOPLE WHO BUILD',
+    titleAr: 'تعرّف على الأشخاص الذين يصنعون',
+    descEn: 'Meet the engineers, creatives, and tacticians who make the impossible happen every day.',
+    descAr: 'تعرف على المهندسين والمبدعين والمخططين الذين يجعلون المستحيل ممكناً كل يوم.',
+    hero: {
+      ...DEFAULT_B2B_TEAM_PAGE_CONTENT,
+    } as E3LivingHeroEditorData,
   })
 
   useEffect(() => {
@@ -90,57 +92,38 @@ export function B2BTeamPageEditor() {
         }}
       />
 
-      {/* Hero Header Controls */}
-      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
-        <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Globe className="w-5 h-5 text-[var(--color-primary)]" />
-          <span>Team Header & Intro Copy</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Title (English)</label>
-            <input
-              type="text"
-              value={pageConfig.titleEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Page Title (Arabic)</label>
-            <input
-              type="text"
-              dir="rtl"
-              value={pageConfig.titleAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, titleAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (English)</label>
-            <textarea
-              rows={2}
-              value={pageConfig.descEn}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descEn: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Subtext / Intro (Arabic)</label>
-            <textarea
-              rows={2}
-              dir="rtl"
-              value={pageConfig.descAr}
-              onChange={(e) => setPageConfig(prev => ({ ...prev, descAr: e.target.value }))}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
-        </div>
-      </div>
+      {/* E3 Living Hero & Constellation Header Editor */}
+      <E3LivingHeroEditor
+        title="Human Constellation Hero & Rotating Copy"
+        description="Configure the cinematic team constellation headline, rotating phrases, CTAs, presets, and animation timing."
+        value={{
+          eyebrowEn: pageConfig.eyebrowEn,
+          eyebrowAr: pageConfig.eyebrowAr,
+          fixedHeadlineEn: pageConfig.fixedHeadlineEn || pageConfig.titleEn,
+          fixedHeadlineAr: pageConfig.fixedHeadlineAr || pageConfig.titleAr,
+          rotatingWordsEn: pageConfig.rotatingWordsEn,
+          rotatingWordsAr: pageConfig.rotatingWordsAr,
+          descriptionEn: pageConfig.descriptionEn || pageConfig.descEn,
+          descriptionAr: pageConfig.descriptionAr || pageConfig.descAr,
+          primaryCta: pageConfig.primaryCta,
+          secondaryCta: pageConfig.secondaryCta,
+          preset: (pageConfig.preset as any) || "team-constellation",
+          animationSpeed: pageConfig.animationSpeed || 2800,
+          enableRotatingWords: pageConfig.enableRotatingWords !== false,
+          media: pageConfig.heroMedia as any,
+        }}
+        onChange={(heroData) => {
+          setPageConfig((prev) => ({
+            ...prev,
+            ...heroData,
+            titleEn: heroData.fixedHeadlineEn || prev.titleEn,
+            titleAr: heroData.fixedHeadlineAr || prev.titleAr,
+            descEn: heroData.descriptionEn || prev.descEn,
+            descAr: heroData.descriptionAr || prev.descAr,
+            hero: heroData,
+          }));
+        }}
+      />
 
       {/* Universal Hero Media Section */}
       <UniversalMediaSectionEditor

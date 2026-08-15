@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
 import { formatLocalizedText } from '@/lib/utils';
+import { E3LivingHero } from '@/components/b2c/hero/E3LivingHero';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), {
   ssr: false,
@@ -15,7 +16,7 @@ const ModelViewer = dynamic(() => import('./ModelViewer'), {
 
 import { B2CSceneHost } from '@/components/b2c/runtime/B2CExperienceRuntime';
 
-interface HeroViewerProps {
+export interface HeroViewerProps {
   title: string;
   tagline?: string;
   mediaType: string;
@@ -26,6 +27,10 @@ interface HeroViewerProps {
   ctaText?: string;
   ctaLink?: string;
   motionPreset?: string;
+  rotatingWordsEn?: string[];
+  rotatingWordsAr?: string[];
+  accentColor?: string;
+  locale?: string;
 }
 
 const extractUrl = (raw: string | null | undefined) => {
@@ -37,16 +42,66 @@ const extractUrl = (raw: string | null | undefined) => {
   return raw;
 };
 
-export function HeroViewer({ title, tagline, mediaType, mediaUrl, fallbackUrl, status, logoUrl, ctaText, ctaLink, motionPreset = 'MEDIA_CINEMATIC' }: HeroViewerProps) {
+export function HeroViewer({
+  title,
+  tagline,
+  mediaType,
+  mediaUrl,
+  fallbackUrl,
+  status,
+  logoUrl,
+  ctaText,
+  ctaLink,
+  motionPreset = 'MEDIA_CINEMATIC',
+  rotatingWordsEn = [],
+  rotatingWordsAr = [],
+  accentColor = '#10b981',
+  locale = 'en'
+}: HeroViewerProps) {
   const [mediaError, setMediaError] = React.useState(false);
-  
-  const currentMediaUrl = mediaError && fallbackUrl ? fallbackUrl : mediaUrl;
-  const currentMediaType = mediaError && fallbackUrl ? 'IMAGE' : mediaType; // assume fallback is image
+  const isAr = locale === 'ar';
+
+  const currentMediaUrl = mediaError && fallbackUrl ? fallbackUrl : (mediaUrl || '');
+  const currentMediaType = mediaError && fallbackUrl ? 'IMAGE' : mediaType;
+
+  const hasRecordRotatingWords = isAr
+    ? Array.isArray(rotatingWordsAr) && rotatingWordsAr.length > 0
+    : Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0;
+
+  // Detail page rule: When record-level rotating phrases are present, render E3LivingHero with record-accent preset.
+  // When phrases are empty, retain the static hero layout without inventing fallback content.
+  if (hasRecordRotatingWords) {
+    return (
+      <E3LivingHero
+        eyebrowEn={status || "Featured Experience"}
+        eyebrowAr={status || "تجربة متميزة"}
+        fixedHeadlineEn={title}
+        fixedHeadlineAr={title}
+        rotatingWordsEn={rotatingWordsEn}
+        rotatingWordsAr={rotatingWordsAr}
+        descriptionEn={tagline}
+        descriptionAr={tagline}
+        primaryCta={ctaText && ctaLink ? {
+          labelEn: ctaText,
+          labelAr: ctaText,
+          url: ctaLink
+        } : undefined}
+        media={{
+          mediaType: currentMediaType.toUpperCase(),
+          mediaUrl: currentMediaUrl,
+          posterUrl: fallbackUrl || ''
+        }}
+        preset="record-accent"
+        accentColor={accentColor}
+        locale={locale}
+      />
+    );
+  }
 
   return (
     <section className="relative w-full h-[100vh] overflow-hidden bg-zinc-950 flex items-center justify-center">
       {/* Ambient B2C Motion Preset Signature Layer */}
-      <B2CSceneHost preset={motionPreset} colorAccent="#10b981" />
+      <B2CSceneHost preset={motionPreset} colorAccent={accentColor} />
 
       {/* Background Media */}
       <div className="absolute inset-0 z-0">

@@ -258,6 +258,10 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         ctaText={locale === 'ar' ? "احجز التذاكر" : "Get Tickets"}
         ctaLink={resolveBookingUrl(attraction, locale)}
         motionPreset={(attraction as any).motionPreset || "MEDIA_CINEMATIC"}
+        rotatingWordsEn={(attraction as any).rotatingWordsEn || (attraction as any).rotatingPhrasesEn || []}
+        rotatingWordsAr={(attraction as any).rotatingWordsAr || (attraction as any).rotatingPhrasesAr || []}
+        accentColor={(attraction as any).accentColor || (attraction as any).brandColor || "#10b981"}
+        locale={locale}
       />
 
       {/* 2 & 3. Intro + What's Inside */}

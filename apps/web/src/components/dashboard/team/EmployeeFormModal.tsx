@@ -39,6 +39,7 @@ export function EmployeeFormModal({
     slug: "",
     designation: "",
     department: "",
+    presentationGroup: "",
     yearsOfExperience: 0,
     contactEmail: "",
     linkedinUrl: "",
@@ -142,6 +143,7 @@ export function EmployeeFormModal({
         slug: "",
         designation: "",
         department: "",
+        presentationGroup: "",
         yearsOfExperience: 0,
         contactEmail: "",
         linkedinUrl: "",
@@ -434,6 +436,29 @@ export function EmployeeFormModal({
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
+                      Presentation Group (Public Navigator)
+                    </label>
+                    <select
+                      value={formData.presentationGroup || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, presentationGroup: e.target.value })
+                      }
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-medium"
+                    >
+                      <option value="">Auto-resolve from Department</option>
+                      <option value="leadership">Leadership (القيادة والإدارة التنفيذية)</option>
+                      <option value="creative-marketing">Creative & Marketing (الإبداع والتسويق)</option>
+                      <option value="events-production">Events & Production (الفعاليات والإنتاج)</option>
+                      <option value="operations-guest-exp">Operations & Guest Experience (العمليات وتجربة الزوار)</option>
+                      <option value="technology-systems">Technology & Systems (التكنولوجيا والأنظمة)</option>
+                      <option value="food-beverage">Food & Beverage (الأغذية والمشروبات)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
                       Years of Experience
                     </label>
                     <Input
@@ -448,9 +473,6 @@ export function EmployeeFormModal({
                       className="w-full"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
                       LinkedIn URL
@@ -464,6 +486,9 @@ export function EmployeeFormModal({
                       placeholder="https://linkedin.com/in/..."
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
                       Contact Email

@@ -17,11 +17,9 @@ import {
 } from "lucide-react";
 
 import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
-import { ImmersiveCanvas } from "@/components/ui/ImmersiveCanvas";
-import { AnimatedText } from "@/components/ui/AnimatedText";
+import { E3LivingHero } from "@/components/b2c/hero/E3LivingHero";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
 import { B2CGrid } from "@/components/ui/B2CGrid";
-import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 
 export function DiscoverClient({
   locale,
@@ -92,65 +90,54 @@ export function DiscoverClient({
 
       {/* RENDER SECTIONS BASED ON CMS SECTION ORDER */}
       {sectionOrder.map((sectionKey: string) => {
-        // 1. HERO SECTION
+        // 1. HERO SECTION (E3 Living Hero System)
         if (sectionKey === "hero" && content.hero?.enabled !== false) {
           const hero = content.hero || {};
-          const rawType = ((hero.mediaType as any) || "IMAGE").toUpperCase();
-          const normalizedType = rawType === "MODEL_3D" ? "THREE_D" : rawType;
-
           return (
-            <section key="hero" id="hero" className="relative min-h-[92vh] flex flex-col justify-end pt-36 pb-20 md:pb-28 overflow-hidden bg-black">
-              {/* Full-Bleed Hero Background Media Container */}
-              {hero.mediaUrl ? (
-                <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-                  <UniversalMediaRenderer
-                    src={hero.mediaUrl}
-                    type={normalizedType as any}
-                    alt={isAr ? hero.headlineAr : hero.headlineEn}
-                    className="w-full h-full object-cover"
-                    poster={hero.posterMediaUrl || hero.mobileMediaUrl}
-                  />
-                  {/* Bottom-to-top dark gradient scrim overlay for 100% text visibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/80 to-black/30 z-[1] pointer-events-none" />
-                </div>
-              ) : (
-                <ImmersiveCanvas />
-              )}
-              
-              <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center w-full flex flex-col items-center justify-end">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="space-y-6 max-w-4xl mx-auto text-center flex flex-col items-center justify-end"
-                >
-                  <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-black/60 border border-[var(--border-level-2)] text-xs font-mono font-extrabold uppercase tracking-widest text-[var(--e3-royal-blue)] backdrop-blur-md shadow-2xl">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {isAr ? (hero.eyebrowAr || "منظومة إي ثري الترفيهية") : (hero.eyebrowEn || "The E3 Qatar Ecosystem")}
-                  </span>
-
-                  <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase font-display leading-[1.05] text-white drop-shadow-2xl text-center">
-                    <AnimatedText text={isAr ? (hero.headlineAr || "تحويل الأفكار المكانية إلى معالم حية") : (hero.headlineEn || "Transforming Spatial Ideas Into Living Landmarks")} />
-                  </h1>
-
-                  <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg text-center">
-                    {isAr ? (hero.subtextAr || "منظومة قطرية متكاملة لابتكار وإدارة التجارب والفعاليات") : (hero.subtextEn || "Integrated Qatari ecosystem for pioneering events and destinations.")}
-                  </p>
-
-                  {(hero.primaryCtaUrl || hero.primaryCtaLabelEn) && (
-                    <div className="pt-4 flex justify-center items-center w-full">
-                      <a
-                        href={hero.primaryCtaUrl || "#about"}
-                        className="inline-flex items-center gap-2 px-9 py-4 rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-transform shadow-2xl"
-                      >
-                        {isAr ? (hero.primaryCtaLabelAr || "استكشف المنظومة") : (hero.primaryCtaLabelEn || "Explore Ecosystem")}
-                        <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
-                      </a>
-                    </div>
-                  )}
-                </motion.div>
-              </div>
-            </section>
+            <div key="hero" id="hero">
+              <E3LivingHero
+                eyebrowEn={hero.eyebrowEn || "E3 CORPORATE STORY & ECOSYSTEM"}
+                eyebrowAr={hero.eyebrowAr || "قصة إي ثري الترفيهية والتنفيذية"}
+                fixedHeadlineEn={hero.fixedHeadlineEn || "CHOOSE HOW YOU WANT TO"}
+                fixedHeadlineAr={hero.fixedHeadlineAr || "اختر كيف ترغب في أن"}
+                rotatingWordsEn={
+                  Array.isArray(hero.rotatingWordsEn) && hero.rotatingWordsEn.length > 0
+                    ? hero.rotatingWordsEn
+                    : ["EXPLORE", "COMPETE", "CREATE", "DISCOVER"]
+                }
+                rotatingWordsAr={
+                  Array.isArray(hero.rotatingWordsAr) && hero.rotatingWordsAr.length > 0
+                    ? hero.rotatingWordsAr
+                    : ["تستكشف", "تنافس", "تبتكر", "تكتشف"]
+                }
+                descriptionEn={
+                  hero.subtitleEn || hero.subtextEn || "Pioneering landmark entertainment, kinetic staging, and Qatar's premier spatial technology ecosystem."
+                }
+                descriptionAr={
+                  hero.subtitleAr || hero.subtextAr || "نبتكر تجارب ترفيهية استثنائية، عروض حية، ومنظومة تكنولوجية متكاملة في قطر."
+                }
+                primaryCta={{
+                  labelEn: hero.primaryCta?.labelEn || hero.primaryCtaLabelEn || "Explore Ecosystem",
+                  labelAr: hero.primaryCta?.labelAr || hero.primaryCtaLabelAr || "استكشف المنظومة",
+                  url: hero.primaryCta?.customUrl || hero.primaryCtaUrl || "#about"
+                }}
+                secondaryCta={{
+                  labelEn: hero.secondaryCta?.labelEn || hero.secondaryCtaLabelEn || "Leadership Message",
+                  labelAr: hero.secondaryCta?.labelAr || hero.secondaryCtaLabelAr || "كلمة القيادة",
+                  url: hero.secondaryCta?.customUrl || hero.secondaryCtaUrl || "#leadership"
+                }}
+                media={{
+                  mediaType: (hero.mediaType || "IMAGE").toUpperCase(),
+                  mediaUrl: hero.mediaUrl,
+                  posterUrl: hero.posterUrl || hero.posterMediaUrl || hero.mobileMediaUrl,
+                  overlayOpacity: hero.overlayOpacity !== undefined ? hero.overlayOpacity : 0.65
+                }}
+                preset={hero.preset || "story-portal"}
+                animationSpeed={hero.animationSpeed || 2800}
+                enableRotatingWords={hero.enableRotatingWords !== false}
+                locale={locale}
+              />
+            </div>
           );
         }
 

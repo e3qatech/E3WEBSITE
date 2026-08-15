@@ -117,6 +117,29 @@ export const DEFAULT_B2C_SECTION_SEQUENCE: B2CSectionItem[] = [
 
 export const DEFAULT_B2C_LANDING_CONTENT = {
   sectionSequence: DEFAULT_B2C_SECTION_SEQUENCE,
+  e3LivingHero: {
+    eyebrowEn: "E3 QATAR ENTERTAINMENT WORLDS",
+    eyebrowAr: "عالم إي ثري الترفيهي بقطر",
+    fixedHeadlineEn: "SOME DAYS PASS. OTHERS BECOME",
+    fixedHeadlineAr: "بعض الأيام تمضي. وأخرى تصبح",
+    rotatingWordsEn: ["STORIES", "ADVENTURES", "MOMENTS", "MEMORIES"],
+    rotatingWordsAr: ["حكايات", "مغامرات", "لحظات", "ذكريات"],
+    descriptionEn: "Enter a world of attractions, live experiences and unforgettable moments created by E3.",
+    descriptionAr: "ادخل عالمًا من الوجهات الترفيهية والتجارب الحية واللحظات التي لا تُنسى مع E3.",
+    primaryCta: {
+      labelEn: "Begin Your Story",
+      labelAr: "ابدأ حكايتك",
+      url: "#bring-it-to-life"
+    },
+    secondaryCta: {
+      labelEn: "See What's On Today",
+      labelAr: "اكتشف فعاليات اليوم",
+      url: "#living-day"
+    },
+    preset: "memory-engine",
+    animationSpeed: 2800,
+    enableRotatingWords: true
+  },
   heroMedia: {
     mediaType: "IMAGE",
     mediaUrl: "",
@@ -536,6 +559,42 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   }
 };
 
+export const DEFAULT_B2B_TEAM_PAGE_CONTENT = {
+  eyebrowEn: "E3 MASTERMINDS & LEADERSHIP",
+  eyebrowAr: "قيادة وفريق عمل إي ثري",
+  fixedHeadlineEn: "MEET THE PEOPLE WHO BUILD",
+  fixedHeadlineAr: "تعرّف على الأشخاص الذين يصنعون",
+  rotatingWordsEn: ["EXPERIENCES", "DESTINATIONS", "MOMENTS", "THE IMPOSSIBLE"],
+  rotatingWordsAr: ["التجارب", "الوجهات", "اللحظات", "المستحيل"],
+  descriptionEn: "Meet the engineers, creatives, and tacticians who make the impossible happen every day.",
+  descriptionAr: "تعرف على المهندسين والمبدعين والمخططين الذين يجعلون المستحيل ممكناً كل يوم.",
+  primaryCta: {
+    labelEn: "Join Our Team",
+    labelAr: "انضم لفريقنا",
+    url: "/{locale}/careers"
+  },
+  secondaryCta: {
+    labelEn: "Explore Departments",
+    labelAr: "استكشف الأقسام",
+    url: "#department-navigator"
+  },
+  heroMedia: {
+    mediaType: "IMAGE",
+    mediaUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop",
+    posterUrl: ""
+  },
+  footerMedia: {
+    mediaType: "VIDEO",
+    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
+    posterUrl: ""
+  },
+  preset: "team-constellation" as const,
+  animationSpeed: 2800,
+  enableRotatingWords: true,
+  seoTitle: "Our Team & Leadership | E3 Qatar B2B",
+  seoDescription: "Meet the executive leadership, spatial engineers, and event atelier directors at E3."
+};
+
 export const DEFAULT_PULSE_ORBIT_CONTENT = {
   titleEn: "PULSE ORBIT DESTINATIONS",
   titleAr: "وجهات مدار إي ثري",
@@ -825,6 +884,13 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     eyebrowAr: "قصة إي ثري الترفيهية والتنفيذية",
     titleEn: "The Wow & The How",
     titleAr: "الإبهار والتنفيذ الاحترافي",
+    fixedHeadlineEn: "CHOOSE HOW YOU WANT TO",
+    fixedHeadlineAr: "اختر كيف ترغب في أن",
+    rotatingWordsEn: ["EXPLORE", "COMPETE", "CREATE", "DISCOVER"],
+    rotatingWordsAr: ["تستكشف", "تنافس", "تبتكر", "تكتشف"],
+    preset: "story-portal",
+    animationSpeed: 2800,
+    enableRotatingWords: true,
     subtitleEn: "Pioneering landmark entertainment, kinetic staging, and Qatar's premier spatial technology ecosystem.",
     subtitleAr: "نبتكر تجارب ترفيهية استثنائية، عروض حية، ومنظومة تكنولوجية متكاملة في قطر.",
     supportingTextEn: "From creative concepts to crowd flow, fabrication, ticketing, staffing, and live operations.",
@@ -1530,6 +1596,13 @@ export const DEFAULT_B2C_PACKAGES_PAGE_CONTENT = {
   eyebrowAr: "باقات الفعاليات والاحتفالات الاستثنائية",
   titleEn: "Big Moments Deserve Bigger Experiences",
   titleAr: "لحظاتكم الكبيرة تستحق تجارب استثنائية",
+  fixedHeadlineEn: "BUILD A DAY FILLED WITH",
+  fixedHeadlineAr: "اصنع يوماً مليئاً بـ",
+  rotatingWordsEn: ["PLAY", "CELEBRATION", "DISCOVERY", "MEMORIES"],
+  rotatingWordsAr: ["المرح", "الاحتفال", "الاكتشاف", "الذكريات"],
+  preset: "day-builder",
+  animationSpeed: 2800,
+  enableRotatingWords: true,
   descEn: "Discover birthday celebrations, group adventures, school experiences and corporate packages across E3's entertainment destinations.",
   descAr: "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية.",
   primaryCtaEn: "Find Your Package",
@@ -1550,6 +1623,56 @@ export const DEFAULT_B2C_PACKAGES_PAGE_CONTENT = {
   seoDescription: "Book custom birthday packages, VIP party rooms, and group events across Qatar with E3.",
 };
 
+export const DEFAULT_B2C_ATTRACTIONS_PAGE_CONTENT = {
+  eyebrowEn: "IMMERSIVE ATTRACTION WORLDS",
+  eyebrowAr: "عوالِم الوجهات الترفيهية الغامرة",
+  fixedHeadlineEn: "STEP INTO A WORLD OF",
+  fixedHeadlineAr: "ادخل إلى عالم من",
+  rotatingWordsEn: ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
+  rotatingWordsAr: ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
+  descriptionEn: "Search, filter, and book world-class entertainment attractions, indoor kinetic parks, and live character activations across Qatar.",
+  descriptionAr: "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر.",
+  primaryCtaEn: "Explore Attractions",
+  primaryCtaAr: "استكشف الوجهات",
+  primaryCtaUrl: "#attractions-grid",
+  secondaryCtaEn: "View Interactive Map",
+  secondaryCtaAr: "الخريطة التفاعلية",
+  secondaryCtaUrl: "#attractions-map",
+  preset: "e3-universe",
+  animationSpeed: 2800,
+  enableRotatingWords: true,
+  heroMedia: {
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    posterUrl: ""
+  }
+};
+
+export const DEFAULT_B2C_CALENDAR_PAGE_CONTENT = {
+  eyebrowEn: "EVENTS & OCCURRENCES TIMELINE",
+  eyebrowAr: "جدول الفعاليات والمواعيد الحية",
+  fixedHeadlineEn: "YOUR NEXT MOMENT STARTS",
+  fixedHeadlineAr: "لحظتك القادمة تبدأ",
+  rotatingWordsEn: ["TODAY", "THIS WEEK", "THIS WEEKEND", "SOON"],
+  rotatingWordsAr: ["اليوم", "هذا الأسبوع", "عطلة نهاية الأسبوع", "قريباً"],
+  descriptionEn: "Browse upcoming events, family experiences, seasonal festivals, and exclusive activities across Qatar with real-time schedule checks.",
+  descriptionAr: "استكشف الفعاليات القادمة والتجارب العائلية والمهرجانات الموسمية والأنشطة المميزة في قطر بمواعيد مؤكدة.",
+  primaryCtaEn: "Browse Schedule",
+  primaryCtaAr: "تصفح الجدول",
+  primaryCtaUrl: "#calendar-schedule",
+  secondaryCtaEn: "Book Group Pass",
+  secondaryCtaAr: "حجز باقات المجموعات",
+  secondaryCtaUrl: "/{locale}/b2c/packages",
+  preset: "living-timeline",
+  animationSpeed: 2800,
+  enableRotatingWords: true,
+  heroMedia: {
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    posterUrl: ""
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
@@ -1563,6 +1686,24 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...raw,
       heroMedia: { ...defaults.heroMedia, ...(raw.heroMedia || {}) },
       footerMedia: { ...defaults.footerMedia, ...(raw.footerMedia || {}) },
+    };
+  }
+  if (slug === 'b2c-attractions-page' || slug === 'b2c-attractions') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2C_ATTRACTIONS_PAGE_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      heroMedia: { ...defaults.heroMedia, ...(raw.heroMedia || {}) },
+    };
+  }
+  if (slug === 'b2c-calendar-page' || slug === 'b2c-calendar') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2C_CALENDAR_PAGE_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      heroMedia: { ...defaults.heroMedia, ...(raw.heroMedia || {}) },
     };
   }
   if (slug === 'b2b-cases' || slug === 'cases') {
@@ -1747,6 +1888,49 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       },
       featuredServiceIds: raw.featuredServiceIds || defaults.featuredServiceIds,
       featuredCaseStudyIds: raw.featuredCaseStudyIds || defaults.featuredCaseStudyIds,
+    };
+  }
+
+  if (slug === 'b2b-team-page' || slug === 'b2b-team') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_TEAM_PAGE_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      eyebrowEn: raw.eyebrowEn || raw.hero?.eyebrowEn || defaults.eyebrowEn,
+      eyebrowAr: raw.eyebrowAr || raw.hero?.eyebrowAr || defaults.eyebrowAr,
+      fixedHeadlineEn: raw.fixedHeadlineEn || raw.titleEn || raw.hero?.fixedHeadlineEn || defaults.fixedHeadlineEn,
+      fixedHeadlineAr: raw.fixedHeadlineAr || raw.titleAr || raw.hero?.fixedHeadlineAr || defaults.fixedHeadlineAr,
+      rotatingWordsEn: Array.isArray(raw.rotatingWordsEn) && raw.rotatingWordsEn.length > 0
+        ? raw.rotatingWordsEn
+        : (Array.isArray(raw.hero?.rotatingWordsEn) && raw.hero.rotatingWordsEn.length > 0 ? raw.hero.rotatingWordsEn : defaults.rotatingWordsEn),
+      rotatingWordsAr: Array.isArray(raw.rotatingWordsAr) && raw.rotatingWordsAr.length > 0
+        ? raw.rotatingWordsAr
+        : (Array.isArray(raw.hero?.rotatingWordsAr) && raw.hero.rotatingWordsAr.length > 0 ? raw.hero.rotatingWordsAr : defaults.rotatingWordsAr),
+      descriptionEn: raw.descriptionEn || raw.descEn || raw.hero?.descriptionEn || defaults.descriptionEn,
+      descriptionAr: raw.descriptionAr || raw.descAr || raw.hero?.descriptionAr || defaults.descriptionAr,
+      hero: {
+        ...defaults,
+        ...(raw.hero || {}),
+        fixedHeadlineEn: raw.fixedHeadlineEn || raw.titleEn || raw.hero?.fixedHeadlineEn || defaults.fixedHeadlineEn,
+        fixedHeadlineAr: raw.fixedHeadlineAr || raw.titleAr || raw.hero?.fixedHeadlineAr || defaults.fixedHeadlineAr,
+        rotatingWordsEn: Array.isArray(raw.rotatingWordsEn) && raw.rotatingWordsEn.length > 0
+          ? raw.rotatingWordsEn
+          : (Array.isArray(raw.hero?.rotatingWordsEn) && raw.hero.rotatingWordsEn.length > 0 ? raw.hero.rotatingWordsEn : defaults.rotatingWordsEn),
+        rotatingWordsAr: Array.isArray(raw.rotatingWordsAr) && raw.rotatingWordsAr.length > 0
+          ? raw.rotatingWordsAr
+          : (Array.isArray(raw.hero?.rotatingWordsAr) && raw.hero.rotatingWordsAr.length > 0 ? raw.hero.rotatingWordsAr : defaults.rotatingWordsAr),
+        descriptionEn: raw.descriptionEn || raw.descEn || raw.hero?.descriptionEn || defaults.descriptionEn,
+        descriptionAr: raw.descriptionAr || raw.descAr || raw.hero?.descriptionAr || defaults.descriptionAr,
+      },
+      heroMedia: {
+        ...defaults.heroMedia,
+        ...(raw.heroMedia || {}),
+      },
+      footerMedia: {
+        ...defaults.footerMedia,
+        ...(raw.footerMedia || {}),
+      },
     };
   }
 

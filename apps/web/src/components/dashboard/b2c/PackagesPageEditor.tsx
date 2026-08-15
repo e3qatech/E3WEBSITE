@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, Gift, SlidersHorizontal, Package, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
+import { Save, SlidersHorizontal, Package, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
 import {
@@ -23,6 +23,7 @@ import {
 
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { localizeHref } from "@/lib/url-helper";
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
 
 const SECTIONS: EditorSectionItem[] = [
   { id: "headlines", label: "1. Hero Copy & Headlines", labelAr: "1. العناوين والنصوص الترويجية" },
@@ -192,7 +193,7 @@ export function PackagesPageEditor() {
             <Package className="w-5 h-5 text-purple-400 shrink-0" />
             <div>
               <h4 className="text-sm font-bold text-text-primary">
-                {isAr ? "إدارة باقات الفعاليات والأسعار والمشتملات" : "Individual Package Records & Tiers"}
+                {isAr ? "إدارة الباقات الفردية" : "Manage Individual Packages"}
               </h4>
               <p className="text-xs text-text-secondary mt-0.5">
                 {isAr 
@@ -229,42 +230,63 @@ export function PackagesPageEditor() {
               dirtySections={Array.from(dirtySections)}
             />
 
-            {/* 1. Hero Headlines Card */}
+            {/* 1. Hero Headlines Card (E3 Living Hero System) */}
             <div id="headlines" className={activeSectionId === "headlines" || !activeSectionId ? "block" : "hidden"}>
-              <DashboardSectionCard
-                title={isAr ? "العناوين والشعار الرئيسي" : "Hero Eyebrow & Headlines"}
-                description={isAr ? "العناوين الافتتاحية المعروضة في أعلى صفحة الباقات العامة." : "Opening headlines displayed on the packages page header banner."}
-                icon={<Gift className="w-5 h-5 text-[var(--color-primary)]" />}
-              >
-                <DashboardBilingualField
-                  label={isAr ? "الشعار العلوي (Eyebrow)" : "Eyebrow Tag"}
-                  valueEn={pageConfig.eyebrowEn}
-                  valueAr={pageConfig.eyebrowAr}
-                  onChangeEn={(val) => updateField((p) => ({ ...p, eyebrowEn: val }))}
-                  onChangeAr={(val) => updateField((p) => ({ ...p, eyebrowAr: val }))}
-                  mode={languageMode}
-                />
-
-                <DashboardBilingualField
-                  label={isAr ? "العنوان الرئيسي للصفحة" : "Main Page Title"}
-                  valueEn={pageConfig.titleEn}
-                  valueAr={pageConfig.titleAr}
-                  onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
-                  onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
-                  mode={languageMode}
-                />
-
-                <DashboardBilingualField
-                  label={isAr ? "وصف الصفحة" : "Page Description"}
-                  type="textarea"
-                  rows={3}
-                  valueEn={pageConfig.descEn}
-                  valueAr={pageConfig.descAr}
-                  onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
-                  onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
-                  mode={languageMode}
-                />
-              </DashboardSectionCard>
+              <E3LivingHeroEditor
+                value={{
+                  eyebrowEn: pageConfig.eyebrowEn,
+                  eyebrowAr: pageConfig.eyebrowAr,
+                  fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || pageConfig.titleEn || "BUILD A DAY FILLED WITH",
+                  fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || pageConfig.titleAr || "اصنع يوماً مليئاً بـ",
+                  rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["PLAY", "CELEBRATION", "DISCOVERY", "MEMORIES"],
+                  rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["المرح", "الاحتفال", "الاكتشاف", "الذكريات"],
+                  descriptionEn: pageConfig.descEn,
+                  descriptionAr: pageConfig.descAr,
+                  primaryCta: {
+                    labelEn: pageConfig.primaryCtaEn || "Find Your Package",
+                    labelAr: pageConfig.primaryCtaAr || "اختر باقتك",
+                    url: "#packages-list"
+                  },
+                  secondaryCta: {
+                    labelEn: pageConfig.secondaryCtaEn || "Plan a Custom Event",
+                    labelAr: pageConfig.secondaryCtaAr || "خطط لفعاليتك الخاصة",
+                    url: "#custom-enquiry"
+                  },
+                  media: pageConfig.heroMedia,
+                  preset: (pageConfig as any).preset || "day-builder",
+                  animationSpeed: (pageConfig as any).animationSpeed || 2800,
+                  enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
+                }}
+                onChange={(updated) => {
+                  updateField((p: any) => ({
+                    ...p,
+                    eyebrowEn: updated.eyebrowEn,
+                    eyebrowAr: updated.eyebrowAr,
+                    fixedHeadlineEn: updated.fixedHeadlineEn,
+                    fixedHeadlineAr: updated.fixedHeadlineAr,
+                    titleEn: updated.fixedHeadlineEn,
+                    titleAr: updated.fixedHeadlineAr,
+                    rotatingWordsEn: updated.rotatingWordsEn,
+                    rotatingWordsAr: updated.rotatingWordsAr,
+                    descEn: updated.descriptionEn,
+                    descAr: updated.descriptionAr,
+                    primaryCtaEn: updated.primaryCta?.labelEn,
+                    primaryCtaAr: updated.primaryCta?.labelAr,
+                    secondaryCtaEn: updated.secondaryCta?.labelEn,
+                    secondaryCtaAr: updated.secondaryCta?.labelAr,
+                    heroMedia: {
+                      ...(p.heroMedia || {}),
+                      ...updated.media
+                    },
+                    preset: updated.preset,
+                    animationSpeed: updated.animationSpeed,
+                    enableRotatingWords: updated.enableRotatingWords
+                  }))
+                }}
+                isAr={isAr}
+                languageMode={languageMode === 'ar' ? 'AR' : languageMode === 'en' ? 'EN' : 'BOTH'}
+                defaultPreset="day-builder"
+              />
             </div>
 
             {/* 2. CTAs and Badges Card */}

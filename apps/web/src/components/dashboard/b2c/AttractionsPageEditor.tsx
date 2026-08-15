@@ -10,7 +10,6 @@ import {
   DashboardPageHeader,
   DashboardSectionNavigator,
   DashboardSectionCard,
-  DashboardBilingualField,
   DashboardLanguageSwitch,
   DashboardStickyActions,
   DashboardLoadingState,
@@ -18,6 +17,7 @@ import {
   LanguageEditMode,
   EditorSectionItem,
 } from "@/components/dashboard/ui";
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
 
 const SECTIONS: EditorSectionItem[] = [
   { id: "titles", label: "1. Hero Titles & Copy" },
@@ -171,37 +171,59 @@ export function AttractionsPageEditor() {
         onSectionChange={setActiveSectionId}
       />
 
-      {/* 1. HERO TITLES */}
+      {/* 1. HERO TITLES (E3 Living Hero System) */}
       {activeSectionId === "titles" && (
-        <DashboardSectionCard
-          title="Page Hero Titles & Copy"
-          description="Configure main hero titles, headlines, and descriptive text for the public attractions index."
-          icon={<Globe className="w-5 h-5 text-[var(--color-primary)]" />}
-        >
-          <DashboardBilingualField
-            label="Main Attractions Header"
-            valueEn={pageConfig.titleEn}
-            valueAr={pageConfig.titleAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, titleEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, titleAr: val }))}
-            placeholderEn="e.g. EXPERIENCES & ATTRACTIONS"
-            placeholderAr="مثال: التجارب والوجهات المميزة"
-            mode={languageMode}
-          />
-
-          <DashboardBilingualField
-            label="Page Description Subtext"
-            type="textarea"
-            rows={3}
-            valueEn={pageConfig.descEn}
-            valueAr={pageConfig.descAr}
-            onChangeEn={(val) => updateField((p) => ({ ...p, descEn: val }))}
-            onChangeAr={(val) => updateField((p) => ({ ...p, descAr: val }))}
-            placeholderEn="Enter description..."
-            placeholderAr="أدخل الوصف..."
-            mode={languageMode}
-          />
-        </DashboardSectionCard>
+        <E3LivingHeroEditor
+          value={{
+            eyebrowEn: (pageConfig as any).eyebrowEn || "ALL-ACCESS ENTERTAINMENT DIRECTORY",
+            eyebrowAr: (pageConfig as any).eyebrowAr || "دليل الوجهات والتجارب الترفيهية الشامل",
+            fixedHeadlineEn: (pageConfig as any).fixedHeadlineEn || "STEP INTO A WORLD OF",
+            fixedHeadlineAr: (pageConfig as any).fixedHeadlineAr || "ادخل إلى عالم من",
+            rotatingWordsEn: (pageConfig as any).rotatingWordsEn || ["PLAY", "WONDER", "ADVENTURE", "DISCOVERY"],
+            rotatingWordsAr: (pageConfig as any).rotatingWordsAr || ["اللعب", "الإبهار", "المغامرة", "الاكتشاف"],
+            descriptionEn: pageConfig.descEn,
+            descriptionAr: pageConfig.descAr,
+            primaryCta: {
+              labelEn: "Explore Attractions",
+              labelAr: "استكشف الوجهات",
+              url: "#attractions-grid"
+            },
+            secondaryCta: {
+              labelEn: "View Live Calendar",
+              labelAr: "عرض جدول الفعاليات",
+              url: "/b2c/calendar"
+            },
+            media: pageConfig.heroMedia,
+            preset: (pageConfig as any).preset || "e3-universe",
+            animationSpeed: (pageConfig as any).animationSpeed || 2800,
+            enableRotatingWords: (pageConfig as any).enableRotatingWords !== false
+          }}
+          onChange={(updated) => {
+            updateField((p: any) => ({
+              ...p,
+              eyebrowEn: updated.eyebrowEn,
+              eyebrowAr: updated.eyebrowAr,
+              fixedHeadlineEn: updated.fixedHeadlineEn,
+              fixedHeadlineAr: updated.fixedHeadlineAr,
+              titleEn: updated.fixedHeadlineEn,
+              titleAr: updated.fixedHeadlineAr,
+              rotatingWordsEn: updated.rotatingWordsEn,
+              rotatingWordsAr: updated.rotatingWordsAr,
+              descEn: updated.descriptionEn,
+              descAr: updated.descriptionAr,
+              heroMedia: {
+                ...(p.heroMedia || {}),
+                ...updated.media
+              },
+              preset: updated.preset,
+              animationSpeed: updated.animationSpeed,
+              enableRotatingWords: updated.enableRotatingWords
+            }))
+          }}
+          isAr={false}
+          languageMode={languageMode === 'ar' ? 'AR' : languageMode === 'en' ? 'EN' : 'BOTH'}
+          defaultPreset="e3-universe"
+        />
       )}
 
       {/* 2. DISPLAY & SEARCH */}

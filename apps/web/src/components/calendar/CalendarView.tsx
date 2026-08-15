@@ -9,9 +9,11 @@ import { TicketSelectionModal } from './TicketSelectionModal';
 import { BulkBookingModal } from './BulkBookingModal';
 import { CalendarEvent } from './EventCard';
 import { useLocale } from '@/components/layout/LocaleProvider';
+import { E3LivingHero } from '@/components/b2c/hero/E3LivingHero';
 
 interface CalendarViewProps {
   initialAttractions?: { id: string; nameEn: string; nameAr: string }[];
+  cmsContent?: any;
   heroMediaType?: string;
   heroMediaUrl?: string;
   footerMediaType?: string;
@@ -29,6 +31,7 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({
+  cmsContent,
   heroMediaType,
   heroMediaUrl,
   eyebrowEn,
@@ -151,10 +154,6 @@ export function CalendarView({
   };
 
   // QF-04-D: Resolve strict locale-aware Hero Copy & Separate Eyebrow
-  const heroEyebrow = isAr
-    ? (eyebrowAr || "جدول الفعاليات")
-    : (eyebrowEn || "Events Calendar");
-
   const rawTitle = isAr
     ? (titleAr || (title && /[\u0600-\u06FF]/.test(title) ? title : null))
     : (titleEn || title);
@@ -233,36 +232,49 @@ export function CalendarView({
           </svg>
         </div>
 
-        {/* QF-04-D: Semantic, Accessible Hero Header with Separate Visible Eyebrow & Single H1 Title */}
-        <header className="pt-28 pb-10 text-center max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-          {/* 1. Semantic Eyebrow Badge (Outside H1) */}
-          <div 
-            data-testid="calendar-hero-eyebrow"
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-5 backdrop-blur-md"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span>{heroEyebrow}</span>
-          </div>
-
-          {/* 2. Semantic Display Headline (Single H1, Title Only) */}
-          <h1 
-            data-testid="calendar-hero-title"
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[var(--text-primary)] tracking-tight leading-[1.1] mb-5 font-syne drop-shadow-sm break-words"
-          >
-            {heroTitle}
-          </h1>
-
-          {/* 3. Semantic Descriptive Subtitle */}
-          <p 
-            data-testid="calendar-hero-description"
-            className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto font-sans leading-relaxed"
-          >
-            {heroDescription}
-          </p>
-        </header>
+        {/* QF-04-D: E3 Living Hero System for Calendar */}
+        <E3LivingHero
+          eyebrowEn={eyebrowEn || cmsContent?.hero?.eyebrowEn || cmsContent?.eyebrowEn || "Events Calendar"}
+          eyebrowAr={eyebrowAr || cmsContent?.hero?.eyebrowAr || cmsContent?.eyebrowAr || "جدول الفعاليات"}
+          fixedHeadlineEn={cmsContent?.hero?.fixedHeadlineEn || cmsContent?.fixedHeadlineEn || (titleEn || title ? sanitizeHeroTitle(titleEn || title) : null) || heroTitle}
+          fixedHeadlineAr={cmsContent?.hero?.fixedHeadlineAr || cmsContent?.fixedHeadlineAr || (titleAr || title ? sanitizeHeroTitle(titleAr || title) : null) || heroTitle}
+          rotatingWordsEn={
+            Array.isArray(cmsContent?.hero?.rotatingWordsEn || cmsContent?.rotatingWordsEn) && (cmsContent?.hero?.rotatingWordsEn || cmsContent?.rotatingWordsEn).length > 0
+              ? (cmsContent?.hero?.rotatingWordsEn || cmsContent?.rotatingWordsEn)
+              : ["TODAY", "THIS WEEK", "THIS WEEKEND", "SOON"]
+          }
+          rotatingWordsAr={
+            Array.isArray(cmsContent?.hero?.rotatingWordsAr || cmsContent?.rotatingWordsAr) && (cmsContent?.hero?.rotatingWordsAr || cmsContent?.rotatingWordsAr).length > 0
+              ? (cmsContent?.hero?.rotatingWordsAr || cmsContent?.rotatingWordsAr)
+              : ["اليوم", "هذا الأسبوع", "عطلة نهاية الأسبوع", "قريباً"]
+          }
+          descriptionEn={descriptionEn || cmsContent?.hero?.subtitleEn || cmsContent?.descriptionEn || heroDescription}
+          descriptionAr={descriptionAr || cmsContent?.hero?.subtitleAr || cmsContent?.descriptionAr || heroDescription}
+          primaryCta={{
+            labelEn: isAr ? "تصفح الجدول" : "Browse Schedule",
+            labelAr: "تصفح الجدول",
+            url: "#calendar-schedule"
+          }}
+          secondaryCta={{
+            labelEn: isAr ? "باقات المجموعات" : "Book Group Pass",
+            labelAr: "باقات المجموعات",
+            url: "/{locale}/b2c/packages"
+          }}
+          media={{
+            mediaType: (heroMediaType || cmsContent?.hero?.mediaType || cmsContent?.heroMedia?.mediaType || "IMAGE").toUpperCase(),
+            mediaUrl: heroMediaUrl || cmsContent?.hero?.mediaUrl || cmsContent?.heroMedia?.mediaUrl || "",
+            posterUrl: cmsContent?.hero?.posterUrl || cmsContent?.heroMedia?.posterUrl || ""
+          }}
+          preset={cmsContent?.preset || "living-timeline"}
+          animationSpeed={cmsContent?.animationSpeed || 2800}
+          enableRotatingWords={Boolean(cmsContent?.enableRotatingWords || (cmsContent?.hero?.rotatingWordsEn && cmsContent.hero.rotatingWordsEn.length > 0))}
+          locale={locale}
+          scrollIndicator={false}
+          eyebrowTestId="calendar-hero-eyebrow"
+          titleTestId="calendar-hero-title"
+          descriptionTestId="calendar-hero-description"
+          className="min-h-[48vh] pt-24 pb-8"
+        />
 
         {/* Main Content Area */}
         <div className="relative z-10">

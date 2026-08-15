@@ -71,6 +71,7 @@ export interface CanonicalEmployeeInput {
   displayOrder?: number | null;
   createdAt?: Date | string | null;
   updatedAt?: Date | string | null;
+  presentationGroup?: string | null;
   [key: string]: any;
 }
 
@@ -83,6 +84,8 @@ export interface SafePublicTeamMember {
   designation: string;
   department: string;
   departmentKey: string;
+  presentationGroup: string;
+  presentationGroupKey: string;
   yearsOfExperience: number;
   tagline: string;
   aboutSummary: string;
@@ -536,6 +539,143 @@ export function getEmployeeInitials(firstName?: string | null, lastName?: string
 }
 
 /**
+ * 6 Canonical Presentation Groups for E3 Qatar Team Directory
+ */
+export const PRESENTATION_GROUPS = [
+  { key: 'leadership', labelEn: 'Leadership', labelAr: 'القيادة والإدارة التنفيذية' },
+  { key: 'creative-marketing', labelEn: 'Creative & Marketing', labelAr: 'الإبداع والتسويق' },
+  { key: 'events-production', labelEn: 'Events & Production', labelAr: 'الفعاليات والإنتاج' },
+  { key: 'operations-guest-exp', labelEn: 'Operations & Guest Experience', labelAr: 'العمليات وتجربة الزوار' },
+  { key: 'technology-systems', labelEn: 'Technology & Systems', labelAr: 'التكنولوجيا والأنظمة' },
+  { key: 'food-beverage', labelEn: 'Food & Beverage', labelAr: 'الأغذية والمشروبات' },
+] as const;
+
+export type PresentationGroupKey = (typeof PRESENTATION_GROUPS)[number]['key'];
+
+/**
+ * Resolves an employee's Presentation Group deterministically from presentationGroup field or department/designation.
+ */
+export function resolvePresentationGroup(
+  member: CanonicalEmployeeInput,
+  locale: 'en' | 'ar' = 'en'
+): { key: PresentationGroupKey; label: string; labelEn: string; labelAr: string } {
+  const isAr = locale === 'ar';
+
+  if (member.presentationGroup) {
+    const rawVal = String(member.presentationGroup).toLowerCase().trim();
+    const rawKey = rawVal.replace(/\s+/g, '-').replace(/&/g, '');
+    const found = PRESENTATION_GROUPS.find(
+      (g) =>
+        g.key === rawKey ||
+        g.labelEn.toLowerCase() === rawVal ||
+        g.labelAr === member.presentationGroup?.trim() ||
+        g.key.replace(/-/g, '') === rawKey.replace(/-/g, '')
+    );
+    if (found) {
+      return {
+        key: found.key,
+        label: isAr ? found.labelAr : found.labelEn,
+        labelEn: found.labelEn,
+        labelAr: found.labelAr,
+      };
+    }
+  }
+
+  const dept = (member.department || '').toLowerCase().trim();
+  const desig = (member.designation || '').toLowerCase().trim();
+
+  // 1. Leadership
+  if (
+    dept.includes('executive') ||
+    dept.includes('leadership') ||
+    dept.includes('board') ||
+    desig.includes('chief') ||
+    desig.includes('ceo') ||
+    desig.includes('general manager') ||
+    desig.includes('chairman') ||
+    desig.includes('managing director') ||
+    desig.includes('president') ||
+    desig.includes('coo') ||
+    desig.includes('cfo')
+  ) {
+    const g = PRESENTATION_GROUPS[0];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+  }
+
+  // 2. Creative & Marketing
+  if (
+    dept.includes('marketing') ||
+    dept.includes('branding') ||
+    dept.includes('design') ||
+    dept.includes('creative') ||
+    dept.includes('media') ||
+    dept.includes('art') ||
+    desig.includes('graphic') ||
+    desig.includes('3d') ||
+    desig.includes('creative') ||
+    desig.includes('marketing') ||
+    desig.includes('visualizer') ||
+    desig.includes('brand')
+  ) {
+    const g = PRESENTATION_GROUPS[1];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+  }
+
+  // 3. Technology & Systems
+  if (
+    dept.includes('technology') ||
+    dept.includes('it') ||
+    dept.includes('systems') ||
+    dept.includes('software') ||
+    dept.includes('engineering') ||
+    desig.includes('developer') ||
+    desig.includes('engineer') ||
+    desig.includes('tech') ||
+    desig.includes('full-stack') ||
+    desig.includes('systems')
+  ) {
+    const g = PRESENTATION_GROUPS[4];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+  }
+
+  // 4. Food & Beverage
+  if (
+    dept.includes('food') ||
+    dept.includes('beverage') ||
+    dept.includes('f&b') ||
+    dept.includes('catering') ||
+    dept.includes('culinary') ||
+    dept.includes('hospitality') ||
+    desig.includes('chef') ||
+    desig.includes('f&b') ||
+    desig.includes('hospitality')
+  ) {
+    const g = PRESENTATION_GROUPS[5];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+  }
+
+  // 5. Operations & Guest Experience
+  if (
+    dept.includes('operations') ||
+    dept.includes('guest') ||
+    dept.includes('facility') ||
+    dept.includes('venue') ||
+    dept.includes('logistics') ||
+    desig.includes('operations') ||
+    desig.includes('guest') ||
+    desig.includes('logistics') ||
+    desig.includes('site')
+  ) {
+    const g = PRESENTATION_GROUPS[3];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+  }
+
+  // 6. Events & Production (default for event atelier)
+  const g = PRESENTATION_GROUPS[2];
+  return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+}
+
+/**
  * Checks if an EmployeeProfile is publicly eligible for display on public routes.
  * Profiles that are inactive (`isActive === false`) or hidden (`showOnTeamPage === false`) fail closed.
  */
@@ -556,6 +696,11 @@ export function isTeamMemberPubliclyEligible(
 
   if (!member.slug || !member.slug.trim()) {
     return { eligible: false, reason: "Missing canonical slug" };
+  }
+
+  // Duplicate suppression rule: arslan-arshad is canonical; arslan-arshadw is hidden from public presentation
+  if (member.slug === 'arslan-arshadw') {
+    return { eligible: false, reason: "Duplicate profile (arslan-arshadw) suppressed in favor of canonical arslan-arshad" };
   }
 
   const hasName = Boolean(
@@ -1158,6 +1303,7 @@ export function resolvePublicTeamMember(
   const linkedinUrl = sanitizeSocialUrl(member.linkedinUrl);
 
   const nested = mapNestedProfileProperties(member, locale);
+  const presGroup = resolvePresentationGroup(member, locale);
 
   const effectiveOrder = Number(member.displayOrder !== undefined && member.displayOrder !== null ? member.displayOrder : member.order) || 0;
 
@@ -1170,6 +1316,8 @@ export function resolvePublicTeamMember(
     designation,
     department,
     departmentKey: deptKey,
+    presentationGroup: presGroup.label,
+    presentationGroupKey: presGroup.key,
     yearsOfExperience: Number(member.yearsOfExperience) || 0,
     tagline,
     aboutSummary,
@@ -1195,6 +1343,7 @@ export function resolvePublicTeamMember(
 
 /**
  * Resolves a list of EmployeeProfiles into safe public DTOs.
+ * Enforces duplicate suppression so no duplicate profile appears twice publicly.
  */
 export function resolvePublicTeamList(
   members: CanonicalEmployeeInput[],
@@ -1202,8 +1351,16 @@ export function resolvePublicTeamList(
 ): SafePublicTeamMember[] {
   if (!Array.isArray(members)) return [];
 
+  const seenSlugs = new Set<string>();
+
   return members
-    .filter((m) => isTeamMemberPubliclyEligible(m).eligible)
+    .filter((m) => {
+      const { eligible } = isTeamMemberPubliclyEligible(m);
+      if (!eligible) return false;
+      if (seenSlugs.has(m.slug)) return false;
+      seenSlugs.add(m.slug);
+      return true;
+    })
     .sort((a, b) => {
       const orderA = (a.displayOrder !== undefined && a.displayOrder !== null) ? a.displayOrder : (a.order ?? 999);
       const orderB = (b.displayOrder !== undefined && b.displayOrder !== null) ? b.displayOrder : (b.order ?? 999);
@@ -1267,6 +1424,15 @@ export function analyzeTeamMemberDataQuality(
       messageEn: 'Profile is excluded from public team page.',
       messageAr: 'الملف الشخصي مستبعد من صفحة الفريق العامة.',
       severity: 'INFO',
+    });
+  }
+
+  if (member.slug === 'arslan-arshadw') {
+    issues.push({
+      code: 'DUPLICATE_SLUG',
+      messageEn: 'Duplicate profile (arslan-arshadw) suppressed in public presentation in favor of canonical arslan-arshad.',
+      messageAr: 'ملف مكرر (arslan-arshadw) محجوب من العرض العام لصالح الملف المعتمد arslan-arshad.',
+      severity: 'WARNING',
     });
   }
 

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/Button"
 import { InteractiveCard } from "@/components/ui/InteractiveCard"
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer"
 import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
+import { E3LivingHero } from "@/components/b2c/hero/E3LivingHero"
 import { cn } from "@/lib/utils"
 
 export function PackageMicrositeClient({
@@ -62,10 +63,49 @@ export function PackageMicrositeClient({
     })
   }
 
+  const rotatingWordsEn = Array.isArray(pkg.rotatingWordsEn) && pkg.rotatingWordsEn.length > 0
+    ? pkg.rotatingWordsEn
+    : (Array.isArray(pkg.rotatingPhrasesEn) && pkg.rotatingPhrasesEn.length > 0 ? pkg.rotatingPhrasesEn : []);
+  const rotatingWordsAr = Array.isArray(pkg.rotatingWordsAr) && pkg.rotatingWordsAr.length > 0
+    ? pkg.rotatingWordsAr
+    : (Array.isArray(pkg.rotatingPhrasesAr) && pkg.rotatingPhrasesAr.length > 0 ? pkg.rotatingPhrasesAr : []);
+
+  const hasRecordRotatingWords = isAr ? rotatingWordsAr.length > 0 : rotatingWordsEn.length > 0;
+
   return (
     <div className="min-h-screen text-[var(--text-primary)] font-poppins pb-24" dir={isAr ? "rtl" : "ltr"}>
       {/* 1. MICROSITE HERO */}
-      <section className="relative pt-12 pb-16 px-4 md:px-8 border-b border-[var(--border-level-2)] bg-gradient-to-b from-[var(--surface-default)] to-[var(--bg-level-1)]">
+      {hasRecordRotatingWords ? (
+        <E3LivingHero
+          eyebrowEn={pkg.category || "VIP PACKAGES & EVENTS"}
+          eyebrowAr={
+            pkg.category === "BIRTHDAY" ? "أعياد الميلاد" :
+            pkg.category === "CORPORATE" ? "الشركات" :
+            pkg.category === "SCHOOL" ? "المدارس" :
+            pkg.category === "GROUP" ? "المجموعات" :
+            pkg.category === "PRIVATE_EVENT" ? "الفعاليات الخاصة" : pkg.category
+          }
+          fixedHeadlineEn={title}
+          fixedHeadlineAr={title}
+          rotatingWordsEn={rotatingWordsEn}
+          rotatingWordsAr={rotatingWordsAr}
+          descriptionEn={tagline || summary}
+          descriptionAr={tagline || summary}
+          primaryCta={{
+            labelEn: "Enquire Now",
+            labelAr: "طلب حجز واستفسار",
+            onClick: () => setIsEnquiryOpen(true)
+          }}
+          media={{
+            mediaType: (pkg.heroMediaType || "IMAGE").toUpperCase(),
+            mediaUrl: pkg.heroMediaUrl || pkg.coverMediaUrl || "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1200&q=80"
+          }}
+          preset="record-accent"
+          accentColor={pkg.accentColor || "#f59e0b"}
+          locale={locale}
+        />
+      ) : (
+        <section className="relative pt-12 pb-16 px-4 md:px-8 border-b border-[var(--border-level-2)] bg-gradient-to-b from-[var(--surface-default)] to-[var(--bg-level-1)]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
@@ -160,6 +200,7 @@ export function PackageMicrositeClient({
           </div>
         </div>
       </section>
+      )}
 
       {/* 2. OVERVIEW & WHAT IS INCLUDED */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 space-y-16">
