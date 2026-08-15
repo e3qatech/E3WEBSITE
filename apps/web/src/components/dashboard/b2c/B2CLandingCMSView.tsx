@@ -499,15 +499,21 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         }}
       />
 
-      {/* Language Switcher and Section Navigator */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <DashboardSectionNavigator
-          sections={sectionsConfig}
-          activeSectionId={activeSectionId}
-          onSelectSection={setActiveSectionId}
-        />
+      {/* Language Switcher Toolbar */}
+      <div className="flex items-center justify-between gap-4 mb-2">
+        <div className="text-xs font-medium text-[var(--text-tertiary)] flex items-center gap-1.5">
+          <span>{isAr ? "أقسام الصفحة:" : "Page Sections:"}</span>
+          <span className="font-mono font-bold text-[var(--color-primary)]">{sectionsConfig.length}</span>
+        </div>
         <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
       </div>
+
+      {/* Section Navigator */}
+      <DashboardSectionNavigator
+        sections={sectionsConfig}
+        activeSectionId={activeSectionId}
+        onSelectSection={setActiveSectionId}
+      />
 
       {/* 1. SECTION SEQUENCE & VISIBILITY */}
       {activeSectionId === "sequence" && (

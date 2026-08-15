@@ -46,7 +46,8 @@ export function DashboardSectionNavigator({
     [onSectionChange, onSelectSection]
   );
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const desktopDropdownRef = React.useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = React.useRef<HTMLDivElement>(null);
   const tabsContainerRef = React.useRef<HTMLDivElement>(null);
 
   const currentIndex = sections.findIndex((s) => s.id === activeSectionId);
@@ -99,7 +100,10 @@ export function DashboardSectionNavigator({
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const isInsideDesktop = desktopDropdownRef.current && desktopDropdownRef.current.contains(target);
+      const isInsideMobile = mobileDropdownRef.current && mobileDropdownRef.current.contains(target);
+      if (!isInsideDesktop && !isInsideMobile) {
         setDropdownOpen(false);
       }
     };
@@ -110,13 +114,13 @@ export function DashboardSectionNavigator({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] shadow-sm transition-all z-20 mb-6",
+        "w-full max-w-full rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] shadow-sm transition-all z-20 mb-6",
         isSticky && "sticky top-4 backdrop-blur-xl bg-[var(--surface-default)]/95",
         className
       )}
     >
       {/* Desktop & Tablet Navigation */}
-      <div className="hidden md:flex items-center justify-between p-2 gap-2">
+      <div className="hidden md:flex items-center justify-between p-2 gap-2 w-full min-w-0">
         {/* Horizontal Tabs Scroll Area */}
         <div
           ref={tabsContainerRef}
@@ -189,7 +193,7 @@ export function DashboardSectionNavigator({
         {/* Dropdown Quick Selector & Step Controls */}
         <div className="flex items-center gap-1.5 shrink-0 ps-2 border-s border-[var(--border-level-1)]">
           {/* Quick Section Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative" ref={desktopDropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               type="button"
@@ -261,7 +265,7 @@ export function DashboardSectionNavigator({
 
       {/* Mobile View Navigation: Current Section Name + Prev/Next Selector */}
       <div className="flex md:hidden items-center justify-between p-3 gap-2">
-        <div className="relative flex-1 min-w-0" ref={dropdownRef}>
+        <div className="relative flex-1 min-w-0" ref={mobileDropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
             type="button"
