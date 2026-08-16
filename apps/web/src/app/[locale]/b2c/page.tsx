@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import db from '@/lib/db';
 import { getCMSPageContentServer } from '@/lib/cms-server';
 import { B2CLandingClient } from '@/components/b2c/B2CLandingClient';
+import { formatLocalizedText } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Experiences | E3 Qatar',
@@ -91,32 +92,39 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
           : 45;
 
         const ops = (attr.operations as any) || {};
-        const venue = ops.venueName 
-          || ops.venueAddressEn 
-          || (locale === 'ar' ? "الدوحة، قطر" : "Doha, Qatar");
+        const venueEn = formatLocalizedText(ops.venueName || ops.venueAddressEn || "Doha, Qatar", 'en') || "Doha, Qatar";
+        const venueAr = formatLocalizedText(ops.venueName || ops.venueAddressAr || "الدوحة، قطر", 'ar') || "الدوحة، قطر";
+        const nameEn = formatLocalizedText(attr.nameEn, 'en') || "Attraction";
+        const nameAr = formatLocalizedText(attr.nameAr || attr.nameEn, 'ar') || "وجهة ترفيهية";
+        const taglineEn = formatLocalizedText(attr.taglineEn || attr.descriptionEn?.substring(0, 90) || "Flagship E3 Interactive World", 'en');
+        const taglineAr = formatLocalizedText(attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية", 'ar');
+        const audienceEn = formatLocalizedText(ops.audienceEn || "Families & Groups", 'en');
+        const audienceAr = formatLocalizedText(ops.audienceAr || "العائلات والأصدقاء", 'ar');
+        const timingsEn = formatLocalizedText(ops.timingsEn || "02:00 PM - 12:00 AM", 'en');
+        const timingsAr = formatLocalizedText(ops.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص", 'ar');
 
         const rawBadge = ops.materialType || "E3 WORLD";
-        const safeBadge = (rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge;
+        const safeBadge = formatLocalizedText((rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge, 'en');
 
         return {
           id: attr.id,
           slug: attr.slug,
-          nameEn: attr.nameEn,
-          nameAr: attr.nameAr || attr.nameEn,
-          taglineEn: attr.taglineEn || attr.descriptionEn?.substring(0, 90) || "Flagship E3 Interactive World",
-          taglineAr: attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية",
-          locationEn: venue,
-          locationAr: venue,
+          nameEn,
+          nameAr,
+          taglineEn,
+          taglineAr,
+          locationEn: venueEn,
+          locationAr: venueAr,
           statusEn: "OPEN NOW",
           statusAr: "مفتوح الآن",
           materialType: safeBadge,
           accentColor: ops.accentColor || "#10b981",
           mediaUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.gallery?.[0]?.url || "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
           mediaType: attr.heroMediaType || "IMAGE",
-          audienceEn: ops.audienceEn || (locale === 'ar' ? "العائلات والأصدقاء" : "Families & Groups"),
-          audienceAr: ops.audienceAr || (locale === 'ar' ? "العائلات والأصدقاء" : "Families & Groups"),
-          timingsEn: ops.timingsEn || "02:00 PM - 12:00 AM",
-          timingsAr: ops.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص",
+          audienceEn,
+          audienceAr,
+          timingsEn,
+          timingsAr,
           price: minPrice,
           currency: "QAR",
           ctaEn: "Book Pass & Ticket",

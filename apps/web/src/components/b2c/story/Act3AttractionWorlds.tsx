@@ -12,13 +12,28 @@ interface Act3AttractionWorldsProps {
 }
 
 import { localizeHref } from '@/lib/url-helper'
+import { formatLocalizedText } from '@/lib/utils'
 
 export function Act3AttractionWorlds({ content, locale }: Act3AttractionWorldsProps) {
   const isAr = locale === 'ar'
   const worlds = content?.act3Worlds || []
   const [selectedIndex, setSelectedIndex] = useState(0)
 
-  const activeWorld = worlds[selectedIndex] || worlds[0] || {}
+  const rawActiveWorld = worlds[selectedIndex] || worlds[0] || {}
+  const activeWorld = {
+    ...rawActiveWorld,
+    nameEn: formatLocalizedText(rawActiveWorld.nameEn, 'en'),
+    nameAr: formatLocalizedText(rawActiveWorld.nameAr, 'ar'),
+    taglineEn: formatLocalizedText(rawActiveWorld.taglineEn, 'en'),
+    taglineAr: formatLocalizedText(rawActiveWorld.taglineAr, 'ar'),
+    locationEn: formatLocalizedText(rawActiveWorld.locationEn, 'en'),
+    locationAr: formatLocalizedText(rawActiveWorld.locationAr, 'ar'),
+    audienceEn: formatLocalizedText(rawActiveWorld.audienceEn, 'en'),
+    audienceAr: formatLocalizedText(rawActiveWorld.audienceAr, 'ar'),
+    timingsEn: formatLocalizedText(rawActiveWorld.timingsEn, 'en'),
+    timingsAr: formatLocalizedText(rawActiveWorld.timingsAr, 'ar'),
+    materialType: formatLocalizedText(rawActiveWorld.materialType, 'en'),
+  }
 
   return (
     <section id="attraction-worlds" className="relative min-h-screen py-20 bg-[#080214] text-white flex flex-col justify-center overflow-hidden border-b border-purple-950/40">

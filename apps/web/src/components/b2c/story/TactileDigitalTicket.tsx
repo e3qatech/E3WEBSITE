@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Ticket, Sparkles, ArrowRight, Compass, Calendar, MapPin, ChevronDown, Check, Users } from 'lucide-react'
 import { DEFAULT_ATTRACTION_WORLDS } from './ExperienceWorldsStage'
 import { localizeHref } from '@/lib/url-helper'
-import { cn } from '@/lib/utils'
+import { cn, formatLocalizedText } from '@/lib/utils'
 
 interface TactileDigitalTicketProps {
   content: any
@@ -46,14 +46,14 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
   const activeWorld = {
     ...fallback,
     ...rawActiveWorld,
-    nameEn: rawActiveWorld.nameEn || fallback.nameEn,
-    nameAr: rawActiveWorld.nameAr || fallback.nameAr,
-    taglineEn: rawActiveWorld.taglineEn || fallback.taglineEn,
-    taglineAr: rawActiveWorld.taglineAr || fallback.taglineAr,
-    locationEn: rawActiveWorld.locationEn || rawActiveWorld.locationNameEn || fallback.locationEn,
-    locationAr: rawActiveWorld.locationAr || rawActiveWorld.locationNameAr || fallback.locationAr,
-    audienceEn: rawActiveWorld.audienceEn || fallback.audienceEn || "All Ages",
-    audienceAr: rawActiveWorld.audienceAr || fallback.audienceAr || "جميع الأعمار",
+    nameEn: formatLocalizedText(rawActiveWorld.nameEn || fallback.nameEn, 'en'),
+    nameAr: formatLocalizedText(rawActiveWorld.nameAr || fallback.nameAr, 'ar'),
+    taglineEn: formatLocalizedText(rawActiveWorld.taglineEn || fallback.taglineEn, 'en'),
+    taglineAr: formatLocalizedText(rawActiveWorld.taglineAr || fallback.taglineAr, 'ar'),
+    locationEn: formatLocalizedText(rawActiveWorld.locationEn || rawActiveWorld.locationNameEn || fallback.locationEn, 'en'),
+    locationAr: formatLocalizedText(rawActiveWorld.locationAr || rawActiveWorld.locationNameAr || fallback.locationAr, 'ar'),
+    audienceEn: formatLocalizedText(rawActiveWorld.audienceEn || fallback.audienceEn || "All Ages", 'en'),
+    audienceAr: formatLocalizedText(rawActiveWorld.audienceAr || fallback.audienceAr || "جميع الأعمار", 'ar'),
     price: rawActiveWorld.price || fallback.price || 45,
     currency: rawActiveWorld.currency || "QAR",
     accentColor: rawActiveWorld.accentColor || fallback.accentColor || "#10b981",
