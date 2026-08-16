@@ -79,8 +79,8 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? "جميع الوجهات والفعاليات" : "EXPLORE ALL ATTRACTIONS"}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
@@ -93,14 +93,14 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
             </p>
           </div>
 
-          <div className="flex items-center gap-2 font-mono text-xs text-[var(--text-tertiary)] bg-[var(--surface-default)] px-4 py-2 rounded-xl border border-[var(--border-level-2)]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-2 font-mono text-xs text-[var(--text-primary)] bg-[var(--surface-default)] px-4 py-2 rounded-full border border-[var(--border-level-2)] shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
             <span>{filteredAttractions.length} {isAr ? "وجهة نشطة" : "Active Worlds"}</span>
           </div>
         </div>
 
         {/* Filter Toolbar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[var(--surface-default)] p-4 rounded-2xl border border-[var(--border-level-2)]">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[var(--surface-default)] p-4 rounded-3xl border border-[var(--border-level-2)] shadow-sm">
           {/* Search Box */}
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 absolute top-3 start-3.5 text-[var(--text-tertiary)]" />
@@ -109,22 +109,22 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isAr ? "بحث عن وجهة أو تجربة..." : "Search attractions..."}
-              className="w-full ps-10 pe-4 py-2.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] transition-colors"
+              className="w-full ps-10 pe-4 py-2.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-full text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
             />
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+          {/* Category Filter Pills Container */}
+          <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md overflow-x-auto w-full md:w-auto no-scrollbar">
             {categories.map((cat) => {
               const active = selectedCategory === cat;
               return (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-4 py-2 rounded-full text-xs transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                     active
-                      ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg shadow-[var(--e3-royal-blue)]/20'
-                      : 'bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-white border border-[var(--border-level-2)]'
+                      ? 'font-black bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+                      : 'font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                   }`}
                 >
                   {cat === 'ALL' ? (isAr ? 'الكل' : 'ALL WORLDS') : cat}
@@ -390,8 +390,8 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-3">
-              <MapIcon className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+              <MapIcon className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? "الخريطة التفاعلية الحية" : "INTERACTIVE ATTRACTIONS MAP"}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-normal text-[var(--text-primary)]">

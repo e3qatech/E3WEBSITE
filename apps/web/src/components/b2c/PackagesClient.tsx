@@ -162,25 +162,27 @@ export function PackagesClient({
 
       {/* 2. CATEGORY TABS & FILTER BAR */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-6">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-[var(--border-level-2)]">
-          {categoryTabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => handleCategoryChange(tab.id)}
-              className={cn(
-                "px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer",
-                activeCategory === tab.id
-                  ? "bg-[var(--e3-royal-blue)] text-white shadow-md"
-                  : "bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              )}
-            >
-              {isAr ? tab.labelAr : tab.labelEn}
-            </button>
-          ))}
+        <div className="flex items-center justify-center md:justify-start">
+          <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md overflow-x-auto max-w-full no-scrollbar py-1.5">
+            {categoryTabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => handleCategoryChange(tab.id)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-xs transition-all whitespace-nowrap cursor-pointer shrink-0",
+                  activeCategory === tab.id
+                    ? "font-black bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)]"
+                    : "font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
+                )}
+              >
+                {isAr ? tab.labelAr : tab.labelEn}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Filter Bar Controls */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-2)] shadow-sm">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-sm">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input
@@ -188,7 +190,7 @@ export function PackagesClient({
               placeholder={isAr ? "ابحث عن اسم الباقة أو الفعالية..." : "Search packages by title or keyword..."}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl focus:outline-none focus:border-[var(--e3-royal-blue)]"
+              className="w-full pl-9 pr-4 py-2.5 text-xs bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-full focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-[var(--text-primary)] transition-all"
             />
           </div>
 

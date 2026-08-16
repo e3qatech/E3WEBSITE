@@ -93,8 +93,8 @@ export function SocialNewsSection({
         {/* Header & Category Switcher */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs font-mono font-bold uppercase tracking-widest mb-3 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? "أصداء المجتمع والصحافة" : "SOCIAL PULSE & MEDIA HONORS"}</span>
             </span>
             <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-[var(--text-primary)]">
@@ -103,27 +103,27 @@ export function SocialNewsSection({
           </div>
 
           {/* Filter Switcher */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] backdrop-blur-md shadow-sm">
+          <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md">
             <button
               onClick={() => setActiveTab('ALL')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`px-4 py-2 rounded-full text-xs transition-all cursor-pointer ${
+                activeTab === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] font-bold'
               }`}
             >
               {isAr ? "الكل" : "All Buzz"}
             </button>
             <button
               onClick={() => setActiveTab('REVIEWS')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'REVIEWS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`px-4 py-2 rounded-full text-xs transition-all cursor-pointer ${
+                activeTab === 'REVIEWS' ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] font-bold'
               }`}
             >
               {isAr ? "آراء الزوار" : "Visitor Quotes"}
             </button>
             <button
               onClick={() => setActiveTab('NEWS')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'NEWS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`px-4 py-2 rounded-full text-xs transition-all cursor-pointer ${
+                activeTab === 'NEWS' ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] font-bold'
               }`}
             >
               {isAr ? "الصحافة والإعلام" : "In the News"}

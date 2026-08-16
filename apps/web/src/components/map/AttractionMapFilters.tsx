@@ -39,7 +39,7 @@ export function AttractionMapFilters({
     <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 w-full">
       {/* Category Pills with smooth horizontal scroll and zero clipping */}
       <div className="relative flex-1 min-w-0">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 xl:pb-0 scrollbar-none snap-x py-1 px-0.5">
+        <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md overflow-x-auto max-w-full no-scrollbar py-1">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
             return (
@@ -47,10 +47,10 @@ export function AttractionMapFilters({
                 key={cat.id}
                 type="button"
                 onClick={() => onCategoryChange(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer shrink-0 snap-start select-none ${
+                className={`px-4 py-2 rounded-full text-xs transition-all whitespace-nowrap cursor-pointer shrink-0 select-none ${
                   isActive
-                    ? 'bg-[var(--e3-royal-blue)] text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-500/40'
-                    : 'bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] shadow-xs'
+                    ? 'font-black bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+                    : 'font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 {isAr ? cat.labelAr : cat.labelEn}
@@ -66,13 +66,13 @@ export function AttractionMapFilters({
           type="button"
           onClick={onNearMeClick}
           disabled={locating}
-          className={`px-4 py-2 rounded-xl border text-xs font-mono font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2 shrink-0 ${
+          className={`px-4 py-2 rounded-full border text-xs font-mono font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2 shrink-0 ${
             userCoordsActive
-              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-              : 'bg-[var(--surface-default)] text-[var(--text-primary)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:bg-[var(--surface-hover)]'
+              ? 'bg-emerald-500 text-slate-950 border-emerald-500 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+              : 'bg-[var(--surface-default)] text-[var(--text-primary)] border border-[var(--border-level-2)] hover:border-emerald-500/50 hover:bg-[var(--surface-hover)]'
           }`}
         >
-          <Locate className={`w-3.5 h-3.5 text-[var(--e3-royal-blue)] ${locating ? 'animate-spin' : ''}`} />
+          <Locate className={`w-3.5 h-3.5 ${userCoordsActive ? 'text-slate-950' : 'text-emerald-500'} ${locating ? 'animate-spin' : ''}`} />
           <span className="whitespace-nowrap">
             {locating
               ? (isAr ? "جاري التحديد..." : "Locating...")
@@ -89,7 +89,7 @@ export function AttractionMapFilters({
             placeholder={isAr ? "ابحث عن وجهة أو موقع..." : "Search venue or address..."}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] focus:ring-1 focus:ring-[var(--e3-royal-blue)] placeholder:text-[var(--text-tertiary)] shadow-inner transition-all"
+            className="w-full ps-9 pe-4 py-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-full text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder:text-[var(--text-tertiary)] shadow-inner transition-all"
           />
         </div>
       </div>

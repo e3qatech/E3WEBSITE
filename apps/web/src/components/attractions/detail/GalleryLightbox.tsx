@@ -67,12 +67,12 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
             </h2>
           </div>
 
-          {/* Filter Switcher Tabs */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] backdrop-blur-md shadow-sm">
+          {/* Filter Switcher Tabs Container */}
+          <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md">
             <button
               onClick={() => { setFilter('ALL'); setShowAll(false); }}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all cursor-pointer ${
+                filter === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] font-bold'
               }`}
             >
               <Grid className="w-3.5 h-3.5" />
@@ -81,8 +81,8 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
 
             <button
               onClick={() => { setFilter('PHOTOS'); setShowAll(false); }}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === 'PHOTOS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all cursor-pointer ${
+                filter === 'PHOTOS' ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] font-bold'
               }`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
@@ -91,8 +91,8 @@ export function GalleryLightbox({ items, locale = 'en' }: { items: GalleryItem[]
 
             <button
               onClick={() => { setFilter('VIDEOS'); setShowAll(false); }}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === 'VIDEOS' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all cursor-pointer ${
+                filter === 'VIDEOS' ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] font-bold'
               }`}
             >
               <Film className="w-3.5 h-3.5" />
