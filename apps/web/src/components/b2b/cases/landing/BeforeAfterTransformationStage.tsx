@@ -249,8 +249,8 @@ export function BeforeAfterTransformationStage({
       <div className="container mx-auto px-4 md:px-8 max-w-6xl relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs uppercase tracking-widest mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
             <span>{sectionEyebrow}</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
@@ -260,29 +260,31 @@ export function BeforeAfterTransformationStage({
 
         {/* Project Selector Tabs */}
         {items.length > 1 && (
-          <div className="flex items-center justify-center gap-2 mb-10 overflow-x-auto pb-2 scrollbar-hide">
-            {items.map((item, idx) => {
-              const tabTitle = isAr
-                ? item.titleAr || item.titleEn || `مشروع ${idx + 1}`
-                : item.titleEn || `Project ${idx + 1}`;
-              const isSelected = idx === activeProjectIdx;
+          <div className="flex items-center justify-center mb-10">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md overflow-x-auto max-w-full no-scrollbar py-1.5">
+              {items.map((item, idx) => {
+                const tabTitle = isAr
+                  ? item.titleAr || item.titleEn || `مشروع ${idx + 1}`
+                  : item.titleEn || `Project ${idx + 1}`;
+                const isSelected = idx === activeProjectIdx;
 
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setActiveProjectIdx(idx)}
-                  className={cn(
-                    "px-5 py-2.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap flex items-center gap-2 cursor-pointer",
-                    isSelected
-                      ? "bg-emerald-500 text-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-                      : "bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
-                  )}
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>{tabTitle}</span>
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveProjectIdx(idx)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 whitespace-nowrap flex items-center gap-2 cursor-pointer shrink-0",
+                      isSelected
+                        ? "font-black bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)]"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
+                    )}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>{tabTitle}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 

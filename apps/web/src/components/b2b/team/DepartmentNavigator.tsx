@@ -90,9 +90,9 @@ export function DepartmentNavigator({
               }
               data-testid="team-search-input"
               className={cn(
-                "w-full ps-10 pe-10 py-2 rounded-2xl text-xs sm:text-sm font-medium",
-                "bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-[var(--text-primary)]",
-                "placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20",
+                "w-full ps-10 pe-10 py-2.5 rounded-full text-xs sm:text-sm font-medium",
+                "bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)]",
+                "placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500",
                 "transition-all shadow-inner"
               )}
             />
@@ -116,16 +116,16 @@ export function DepartmentNavigator({
             {/* Department Select Dropdown */}
             <div className="relative flex-1 sm:flex-initial">
               <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-[var(--text-tertiary)]">
-                <Filter className="w-3.5 h-3.5" />
+                <Filter className="w-3.5 h-3.5 text-emerald-500" />
               </div>
               <select
                 value={selectedDepartment}
                 onChange={(e) => onSelectDepartment(e.target.value)}
                 data-testid="department-select-dropdown"
                 className={cn(
-                  "ps-9 pe-8 py-2 rounded-2xl text-xs sm:text-sm font-semibold cursor-pointer appearance-none",
-                  "bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-[var(--text-primary)]",
-                  "focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20",
+                  "ps-9 pe-8 py-2.5 rounded-full text-xs sm:text-sm font-semibold cursor-pointer appearance-none",
+                  "bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)]",
+                  "focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500",
                   "transition-all shadow-sm w-full sm:w-auto min-w-[170px]"
                 )}
                 aria-label={isAr ? "اختر القسم" : "Select Department"}
@@ -157,7 +157,7 @@ export function DepartmentNavigator({
                 type="button"
                 onClick={handleReset}
                 data-testid="reset-filters-btn"
-                className="px-3 py-2 rounded-2xl bg-[var(--surface-hover)] hover:bg-[var(--color-primary)]/10 text-[var(--text-secondary)] hover:text-[var(--color-primary)] border border-[var(--border-level-1)] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0"
+                className="px-3.5 py-2.5 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0"
                 title={isAr ? "إعادة ضبط الفلاتر" : "Reset Filters"}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -166,7 +166,7 @@ export function DepartmentNavigator({
             )}
 
             {/* Results Count Badge */}
-            <div className="hidden lg:flex items-center text-xs font-bold font-mono px-3 py-1.5 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-1)] text-[var(--text-tertiary)] shrink-0">
+            <div className="hidden lg:flex items-center text-xs font-bold font-mono px-3.5 py-2 rounded-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] text-[var(--text-tertiary)] shrink-0 shadow-inner">
               <span>
                 {filteredCount} {isAr ? "عضو معتمد" : "specialists"}
               </span>

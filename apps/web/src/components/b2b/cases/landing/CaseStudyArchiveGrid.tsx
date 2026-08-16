@@ -95,15 +95,15 @@ export function CaseStudyArchiveGrid({
       <div className="py-6 bg-zinc-950/85 sticky top-16 z-30 backdrop-blur-xl border-y border-zinc-900 shadow-xl">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Category Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+            {/* Category Tabs Container */}
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md overflow-x-auto max-w-full no-scrollbar py-1.5">
               <button
                 onClick={() => setSelectedCategory("ALL")}
                 className={cn(
-                  "px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer",
+                  "px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 whitespace-nowrap cursor-pointer shrink-0",
                   selectedCategory === "ALL"
-                    ? "bg-emerald-500 text-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-                    : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-100 border border-zinc-800"
+                    ? "font-black bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                 )}
               >
                 {isAr ? "جميع المشاريع" : "All Projects"} ({caseStudies.length})
@@ -114,10 +114,10 @@ export function CaseStudyArchiveGrid({
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer",
+                    "px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 whitespace-nowrap cursor-pointer shrink-0",
                     selectedCategory === cat
-                      ? "bg-emerald-500 text-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-100 border border-zinc-800"
+                      ? "font-black bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.35)]"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                   )}
                 >
                   {cat}

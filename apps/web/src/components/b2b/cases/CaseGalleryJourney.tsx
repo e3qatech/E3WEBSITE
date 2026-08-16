@@ -79,8 +79,8 @@ export function CaseGalleryJourney({
       className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-28"
     >
       <div className="max-w-3xl mb-12 sm:mb-16">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider mb-3 border border-cyan-500/20">
-          <Images className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+          <Images className="w-3.5 h-3.5 text-emerald-500" />
           <span>{isAr ? "المعرض البصري للمشروع" : "EDITORIAL VISUAL JOURNEY"}</span>
         </div>
         <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight font-syne">
@@ -102,42 +102,38 @@ export function CaseGalleryJourney({
               data-testid={`gallery-item-${i}`}
               onClick={() => setActiveModalIndex(i)}
               className={cn(
-                "group relative rounded-3xl overflow-hidden bg-[#0a0f1c] border border-white/10 hover:border-cyan-500/40 transition-all duration-300 shadow-xl cursor-pointer flex flex-col justify-end",
-                isFullWidth ? "md:col-span-2 aspect-[16/9] lg:aspect-[21/9]" : "aspect-[4/3]"
+                "group relative rounded-3xl overflow-hidden cursor-pointer border border-zinc-800/80 bg-zinc-900/50 hover:border-emerald-500/40 transition-all duration-500 shadow-xl",
+                isFullWidth ? "md:col-span-2 aspect-[21/9]" : "aspect-[16/10]"
               )}
             >
               <UniversalMediaRenderer
                 type={(item.type as any) || "IMAGE"}
                 src={item.url}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-95"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
-
-              {/* Gradient Overlay & Hover Controls */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition-opacity pointer-events-none" />
-
-              <div className="absolute top-4 end-4 p-2.5 rounded-xl bg-black/60 backdrop-blur-md text-white opacity-0 group-hover:opacity-100 transition-opacity border border-white/15">
-                <Maximize2 className="w-4 h-4" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
+              
+              <div className="absolute bottom-4 start-4 end-4 flex items-center justify-between text-white">
+                <span className="text-xs font-bold font-mono tracking-wider line-clamp-1">
+                  {caption || `${isAr ? "شاهد اللقطة" : "View Frame"} 0${i + 1}`}
+                </span>
+                <span className="p-2 rounded-xl bg-zinc-950/80 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300">
+                  <Maximize2 className="w-4 h-4" />
+                </span>
               </div>
-
-              {caption && (
-                <div className="relative z-10 p-6 sm:p-8">
-                  <p className="text-xs sm:text-sm font-medium text-slate-200 line-clamp-2">
-                    {caption}
-                  </p>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
 
-      {/* Lightbox Modal with Keyboard and Touch Navigation */}
+      {/* Lightbox Modal */}
       {activeModalIndex !== null && (
         <div
-          data-testid="gallery-lightbox-modal"
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8 select-none"
           role="dialog"
           aria-modal="true"
+          data-testid="gallery-lightbox-modal"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4"
+          onClick={() => setActiveModalIndex(null)}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -147,7 +143,7 @@ export function CaseGalleryJourney({
             onClick={() => setActiveModalIndex(null)}
             aria-label={isAr ? "إغلاق المعرض" : "Close Gallery Lightbox"}
             data-testid="lightbox-close-btn"
-            className="absolute top-6 end-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-50"
+            className="absolute top-6 end-6 p-3 rounded-full bg-zinc-900/80 border border-white/20 text-white hover:bg-emerald-500 hover:text-zinc-950 transition-colors shadow-2xl cursor-pointer z-50"
           >
             <X className="w-6 h-6" />
           </button>
@@ -157,48 +153,53 @@ export function CaseGalleryJourney({
             <>
               <button
                 type="button"
-                onClick={() =>
+                onClick={(e) => {
+                  e.stopPropagation();
                   setActiveModalIndex((prev) =>
                     prev !== null ? (prev - 1 + gallery.length) % gallery.length : 0
-                  )
-                }
+                  );
+                }}
                 aria-label={isAr ? "الصورة السابقة" : "Previous Image"}
                 data-testid="lightbox-prev-btn"
-                className="absolute start-4 sm:start-8 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-50"
+                className="absolute start-4 sm:start-8 top-1/2 -translate-y-1/2 p-3 rounded-full bg-zinc-900/80 border border-white/20 text-white hover:bg-emerald-500 hover:text-zinc-950 transition-colors shadow-2xl cursor-pointer z-50"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
               </button>
               <button
                 type="button"
-                onClick={() =>
+                onClick={(e) => {
+                  e.stopPropagation();
                   setActiveModalIndex((prev) =>
                     prev !== null ? (prev + 1) % gallery.length : 0
-                  )
-                }
+                  );
+                }}
                 aria-label={isAr ? "الصورة التالية" : "Next Image"}
                 data-testid="lightbox-next-btn"
-                className="absolute end-4 sm:end-8 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-50"
+                className="absolute end-4 sm:end-8 top-1/2 -translate-y-1/2 p-3 rounded-full bg-zinc-900/80 border border-white/20 text-white hover:bg-emerald-500 hover:text-zinc-950 transition-colors shadow-2xl cursor-pointer z-50"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-6 h-6 rtl:rotate-180" />
               </button>
             </>
           )}
 
           {/* Modal Main Media Container */}
-          <div className="relative max-w-6xl max-h-[80vh] w-full flex items-center justify-center overflow-hidden rounded-2xl">
+          <div 
+            className="relative max-w-6xl max-h-[80vh] w-full flex items-center justify-center overflow-hidden rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <UniversalMediaRenderer
               type={(gallery[activeModalIndex].type as any) || "IMAGE"}
               src={gallery[activeModalIndex].url}
-              className="max-h-[75vh] w-auto max-w-full object-contain rounded-xl"
+              className="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
             />
           </div>
 
           {/* Caption & Counter */}
-          <div className="mt-4 text-center max-w-2xl px-4">
-            <span className="text-xs font-mono text-cyan-400 block mb-1">
+          <div className="mt-4 text-center max-w-2xl px-4" onClick={(e) => e.stopPropagation()}>
+            <span className="inline-block text-xs font-mono font-bold text-emerald-400 mb-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
               {activeModalIndex + 1} / {gallery.length}
             </span>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium">
+            <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
               {isAr
                 ? gallery[activeModalIndex].captionAr || gallery[activeModalIndex].captionEn || gallery[activeModalIndex].caption
                 : gallery[activeModalIndex].captionEn || gallery[activeModalIndex].caption}

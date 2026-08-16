@@ -46,11 +46,11 @@ export function TeamDirectoryToolbar({
       dir={isAr ? "rtl" : "ltr"}
       className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 mb-8"
     >
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-2xl bg-[var(--surface-default)]/90 backdrop-blur-xl border border-[var(--border-level-1)] shadow-xl">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-3xl bg-[var(--surface-default)]/90 backdrop-blur-xl border border-[var(--border-level-2)] shadow-xl">
         
         {/* Left / Start: Search Input */}
         <div className="relative flex-1 group">
-          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-[var(--color-primary)] transition-colors" />
+          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] group-focus-within:text-emerald-500 transition-colors" />
           <input
             type="text"
             value={searchQuery}
@@ -61,7 +61,7 @@ export function TeamDirectoryToolbar({
                 : "Search roster by name, role, or specialty..."
             }
             data-testid="team-search-input"
-            className="w-full bg-[var(--bg-level-2)] border border-[var(--border-level-1)] rounded-xl py-2 ps-9 pe-9 text-xs sm:text-sm font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all placeholder:text-[var(--text-tertiary)] shadow-inner"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-full py-2.5 ps-9 pe-9 text-xs sm:text-sm font-medium text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-[var(--text-tertiary)] shadow-inner"
           />
           {searchQuery && (
             <button
@@ -86,7 +86,7 @@ export function TeamDirectoryToolbar({
               onChange={(e) => onSelectDepartment(e.target.value)}
               data-testid="team-department-select"
               aria-label={isAr ? "تصفية حسب القسم" : "Filter by department"}
-              className="appearance-none bg-[var(--bg-level-2)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-xl py-2 ps-3.5 pe-9 text-xs sm:text-sm font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-all cursor-pointer shadow-sm"
+              className="appearance-none bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] border border-[var(--border-level-2)] rounded-full py-2.5 ps-4 pe-9 text-xs sm:text-sm font-bold text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 transition-all cursor-pointer shadow-sm"
             >
               <option value="all">
                 {isAr ? `جميع الأقسام (${totalMembersCount})` : `All Departments (${totalMembersCount})`}
@@ -106,7 +106,7 @@ export function TeamDirectoryToolbar({
               type="button"
               onClick={handleReset}
               data-testid="reset-team-filters"
-              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-3.5 py-2.5 rounded-full text-xs font-bold bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 transition-colors cursor-pointer shadow-sm"
               title={isAr ? "إعادة تعيين الفلاتر" : "Reset filters"}
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -115,7 +115,7 @@ export function TeamDirectoryToolbar({
           )}
 
           {/* Result Count Badge */}
-          <span className="text-xs font-mono font-bold text-[var(--text-tertiary)] px-2">
+          <span className="text-xs font-mono font-bold text-[var(--text-tertiary)] px-3 py-1.5 rounded-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] shadow-inner">
             {filteredCount} {isAr ? "عضو" : "members"}
           </span>
         </div>

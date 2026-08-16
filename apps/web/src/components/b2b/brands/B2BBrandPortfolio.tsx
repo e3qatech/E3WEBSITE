@@ -32,8 +32,8 @@ export function B2BBrandPortfolio({ content, locale = 'en' }: B2BBrandPortfolioP
         
         {/* Header */}
         <div className="mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-900/20 text-purple-400 text-xs font-bold uppercase tracking-widest mb-6">
-            <Building2 className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
+            <Building2 className="w-3.5 h-3.5 text-emerald-500" />
             <span>{isAr ? "محفظة العلامات التجارية" : "IP Portfolio & Concepts"}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white max-w-2xl">
@@ -51,9 +51,9 @@ export function B2BBrandPortfolio({ content, locale = 'en' }: B2BBrandPortfolioP
                 <button
                   key={brand.id}
                   onClick={() => setActiveBrandId(brand.id)}
-                  className={`flex items-center gap-4 p-4 rounded-2xl border text-start transition-all duration-300 w-full ${
+                  className={`flex items-center gap-4 p-4 rounded-2xl border text-start transition-all duration-300 w-full cursor-pointer ${
                     isActive
-                      ? 'border-purple-500/50 bg-purple-900/10 shadow-sm'
+                      ? 'border-emerald-500/50 bg-emerald-950/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
                       : 'border-zinc-800 bg-zinc-900/30 hover:bg-zinc-900 hover:border-zinc-700'
                   }`}
                 >
