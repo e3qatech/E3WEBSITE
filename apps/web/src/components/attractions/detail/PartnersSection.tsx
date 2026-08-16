@@ -21,13 +21,35 @@ export function PartnersSection({ partners, locale = 'en' }: PartnersSectionProp
     return null;
   }
 
-  const sanitized = partners.map(p => ({
-    ...p,
-    websiteUrl: sanitizeUrl(p.websiteUrl),
-    logoUrl: sanitizeUrl(p.logoUrl || (p as any).logo || (p as any).image),
-  }));
+  // Strictly filter authentic partners: require valid non-placeholder logoUrl and name
+  const validPartners = partners.filter(p => {
+    if (!p) return false;
+    const nameVal = typeof p === 'object' && ('partnerName' in p ? (p as any).partnerName : p.name);
+    const resolvedName = formatLocalizedText(nameVal, locale).trim();
+    const logo = sanitizeUrl(p.logoUrl || (p as any).logo || (p as any).image);
 
-  // To create a continuous marquee, we duplicate the items if there are few
+    if (!resolvedName || !logo) return false;
+    if (logo.includes('placeholder') || logo.includes('via.placeholder') || logo.includes('example.com')) return false;
+    if (resolvedName.toLowerCase().includes('demo partner') || resolvedName.toLowerCase() === 'partner') return false;
+
+    return true;
+  });
+
+  if (validPartners.length === 0) {
+    return null;
+  }
+
+  const sanitized = validPartners.map(p => {
+    const nameVal = typeof p === 'object' && ('partnerName' in p ? (p as any).partnerName : p.name);
+    return {
+      ...p,
+      name: formatLocalizedText(nameVal, locale),
+      websiteUrl: sanitizeUrl(p.websiteUrl),
+      logoUrl: sanitizeUrl(p.logoUrl || (p as any).logo || (p as any).image),
+    };
+  });
+
+  // To create a continuous marquee, duplicate items if there are few
   const displayPartners = sanitized.length < 8 ? [...sanitized, ...sanitized, ...sanitized] : sanitized;
 
   return (

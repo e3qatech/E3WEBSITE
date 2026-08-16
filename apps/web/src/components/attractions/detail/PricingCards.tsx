@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Ticket, Tag, Copy, Check, Info, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
+import { formatLocalizedText } from '@/lib/utils';
 
 interface PricingTier {
   id: string;
@@ -34,7 +35,10 @@ interface PricingCardsProps {
   locale?: string;
 }
 
+type PricingCategory = 'ALL' | 'ACCESS' | 'PREMIUM' | 'HOURLY' | 'ADDON';
+
 export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, pricingNoteAr, locale = 'en' }: PricingCardsProps) {
+  const [activeCategory, setActiveCategory] = useState<PricingCategory>('ALL');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const isAr = locale === 'ar';
 
@@ -46,15 +50,51 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
   if (!pricing || pricing.length === 0) return null;
 
-  const isAddonType = (type?: string) => {
-    if (!type) return false;
-    const t = type.toUpperCase().trim();
-    return t === 'ADD_ON' || t.includes('ADD') || t.includes('HOURLY') || t.includes('PREMIUM') || t.includes('ACTIVITY');
+  // Categorize tiers
+  const categorizeTier = (tier: PricingTier): PricingCategory => {
+    const t = (tier.type || '').toUpperCase().trim();
+    const title = (tier.titleEn || tier.titleAr || '').toLowerCase();
+
+    if (t === 'ADD_ON' || t === 'ADDON' || title.includes('sock') || title.includes('locker') || title.includes('token') || title.includes('جوارب')) {
+      return 'ADDON';
+    }
+    if (t === 'PREMIUM' || t === 'VIP' || t === 'PRO' || title.includes('pro pass') || title.includes('vip') || title.includes('vr') || title.includes('simulator') || title.includes('المحترفين')) {
+      return 'PREMIUM';
+    }
+    if (t === 'HOURLY' || t === 'TIMED' || title.includes('min') || title.includes('minute') || title.includes('hour') || title.includes('دقيقة') || title.includes('ساعة')) {
+      return 'HOURLY';
+    }
+    return 'ACCESS';
   };
 
-  const generalPasses = pricing.filter(p => !isAddonType(p.type));
-  const addOnPasses = pricing.filter(p => isAddonType(p.type));
-  const passesToRender = generalPasses.length > 0 ? generalPasses : pricing;
+  const getCategoryLabel = (cat: PricingCategory) => {
+    switch (cat) {
+      case 'ACCESS': return isAr ? 'باقات الدخول' : 'Access Passes';
+      case 'PREMIUM': return isAr ? 'الأنشطة المميزة' : 'Premium Activities';
+      case 'HOURLY': return isAr ? 'الجلسات والأنشطة المؤقتة' : 'Hourly Activities';
+      case 'ADDON': return isAr ? 'الخدمات والإضافات' : 'Add-ons';
+      default: return isAr ? 'كافة الباقات والأنشطة' : 'All Tiers';
+    }
+  };
+
+  const getCategoryColor = (cat: PricingCategory) => {
+    switch (cat) {
+      case 'ACCESS': return 'emerald';
+      case 'PREMIUM': return 'purple';
+      case 'HOURLY': return 'blue';
+      case 'ADDON': return 'amber';
+      default: return 'emerald';
+    }
+  };
+
+  const categorizedList = pricing.map(p => ({
+    ...p,
+    category: categorizeTier(p)
+  }));
+
+  const filteredPricing = activeCategory === 'ALL'
+    ? categorizedList
+    : categorizedList.filter(p => p.category === activeCategory);
 
   const safeBookingUrl = bookingUrl
     ? (isExternalUrl(bookingUrl) ? normalizeExternalUrl(bookingUrl) : localizeHref(bookingUrl, locale))
@@ -65,11 +105,11 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
     : (pricingNoteEn || "Package access is subject to attraction availability, operating requirements, age restrictions and venue safety rules. Premium activities excluded from the entry passes must be purchased separately.");
 
   return (
-    <section className="py-32 bg-[var(--bg-level-1)] text-[var(--text-primary)] relative overflow-hidden border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
+    <section id="pricing" className="py-32 bg-[var(--bg-level-1)] text-[var(--text-primary)] relative overflow-hidden border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
       {/* Background Subtle Gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-16">
         
         {/* Section Header */}
         <motion.div 
@@ -87,124 +127,114 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
             {isAr ? "باقات الدخول والأنشطة" : "Access Passes & Tickets"}
           </h2>
           <p className="text-lg md:text-xl text-[var(--text-secondary)] font-normal">
-            {isAr ? "اختر الباقة المناسبة لتجربتك في أوربان أرينا" : "Select your pass or add-on activity"}
+            {isAr ? `تصفح كافة الباقات والأنشطة المتاحة (${pricing.length} خيارات)` : `Explore all ${pricing.length} ticket tiers and activity passes`}
           </p>
         </motion.div>
 
-        {/* 1. General Access Passes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {passesToRender.map((tier, idx) => {
-            const isFeatured = idx === 1 || tier.type.toLowerCase().includes('vip');
-            const titleVal = isAr ? (tier.titleAr || tier.titleEn) : (tier.titleEn || tier.titleAr);
-            const descVal = isAr ? (tier.descriptionAr || tier.descriptionEn) : (tier.descriptionEn || tier.descriptionAr);
-            
+        {/* Category Pill Switcher */}
+        <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 max-w-2xl mx-auto rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md">
+          {(['ALL', 'ACCESS', 'PREMIUM', 'HOURLY', 'ADDON'] as PricingCategory[]).map(cat => {
+            const count = cat === 'ALL' ? pricing.length : categorizedList.filter(p => p.category === cat).length;
+            if (cat !== 'ALL' && count === 0) return null;
+            const isActive = activeCategory === cat;
+
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isActive 
+                    ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                }`}
+              >
+                <span>{getCategoryLabel(cat)}</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-slate-950/20 text-slate-950 font-bold' : 'bg-[var(--surface-hover)] text-[var(--text-tertiary)]'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* All Tiers Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {filteredPricing.map((tier, idx) => {
+            const titleVal = formatLocalizedText(isAr ? (tier.titleAr || tier.titleEn) : (tier.titleEn || tier.titleAr), locale);
+            const descVal = formatLocalizedText(isAr ? (tier.descriptionAr || tier.descriptionEn) : (tier.descriptionEn || tier.descriptionAr), locale);
+            const cat = tier.category;
+            const isFeatured = cat === 'PREMIUM' || tier.type.toLowerCase().includes('vip') || idx === 1;
+
             return (
               <motion.div
                 key={tier.id}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className={`relative group bg-[var(--surface-default)] border backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between transition-all duration-700 hover:bg-[var(--surface-hover)] hover:-translate-y-2 shadow-xl ${
+                transition={{ delay: (idx % 6) * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className={`relative group bg-[var(--surface-default)] border backdrop-blur-3xl rounded-[2rem] p-8 flex flex-col justify-between transition-all duration-500 hover:bg-[var(--surface-hover)] hover:-translate-y-1 shadow-lg ${
                   isFeatured 
-                    ? 'border-emerald-500/50 shadow-2xl md:-translate-y-4' 
+                    ? 'border-emerald-500/50 shadow-2xl' 
                     : 'border-[var(--border-level-2)] hover:border-emerald-500/30'
                 }`}
               >
                 {/* Glow Effect for Featured */}
                 {isFeatured && (
-                  <div className="absolute top-0 start-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-emerald-500/10 blur-[50px] pointer-events-none rounded-full" />
+                  <div className="absolute top-0 start-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-emerald-500/10 blur-[40px] pointer-events-none rounded-full" />
                 )}
 
-                <div className="mb-8 relative z-10">
-                  <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-6 shadow-sm ${isFeatured ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-[var(--surface-hover)] text-[var(--text-secondary)] border border-[var(--border-level-2)]'}`}>
-                    <Ticket className="w-3.5 h-3.5 me-2" />
-                    {isAr ? "باقة دخول" : "ACCESS PASS"}
-                  </span>
-                  <h3 className="text-3xl font-black mb-4 tracking-tight text-[var(--text-primary)]">{titleVal}</h3>
+                <div className="space-y-4 mb-6 relative z-10">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase shadow-sm ${
+                      cat === 'PREMIUM' 
+                        ? 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30' 
+                        : cat === 'HOURLY' 
+                        ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-500/30'
+                        : cat === 'ADDON'
+                        ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30'
+                        : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30'
+                    }`}>
+                      <Ticket className="w-3 h-3 me-1.5" />
+                      {getCategoryLabel(cat)}
+                    </span>
+
+                    {tier.discount ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                        {tier.discount}% OFF
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <h3 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">{titleVal}</h3>
                   {descVal && (
-                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed font-normal min-h-[4rem]">
+                    <p className="text-[var(--text-secondary)] text-xs leading-relaxed font-normal min-h-[3rem]">
                       {descVal}
                     </p>
                   )}
                 </div>
 
-                <div className="mb-10 relative z-10">
+                <div className="space-y-6 relative z-10 pt-4 border-t border-[var(--border-level-2)]">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-black tracking-tighter text-[var(--text-primary)]">{tier.price}</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase tracking-widest text-sm">{tier.currency || 'QAR'}</span>
+                    <span className="text-4xl font-black tracking-tighter text-[var(--text-primary)]">{tier.price}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase tracking-widest text-xs">{tier.currency || 'QAR'}</span>
                   </div>
-                </div>
 
-                <div className="mt-auto pt-6 border-t border-[var(--border-level-2)] relative z-10">
                   <Link
                     href={safeBookingUrl}
-                    className={`relative group/btn w-full flex justify-center items-center py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-lg ${
-                      isFeatured ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400' : 'bg-[var(--surface-hover)] hover:bg-[var(--border-level-2)] text-[var(--text-primary)] border border-[var(--border-level-2)]'
+                    className={`w-full flex justify-center items-center py-3.5 rounded-xl font-black uppercase tracking-[0.15em] text-xs transition-all duration-300 shadow-md ${
+                      isFeatured 
+                        ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400' 
+                        : 'bg-[var(--surface-hover)] hover:bg-[var(--border-level-2)] text-[var(--text-primary)] border border-[var(--border-level-2)]'
                     }`}
                   >
-                    <span className="relative z-10">{isAr ? "احجز الباقة" : "Secure Pass"}</span>
+                    <span>{isAr ? "حجز التذكرة" : "Book Pass"}</span>
                   </Link>
                 </div>
               </motion.div>
             );
           })}
         </div>
-
-        {/* 2. Premium Activity Add-Ons */}
-        {addOnPasses.length > 0 && (
-          <div className="space-y-8 max-w-6xl mx-auto pt-10 border-t border-[var(--border-level-2)]">
-            <div className="text-start">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs font-mono font-bold uppercase tracking-widest mb-2 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{isAr ? "الأنشطة المميزة والإضافية" : "PREMIUM ACTIVITIES"}</span>
-              </span>
-              <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tight text-[var(--text-primary)]">
-                {isAr ? "أنشطة إضافية وتجارب حصرية" : "Premium Activity Add-Ons"}
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {addOnPasses.map((addon) => {
-                const addTitle = isAr ? (addon.titleAr || addon.titleEn) : (addon.titleEn || addon.titleAr);
-                const addDesc = isAr ? (addon.descriptionAr || addon.descriptionEn) : (addon.descriptionEn || addon.descriptionAr);
-
-                return (
-                  <div
-                    key={addon.id}
-                    className="bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-purple-500/40 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between transition-all duration-500 hover:bg-[var(--surface-hover)] shadow-lg"
-                  >
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30">
-                          {isAr ? "نشاط إضافي" : "ADD-ON ACTIVITY"}
-                        </span>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black text-[var(--text-primary)]">{addon.price}</span>
-                          <span className="text-xs font-bold text-purple-600 dark:text-purple-400">{addon.currency || 'QAR'}</span>
-                        </div>
-                      </div>
-
-                      <h4 className="text-xl font-bold text-[var(--text-primary)]">{addTitle}</h4>
-                      {addDesc && (
-                        <p className="text-xs text-[var(--text-secondary)] font-normal leading-relaxed">
-                          {addDesc}
-                        </p>
-                      )}
-                    </div>
-
-                    <Link
-                      href={safeBookingUrl}
-                      className="w-full text-center py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md"
-                    >
-                      {isAr ? "إضافة التجربة" : "Book Activity"}
-                    </Link>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
 
         {/* 3. Pricing & Venue Safety Note */}
         <div className="max-w-4xl mx-auto bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-6 flex items-start gap-4 backdrop-blur-md shadow-md">

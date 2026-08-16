@@ -42,7 +42,7 @@ async function getAttractionData(slug: string) {
       featuresList: {
         include: {
           storyTypes: true,
-          brand: true
+          linkedBrand: true
         },
         orderBy: { orderIndex: "asc" }
       },

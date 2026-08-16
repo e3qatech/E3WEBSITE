@@ -100,6 +100,14 @@ export function CompactActivityCard({
   const checks = [hasEn, hasAr, hasDescEn, hasDescAr, hasImage, hasStory]
   const completionScore = Math.round((checks.filter(Boolean).length / checks.length) * 100)
 
+  const missingFields: string[] = []
+  if (!hasEn) missingFields.push("Title (EN)")
+  if (!hasAr) missingFields.push("Title (AR)")
+  if (!hasDescEn) missingFields.push("Description (EN)")
+  if (!hasDescAr) missingFields.push("Description (AR)")
+  if (!hasImage) missingFields.push("Image")
+  if (!hasStory) missingFields.push("Story Track")
+
   const primaryStory = availableStoryTypes.find(st => 
     st.id === activity.primaryStoryTypeId || 
     (activity.storyTypeIds && activity.storyTypeIds.includes(st.id))
@@ -182,13 +190,19 @@ export function CompactActivityCard({
                 </span>
               )}
 
-              {/* Completion Score */}
+              {/* Completion Score & Missing Fields Chip */}
               <span className={cn(
                 "text-[10px] font-mono font-bold px-1.5 py-0.5 rounded",
                 completionScore === 100 ? "text-emerald-500 bg-emerald-500/10" : "text-amber-500 bg-amber-500/10"
               )}>
                 {completionScore}%
               </span>
+
+              {missingFields.length > 0 && (
+                <span className="text-[10px] text-amber-500/90 font-medium truncate">
+                  Missing: {missingFields.join(", ")}
+                </span>
+              )}
             </div>
           </div>
         </div>

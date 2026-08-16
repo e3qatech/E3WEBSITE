@@ -19,43 +19,57 @@ export async function runContentRepair({ dryRun = true }: { dryRun?: boolean } =
   const features = await db.attractionFeature.findMany();
   for (const f of features) {
     let newDescEn = f.descriptionEn || '';
+    let newDescAr = f.descriptionAr || '';
+    let newTitleEn = f.titleEn || '';
     let newTitleAr = f.titleAr || '';
 
-    // Fix [object Object...] in descriptionEn
+    // Fix [object Object...] anywhere in text
     if (newDescEn.includes('[object Object')) {
-      const cleaned = newDescEn
-        .replace(/^\[object\s*Object/i, '')
-        .replace(/\]$/, '')
-        .trim();
-
-      report.repairedFeatures.push({
-        id: f.id,
-        field: 'descriptionEn',
-        before: f.descriptionEn || '',
-        after: cleaned
-      });
+      const cleaned = newDescEn.replace(/^\[object\s*Object/i, '').replace(/\]$/, '').trim();
+      report.repairedFeatures.push({ id: f.id, field: 'descriptionEn', before: f.descriptionEn || '', after: cleaned });
       newDescEn = cleaned;
+    }
+    if (newDescAr.includes('[object Object')) {
+      const cleaned = newDescAr.replace(/^\[object\s*Object/i, '').replace(/\]$/, '').trim();
+      report.repairedFeatures.push({ id: f.id, field: 'descriptionAr', before: f.descriptionAr || '', after: cleaned });
+      newDescAr = cleaned;
     }
 
     // Fix Bazooka Ball Arabic title
     if (f.titleEn.toLowerCase().trim() === 'bazooka ball' && (!f.titleAr || f.titleAr.toLowerCase().trim() === 'bazooka ball')) {
       const correctAr = 'بازوكا بول';
-      report.repairedFeatures.push({
-        id: f.id,
-        field: 'titleAr',
-        before: f.titleAr || '',
-        after: correctAr
-      });
+      report.repairedFeatures.push({ id: f.id, field: 'titleAr', before: f.titleAr || '', after: correctAr });
       newTitleAr = correctAr;
     }
 
-    if (!dryRun && (newDescEn !== (f.descriptionEn || '') || newTitleAr !== (f.titleAr || ''))) {
+    if (!dryRun && (newDescEn !== (f.descriptionEn || '') || newDescAr !== (f.descriptionAr || '') || newTitleAr !== (f.titleAr || ''))) {
       await db.attractionFeature.update({
         where: { id: f.id },
-        data: {
-          descriptionEn: newDescEn,
-          titleAr: newTitleAr
-        }
+        data: { descriptionEn: newDescEn, descriptionAr: newDescAr, titleAr: newTitleAr }
+      });
+    }
+  }
+
+  // 1b. Audit & Repair Attraction descriptions
+  const attractions = await db.attraction.findMany();
+  for (const a of attractions) {
+    let descEn = a.descriptionEn || '';
+    let descAr = a.descriptionAr || '';
+    let changed = false;
+
+    if (descEn.includes('[object Object')) {
+      descEn = descEn.replace(/^\[object\s*Object/i, '').replace(/\]$/, '').trim();
+      changed = true;
+    }
+    if (descAr.includes('[object Object')) {
+      descAr = descAr.replace(/^\[object\s*Object/i, '').replace(/\]$/, '').trim();
+      changed = true;
+    }
+
+    if (changed && !dryRun) {
+      await db.attraction.update({
+        where: { id: a.id },
+        data: { descriptionEn: descEn, descriptionAr: descAr }
       });
     }
   }

@@ -42,9 +42,17 @@ export function SocialNewsSection({
   const [activeTab, setActiveTab] = useState<'ALL' | 'SOCIAL' | 'REVIEWS' | 'NEWS'>('ALL');
   const isAr = locale === 'ar';
 
-  const activeSocial = (Array.isArray(socialPreviews) && socialPreviews.length > 0) ? socialPreviews.filter(s => s && (s.url || s.imageUrl || s.title)) : [];
-  const activeTestimonials = (Array.isArray(testimonials) && testimonials.length > 0) ? testimonials.filter(t => t && (t.quote || t.author)) : [];
-  const activeNews = (Array.isArray(newsCoverage) && newsCoverage.length > 0) ? newsCoverage.filter(n => n && (n.title || n.url)) : [];
+  const activeSocial = (Array.isArray(socialPreviews) && socialPreviews.length > 0)
+    ? socialPreviews.filter(s => s && (s.url || s.imageUrl || s.title) && !s.url?.includes('example.com'))
+    : [];
+
+  const activeTestimonials = (Array.isArray(testimonials) && testimonials.length > 0)
+    ? testimonials.filter(t => t && t.quote && t.author && !t.quote.toLowerCase().includes('demo quote') && !t.author.toLowerCase().includes('placeholder'))
+    : [];
+
+  const activeNews = (Array.isArray(newsCoverage) && newsCoverage.length > 0)
+    ? newsCoverage.filter(n => n && n.title && n.url && n.url !== '#' && !n.url.includes('example.com') && !n.title.toLowerCase().includes('placeholder'))
+    : [];
 
   if (activeSocial.length === 0 && activeTestimonials.length === 0 && activeNews.length === 0) {
     return null;

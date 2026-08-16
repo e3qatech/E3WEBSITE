@@ -249,8 +249,29 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
 
     // 2. Experiences checks
     if (activities.length > 0) {
-      const validActivities = activities.filter(a => a.titleEn && a.titleAr && a.imageUrl)
+      const validActivities = activities.filter(a => 
+        a.titleEn?.trim() && 
+        a.titleAr?.trim() && 
+        a.descriptionEn?.trim() && 
+        a.descriptionAr?.trim() && 
+        a.imageUrl?.trim() && 
+        (a.primaryStoryTypeId || (a.storyTypeIds && a.storyTypeIds.length > 0))
+      )
       scores.experiences = Math.min(100, Math.round((validActivities.length / Math.max(1, activities.length)) * 100))
+
+      const incomplete = activities.filter(a => 
+        !(a.titleEn?.trim() && a.titleAr?.trim() && a.descriptionEn?.trim() && a.descriptionAr?.trim() && a.imageUrl?.trim() && (a.primaryStoryTypeId || (a.storyTypeIds && a.storyTypeIds.length > 0)))
+      )
+      incomplete.forEach(ia => {
+        const itemMissing: string[] = []
+        if (!ia.titleEn?.trim()) itemMissing.push("EN Title")
+        if (!ia.titleAr?.trim()) itemMissing.push("AR Title")
+        if (!ia.descriptionEn?.trim()) itemMissing.push("EN Description")
+        if (!ia.descriptionAr?.trim()) itemMissing.push("AR Description")
+        if (!ia.imageUrl?.trim()) itemMissing.push("Image")
+        if (!ia.primaryStoryTypeId && (!ia.storyTypeIds || ia.storyTypeIds.length === 0)) itemMissing.push("Story Track")
+        missing.push(`${ia.titleEn || 'Activity'}: missing ${itemMissing.join(', ')}`)
+      })
     } else {
       missing.push("At least 1 What's Inside activity")
     }
@@ -265,13 +286,23 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     if (linkedLocations.length === 0) missing.push("Linked Canonical GIS Location")
     if (pricingTiers.length === 0) missing.push("At least 1 Pricing Pass / Ticket Tier")
 
-    // 4. Media checks
+    // 4. Media checks (strictly exclude demo / placeholder URLs)
+    const validGallery = galleryItems.filter(g => g && g.url && !g.url.includes('example.com') && !g.url.includes('placeholder'))
+    const validFaqs = faqs.filter(f => f && f.questionEn?.trim() && f.answerEn?.trim())
+    const validPartners = partners.filter(p => {
+      const name = p.name || p.partnerName
+      const logo = p.logoUrl || p.logo || p.image
+      return name && logo && !logo.includes('example.com') && !logo.includes('placeholder')
+    })
+
     const mediaChecks = [
-      galleryItems.length >= 2,
-      faqs.length >= 2,
-      partners.length >= 1
+      validGallery.length >= 2,
+      validFaqs.length >= 2,
+      validPartners.length >= 1
     ]
     scores.media = Math.round((mediaChecks.filter(Boolean).length / mediaChecks.length) * 100)
+    if (validGallery.length < 2) missing.push("At least 2 authentic gallery photos")
+    if (validFaqs.length < 2) missing.push("At least 2 FAQs")
 
     // 5. Review checks
     const reviewChecks = [
@@ -280,6 +311,8 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
       isPublished
     ]
     scores.review = Math.round((reviewChecks.filter(Boolean).length / reviewChecks.length) * 100)
+    if (!seo.metaTitleEn?.trim()) missing.push("SEO Meta Title (EN)")
+    if (!seo.metaDescriptionEn?.trim()) missing.push("SEO Meta Description (EN)")
 
     const overall = Math.round(
       (scores.identity * 0.3) +
