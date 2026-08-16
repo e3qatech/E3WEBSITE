@@ -49,6 +49,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     price: rawActiveWorld.price || fallback.price || 45,
     currency: rawActiveWorld.currency || "QAR",
     accentColor: rawActiveWorld.accentColor || fallback.accentColor || "#10b981",
+    logoUrl: rawActiveWorld.logoUrl || fallback.logoUrl || rawActiveWorld.mediaUrl || fallback.mediaUrl,
     ticketingUrl: rawActiveWorld.ticketingUrl || '/b2c/calendar'
   };
 
@@ -174,14 +175,33 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
             <div className="flex items-center gap-3.5">
               <div 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl border transition-colors shadow-sm"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center border transition-all shadow-sm overflow-hidden p-1.5 shrink-0 bg-[var(--surface-hover)]"
                 style={{
-                  backgroundColor: `${activeWorld.accentColor || '#10b981'}18`,
-                  borderColor: `${activeWorld.accentColor || '#10b981'}40`,
-                  color: activeWorld.accentColor || '#10b981'
+                  borderColor: `${activeWorld.accentColor || '#10b981'}50`,
+                  boxShadow: `0 0 15px ${activeWorld.accentColor || '#10b981'}25`
                 }}
               >
-                E3
+                {activeWorld.logoUrl || activeWorld.mediaUrl ? (
+                  <img
+                    src={activeWorld.logoUrl || activeWorld.mediaUrl}
+                    alt={isAr ? activeWorld.nameAr : activeWorld.nameEn}
+                    className="w-full h-full object-contain rounded-xl"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const sibling = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (sibling) sibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <span 
+                  className="font-black text-sm uppercase tracking-wider"
+                  style={{ 
+                    display: (activeWorld.logoUrl || activeWorld.mediaUrl) ? 'none' : 'flex',
+                    color: activeWorld.accentColor || '#10b981'
+                  }}
+                >
+                  {activeWorld.nameEn ? activeWorld.nameEn.substring(0, 2).toUpperCase() : 'E3'}
+                </span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
