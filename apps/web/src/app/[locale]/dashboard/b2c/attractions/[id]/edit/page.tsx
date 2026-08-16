@@ -1,12 +1,12 @@
 import { db } from "@/lib/db"
-import { AttractionEditor } from "@/components/dashboard/b2c/AttractionEditor"
+import { AttractionContentStudio } from "@/components/dashboard/b2c/attractions/AttractionContentStudio"
 import { auth } from "@/lib/auth"
 import { redirect, notFound } from "next/navigation"
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: "Edit Attraction | E3 Admin",
+  title: "Edit Attraction Studio | E3 Admin",
 }
 
 export default async function EditAttractionPage({
@@ -24,7 +24,7 @@ export default async function EditAttractionPage({
   const attraction = await db.attraction.findUnique({
     where: { id },
     include: {
-      pricing: true,
+      pricing: { orderBy: { createdAt: 'asc' } },
       faqs: { orderBy: { orderIndex: 'asc' } },
       gallery: { orderBy: { orderIndex: 'asc' } },
       socialLinks: true,
@@ -33,6 +33,12 @@ export default async function EditAttractionPage({
       featuresList: {
         include: {
           storyTypes: true
+        },
+        orderBy: { orderIndex: 'asc' }
+      },
+      attractionLocations: {
+        include: {
+          location: true
         }
       },
       locations: true,
@@ -44,5 +50,5 @@ export default async function EditAttractionPage({
     notFound()
   }
 
-  return <AttractionEditor initialData={JSON.parse(JSON.stringify(attraction))} />
+  return <AttractionContentStudio initialData={JSON.parse(JSON.stringify(attraction))} />
 }

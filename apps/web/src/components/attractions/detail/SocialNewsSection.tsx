@@ -42,46 +42,13 @@ export function SocialNewsSection({
   const [activeTab, setActiveTab] = useState<'ALL' | 'SOCIAL' | 'REVIEWS' | 'NEWS'>('ALL');
   const isAr = locale === 'ar';
 
-  // Curated fallback data for visitor buzz & social proof
-  const defaultTestimonials: Testimonial[] = [
-    {
-      author: isAr ? "جاسم المهندي" : "Jassim Al-Mohannadi",
-      quote: isAr ? "تجربة استثنائية! الميني غولف والكارتينغ بالواقع المختلط كانت ممتعة جداً للعائلة." : "Unreal experience! The AR karting and mini golf was so much fun for the whole family.",
-      rating: 5,
-      source: "Verified Visitor"
-    },
-    {
-      author: isAr ? "سارة الكواري" : "Sarah Al-Kuwari",
-      quote: isAr ? "الليزر تاغ والبلياردو بالإسقاطات التفاعلية تقنية مبهرة وتصميم هندسي رائع!" : "Sensory laser tag and projected billiards is incredible engineering! Best weekend spot.",
-      rating: 5,
-      source: "Google Review"
-    },
-    {
-      author: isAr ? "محمد الشمري" : "Mohammed Al-Shammari",
-      quote: isAr ? "تنظيم راقي وأنشطة حماسية تناسب الكبار والأطفال، أنصح بزيارتها بشدة." : "Highly organized, state-of-the-art interactive gaming. 10/10 recommended!",
-      rating: 5,
-      source: "TripAdvisor"
-    }
-  ];
+  const activeSocial = (Array.isArray(socialPreviews) && socialPreviews.length > 0) ? socialPreviews.filter(s => s && (s.url || s.imageUrl || s.title)) : [];
+  const activeTestimonials = (Array.isArray(testimonials) && testimonials.length > 0) ? testimonials.filter(t => t && (t.quote || t.author)) : [];
+  const activeNews = (Array.isArray(newsCoverage) && newsCoverage.length > 0) ? newsCoverage.filter(n => n && (n.title || n.url)) : [];
 
-  const defaultNews: NewsCoverage[] = [
-    {
-      publisher: "Doha News",
-      title: isAr ? "إي ثري قطر تطلق وجهات ترفيهية تفاعلية بأسلوب هندسي مبتكر" : "E3 Qatar Elevates Interactive Entertainment Destinations",
-      date: "2026",
-      url: "https://dohanews.co"
-    },
-    {
-      publisher: "Qatar Tribune",
-      title: isAr ? "افتتاح أوربان أرينا: أحدث مركز للألعاب التفاعلية والرياضات الإلكترونية" : "Urban Arena Unveils Next-Gen Mixed Reality Gaming Hub in Doha",
-      date: "2026",
-      url: "https://qatar-tribune.com"
-    }
-  ];
-
-  const activeSocial = (Array.isArray(socialPreviews) && socialPreviews.length > 0) ? socialPreviews : [];
-  const activeTestimonials = (Array.isArray(testimonials) && testimonials.length > 0) ? testimonials : defaultTestimonials;
-  const activeNews = (Array.isArray(newsCoverage) && newsCoverage.length > 0) ? newsCoverage : defaultNews;
+  if (activeSocial.length === 0 && activeTestimonials.length === 0 && activeNews.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-24 bg-[var(--surface-default)] text-[var(--text-primary)] border-t border-[var(--border-level-2)] overflow-hidden relative" dir={isAr ? "rtl" : "ltr"}>

@@ -39,6 +39,13 @@ async function getAttractionData(slug: string) {
       offers: true,
       faqs: { orderBy: { orderIndex: "asc" } },
       gallery: { orderBy: { orderIndex: "asc" } },
+      featuresList: {
+        include: {
+          storyTypes: true,
+          brand: true
+        },
+        orderBy: { orderIndex: "asc" }
+      },
       temporalRules: true,
       brandPlacements: {
         include: {
@@ -142,28 +149,38 @@ async function getAttractionData(slug: string) {
     }
   })
 
-  // Extract Coordinates
+  // Extract Coordinates and Canonical Location
   let lat = 25.2854
   let lng = 51.5310
-  const rawCoords = attraction.coordinates as any
-  if (rawCoords && typeof rawCoords === "object") {
-    if (rawCoords.lat && rawCoords.lng) {
-      lat = Number(rawCoords.lat)
-      lng = Number(rawCoords.lng)
-    } else if (Array.isArray(rawCoords) && rawCoords.length >= 2) {
-      lng = Number(rawCoords[0])
-      lat = Number(rawCoords[1])
+  let primaryLocation: any = null
+
+  const primaryLink = attraction.attractionLocations?.find((al: any) => al.isPrimary) || attraction.attractionLocations?.[0]
+  if (primaryLink?.location) {
+    primaryLocation = primaryLink.location
+    if (primaryLocation.latitude && primaryLocation.longitude) {
+      lat = Number(primaryLocation.latitude)
+      lng = Number(primaryLocation.longitude)
     }
-  } else if (attraction.attractionLocations?.[0]?.location) {
-    const loc = attraction.attractionLocations[0].location as any
-    if (loc.latitude && loc.longitude) {
-      lat = Number(loc.latitude)
-      lng = Number(loc.longitude)
+  } else {
+    const rawCoords = attraction.coordinates as any
+    if (rawCoords && typeof rawCoords === "object") {
+      if (rawCoords.lat && rawCoords.lng) {
+        lat = Number(rawCoords.lat)
+        lng = Number(rawCoords.lng)
+      } else if (Array.isArray(rawCoords) && rawCoords.length >= 2) {
+        lng = Number(rawCoords[0])
+        lat = Number(rawCoords[1])
+      }
     }
   }
 
+  const resolvedFeatures = Array.isArray(attraction.featuresList) && attraction.featuresList.length > 0
+    ? attraction.featuresList
+    : (Array.isArray(attraction.features) ? attraction.features : [])
+
   return { 
     attraction, 
+    features: resolvedFeatures,
     pricing: attraction.pricing, 
     gallery: attraction.gallery, 
     faq: attraction.faqs, 
@@ -171,7 +188,8 @@ async function getAttractionData(slug: string) {
     operations,
     projects,
     brandPlacements: attraction.brandPlacements || [],
-    coordinates: { lat, lng }
+    coordinates: { lat, lng },
+    primaryLocation
   }
 }
 
@@ -210,9 +228,14 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     notFound()
   }
 
-  const { attraction, pricing, gallery, faq, schedule, projects, brandPlacements, coordinates, operations } = data
+  const { attraction, features, pricing, gallery, faq, schedule, projects, brandPlacements, coordinates, operations, primaryLocation } = data
   const displayName = formatLocalizedText(locale === "ar" ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr), locale)
   const displayDesc = formatLocalizedText(locale === "ar" ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr), locale)
+
+  const resolvedLocationAddress = (locale === 'ar' 
+    ? (primaryLocation?.venueAr || primaryLocation?.addressAr || primaryLocation?.nameAr)
+    : (primaryLocation?.venueEn || primaryLocation?.addressEn || primaryLocation?.nameEn)
+  ) || (operations as any)?.venueName || (operations as any)?.venueAddressEn || (locale === 'ar' ? "الدوحة، قطر" : "Doha, Qatar")
 
   // Generate JSON-LD Schema
   const jsonLd = {
@@ -223,7 +246,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     image: attraction.heroMediaUrl,
     address: {
       "@type": "PostalAddress",
-      streetAddress: (operations as any)?.venueName || "Doha, Qatar",
+      streetAddress: resolvedLocationAddress,
       addressCountry: "QA"
     }
   }
@@ -268,7 +291,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       {displayDesc && (
         <WhatsInside 
           description={displayDesc} 
-          features={(attraction.features as any) || []}
+          features={features || []}
           imageUrl={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
           locale={locale}
         />
@@ -321,7 +344,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         name={displayName}
         latitude={coordinates.lat}
         longitude={coordinates.lng}
-        locationAddress={(operations as any)?.venueName || (operations as any)?.venueAddressEn || "Doha, Qatar"}
+        locationAddress={resolvedLocationAddress}
         mapUrl={attraction.mapUrl}
         mapImageFallback={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
         schedule={schedule}

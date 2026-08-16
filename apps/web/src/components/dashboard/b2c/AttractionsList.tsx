@@ -18,7 +18,11 @@ import {
   ImageOff,
   ExternalLink,
   Briefcase,
-  Sparkles
+  Sparkles,
+  Wand2,
+  Copy,
+  FileSpreadsheet,
+  Download
 } from "lucide-react"
 import {
   DashboardPageShell,
@@ -28,6 +32,8 @@ import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { Badge } from "@/components/ui/Badge"
 import { useLocale } from "@/components/layout/LocaleProvider"
 import { localizeHref } from "@/lib/url-helper"
+import { AttractionDuplicationModal } from "./attractions/AttractionDuplicationModal"
+import { AiContentIntakeModal } from "./attractions/AiContentIntakeModal"
 
 type Attraction = {
   id: string
@@ -64,6 +70,11 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
   const isAr = locale === 'ar'
   const [search, setSearch] = useState("")
   const [attractions, setAttractions] = useState(initialAttractions || [])
+
+  // Modals
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false)
+  const [isDuplicationModalOpen, setIsDuplicationModalOpen] = useState(false)
+  const [targetDuplicateAttraction, setTargetDuplicateAttraction] = useState<any>(null)
 
   // Filter States
   const [publicationFilter, setPublicationFilter] = useState<string>("ALL")
@@ -153,6 +164,50 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
             icon: <Plus className="w-4 h-4" />,
           }}
         />
+
+        {/* Global Action Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] shadow-sm">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setIsAiModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              <span>{isAr ? "إنشاء بالذكاء الاصطناعي" : "Create with AI"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTargetDuplicateAttraction(null)
+                setIsDuplicationModalOpen(true)
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
+            >
+              <Copy className="w-3.5 h-3.5 text-purple-500" />
+              <span>{isAr ? "بدء من قالب / تكرار" : "Start from Template / Duplicate"}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <Link
+              href={localizeHref('/dashboard/b2c/attractions/import', locale)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{isAr ? "مركز استيراد Excel" : "Spreadsheet Import"}</span>
+            </Link>
+
+            <a
+              href="/api/b2c/attractions/export"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-500" />
+              <span>{isAr ? "تصدير السجلات" : "Export (.xlsx)"}</span>
+            </a>
+          </div>
+        </div>
 
         {/* Canonical Architecture Notice Banner */}
         <div
@@ -406,13 +461,26 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
                           </button>
                         </div>
 
-                        <button
-                          title={isAr ? "حذف الوجهة" : "Delete Attraction"}
-                          onClick={() => deleteAttraction(attraction.id)}
-                          className="p-1.5 rounded-md transition-colors text-error hover:bg-error/10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            title={isAr ? "نسخ / تكرار هذه الوجهة" : "Duplicate / Clone Attraction"}
+                            onClick={() => {
+                              setTargetDuplicateAttraction(attraction)
+                              setIsDuplicationModalOpen(true)
+                            }}
+                            className="p-1.5 rounded-md transition-colors text-purple-400 hover:bg-purple-500/10"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            title={isAr ? "حذف الوجهة" : "Delete Attraction"}
+                            onClick={() => deleteAttraction(attraction.id)}
+                            className="p-1.5 rounded-md transition-colors text-error hover:bg-error/10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -421,6 +489,22 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
             })}
           </div>
         )}
+
+        {/* Modals */}
+        <AttractionDuplicationModal
+          isOpen={isDuplicationModalOpen}
+          onClose={() => {
+            setIsDuplicationModalOpen(false)
+            setTargetDuplicateAttraction(null)
+          }}
+          sourceAttraction={targetDuplicateAttraction}
+          availableAttractions={attractions}
+        />
+
+        <AiContentIntakeModal
+          isOpen={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+        />
       </div>
     </DashboardPageShell>
   )

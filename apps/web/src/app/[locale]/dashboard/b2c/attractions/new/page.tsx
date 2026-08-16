@@ -1,9 +1,9 @@
-import { AttractionEditor } from "@/components/dashboard/b2c/AttractionEditor"
+import { AttractionContentStudio } from "@/components/dashboard/b2c/attractions/AttractionContentStudio"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "New Attraction | E3 Admin",
+  title: "New Attraction Studio | E3 Admin",
 }
 
 export default async function NewAttractionPage() {
@@ -12,5 +12,5 @@ export default async function NewAttractionPage() {
     redirect("/login")
   }
 
-  return <AttractionEditor />
+  return <AttractionContentStudio />
 }

@@ -46,8 +46,14 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
   if (!pricing || pricing.length === 0) return null;
 
-  const generalPasses = pricing.filter(p => (p.type || '').toUpperCase() === 'GENERAL' || !p.type);
-  const addOnPasses = pricing.filter(p => (p.type || '').toUpperCase() === 'ADD_ON');
+  const isAddonType = (type?: string) => {
+    if (!type) return false;
+    const t = type.toUpperCase().trim();
+    return t === 'ADD_ON' || t.includes('ADD') || t.includes('HOURLY') || t.includes('PREMIUM') || t.includes('ACTIVITY');
+  };
+
+  const generalPasses = pricing.filter(p => !isAddonType(p.type));
+  const addOnPasses = pricing.filter(p => isAddonType(p.type));
   const passesToRender = generalPasses.length > 0 ? generalPasses : pricing;
 
   const safeBookingUrl = bookingUrl
