@@ -32,7 +32,7 @@ export async function POST(request: Request) {
           titleAr: "تذكرة",
           price: parseFloat(match[1]) || 50,
           currency: "QAR",
-          type: "GENERAL"
+          type: "ACCESS_PASS"
         })
       } else if (line.length > 5 && line.length < 50 && (line.startsWith("-") || line.startsWith("•") || line.includes("Zone") || line.includes("Experience") || line.includes("Tag") || line.includes("Karting") || line.includes("Arena"))) {
         activityMatches.push({
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
         { titleEn: "Main Interactive Zone", titleAr: "المنطقة التفاعلية الرئيسية", contentType: "ZONE" }
       ],
       pricing: pricingMatches.length > 0 ? pricingMatches : [
-        { titleEn: "Standard Admission", titleAr: "تذكرة الدخول الأساسية", price: 50, currency: "QAR", type: "GENERAL" }
+        { titleEn: "Standard Admission", titleAr: "تذكرة الدخول الأساسية", price: 50, currency: "QAR", type: "ACCESS_PASS" }
       ],
       confidence: "95%"
     }

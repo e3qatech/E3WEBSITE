@@ -36,6 +36,37 @@ interface WhatsInsideProps {
   locale?: string;
 }
 
+export const getActivityTypeLabel = (type?: string, isAr: boolean = false): string => {
+  const t = (type || 'ACTIVITY').toUpperCase().trim();
+  if (t === 'ACTIVITY') return isAr ? 'نشاط تفاعلي' : 'Activity';
+  if (t === 'ZONE') return isAr ? 'منطقة ذات طابع' : 'Themed Zone';
+  if (t === 'SHOW') return isAr ? 'عرض ترفيهي' : 'Show';
+  if (t === 'DINING') return isAr ? 'مأكولات ومشروبات' : 'Dining';
+  if (t === 'RETAIL') return isAr ? 'متجر وهدايا' : 'Retail';
+  if (t === 'SERVICE') return isAr ? 'خدمة الزوار' : 'Service';
+  if (t === 'DISCOVER') return isAr ? 'استكشف' : 'Discover';
+  if (t === 'EXPERIENCE') return isAr ? 'تجربة تفاعلية' : 'Experience';
+  return isAr ? 'نشاط تفاعلي' : (type || 'Activity');
+};
+
+export const getStoryTrackLabel = (track?: { slug?: string; titleEn?: string; titleAr?: string }, isAr: boolean = false): string => {
+  if (!track) return isAr ? 'مسار تجربة' : 'Experience Track';
+  if (isAr) {
+    if (track.titleAr && track.titleAr.trim() && !/^[A-Za-z0-9\s-_]+$/.test(track.titleAr.trim())) {
+      return track.titleAr.trim();
+    }
+    const s = (track.slug || track.titleEn || '').toLowerCase().trim();
+    if (s === 'compete' || s.includes('compete')) return 'تنافس';
+    if (s === 'drive' || s.includes('drive')) return 'قيادة';
+    if (s === 'explore' || s.includes('explore')) return 'استكشاف';
+    if (s === 'learn' || s.includes('learn')) return 'تعلم';
+    if (s === 'create' || s.includes('create')) return 'إبداع';
+    if (s === 'chill' || s.includes('chill')) return 'استرخاء';
+    return track.titleAr || track.titleEn || 'مسار تجربة';
+  }
+  return track.titleEn || track.slug || 'Track';
+};
+
 export function WhatsInside({ description, features, imageUrl, locale = 'en' }: WhatsInsideProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedTrackSlug, setSelectedTrackSlug] = useState<string>('ALL');
@@ -185,7 +216,7 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               </button>
 
               {activeStoryTracks.map(st => {
-                const trackTitle = isAr ? st.titleAr : st.titleEn;
+                const trackTitle = getStoryTrackLabel(st, isAr);
                 const count = (features || []).filter(f => (f.storyTypes || []).some(t => t.slug === st.slug)).length;
                 const isActive = selectedTrackSlug === st.slug;
 
@@ -268,12 +299,12 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
                         {primaryTrack && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300 shadow-sm">
                             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryTrack.color || '#a855f7' }} />
-                            <span>{isAr ? (primaryTrack.titleAr || primaryTrack.titleEn) : primaryTrack.titleEn}</span>
+                            <span>{getStoryTrackLabel(primaryTrack, isAr)}</span>
                           </span>
                         )}
 
                         <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--surface-hover)] border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 shadow-sm">
-                          {highlightType}
+                          {getActivityTypeLabel(highlightType, isAr)}
                         </span>
                       </div>
                     </div>

@@ -222,6 +222,127 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     loadData()
   }, [])
 
+  // Translation Health Audit Calculator (Strict Arabic validation: no empty or English fallback)
+  const translationAudit = useMemo(() => {
+    const untranslated: string[] = []
+    let totalChecked = 0
+    let passed = 0
+
+    const check = (fieldName: string, arVal?: string | null, enVal?: string | null) => {
+      totalChecked++
+      const ar = (arVal || '').trim()
+      const en = (enVal || '').trim()
+      const hasArabicLetters = /[\u0600-\u06FF]/.test(ar)
+      
+      if (!ar) {
+        untranslated.push(`${fieldName}: missing Arabic translation`)
+        return false
+      }
+      if (en && ar.toLowerCase() === en.toLowerCase() && !hasArabicLetters) {
+        untranslated.push(`${fieldName}: displaying English fallback text ("${ar}")`)
+        return false
+      }
+      passed++
+      return true
+    }
+
+    // Core Identity
+    check("Attraction Name (AR)", nameAr, nameEn)
+    if (taglineEn?.trim()) check("Tagline (AR)", taglineAr, taglineEn)
+    if (descriptionEn?.trim()) check("Description (AR)", descriptionAr, descriptionEn)
+
+    // Activities
+    activities.forEach((act, idx) => {
+      const actName = act.titleEn || `Activity #${idx + 1}`
+      check(`Activity "${actName}" Title (AR)`, act.titleAr, act.titleEn)
+      if (act.descriptionEn?.trim()) {
+        check(`Activity "${actName}" Description (AR)`, act.descriptionAr, act.descriptionEn)
+      }
+    })
+
+    // FAQs
+    faqs.forEach((faq, idx) => {
+      const faqName = faq.questionEn ? `"${faq.questionEn.substring(0, 25)}..."` : `FAQ #${idx + 1}`
+      check(`FAQ ${faqName} Question (AR)`, faq.questionAr, faq.questionEn)
+      check(`FAQ ${faqName} Answer (AR)`, faq.answerAr, faq.answerEn)
+    })
+
+    // Pricing Tiers
+    pricingTiers.forEach((tier, idx) => {
+      const tierName = tier.titleEn || `Tier #${idx + 1}`
+      check(`Pricing "${tierName}" Title (AR)`, tier.titleAr, tier.titleEn)
+    })
+
+    // SEO
+    if (seo.metaTitleEn?.trim()) check("SEO Meta Title (AR)", seo.metaTitleAr, seo.metaTitleEn)
+    if (seo.metaDescriptionEn?.trim()) check("SEO Meta Description (AR)", seo.metaDescriptionAr, seo.metaDescriptionEn)
+
+    const score = totalChecked > 0 ? Math.round((passed / totalChecked) * 100) : 100
+
+    return {
+      score,
+      passed,
+      totalChecked,
+      untranslated,
+      isComplete: untranslated.length === 0
+    }
+  }, [nameAr, nameEn, taglineAr, taglineEn, descriptionAr, descriptionEn, activities, faqs, pricingTiers, seo])
+
+  // Content Health Issues Auditor (5 Core Audits)
+  const contentHealthAudit = useMemo(() => {
+    const issues: string[] = []
+    const validCategories = ['ACCESS_PASS', 'PREMIUM_ACTIVITY', 'HOURLY_ACTIVITY', 'ADD_ON']
+
+    // 1. Missing Activity Media
+    activities.forEach((act, idx) => {
+      if (!act.imageUrl?.trim()) {
+        issues.push(`Activity "${act.titleEn || idx + 1}": missing activity media photo`)
+      }
+    })
+
+    // 2. Fewer than two FAQs
+    if (faqs.length < 2) {
+      issues.push(`Attraction has ${faqs.length} FAQs (minimum 2 authentic FAQs required)`)
+    }
+
+    // 3. Missing Arabic FAQ fields
+    faqs.forEach((faq, idx) => {
+      const qAr = (faq.questionAr || '').trim()
+      const aAr = (faq.answerAr || '').trim()
+      const qEn = (faq.questionEn || '').trim()
+      const aEn = (faq.answerEn || '').trim()
+      if (!qAr || !/[\u0600-\u06FF]/.test(qAr) || (qEn && qAr.toLowerCase() === qEn.toLowerCase())) {
+        issues.push(`FAQ #${idx + 1}: missing Arabic question translation`)
+      }
+      if (!aAr || !/[\u0600-\u06FF]/.test(aAr) || (aEn && aAr.toLowerCase() === aEn.toLowerCase())) {
+        issues.push(`FAQ #${idx + 1}: missing Arabic answer translation`)
+      }
+    })
+
+    // 4. Empty Partner Sections
+    const validPartners = partners.filter(p => {
+      const name = p.name || p.partnerName
+      const logo = p.logoUrl || p.logo || p.image
+      return name && logo && !logo.includes('example.com') && !logo.includes('placeholder')
+    })
+    if (validPartners.length === 0) {
+      issues.push("No authentic partners configured (Partners section hidden on live page)")
+    }
+
+    // 5. Incorrect or missing pricing categories
+    pricingTiers.forEach((tier, idx) => {
+      const cat = String(tier.type || '').toUpperCase().trim()
+      if (!validCategories.includes(cat)) {
+        issues.push(`Pricing "${tier.titleEn || idx + 1}": invalid category "${tier.type || 'EMPTY'}"`)
+      }
+    })
+
+    return {
+      issues,
+      isValid: issues.length === 0
+    }
+  }, [activities, faqs, partners, pricingTiers])
+
   // Health Completion Score Calculator
   const healthAudit = useMemo(() => {
     const scores: Record<StudioStage, number> = {
@@ -611,12 +732,12 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
               </nav>
             </div>
 
-            {/* Health Meter Widget */}
+            {/* Content Health Completeness Widget */}
             <div className="p-4 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] shadow-sm space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span>Content Health</span>
+                  <span>Profile Completion</span>
                 </span>
                 <span className="font-mono font-black text-emerald-500 text-sm">
                   {healthAudit.overall}%
@@ -644,6 +765,67 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                 <p className="text-[11px] text-emerald-500 font-bold">All mandatory requirements complete!</p>
               )}
             </div>
+
+            {/* Translation Health Widget (Strict Arabic Validation) */}
+            <div className="p-4 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] shadow-sm space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                  <Languages className="w-4 h-4 text-blue-500" />
+                  <span>Translation Health</span>
+                </span>
+                <span className={cn(
+                  "font-mono font-black text-sm",
+                  translationAudit.score === 100 ? "text-emerald-500" : "text-amber-500"
+                )}>
+                  {translationAudit.score}%
+                </span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full transition-all duration-500",
+                    translationAudit.score === 100 ? "bg-emerald-500" : "bg-amber-500"
+                  )}
+                  style={{ width: `${translationAudit.score}%` }}
+                />
+              </div>
+
+              {translationAudit.untranslated.length > 0 ? (
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-bold text-amber-500 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>Untranslated / Fallback ({translationAudit.untranslated.length}):</span>
+                  </span>
+                  <ul className="list-disc ps-4 space-y-1 text-[10px] text-[var(--text-secondary)] max-h-36 overflow-y-auto">
+                    {translationAudit.untranslated.map((item, i) => (
+                      <li key={i} className="leading-tight">{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-[11px] text-emerald-500 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>100% Arabic coverage verified!</span>
+                </p>
+              )}
+            </div>
+
+            {/* Quality & Content Diagnostics (5 Core Hardening Checks) */}
+            {contentHealthAudit.issues.length > 0 && (
+              <div className="p-4 rounded-3xl bg-amber-500/5 border border-amber-500/30 space-y-2">
+                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4 text-amber-500" />
+                  <span>Quality Diagnostics ({contentHealthAudit.issues.length})</span>
+                </span>
+                <ul className="list-disc ps-4 space-y-1 text-[10px] text-[var(--text-secondary)] max-h-32 overflow-y-auto">
+                  {contentHealthAudit.issues.map((issue, i) => (
+                    <li key={i} className="leading-tight">{issue}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* 2. Main Stage Content Panel */}
@@ -1184,7 +1366,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                       bilingualView={bilingualView}
                       onAdd={() => setPricingTiers([
                         ...pricingTiers,
-                        { titleEn: "General Pass", titleAr: "تذكرة عامة", price: 50, currency: "QAR", type: "GENERAL" }
+                        { titleEn: "Access Pass", titleAr: "تذكرة دخول", price: 50, currency: "QAR", type: "ACCESS_PASS" }
                       ])}
                       onUpdate={(idx, updated) => {
                         const next = [...pricingTiers]

@@ -140,7 +140,7 @@ export async function GET(request: Request) {
         titleAr: "تذكرة عامة",
         price: 50,
         currency: "QAR",
-        type: "GENERAL",
+        type: "ACCESS_PASS",
         descriptionEn: "Access to standard activities for 60 minutes.",
         descriptionAr: "دخول للأنشطة الأساسية لمدة 60 دقيقة."
       })

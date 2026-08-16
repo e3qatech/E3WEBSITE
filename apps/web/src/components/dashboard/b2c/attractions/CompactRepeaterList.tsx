@@ -295,18 +295,16 @@ export function CompactRepeaterList<T extends Record<string, any>>({
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Pass Category / Type</label>
+                            <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Pass Category (Controlled Enum)</label>
                             <select
-                              value={item.type || 'GENERAL'}
+                              value={item.type || 'ACCESS_PASS'}
                               onChange={e => onUpdate(index, { ...item, type: e.target.value })}
                               className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none"
                             >
-                              <option value="GENERAL">General Entry Pass</option>
-                              <option value="VIP">VIP / Unlimited Access</option>
-                              <option value="ADD_ON">Add-On Single Activity</option>
-                              <option value="Hourly Premium Activity">Hourly Premium Activity</option>
-                              <option value="Premium Activity Add-on">Premium Activity Add-on</option>
-                              <option value="FAMILY">Family Package</option>
+                              <option value="ACCESS_PASS">ACCESS_PASS (Rookie, Pro, All-Day, Single Game Entry)</option>
+                              <option value="PREMIUM_ACTIVITY">PREMIUM_ACTIVITY (Laser Tag, Paintless Paintball, Archery)</option>
+                              <option value="HOURLY_ACTIVITY">HOURLY_ACTIVITY (Billiards, AR Billiards, Hourly Rentals)</option>
+                              <option value="ADD_ON">ADD_ON (Socks, Tokens, Lockers, Merchandise)</option>
                             </select>
                           </div>
                         </div>

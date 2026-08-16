@@ -186,7 +186,7 @@ export async function POST(request: Request) {
           titleAr: "تذكرة الدخول الأساسية",
           price: 50,
           currency: "QAR",
-          type: "GENERAL"
+          type: "ACCESS_PASS"
         }
       })
     }

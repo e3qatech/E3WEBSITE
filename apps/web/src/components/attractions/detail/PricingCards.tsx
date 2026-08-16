@@ -35,10 +35,29 @@ interface PricingCardsProps {
   locale?: string;
 }
 
-type PricingCategory = 'ALL' | 'ACCESS' | 'PREMIUM' | 'HOURLY' | 'ADDON';
+export type ControlledPricingCategory = 'ACCESS_PASS' | 'PREMIUM_ACTIVITY' | 'HOURLY_ACTIVITY' | 'ADD_ON';
+type PricingTab = 'ALL' | ControlledPricingCategory;
+
+export function normalizePricingCategory(type?: string): ControlledPricingCategory {
+  if (!type) return 'ACCESS_PASS';
+  const t = type.toUpperCase().trim();
+  if (t === 'ACCESS_PASS' || t === 'ACCESS' || t === 'GENERAL' || t === 'GENERAL PASS' || t === 'ENTRY') {
+    return 'ACCESS_PASS';
+  }
+  if (t === 'PREMIUM_ACTIVITY' || t === 'PREMIUM' || t === 'VIP' || t === 'PRO' || t.includes('PREMIUM')) {
+    return 'PREMIUM_ACTIVITY';
+  }
+  if (t === 'HOURLY_ACTIVITY' || t === 'HOURLY' || t === 'TIMED' || t.includes('HOURLY')) {
+    return 'HOURLY_ACTIVITY';
+  }
+  if (t === 'ADD_ON' || t === 'ADDON' || t === 'ADD-ON' || t === 'GEAR' || t === 'MERCH') {
+    return 'ADD_ON';
+  }
+  return 'ACCESS_PASS';
+}
 
 export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, pricingNoteAr, locale = 'en' }: PricingCardsProps) {
-  const [activeCategory, setActiveCategory] = useState<PricingCategory>('ALL');
+  const [activeCategory, setActiveCategory] = useState<PricingTab>('ALL');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const isAr = locale === 'ar';
 
@@ -50,46 +69,29 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
   if (!pricing || pricing.length === 0) return null;
 
-  // Categorize tiers
-  const categorizeTier = (tier: PricingTier): PricingCategory => {
-    const t = (tier.type || '').toUpperCase().trim();
-    const title = (tier.titleEn || tier.titleAr || '').toLowerCase();
-
-    if (t === 'ADD_ON' || t === 'ADDON' || title.includes('sock') || title.includes('locker') || title.includes('token') || title.includes('جوارب')) {
-      return 'ADDON';
-    }
-    if (t === 'PREMIUM' || t === 'VIP' || t === 'PRO' || title.includes('pro pass') || title.includes('vip') || title.includes('vr') || title.includes('simulator') || title.includes('المحترفين')) {
-      return 'PREMIUM';
-    }
-    if (t === 'HOURLY' || t === 'TIMED' || title.includes('min') || title.includes('minute') || title.includes('hour') || title.includes('دقيقة') || title.includes('ساعة')) {
-      return 'HOURLY';
-    }
-    return 'ACCESS';
-  };
-
-  const getCategoryLabel = (cat: PricingCategory) => {
+  const getCategoryLabel = (cat: PricingTab) => {
     switch (cat) {
-      case 'ACCESS': return isAr ? 'باقات الدخول' : 'Access Passes';
-      case 'PREMIUM': return isAr ? 'الأنشطة المميزة' : 'Premium Activities';
-      case 'HOURLY': return isAr ? 'الجلسات والأنشطة المؤقتة' : 'Hourly Activities';
-      case 'ADDON': return isAr ? 'الخدمات والإضافات' : 'Add-ons';
+      case 'ACCESS_PASS': return isAr ? 'باقات الدخول' : 'Access Passes';
+      case 'PREMIUM_ACTIVITY': return isAr ? 'الأنشطة المميزة' : 'Premium Activities';
+      case 'HOURLY_ACTIVITY': return isAr ? 'الجلسات بالساعة' : 'Hourly Activities';
+      case 'ADD_ON': return isAr ? 'الخدمات والإضافات' : 'Add-ons';
       default: return isAr ? 'كافة الباقات والأنشطة' : 'All Tiers';
     }
   };
 
-  const getCategoryColor = (cat: PricingCategory) => {
+  const getCategoryColor = (cat: ControlledPricingCategory) => {
     switch (cat) {
-      case 'ACCESS': return 'emerald';
-      case 'PREMIUM': return 'purple';
-      case 'HOURLY': return 'blue';
-      case 'ADDON': return 'amber';
+      case 'ACCESS_PASS': return 'emerald';
+      case 'PREMIUM_ACTIVITY': return 'purple';
+      case 'HOURLY_ACTIVITY': return 'blue';
+      case 'ADD_ON': return 'amber';
       default: return 'emerald';
     }
   };
 
   const categorizedList = pricing.map(p => ({
     ...p,
-    category: categorizeTier(p)
+    category: normalizePricingCategory(p.type)
   }));
 
   const filteredPricing = activeCategory === 'ALL'
@@ -133,7 +135,7 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
 
         {/* Category Pill Switcher */}
         <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 max-w-2xl mx-auto rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md">
-          {(['ALL', 'ACCESS', 'PREMIUM', 'HOURLY', 'ADDON'] as PricingCategory[]).map(cat => {
+          {(['ALL', 'ACCESS_PASS', 'PREMIUM_ACTIVITY', 'HOURLY_ACTIVITY', 'ADD_ON'] as PricingTab[]).map(cat => {
             const count = cat === 'ALL' ? pricing.length : categorizedList.filter(p => p.category === cat).length;
             if (cat !== 'ALL' && count === 0) return null;
             const isActive = activeCategory === cat;
@@ -164,7 +166,7 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
             const titleVal = formatLocalizedText(isAr ? (tier.titleAr || tier.titleEn) : (tier.titleEn || tier.titleAr), locale);
             const descVal = formatLocalizedText(isAr ? (tier.descriptionAr || tier.descriptionEn) : (tier.descriptionEn || tier.descriptionAr), locale);
             const cat = tier.category;
-            const isFeatured = cat === 'PREMIUM' || tier.type.toLowerCase().includes('vip') || idx === 1;
+            const isFeatured = cat === 'PREMIUM_ACTIVITY' || tier.type.toLowerCase().includes('vip') || idx === 1;
 
             return (
               <motion.div
@@ -187,11 +189,11 @@ export function PricingCards({ pricing, offers, bookingUrl, pricingNoteEn, prici
                 <div className="space-y-4 mb-6 relative z-10">
                   <div className="flex items-center justify-between gap-2">
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase shadow-sm ${
-                      cat === 'PREMIUM' 
+                      cat === 'PREMIUM_ACTIVITY' 
                         ? 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30' 
-                        : cat === 'HOURLY' 
+                        : cat === 'HOURLY_ACTIVITY' 
                         ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-500/30'
-                        : cat === 'ADDON'
+                        : cat === 'ADD_ON'
                         ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30'
                         : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30'
                     }`}>

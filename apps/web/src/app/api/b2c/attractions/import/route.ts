@@ -194,13 +194,22 @@ export async function POST(request: Request) {
               if (!pTitle) continue
               const existingPrice = existing?.pricing.find((ep: any) => ep.titleEn.toLowerCase() === pTitle.toLowerCase())
               const priceVal = parseFloat(p.price || p["Price (QAR)"]) || 0
+              const rawType = String(p.type || p.category || p["Category"] || p["Pass Category"] || (existingPrice ? existingPrice.type : "ACCESS_PASS")).toUpperCase().trim()
+              const normalizedType = rawType.includes("PREMIUM") 
+                ? "PREMIUM_ACTIVITY" 
+                : rawType.includes("HOURLY") 
+                ? "HOURLY_ACTIVITY" 
+                : (rawType.includes("ADD") || rawType.includes("ADDON")) 
+                ? "ADD_ON" 
+                : "ACCESS_PASS"
+
               if (existingPrice) {
                 await db.attractionPricing.update({
                   where: { id: existingPrice.id },
                   data: {
                     price: priceVal,
                     titleAr: String(p.titleAr || existingPrice.titleAr),
-                    type: String(p.type || existingPrice.type)
+                    type: normalizedType
                   }
                 })
               } else {
@@ -211,7 +220,7 @@ export async function POST(request: Request) {
                     titleAr: String(p.titleAr || pTitle),
                     price: priceVal,
                     currency: String(p.currency || "QAR"),
-                    type: String(p.type || "GENERAL")
+                    type: normalizedType
                   }
                 })
               }

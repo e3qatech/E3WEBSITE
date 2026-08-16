@@ -363,6 +363,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       {/* 11. FAQ Accordion */}
       <FaqAccordion 
         faqs={faq}
+        locale={locale}
       />
 
       {/* 12. Footer CTA */}

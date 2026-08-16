@@ -196,7 +196,7 @@ export function HeroViewer({
           transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
           className="text-balance text-5xl md:text-7xl lg:text-[clamp(3rem,8vw,6rem)] font-black text-white tracking-tighter uppercase leading-[0.9] drop-shadow-2xl max-w-6xl break-words"
         >
-          {formatLocalizedText(title)}
+          {formatLocalizedText(title, locale)}
         </motion.h1>
 
         {tagline && (
@@ -206,7 +206,7 @@ export function HeroViewer({
             transition={{ delay: 0.5, duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className="mt-8 text-xl md:text-3xl text-zinc-300 max-w-3xl font-light leading-relaxed drop-shadow-lg"
           >
-            {formatLocalizedText(tagline)}
+            {formatLocalizedText(tagline, locale)}
           </motion.p>
         )}
 
@@ -245,7 +245,9 @@ export function HeroViewer({
         transition={{ delay: 1.2, duration: 1 }}
         className="absolute bottom-10 start-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
       >
-        <span className="text-[10px] text-amber-500 uppercase tracking-[0.3em] mb-4 font-mono font-bold drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">Discover</span>
+        <span className="text-[10px] text-amber-500 uppercase tracking-[0.3em] mb-4 font-mono font-bold drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+          {isAr ? "استكشف" : "Discover"}
+        </span>
         <div className="w-[1px] h-24 bg-white/10 relative overflow-hidden rounded-full">
           <motion.div 
             className="absolute top-0 start-0 w-full h-1/2 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,1)]"
