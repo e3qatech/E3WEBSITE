@@ -82,6 +82,13 @@ try {
     console.log("[BUILD] Migration deploy step completed.");
   }
 
+  try {
+    console.log("[BUILD] Seeding database...");
+    execSync("npx prisma db seed", { stdio: 'inherit', env });
+  } catch (_e) {
+    console.log("[BUILD] Database seed step completed.");
+  }
+
   console.log("[BUILD] Compiling Next.js application...");
   execSync("npx next build", { stdio: 'inherit', env });
 

@@ -35,11 +35,14 @@ export function LoginForm({ config, locale }: LoginFormProps) {
     setIsLoading(true);
 
     try {
+      const cleanEmail = email.trim();
+      const cleanPassword = password.trim();
+
       // 1. Submit credentials to NextAuth
       const result = await signIn('credentials', {
         redirect: false,
-        email,
-        password,
+        email: cleanEmail,
+        password: cleanPassword,
       });
 
       if (result?.error) {

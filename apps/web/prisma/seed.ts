@@ -10,10 +10,15 @@ async function main() {
   // 1. Credentials & Access Controls
   const saltRounds = 10;
   const adminPassword = await bcrypt.hash('supersecret', saltRounds)
+  const defaultPassword = await bcrypt.hash('Password123!', saltRounds)
   
   const superAdmin = await prisma.user.upsert({
     where: { email: 'admin@e3.qa' },
-    update: {},
+    update: {
+      password: adminPassword,
+      role: RoleType.SUPER_ADMIN,
+      isActive: true,
+    },
     create: {
       email: 'admin@e3.qa',
       name: 'Super Admin',
@@ -22,7 +27,23 @@ async function main() {
       emailVerified: new Date(),
     },
   })
-  console.log('Created Super Admin:', superAdmin.email)
+
+  const superAdminQatar = await prisma.user.upsert({
+    where: { email: 'admin@e3qatar.com' },
+    update: {
+      password: defaultPassword,
+      role: RoleType.SUPER_ADMIN,
+      isActive: true,
+    },
+    create: {
+      email: 'admin@e3qatar.com',
+      name: 'Super Admin',
+      password: defaultPassword,
+      role: RoleType.SUPER_ADMIN,
+      emailVerified: new Date(),
+    },
+  })
+  console.log('Created Super Admins:', superAdmin.email, superAdminQatar.email)
 
   // 2. Organizational Hierarchy (Team Members)
   await prisma.employeeProfile.create({

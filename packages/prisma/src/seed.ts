@@ -43,6 +43,12 @@ async function main() {
 
   const seedUsersData = [
     {
+      email: 'admin@e3.qa',
+      role: 'SUPER_ADMIN',
+      firstName: 'System',
+      lastName: 'SuperAdmin',
+    },
+    {
       email: 'admin@e3qatar.com',
       role: 'SUPER_ADMIN',
       firstName: 'System',
