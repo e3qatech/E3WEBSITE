@@ -72,8 +72,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       ? (content.hero?.secondaryCtaAr || content.hero?.secondaryCta || "ابدأ مشروعاً") 
       : (content.hero?.secondaryCtaEn || content.hero?.secondaryCta || "Start a Project"),
     secondaryLink: localizeHref('/b2b/contact', locale),
-    mediaType: content.hero?.mediaType || "IMAGE",
-    mediaUrl: content.hero?.mediaUrl || ""
+    media: content.hero?.media,
+    mediaType: content.hero?.media?.mediaType || content.hero?.mediaType || "IMAGE",
+    mediaUrl: content.hero?.media?.mediaUrl || content.hero?.mediaUrl || (content.hero as any)?.backgroundImage || "",
+    backgroundImage: (content.hero as any)?.backgroundImage || "",
+    posterImage: content.hero?.media?.posterUrl || (content.hero as any)?.posterImage || ""
   }
 
   // 2. Stats Data

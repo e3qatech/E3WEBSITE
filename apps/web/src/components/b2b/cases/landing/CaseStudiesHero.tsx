@@ -25,8 +25,14 @@ export interface CaseStudiesHeroProps {
     subtitleAr?: string;
     descriptionEn?: string;
     descriptionAr?: string;
+    media?: {
+      mediaType?: string;
+      mediaUrl?: string;
+      posterUrl?: string;
+    };
     mediaType?: string;
     mediaUrl?: string;
+    backgroundImage?: string;
     mobileMediaUrl?: string;
     posterImage?: string;
     overlayStrength?: number;
