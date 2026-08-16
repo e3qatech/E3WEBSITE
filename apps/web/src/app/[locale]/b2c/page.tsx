@@ -59,19 +59,23 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
     dbStoryTypes = await db.storyType.findMany({
       where: { isActive: true },
       orderBy: { orderIndex: 'asc' },
-      select: {
-        id: true,
-        slug: true,
-        titleEn: true,
-        titleAr: true,
-        descriptionEn: true,
-        descriptionAr: true,
-        icon: true,
-        coverMediaUrl: true,
-        coverMediaType: true,
-        accentColor: true,
-        orderIndex: true,
-        isActive: true,
+      include: {
+        features: {
+          include: {
+            attraction: {
+              select: {
+                heroThumbnailUrl: true,
+                heroMediaUrl: true,
+                isPublished: true,
+                slug: true,
+                nameEn: true,
+                nameAr: true,
+                taglineEn: true,
+                taglineAr: true,
+              }
+            }
+          }
+        }
       }
     });
   } catch (error) {

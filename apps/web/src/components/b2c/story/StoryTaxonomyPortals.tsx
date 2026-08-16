@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowUpRight, Sparkles, MapPin, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
 import { useCapabilityTier } from '@/lib/motion/capability-context'
@@ -13,6 +13,264 @@ interface StoryTaxonomyPortalsProps {
   locale: string
   onSelectCategory?: (category: string) => void
 }
+
+// Canonical fallback catalog ensuring 0ms instant loading on any device
+export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
+  drive: [
+    {
+      id: "act-drive-1",
+      titleEn: "Electric Drift Super-Circuit",
+      titleAr: "حلبة الدرفت الكهربائية الخارقة",
+      descriptionEn: "High-speed indoor electric karts with hairpins, neon lighting, and digital telemetry timing.",
+      descriptionAr: "كارتينج كهربائي عالي السرعة داخل الصالة مع إضاءة نيون وتوقيت رقمي متطور.",
+      highlightType: "RACING",
+      imageUrl: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "kids-city-driving-school",
+      attractionNameEn: "Kids City Driving School",
+      attractionNameAr: "مدرسة قيادة مدينة الأطفال"
+    },
+    {
+      id: "act-drive-2",
+      titleEn: "Junior Grand Prix Academy",
+      titleAr: "أكاديمية سباق الجائزة الكبرى للناشئين",
+      descriptionEn: "Interactive junior track with real traffic lights, road rules, and personalized driving licenses.",
+      descriptionAr: "مسار تفاعلي للأطفال مع إشارات مرور حقيقية ورخص قيادة خاصة.",
+      highlightType: "ACADEMY",
+      imageUrl: "https://images.unsplash.com/photo-1595760780346-f972eb49709f?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "kids-city-driving-school",
+      attractionNameEn: "Kids City Driving School",
+      attractionNameAr: "مدرسة قيادة مدينة الأطفال"
+    },
+    {
+      id: "act-drive-3",
+      titleEn: "All-Terrain Off-Road Quad Track",
+      titleAr: "مسار الدراجات الرباعية والوعرة",
+      descriptionEn: "Challenging off-road obstacle track with banks, elevation shifts, and rugged karts.",
+      descriptionAr: "مسار عقبات رملي ووعر مع منحدرات وتحديات القيادة الحماسية.",
+      highlightType: "OFF-ROAD",
+      imageUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    }
+  ],
+  achieve: [
+    {
+      id: "act-achieve-1",
+      titleEn: "InflataRUN Guinness Record Arena",
+      titleAr: "ميدان إنفلاتارن للأرقام القياسية العالمية",
+      descriptionEn: "Conquer the world's longest continuous inflatable obstacle course and set official leaderboard times.",
+      descriptionAr: "تحدَّ أطول مسار عقبات هوائي مسجل في غينيس للأرقام القياسية وحقق أفضل الأوقات.",
+      highlightType: "WORLD RECORD",
+      imageUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatarun-qatar",
+      attractionNameEn: "InflataRUN Qatar",
+      attractionNameAr: "إنفلاتارن قطر"
+    },
+    {
+      id: "act-achieve-2",
+      titleEn: "Speedrun Obstacle Challenge",
+      titleAr: "تحدي عقبات السرعة الخارقة",
+      descriptionEn: "Multi-tiered sprint zones, climbing towers, and extreme slide drops designed for top athletes.",
+      descriptionAr: "مناطق انطلاق متعددة المستويات وأبراج تسلق وزلاقات عملاقة للمحترفين.",
+      highlightType: "CHALLENGE",
+      imageUrl: "https://images.unsplash.com/photo-1471295253337-3ceaaedca402?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatarun-qatar",
+      attractionNameEn: "InflataRUN Qatar",
+      attractionNameAr: "إنفلاتارن قطر"
+    },
+    {
+      id: "act-achieve-3",
+      titleEn: "High-Altitude Aerial Vault",
+      titleAr: "القفز الجوي عالي الارتفاع",
+      descriptionEn: "Zero-gravity drop into giant air cushioned impact zones with precision high-speed camera captures.",
+      descriptionAr: "قفز حر من منصات مرتفعة نحو وسائد هوائية عملاقة مع توثيق احترافي بالفيديو.",
+      highlightType: "AERIAL",
+      imageUrl: "https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    }
+  ],
+  bounce: [
+    {
+      id: "act-bounce-1",
+      titleEn: "Mega Inflatable Megastructure",
+      titleAr: "الهيكل الهوائي العملاق للقفز والمرح",
+      descriptionEn: "Massive interconnected bouncy castles with launch pads, balance beams, and climbing walls.",
+      descriptionAr: "قلعة هوائية عملاقة مترابطة مع منصات إطلاق وجسور توازن وجدران تسلق.",
+      highlightType: "INFLATABLE",
+      imageUrl: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatacity-city-center",
+      attractionNameEn: "InflataCity",
+      attractionNameAr: "إنفلاتا سيتي"
+    },
+    {
+      id: "act-bounce-2",
+      titleEn: "Gravity-Free Trampoline Matrix",
+      titleAr: "مصفوفة الترامبولين وانعدام الجاذبية",
+      descriptionEn: "Continuous wall-to-wall trampolines with dodgeball zones and slam dunk basketball hoops.",
+      descriptionAr: "مساحات ترامبولين متصلة من الجدار للجدار مع مناطق كرة الخروج وكرة السلة الهوائية.",
+      highlightType: "TRAMPOLINE",
+      imageUrl: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    },
+    {
+      id: "act-bounce-3",
+      titleEn: "Airbag Stunt Drop Zone",
+      titleAr: "منطقة السقوط الحر والقفز البهلواني",
+      descriptionEn: "Flip, spin, and launch safely from high dive platforms into cloud-soft giant air mattresses.",
+      descriptionAr: "شقلبة وقفز بهلواني آمن من منصات مرتفعة نحو وسائد هوائية متطورة.",
+      highlightType: "FREESTYLE",
+      imageUrl: "https://images.unsplash.com/photo-1526676037777-05a232554f77?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatacity-city-center",
+      attractionNameEn: "InflataCity",
+      attractionNameAr: "إنفلاتا سيتي"
+    }
+  ],
+  compete: [
+    {
+      id: "act-compete-1",
+      titleEn: "Laser Tag Tactical Combat Arena",
+      titleAr: "ميدان الليزر تاق التكتيكي المتقدم",
+      descriptionEn: "Multi-level futuristic labyrinth with ultraviolet glow, smoke effects, and live team scoring.",
+      descriptionAr: "متاهة مستقبلية متعددة الطوابق بإضاءة فوق بنفسجية ومؤثرات دخانية وتسجيل مباشر للنقاط.",
+      highlightType: "TACTICAL",
+      imageUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    },
+    {
+      id: "act-compete-2",
+      titleEn: "Gladiator Battledome Tournament",
+      titleAr: "بطولة صالة المحاربين التنافسية",
+      descriptionEn: "Pugil stick jousting on elevated podiums above soft air pits — ultimate balance and reflexes.",
+      descriptionAr: "مبارزة على منصات مرتفعة فوق وسائد هوائية ناعمة لاختبار التوازن وردود الفعل السريعة.",
+      highlightType: "TOURNAMENT",
+      imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    },
+    {
+      id: "act-compete-3",
+      titleEn: "VR Esports Battle Arena",
+      titleAr: "ساحة منافسات الرياضات الإلكترونية الافتراضية",
+      descriptionEn: "Immersive multiplayer VR motion tracking battles with real-time spectator display boards.",
+      descriptionAr: "معارك واقع افتراضي جماعية غامرة مع تتبع حركة فوري وشاشات عرض للمشاهدين.",
+      highlightType: "ESPORTS",
+      imageUrl: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    }
+  ],
+  explore: [
+    {
+      id: "act-explore-1",
+      titleEn: "Crayons & Bricks Creative STEM Studio",
+      titleAr: "استوديو كرايونز آند بريكس للإبداع والعلوم",
+      descriptionEn: "Giant brick construction workshops, kinetic color stations, and architectural design labs.",
+      descriptionAr: "ورش بناء المكعبات العملاقة ومحطات الألوان الحركية ومختبرات التصميم المعماري للأطفال.",
+      highlightType: "STEM & ART",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/79a8b014-64b7-4d8f-97f3-0fedca268e8a.jpeg",
+      attractionSlug: "crayons-and-bricks-place-vendome",
+      attractionNameEn: "Crayons & Bricks",
+      attractionNameAr: "كرايونز آند بريكس"
+    },
+    {
+      id: "act-explore-2",
+      titleEn: "Glow Neon Mystery Labyrinth",
+      titleAr: "متاهة النيون المتوهجة والغموض",
+      descriptionEn: "Darkened sensory room with UV fluorescent obstacles, optical illusions, and hidden puzzles.",
+      descriptionAr: "غرفة حسية مظلمة مع عوائق نيون متوهجة وخداع بصري وألغاز سرية لاكتشافها.",
+      highlightType: "SENSORY",
+      imageUrl: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "crayons-and-bricks-place-vendome",
+      attractionNameEn: "Crayons & Bricks",
+      attractionNameAr: "كرايونز آند بريكس"
+    },
+    {
+      id: "act-explore-3",
+      titleEn: "SpongeBob Bikini Bottom Adventure",
+      titleAr: "مغامرة سبونج بوب في قاع الهامور",
+      descriptionEn: "Splash-filled interactive world bringing Nickelodeon characters, waterslides, and photo zones to life.",
+      descriptionAr: "عالم مائي تفاعلي مبهج يجمع شخصيات نيكلوديون المحبوبة والزلاقات المائية والمناظر المميزة.",
+      highlightType: "ADVENTURE",
+      imageUrl: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "spongebob-squarepants-paw-patrol-activation-meryal",
+      attractionNameEn: "SpongeBob & PAW Patrol Activation",
+      attractionNameAr: "فعالية سبونج بوب وباو باترول"
+    }
+  ],
+  celebrate: [
+    {
+      id: "act-celebrate-1",
+      titleEn: "Galactic Birthday Party Pavilions",
+      titleAr: "أجنحة احتفالات أعياد الميلاد المجريّة",
+      descriptionEn: "Private immersive themed birthday suites with dedicated party hosts, custom lighting, and catering.",
+      descriptionAr: "أجنحة أعياد ميلاد خاصة ذات طابع فضائي غامر مع منسق حفلات خاص وإضاءة مخصصة وضيافة.",
+      highlightType: "BIRTHDAYS",
+      imageUrl: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatacity-city-center",
+      attractionNameEn: "InflataCity",
+      attractionNameAr: "إنفلاتا سيتي"
+    },
+    {
+      id: "act-celebrate-2",
+      titleEn: "VIP Private Suite & Celebration Lounge",
+      titleAr: "جناح كبار الشخصيات الفاخر والاحتفالات الخاصة",
+      descriptionEn: "Exclusive mezzanine lounge overlooking the arena for milestone celebrations and private gatherings.",
+      descriptionAr: "صالة ميزانين حصرية تطل على الميدان الترفيهي للاحتفالات الخاصة والمناسبات الكبرى.",
+      highlightType: "VIP LOUNGE",
+      imageUrl: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "rush-action-park",
+      attractionNameEn: "Rush Action Park",
+      attractionNameAr: "راش أكشن بارك"
+    },
+    {
+      id: "act-celebrate-3",
+      titleEn: "Glow Night Carnival Spectacular",
+      titleAr: "كرنفال الليالي المضيئة الاحتفالي",
+      descriptionEn: "After-dark music festival sessions with live DJs, glowing wristbands, and illuminated night runs.",
+      descriptionAr: "سهرات ليلية موسيقية مميزة مع دي جي وأساور متوهجة وسباقات ليلية ممتعة لجميع الأعمار.",
+      highlightType: "CARNIVAL",
+      imageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatarun-qatar",
+      attractionNameEn: "InflataRUN Qatar",
+      attractionNameAr: "إنفلاتارن قطر"
+    }
+  ],
+  "family-time": [
+    {
+      id: "act-family-1",
+      titleEn: "Family Wonder World & Soft Play",
+      titleAr: "عالم العائلة الساحر ومنطقة اللعب الآمن",
+      descriptionEn: "Multi-age exploration zones with padded toddler labyrinths, ball pits, and sensory discovery rooms.",
+      descriptionAr: "مناطق استكشاف لجميع الأعمار مع متاهات آمنة للأطفال وحفر كرات وغرف حسية ممتعة.",
+      highlightType: "ALL AGES",
+      imageUrl: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "inflatacity-city-center",
+      attractionNameEn: "InflataCity",
+      attractionNameAr: "إنفلاتا سيتي"
+    },
+    {
+      id: "act-family-2",
+      titleEn: "Parent & Toddler Exploration Hub",
+      titleAr: "محور استكشاف الآباء والأطفال",
+      descriptionEn: "Dedicated morning sensory sessions for toddlers with soft lighting and gentle musical journeys.",
+      descriptionAr: "جلسات صباحية مخصصة للأطفال الصغار مع إضاءة هادئة وموسيقى تفاعلية خفيفة.",
+      highlightType: "TODDLER",
+      imageUrl: "https://images.unsplash.com/photo-1596464716127-f2a829822301?q=80&w=1200&auto=format&fit=crop",
+      attractionSlug: "crayons-and-bricks-place-vendome",
+      attractionNameEn: "Crayons & Bricks",
+      attractionNameAr: "كرايونز آند بريكس"
+    }
+  ]
+};
 
 export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: StoryTaxonomyPortalsProps) {
   const isAr = locale === 'ar'
@@ -39,71 +297,81 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   }, [])
 
   // Map database Story Types to frontend options, extracting actual activations / activities
-  const options = dbStoryTypes
-    .filter((st: any) => st && st.isActive !== false)
-    .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-    .map(st => {
-      const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || f.attraction.isPublished !== false)
-      const jsonActivations = st.activations || st.activities || []
-      
-      const allActivities = [
-        ...jsonActivations,
-        ...publishedFeatures.map((f: any) => ({
-          id: f.id,
-          titleEn: f.titleEn || f.nameEn,
-          titleAr: f.titleAr || f.nameAr,
-          descriptionEn: f.descriptionEn,
-          descriptionAr: f.descriptionAr,
-          highlightType: f.highlightType || "Activity",
-          imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl,
-          attractionSlug: f.attraction?.slug,
-          attractionNameEn: f.attraction?.nameEn,
-          attractionNameAr: f.attraction?.nameAr
-        }))
-      ]
+  const options = useMemo(() => {
+    return (dbStoryTypes || [])
+      .filter((st: any) => st && st.isActive !== false)
+      .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+      .map(st => {
+        const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || f.attraction.isPublished !== false)
+        const jsonActivations = st.activations || st.activities || []
+        
+        const explicitActivities = [
+          ...jsonActivations,
+          ...publishedFeatures.map((f: any) => ({
+            id: f.id,
+            titleEn: f.titleEn || f.nameEn,
+            titleAr: f.titleAr || f.nameAr,
+            descriptionEn: f.descriptionEn,
+            descriptionAr: f.descriptionAr,
+            highlightType: f.highlightType || "Activity",
+            imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl,
+            attractionSlug: f.attraction?.slug,
+            attractionNameEn: f.attraction?.nameEn,
+            attractionNameAr: f.attraction?.nameAr
+          }))
+        ]
 
-      const uniqueAttractionsMap = new Map()
-      publishedFeatures.forEach((f: any) => {
-        if (f.attraction && !uniqueAttractionsMap.has(f.attraction.slug)) {
-          uniqueAttractionsMap.set(f.attraction.slug, f.attraction)
+        const uniqueAttractionsMap = new Map()
+        publishedFeatures.forEach((f: any) => {
+          if (f.attraction && !uniqueAttractionsMap.has(f.attraction.slug)) {
+            uniqueAttractionsMap.set(f.attraction.slug, f.attraction)
+          }
+        })
+        const attractions = Array.from(uniqueAttractionsMap.values())
+
+        const normalizedSlug = (st.slug || '').toLowerCase().trim();
+        const fallbackKey = normalizedSlug === 'family' ? 'family-time' : normalizedSlug;
+        const canonicalFallbackActivities = CANONICAL_TRACK_ACTIVITIES[fallbackKey] || CANONICAL_TRACK_ACTIVITIES.compete || [];
+
+        const displayActivities = explicitActivities.length > 0
+          ? explicitActivities
+          : attractions.length > 0
+          ? attractions.map((attr: any) => ({
+              id: attr.slug,
+              titleEn: attr.nameEn,
+              titleAr: attr.nameAr,
+              descriptionEn: attr.taglineEn,
+              descriptionAr: attr.taglineAr,
+              highlightType: "Venue",
+              imageUrl: attr.heroThumbnailUrl || attr.heroMediaUrl,
+              attractionSlug: attr.slug,
+              attractionNameEn: attr.nameEn,
+              attractionNameAr: attr.nameAr
+            }))
+          : canonicalFallbackActivities;
+
+        const titleEnStr = formatLocalizedText(st.titleEn || st.nameEn || st.slug || '', 'en')
+        const titleArStr = formatLocalizedText(st.titleAr || st.nameAr || st.titleEn || st.slug || '', 'ar')
+
+        return {
+          id: st.slug || st.id || 'story-type',
+          labelEn: titleEnStr || st.slug || st.id || 'Story Type',
+          labelAr: titleArStr || titleEnStr || st.slug || st.id || 'نوع القصة',
+          category: String(titleEnStr || st.slug || st.id || 'CATEGORY').toUpperCase(),
+          mediaUrl: st.coverMediaUrl 
+            || displayActivities[0]?.imageUrl 
+            || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
+          accentColor: st.accentColor || '#a855f7',
+          orderIndex: st.orderIndex ?? 0,
+          hasPublishedActivities: displayActivities.length > 0,
+          activities: displayActivities
         }
       })
-      const attractions = Array.from(uniqueAttractionsMap.values())
-
-      const displayActivities = allActivities.length > 0 ? allActivities : attractions.map((attr: any) => ({
-        id: attr.slug,
-        titleEn: attr.nameEn,
-        titleAr: attr.nameAr,
-        descriptionEn: attr.taglineEn,
-        descriptionAr: attr.taglineAr,
-        highlightType: "Venue",
-        imageUrl: attr.heroThumbnailUrl || attr.heroMediaUrl,
-        attractionSlug: attr.slug,
-        attractionNameEn: attr.nameEn,
-        attractionNameAr: attr.nameAr
-      }))
-
-      const titleEnStr = formatLocalizedText(st.titleEn || st.nameEn || st.slug || '', 'en')
-      const titleArStr = formatLocalizedText(st.titleAr || st.nameAr || st.titleEn || st.slug || '', 'ar')
-
-      return {
-        id: st.slug || st.id || 'story-type',
-        labelEn: titleEnStr || st.slug || st.id || 'Story Type',
-        labelAr: titleArStr || titleEnStr || st.slug || st.id || 'نوع القصة',
-        category: String(titleEnStr || st.slug || st.id || 'CATEGORY').toUpperCase(),
-        mediaUrl: st.coverMediaUrl 
-          || displayActivities[0]?.imageUrl 
-          || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
-        accentColor: st.accentColor || '#a855f7',
-        orderIndex: st.orderIndex ?? 0,
-        hasPublishedActivities: displayActivities.length > 0,
-        activities: displayActivities
-      }
-    })
+  }, [dbStoryTypes]);
 
   // Initialize active taxonomy from URL parameter ?story=... or default
   const paramStory = searchParams?.get('story')
-  const initialOption = options.find((o: any) => o.id === paramStory || o.category === paramStory) || options[0] || {}
+  const initialOption = options.find((o: any) => o.id === paramStory || o.category === paramStory?.toUpperCase()) || options[0] || {}
 
   const [activeId, setActiveId] = useState(initialOption.id || '')
   
@@ -115,7 +383,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
 
   useEffect(() => {
     if (paramStory && options.length > 0) {
-      const match = options.find((o: any) => o.id === paramStory || o.category === paramStory)
+      const match = options.find((o: any) => o.id === paramStory || o.category === paramStory.toUpperCase())
       if (match) setActiveId(match.id)
     }
   }, [paramStory, options])
@@ -149,134 +417,158 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         className="relative py-20 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden"
         dir={isAr ? "rtl" : "ltr"}
       >
-        <div className="relative max-w-4xl mx-auto px-4 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{isAr ? "استكشاف الحكايات والأنشطة — STORY DISCOVERY" : "STORY DISCOVERY — STORY TRACKS"}</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-[var(--surface-default)] text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-widest shadow-sm">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isAr ? "مسارات الحكايات — DIMENSIONAL DOORWAYS — استكشاف الحكايات والأنشطة" : "STORY TRACKS & DIMENSIONAL DOORWAYS — STORY DISCOVERY"}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">
-            {formatLocalizedText(
-              isAr
-                ? selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟"
-                : selector.titleEn || "What Kind of Story Do You Want Today?",
-              locale
-            )}
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
+            {isAr ? (selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟") : (selector.titleEn || "What Kind of Story Do You Want Today?")}
           </h2>
-          <div className="p-8 rounded-3xl border border-purple-500/20 bg-[var(--surface-default)] backdrop-blur-xl max-w-xl mx-auto space-y-4">
-            <p className="text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
-              {isAr
-                ? "لا توجد مسارات حكايات مفعلة حالياً. يمكنك استكشاف دليل التجارب والفعاليات بالكامل."
-                : "No story tracks currently published. You can explore our complete directory of attractions and experiences."}
-            </p>
+
+          <p className="text-sm sm:text-base text-[var(--text-secondary)] font-light max-w-xl mx-auto">
+            {isAr ? "لا توجد مسارات حكايات منشورة حالياً." : "No story tracks currently published."}
+          </p>
+
+          <div className="pt-2">
             <a
               href={localizeHref("/b2c/attractions", locale)}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-105"
             >
-              <span>{isAr ? "استكشف جميع التجارب" : "Explore All Attractions"}</span>
+              <span>{isAr ? "استكشف كافة الوجهات" : "Explore All Attractions"}</span>
+              <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
         </div>
       </section>
-    );
+    )
   }
 
-  const selectedTitle = formatLocalizedText(isAr ? activeOption.labelAr : activeOption.labelEn, locale)
-
-  const INITIAL_LIMIT = 3
-  const allActivities = activeOption.activities || []
-  const totalCount = allActivities.length
-  const visibleActivities = showAllActivities ? allActivities : allActivities.slice(0, INITIAL_LIMIT)
+  const INITIAL_LIMIT = 6
+  const totalCount = activeOption.activities?.length || 0
+  const visibleActivities = showAllActivities 
+    ? (activeOption.activities || []) 
+    : (activeOption.activities?.slice(0, INITIAL_LIMIT) || [])
   const hasMore = totalCount > INITIAL_LIMIT
 
-  return (
-    <section className="relative py-24 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.12),transparent_70%)] pointer-events-none" />
+  const selectedTitle = isAr ? activeOption.labelAr : activeOption.labelEn
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+  return (
+    <section
+      id="story-portals-section"
+      className="relative py-20 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300"
+      dir={isAr ? "rtl" : "ltr"}
+    >
+      {/* Background Decorative Glow Layer */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 dark:opacity-40">
+        <div 
+          className="absolute top-1/3 start-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full blur-[140px] transition-all duration-1000"
+          style={{ backgroundColor: activeOption.accentColor ? `${activeOption.accentColor}35` : 'rgba(168, 85, 247, 0.2)' }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-purple-950/40 text-purple-300 text-xs font-bold uppercase tracking-widest">
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{isAr ? "استكشاف الحكايات والأنشطة — مسارات الحكايات — DIMENSIONAL DOORWAYS" : "STORY TRACKS & DIMENSIONAL DOORWAYS — STORY DISCOVERY"}</span>
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-[var(--surface-default)] text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-widest shadow-sm">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isAr ? "مسارات الحكايات — DIMENSIONAL DOORWAYS — استكشاف الحكايات والأنشطة" : "STORY TRACKS & DIMENSIONAL DOORWAYS — STORY DISCOVERY"}</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)] leading-tight">
             {formatLocalizedText(isAr ? (selector.titleAr || "أي نوع من الحكايات تريد أن تعيشها اليوم؟") : (selector.titleEn || "What Kind of Story Do You Want Today?"), locale)}
           </h2>
+          
+          <p className="text-sm sm:text-base text-[var(--text-secondary)] font-light max-w-2xl mx-auto">
+            {formatLocalizedText(isAr 
+              ? (selector.descriptionAr || "اختر مسار الحكاية الذي يثير شغفك لتكشف أحدث الوجهات والتجارب الترفيهية الحية المناسبة لذوقك.") 
+              : (selector.descriptionEn || "Choose the story track that excites you to unlock active live entertainment destinations matching your mood."), locale)}
+          </p>
         </div>
 
-        {/* ============================================================ */}
-        {/* MOBILE CONTROLS BAR (< md) */}
-        {/* ============================================================ */}
-        <div className="flex md:hidden items-center justify-between px-2">
-          <span className="text-xs font-mono font-bold text-purple-500 dark:text-purple-300 uppercase tracking-widest">
-            {isAr ? "اسحب لاختيار الحكاية" : "Swipe to choose story"}
-          </span>
+        {/* Desktop Carousel Navigation Controls */}
+        <div className="flex items-center justify-between pb-2">
+          <div className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text-secondary)]">
+            {isAr ? "تصفح مسارات الحكايات" : "EXPLORE STORY TRACKS"} ({options.length})
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => scrollMobile('left')}
-              className="w-8 h-8 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-primary)] active:scale-90 transition-transform shadow-sm"
-              aria-label="Previous story doorway"
+              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs"
+              aria-label="Scroll left"
             >
               {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
             <button
               onClick={() => scrollMobile('right')}
-              className="w-8 h-8 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-primary)] active:scale-90 transition-transform shadow-sm"
-              aria-label="Next story doorway"
+              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs"
+              aria-label="Scroll right"
             >
               {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        {/* ============================================================ */}
-        {/* DIMENSIONAL DOORWAYS TRACK CONTAINER (DESKTOP & MOBILE SWIPE) */}
-        {/* ============================================================ */}
+        {/* 6 High-Energy Horizontal Doorways Cards */}
         <div
           ref={mobileScrollRef}
-          className="flex flex-nowrap md:flex-wrap md:justify-center items-center gap-4.5 mx-auto max-w-6xl overflow-x-auto md:overflow-visible pb-4 md:pb-0 scroll-smooth snap-x snap-mandatory scrollbar-none [perspective:1000px]"
+          className="flex items-stretch gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 snap-x no-scrollbar"
         >
-          {options.map((option: any) => {
-            const isSelected = option.id === activeId
-            const labelText = formatLocalizedText(isAr ? option.labelAr : option.labelEn, locale)
+          {options.map((option) => {
+            const isSelected = activeId === option.id
+            const labelText = isAr ? option.labelAr : option.labelEn
 
             return (
               <button
                 key={option.id}
-                onMouseEnter={() => handleSelect(option)}
-                onFocus={() => handleSelect(option)}
+                type="button"
                 onClick={() => handleSelect(option)}
-                className={`group relative aspect-[3/4] w-[170px] sm:w-44 md:w-48 flex-shrink-0 md:flex-1 min-w-[155px] max-w-[210px] rounded-3xl overflow-hidden border transition-all duration-500 flex flex-col justify-between p-5 text-start cursor-pointer snap-center focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400 ${
+                className={`group relative flex-1 min-w-[170px] sm:min-w-[190px] h-72 sm:h-80 rounded-3xl p-5 sm:p-6 flex flex-col justify-between text-start overflow-hidden border transition-all duration-500 cursor-pointer snap-start focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${
                   isSelected
-                    ? 'border-purple-400 bg-purple-950/70 shadow-2xl shadow-purple-950/40 scale-105 z-10'
-                    : 'border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-purple-400/50 hover:bg-[var(--surface-hover)] shadow-md'
+                    ? 'border-transparent ring-2 shadow-2xl scale-[1.03] z-10'
+                    : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/60 hover:border-purple-500/40 hover:bg-[var(--surface-default)] shadow-md hover:scale-[1.01]'
                 }`}
                 style={{
-                  transform: isSelected && !isReducedMotion ? 'translateZ(16px)' : 'translateZ(0px)',
-                  borderColor: isSelected ? option.accentColor : undefined,
-                  boxShadow: isSelected ? `0 0 35px ${option.accentColor}40` : undefined,
+                  ringColor: isSelected ? option.accentColor : undefined,
+                  boxShadow: isSelected ? `0 20px 40px -15px ${option.accentColor}50` : undefined
                 }}
               >
-                {/* Media Mask Background with Depth Reveal */}
+                {/* Background Image / Ambient Artwork */}
                 <div className="absolute inset-0 z-0 overflow-hidden">
                   <img
                     src={option.mediaUrl}
                     alt={labelText}
-                    className={`w-full h-full object-cover transition-all duration-700 ${
-                      isSelected ? 'opacity-65 scale-110' : 'opacity-30 dark:opacity-25 group-hover:opacity-50 group-hover:scale-105'
+                    className={`w-full h-full object-cover transition-transform duration-700 ${
+                      isSelected ? 'scale-110 opacity-45' : 'opacity-25 group-hover:opacity-35 group-hover:scale-105'
                     }`}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/60 to-transparent" />
+                  <div className={`absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/75 to-transparent transition-opacity ${
+                    isSelected ? 'opacity-90' : 'opacity-95'
+                  }`} />
                 </div>
 
-                {/* Top Doorway Category Badge */}
-                <div className="relative z-10 flex items-center justify-between">
+                {/* Accent glow on selected */}
+                {isSelected && (
+                  <div 
+                    className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+                    style={{ backgroundColor: option.accentColor }}
+                  />
+                )}
+
+                {/* Top Badge: Category Identifier & Open Icon */}
+                <div className="relative z-10 flex items-center justify-between w-full">
                   <span 
-                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md transition-colors shadow-sm"
-                    style={isSelected ? { backgroundColor: option.accentColor, color: '#fff' } : { backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border shadow-xs transition-colors"
+                    style={{
+                      backgroundColor: isSelected ? option.accentColor : 'var(--surface-default)',
+                      color: isSelected ? '#ffffff' : option.accentColor,
+                      borderColor: isSelected ? option.accentColor : 'var(--border-level-2)'
+                    }}
                   >
-                    {formatLocalizedText(option.category, locale)}
+                    {labelText}
                   </span>
+
                   <ArrowUpRight
                     className={`w-4 h-4 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}`}
                     style={isSelected ? { color: option.accentColor } : {}}
@@ -342,7 +634,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                   return (
                     <a
                       key={act.id || idx}
-                      href={localizeHref(`/b2c/attractions/${act.attractionSlug}`, locale)}
+                      href={localizeHref(`/b2c/attractions/${act.attractionSlug || 'all'}`, locale)}
                       className="group relative overflow-hidden rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 flex flex-col justify-between min-h-[220px] w-full max-w-sm flex-1 min-w-[280px] transition-all duration-500 hover:border-purple-500/50 hover:bg-[var(--surface-hover)] hover:shadow-2xl hover:-translate-y-1 shadow-md"
                     >
                       {/* Background Image overlay */}
