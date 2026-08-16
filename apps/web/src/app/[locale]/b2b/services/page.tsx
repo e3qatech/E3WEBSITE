@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+import { LivingHeroHeadline } from '@/components/b2b/shared/LivingHeroHeadline'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { cn } from '@/lib/utils'
 import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
@@ -213,9 +214,20 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 </div>
               )}
 
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-xl">
-                {heroTitle}
-              </h1>
+              <div className="mb-6">
+                <LivingHeroHeadline
+                  headlineTemplateEn={hero.headlineTemplateEn || hero.fixedHeadlineEn || hero.titleEn || hero.title || "Specialised Capabilities for {{animated}}"}
+                  headlineTemplateAr={hero.headlineTemplateAr || hero.fixedHeadlineAr || hero.titleAr || hero.title || "قدرات تخصصية لصناعة {{animated}}"}
+                  rotatingWordsEn={hero.rotatingWordsEn}
+                  rotatingWordsAr={hero.rotatingWordsAr}
+                  enableRotatingWords={hero.enableRotatingWords !== false}
+                  animationSpeed={hero.animationSpeed || 2800}
+                  locale={locale}
+                  align={isAr ? "start" : "start"}
+                  className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] drop-shadow-xl"
+                  gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
+                />
+              </div>
 
               {heroSubtitle && (
                 <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-3xl mb-10 leading-relaxed">

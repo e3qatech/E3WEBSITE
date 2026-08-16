@@ -5,6 +5,7 @@ import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { Plus, Trash2, ArrowUp, ArrowDown, Save } from "lucide-react"
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor"
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -124,123 +125,72 @@ export function B2BServicesEditor({
       />
 
       <AdminFormLayout>
-        {/* 1. HERO SECTION */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <div className="flex items-center justify-between border-b border-border-default pb-4">
-            <h2 className="text-lg font-bold text-text-primary">1. Hero Section</h2>
-            <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
-              <input 
-                type="checkbox"
-                checked={data.hero?.enabled !== false}
-                onChange={e => updateSection('hero', 'enabled', e.target.checked)}
-                className="w-4 h-4 text-primary rounded"
-              />
-              <span>Section Enabled</span>
-            </label>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Eyebrow Badge ({activeLang.toUpperCase()})</label>
-              <input 
-                type="text" 
-                dir={activeLang === 'ar' ? 'rtl' : 'ltr'}
-                value={activeLang === 'en' ? (data.hero?.eyebrowEn || "") : (data.hero?.eyebrowAr || "")}
-                onChange={e => updateSection('hero', activeLang === 'en' ? 'eyebrowEn' : 'eyebrowAr', e.target.value)}
-                placeholder="e.g. E3 ENTERPRISE CAPABILITIES"
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Headline ({activeLang.toUpperCase()})</label>
-              <input 
-                type="text" 
-                dir={activeLang === 'ar' ? 'rtl' : 'ltr'}
-                value={activeLang === 'en' ? (data.hero?.titleEn || data.hero?.title || "") : (data.hero?.titleAr || "")}
-                onChange={e => updateSection('hero', activeLang === 'en' ? 'titleEn' : 'titleAr', e.target.value)}
-                placeholder="e.g. Services That Build Living Experience Landmarks."
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle ({activeLang.toUpperCase()})</label>
-              <textarea 
-                dir={activeLang === 'ar' ? 'rtl' : 'ltr'}
-                value={activeLang === 'en' ? (data.hero?.subtitleEn || data.hero?.subtitle || "") : (data.hero?.subtitleAr || "")}
-                onChange={e => updateSection('hero', activeLang === 'en' ? 'subtitleEn' : 'subtitleAr', e.target.value)}
-                className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Supporting Description ({activeLang.toUpperCase()})</label>
-              <textarea 
-                dir={activeLang === 'ar' ? 'rtl' : 'ltr'}
-                value={activeLang === 'en' ? (data.hero?.descriptionEn || data.hero?.description || "") : (data.hero?.descriptionAr || "")}
-                onChange={e => updateSection('hero', activeLang === 'en' ? 'descriptionEn' : 'descriptionAr', e.target.value)}
-                className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-6 pt-4 border-t border-border-default">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Hero Media Type</label>
-              <select 
-                value={data.hero?.mediaType || "IMAGE"}
-                onChange={e => updateSection('hero', 'mediaType', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              >
-                <option value="IMAGE">Image</option>
-                <option value="VIDEO">Video</option>
-                <option value="SPLINE">Spline / 3D Scene</option>
-                <option value="IFRAME">iFrame Embed</option>
-              </select>
-            </div>
-            <div className="col-span-2 space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Desktop Media URL</label>
-              {['IFRAME', 'SPLINE'].includes(data.hero?.mediaType) ? (
-                <input 
-                  type="text" 
-                  value={data.hero?.mediaUrl || ""}
-                  onChange={e => updateSection('hero', 'mediaUrl', e.target.value)}
-                  placeholder="https://..."
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              ) : (
-                <MediaUploader 
-                  value={data.hero?.mediaUrl || ""} 
-                  onChange={url => updateSection('hero', 'mediaUrl', url)} 
-                  accept={data.hero?.mediaType === 'VIDEO' ? "video/*" : "image/*"}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border-default">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Label ({activeLang.toUpperCase()})</label>
-              <input 
-                type="text" 
-                dir={activeLang === 'ar' ? 'rtl' : 'ltr'}
-                value={activeLang === 'en' ? (data.hero?.primaryCtaEn || "") : (data.hero?.primaryCtaAr || "")}
-                onChange={e => updateSection('hero', activeLang === 'en' ? 'primaryCtaEn' : 'primaryCtaAr', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Link</label>
-              <input 
-                type="text" 
-                value={data.hero?.primaryLink || "#capability-navigator"}
-                onChange={e => updateSection('hero', 'primaryLink', e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-              />
-            </div>
-          </div>
+        {/* 1. HERO SECTION & TWO-LINE LIVING HEADLINE COMPOSER */}
+        <div id="hero" className="space-y-6">
+          <E3LivingHeroEditor
+            title="Two-Line Living Hero Headline Composer & Atmospheric Media"
+            description="Configure the dynamic two-line headline with kinetic {{animated}} token, rotating capabilities, background media, and CTAs."
+            value={{
+              eyebrowEn: data.hero?.eyebrowEn || "E3 ENTERPRISE CAPABILITIES",
+              eyebrowAr: data.hero?.eyebrowAr || "قدرات إي ثري لقطاع الأعمال",
+              fixedHeadlineEn: data.hero?.titleEn || data.hero?.title || "Services That Build Living Experience Landmarks.",
+              fixedHeadlineAr: data.hero?.titleAr || "خدمات متكاملة تصنع معالم ترفيهية حية.",
+              headlineTemplateEn: data.hero?.headlineTemplateEn || data.hero?.titleEn || data.hero?.title || "Specialised Capabilities for {{animated}}",
+              headlineTemplateAr: data.hero?.headlineTemplateAr || data.hero?.titleAr || "قدرات تخصصية لصناعة {{animated}}",
+              rotatingWordsEn: data.hero?.rotatingWordsEn || ["Living Landmarks", "Dynamic Environments", "Flawless Operations", "Extraordinary Impact"],
+              rotatingWordsAr: data.hero?.rotatingWordsAr || ["معالم حية", "بيئات ديناميكية", "عمليات سلسة", "أثر استثنائي"],
+              descriptionEn: data.hero?.descriptionEn || data.hero?.subtitleEn || data.hero?.subtitle,
+              descriptionAr: data.hero?.descriptionAr || data.hero?.subtitleAr,
+              primaryCta: {
+                labelEn: data.hero?.primaryCtaEn || "Explore Capabilities",
+                labelAr: data.hero?.primaryCtaAr || "استكشف القدرات",
+                url: data.hero?.primaryLink || "#capability-navigator"
+              },
+              secondaryCta: {
+                labelEn: data.hero?.secondaryCtaEn || "Initiate RFP",
+                labelAr: data.hero?.secondaryCtaAr || "تقديم طلب مشروع",
+                url: data.hero?.secondaryLink || "/b2b/contact"
+              },
+              preset: (data.hero?.preset as any) || "memory-engine",
+              animationSpeed: data.hero?.animationSpeed || 2800,
+              animationDuration: data.hero?.animationDuration || 600,
+              animationType: data.hero?.animationType || "blur-morph",
+              wordStyle: data.hero?.wordStyle || "static-gradient",
+              enableRotatingWords: data.hero?.enableRotatingWords !== false,
+              media: data.hero?.media || {
+                mediaType: (data.hero?.mediaType as any) || "IMAGE",
+                mediaUrl: data.hero?.mediaUrl || "/hero-b2b.jpg"
+              }
+            }}
+            onChange={(updatedHero) => {
+              setIsDirty(true);
+              setData((prev: any) => ({
+                ...prev,
+                hero: {
+                  ...(prev.hero || {}),
+                  ...updatedHero,
+                  titleEn: updatedHero.fixedHeadlineEn || prev.hero?.titleEn,
+                  titleAr: updatedHero.fixedHeadlineAr || prev.hero?.titleAr,
+                  headlineTemplateEn: updatedHero.headlineTemplateEn,
+                  headlineTemplateAr: updatedHero.headlineTemplateAr,
+                  rotatingWordsEn: updatedHero.rotatingWordsEn,
+                  rotatingWordsAr: updatedHero.rotatingWordsAr,
+                  subtitleEn: updatedHero.descriptionEn || prev.hero?.subtitleEn,
+                  subtitleAr: updatedHero.descriptionAr || prev.hero?.subtitleAr,
+                  descriptionEn: updatedHero.descriptionEn || prev.hero?.descriptionEn,
+                  descriptionAr: updatedHero.descriptionAr || prev.hero?.descriptionAr,
+                  mediaType: updatedHero.media?.mediaType || prev.hero?.mediaType || "IMAGE",
+                  mediaUrl: updatedHero.media?.mediaUrl || prev.hero?.mediaUrl,
+                  primaryCtaEn: updatedHero.primaryCta?.labelEn || prev.hero?.primaryCtaEn,
+                  primaryCtaAr: updatedHero.primaryCta?.labelAr || prev.hero?.primaryCtaAr,
+                  primaryLink: updatedHero.primaryCta?.url || prev.hero?.primaryLink,
+                  secondaryCtaEn: updatedHero.secondaryCta?.labelEn || prev.hero?.secondaryCtaEn,
+                  secondaryCtaAr: updatedHero.secondaryCta?.labelAr || prev.hero?.secondaryCtaAr,
+                  secondaryLink: updatedHero.secondaryCta?.url || prev.hero?.secondaryLink,
+                }
+              }));
+            }}
+          />
         </div>
 
         {/* 2. CAPABILITY COUNT STATEMENT */}

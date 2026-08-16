@@ -11,6 +11,7 @@ import { Reveal } from '@/components/motion/Reveal'
 import { SplitHeadline } from '@/components/motion/SplitHeadline'
 import { B2BBlueprintDepthSection } from '@/components/b2b/home/B2BBlueprintDepthSection'
 import { B2BInteractiveCta } from '@/components/b2b/home/B2BInteractiveCta'
+import { LivingHeroHeadline } from '@/components/b2b/shared/LivingHeroHeadline'
 import { getPublicCaseStudies } from '@/lib/case-studies'
 import { filterAndResolvePublicPartners } from '@/lib/partners/partner-resolver'
 
@@ -263,13 +264,23 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               </div>
             </Reveal>
 
-            {/* Display Headline */}
-            <SplitHeadline
-              text={hero.title}
-              as="h1"
-              delay={0.05}
-              className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] mb-6 drop-shadow-lg"
-            />
+            {/* Two-Line Living Kinetic Headline */}
+            <Reveal direction="fade" delay={0.05}>
+              <div className="mb-6">
+                <LivingHeroHeadline
+                  headlineTemplateEn={content.hero?.headlineTemplateEn || content.hero?.fixedHeadlineEn || content.hero?.titleEn || content.hero?.title || "Ideas to {{animated}}"}
+                  headlineTemplateAr={content.hero?.headlineTemplateAr || content.hero?.fixedHeadlineAr || content.hero?.titleAr || content.hero?.title || "تحويل الأفكار إلى {{animated}}"}
+                  rotatingWordsEn={content.hero?.rotatingWordsEn}
+                  rotatingWordsAr={content.hero?.rotatingWordsAr}
+                  enableRotatingWords={content.hero?.enableRotatingWords !== false}
+                  animationSpeed={content.hero?.animationSpeed || 2800}
+                  locale={locale}
+                  align={isAr ? "start" : "start"}
+                  className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] drop-shadow-lg"
+                  gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
+                />
+              </div>
+            </Reveal>
 
             {/* Subtitle */}
             <Reveal direction="slide-up" delay={0.15}>

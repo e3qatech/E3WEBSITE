@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, Trophy } from "lucide-react";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
+import { LivingHeroHeadline } from "@/components/b2b/shared/LivingHeroHeadline";
 
 export interface CaseStudiesHeroProps {
   hero: {
@@ -12,6 +13,14 @@ export interface CaseStudiesHeroProps {
     eyebrowAr?: string;
     titleEn?: string;
     titleAr?: string;
+    fixedHeadlineEn?: string;
+    fixedHeadlineAr?: string;
+    headlineTemplateEn?: string;
+    headlineTemplateAr?: string;
+    rotatingWordsEn?: string[];
+    rotatingWordsAr?: string[];
+    enableRotatingWords?: boolean;
+    animationSpeed?: number;
     subtitleEn?: string;
     subtitleAr?: string;
     descriptionEn?: string;
@@ -112,9 +121,20 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.04] mb-6 drop-shadow-2xl">
-            {title}
-          </h1>
+          <div className="mb-6">
+            <LivingHeroHeadline
+              headlineTemplateEn={hero.headlineTemplateEn || hero.fixedHeadlineEn || hero.titleEn || "Ideas Are Powerful. Results Make Them {{animated}}"}
+              headlineTemplateAr={hero.headlineTemplateAr || hero.fixedHeadlineAr || hero.titleAr || "الأفكار تصنع الإمكانات. والنتائج تجعلها {{animated}}"}
+              rotatingWordsEn={hero.rotatingWordsEn}
+              rotatingWordsAr={hero.rotatingWordsAr}
+              enableRotatingWords={hero.enableRotatingWords !== false}
+              animationSpeed={hero.animationSpeed || 2800}
+              locale={locale}
+              align={isAr ? "start" : "start"}
+              className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.04] drop-shadow-2xl"
+              gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
+            />
+          </div>
 
           <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-3xl leading-relaxed mb-4">
             {subtitle}

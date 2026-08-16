@@ -10,6 +10,7 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { Save } from "lucide-react"
 
 import { AdminSeoCustomizer } from "@/components/dashboard/ui/AdminSeoCustomizer"
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor"
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -132,89 +133,72 @@ export function B2BHomeEditor({
       <AdminFormLayout>
       <div className="space-y-8">
 
-        {/* HERO SECTION */}
-        <AdminFormSection id="hero" title="Hero Section" description="The main introduction at the top of the page.">
-          <AdminFormGrid>
-            <div className="sm:col-span-2 space-y-2">
-              <label className="block text-sm font-semibold text-text-primary">Hero Background Media Type</label>
-              <select
-                value={hero.mediaType || "IMAGE"}
-                onChange={e => setHero({ ...hero, mediaType: e.target.value })}
-                className="w-full bg-surface-hover border border-border-default rounded-md px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none mb-2"
-              >
-                <option value="IMAGE">Image</option>
-                <option value="VIDEO">Uploaded Video File</option>
-                <option value="YOUTUBE">YouTube Video URL</option>
-                <option value="VIMEO">Vimeo Video URL</option>
-                <option value="IFRAME">External iFrame</option>
-                <option value="SPLINE">Spline / 3D Scene</option>
-              </select>
-
-              {(hero.mediaType === 'IFRAME' || hero.mediaType === 'SPLINE' || hero.mediaType === 'YOUTUBE' || hero.mediaType === 'VIMEO') ? (
-                <input 
-                  type="text" 
-                  value={hero.mediaUrl || ''} 
-                  onChange={e => setHero({ ...hero, mediaUrl: e.target.value })} 
-                  placeholder="https://www.youtube.com/watch?v=... or https://..." 
-                  className="w-full bg-surface-hover border border-border-default rounded-md px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              ) : (
-                <AdminMediaPicker
-                  label="Upload Media"
-                  value={hero.mediaUrl || hero.backgroundImage || ""}
-                  onChange={url => setHero({ ...hero, mediaUrl: url, backgroundImage: url })}
-                  accept={hero.mediaType === 'VIDEO' ? 'video/*' : 'image/*'}
-                />
-              )}
-            </div>
-            <div className="sm:col-span-2">
-              <AdminInput 
-                label="Headline" 
-                value={activeLang === 'en' ? (hero.title || "") : (hero.titleAr || "")} 
-                onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'title' : 'titleAr']: e.target.value })} 
-                placeholder="e.g. Ideas to Life"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <AdminTextarea 
-                label="Subtitle" 
-                value={activeLang === 'en' ? (hero.subtitle || "") : (hero.subtitleAr || "")} 
-                onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'subtitle' : 'subtitleAr']: e.target.value })} 
-                placeholder="Short punchy text"
-                rows={2}
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <AdminTextarea 
-                label="Description" 
-                value={activeLang === 'en' ? (hero.description || "") : (hero.descriptionAr || "")} 
-                onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'description' : 'descriptionAr']: e.target.value })} 
-                placeholder="Longer descriptive text..."
-                rows={3}
-              />
-            </div>
-            <AdminInput 
-              label="Primary CTA Label" 
-              value={activeLang === 'en' ? (hero.primaryCta || "") : (hero.primaryCtaAr || "")} 
-              onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'primaryCta' : 'primaryCtaAr']: e.target.value })} 
-            />
-            <AdminInput 
-              label="Primary CTA Link" 
-              value={hero.primaryLink || ""} 
-              onChange={e => setHero({ ...hero, primaryLink: e.target.value })} 
-            />
-            <AdminInput 
-              label="Secondary CTA Label" 
-              value={activeLang === 'en' ? (hero.secondaryCta || "") : (hero.secondaryCtaAr || "")} 
-              onChange={e => setHero({ ...hero, [activeLang === 'en' ? 'secondaryCta' : 'secondaryCtaAr']: e.target.value })} 
-            />
-            <AdminInput 
-              label="Secondary CTA Link" 
-              value={hero.secondaryLink || ""} 
-              onChange={e => setHero({ ...hero, secondaryLink: e.target.value })} 
-            />
-          </AdminFormGrid>
-        </AdminFormSection>
+        {/* 1. HERO SECTION & TWO-LINE LIVING HEADLINE COMPOSER */}
+        <div id="hero" className="space-y-6">
+          <E3LivingHeroEditor
+            title="Two-Line Living Hero Headline Composer & Atmospheric Media"
+            description="Compose kinetic two-line living headlines with {{animated}} token interpolation, rotating words, custom atmospheric media, and interactive CTAs."
+            value={{
+              eyebrowEn: hero.eyebrowEn || hero.eyebrow || "E3 ENTERPRISE ATELIER",
+              eyebrowAr: hero.eyebrowAr || hero.eyebrow || "منظومة إي ثري لقطاع الأعمال",
+              fixedHeadlineEn: hero.title || hero.fixedHeadlineEn || hero.titleEn || "Ideas to Life",
+              fixedHeadlineAr: hero.titleAr || hero.fixedHeadlineAr || "تحويل الأفكار إلى واقع",
+              headlineTemplateEn: hero.headlineTemplateEn || hero.title || hero.titleEn || "Ideas to {{animated}}",
+              headlineTemplateAr: hero.headlineTemplateAr || hero.titleAr || "تحويل الأفكار إلى {{animated}}",
+              rotatingWordsEn: hero.rotatingWordsEn || ["Reality", "Living Landmarks", "Iconic Spectacles", "Unforgettable Impact"],
+              rotatingWordsAr: hero.rotatingWordsAr || ["واقع حي", "تجارب ملهمة", "مشاريع استثنائية", "إنجازات فارقة"],
+              descriptionEn: hero.description || hero.subtitle || hero.descriptionEn,
+              descriptionAr: hero.descriptionAr || hero.subtitleAr || hero.descriptionAr,
+              primaryCta: typeof hero.primaryCta === 'object' ? hero.primaryCta : {
+                labelEn: hero.primaryCta || hero.primaryCtaEn || "Explore Services",
+                labelAr: hero.primaryCtaAr || hero.primaryCta || "استكشف الخدمات",
+                url: hero.primaryLink || "/b2b/services"
+              },
+              secondaryCta: typeof hero.secondaryCta === 'object' ? hero.secondaryCta : {
+                labelEn: hero.secondaryCta || hero.secondaryCtaEn || "Start a Project",
+                labelAr: hero.secondaryCtaAr || hero.secondaryCta || "ابدأ مشروعاً",
+                url: hero.secondaryLink || "/b2b/contact"
+              },
+              preset: (hero.preset as any) || "memory-engine",
+              animationSpeed: hero.animationSpeed || 2800,
+              animationDuration: hero.animationDuration || 600,
+              animationType: hero.animationType || "blur-morph",
+              wordStyle: hero.wordStyle || "static-gradient",
+              enableRotatingWords: hero.enableRotatingWords !== false,
+              media: hero.media || {
+                mediaType: (hero.mediaType as any) || "IMAGE",
+                mediaUrl: hero.mediaUrl || hero.backgroundImage || "/hero-b2b.jpg"
+              }
+            }}
+            onChange={(updatedHero) => {
+              setIsDirty(true);
+              setHero((prev: any) => ({
+                ...prev,
+                ...updatedHero,
+                title: updatedHero.fixedHeadlineEn || prev.title,
+                titleEn: updatedHero.fixedHeadlineEn || prev.titleEn,
+                titleAr: updatedHero.fixedHeadlineAr || prev.titleAr,
+                headlineTemplateEn: updatedHero.headlineTemplateEn,
+                headlineTemplateAr: updatedHero.headlineTemplateAr,
+                rotatingWordsEn: updatedHero.rotatingWordsEn,
+                rotatingWordsAr: updatedHero.rotatingWordsAr,
+                description: updatedHero.descriptionEn || prev.description,
+                descriptionAr: updatedHero.descriptionAr || prev.descriptionAr,
+                subtitle: updatedHero.descriptionEn || prev.subtitle,
+                subtitleAr: updatedHero.descriptionAr || prev.descriptionAr,
+                mediaType: updatedHero.media?.mediaType || prev.mediaType || "IMAGE",
+                mediaUrl: updatedHero.media?.mediaUrl || prev.mediaUrl,
+                backgroundImage: updatedHero.media?.mediaUrl || prev.backgroundImage,
+                primaryCta: updatedHero.primaryCta?.labelEn || prev.primaryCta,
+                primaryCtaAr: updatedHero.primaryCta?.labelAr || prev.primaryCtaAr,
+                primaryLink: updatedHero.primaryCta?.url || prev.primaryLink,
+                secondaryCta: updatedHero.secondaryCta?.labelEn || prev.secondaryCta,
+                secondaryCtaAr: updatedHero.secondaryCta?.labelAr || prev.secondaryCtaAr,
+                secondaryLink: updatedHero.secondaryCta?.url || prev.secondaryLink,
+              }));
+            }}
+          />
+        </div>
 
         {/* STATS SECTION */}
         <AdminFormSection id="stats" title="Credibility Stats" description="The statistics displayed prominently on the board.">

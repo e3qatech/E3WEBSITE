@@ -7,6 +7,7 @@ import { useToast } from "@/components/dashboard/ui/ToastProvider"
 import { MediaUploader } from "@/components/shared/MediaUploader"
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
 import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Flame, BarChart3, CheckSquare, Save } from "lucide-react"
+import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor"
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -332,245 +333,74 @@ export function B2BCasesEditor({
       />
 
       <AdminFormLayout>
-        {/* 1. HERO SECTION */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
-          <div className="flex items-center justify-between border-b border-border-default pb-4">
-            <div className="flex items-center gap-2.5">
-              <Layers className="w-5 h-5 text-emerald-400" />
-              <h2 className="text-lg font-bold text-text-primary">1. Cinematic Hero Section</h2>
-            </div>
-            <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={data.hero?.enabled !== false} 
-                onChange={e => handleChange('hero', 'enabled', e.target.checked)}
-                className="rounded bg-surface-hover border-border-default text-emerald-500 focus:ring-0"
-              />
-              <span>SECTION ENABLED</span>
-            </label>
-          </div>
-
-          <div className="space-y-4">
-            {/* Eyebrow */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Eyebrow (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.eyebrowEn || ""}
-                  onChange={e => handleChange('hero', 'eyebrowEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Eyebrow (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero?.eyebrowAr || ""}
-                  onChange={e => handleChange('hero', 'eyebrowAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Headline */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Headline (En)</label>
-                <input 
-                  type="text" 
-                  value={data.hero?.titleEn || ""}
-                  onChange={e => handleChange('hero', 'titleEn', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none font-bold"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Headline (Ar)</label>
-                <input 
-                  type="text" 
-                  dir="rtl"
-                  value={data.hero?.titleAr || ""}
-                  onChange={e => handleChange('hero', 'titleAr', e.target.value)}
-                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none font-bold"
-                />
-              </div>
-            </div>
-
-            {/* Subtitle */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
-                <textarea 
-                  value={data.hero?.subtitleEn || ""}
-                  onChange={e => handleChange('hero', 'subtitleEn', e.target.value)}
-                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.hero?.subtitleAr || ""}
-                  onChange={e => handleChange('hero', 'subtitleAr', e.target.value)}
-                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Detailed Description */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (En)</label>
-                <textarea 
-                  value={data.hero?.descriptionEn || ""}
-                  onChange={e => handleChange('hero', 'descriptionEn', e.target.value)}
-                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Description (Ar)</label>
-                <textarea 
-                  dir="rtl"
-                  value={data.hero?.descriptionAr || ""}
-                  onChange={e => handleChange('hero', 'descriptionAr', e.target.value)}
-                  className="w-full h-20 bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Media Controls */}
-            <div className="space-y-4 pt-4 border-t border-border-default">
-              <div className="grid grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Hero Media Type</label>
-                  <select 
-                    value={data.hero?.mediaType || "IMAGE"}
-                    onChange={e => handleChange('hero', 'mediaType', e.target.value)}
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
-                  >
-                    <option value="IMAGE">Image</option>
-                    <option value="VIDEO">Video</option>
-                    <option value="IFRAME">iFrame Embed</option>
-                    <option value="SPLINE">Spline 3D Scene</option>
-                    <option value="THREE_D">3D Model (GLTF)</option>
-                  </select>
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Desktop Media URL & Upload</label>
-                  <MediaUploader 
-                    value={data.hero?.mediaUrl || ""} 
-                    onChange={url => handleChange('hero', 'mediaUrl', url)} 
-                    accept={data.hero?.mediaType === 'VIDEO' ? "video/*" : "image/*"}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Mobile Media URL & Upload (Optional Fallback)</label>
-                  <MediaUploader 
-                    value={data.hero?.mobileMediaUrl || ""} 
-                    onChange={url => handleChange('hero', 'mobileMediaUrl', url)} 
-                    accept={data.hero?.mediaType === 'VIDEO' ? "video/*" : "image/*"}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Poster / Fallback Image URL & Upload</label>
-                  <MediaUploader 
-                    value={data.hero?.posterImage || ""} 
-                    onChange={url => handleChange('hero', 'posterImage', url)} 
-                    accept="image/*"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 w-72">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Overlay Darkening Strength ({data.hero?.overlayStrength ?? 70}%)</label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="100" 
-                  value={data.hero?.overlayStrength ?? 70} 
-                  onChange={e => handleChange('hero', 'overlayStrength', parseInt(e.target.value))}
-                  className="w-full h-2 bg-surface-hover rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                />
-              </div>
-            </div>
-
-            {/* CTAs */}
-            <div className="space-y-4 pt-4 border-t border-border-default">
-              <div className="grid grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Text (En)</label>
-                  <input 
-                    type="text" 
-                    value={data.hero?.primaryCtaEn || ""}
-                    onChange={e => handleChange('hero', 'primaryCtaEn', e.target.value)}
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary CTA Text (Ar)</label>
-                  <input 
-                    type="text" 
-                    dir="rtl"
-                    value={data.hero?.primaryCtaAr || ""}
-                    onChange={e => handleChange('hero', 'primaryCtaAr', e.target.value)}
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Primary Destination Link</label>
-                  <input 
-                    type="text" 
-                    value={data.hero?.primaryLink || ""}
-                    onChange={e => handleChange('hero', 'primaryLink', e.target.value)}
-                    placeholder="/b2b/contact, #archive, or https://..."
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-                  />
-                  {data.hero?.primaryLink && !['/', '#', 'http'].some(prefix => data.hero.primaryLink.trim().startsWith(prefix)) && (
-                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with &apos;/&apos;, &apos;#&apos;, or &apos;https://&apos;</div>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Secondary CTA Text (En)</label>
-                  <input 
-                    type="text" 
-                    value={data.hero?.secondaryCtaEn || ""}
-                    onChange={e => handleChange('hero', 'secondaryCtaEn', e.target.value)}
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Secondary CTA Text (Ar)</label>
-                  <input 
-                    type="text" 
-                    dir="rtl"
-                    value={data.hero?.secondaryCtaAr || ""}
-                    onChange={e => handleChange('hero', 'secondaryCtaAr', e.target.value)}
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Secondary Destination Link</label>
-                  <input 
-                    type="text" 
-                    value={data.hero?.secondaryLink || ""}
-                    onChange={e => handleChange('hero', 'secondaryLink', e.target.value)}
-                    placeholder="/b2b/contact, #archive, or https://..."
-                    className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary"
-                  />
-                  {data.hero?.secondaryLink && !['/', '#', 'http'].some(prefix => data.hero.secondaryLink.trim().startsWith(prefix)) && (
-                    <div className="text-[11px] font-bold text-amber-400">Warning: Destination should start with &apos;/&apos;, &apos;#&apos;, or &apos;https://&apos;</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* 1. HERO SECTION & TWO-LINE LIVING HEADLINE COMPOSER */}
+        <div id="hero" className="space-y-6">
+          <E3LivingHeroEditor
+            title="Two-Line Living Hero Headline Composer & Atmospheric Media"
+            description="Configure the landmark cases living headline with {{animated}} token interpolation, rotating words, custom atmospheric media, and interactive CTAs."
+            value={{
+              eyebrowEn: data.hero?.eyebrowEn || "THE VAULT",
+              eyebrowAr: data.hero?.eyebrowAr || "سجل الإنجازات",
+              fixedHeadlineEn: data.hero?.titleEn || data.hero?.title || "Ideas Are Powerful. Results Make Them Real.",
+              fixedHeadlineAr: data.hero?.titleAr || "الأفكار تصنع الإمكانات. والنتائج تثبتها.",
+              headlineTemplateEn: data.hero?.headlineTemplateEn || data.hero?.titleEn || data.hero?.title || "Ideas Are Powerful. Results Make Them {{animated}}",
+              headlineTemplateAr: data.hero?.headlineTemplateAr || data.hero?.titleAr || "الأفكار تصنع الإمكانات. والنتائج تجعلها {{animated}}",
+              rotatingWordsEn: data.hero?.rotatingWordsEn || ["Real", "Iconic", "Measurable", "Extraordinary"],
+              rotatingWordsAr: data.hero?.rotatingWordsAr || ["حقيقية", "أيقونية", "ذات أثر ملموس", "استثنائية"],
+              descriptionEn: data.hero?.descriptionEn || data.hero?.subtitleEn || data.hero?.subtitle,
+              descriptionAr: data.hero?.descriptionAr || data.hero?.subtitleAr,
+              primaryCta: {
+                labelEn: data.hero?.primaryCtaEn || "Explore Our Work",
+                labelAr: data.hero?.primaryCtaAr || "استكشف أعمالنا",
+                url: data.hero?.primaryLink || "#archive"
+              },
+              secondaryCta: {
+                labelEn: data.hero?.secondaryCtaEn || "Start a Project",
+                labelAr: data.hero?.secondaryCtaAr || "ابدأ مشروعك",
+                url: data.hero?.secondaryLink || "/b2b/contact"
+              },
+              preset: (data.hero?.preset as any) || "memory-engine",
+              animationSpeed: data.hero?.animationSpeed || 2800,
+              animationDuration: data.hero?.animationDuration || 600,
+              animationType: data.hero?.animationType || "blur-morph",
+              wordStyle: data.hero?.wordStyle || "static-gradient",
+              enableRotatingWords: data.hero?.enableRotatingWords !== false,
+              media: data.hero?.media || {
+                mediaType: (data.hero?.mediaType as any) || "IMAGE",
+                mediaUrl: data.hero?.mediaUrl || "/hero-b2b.jpg",
+                posterUrl: data.hero?.posterImage
+              }
+            }}
+            onChange={(updatedHero) => {
+              setIsDirty(true);
+              setData((prev: any) => ({
+                ...prev,
+                hero: {
+                  ...(prev.hero || {}),
+                  ...updatedHero,
+                  titleEn: updatedHero.fixedHeadlineEn || prev.hero?.titleEn,
+                  titleAr: updatedHero.fixedHeadlineAr || prev.hero?.titleAr,
+                  headlineTemplateEn: updatedHero.headlineTemplateEn,
+                  headlineTemplateAr: updatedHero.headlineTemplateAr,
+                  rotatingWordsEn: updatedHero.rotatingWordsEn,
+                  rotatingWordsAr: updatedHero.rotatingWordsAr,
+                  subtitleEn: updatedHero.descriptionEn || prev.hero?.subtitleEn,
+                  subtitleAr: updatedHero.descriptionAr || prev.hero?.subtitleAr,
+                  descriptionEn: updatedHero.descriptionEn || prev.hero?.descriptionEn,
+                  descriptionAr: updatedHero.descriptionAr || prev.hero?.descriptionAr,
+                  mediaType: updatedHero.media?.mediaType || prev.hero?.mediaType || "IMAGE",
+                  mediaUrl: updatedHero.media?.mediaUrl || prev.hero?.mediaUrl,
+                  posterImage: updatedHero.media?.posterUrl || prev.hero?.posterImage,
+                  primaryCtaEn: updatedHero.primaryCta?.labelEn || prev.hero?.primaryCtaEn,
+                  primaryCtaAr: updatedHero.primaryCta?.labelAr || prev.hero?.primaryCtaAr,
+                  primaryLink: updatedHero.primaryCta?.url || prev.hero?.primaryLink,
+                  secondaryCtaEn: updatedHero.secondaryCta?.labelEn || prev.hero?.secondaryCtaEn,
+                  secondaryCtaAr: updatedHero.secondaryCta?.labelAr || prev.hero?.secondaryCtaAr,
+                  secondaryLink: updatedHero.secondaryCta?.url || prev.hero?.secondaryLink,
+                }
+              }));
+            }}
+          />
         </div>
 
         {/* 2. SHOWREEL SECTION */}
