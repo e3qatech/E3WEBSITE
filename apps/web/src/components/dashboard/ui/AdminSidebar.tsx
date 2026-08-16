@@ -98,6 +98,7 @@ const sidebarConfig: NavGroupItem[] = [
     subItems: [
       { label: "Homepage Editor", labelAr: "محرر الصفحة الرئيسية للشركات", href: "/dashboard/b2b/home", capability: "b2b.content.write" },
       { label: "About Us Editor", labelAr: "محرر من نحن", href: "/dashboard/b2b/about", capability: "b2b.content.write" },
+      { label: "Leadership Page Editor", labelAr: "محرر صفحة القيادة", href: "/dashboard/b2b/leadership", capability: "b2b.content.write" },
       { label: "Contact & RFP Editor", labelAr: "محرر التواصل وطلبات العروض", href: "/dashboard/b2b/contact", capability: "b2b.content.write" },
       { label: "Services Landing Page", labelAr: "محرر صفحة الخدمات", href: "/dashboard/b2b/services-page", capability: "b2b.content.write" },
       { label: "Case Studies Page", labelAr: "محرر صفحة دراسات الحالة", href: "/dashboard/b2b/cases-page", capability: "b2b.content.write" },
@@ -117,7 +118,7 @@ const sidebarConfig: NavGroupItem[] = [
       { label: "Services Catalog", labelAr: "دليل الخدمات والحلول", href: "/dashboard/b2b/services", capability: "b2b.services.manage" },
       { label: "Case Studies Portfolio", labelAr: "معرض المشاريع ودراسات الحالة", href: "/dashboard/b2b/cases", capability: "b2b.cases.manage" },
       { label: "Clients Directory", labelAr: "دليل العملاء والشركاء", href: "/dashboard/b2b/clients", capability: "b2b.clients.manage" },
-      { label: "Team Page Editor", labelAr: "محرر صفحة القيادة", href: "/dashboard/b2b/team-page", capability: "b2b.content.write" },
+      { label: "Leadership Page Editor", labelAr: "محرر صفحة القيادة", href: "/dashboard/b2b/leadership", capability: "b2b.content.write" },
       { label: "Pulse Orbit (B2B)", labelAr: "نبض الشركات (B2B)", href: "/dashboard/b2b/pulse-orbit", capability: "b2b.content.write" },
     ],
   },

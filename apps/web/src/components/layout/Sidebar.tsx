@@ -48,6 +48,7 @@ const sidebarConfig = [
   { label: "B2B Pages", icon: Briefcase, href: "/dashboard/b2b/home", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Homepage Editor", href: "/dashboard/b2b/home" },
     { label: "About Us Editor", href: "/dashboard/b2b/about" },
+    { label: "Leadership Page Editor", href: "/dashboard/b2b/leadership" },
     { label: "Contact Editor", href: "/dashboard/b2b/contact" },
     { label: "Services Page", href: "/dashboard/b2b/services-page" },
     { label: "Cases Page", href: "/dashboard/b2b/cases-page" },
@@ -58,7 +59,7 @@ const sidebarConfig = [
   { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
-    { label: "Team Page Editor", href: "/dashboard/b2b/team-page" },
+    { label: "Leadership Page Editor", href: "/dashboard/b2b/leadership" },
     { label: "Clients CMS", href: "/dashboard/b2b/clients" },
     { label: "Partners", href: "/dashboard/b2b/partners" },
     { label: "Pulse Orbit (B2B)", href: "/dashboard/b2b/pulse-orbit" }

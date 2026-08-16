@@ -131,6 +131,17 @@ export function CommandPaletteModal({
         keywords: ["team", "employees", "leadership", "staff", "فريق", "موظفين", "قيادة"],
       },
       {
+        id: "b2b-leadership",
+        titleEn: "B2B Leadership & Team Page Editor",
+        titleAr: "محرر صفحة القيادة وفريق العمل",
+        category: "b2b",
+        categoryLabelEn: "B2B Content",
+        categoryLabelAr: "محتوى B2B",
+        href: `/${locale}/dashboard/b2b/leadership`,
+        icon: <Users className="w-4 h-4 text-emerald-400" />,
+        keywords: ["leadership", "team page", "executives", "constellation hero", "ceo desk", "قيادة", "فريق العمل"],
+      },
+      {
         id: "b2b-home",
         titleEn: "B2B Homepage CMS Editor",
         titleAr: "محرر الصفحة الرئيسية للشركات",
