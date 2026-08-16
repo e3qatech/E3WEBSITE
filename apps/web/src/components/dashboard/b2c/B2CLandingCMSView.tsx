@@ -314,19 +314,27 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
   const filteredTeamMembers = useMemo(() => {
     return availableTeamMembers.filter((member) => {
-      const name = `${member.firstName || ""} ${member.lastName || ""}`.toLowerCase();
-      const title = (member.designation || "").toLowerCase();
+      const name = (
+        (isAr ? (member.nameAr || member.name) : (member.nameEn || member.name)) ||
+        `${member.firstName || ""} ${member.lastName || ""}`.trim() ||
+        member.name ||
+        ""
+      ).toLowerCase();
+      const title = (
+        (isAr ? (member.designationAr || member.designation) : (member.designation || member.designationAr)) ||
+        ""
+      ).toLowerCase();
       const matchesSearch =
         !teamSearch ||
         name.includes(teamSearch.toLowerCase()) ||
         title.includes(teamSearch.toLowerCase());
-      const matchesDept = teamDeptFilter === "ALL" || member.department === teamDeptFilter;
+      const matchesDept = teamDeptFilter === "ALL" || member.department === teamDeptFilter || member.departmentKey === teamDeptFilter;
       const isSelected = selectedTeamIds.some((id) => matchesMember(id, member));
       const matchesSelectedOnly = !showSelectedOnly || isSelected;
 
       return matchesSearch && matchesDept && matchesSelectedOnly;
     });
-  }, [availableTeamMembers, teamSearch, teamDeptFilter, showSelectedOnly, selectedTeamIds]);
+  }, [availableTeamMembers, teamSearch, teamDeptFilter, showSelectedOnly, selectedTeamIds, isAr]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -1503,7 +1511,14 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
                 {filteredTeamMembers.map((member) => {
                   const isSelected = selectedTeamIds.some((id) => matchesMember(id, member));
                   const fullName =
-                    `${member.firstName || ""} ${member.lastName || ""}`.trim() || "Team Member";
+                    (isAr ? (member.nameAr || member.name) : (member.nameEn || member.name)) ||
+                    `${member.firstName || ""} ${member.lastName || ""}`.trim() ||
+                    member.name ||
+                    "Team Member";
+                  const designation =
+                    (isAr ? (member.designationAr || member.designation) : (member.designation || member.designationAr)) ||
+                    member.department ||
+                    "Executive";
 
                   return (
                     <div
@@ -1525,7 +1540,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center font-bold text-xs text-purple-400">
-                            {member.firstName?.[0] || "E"}
+                            {member.initials || member.name?.[0] || member.firstName?.[0] || "E"}
                           </div>
                         )}
                       </div>
@@ -1535,7 +1550,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
                           {fullName}
                         </h4>
                         <p className="text-[11px] text-purple-400 truncate">
-                          {member.designation || member.department || "Executive"}
+                          {designation}
                         </p>
                       </div>
 

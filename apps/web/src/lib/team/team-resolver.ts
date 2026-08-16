@@ -81,6 +81,10 @@ export interface SafePublicTeamMember {
   name: string;
   nameEn: string;
   nameAr: string;
+  firstName?: string;
+  lastName?: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   designation: string;
   designationAr?: string;
   department: string;
@@ -1318,6 +1322,10 @@ export function resolvePublicTeamMember(
     name,
     nameEn,
     nameAr,
+    firstName: member.firstName || undefined,
+    lastName: member.lastName || undefined,
+    firstNameAr: member.firstNameAr || undefined,
+    lastNameAr: member.lastNameAr || undefined,
     designation,
     designationAr,
     department,
