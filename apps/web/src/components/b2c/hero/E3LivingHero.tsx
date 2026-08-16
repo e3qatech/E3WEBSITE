@@ -193,8 +193,9 @@ export function parseTwoLineHeadline(rawText: string): {
     const suffix = (parts[1] || "").trim()
     const prefixWords = prefix ? prefix.split(/\s+/) : []
 
-    // If prefix is short (<= 5 words), put the static prefix on Line 1 and the token on Line 2
-    if (prefixWords.length <= 5) {
+    // If prefix is short (<= 3 words), put the static prefix on Line 1 and the token on Line 2
+    // For longer prefixes (>= 4 words), split prefix words gracefully so line 2 gets prefix context with the token
+    if (prefixWords.length <= 3) {
       l1 = prefix
       l2 = suffix ? `{{animated}} ${suffix}` : "{{animated}}"
     } else {
