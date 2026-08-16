@@ -46,8 +46,10 @@ async function main() {
   console.log('Created Super Admins:', superAdmin.email, superAdminQatar.email)
 
   // 2. Organizational Hierarchy (Team Members)
-  await prisma.employeeProfile.create({
-    data: {
+  await prisma.employeeProfile.upsert({
+    where: { slug: 'abdullah-al-kubaisi' },
+    update: {},
+    create: {
       slug: 'abdullah-al-kubaisi',
       firstName: 'Abdullah',
       lastName: 'Al Kubaisi',
@@ -76,8 +78,10 @@ async function main() {
     }
   })
 
-  await prisma.employeeProfile.create({
-    data: {
+  await prisma.employeeProfile.upsert({
+    where: { slug: 'mohammad-ali-awada' },
+    update: {},
+    create: {
       slug: 'mohammad-ali-awada',
       firstName: 'Mohammad Ali',
       lastName: 'Awada',

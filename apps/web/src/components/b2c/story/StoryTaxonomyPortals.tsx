@@ -530,8 +530,8 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/60 hover:border-purple-500/40 hover:bg-[var(--surface-default)] shadow-md hover:scale-[1.01]'
                 }`}
                 style={{
-                  ringColor: isSelected ? option.accentColor : undefined,
-                  boxShadow: isSelected ? `0 20px 40px -15px ${option.accentColor}50` : undefined
+                  borderColor: isSelected ? option.accentColor : undefined,
+                  boxShadow: isSelected ? `0 0 0 2px ${option.accentColor}, 0 20px 40px -15px ${option.accentColor}50` : undefined
                 }}
               >
                 {/* Background Image / Ambient Artwork */}
