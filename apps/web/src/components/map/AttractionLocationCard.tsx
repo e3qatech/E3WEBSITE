@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, ExternalLink, Ticket, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { MapLocationProperties } from './map-types';
@@ -13,11 +13,19 @@ interface AttractionLocationCardProps {
   locale: string;
 }
 
+const DEFAULT_CARD_FALLBACK_IMAGE = 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/e6016d8f-1b8e-4099-95b7-fb9acd1169eb.png';
+
 export function AttractionLocationCard({ location, isSelected, onSelect, locale }: AttractionLocationCardProps) {
   const isAr = locale === 'ar';
   const name = isAr ? location.nameAr || location.name : location.nameEn || location.name;
   const venue = isAr ? location.venue : location.venue;
   const address = isAr ? location.address : location.address;
+
+  const [imgSrc, setImgSrc] = useState<string>(location.thumbnailUrl || DEFAULT_CARD_FALLBACK_IMAGE);
+
+  useEffect(() => {
+    setImgSrc(location.thumbnailUrl || DEFAULT_CARD_FALLBACK_IMAGE);
+  }, [location.thumbnailUrl]);
 
   const statusColors: Record<string, string> = {
     OPEN: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
@@ -45,27 +53,28 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
       aria-pressed={isSelected}
       className={`group relative rounded-3xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--e3-royal-blue)] ${
         isSelected
-          ? 'bg-[var(--surface-hover)] border-[var(--e3-royal-blue)] shadow-2xl ring-2 ring-[var(--e3-royal-blue)]/50 scale-[1.02]'
-          : 'bg-[var(--surface-default)] border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)]/50 hover:bg-[var(--surface-hover)]/60'
+          ? 'bg-[var(--surface-hover)] border-[var(--e3-royal-blue)] shadow-2xl ring-2 ring-[var(--e3-royal-blue)]/50 scale-[1.01]'
+          : 'bg-[var(--surface-default)] border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)]/50 hover:bg-[var(--surface-hover)]/70 shadow-sm hover:shadow-md'
       }`}
     >
       {/* Cover Image & Scrim */}
-      <div className="relative w-full aspect-[16/9] overflow-hidden bg-black shrink-0">
+      <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-950 shrink-0">
         <img
-          src={location.thumbnailUrl}
+          src={imgSrc}
           alt={name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          onError={() => setImgSrc(DEFAULT_CARD_FALLBACK_IMAGE)}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/90 via-transparent to-transparent pointer-events-none" />
 
         {/* Operational Status Badge */}
-        <div className={`absolute top-3 start-3 px-3 py-1 rounded-full border text-[10px] font-mono font-bold uppercase backdrop-blur-md z-10 ${statusColors[location.operationalStatus] || 'bg-zinc-800 text-white'}`}>
+        <div className={`absolute top-3 start-3 px-3 py-1 rounded-full border text-[10px] font-mono font-bold uppercase backdrop-blur-md z-10 shadow-md ${statusColors[location.operationalStatus] || 'bg-zinc-800 text-white'}`}>
           {isAr ? currentStatus.ar : currentStatus.en}
         </div>
 
         {/* Distance Badge if available */}
         {location.distanceKm !== undefined && (
-          <div className="absolute top-3 end-3 px-2.5 py-1 rounded-lg bg-black/70 border border-white/20 text-[10px] font-mono font-bold text-white uppercase backdrop-blur-md flex items-center gap-1">
+          <div className="absolute top-3 end-3 px-2.5 py-1 rounded-lg bg-black/75 border border-white/20 text-[10px] font-mono font-bold text-white uppercase backdrop-blur-md flex items-center gap-1 shadow-md">
             <Compass className="w-3 h-3 text-[var(--e3-royal-blue)]" />
             <span>{location.distanceKm} km</span>
           </div>
@@ -76,14 +85,14 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
       <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase">
-            <MapPin className="w-3.5 h-3.5" />
-            <span>{venue || address}</span>
+            <MapPin className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{venue || address}</span>
           </div>
-          <h3 className="text-base font-extrabold text-[var(--text-primary)] font-display uppercase group-hover:text-[var(--e3-royal-blue)] transition-colors">
+          <h3 className="text-base font-extrabold text-[var(--text-primary)] font-display uppercase tracking-tight group-hover:text-[var(--e3-royal-blue)] transition-colors leading-snug">
             {name}
           </h3>
           {location.shortDescription && (
-            <p className="text-xs text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] font-normal line-clamp-2 leading-relaxed">
               {location.shortDescription}
             </p>
           )}
@@ -95,10 +104,10 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
             <Link
               href={localizeHref(location.ticketingUrl, locale)}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 py-2 px-3 rounded-xl bg-[var(--e3-royal-blue)] hover:opacity-90 text-white text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md"
+              className="flex-1 py-2.5 px-3 rounded-xl bg-[var(--e3-royal-blue)] hover:bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-blue-500/25"
             >
               <Ticket className="w-3.5 h-3.5" />
-              <span>{isAr ? "حجز" : "Book"}</span>
+              <span>{isAr ? "احجز الآن" : "Book"}</span>
             </Link>
           )}
 
@@ -107,7 +116,7 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="py-2 px-3 rounded-xl bg-[var(--surface-hover)] hover:bg-zinc-800 text-[var(--text-primary)] border border-[var(--border-level-2)] text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+            className="py-2.5 px-3 rounded-xl bg-[var(--surface-hover)] hover:bg-zinc-800 text-[var(--text-primary)] border border-[var(--border-level-2)] hover:border-slate-600 text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
           >
             <span>{isAr ? "الاتجاهات" : "Directions"}</span>
             <ExternalLink className="w-3 h-3 text-[var(--text-tertiary)]" />
@@ -117,3 +126,4 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
     </div>
   );
 }
+

@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Ticket, Sparkles, ArrowRight, Compass, Calendar, MapPin, ChevronDown, Check, Users } from 'lucide-react'
+import { Ticket, Sparkles, ArrowRight, Compass, Calendar, MapPin, Users, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { DEFAULT_ATTRACTION_WORLDS } from './ExperienceWorldsStage'
 import { localizeHref } from '@/lib/url-helper'
 import { cn, formatLocalizedText } from '@/lib/utils'
@@ -12,6 +12,8 @@ interface TactileDigitalTicketProps {
   content: any
   locale: string
 }
+
+const SLIDE_DURATION_MS = 5000;
 
 export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketProps) {
   const isAr = locale === 'ar'
@@ -25,22 +27,12 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
   const rawWorlds = content?.act3Worlds
   const worlds = (Array.isArray(rawWorlds) && rawWorlds.length > 0) ? rawWorlds : DEFAULT_ATTRACTION_WORLDS
 
-  const [selectedWorldId, setSelectedWorldId] = useState(worlds[0]?.id || DEFAULT_ATTRACTION_WORLDS[0].id)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const pillsContainerRef = useRef<HTMLDivElement>(null)
 
-  // Close custom dropdown on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
-
-  const rawActiveWorld = worlds.find((w: any) => w.id === selectedWorldId || w.slug === selectedWorldId) || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
+  const rawActiveWorld = worlds[currentIndex] || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
   const fallback = DEFAULT_ATTRACTION_WORLDS[0]
 
   const activeWorld = {
@@ -59,6 +51,57 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     accentColor: rawActiveWorld.accentColor || fallback.accentColor || "#10b981",
     ticketingUrl: rawActiveWorld.ticketingUrl || '/b2c/calendar'
   };
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % worlds.length)
+    setProgress(0)
+  }, [worlds.length])
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + worlds.length) % worlds.length)
+    setProgress(0)
+  }, [worlds.length])
+
+  const handleSelectIndex = (idx: number) => {
+    setCurrentIndex(idx)
+    setProgress(0)
+  }
+
+  // Auto Slider Timer with Progress Tracking
+  useEffect(() => {
+    if (isPaused || worlds.length <= 1) return
+
+    const tickInterval = 50
+    const step = (tickInterval / SLIDE_DURATION_MS) * 100
+
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          handleNext()
+          return 0
+        }
+        return prev + step
+      })
+    }, tickInterval)
+
+    return () => clearInterval(timer)
+  }, [isPaused, worlds.length, handleNext])
+
+  // Scroll active pill smoothly into view
+  useEffect(() => {
+    if (!pillsContainerRef.current) return
+    const container = pillsContainerRef.current
+    const activePill = container.querySelector(`[data-pill-index="${currentIndex}"]`) as HTMLElement
+    if (activePill) {
+      const pillLeft = activePill.offsetLeft
+      const pillWidth = activePill.offsetWidth
+      const containerWidth = container.offsetWidth
+      container.scrollTo({
+        left: pillLeft - containerWidth / 2 + pillWidth / 2,
+        behavior: 'smooth'
+      })
+    }
+  }, [currentIndex])
 
   const footerBgUrl = (
     ticketData.backgroundImage ||
@@ -113,6 +156,10 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
           className="relative max-w-3xl mx-auto rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] backdrop-blur-2xl p-6 sm:p-10 shadow-2xl overflow-visible text-start space-y-8 group"
         >
           {/* Hologram Foil Edge Effect with dynamic accent gradient */}
@@ -123,7 +170,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
             }}
           />
 
-          {/* Ticket Header & Redesigned Experience Selector */}
+          {/* Ticket Header & Auto-Slider Navigation Controls */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
             <div className="flex items-center gap-3.5">
               <div 
@@ -145,181 +192,164 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
                     {activeWorld.slug ? `#${activeWorld.slug.split('-')[0]?.toUpperCase()}-2026` : "#E3-2026"}
                   </span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-[var(--text-primary)] tracking-tight mt-0.5">
-                  {isAr ? activeWorld.nameAr : activeWorld.nameEn}
-                </h3>
+                <AnimatePresence mode="wait">
+                  <motion.h3 
+                    key={activeWorld.id || currentIndex}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xl sm:text-2xl font-extrabold text-[var(--text-primary)] tracking-tight mt-0.5"
+                  >
+                    {isAr ? activeWorld.nameAr : activeWorld.nameEn}
+                  </motion.h3>
+                </AnimatePresence>
               </div>
             </div>
 
-            {/* Custom Interactive Experience Switcher Dropdown */}
-            <div className="relative w-full sm:w-auto" ref={dropdownRef}>
+            {/* Slider Navigation Bar: Index counter & Previous/Next Buttons */}
+            <div className="flex items-center gap-2.5 self-end sm:self-center">
+              {/* Active Slide Indicator */}
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-hover)] text-xs font-mono font-bold text-[var(--text-secondary)] shadow-xs">
+                <span className="text-[var(--text-primary)] font-extrabold">
+                  {String(currentIndex + 1).padStart(2, '0')}
+                </span>
+                <span className="text-[var(--text-tertiary)]">/</span>
+                <span>{String(worlds.length).padStart(2, '0')}</span>
+              </div>
+
+              {/* Prev Button */}
               <button
                 type="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full sm:w-auto flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                aria-expanded={isDropdownOpen}
-                aria-haspopup="listbox"
+                onClick={handlePrev}
+                aria-label={isAr ? "الوجهة السابقة" : "Previous Attraction"}
+                className="p-2 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] hover:border-emerald-500/50 transition-all shadow-xs cursor-pointer hover:scale-105 active:scale-95"
               >
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-2.5 h-2.5 rounded-full animate-pulse shrink-0" 
-                    style={{ backgroundColor: activeWorld.accentColor || '#10b981' }}
-                  />
-                  <span className="text-[var(--text-secondary)] font-normal">
-                    {isAr ? "تبديل الوجهة:" : "Experience:"}
-                  </span>
-                  <span className="font-extrabold text-[var(--text-primary)]">
-                    {isAr ? activeWorld.nameAr : activeWorld.nameEn}
-                  </span>
-                </div>
-                <ChevronDown className={cn("w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200", isDropdownOpen && "rotate-180")} />
+                {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
 
-              {/* Animated Glassmorphic Dropdown Menu */}
-              <AnimatePresence>
-                {isDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                    transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute z-50 end-0 mt-2 w-full sm:w-80 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/95 backdrop-blur-xl p-2 shadow-2xl space-y-1 overflow-hidden"
-                  >
-                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] border-b border-[var(--border-level-1)] mb-1 flex items-center justify-between">
-                      <span>{isAr ? "اختر الوجهة الترفيهية" : "Select Attraction World"}</span>
-                      <span className="font-mono text-[var(--color-primary)]">{worlds.length} {isAr ? "وجهات" : "Available"}</span>
-                    </div>
-
-                    <div className="max-h-64 overflow-y-auto space-y-1 custom-scrollbar">
-                      {worlds.map((w: any) => {
-                        const isSelected = (w.id === selectedWorldId || w.slug === selectedWorldId);
-                        return (
-                          <button
-                            key={w.id || w.slug}
-                            type="button"
-                            onClick={() => {
-                              setSelectedWorldId(w.id || w.slug);
-                              setIsDropdownOpen(false);
-                            }}
-                            className={cn(
-                              "w-full flex items-center justify-between p-2.5 rounded-xl text-start transition-all cursor-pointer group/item",
-                              isSelected
-                                ? "bg-[var(--surface-selected)] text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/30 font-bold"
-                                : "hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                            )}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div 
-                                className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0 border"
-                                style={{
-                                  backgroundColor: `${w.accentColor || '#10b981'}15`,
-                                  borderColor: `${w.accentColor || '#10b981'}30`,
-                                  color: w.accentColor || '#10b981'
-                                }}
-                              >
-                                {w.nameEn ? w.nameEn.charAt(0) : "E"}
-                              </div>
-                              <div className="min-w-0">
-                                <div className="text-xs font-bold text-[var(--text-primary)] truncate">
-                                  {isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr)}
-                                </div>
-                                <div className="text-[10px] text-[var(--text-tertiary)] truncate">
-                                  {isAr ? (w.locationAr || w.locationEn) : (w.locationEn || w.locationAr)}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0 ms-2">
-                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-[var(--surface-active)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
-                                {w.price ? `${w.price} QAR` : "PASS"}
-                              </span>
-                              {isSelected ? (
-                                <Check className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
-                              ) : (
-                                <div className="w-4 h-4" />
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          {/* Quick Experience Switcher Chips Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] shrink-0 me-1">
-              {isAr ? "الوجهات السريعة:" : "Quick Pass:"}
-            </span>
-            {worlds.map((w: any) => {
-              const isSelected = (w.id === selectedWorldId || w.slug === selectedWorldId);
-              return (
-                <button
-                  key={w.id || w.slug}
-                  type="button"
-                  onClick={() => setSelectedWorldId(w.id || w.slug)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border select-none",
-                    isSelected
-                      ? "border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 shadow-2xs"
-                      : "border-[var(--border-level-1)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                  )}
-                >
-                  <div 
-                    className="w-1.5 h-1.5 rounded-full" 
-                    style={{ backgroundColor: w.accentColor || '#10b981' }}
-                  />
-                  <span>{isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr)}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Ticket Info & Action */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center pt-2">
-            <div className="space-y-3">
-              <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
-                &ldquo;{isAr ? activeWorld.taglineAr : activeWorld.taglineEn}&rdquo;
-              </p>
-
-              <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs">
-                <span className="text-[var(--text-secondary)] font-semibold flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span>{isAr ? activeWorld.locationAr : activeWorld.locationEn}</span>
-                </span>
-                <span className="text-[var(--text-secondary)] font-semibold flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-                  <span>{isAr ? activeWorld.audienceAr : activeWorld.audienceEn}</span>
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold">
-                <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>{isAr ? "حجز مباشر وتأكيد رقمي فوري" : "Instant Digital Booking Guaranteed"}</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <div className="flex items-baseline justify-end sm:justify-start gap-2 text-xs text-[var(--text-tertiary)]">
-                <span>{isAr ? "سعر التذكرة:" : "Pass starting at:"}</span>
-                <span className="text-lg font-black text-[var(--text-primary)] font-mono">
-                  {activeWorld.price ? `${activeWorld.price} ${activeWorld.currency || 'QAR'}` : "Free Admission"}
-                </span>
-              </div>
-
-              <Link
-                href={localizeHref(activeWorld.ticketingUrl || '/b2c/calendar', locale)}
-                className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-base transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label={isAr ? "الوجهة التالية" : "Next Attraction"}
+                className="p-2 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] hover:border-emerald-500/50 transition-all shadow-xs cursor-pointer hover:scale-105 active:scale-95"
               >
-                <Ticket className="w-5 h-5" />
-                <span>{isAr ? (ticketData.primaryCtaAr || "احجز تجربتك الآن") : (ticketData.primaryCtaEn || "Book an Experience")}</span>
-                <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
-              </Link>
+                {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </button>
+
+              {/* Pause / Play Indicator */}
+              <button
+                type="button"
+                onClick={() => setIsPaused(!isPaused)}
+                title={isPaused ? (isAr ? "تشغيل التبديل التلقائي" : "Resume Auto Slider") : (isAr ? "إيقاف التبديل التلقائي مؤقتاً" : "Pause Auto Slider")}
+                className="p-2 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-emerald-500 transition-all shadow-xs cursor-pointer"
+              >
+                {isPaused ? <Play className="w-3.5 h-3.5 fill-current" /> : <Pause className="w-3.5 h-3.5" />}
+              </button>
             </div>
           </div>
+
+          {/* Auto Slider Chips Bar with Progress Track */}
+          <div className="space-y-2">
+            <div 
+              ref={pillsContainerRef}
+              className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] shrink-0 me-1">
+                {isAr ? "الوجهات السريعة:" : "Quick Pass:"}
+              </span>
+              {worlds.map((w: any, idx: number) => {
+                const isSelected = idx === currentIndex;
+                return (
+                  <button
+                    key={w.id || w.slug || idx}
+                    data-pill-index={idx}
+                    type="button"
+                    onClick={() => handleSelectIndex(idx)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 border select-none snap-start",
+                      isSelected
+                        ? "border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 shadow-md ring-1 ring-emerald-500/30 scale-102"
+                        : "border-[var(--border-level-1)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    )}
+                  >
+                    <div 
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-transform",
+                        isSelected ? "scale-125" : "opacity-60"
+                      )} 
+                      style={{ backgroundColor: w.accentColor || '#10b981' }}
+                    />
+                    <span>{isAr ? (w.nameAr || w.nameEn) : (w.nameEn || w.nameAr)}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Auto Slider Progress Bar */}
+            <div className="relative w-full h-1 bg-[var(--surface-active)] rounded-full overflow-hidden">
+              <div 
+                className="h-full rounded-full transition-all duration-75 ease-linear"
+                style={{
+                  width: `${progress}%`,
+                  backgroundColor: activeWorld.accentColor || '#10b981'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Ticket Info & Action with Animated Transition */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeWorld.id || currentIndex}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center pt-2"
+            >
+              <div className="space-y-3">
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
+                  &ldquo;{isAr ? activeWorld.taglineAr : activeWorld.taglineEn}&rdquo;
+                </p>
+
+                <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs">
+                  <span className="text-[var(--text-secondary)] font-semibold flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>{isAr ? activeWorld.locationAr : activeWorld.locationEn}</span>
+                  </span>
+                  <span className="text-[var(--text-secondary)] font-semibold flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span>{isAr ? activeWorld.audienceAr : activeWorld.audienceEn}</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                  <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>{isAr ? "حجز مباشر وتأكيد رقمي فوري" : "Instant Digital Booking Guaranteed"}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div className="flex items-baseline justify-end sm:justify-start gap-2 text-xs text-[var(--text-tertiary)]">
+                  <span>{isAr ? "سعر التذكرة:" : "Pass starting at:"}</span>
+                  <span className="text-lg font-black text-[var(--text-primary)] font-mono">
+                    {activeWorld.price ? `${activeWorld.price} ${activeWorld.currency || 'QAR'}` : "Free Admission"}
+                  </span>
+                </div>
+
+                <Link
+                  href={localizeHref(activeWorld.ticketingUrl || '/b2c/calendar', locale)}
+                  className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-base transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <Ticket className="w-5 h-5" />
+                  <span>{isAr ? (ticketData.primaryCtaAr || "احجز تجربتك الآن") : (ticketData.primaryCtaEn || "Book an Experience")}</span>
+                  <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                </Link>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </motion.div>
 
         {/* Secondary Exploration Actions */}
@@ -339,3 +369,4 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     </section>
   )
 }
+

@@ -428,7 +428,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
           </h2>
 
           <p className="text-sm sm:text-base text-[var(--text-secondary)] font-light max-w-xl mx-auto">
-            {isAr ? "لا توجد مسارات حكايات منشورة حالياً." : "No story tracks currently published."}
+            {isAr ? "لا توجد مسارات حكايات مفعلة حالياً." : "No story tracks currently published."}
           </p>
 
           <div className="pt-2">
@@ -436,7 +436,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               href={localizeHref("/b2c/attractions", locale)}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-105"
             >
-              <span>{isAr ? "استكشف كافة الوجهات" : "Explore All Attractions"}</span>
+              <span>{isAr ? "استكشف جميع التجارب" : "Explore All Attractions"}</span>
               <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
@@ -487,22 +487,22 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
           </p>
         </div>
 
-        {/* Desktop Carousel Navigation Controls */}
+        {/* Carousel Header / Controls */}
         <div className="flex items-center justify-between pb-2">
           <div className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text-secondary)]">
             {isAr ? "تصفح مسارات الحكايات" : "EXPLORE STORY TRACKS"} ({options.length})
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={() => scrollMobile('left')}
-              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs"
+              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs cursor-pointer"
               aria-label="Scroll left"
             >
               {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
             <button
               onClick={() => scrollMobile('right')}
-              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs"
+              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs cursor-pointer"
               aria-label="Scroll right"
             >
               {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -510,10 +510,10 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
           </div>
         </div>
 
-        {/* 6 High-Energy Horizontal Doorways Cards */}
+        {/* 6 High-Energy Horizontal Doorways Cards — Clean 6-Column Grid on Desktop, Smooth Swipe on Mobile */}
         <div
           ref={mobileScrollRef}
-          className="flex items-stretch gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 snap-x no-scrollbar"
+          className="flex lg:grid lg:grid-cols-6 gap-3 sm:gap-4 xl:gap-5 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 pt-2 px-1 scrollbar-none snap-x snap-mandatory"
         >
           {options.map((option) => {
             const isSelected = activeId === option.id
@@ -524,14 +524,16 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 key={option.id}
                 type="button"
                 onClick={() => handleSelect(option)}
-                className={`group relative flex-1 min-w-[170px] sm:min-w-[190px] h-72 sm:h-80 rounded-3xl p-5 sm:p-6 flex flex-col justify-between text-start overflow-hidden border transition-all duration-500 cursor-pointer snap-start focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${
+                className={`group relative shrink-0 lg:shrink w-[160px] sm:w-[185px] lg:w-full h-72 sm:h-80 rounded-3xl p-4 sm:p-5 flex flex-col justify-between text-start overflow-hidden border transition-all duration-300 cursor-pointer snap-start focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${
                   isSelected
-                    ? 'border-transparent ring-2 shadow-2xl scale-[1.03] z-10'
-                    : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/60 hover:border-purple-500/40 hover:bg-[var(--surface-default)] shadow-md hover:scale-[1.01]'
+                    ? 'border-transparent shadow-2xl z-10'
+                    : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/70 hover:border-purple-500/40 hover:bg-[var(--surface-default)] shadow-md hover:-translate-y-1'
                 }`}
                 style={{
                   borderColor: isSelected ? option.accentColor : undefined,
-                  boxShadow: isSelected ? `0 0 0 2px ${option.accentColor}, 0 20px 40px -15px ${option.accentColor}50` : undefined
+                  boxShadow: isSelected 
+                    ? `0 0 0 2px ${option.accentColor}, 0 12px 30px -10px ${option.accentColor}70` 
+                    : undefined
                 }}
               >
                 {/* Background Image / Ambient Artwork */}
@@ -551,33 +553,34 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 {/* Accent glow on selected */}
                 {isSelected && (
                   <div 
-                    className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+                    className="absolute inset-0 z-0 opacity-25 pointer-events-none"
                     style={{ backgroundColor: option.accentColor }}
                   />
                 )}
 
                 {/* Top Badge: Category Identifier & Open Icon */}
-                <div className="relative z-10 flex items-center justify-between w-full">
+                <div className="relative z-10 flex items-center justify-between w-full gap-1.5">
                   <span 
-                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border shadow-xs transition-colors"
+                    className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider border shadow-xs transition-colors truncate max-w-[105px]"
                     style={{
                       backgroundColor: isSelected ? option.accentColor : 'var(--surface-default)',
                       color: isSelected ? '#ffffff' : option.accentColor,
                       borderColor: isSelected ? option.accentColor : 'var(--border-level-2)'
                     }}
+                    title={labelText}
                   >
                     {labelText}
                   </span>
 
                   <ArrowUpRight
-                    className={`w-4 h-4 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}`}
+                    className={`w-3.5 h-3.5 shrink-0 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}`}
                     style={isSelected ? { color: option.accentColor } : {}}
                   />
                 </div>
 
                 {/* Oversized Typographic Doorway Name */}
-                <div className="relative z-10 mt-auto">
-                  <h3 className={`text-xl sm:text-2xl font-extrabold uppercase tracking-tight transition-colors ${
+                <div className="relative z-10 mt-auto w-full">
+                  <h3 className={`text-base sm:text-lg xl:text-xl font-extrabold uppercase tracking-tight break-words leading-tight transition-colors ${
                     isSelected ? 'text-white drop-shadow-md' : 'text-[var(--text-primary)] group-hover:text-purple-500'
                   }`}>
                     {labelText}
@@ -599,7 +602,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               className="space-y-8 max-w-6xl mx-auto"
             >
               <div
-                className="p-6 rounded-3xl border border-purple-500/30 bg-[var(--surface-default)] backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl transition-all duration-500"
+                className="p-5 sm:p-6 rounded-3xl border border-purple-500/30 bg-[var(--surface-default)] backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl transition-all duration-500"
                 style={{ borderColor: `${activeOption.accentColor}50`, backgroundColor: `color-mix(in srgb, ${activeOption.accentColor} 10%, var(--surface-default))` }}
               >
                 <div className="flex items-center gap-4">
@@ -610,7 +613,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     <span className="text-xs font-mono font-bold uppercase tracking-widest block" style={{ color: activeOption.accentColor }}>
                       {isAr ? "الحكاية المختارة" : "SELECTED STORY TYPE"}
                     </span>
-                    <h4 className="text-xl font-extrabold text-[var(--text-primary)]">
+                    <h4 className="text-lg sm:text-xl font-extrabold text-[var(--text-primary)]">
                       {selectedTitle} — {isAr ? "الأنشطة والتجارب المتاحة اليوم" : "Active Experiences Available Today"}
                     </h4>
                   </div>
@@ -624,7 +627,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               </div>
 
               {/* Grid of actual activities / activations for this story type */}
-              <div className="flex flex-wrap justify-center gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {visibleActivities.map((act: any, idx: number) => {
                   const actTitle = formatLocalizedText(isAr ? (act.titleAr || act.titleEn) : (act.titleEn || act.titleAr), locale)
                   const actDesc = formatLocalizedText(isAr ? (act.descriptionAr || act.descriptionEn) : (act.descriptionEn || act.descriptionAr), locale)
@@ -635,7 +638,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     <a
                       key={act.id || idx}
                       href={localizeHref(`/b2c/attractions/${act.attractionSlug || 'all'}`, locale)}
-                      className="group relative overflow-hidden rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 flex flex-col justify-between min-h-[220px] w-full max-w-sm flex-1 min-w-[280px] transition-all duration-500 hover:border-purple-500/50 hover:bg-[var(--surface-hover)] hover:shadow-2xl hover:-translate-y-1 shadow-md"
+                      className="group relative overflow-hidden rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 flex flex-col justify-between min-h-[220px] transition-all duration-500 hover:border-purple-500/50 hover:bg-[var(--surface-hover)] hover:shadow-2xl hover:-translate-y-1 shadow-md"
                     >
                       {/* Background Image overlay */}
                       {act.imageUrl && (
@@ -712,3 +715,4 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
     </section>
   )
 }
+

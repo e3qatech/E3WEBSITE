@@ -2,9 +2,9 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { MapGeoJSONCollection, MapLocationProperties } from './map-types';
-import { VOYAGER_ENGLISH_MAP_STYLE } from './map-config';
+import { CARTO_DARK_MAP_STYLE, VOYAGER_ENGLISH_MAP_STYLE } from './map-config';
 import { MapUnavailableFallback } from './MapUnavailableFallback';
-import { Maximize, Box, Eye, Loader2 } from 'lucide-react';
+import { Maximize, Box, Eye, Loader2, Sun, Moon } from 'lucide-react';
 import { isMapLibreSupported, isValidLngLat } from '@/lib/webgl-capability';
 
 interface AttractionMapCanvasProps {
@@ -30,6 +30,7 @@ export function AttractionMapCanvas({
 
   const [lifecycleState, setLifecycleState] = useState<MapLifecycleState>('idle');
   const [pitch3d, setPitch3d] = useState(true);
+  const [mapTheme, setMapTheme] = useState<'dark' | 'light'>('dark');
 
   const isAr = locale === 'ar';
 
@@ -136,12 +137,13 @@ export function AttractionMapCanvas({
 
         mapInstance = new maplibregl.Map({
           container: mapContainerRef.current,
-          style: VOYAGER_ENGLISH_MAP_STYLE,
+          style: mapTheme === 'dark' ? CARTO_DARK_MAP_STYLE : VOYAGER_ENGLISH_MAP_STYLE,
           center: [51.48, 25.35],
           zoom: 10.5,
           pitch: pitch3d ? 50 : 0,
           bearing: pitch3d ? -15 : 0,
           cooperativeGestures: true,
+          attributionControl: false,
           maxBounds: [
             [50.50, 24.40],
             [52.00, 26.20],
@@ -190,7 +192,7 @@ export function AttractionMapCanvas({
       isMountedRef.current = false;
       performSafeCleanup();
     };
-  }, [performSafeCleanup, pitch3d]);
+  }, [performSafeCleanup, pitch3d, mapTheme]);
 
   // Render HTML Custom High-Visibility Pins on Map (Only when ready)
   useEffect(() => {
@@ -338,6 +340,10 @@ export function AttractionMapCanvas({
     } catch (_) {}
   };
 
+  const toggleMapTheme = () => {
+    setMapTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   // Render Fallback if WebGL/MapLibre is unavailable or errored
   if (lifecycleState === 'fallback' || lifecycleState === 'error') {
     return (
@@ -354,14 +360,14 @@ export function AttractionMapCanvas({
     <div
       role="region"
       aria-label={isAr ? "خريطة قطر التفاعلية" : "Interactive Qatar Map"}
-      className="relative w-full h-full min-h-[500px] rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[#090514] shadow-2xl"
+      className="relative w-full h-full min-h-[500px] rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[#07151b] shadow-2xl"
     >
       {/* MapLibre Canvas Container */}
       <div ref={mapContainerRef} className="w-full h-full min-h-[500px] z-0" />
 
       {/* Loading Overlay */}
       {lifecycleState === 'loading' && (
-        <div className="absolute inset-0 bg-[#090514]/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center gap-3">
+        <div className="absolute inset-0 bg-[#07151b]/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center gap-3">
           <Loader2 className="w-7 h-7 text-sky-400 animate-spin" />
           <span className="text-xs font-mono font-semibold text-zinc-300">
             {isAr ? "جاري تهيئة الخريطة التفاعلية..." : "Initializing Vector Cartography..."}
@@ -375,7 +381,7 @@ export function AttractionMapCanvas({
           <button
             type="button"
             onClick={fitAllLocations}
-            className="px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-[var(--color-primary)] text-white text-[11px] font-bold uppercase tracking-wider border border-white/20 backdrop-blur-md transition-all shadow-xl flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-[var(--e3-royal-blue)] text-white text-[11px] font-bold uppercase tracking-wider border border-white/20 backdrop-blur-md transition-all shadow-xl flex items-center gap-1.5 cursor-pointer"
           >
             <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>{isAr ? "عرض الكل" : "Show All Pins"}</span>
@@ -385,11 +391,21 @@ export function AttractionMapCanvas({
             type="button"
             onClick={toggle3D}
             className={`px-3 py-1.5 rounded-xl border backdrop-blur-md transition-all shadow-xl flex items-center gap-1 text-[11px] font-mono font-bold cursor-pointer ${
-              pitch3d ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-slate-900/90 text-zinc-300 border-white/20'
+              pitch3d ? 'bg-[var(--e3-royal-blue)] text-white border-[var(--e3-royal-blue)]' : 'bg-slate-900/90 text-zinc-300 border-white/20'
             }`}
           >
             <Box className="w-3.5 h-3.5 shrink-0" />
             <span>{pitch3d ? '3D' : '2D'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleMapTheme}
+            title={isAr ? "تبديل مظهر الخريطة (داكن / فاتح)" : "Toggle Map Style (Dark / Light)"}
+            className="px-3 py-1.5 rounded-xl border border-white/20 bg-slate-900/90 hover:bg-slate-800 text-zinc-300 hover:text-white backdrop-blur-md transition-all shadow-xl flex items-center gap-1 text-[11px] font-mono font-bold cursor-pointer"
+          >
+            {mapTheme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-300" /> : <Moon className="w-3.5 h-3.5 text-sky-300" />}
+            <span>{mapTheme === 'dark' ? (isAr ? "فاتح" : "Light") : (isAr ? "داكن" : "Dark")}</span>
           </button>
         </div>
 
@@ -398,17 +414,34 @@ export function AttractionMapCanvas({
             type="button"
             onClick={fitAllLocations}
             title={isAr ? "إعادة ضبط المعاينة" : "Fit All Locations Bounds"}
-            className="p-2 rounded-xl bg-slate-900/90 hover:bg-[var(--color-primary)] text-white border border-white/20 backdrop-blur-md transition-all shadow-lg cursor-pointer"
+            className="p-2 rounded-xl bg-slate-900/90 hover:bg-[var(--e3-royal-blue)] text-white border border-white/20 backdrop-blur-md transition-all shadow-lg cursor-pointer"
           >
             <Maximize className="w-3.5 h-3.5 text-amber-400" />
           </button>
         </div>
       </div>
 
-      {/* Map Attribution */}
-      <div className="absolute bottom-2 start-2 z-10 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-mono text-zinc-300">
-        &copy; <a href="https://carto.com" target="_blank" rel="noreferrer" className="underline hover:text-white">CARTO Voyager</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline hover:text-white">OpenStreetMap</a>
+      {/* Bottom Overlay Frame: Hides map branding & provides live status overlay */}
+      <div className="absolute bottom-0 start-0 end-0 z-20 h-14 bg-gradient-to-t from-[#07151b] via-[#07151b]/95 to-[#07151b]/40 backdrop-blur-md border-t border-white/10 px-5 flex items-center justify-between pointer-events-auto rounded-b-3xl">
+        {/* Left / Start: Live Grid Indicator */}
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+            {isAr ? "شبكة قطر للترفيه التفاعلي" : "LIVE QATAR ENTERTAINMENT GRID"}
+          </span>
+        </div>
+
+        {/* Right / End: Active Pin Count Badge */}
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[10px] sm:text-[11px] font-mono font-extrabold text-[var(--e3-royal-blue)] uppercase tracking-wider backdrop-blur-md shadow-xs">
+            {geoJson?.features?.length || 0} {isAr ? "وجهات نشطة" : "ACTIVE DESTINATIONS"}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

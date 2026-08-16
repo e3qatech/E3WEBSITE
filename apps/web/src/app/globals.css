@@ -609,3 +609,36 @@ html[dir="rtl"] .icon-flip {
     scroll-behavior: auto !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   9. SCROLLBAR HIDING UTILITIES
+   -------------------------------------------------------------------------- */
+.scrollbar-none,
+.no-scrollbar,
+.hide-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. MAPLIBRE UI CLEANUP & BRANDING SUPPRESSION
+   -------------------------------------------------------------------------- */
+.maplibregl-ctrl-attrib,
+.maplibregl-ctrl-attrib-inner,
+.maplibregl-compact,
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+

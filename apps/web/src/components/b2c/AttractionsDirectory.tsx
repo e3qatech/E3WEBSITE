@@ -394,7 +394,7 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
               <MapIcon className="w-3.5 h-3.5 text-[var(--e3-royal-blue)]" />
               <span>{isAr ? "الخريطة التفاعلية الحية" : "INTERACTIVE ATTRACTIONS MAP"}</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight text-[var(--text-primary)]">
+            <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-normal text-[var(--text-primary)]">
               {isAr ? "خريطة الوجهات التفاعلية" : "Interactive Attractions Map"}
             </h2>
             <p className="text-sm text-[var(--text-secondary)] font-medium max-w-2xl mt-2">
@@ -420,7 +420,7 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
         {/* Split Grid: Map Canvas Right/Top & Location Cards Left */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Location Cards Side Panel (5 cols) */}
-          <div className="lg:col-span-5 space-y-4 max-h-[640px] overflow-y-auto pe-2 no-scrollbar">
+          <div className="lg:col-span-5 space-y-4 max-h-[640px] overflow-y-auto pe-2 scrollbar-none">
             {filteredFeatures.length === 0 ? (
               <div className="p-8 text-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-tertiary)] font-medium">
                 {isAr ? "لا توجد نتائج مطابقة لمحددات البحث." : "No matching location points found."}
