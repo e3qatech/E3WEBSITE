@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Save, Search, Users, Award, ShieldCheck, ExternalLink, Sparkles, Quote, Globe2 } from 'lucide-react'
+import { Save, Search, Users, Award, ShieldCheck, ExternalLink, Sparkles, Quote, Globe2, Film } from 'lucide-react'
 import { useToast } from '@/components/dashboard/ui/ToastProvider'
 import { UniversalMediaSectionEditor, UniversalMediaConfig } from '@/components/dashboard/ui/UniversalMediaSectionEditor'
 import { E3LivingHeroEditor, E3LivingHeroEditorData } from '@/components/dashboard/b2c/E3LivingHeroEditor'
@@ -25,8 +25,14 @@ export function B2BLeadershipEditor() {
     ...DEFAULT_B2B_TEAM_PAGE_CONTENT,
     eyebrowEn: 'THE MASTERMINDS — E3 LEADERSHIP',
     eyebrowAr: 'العقول المدبرة — قيادة إي ثري',
-    titleEn: 'MEET THE PEOPLE WHO BUILD',
-    titleAr: 'تعرّف على الأشخاص الذين يصنعون الفارق',
+    fixedHeadlineEn: 'MEET THE PEOPLE WHO BUILD {{animated}}',
+    fixedHeadlineAr: 'تعرّف على الأشخاص الذين يصنعون {{animated}}',
+    headlineTemplateEn: 'MEET THE PEOPLE WHO BUILD {{animated}}',
+    headlineTemplateAr: 'تعرّف على الأشخاص الذين يصنعون {{animated}}',
+    titleEn: 'MEET THE PEOPLE WHO BUILD {{animated}}',
+    titleAr: 'تعرّف على الأشخاص الذين يصنعون {{animated}}',
+    rotatingWordsEn: ['EXPERIENCES', 'DESTINATIONS', 'MOMENTS', 'THE IMPOSSIBLE'],
+    rotatingWordsAr: ['التجارب', 'الوجهات', 'اللحظات', 'المستحيل'],
     descEn: 'Meet the executive leadership, spatial engineers, and event atelier directors shaping world-class entertainment.',
     descAr: 'تعرف على القيادة التنفيذية، ومهندسي المساحات، والمخططين الذين يقودون صناعة الترفيه العالمية في قطر.',
     executiveIntroEn: "E3's leadership brings together over four decades of combined experience across monumental events, spatial engineering, and global entertainment benchmarks.",
@@ -35,6 +41,11 @@ export function B2BLeadershipEditor() {
     chairmanQuoteAr: "نحن لا نكتفي بتنظيم الفعاليات؛ بل نصنع معالم ثقافية وترفيهية ملهمة تعزز مكانة قطر العالمية.",
     gmQuoteEn: "Operational discipline, creative fearlessness, and absolute safety form the immutable foundation of everything we fabricate.",
     gmQuoteAr: "الانضباط التشغيلي، والجرأة الإبداعية، ومعايير السلامة المطلقة هي الركائز الراسخة لكل تجربة نصنعها.",
+    heroMedia: {
+      mediaType: 'IMAGE',
+      mediaUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop',
+      posterUrl: '',
+    },
     hero: {
       ...DEFAULT_B2B_TEAM_PAGE_CONTENT,
     } as E3LivingHeroEditorData,
@@ -47,7 +58,11 @@ export function B2BLeadershipEditor() {
         if (res.ok) {
           const json = await res.json()
           if (json?.data?.content) {
-            setPageConfig(prev => ({ ...prev, ...json.data.content }))
+            setPageConfig(prev => ({
+              ...prev,
+              ...json.data.content,
+              heroMedia: json.data.content.heroMedia || json.data.content.hero?.media || prev.heroMedia,
+            }))
           }
         }
       } catch (_e) {
@@ -62,10 +77,28 @@ export function B2BLeadershipEditor() {
   const handleSave = async () => {
     setSaving(true)
     try {
+      const mergedConfig = {
+        ...pageConfig,
+        hero: {
+          ...(pageConfig.hero || {}),
+          media: pageConfig.heroMedia,
+          eyebrowEn: pageConfig.eyebrowEn,
+          eyebrowAr: pageConfig.eyebrowAr,
+          fixedHeadlineEn: pageConfig.fixedHeadlineEn,
+          fixedHeadlineAr: pageConfig.fixedHeadlineAr,
+          headlineTemplateEn: pageConfig.headlineTemplateEn || pageConfig.fixedHeadlineEn,
+          headlineTemplateAr: pageConfig.headlineTemplateAr || pageConfig.fixedHeadlineAr,
+          rotatingWordsEn: pageConfig.rotatingWordsEn,
+          rotatingWordsAr: pageConfig.rotatingWordsAr,
+          descriptionEn: pageConfig.descriptionEn || pageConfig.descEn,
+          descriptionAr: pageConfig.descriptionAr || pageConfig.descAr,
+        }
+      }
+
       const res = await fetch('/api/cms/pages/b2b-team-page', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: pageConfig })
+        body: JSON.stringify({ content: mergedConfig })
       })
       if (!res.ok) throw new Error('Failed to save B2B Leadership Page settings')
       toast('B2B Leadership Page settings saved successfully!', 'success')
@@ -87,7 +120,7 @@ export function B2BLeadershipEditor() {
       {/* Header */}
       <DashboardPageHeader
         title="B2B Leadership & Team Page Editor"
-        description="Configure executive statements, constellation hero copy, universal hero/footer media, and SEO metadata for the public leadership portal (/b2b/team & /b2b/leadership)."
+        description="Configure executive statements, constellation hero copy, universal atmospheric backdrop media, and SEO metadata for the public leadership portal (/b2b/team & /b2b/leadership)."
         breadcrumbs={[
           { label: "B2B Pages", href: "/dashboard/b2b/home" },
           { label: "Leadership Page Editor" },
@@ -144,6 +177,19 @@ export function B2BLeadershipEditor() {
 
         <button
           type="button"
+          onClick={() => setActiveTab('media')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'media'
+              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+              : 'text-zinc-400 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Film className="w-3.5 h-3.5" />
+          <span>Hero Atmospheric Backdrop Media</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab('executive')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'executive'
@@ -153,19 +199,6 @@ export function B2BLeadershipEditor() {
         >
           <Quote className="w-3.5 h-3.5" />
           <span>Executive Statements</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('media')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'media'
-              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-              : 'text-zinc-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Globe2 className="w-3.5 h-3.5" />
-          <span>Universal Media Engine</span>
         </button>
 
         <button
@@ -185,7 +218,7 @@ export function B2BLeadershipEditor() {
       {/* Tab 1: Constellation Hero */}
       {activeTab === 'hero' && (
         <E3LivingHeroEditor
-          title="Human Constellation Hero & Rotating Copy"
+          title="Human Constellation Hero & Kinetic Copy"
           description="Configure the cinematic team constellation headline, rotating phrases, CTAs, presets, and animation timing."
           value={{
             eyebrowEn: pageConfig.eyebrowEn,
@@ -219,13 +252,39 @@ export function B2BLeadershipEditor() {
               titleAr: heroData.fixedHeadlineAr || prev.titleAr,
               descEn: heroData.descriptionEn || prev.descEn,
               descAr: heroData.descriptionAr || prev.descAr,
+              heroMedia: heroData.media || prev.heroMedia,
               hero: heroData,
             }));
           }}
         />
       )}
 
-      {/* Tab 2: Executive Statements / CEO & Chairman Desk */}
+      {/* Tab 2: Hero Atmospheric Backdrop Media & Footer Media */}
+      {activeTab === 'media' && (
+        <div className="space-y-6">
+          <UniversalMediaSectionEditor
+            title="Hero Atmospheric Backdrop Media"
+            subtitle="Upload or configure the atmospheric hero backdrop (Image, 4K Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images) displayed behind the leadership headline."
+            value={pageConfig.heroMedia}
+            onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({
+              ...prev,
+              heroMedia,
+              hero: { ...(prev.hero || {}), media: heroMedia }
+            }))}
+            accentColor="emerald"
+          />
+
+          <UniversalMediaSectionEditor
+            title="Page Footer Media Section"
+            subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
+            value={pageConfig.footerMedia}
+            onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
+            accentColor="blue"
+          />
+        </div>
+      )}
+
+      {/* Tab 3: Executive Statements / CEO & Chairman Desk */}
       {activeTab === 'executive' && (
         <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-2xl p-6 space-y-6 shadow-sm">
           <div className="flex items-center gap-2.5 pb-4 border-b border-[var(--border-level-1)]">
@@ -317,27 +376,6 @@ export function B2BLeadershipEditor() {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Tab 3: Universal Media */}
-      {activeTab === 'media' && (
-        <div className="space-y-6">
-          <UniversalMediaSectionEditor
-            title="Page Hero Media Section"
-            subtitle="Universal hero media supporting Image, Video, 3D GLB Models, Embed IFrames, and Fallback Poster Images."
-            value={pageConfig.heroMedia}
-            onChange={(heroMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, heroMedia }))}
-            accentColor="emerald"
-          />
-
-          <UniversalMediaSectionEditor
-            title="Page Footer Media Section"
-            subtitle="Universal footer banner supporting Image, Video, 3D Canvas, IFrame, and Mobile Fallbacks."
-            value={pageConfig.footerMedia}
-            onChange={(footerMedia: UniversalMediaConfig) => setPageConfig(prev => ({ ...prev, footerMedia }))}
-            accentColor="blue"
-          />
         </div>
       )}
 

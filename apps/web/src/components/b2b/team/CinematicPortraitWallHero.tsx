@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { SafePublicTeamMember } from "@/lib/team/team-resolver";
+import { parseTwoLineHeadline } from "@/components/b2c/hero/E3LivingHero";
+import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import { cn } from "@/lib/utils";
 
 interface CinematicPortraitWallHeroProps {
@@ -14,6 +16,8 @@ interface CinematicPortraitWallHeroProps {
   eyebrowAr?: string;
   fixedHeadlineEn?: string;
   fixedHeadlineAr?: string;
+  headlineTemplateEn?: string;
+  headlineTemplateAr?: string;
   rotatingWordsEn?: string[];
   rotatingWordsAr?: string[];
   descriptionEn?: string;
@@ -25,6 +29,8 @@ interface CinematicPortraitWallHeroProps {
   secondaryCtaLabelAr?: string;
   secondaryCtaUrl?: string;
   animationSpeed?: number;
+  media?: any;
+  heroMedia?: any;
 }
 
 export function CinematicPortraitWallHero({
@@ -33,6 +39,8 @@ export function CinematicPortraitWallHero({
   eyebrowAr = "فريق العمل وصناع التجارب الاستثنائية",
   fixedHeadlineEn = "Meet the Minds Shaping",
   fixedHeadlineAr = "نخبة العقول الهندسية التي تصنع",
+  headlineTemplateEn,
+  headlineTemplateAr,
   rotatingWordsEn = ["Extraordinary Moments", "Iconic Activations", "Sensory Spectacles", "Global Pavilions", "Cultural Landmarks"],
   rotatingWordsAr = ["اللحظات الاستثنائية", "الفعاليات الكبرى", "العروض البصرية", "الأجنحة العالمية", "المعالم الثقافية"],
   descriptionEn = "A multidisciplinary collective of spatial designers, AV engineers, project directors, and event architects orchestrating Qatar's most ambitious live experiences.",
@@ -44,12 +52,30 @@ export function CinematicPortraitWallHero({
   secondaryCtaLabelAr = "استكشف الدليل ↓",
   secondaryCtaUrl = "#team-directory",
   animationSpeed = 3000,
+  media,
+  heroMedia,
 }: CinematicPortraitWallHeroProps) {
   const isAr = locale === "ar";
   const shouldReduceMotion = useReducedMotion();
 
-  // Rotating Kinetic Words
-  const words = isAr ? rotatingWordsAr : rotatingWordsEn;
+  // 1. Resolve raw headline string
+  const rawHeadline = isAr
+    ? (headlineTemplateAr || fixedHeadlineAr || "نخبة العقول الهندسية التي تصنع")
+    : (headlineTemplateEn || fixedHeadlineEn || "Meet the Minds Shaping");
+
+  const hasExplicitTemplate = rawHeadline.includes("{{animated}}") || rawHeadline.includes("\n");
+
+  // 2. Parse into clean lines if template or multi-line
+  const parsedHeadline = useMemo(() => {
+    if (!hasExplicitTemplate) return null;
+    return parseTwoLineHeadline(rawHeadline);
+  }, [rawHeadline, hasExplicitTemplate]);
+
+  // 3. Rotating Kinetic Words
+  const words = isAr
+    ? (Array.isArray(rotatingWordsAr) && rotatingWordsAr.length > 0 ? rotatingWordsAr : ["اللحظات الاستثنائية", "الفعاليات الكبرى", "العروض البصرية"])
+    : (Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0 ? rotatingWordsEn : ["Extraordinary Moments", "Iconic Activations", "Sensory Spectacles"]);
+
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
@@ -61,19 +87,38 @@ export function CinematicPortraitWallHero({
   }, [words, animationSpeed, shouldReduceMotion]);
 
   const defaultPrimaryUrl = primaryCtaUrl || `/${locale}/careers`;
+  const activeMedia = heroMedia || media;
+  const currentWord = words[wordIndex] || words[0] || "";
 
   return (
     <section
       dir={isAr ? "rtl" : "ltr"}
       data-testid="cinematic-portrait-wall-hero"
       aria-label={isAr ? "دليل فريق العمل الرئيسي" : "Team Directory Hero"}
-      className="relative min-h-[50svh] lg:min-h-[58svh] w-full bg-[#090c13] text-white flex flex-col items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative min-h-[52svh] lg:min-h-[62svh] w-full bg-[#090c13] text-white flex flex-col items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       {/* ============================================================ */}
-      {/* 1. ATMOSPHERIC GRAPHITE BACKDROP & AMBIENT AURA              */}
+      {/* 1. ATMOSPHERIC GRAPHITE BACKDROP & MEDIA RENDERER             */}
       {/* ============================================================ */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Subtle film grain */}
+        {/* Active Hero Atmospheric Backdrop Media */}
+        {activeMedia && activeMedia.mediaUrl ? (
+          <div className="absolute inset-0 w-full h-full">
+            <UniversalMediaRenderer
+              type={(activeMedia.mediaType as any) || "IMAGE"}
+              src={activeMedia.mediaUrl}
+              poster={activeMedia.posterUrl}
+              autoPlay
+              loop
+              muted
+              className="w-full h-full object-cover scale-105 filter blur-[1px] brightness-[0.45] transition-all duration-1000"
+            />
+            {/* Cinematic Gradient Scrim */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#090c13]/90 via-[#090c13]/70 to-[#090c13]" />
+          </div>
+        ) : null}
+
+        {/* Subtle film grain texture overlay */}
         <div
           className="absolute inset-0 opacity-[0.035] mix-blend-overlay"
           style={{
@@ -83,7 +128,7 @@ export function CinematicPortraitWallHero({
 
         {/* Top Radial Glow Fields */}
         <div
-          className="absolute -top-32 start-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-3xl opacity-25 pointer-events-none"
+          className="absolute -top-32 start-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-3xl opacity-30 pointer-events-none"
           style={{
             background: "radial-gradient(circle, rgba(6,182,212,0.45) 0%, rgba(99,102,241,0.25) 50%, transparent 75%)",
           }}
@@ -103,23 +148,77 @@ export function CinematicPortraitWallHero({
           <span>{isAr ? eyebrowAr : eyebrowEn}</span>
         </div>
 
-        {/* Kinetic Headline */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15] max-w-3xl">
-          {isAr ? fixedHeadlineAr : fixedHeadlineEn}{" "}
-          <span className="inline-block relative min-h-[1.2em]">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={wordIndex}
-                initial={shouldReduceMotion ? {} : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? {} : { opacity: 0, y: -12 }}
-                transition={{ duration: 0.4 }}
-                className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
-              >
-                {words[wordIndex] || words[0]}
-              </motion.span>
-            </AnimatePresence>
-          </span>
+        {/* Kinetic Two-Line or Inline Headline with Safe Token Interpolation */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.18] max-w-3xl">
+          {parsedHeadline ? (
+            <div className="flex flex-col items-center justify-center gap-1 sm:gap-2">
+              {/* Line 1 */}
+              {parsedHeadline.line1.hasToken ? (
+                <span className="inline-flex items-baseline flex-wrap justify-center gap-x-2.5">
+                  {parsedHeadline.line1.prefix && <span>{parsedHeadline.line1.prefix}</span>}
+                  <span className="inline-block relative min-h-[1.2em]">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={wordIndex}
+                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
+                        transition={{ duration: 0.45, ease: "easeOut" }}
+                        className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
+                      >
+                        {currentWord}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                  {parsedHeadline.line1.suffix && <span>{parsedHeadline.line1.suffix}</span>}
+                </span>
+              ) : (
+                <span>{parsedHeadline.line1.text}</span>
+              )}
+
+              {/* Line 2 */}
+              {parsedHeadline.line2.hasToken ? (
+                <span className="inline-flex items-baseline flex-wrap justify-center gap-x-2.5">
+                  {parsedHeadline.line2.prefix && <span>{parsedHeadline.line2.prefix}</span>}
+                  <span className="inline-block relative min-h-[1.2em]">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={wordIndex}
+                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
+                        transition={{ duration: 0.45, ease: "easeOut" }}
+                        className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
+                      >
+                        {currentWord}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                  {parsedHeadline.line2.suffix && <span>{parsedHeadline.line2.suffix}</span>}
+                </span>
+              ) : parsedHeadline.line2.text ? (
+                <span>{parsedHeadline.line2.text}</span>
+              ) : null}
+            </div>
+          ) : (
+            <span className="inline-flex items-baseline flex-wrap justify-center gap-x-2.5">
+              <span>{rawHeadline}</span>
+              <span className="inline-block relative min-h-[1.2em]">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={wordIndex}
+                    initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
+                  >
+                    {currentWord}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+            </span>
+          )}
         </h1>
 
         {/* Description Paragraph */}

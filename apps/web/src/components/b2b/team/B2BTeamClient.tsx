@@ -91,7 +91,7 @@ export function B2BTeamClient({
 
   return (
     <div className="w-full bg-[var(--surface-default)] min-h-screen">
-      {/* 1. Hero — Clean 70-80svh Hero with non-overlapping 5-7 3:4 portrait strip */}
+      {/* 1. Hero — Clean 70-80svh Hero with Atmospheric Backdrop Media & Two-Line Kinetic Headline */}
       <CinematicPortraitWallHero
         featuredMembers={heroWallMembers}
         locale={locale}
@@ -99,6 +99,8 @@ export function B2BTeamClient({
         eyebrowAr={cmsContent.eyebrowAr || cmsContent.hero?.eyebrowAr}
         fixedHeadlineEn={cmsContent.fixedHeadlineEn || cmsContent.titleEn || cmsContent.hero?.fixedHeadlineEn}
         fixedHeadlineAr={cmsContent.fixedHeadlineAr || cmsContent.titleAr || cmsContent.hero?.fixedHeadlineAr}
+        headlineTemplateEn={cmsContent.headlineTemplateEn || cmsContent.fixedHeadlineEn || cmsContent.titleEn || cmsContent.hero?.headlineTemplateEn}
+        headlineTemplateAr={cmsContent.headlineTemplateAr || cmsContent.fixedHeadlineAr || cmsContent.titleAr || cmsContent.hero?.headlineTemplateAr}
         rotatingWordsEn={cmsContent.rotatingWordsEn || cmsContent.hero?.rotatingWordsEn}
         rotatingWordsAr={cmsContent.rotatingWordsAr || cmsContent.hero?.rotatingWordsAr}
         descriptionEn={cmsContent.descriptionEn || cmsContent.descEn || cmsContent.hero?.descriptionEn}
@@ -109,7 +111,9 @@ export function B2BTeamClient({
         secondaryCtaLabelEn={cmsContent.secondaryCta?.labelEn}
         secondaryCtaLabelAr={cmsContent.secondaryCta?.labelAr}
         secondaryCtaUrl={cmsContent.secondaryCta?.url || "#team-directory"}
-        animationSpeed={cmsContent.animationSpeed || 2800}
+        animationSpeed={cmsContent.animationSpeed || cmsContent.hero?.animationSpeed || 2800}
+        heroMedia={cmsContent.heroMedia || cmsContent.hero?.heroMedia || cmsContent.hero?.media || cmsContent.media}
+        media={cmsContent.heroMedia || cmsContent.hero?.heroMedia || cmsContent.hero?.media || cmsContent.media}
       />
 
       {/* 2. Featured Mastermind Spotlight (Preserved structure, normalized spacing) */}
