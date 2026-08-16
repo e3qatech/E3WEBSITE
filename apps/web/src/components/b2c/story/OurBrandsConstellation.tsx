@@ -188,27 +188,34 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
           {/* Ticker Controls */}
           {brands.length > 1 && (
-            <div className="flex items-center gap-3 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-2 backdrop-blur-md shadow-md">
+            <div className="flex items-center gap-2 bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] rounded-2xl p-1.5 backdrop-blur-md shadow-md">
               <button
                 onClick={handlePrev}
-                className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-purple-600 text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
+                className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
                 title={isAr ? "العلامة التجارية السابقة" : "Previous Brand"}
+                aria-label="Previous Brand"
               >
                 <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
               </button>
 
+              <span className="px-3 py-1.5 rounded-xl bg-[var(--bg-level-1)] text-xs font-mono font-bold text-[var(--text-primary)] border border-[var(--border-level-2)] shadow-inner">
+                {String(safeActiveIndex + 1).padStart(2, '0')} / {String(brands.length).padStart(2, '0')}
+              </span>
+
               <button
                 onClick={() => setIsPaused(!isPaused)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-xs font-mono font-bold text-[var(--text-primary)] transition-colors cursor-pointer"
+                className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-[var(--text-primary)] transition-colors cursor-pointer"
+                title={isPaused ? (isAr ? "تشغيل التمرير التلقائي" : "Resume Auto Scroll") : (isAr ? "إيقاف مؤقت" : "Pause Auto Scroll")}
+                aria-label={isPaused ? "Resume auto scroll" : "Pause auto scroll"}
               >
-                {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" /> : <Pause className="w-3.5 h-3.5 text-purple-500 fill-purple-500" />}
-                <span>{isPaused ? (isAr ? "موقوف" : "PAUSED") : (isAr ? "جاري العرض" : "AUTO-TICKER")}</span>
+                {isPaused ? <Play className="w-4 h-4 text-emerald-500 fill-emerald-500" /> : <Pause className="w-4 h-4 text-emerald-500 fill-emerald-500" />}
               </button>
 
               <button
                 onClick={handleNext}
-                className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-purple-600 text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
+                className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
                 title={isAr ? "العلامة التجارية التالية" : "Next Brand"}
+                aria-label="Next Brand"
               >
                 <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
               </button>

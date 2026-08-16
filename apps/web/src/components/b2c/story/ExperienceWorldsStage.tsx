@@ -255,49 +255,38 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
           </div>
 
           {/* Clean Auto Slider Controls Bar */}
-          <div className="flex items-center gap-3 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-2 backdrop-blur-md shadow-md">
+          <div className="flex items-center gap-2 bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] rounded-2xl p-1.5 backdrop-blur-md shadow-md">
             <button
               onClick={handlePrev}
-              className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all cursor-pointer shadow-sm"
+              className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
               title={isAr ? "السابق" : "Previous"}
               aria-label="Previous World"
             >
               <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Slide Progress Dots */}
-            <div className="flex items-center gap-1.5 px-2">
-              {worlds.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedIndex(idx)}
-                  className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
-                    idx === selectedIndex ? 'w-6 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-2 bg-[var(--border-level-2)] hover:bg-[var(--text-tertiary)]'
-                  }`}
-                  title={isAr ? `الانتقال إلى الوجهة ${idx + 1}` : `Go to world ${idx + 1}`}
-                  aria-label={`World ${idx + 1}`}
-                />
-              ))}
-            </div>
+            {/* Slide Counter Badge */}
+            <span className="px-3 py-1.5 rounded-xl bg-[var(--bg-level-1)] text-xs font-mono font-bold text-[var(--text-primary)] border border-[var(--border-level-2)] shadow-inner">
+              {String(selectedIndex + 1).padStart(2, '0')} / {String(worlds.length).padStart(2, '0')}
+            </span>
 
             {/* Pause / Play Toggle */}
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="p-2 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-xs font-mono font-bold text-[var(--text-primary)] transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-[var(--text-primary)] transition-colors cursor-pointer"
               title={isPaused ? (isAr ? "تشغيل التمرير التلقائي" : "Play Auto Slider") : (isAr ? "إيقاف التمرير التلقائي" : "Pause Auto Slider")}
               aria-label="Toggle autoplay"
             >
-              {isPaused ? <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" /> : <Pause className="w-3.5 h-3.5 text-purple-500 fill-purple-500" />}
+              {isPaused ? <Play className="w-4 h-4 text-emerald-500 fill-emerald-500" /> : <Pause className="w-4 h-4 text-emerald-500 fill-emerald-500" />}
             </button>
 
             {/* Next Button */}
             <button
               onClick={handleNext}
-              className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white dark:text-slate-950 transition-all cursor-pointer shadow-md flex items-center gap-1 font-extrabold text-xs"
+              className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
               title={isAr ? "التالي" : "Next"}
               aria-label="Next World"
             >
-              <span>{isAr ? "التالي" : "Next"}</span>
               <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
             </button>
           </div>

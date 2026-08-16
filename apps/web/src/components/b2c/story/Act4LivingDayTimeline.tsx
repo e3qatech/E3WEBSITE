@@ -148,13 +148,13 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Living Day-to-Evening Timeline Switcher Tabs */}
-            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] backdrop-blur-md shadow-md">
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] backdrop-blur-md shadow-md">
               <button
                 onClick={() => setActiveTab('NOW')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all duration-300 cursor-pointer ${
                   activeTab === 'NOW'
-                    ? 'bg-emerald-500 text-white dark:text-slate-950 shadow-md shadow-emerald-500/30 font-black'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+                    : 'font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5" />
@@ -163,10 +163,10 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
               <button
                 onClick={() => setActiveTab('LATER')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all duration-300 cursor-pointer ${
                   activeTab === 'LATER'
-                    ? 'bg-amber-500 text-white dark:text-slate-950 shadow-md shadow-amber-500/30 font-black'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+                    : 'font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Sunset className="w-3.5 h-3.5" />
@@ -175,10 +175,10 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
               <button
                 onClick={() => setActiveTab('SOON')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all duration-300 cursor-pointer ${
                   activeTab === 'SOON'
-                    ? 'bg-purple-500 text-white shadow-md shadow-purple-500/30 font-black'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-emerald-500 text-slate-950 font-black shadow-[0_0_15px_rgba(16,185,129,0.35)]'
+                    : 'font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5" />
@@ -188,21 +188,21 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
             {/* Slide Navigation Controls when cards > 1 */}
             {isSlider && (
-              <div className="flex items-center gap-2 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-2xl p-1.5 shadow-md">
+              <div className="flex items-center gap-2 bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] rounded-2xl p-1.5 shadow-md backdrop-blur-md">
                 <button
                   onClick={handlePrevSlide}
-                  className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-white text-[var(--text-secondary)] transition-colors cursor-pointer"
+                  className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
                   title={isAr ? "الشريحة السابقة" : "Previous Slide"}
                   aria-label="Previous Slide"
                 >
                   <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                 </button>
-                <span className="text-xs font-mono font-bold text-[var(--text-secondary)] px-2">
+                <span className="px-3 py-1.5 rounded-xl bg-[var(--bg-level-1)] text-xs font-mono font-bold text-[var(--text-primary)] border border-[var(--border-level-2)] shadow-inner">
                   {currentSlide + 1} / {totalSlides}
                 </span>
                 <button
                   onClick={handleNextSlide}
-                  className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-white text-[var(--text-secondary)] transition-colors cursor-pointer"
+                  className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
                   title={isAr ? "الشريحة التالية" : "Next Slide"}
                   aria-label="Next Slide"
                 >
@@ -276,13 +276,13 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
         {/* Pagination Dots for Slider */}
         {isSlider && totalSlides > 1 && (
-          <div className="flex items-center justify-center gap-2 pt-2">
+          <div className="flex items-center justify-center gap-2 pt-6">
             {Array.from({ length: totalSlides }).map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  currentSlide === idx ? 'w-8 bg-emerald-500' : 'w-2 bg-[var(--border-level-2)] hover:bg-[var(--text-tertiary)]'
+                className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
+                  currentSlide === idx ? 'w-8 bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' : 'w-2 bg-[var(--border-level-2)] hover:bg-[var(--text-tertiary)]'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

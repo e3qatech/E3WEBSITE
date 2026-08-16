@@ -211,8 +211,8 @@ export function CoreTeamPeopleSection({ content, locale = 'en' }: CoreTeamPeople
         {/* Section Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-sky-500/30 bg-[var(--surface-default)] text-sky-600 dark:text-sky-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
-              <Users className="w-3.5 h-3.5 text-sky-500" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">
+              <Users className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? "صنّاع المتعة — CORE TEAM" : "CORE TEAM — HUMAN PROOF"}</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">

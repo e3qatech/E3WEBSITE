@@ -471,8 +471,8 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-purple-500/30 bg-[var(--surface-default)] text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-widest shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/30 bg-[var(--surface-default)] text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
             <span>{isAr ? "مسارات الحكايات — DIMENSIONAL DOORWAYS — استكشاف الحكايات والأنشطة" : "STORY TRACKS & DIMENSIONAL DOORWAYS — STORY DISCOVERY"}</span>
           </div>
 
@@ -492,17 +492,17 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
           <div className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text-secondary)]">
             {isAr ? "تصفح مسارات الحكايات" : "EXPLORE STORY TRACKS"} ({options.length})
           </div>
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2 lg:hidden bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] rounded-2xl p-1 shadow-md">
             <button
               onClick={() => scrollMobile('left')}
-              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs cursor-pointer"
+              className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all cursor-pointer shadow-sm"
               aria-label="Scroll left"
             >
               {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
             <button
               onClick={() => scrollMobile('right')}
-              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shadow-xs cursor-pointer"
+              className="p-2 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all cursor-pointer shadow-sm"
               aria-label="Scroll right"
             >
               {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}

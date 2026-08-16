@@ -208,32 +208,28 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
             </div>
 
             {/* Slider Navigation Bar: Index counter & Previous/Next Buttons */}
-            <div className="flex items-center gap-2.5 self-end sm:self-center">
-              {/* Active Slide Indicator */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-hover)] text-xs font-mono font-bold text-[var(--text-secondary)] shadow-xs">
-                <span className="text-[var(--text-primary)] font-extrabold">
-                  {String(currentIndex + 1).padStart(2, '0')}
-                </span>
-                <span className="text-[var(--text-tertiary)]">/</span>
-                <span>{String(worlds.length).padStart(2, '0')}</span>
-              </div>
-
+            <div className="flex items-center gap-2 bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] rounded-2xl p-1.5 shadow-md backdrop-blur-md self-end sm:self-center">
               {/* Prev Button */}
               <button
                 type="button"
                 onClick={handlePrev}
                 aria-label={isAr ? "الوجهة السابقة" : "Previous Attraction"}
-                className="p-2 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] hover:border-emerald-500/50 transition-all shadow-xs cursor-pointer hover:scale-105 active:scale-95"
+                className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
               >
                 {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
+
+              {/* Active Slide Indicator */}
+              <span className="px-3 py-1.5 rounded-xl bg-[var(--bg-level-1)] text-xs font-mono font-bold text-[var(--text-primary)] border border-[var(--border-level-2)] shadow-inner">
+                {String(currentIndex + 1).padStart(2, '0')} / {String(worlds.length).padStart(2, '0')}
+              </span>
 
               {/* Next Button */}
               <button
                 type="button"
                 onClick={handleNext}
                 aria-label={isAr ? "الوجهة التالية" : "Next Attraction"}
-                className="p-2 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] hover:border-emerald-500/50 transition-all shadow-xs cursor-pointer hover:scale-105 active:scale-95"
+                className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-emerald-500 hover:text-slate-950 text-[var(--text-secondary)] transition-all duration-200 cursor-pointer shadow-sm"
               >
                 {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
@@ -243,9 +239,9 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
                 type="button"
                 onClick={() => setIsPaused(!isPaused)}
                 title={isPaused ? (isAr ? "تشغيل التبديل التلقائي" : "Resume Auto Slider") : (isAr ? "إيقاف التبديل التلقائي مؤقتاً" : "Pause Auto Slider")}
-                className="p-2 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-emerald-500 transition-all shadow-xs cursor-pointer"
+                className="p-2.5 rounded-xl bg-[var(--surface-hover)] hover:opacity-80 text-[var(--text-primary)] transition-colors cursor-pointer"
               >
-                {isPaused ? <Play className="w-3.5 h-3.5 fill-current" /> : <Pause className="w-3.5 h-3.5" />}
+                {isPaused ? <Play className="w-4 h-4 text-emerald-500 fill-emerald-500" /> : <Pause className="w-4 h-4 text-emerald-500 fill-emerald-500" />}
               </button>
             </div>
           </div>
