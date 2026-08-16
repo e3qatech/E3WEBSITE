@@ -74,6 +74,18 @@ export async function PUT(
     if (keys.length > 0) {
       await redis.del(...keys);
     }
+    const calKeys = await redis.keys('calendar:*');
+    if (calKeys.length > 0) {
+      await redis.del(...calKeys);
+    }
+
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/[locale]/b2c", "page");
+      revalidatePath("/[locale]/b2c/calendar", "page");
+      revalidatePath("/[locale]/b2c/attractions", "page");
+      revalidatePath("/[locale]", "layout");
+    } catch (_err) {}
 
     return NextResponse.json(updatedAttraction);
   } catch (error: any) {

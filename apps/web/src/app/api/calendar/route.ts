@@ -188,8 +188,9 @@ export async function GET(req: NextRequest) {
 
       const ops = (attr?.operations as any) || {};
       const thumbnail =
-        attr?.heroMediaUrl ||
         attr?.heroThumbnailUrl ||
+        attr?.heroMediaUrl ||
+        attr?.heroFallbackUrl ||
         attr?.gallery?.[0]?.url ||
         attr?.logoUrl ||
         DEFAULT_COVER;
@@ -256,8 +257,9 @@ export async function GET(req: NextRequest) {
       const ops = (attr?.operations as any) || {};
       const thumbnail =
         sched.heroMediaUrl ||
-        attr?.heroMediaUrl ||
         attr?.heroThumbnailUrl ||
+        attr?.heroMediaUrl ||
+        attr?.heroFallbackUrl ||
         attr?.gallery?.[0]?.url ||
         DEFAULT_COVER;
 
@@ -372,8 +374,9 @@ export async function GET(req: NextRequest) {
       const endTime = new Date(Date.UTC(startBounds.year, startBounds.month - 1, startBounds.day, closeHour - 3, closeMin, 0, 0));
 
       const thumbnail =
-        attr?.heroMediaUrl ||
         attr?.heroThumbnailUrl ||
+        attr?.heroMediaUrl ||
+        attr?.heroFallbackUrl ||
         attr?.gallery?.[0]?.url ||
         attr?.logoUrl ||
         DEFAULT_COVER;
@@ -437,7 +440,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      await redis.set(cacheKey, JSON.stringify(finalResults), 'EX', 120);
+      await redis.set(cacheKey, JSON.stringify(finalResults), 'EX', 30);
     } catch (e: any) {
       console.warn('[REDIS_ERROR] Redis write notice:', e.message);
     }

@@ -83,6 +83,48 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
   }
 
   if (cmsData) {
+    if (attractions.length > 0) {
+      cmsData.attractions = attractions;
+      cmsData.act3Worlds = attractions.map((attr: any) => {
+        const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
+          ? Math.min(...attr.pricing.map((p: any) => p.price))
+          : 45;
+
+        const ops = (attr.operations as any) || {};
+        const venue = ops.venueName 
+          || ops.venueAddressEn 
+          || (locale === 'ar' ? "الدوحة، قطر" : "Doha, Qatar");
+
+        const rawBadge = ops.materialType || "E3 WORLD";
+        const safeBadge = (rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge;
+
+        return {
+          id: attr.id,
+          slug: attr.slug,
+          nameEn: attr.nameEn,
+          nameAr: attr.nameAr || attr.nameEn,
+          taglineEn: attr.taglineEn || attr.descriptionEn?.substring(0, 90) || "Flagship E3 Interactive World",
+          taglineAr: attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية",
+          locationEn: venue,
+          locationAr: venue,
+          statusEn: "OPEN NOW",
+          statusAr: "مفتوح الآن",
+          materialType: safeBadge,
+          accentColor: ops.accentColor || "#10b981",
+          mediaUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.gallery?.[0]?.url || "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+          mediaType: attr.heroMediaType || "IMAGE",
+          audienceEn: ops.audienceEn || (locale === 'ar' ? "العائلات والأصدقاء" : "Families & Groups"),
+          audienceAr: ops.audienceAr || (locale === 'ar' ? "العائلات والأصدقاء" : "Families & Groups"),
+          timingsEn: ops.timingsEn || "02:00 PM - 12:00 AM",
+          timingsAr: ops.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص",
+          price: minPrice,
+          currency: "QAR",
+          ctaEn: "Book Pass & Ticket",
+          ctaAr: "احجز التذكرة والمواعيد"
+        };
+      });
+    }
+
     if (!cmsData.storyDiscovery) cmsData.storyDiscovery = {};
     if (dbStoryTypes.length > 0) {
       cmsData.storyDiscovery.storyTypes = dbStoryTypes;

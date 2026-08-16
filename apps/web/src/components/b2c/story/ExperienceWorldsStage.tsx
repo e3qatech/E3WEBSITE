@@ -134,7 +134,11 @@ interface ExperienceWorldsStageProps {
 export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStageProps) {
   const isAr = locale === 'ar'
 
-  const [dbAttractions, setDbAttractions] = useState<any[]>([])
+  const initialAttractions = Array.isArray(content?.attractions) && content.attractions.length > 0
+    ? content.attractions
+    : []
+
+  const [dbAttractions, setDbAttractions] = useState<any[]>(initialAttractions)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
@@ -179,7 +183,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
       statusAr: "مفتوح الآن",
       materialType: safeBadge,
       accentColor: attr.operations?.accentColor || "#10b981",
-      mediaUrl: attr.heroMediaUrl || attr.heroThumbnailUrl || attr.heroFallbackUrl || "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+      mediaUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.gallery?.[0]?.url || attr.mediaUrl || "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
       mediaType: attr.heroMediaType || "IMAGE",
       audienceEn: attr.operations?.audienceEn || (isAr ? "العائلات والأصدقاء" : "Families & Groups"),
       audienceAr: attr.operations?.audienceAr || (isAr ? "العائلات والأصدقاء" : "Families & Groups"),

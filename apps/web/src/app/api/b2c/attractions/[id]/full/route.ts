@@ -196,6 +196,28 @@ export async function PUT(
         })
       }
     })
+    // Invalidate Redis caches and Next.js static paths
+    try {
+      const { redis } = await import("@/lib/redis")
+      if (redis?.del) {
+        await redis.del(`attractions:detail:${id}`)
+        if (redis?.keys) {
+          const attrKeys = await redis.keys("attractions:*")
+          if (attrKeys && attrKeys.length > 0) await redis.del(...attrKeys)
+          const calKeys = await redis.keys("calendar:*")
+          if (calKeys && calKeys.length > 0) await redis.del(...calKeys)
+        }
+      }
+    } catch (_err) {}
+
+    try {
+      const { revalidatePath } = await import("next/cache")
+      revalidatePath("/[locale]/b2c", "page")
+      revalidatePath("/[locale]/b2c/calendar", "page")
+      revalidatePath("/[locale]/b2c/attractions", "page")
+      revalidatePath(`/[locale]/b2c/attractions/${cleanSlug}`, "page")
+      revalidatePath("/[locale]", "layout")
+    } catch (_err) {}
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
