@@ -81,18 +81,16 @@ export function UniversalMediaRenderer({
   const [hasError, setHasError] = React.useState(false)
   
   if (!src || hasError) {
-    if (poster) {
+    if (poster && !hasError) {
       return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
-          <img src={poster} alt={alt} className="w-full h-full object-cover" />
+          <img src={poster} alt={alt} className="w-full h-full object-cover" onError={() => setHasError(true)} />
         </div>
       )
     }
     return (
-      <div className={cn("relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-950 flex items-center justify-center", className)}>
-        <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400 font-syne">
-          E3
-        </div>
+      <div className={cn("relative w-full h-full overflow-hidden bg-zinc-950", className)}>
+        <img src="/hero-bg.png" alt={alt} className="w-full h-full object-cover opacity-70" />
       </div>
     )
   }

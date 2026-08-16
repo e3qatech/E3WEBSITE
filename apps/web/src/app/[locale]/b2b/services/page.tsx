@@ -191,16 +191,13 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
       {hero.enabled !== false && (
         <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80 pt-24 pb-16">
           <div className="absolute inset-0 z-0">
-            {hero.mediaUrl ? (
-              <UniversalMediaRenderer 
-                type={hero.mediaType as any || "IMAGE"} 
-                src={hero.mediaUrl}
-                alt="E3 Capabilities Hero"
-                className="w-full h-full object-cover filter brightness-[0.65] contrast-[1.1]"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
-            )}
+            <UniversalMediaRenderer 
+              type={(hero.media?.mediaType || hero.mediaType || "IMAGE") as any} 
+              src={(hero.media?.mediaUrl || hero.mediaUrl || (hero as any).backgroundImage || "/hero-bg.png").replace("/hero-b2b.jpg", "/hero-bg.png")}
+              poster={(hero.media?.posterUrl || (hero as any).posterImage || "").replace("/hero-b2b.jpg", "/hero-bg.png") || undefined}
+              alt="E3 Capabilities Hero"
+              className="w-full h-full object-cover filter brightness-[0.65] contrast-[1.1]"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
             <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/50 to-transparent rtl:bg-gradient-to-l" />
           </div>

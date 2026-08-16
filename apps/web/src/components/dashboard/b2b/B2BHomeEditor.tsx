@@ -167,7 +167,7 @@ export function B2BHomeEditor({
               enableRotatingWords: hero.enableRotatingWords !== false,
               media: hero.media || {
                 mediaType: (hero.mediaType as any) || "IMAGE",
-                mediaUrl: hero.mediaUrl || hero.backgroundImage || "/hero-b2b.jpg"
+                mediaUrl: hero.mediaUrl || hero.backgroundImage || "/hero-bg.png"
               }
             }}
             onChange={(updatedHero) => {

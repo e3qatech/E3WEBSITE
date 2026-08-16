@@ -67,32 +67,39 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
 
   const overlayOpacity = Math.min(1, Math.max(0.2, (hero.overlayStrength ?? 70) / 100));
 
+  const heroMediaUrl = (
+    hero.media?.mediaUrl ||
+    hero.mediaUrl ||
+    (hero as any).backgroundImage ||
+    "/hero-bg.png"
+  ).replace("/hero-b2b.jpg", "/hero-bg.png");
+
+  const heroMediaType = ((hero.media?.mediaType || hero.mediaType || "IMAGE") as any);
+  const heroPoster = (hero.media?.posterUrl || hero.posterImage || "").replace("/hero-b2b.jpg", "/hero-bg.png");
+  const heroMobileMediaUrl = (hero.mobileMediaUrl || "").replace("/hero-b2b.jpg", "/hero-bg.png");
+
   return (
     <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80 pt-32 pb-20 bg-zinc-950">
       {/* Background Media Container */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Desktop Media */}
-        <div className={hero.mobileMediaUrl ? "hidden md:block w-full h-full" : "w-full h-full"}>
-          {hero.mediaUrl ? (
-            <UniversalMediaRenderer
-              type={(hero.mediaType as any) || "IMAGE"}
-              src={hero.mediaUrl}
-              poster={hero.posterImage}
-              alt={title}
-              className="w-full h-full object-cover filter brightness-[0.55] contrast-[1.1] scale-105"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
-          )}
+        <div className={heroMobileMediaUrl ? "hidden md:block w-full h-full" : "w-full h-full"}>
+          <UniversalMediaRenderer
+            type={heroMediaType}
+            src={heroMediaUrl}
+            poster={heroPoster || undefined}
+            alt={title}
+            className="w-full h-full object-cover filter brightness-[0.55] contrast-[1.1] scale-105"
+          />
         </div>
 
         {/* Mobile Media */}
-        {hero.mobileMediaUrl && (
+        {heroMobileMediaUrl && (
           <div className="md:hidden w-full h-full">
             <UniversalMediaRenderer
-              type={(hero.mediaType as any) || "IMAGE"}
-              src={hero.mobileMediaUrl}
-              poster={hero.posterImage}
+              type={heroMediaType}
+              src={heroMobileMediaUrl}
+              poster={heroPoster || undefined}
               alt={title}
               className="w-full h-full object-cover filter brightness-[0.55] contrast-[1.1] scale-105"
             />

@@ -240,8 +240,9 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80">
         <div className="absolute inset-0 z-0">
           <UniversalMediaRenderer 
-            type={hero.mediaType || "IMAGE"} 
-            src={hero.mediaUrl || (hero as any).backgroundImage || "/hero-b2b.jpg"}
+            type={hero.media?.mediaType || hero.mediaType || "IMAGE"} 
+            src={(hero.media?.mediaUrl || hero.mediaUrl || (hero as any).backgroundImage || "/hero-bg.png").replace("/hero-b2b.jpg", "/hero-bg.png")}
+            poster={(hero.media?.posterUrl || (hero as any).posterImage || "").replace("/hero-b2b.jpg", "/hero-bg.png") || undefined}
             alt="E3 Enterprise Hero"
             className="w-full h-full object-cover filter brightness-[0.7] contrast-[1.1]"
           />

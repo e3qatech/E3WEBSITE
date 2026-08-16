@@ -367,7 +367,7 @@ export function B2BCasesEditor({
               enableRotatingWords: data.hero?.enableRotatingWords !== false,
               media: data.hero?.media || {
                 mediaType: (data.hero?.mediaType as any) || "IMAGE",
-                mediaUrl: data.hero?.mediaUrl || "/hero-b2b.jpg",
+                mediaUrl: data.hero?.mediaUrl || "/hero-bg.png",
                 posterUrl: data.hero?.posterImage
               }
             }}
