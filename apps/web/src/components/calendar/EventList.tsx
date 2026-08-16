@@ -25,7 +25,7 @@ export function EventList({
   const isAr = locale === 'ar';
   const dateLocale = isAr ? ar : enUS;
 
-  // Group events by day, ONLY for the currentDate
+  // Group events by day, for the currentDate
   const targetDayStr = format(currentDate, 'yyyy-MM-dd');
   
   const targetDateStart = new Date(currentDate);
@@ -35,16 +35,26 @@ export function EventList({
 
   const groupedEvents = events.reduce((acc, event) => {
     const evStart = new Date(event.startTime);
-    evStart.setHours(0, 0, 0, 0);
     const evEnd = new Date(event.endTime);
-    evEnd.setHours(23, 59, 59, 999);
 
-    if (targetDateStart.getTime() <= evEnd.getTime() && targetDateEnd.getTime() >= evStart.getTime()) {
+    // Overlap check or matching day
+    const evStartDay = format(evStart, 'yyyy-MM-dd');
+    const evEndDay = format(evEnd, 'yyyy-MM-dd');
+
+    if (
+      (evStartDay <= targetDayStr && evEndDay >= targetDayStr) ||
+      (targetDateStart.getTime() <= evEnd.getTime() && targetDateEnd.getTime() >= evStart.getTime())
+    ) {
       if (!acc[targetDayStr]) acc[targetDayStr] = [];
       acc[targetDayStr].push(event);
     }
     return acc;
   }, {} as Record<string, CalendarEvent[]>);
+
+  // If events were fetched for this day, ensure they are never dropped due to timezone offsets
+  if (events.length > 0 && (!groupedEvents[targetDayStr] || groupedEvents[targetDayStr].length === 0)) {
+    groupedEvents[targetDayStr] = events;
+  }
 
   const sortedDays = Object.keys(groupedEvents).sort();
 

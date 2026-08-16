@@ -156,6 +156,10 @@ export default async function CaseStudyPage({
         challengeText={challengeText}
         solutionText={solutionText}
         resultText={resultText}
+        heroImageUrl={project.heroImageUrl}
+        heroMediaType={project.heroMediaType}
+        thumbnailUrl={project.thumbnailUrl}
+        galleryMedia={gallery}
       />
 
       {/* 4. Impact Metrics Bento Grid */}
@@ -170,22 +174,22 @@ export default async function CaseStudyPage({
         attraction={project.attraction}
       />
 
-      {/* 6. Project Team ("People Behind the Build") */}
+      {/* 6. Editorial Visual Gallery Journey */}
+      <CaseGalleryJourney
+        locale={locale}
+        gallery={gallery}
+      />
+
+      {/* 7. Project Team ("People Behind the Build") */}
       <ProjectTeamSection
         locale={locale}
         teamMembers={project.teamMembers}
       />
 
-      {/* 7. Client Testimonials */}
+      {/* 8. Client Testimonials */}
       <CaseTestimonialsSection
         locale={locale}
         testimonials={testimonials}
-      />
-
-      {/* 8. Editorial Visual Gallery Journey */}
-      <CaseGalleryJourney
-        locale={locale}
-        gallery={gallery}
       />
 
       {/* 9. Next Project Transition */}

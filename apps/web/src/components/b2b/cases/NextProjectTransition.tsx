@@ -12,6 +12,8 @@ interface NextProjectItem {
   titleEn?: string | null;
   titleAr?: string | null;
   category?: string | null;
+  clientName?: string | null;
+  year?: number | null;
   thumbnailUrl?: string | null;
   thumbnailMediaType?: string | null;
   heroImageUrl?: string | null;

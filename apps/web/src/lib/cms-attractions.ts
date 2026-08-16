@@ -27,11 +27,14 @@ export interface AttractionFilterParams {
 }
 
 /**
- * Strict active attraction verification by current date
+ * Strict active attraction verification by current/target date
  */
-export function isAttractionActiveByDate(item: any): boolean {
+export function isAttractionActiveByDate(item: any, targetDateInput?: Date | string | null | unknown): boolean {
   if (!item) return false
-  const now = new Date()
+  const targetDate = typeof targetDateInput === 'string' || targetDateInput instanceof Date
+    ? new Date(targetDateInput)
+    : new Date()
+  const now = isNaN(targetDate.getTime()) ? new Date() : targetDate
 
   // 1. Explicit Operational Status Check
   const status = item.operationalStatus || item.status || item.computedStatus
@@ -46,9 +49,15 @@ export function isAttractionActiveByDate(item: any): boolean {
     if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') return false
   }
 
-  if (temporal.isPermanent) return true
+  if (temporal.adminStatusOverride) {
+    const adminStatus = String(temporal.adminStatusOverride).toLowerCase().trim()
+    if (adminStatus === 'closed' || adminStatus === 'archived' || adminStatus === 'inactive') return false
+    if (adminStatus === 'live' || adminStatus === 'active') return true
+  }
 
-  // 3. Date Boundaries Verification (Start Date <= Current Date <= End Date)
+  if (temporal.isPermanent || temporal.isPermanentAttraction) return true
+
+  // 3. Date Boundaries Verification (Start Date <= Target Date <= End Date)
   const startDateStr = temporal.startDate || item.startDate || item.operations?.startDate
   const endDateStr = temporal.endDate || item.endDate || item.operations?.endDate
 

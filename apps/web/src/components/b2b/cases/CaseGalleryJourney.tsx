@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Images, X, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ export function CaseGalleryJourney({
 }: CaseGalleryJourneyProps) {
   const isAr = locale === "ar";
   const [activeModalIndex, setActiveModalIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   // Keyboard controls for modal
   useEffect(() => {
@@ -47,6 +48,28 @@ export function CaseGalleryJourney({
     return null;
   }
 
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || activeModalIndex === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        // swipe left -> next
+        setActiveModalIndex((prev) => (prev !== null ? (prev + 1) % gallery.length : 0));
+      } else {
+        // swipe right -> prev
+        setActiveModalIndex((prev) => (prev !== null ? (prev - 1 + gallery.length) % gallery.length : 0));
+      }
+    }
+    touchStartX.current = null;
+  };
+
   return (
     <section
       id="gallery"
@@ -65,10 +88,10 @@ export function CaseGalleryJourney({
         </h2>
       </div>
 
-      {/* Editorial Alternating Composition Grid */}
+      {/* Editorial Controlled Alternating Grid: First item full-width, others 2-column */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         {gallery.map((item, i) => {
-          const isFullWidth = i % 3 === 0;
+          const isFullWidth = i === 0 || (i > 2 && i % 3 === 0);
           const caption = isAr
             ? item.captionAr || item.captionEn || item.caption
             : item.captionEn || item.caption;
@@ -108,13 +131,15 @@ export function CaseGalleryJourney({
         })}
       </div>
 
-      {/* Lightbox Modal */}
+      {/* Lightbox Modal with Keyboard and Touch Navigation */}
       {activeModalIndex !== null && (
         <div
           data-testid="gallery-lightbox-modal"
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8 select-none"
           role="dialog"
           aria-modal="true"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close Button */}
           <button

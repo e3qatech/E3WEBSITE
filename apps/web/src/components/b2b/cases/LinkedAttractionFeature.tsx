@@ -16,6 +16,9 @@ interface LinkedAttractionFeatureProps {
     taglineEn?: string | null;
     taglineAr?: string | null;
     heroImageUrl?: string | null;
+    heroMediaUrl?: string | null;
+    heroFallbackUrl?: string | null;
+    heroThumbnailUrl?: string | null;
     heroMediaType?: string | null;
     locationEn?: string | null;
     locationAr?: string | null;
@@ -44,10 +47,18 @@ export function LinkedAttractionFeature({
     ? attraction.locationAr || attraction.locationEn
     : attraction.locationEn || attraction.locationAr;
 
+  const mediaSource =
+    attraction.heroMediaUrl ||
+    attraction.heroImageUrl ||
+    attraction.heroFallbackUrl ||
+    attraction.heroThumbnailUrl;
+
+  const mediaType = attraction.heroMediaType || "IMAGE";
   const attractionUrl = `/${locale}/b2c/attractions/${attraction.slug || attraction.id}`;
 
   return (
     <section
+      id="attraction"
       data-testid="linked-attraction-feature"
       aria-label={isAr ? "الوجهة الترفيهية المرتبطة بالمشروع" : "Linked Live Attraction"}
       dir={isAr ? "rtl" : "ltr"}
@@ -99,11 +110,11 @@ export function LinkedAttractionFeature({
           </div>
 
           {/* Right / Media Preview */}
-          {attraction.heroImageUrl && (
+          {mediaSource && (
             <div className="lg:col-span-5 relative aspect-[16/10] rounded-2xl overflow-hidden border border-white/10 shadow-xl bg-slate-900">
               <UniversalMediaRenderer
-                type={(attraction.heroMediaType as any) || "IMAGE"}
-                src={attraction.heroImageUrl}
+                type={mediaType as any}
+                src={mediaSource}
                 className="w-full h-full object-cover filter brightness-95"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />

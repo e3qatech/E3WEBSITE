@@ -1819,7 +1819,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     const wordStyle = raw.wordStyle || raw.e3LivingHero?.wordStyle || defaults.wordStyle;
     const alignmentEn = raw.alignmentEn || raw.e3LivingHero?.alignmentEn || defaults.alignmentEn;
     const alignmentAr = raw.alignmentAr || raw.e3LivingHero?.alignmentAr || defaults.alignmentAr;
-    const alignment = raw.alignment || raw.e3LivingHero?.alignment;
+    const alignment = raw.alignment || raw.e3LivingHero?.alignment || defaults.alignment;
     const animationSpeed = raw.animationSpeed || raw.e3LivingHero?.animationSpeed || defaults.animationSpeed;
     const animationDuration = raw.animationDuration || raw.e3LivingHero?.animationDuration || defaults.animationDuration;
     const enableRotatingWords = raw.enableRotatingWords !== undefined

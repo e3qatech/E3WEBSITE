@@ -7,7 +7,13 @@ interface TestimonialItem {
   quoteEn?: string;
   quoteAr?: string;
   authorName?: string;
+  authorNameEn?: string;
+  authorNameAr?: string;
   authorRole?: string;
+  authorRoleEn?: string;
+  authorRoleAr?: string;
+  authorCompany?: string;
+  authorCompanyAr?: string;
   isVisible?: boolean;
 }
 
@@ -37,6 +43,18 @@ export function CaseTestimonialsSection({
   const quoteText = isAr
     ? current.quoteAr || current.quoteEn
     : current.quoteEn || current.quoteAr;
+
+  const authorName = isAr
+    ? current.authorNameAr || current.authorName || current.authorNameEn || "ممثل الجهة"
+    : current.authorNameEn || current.authorName || current.authorNameAr || "Client Representative";
+
+  const authorRole = isAr
+    ? current.authorRoleAr || current.authorRole || current.authorRoleEn
+    : current.authorRoleEn || current.authorRole || current.authorRoleAr;
+
+  const authorCompany = isAr
+    ? current.authorCompanyAr || current.authorCompany
+    : current.authorCompany || current.authorCompanyAr;
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % visibleTestimonials.length);
@@ -76,11 +94,11 @@ export function CaseTestimonialsSection({
           <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="text-base sm:text-lg font-bold text-white font-syne">
-                {current.authorName || (isAr ? "ممثل الجهة" : "Client Representative")}
+                {authorName}
               </div>
-              {current.authorRole && (
+              {(authorRole || authorCompany) && (
                 <div className="text-xs sm:text-sm font-mono text-cyan-400 font-medium">
-                  {current.authorRole}
+                  {[authorRole, authorCompany].filter(Boolean).join(" • ")}
                 </div>
               )}
             </div>

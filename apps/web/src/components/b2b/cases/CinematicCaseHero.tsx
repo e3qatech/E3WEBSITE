@@ -52,10 +52,11 @@ export function CinematicCaseHero({
 
   return (
     <section
+      id="overview"
       data-testid="cinematic-case-hero"
       aria-label={isAr ? "مقدمة دراسة الحالة" : "Case Study Hero"}
       dir={isAr ? "rtl" : "ltr"}
-      className="relative min-h-[85vh] lg:min-h-[92vh] w-full flex flex-col justify-end pt-28 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-12 overflow-hidden bg-[#080b12] text-white"
+      className="relative min-h-[88svh] h-[88svh] max-h-[1080px] w-full flex flex-col justify-end pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-12 overflow-hidden bg-[#080b12] text-white"
     >
       {/* Background Media with Parallax & Multi-layer Scrim */}
       <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
@@ -73,12 +74,12 @@ export function CinematicCaseHero({
             />
           </motion.div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#0c1220] via-[#080b12] to-[#04060a]" />
+          <div className="w-full h-full bg-gradient-to-br from-[#0c1322] via-[#080b12] to-[#04060a]" />
         )}
 
         {/* Cinematic readability gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/75 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080b12]/90 via-[#080b12]/50 to-transparent rtl:bg-gradient-to-l pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080b12]/95 via-[#080b12]/60 to-transparent rtl:bg-gradient-to-l pointer-events-none" />
       </div>
 
       {/* Main Hero Foreground Content */}

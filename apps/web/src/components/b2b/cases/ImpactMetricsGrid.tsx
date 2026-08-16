@@ -29,7 +29,7 @@ function AnimatedCounter({ value, inView }: { value: string; inView: boolean }) 
       return;
     }
 
-    // Try extracting leading or trailing numbers (e.g. 50k+, 99.8%, 1,200)
+    // Match leading/trailing units (e.g., "+", "%", "K", "M", " QAR")
     const match = value.match(/^([^\d]*)([\d,.]+)([^\d]*)$/);
     if (!match) {
       setDisplayValue(value);
@@ -105,8 +105,8 @@ export function ImpactMetricsGrid({
           </h2>
         </div>
 
-        {/* Responsive Bento Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {/* 4-column desktop, 2-column mobile results grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
           {metrics.map((metric, i) => {
             const rawValue = isAr
               ? metric.valueAr || metric.valueEn || metric.value || ""
@@ -115,29 +115,21 @@ export function ImpactMetricsGrid({
               ? metric.labelAr || metric.labelEn || metric.label || ""
               : metric.labelEn || metric.label || "";
 
-            const isLarge = i === 0 && metrics.length % 2 !== 0 && metrics.length > 2;
-
             return (
               <div
                 key={i}
                 data-testid={`metric-card-${i}`}
-                className={cn(
-                  "p-8 sm:p-10 rounded-3xl bg-[#0d1322] border border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col items-center justify-center text-center shadow-xl group",
-                  isLarge && "sm:col-span-2 lg:col-span-3"
-                )}
+                className="p-6 sm:p-8 rounded-3xl bg-[#0d1322] border border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col items-center justify-center text-center shadow-xl group"
               >
                 <div
                   data-testid={`metric-value-${i}`}
-                  className={cn(
-                    "font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-300 font-syne tracking-tight mb-3 group-hover:scale-105 transition-transform duration-300",
-                    isLarge ? "text-5xl sm:text-7xl lg:text-8xl" : "text-4xl sm:text-5xl lg:text-6xl"
-                  )}
+                  className="font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-300 font-syne tracking-tight mb-2 sm:mb-3 group-hover:scale-105 transition-transform duration-300 text-3xl sm:text-4xl lg:text-5xl"
                 >
                   <AnimatedCounter value={rawValue} inView={inView} />
                 </div>
                 <div
                   data-testid={`metric-label-${i}`}
-                  className="text-xs sm:text-sm font-mono font-bold text-slate-300 uppercase tracking-widest max-w-sm"
+                  className="text-[11px] sm:text-xs font-mono font-bold text-slate-300 uppercase tracking-widest max-w-xs"
                 >
                   {rawLabel}
                 </div>

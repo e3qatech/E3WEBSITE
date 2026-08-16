@@ -68,18 +68,20 @@ export function ProjectTeamSection({
       {/* Team Member Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {teamMembers.map((member, i) => {
-          const profile = member.employeeProfile;
-          if (!profile) return null;
+          const profile = (member as any).employeeProfile || (member as any).member || (member as any).employee || member;
+          if (!profile || (!profile.firstName && !profile.nameEn && !profile.nameAr && !profile.id)) return null;
 
-          const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || (isAr ? "عضو الفريق" : "Team Specialist");
+          const fullName = isAr
+            ? (profile.nameAr || `${profile.firstNameAr || ""} ${profile.lastNameAr || ""}`.trim() || profile.nameEn || `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || "عضو الفريق")
+            : (profile.nameEn || `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || profile.nameAr || `${profile.firstNameAr || ""} ${profile.lastNameAr || ""}`.trim() || "Team Specialist");
           const designation = isAr
-            ? profile.designationAr || profile.designation || ""
-            : profile.designation || "";
+            ? profile.designationAr || profile.roleAr || profile.designation || profile.roleEn || ""
+            : profile.designation || profile.roleEn || profile.designationAr || profile.roleAr || "";
           const projectRole = isAr
-            ? member.roleAr || member.roleEn || designation
-            : member.roleEn || designation;
+            ? member.roleAr || (member as any).role || member.roleEn || designation
+            : member.roleEn || (member as any).role || member.roleAr || designation;
 
-          const avatar = profile.avatarUrl || profile.imageUrl;
+          const avatar = profile.avatarUrl || profile.imageUrl || profile.image;
           const profileUrl = `/${locale}/b2b/team/${profile.slug || profile.id}`;
 
           return (
