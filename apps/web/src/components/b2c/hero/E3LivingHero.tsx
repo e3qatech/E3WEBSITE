@@ -159,10 +159,12 @@ export function parseTwoLineHeadline(rawText: string): {
   // If no {{animated}} token, inject it at the end of the text
   const hasTokenInitially = text.includes("{{animated}}")
   if (!hasTokenInitially) {
-    text = text ? `${text} {{animated}}` : "{{animated}}"
+    // Strip trailing period so it doesn't cause a trailing punctuation split
+    const cleanText = text.replace(/[.؛]+$/, "").trim()
+    text = cleanText ? `${cleanText} {{animated}}` : "{{animated}}"
   }
 
-  // Split into 2 lines based on newline or sentence boundary
+  // Split into 2 lines based on newline, sentence boundary, or animated token
   let l1 = ""
   let l2 = ""
 
@@ -174,8 +176,8 @@ export function parseTwoLineHeadline(rawText: string): {
     const periodIdx = text.indexOf(". ")
     l1 = text.substring(0, periodIdx + 1).trim()
     l2 = text.substring(periodIdx + 1).trim()
-  } else if (text.includes("! ") || text.includes("? ") || text.includes("؛ ") || text.includes(". ")) {
-    const match = text.match(/([.!?؛])\s+/)
+  } else if (text.includes("! ") || text.includes("? ") || text.includes("؛ ")) {
+    const match = text.match(/([!?؛])\s+/)
     if (match && match.index !== undefined) {
       l1 = text.substring(0, match.index + match[1].length).trim()
       l2 = text.substring(match.index + match[0].length).trim()
@@ -185,22 +187,27 @@ export function parseTwoLineHeadline(rawText: string): {
       l1 = words.slice(0, mid).join(" ")
       l2 = words.slice(mid).join(" ")
     }
-  } else {
-    // If short single sentence, split around midpoint or keep line1 static and line2 token
-    const words = text.split(/\s+/)
-    if (words.length <= 3) {
-      if (text.includes("{{animated}}")) {
-        l1 = text.replace("{{animated}}", "").trim()
-        l2 = "{{animated}}"
-      } else {
-        l1 = text
-        l2 = "{{animated}}"
-      }
+  } else if (text.includes("{{animated}}")) {
+    const parts = text.split("{{animated}}")
+    const prefix = (parts[0] || "").trim()
+    const suffix = (parts[1] || "").trim()
+    const prefixWords = prefix ? prefix.split(/\s+/) : []
+
+    // If prefix is short (<= 5 words), put the static prefix on Line 1 and the token on Line 2
+    if (prefixWords.length <= 5) {
+      l1 = prefix
+      l2 = suffix ? `{{animated}} ${suffix}` : "{{animated}}"
     } else {
-      const mid = Math.ceil(words.length / 2)
-      l1 = words.slice(0, mid).join(" ")
-      l2 = words.slice(mid).join(" ")
+      const mid = Math.ceil(prefixWords.length / 2)
+      l1 = prefixWords.slice(0, mid).join(" ")
+      const secondHalf = prefixWords.slice(mid).join(" ")
+      l2 = `${secondHalf} {{animated}} ${suffix}`.trim()
     }
+  } else {
+    const words = text.split(/\s+/)
+    const mid = Math.ceil(words.length / 2)
+    l1 = words.slice(0, mid).join(" ")
+    l2 = words.slice(mid).join(" ")
   }
 
   const parseLine = (lineStr: string) => {

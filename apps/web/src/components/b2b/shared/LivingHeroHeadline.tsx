@@ -36,7 +36,7 @@ export function LivingHeroHeadline({
   enableRotatingWords = true,
   animationSpeed = 2800,
   locale = "en",
-  className = "text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] drop-shadow-xl",
+  className = "text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-zinc-100 tracking-tight leading-[1.08] drop-shadow-xl",
   gradientClass = "text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500",
   align = "start",
   as: Tag = "h1",
@@ -65,7 +65,7 @@ export function LivingHeroHeadline({
     }
     return Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0
       ? rotatingWordsEn
-      : ["Reality", "Living Landmarks", "Iconic Spectacles", "Unforgettable Impact"];
+      : ["Living Landmarks", "Dynamic Environments", "Flawless Operations", "Extraordinary Impact"];
   }, [isAr, rotatingWordsAr, rotatingWordsEn]);
 
   const hasRotating = enableRotatingWords && activeRotatingWords.length > 0;
@@ -95,14 +95,14 @@ export function LivingHeroHeadline({
   return (
     <Tag className={className} aria-label={accessibleText}>
       {hasExplicitTemplate && parsedHeadline ? (
-        <div className={`flex flex-col ${alignmentClass} gap-1 sm:gap-2`}>
+        <div className={`flex flex-col ${alignmentClass} gap-1 sm:gap-2.5 max-w-full`}>
           {/* Line 1 */}
           {parsedHeadline.line1.text && (
             <div className="inline-flex items-baseline flex-wrap gap-x-2.5">
               {parsedHeadline.line1.hasToken ? (
                 <>
                   {parsedHeadline.line1.prefix && <span>{parsedHeadline.line1.prefix}</span>}
-                  <span className="inline-block relative min-h-[1.15em]">
+                  <span className="inline-block relative min-h-[1.15em] whitespace-nowrap">
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={wordIndex}
@@ -130,7 +130,7 @@ export function LivingHeroHeadline({
               {parsedHeadline.line2.hasToken ? (
                 <>
                   {parsedHeadline.line2.prefix && <span>{parsedHeadline.line2.prefix}</span>}
-                  <span className="inline-block relative min-h-[1.15em]">
+                  <span className="inline-block relative min-h-[1.15em] whitespace-nowrap">
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={wordIndex}

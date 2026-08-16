@@ -252,7 +252,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         </div>
 
         <div className="container relative z-10 mx-auto px-4 md:px-8 pt-24 pb-16">
-          <div className="max-w-4xl">
+          <div className="max-w-5xl">
             {/* Indicator Eyebrow */}
             <Reveal direction="fade">
               <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
@@ -276,7 +276,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                   animationSpeed={content.hero?.animationSpeed || 2800}
                   locale={locale}
                   align={isAr ? "start" : "start"}
-                  className="text-5xl md:text-7xl lg:text-8xl font-black font-syne text-zinc-100 tracking-tight leading-[1.05] drop-shadow-lg"
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-zinc-100 tracking-tight leading-[1.08] drop-shadow-lg"
                   gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
                 />
               </div>
