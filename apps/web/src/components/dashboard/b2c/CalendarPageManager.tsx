@@ -22,6 +22,8 @@ import {
 } from "@/components/dashboard/ui";
 
 type PageSettings = {
+  eyebrowEn?: string;
+  eyebrowAr?: string;
   titleEn?: string;
   titleAr?: string;
   taglineEn?: string;
@@ -60,6 +62,8 @@ export function CalendarPageManager({
 
   const [pageSettings, setPageSettings] = useState<PageSettings>(
     initialPageSettings || {
+      eyebrowEn: "EVENTS & OCCURRENCES TIMELINE",
+      eyebrowAr: "جدول الفعاليات والمواعيد الحية",
       titleEn: "Events & Entertainment Calendar",
       titleAr: "جدول الفعاليات والتجارب",
       taglineEn: "Find your next experience. Browse upcoming special events, festivals, and exclusive private sessions.",
@@ -308,6 +312,16 @@ export function CalendarPageManager({
           }
           icon={<Calendar className="w-5 h-5 text-[var(--color-primary)]" />}
         >
+          <DashboardBilingualField
+            label={isAr ? "العنوان التمهيدي (Eyebrow)" : "Eyebrow Badge Text"}
+            valueEn={pageSettings.eyebrowEn || ""}
+            valueAr={pageSettings.eyebrowAr || ""}
+            onChangeEn={(val) => updateSettings((p) => ({ ...p, eyebrowEn: val }))}
+            onChangeAr={(val) => updateSettings((p) => ({ ...p, eyebrowAr: val }))}
+            placeholderEn="e.g. EVENTS & OCCURRENCES TIMELINE"
+            placeholderAr="مثال: جدول الفعاليات والمواعيد الحية"
+          />
+
           <DashboardBilingualField
             label={isAr ? "عنوان صفحة التقويم" : "Calendar Page Title"}
             valueEn={pageSettings.titleEn || ""}
