@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { auth } from "@/lib/auth"
+import { roundCurrency } from "@/lib/package-pricing-engine"
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -81,14 +82,14 @@ export async function POST(req: NextRequest) {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000)
     const quoteNumber = `E3-QTE-${datePrefix}-${randomSuffix}`
 
-    // 2. Compute server-side totals
+    // 2. Compute server-side totals safely
     const lineItems: any[] = Array.isArray(items) ? items : []
     let subtotal = 0
 
     const formattedItems = lineItems.map((item, idx) => {
-      const qty = parseInt(item.quantity) || 1
-      const unit = parseFloat(item.unitPrice) || 0
-      const total = qty * unit
+      const qty = Math.max(1, parseInt(item.quantity) || 1)
+      const unit = Math.max(0, parseFloat(item.unitPrice) || 0)
+      const total = roundCurrency(qty * unit)
       subtotal += total
       return {
         itemType: item.itemType || "PACKAGE_TIER",
@@ -103,9 +104,10 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const discount = parseFloat(discountTotal) || 0
-    const tax = 0 // Qatar 0% standard VAT currently
-    const grandTotal = Math.max(0, subtotal - discount + tax)
+    subtotal = roundCurrency(subtotal)
+    const discount = roundCurrency(Math.min(subtotal, Math.max(0, parseFloat(discountTotal) || 0)))
+    const tax = 0 // Qatar 0% standard VAT
+    const grandTotal = roundCurrency(Math.max(0, subtotal - discount + tax))
 
     const validUntil = new Date()
     validUntil.setDate(validUntil.getDate() + (parseInt(validDays) || 14))
@@ -116,10 +118,10 @@ export async function POST(req: NextRequest) {
         version: 1,
         leadId: leadId || undefined,
         packageId: packageId || undefined,
-        customerName,
+        customerName: customerName.trim(),
         customerEmail: customerEmail.toLowerCase().trim(),
-        customerPhone,
-        companyOrOrg,
+        customerPhone: customerPhone ? String(customerPhone).trim() : null,
+        companyOrOrg: companyOrOrg ? String(companyOrOrg).trim() : null,
         eventDate: eventDate ? new Date(eventDate) : null,
         validUntil,
         currency: currency || "QAR",
@@ -127,14 +129,14 @@ export async function POST(req: NextRequest) {
         discountTotal: discount,
         taxTotal: tax,
         grandTotal,
-        depositAmount: depositAmount ? parseFloat(depositAmount) : 0,
+        depositAmount: depositAmount ? roundCurrency(parseFloat(depositAmount)) : 0,
         paymentSchedule: paymentSchedule || null,
         termsEn: termsEn || "1. 50% deposit required upon confirmation.\n2. Balance due 48 hours prior to event.\n3. Cancellation policy as per E3 Qatar standard agreement.",
         termsAr: termsAr || "١. يُستحق ٥٠٪ دفعة مقدمة عند التأكيد.\n٢. يُستحق المتبقي قبل ٤٨ ساعة من موعد الفعالية.\n٣. تطبق سياسة الإلغاء القياسية لمؤسسة إي ثري.",
         customerNotes,
         internalNotes,
         status: "DRAFT",
-        createdById: session?.user?.name || "Staff",
+        createdById: session.user.name || "Staff",
         items: {
           create: formattedItems
         }
@@ -146,7 +148,7 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // If linked to lead, update lead status to PROPOSAL_IN_PROGRESS or QUOTATION_SENT
+    // If linked to lead, update lead status to QUOTATION_SENT
     if (leadId) {
       await db.packageLead.update({
         where: { id: leadId },
@@ -160,6 +162,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: quotation })
   } catch (error: any) {
     console.error("[POST /api/b2c/quotations] Error:", error)
-    return NextResponse.json({ error: error.message || "Failed to create quotation" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create quotation" }, { status: 500 })
   }
 }

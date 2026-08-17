@@ -474,4 +474,6 @@ async function main() {
   console.log("=== SEEDING COMPLETED SUCCESSFULLY ===");
 }
 
-main().catch(console.error).finally(() => process.exit(0));
+if (process.argv[1] && process.argv[1].includes("seed-package")) {
+  main().catch(console.error).finally(() => process.exit(0));
+}

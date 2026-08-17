@@ -4,8 +4,11 @@ import { auth } from "@/lib/auth"
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth()
+    const isAdmin = Boolean(session?.user)
+
     const { searchParams } = new URL(req.url)
-    const showAll = searchParams.get("all") === "true"
+    const showAll = isAdmin && searchParams.get("all") === "true"
 
     const where: any = showAll ? {} : { isActive: true }
 
@@ -33,7 +36,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -68,6 +71,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: category })
   } catch (error: any) {
     console.error("[POST /api/b2c/package-categories] Error:", error)
-    return NextResponse.json({ error: error.message || "Failed to create category" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create category" }, { status: 500 })
   }
 }

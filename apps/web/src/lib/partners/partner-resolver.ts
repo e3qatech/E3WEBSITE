@@ -367,12 +367,54 @@ export function sanitizePublicLogo(url?: string | null): string | null {
 }
 
 /**
+ * Canonical partner logo URL resolver.
+ * 1. Rewrites legacy eeeqa.com/assets/partners/ URLs to relative local asset paths:
+ *    - https://eeeqa.com/assets/partners/e3-logo.svg -> /assets/partners/e3-logo.svg
+ *    - https://eeeqa.com/assets/partners/doha-mall-logo.svg -> /assets/partners/doha-mall-logo.svg
+ * 2. Filters out broken/placeholder domains.
+ * 3. Preserves authentic relative SVG paths and HTTPS remote partner URLs.
+ */
+export function resolvePartnerLogoUrl(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  // 1. Direct legacy URL matching and normalization
+  const legacyMatch = trimmed.match(/^https?:\/\/(?:www\.)?eeeqa\.com\/assets\/partners\/(.+)$/i);
+  if (legacyMatch) {
+    return `/assets/partners/${legacyMatch[1]}`;
+  }
+
+  // 2. Reject placeholders
+  if (
+    trimmed.includes('via.placeholder') ||
+    trimmed.includes('placeholder.com') ||
+    trimmed.includes('example.com')
+  ) {
+    return null;
+  }
+
+  // 3. Local relative paths
+  if (trimmed.startsWith('/assets/partners/')) {
+    return trimmed;
+  }
+
+  return sanitizeUrl(trimmed);
+}
+
+/**
  * Backward-compatible general URL sanitizer.
  */
 export function sanitizeUrl(url?: string | null): string | null {
   if (!url || typeof url !== 'string') return null;
   const trimmed = url.trim();
   if (!trimmed) return null;
+
+  // Normalize legacy eeeqa.com/assets/partners/ URLs
+  const legacyMatch = trimmed.match(/^https?:\/\/(?:www\.)?eeeqa\.com\/assets\/partners\/(.+)$/i);
+  if (legacyMatch) {
+    return `/assets/partners/${legacyMatch[1]}`;
+  }
 
   const lower = trimmed.toLowerCase();
   if (

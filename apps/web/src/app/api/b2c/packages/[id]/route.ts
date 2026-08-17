@@ -28,6 +28,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Package not found" }, { status: 404 })
     }
 
+    // Public users cannot view unpublished draft packages
+    if (!isAdmin && (!item.isPublished || item.status !== "PUBLISHED")) {
+      return NextResponse.json({ error: "Package not found" }, { status: 404 })
+    }
+
     if (!isAdmin) {
       const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = item
       return NextResponse.json({ data: safe })
@@ -35,14 +40,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
     return NextResponse.json({ data: item })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Failed to load package" }, { status: 500 })
   }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -77,8 +82,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({ data: updated })
   } catch (error: any) {
-    console.error(`[PUT /api/b2c/packages/${params}] Error:`, error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error(`[PUT /api/b2c/packages] Error:`, error)
+    return NextResponse.json({ error: error.message || "Failed to update package" }, { status: 500 })
   }
 }
 
@@ -86,7 +91,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Duplicate package endpoint
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -123,14 +128,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     return NextResponse.json({ data: duplicated })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message || "Failed to duplicate package" }, { status: 500 })
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -138,6 +143,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     await db.package.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message || "Failed to delete package" }, { status: 500 })
   }
 }

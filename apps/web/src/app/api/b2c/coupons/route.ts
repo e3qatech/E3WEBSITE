@@ -4,6 +4,11 @@ import { auth } from "@/lib/auth"
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { searchParams } = new URL(req.url)
     const activeOnly = searchParams.get("active") === "true"
 
@@ -28,7 +33,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -110,6 +115,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: coupon })
   } catch (error: any) {
     console.error("[POST /api/b2c/coupons] Error:", error)
-    return NextResponse.json({ error: error.message || "Failed to create coupon" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create coupon" }, { status: 500 })
   }
 }

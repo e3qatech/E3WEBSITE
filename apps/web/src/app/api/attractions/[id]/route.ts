@@ -84,6 +84,9 @@ export async function PUT(
       revalidatePath("/[locale]/b2c", "page");
       revalidatePath("/[locale]/b2c/calendar", "page");
       revalidatePath("/[locale]/b2c/attractions", "page");
+      if (updatedAttraction.slug) {
+        revalidatePath(`/[locale]/b2c/attractions/${updatedAttraction.slug}`, "page");
+      }
       revalidatePath("/[locale]", "layout");
     } catch (_err) {}
 

@@ -7,26 +7,30 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const code = searchParams.get("code")
 
-    // If code is requested (e.g. at checkout/lead submission)
+    // If code is requested publicly (e.g. during checkout/lead inquiry submission)
     if (code) {
+      const upperCode = code.toUpperCase().trim()
       const referral = await db.referralCode.findUnique({
-        where: { code: code.toUpperCase().trim() },
+        where: { code: upperCode },
         include: { programme: true }
       })
+
       if (!referral || referral.status !== "ACTIVE" || referral.programme.status !== "ACTIVE") {
-        return NextResponse.json({ valid: false, message: "Invalid or inactive referral code" }, { status: 404 })
+        return NextResponse.json({ valid: false, message: "Invalid or inactive referral code" }, { status: 400 })
       }
+
+      // Return only public reward details without private owner identity
       return NextResponse.json({
         valid: true,
         code: referral.code,
-        ownerName: referral.ownerName,
         programmeName: referral.programme.name,
-        reward: referral.programme.referredCustomerReward
+        reward: referral.programme.referredCustomerReward || "Special Referral Perk"
       })
     }
 
+    // Listing programmes requires dashboard authentication
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -48,7 +52,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

@@ -4,20 +4,43 @@ import { auth } from "@/lib/auth"
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth()
+    const isAdmin = Boolean(session?.user)
+
     const { searchParams } = new URL(req.url)
-    const activeOnly = searchParams.get("active") === "true"
+    const activeOnly = searchParams.get("active") === "true" || !isAdmin
 
     const where: any = activeOnly ? { isActive: true } : {}
 
     const promotions = await db.packagePromotion.findMany({
       where,
       orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
-      include: {
-        _count: { select: { coupons: true } }
-      }
+      include: isAdmin ? { _count: { select: { coupons: true } } } : undefined
     })
 
-    return NextResponse.json({ data: promotions })
+    const sanitizedPromotions = promotions.map((p: any) => {
+      if (!isAdmin) {
+        return {
+          id: p.id,
+          name: p.name,
+          labelEn: p.labelEn,
+          labelAr: p.labelAr,
+          discountType: p.discountType,
+          discountValue: p.discountValue,
+          maxDiscount: p.maxDiscount,
+          minSpend: p.minSpend,
+          minGuests: p.minGuests,
+          applicableCategories: p.applicableCategories,
+          applicablePackages: p.applicablePackages,
+          validFrom: p.validFrom,
+          validTo: p.validTo,
+          isAutomatic: p.isAutomatic
+        }
+      }
+      return p
+    })
+
+    return NextResponse.json({ data: sanitizedPromotions })
   } catch (error: any) {
     console.error("[GET /api/b2c/package-promotions] Error:", error)
     return NextResponse.json({ error: "Failed to fetch promotions" }, { status: 500 })
@@ -27,7 +50,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -70,11 +93,11 @@ export async function POST(req: NextRequest) {
         maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null,
         minSpend: minSpend ? parseFloat(minSpend) : null,
         minGuests: minGuests ? parseInt(minGuests) : null,
-        applicableCategories: applicableCategories || [],
-        applicablePackages: applicablePackages || [],
+        applicableCategories: Array.isArray(applicableCategories) ? applicableCategories : [],
+        applicablePackages: Array.isArray(applicablePackages) ? applicablePackages : [],
         validFrom: validFrom ? new Date(validFrom) : null,
         validTo: validTo ? new Date(validTo) : null,
-        daysOfWeek: daysOfWeek || [],
+        daysOfWeek: Array.isArray(daysOfWeek) ? daysOfWeek : [],
         usageLimit: usageLimit ? parseInt(usageLimit) : null,
         perUserLimit: perUserLimit ? parseInt(perUserLimit) : 1,
         isStackable: Boolean(isStackable),

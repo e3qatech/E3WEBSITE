@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react"
+import { resolvePartnerLogoUrl } from "@/lib/partners/partner-resolver"
 
 interface BrandItem {
   id: string
@@ -97,7 +98,7 @@ export function BrandPlacementShowcase({ brandPlacements, locale = "en" }: Brand
                     {b.logoUrl ? (
                       <div className="w-16 h-16 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] p-2.5 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                         <img 
-                          src={b.logoUrl} 
+                          src={resolvePartnerLogoUrl(b.logoUrl) || b.logoUrl} 
                           alt={name} 
                           className="w-full h-full object-contain"
                           onError={() => {

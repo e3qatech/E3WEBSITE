@@ -118,7 +118,7 @@
           "en": "A premium retail destination hosting a family-focused creative entertainment concept.",
           "ar": "وجهة تسوق راقية تستضيف مفهوماً ترفيهياً إبداعياً موجهاً للعائلات."
         },
-        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/place-vendome-logo.svg"
+        "partnerImageLogoUrl": "/assets/partners/place-vendome-logo.svg"
       },
       "generalPartners": [
         {
@@ -130,7 +130,7 @@
             "en": "Owner & Operator",
             "ar": "المالك والمشغل"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+          "logoUrl": "/assets/partners/e3-logo.svg"
         },
         {
           "partnerName": {
@@ -141,7 +141,7 @@
             "en": "Host Venue",
             "ar": "الوجهة المستضيفة"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/place-vendome-logo.svg"
+          "logoUrl": "/assets/partners/place-vendome-logo.svg"
         }
       ],
       "officialSocialLinks": [
@@ -316,7 +316,7 @@
           "en": "A central mall destination hosting an educational children’s driving experience.",
           "ar": "وجهة مول مركزية تستضيف تجربة قيادة تعليمية للأطفال."
         },
-        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+        "partnerImageLogoUrl": "/assets/partners/city-center-doha-logo.svg"
       },
       "generalPartners": [
         {
@@ -328,7 +328,7 @@
             "en": "Owner & Operator",
             "ar": "المالك والمشغل"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+          "logoUrl": "/assets/partners/e3-logo.svg"
         },
         {
           "partnerName": {
@@ -339,7 +339,7 @@
             "en": "Host Venue",
             "ar": "الوجهة المستضيفة"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+          "logoUrl": "/assets/partners/city-center-doha-logo.svg"
         }
       ],
       "officialSocialLinks": [
@@ -514,7 +514,7 @@
           "en": "An urban indoor entertainment concept hosted within a modern mall environment.",
           "ar": "مفهوم ترفيهي داخلي بطابع حضري ضمن بيئة مول عصرية."
         },
-        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/doha-mall-logo.svg"
+        "partnerImageLogoUrl": "/assets/partners/doha-mall-logo.svg"
       },
       "generalPartners": [
         {
@@ -526,7 +526,7 @@
             "en": "Owner & Operator",
             "ar": "المالك والمشغل"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+          "logoUrl": "/assets/partners/e3-logo.svg"
         },
         {
           "partnerName": {
@@ -537,7 +537,7 @@
             "en": "Host Venue",
             "ar": "الوجهة المستضيفة"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/doha-mall-logo.svg"
+          "logoUrl": "/assets/partners/doha-mall-logo.svg"
         }
       ],
       "officialSocialLinks": [
@@ -724,7 +724,7 @@
           "en": "A central indoor mall destination hosting E3’s inflatable family entertainment park.",
           "ar": "وجهة مول داخلية مركزية تستضيف حديقة الترفيه العائلية القابلة للنفخ من E3."
         },
-        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+        "partnerImageLogoUrl": "/assets/partners/city-center-doha-logo.svg"
       },
       "generalPartners": [
         {
@@ -736,7 +736,7 @@
             "en": "Owner & Operator",
             "ar": "المالك والمشغل"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+          "logoUrl": "/assets/partners/e3-logo.svg"
         },
         {
           "partnerName": {
@@ -747,7 +747,7 @@
             "en": "Host Venue",
             "ar": "الوجهة المستضيفة"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/city-center-doha-logo.svg"
+          "logoUrl": "/assets/partners/city-center-doha-logo.svg"
         }
       ],
       "officialSocialLinks": [
@@ -922,7 +922,7 @@
           "en": "Tourism campaign support bringing international character entertainment to Qatar’s family audience.",
           "ar": "دعم لحملة سياحية تقدم ترفيه الشخصيات العالمية للجمهور العائلي في قطر."
         },
-        "partnerImageLogoUrl": "https://eeeqa.com/assets/partners/visit-qatar-logo.svg"
+        "partnerImageLogoUrl": "/assets/partners/visit-qatar-logo.svg"
       },
       "generalPartners": [
         {
@@ -934,7 +934,7 @@
             "en": "Official Destination Partner",
             "ar": "الشريك الرسمي للوجهة"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/visit-qatar-logo.svg"
+          "logoUrl": "/assets/partners/visit-qatar-logo.svg"
         },
         {
           "partnerName": {
@@ -945,7 +945,7 @@
             "en": "Official Character & IP Partner",
             "ar": "الشريك الرسمي للشخصيات والحقوق"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/nickelodeon-logo.svg"
+          "logoUrl": "/assets/partners/nickelodeon-logo.svg"
         },
         {
           "partnerName": {
@@ -956,7 +956,7 @@
             "en": "Host Venue",
             "ar": "الوجهة المستضيفة"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/meryal-logo.svg"
+          "logoUrl": "/assets/partners/meryal-logo.svg"
         },
         {
           "partnerName": {
@@ -967,7 +967,7 @@
             "en": "Operations & Delivery Partner",
             "ar": "شريك التشغيل والتنفيذ"
           },
-          "logoUrl": "https://eeeqa.com/assets/partners/e3-logo.svg"
+          "logoUrl": "/assets/partners/e3-logo.svg"
         }
       ],
       "officialSocialLinks": [

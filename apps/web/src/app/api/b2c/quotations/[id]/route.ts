@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { auth } from "@/lib/auth"
+import { roundCurrency } from "@/lib/package-pricing-engine"
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -22,14 +23,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     if (!quotation) return NextResponse.json({ error: "Quotation not found" }, { status: 404 })
     return NextResponse.json({ data: quotation })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Failed to load quotation" }, { status: 500 })
   }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -43,18 +44,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     })
     if (!existing) return NextResponse.json({ error: "Quotation not found" }, { status: 404 })
 
-    // If items are provided, recompute subtotal and grandTotal
+    // Historical quotation immutability guard:
+    // If quotation was already accepted or rejected, items/pricing cannot be mutated in-place
+    if ((existing.status === "ACCEPTED" || existing.status === "REJECTED") && (items !== undefined || discountTotal !== undefined)) {
+      return NextResponse.json({ error: "Finalized quotations cannot be edited. Please create a new quotation version." }, { status: 400 })
+    }
+
+    // If items are provided, recompute subtotal and grandTotal strictly on server
     let subtotal = existing.subtotal
-    let discount = discountTotal !== undefined ? parseFloat(discountTotal) : existing.discountTotal
+    let discount = discountTotal !== undefined ? roundCurrency(Math.max(0, parseFloat(discountTotal) || 0)) : existing.discountTotal
     let grandTotal = existing.grandTotal
 
     if (Array.isArray(items)) {
       await db.quotationItem.deleteMany({ where: { quotationId: existing.id } })
       subtotal = 0
       const formattedItems = items.map((item, idx) => {
-        const qty = parseInt(item.quantity) || 1
-        const unit = parseFloat(item.unitPrice) || 0
-        const total = qty * unit
+        const qty = Math.max(1, parseInt(item.quantity) || 1)
+        const unit = Math.max(0, parseFloat(item.unitPrice) || 0)
+        const total = roundCurrency(qty * unit)
         subtotal += total
         return {
           quotationId: existing.id,
@@ -70,7 +77,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         }
       })
       await db.quotationItem.createMany({ data: formattedItems })
-      grandTotal = Math.max(0, subtotal - discount)
+      subtotal = roundCurrency(subtotal)
+      grandTotal = roundCurrency(Math.max(0, subtotal - discount))
     }
 
     const updated = await db.packageQuotation.update({
@@ -83,7 +91,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         subtotal,
         discountTotal: discount,
         grandTotal,
-        depositAmount: depositAmount !== undefined ? parseFloat(depositAmount) : undefined,
+        depositAmount: depositAmount !== undefined ? roundCurrency(parseFloat(depositAmount)) : undefined,
         ...rest
       },
       include: {
@@ -95,14 +103,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({ data: updated })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Failed to update quotation" }, { status: 500 })
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -115,6 +123,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     await db.packageQuotation.delete({ where: { id: existing.id } })
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Failed to delete quotation" }, { status: 500 })
   }
 }
