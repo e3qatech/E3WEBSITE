@@ -12,34 +12,44 @@ describe('E3 Packages — RBAC, Rate Limiting, Zod Validation & Pricing Engine S
   describe('1. Granular Capability RBAC Enforcement', () => {
     it('SUPER_ADMIN possesses wildcard capability for all package resources', () => {
       expect(hasPermission('SUPER_ADMIN', 'b2c.packages.manage')).toBe(true)
+      expect(hasPermission('SUPER_ADMIN', 'b2c.packages.read')).toBe(true)
       expect(hasPermission('SUPER_ADMIN', 'crm.leads.manage')).toBe(true)
     })
 
-    it('B2C_ADMIN possesses b2c.packages.manage capability', () => {
+    it('B2C_ADMIN possesses full package management and publication capabilities', () => {
       expect(hasPermission('B2C_ADMIN', 'b2c.packages.manage')).toBe(true)
+      expect(hasPermission('B2C_ADMIN', 'b2c.packages.read')).toBe(true)
     })
 
-    it('SUPPORT_ADMIN possesses b2c.packages.manage capability', () => {
-      expect(hasPermission('SUPPORT_ADMIN', 'b2c.packages.manage')).toBe(true)
+    it('SUPPORT_ADMIN possesses b2c.packages.read and crm.leads.manage, but NOT b2c.packages.manage', () => {
+      expect(hasPermission('SUPPORT_ADMIN', 'b2c.packages.read')).toBe(true)
+      expect(hasPermission('SUPPORT_ADMIN', 'crm.leads.manage')).toBe(true)
+      expect(hasPermission('SUPPORT_ADMIN', 'b2c.packages.manage')).toBe(false)
     })
 
-    it('SALES_ADMIN possesses crm.leads.manage capability', () => {
+    it('SALES_ADMIN possesses crm.leads.manage and b2c.packages.read, but NOT b2c.packages.manage', () => {
       expect(hasPermission('SALES_ADMIN', 'crm.leads.manage')).toBe(true)
+      expect(hasPermission('SALES_ADMIN', 'b2c.packages.read')).toBe(true)
+      expect(hasPermission('SALES_ADMIN', 'b2c.packages.manage')).toBe(false)
     })
 
     it('STAFF, CLIENT, and CANDIDATE lack package and CRM administrative capabilities', () => {
       expect(hasPermission('STAFF', 'b2c.packages.manage')).toBe(false)
+      expect(hasPermission('STAFF', 'b2c.packages.read')).toBe(false)
       expect(hasPermission('STAFF', 'crm.leads.manage')).toBe(false)
 
       expect(hasPermission('CLIENT', 'b2c.packages.manage')).toBe(false)
+      expect(hasPermission('CLIENT', 'b2c.packages.read')).toBe(false)
       expect(hasPermission('CLIENT', 'crm.leads.manage')).toBe(false)
 
       expect(hasPermission('CANDIDATE', 'b2c.packages.manage')).toBe(false)
+      expect(hasPermission('CANDIDATE', 'b2c.packages.read')).toBe(false)
       expect(hasPermission('CANDIDATE', 'crm.leads.manage')).toBe(false)
     })
 
     it('Unauthenticated/null role returns false for all protected operations', () => {
       expect(hasPermission(null, 'b2c.packages.manage')).toBe(false)
+      expect(hasPermission(null, 'b2c.packages.read')).toBe(false)
       expect(hasPermission(undefined, 'crm.leads.manage')).toBe(false)
       expect(hasPermission('', 'b2c.packages.manage')).toBe(false)
     })

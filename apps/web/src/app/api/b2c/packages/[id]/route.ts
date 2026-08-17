@@ -6,12 +6,17 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const { id } = await params
 
-    let hasManagePermission = false
+    let hasAdminPermission = false
     try {
       const user = await requirePermission("b2c.packages.manage")
-      hasManagePermission = Boolean(user)
+      hasAdminPermission = Boolean(user)
     } catch {
-      hasManagePermission = false
+      try {
+        const user = await requirePermission("b2c.packages.read")
+        hasAdminPermission = Boolean(user)
+      } catch {
+        hasAdminPermission = false
+      }
     }
 
     const item = await db.package.findFirst({
@@ -35,11 +40,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     // Public users cannot view unpublished draft packages
-    if (!hasManagePermission && (!item.isPublished || item.status !== "PUBLISHED")) {
+    if (!hasAdminPermission && (!item.isPublished || item.status !== "PUBLISHED")) {
       return NextResponse.json({ error: "Package not found" }, { status: 404 })
     }
 
-    if (!hasManagePermission) {
+    if (!hasAdminPermission) {
       const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = item
       return NextResponse.json({ data: safe })
     }

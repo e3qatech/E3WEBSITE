@@ -19,24 +19,29 @@ export async function GET(req: NextRequest) {
     const showAll = searchParams.get("all") === "true" || searchParams.get("includeDrafts") === "true"
     const includeTemplates = searchParams.get("templates") === "true"
 
-    let hasManagePermission = false
+    let hasAdminPermission = false
     try {
       const user = await requirePermission("b2c.packages.manage")
-      hasManagePermission = Boolean(user)
+      hasAdminPermission = Boolean(user)
     } catch {
-      hasManagePermission = false
+      try {
+        const user = await requirePermission("b2c.packages.read")
+        hasAdminPermission = Boolean(user)
+      } catch {
+        hasAdminPermission = false
+      }
     }
 
     const where: any = {}
 
     // Public callers can only see published active packages
-    if (!hasManagePermission || !showAll) {
+    if (!hasAdminPermission || !showAll) {
       where.isPublished = true
       where.status = "PUBLISHED"
     }
 
     // By default, exclude templates unless requested by authorized manager
-    if (!includeTemplates && !hasManagePermission) {
+    if (!includeTemplates && !hasAdminPermission) {
       where.isTemplate = false
     } else if (includeTemplates) {
       where.isTemplate = true
@@ -139,12 +144,9 @@ export async function GET(req: NextRequest) {
     })
 
     // Security: sanitize internal financial and administrative fields for unauthenticated public requests
-    const sanitizedPackages = packages.map((pkg: any) => {
-      if (!hasManagePermission) {
-        const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = pkg
-        return safe
-      }
-      return pkg
+    const sanitizedPackages = hasAdminPermission ? packages : packages.map((pkg: any) => {
+      const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = pkg
+      return safe
     })
 
     return NextResponse.json({ data: sanitizedPackages, count: sanitizedPackages.length })

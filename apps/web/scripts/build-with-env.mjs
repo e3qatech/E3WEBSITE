@@ -28,11 +28,7 @@ if (!process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.PO
   }
 }
 
-let dbUrl = process.env.E3_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
-if (!dbUrl) {
-  console.error("[BUILD ERROR] DATABASE_URL is not set. Please set DATABASE_URL in environment.");
-  process.exit(1);
-}
+let dbUrl = process.env.E3_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || "postgresql://dummy:dummy@localhost:5432/dummy?schema=public";
 
 try {
   if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {

@@ -19,6 +19,7 @@ export type Capability =
   | 'b2c.content.publish'
   | 'b2c.attractions.manage'
   | 'b2c.packages.manage'
+  | 'b2c.packages.read'
   | 'b2c.calendar.manage'
   | 'b2c.feedback.manage'
   | 'b2c.inquiries.manage'
@@ -83,9 +84,11 @@ export const rolePermissions: Record<Role, string[]> = {
     'b2c.content.publish',
     'b2c.attractions.manage',
     'b2c.packages.manage',
+    'b2c.packages.read',
     'b2c.calendar.manage',
     'b2c.feedback.manage',
     'b2c.inquiries.manage',
+    'crm.leads.manage',
     'media.read',
     'media.write',
     'view:b2c',
@@ -102,10 +105,11 @@ export const rolePermissions: Record<Role, string[]> = {
     'b2c.content.write',
     'b2c.content.publish',
     'b2c.attractions.manage',
-    'b2c.packages.manage',
+    'b2c.packages.read',
     'b2c.calendar.manage',
     'b2c.feedback.manage',
     'b2c.inquiries.manage',
+    'crm.leads.manage',
     'media.read',
     'media.write',
     'view:b2c',
@@ -155,6 +159,7 @@ export const rolePermissions: Record<Role, string[]> = {
     'crm.clients.manage',
     'crm.inquiries.manage',
     'crm.subscribers.manage',
+    'b2c.packages.read',
     'media.read',
     'media.write',
     'view:b2b',

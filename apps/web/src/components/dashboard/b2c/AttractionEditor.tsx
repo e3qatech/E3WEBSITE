@@ -6,7 +6,8 @@ import {
   Save, Settings, DollarSign, HelpCircle, 
   Plus, Trash2, Image as ImageIcon, MapPin, Share2, 
   Users, List, X, Eye, ExternalLink,
-  Clock, Sparkles, AlertCircle, CalendarRange, Sun, Moon
+  Clock, Sparkles, AlertCircle, CalendarRange, Sun, Moon,
+  FileSpreadsheet, UploadCloud, Download
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -21,6 +22,7 @@ import {
   DashboardSectionNavigator,
   EditorSectionItem,
 } from "@/components/dashboard/ui"
+import { AttractionMasterWorkbookModal } from "./attractions/AttractionMasterWorkbookModal"
 
 const ATTRACTION_SECTIONS: EditorSectionItem[] = [
   { id: "general", label: "1. Core Details" },
@@ -54,6 +56,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
   const [activeTab, setActiveTab] = useState("general")
   const [isSaving, setIsSaving] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [showMasterWorkbookModal, setShowMasterWorkbookModal] = useState(false)
   
   // 1. Core Details
   const [nameEn, setNameEn] = useState(initialData?.nameEn || "")
@@ -539,7 +542,27 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
           icon: <Save className="w-4 h-4" />,
         }}
         secondaryAction={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={`/api/b2c/attractions/master-workbook/export${slug || initialData?.slug ? `?slug=${slug || initialData?.slug}` : ""}`}
+              download
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] border border-[var(--border-default)] text-xs font-bold transition-all cursor-pointer"
+              title="Download 3-tab Master Workbook (.xlsx)"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-400" />
+              <span>Download Master Workbook</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={() => setShowMasterWorkbookModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer shadow-sm"
+              title="Import or Update via 3-tab Master Workbook (.xlsx / .csv)"
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-purple-400" />
+              <span>Import Master Workbook</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setShowPreviewModal(true)}
@@ -2502,6 +2525,16 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
           </div>
         </div>
       )}
+      {/* Master Workbook Import & Validation Modal */}
+      <AttractionMasterWorkbookModal
+        isOpen={showMasterWorkbookModal}
+        onClose={() => setShowMasterWorkbookModal(false)}
+        attractionSlug={slug || initialData?.slug}
+        attractionName={nameEn}
+        onImportComplete={() => {
+          router.refresh()
+        }}
+      />
     </DashboardPageShell>
   )
 }

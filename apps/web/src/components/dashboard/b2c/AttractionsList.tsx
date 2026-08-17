@@ -219,12 +219,21 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
               <span>{isAr ? "سجل الاستيراد" : "Import History"}</span>
             </button>
 
+            <Link
+              href="/dashboard/b2c/attractions/workbook"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all shadow-sm"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-purple-400" />
+              <span>{isAr ? "استوديو جداول المحتوى والوسائط" : "Master Workbook Studio"}</span>
+            </Link>
+
             <a
-              href="/api/b2c/attractions/export"
+              href="/api/b2c/attractions/master-workbook/export"
+              download
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
             >
               <Download className="w-3.5 h-3.5 text-blue-500" />
-              <span>{isAr ? "تصدير السجلات" : "Export (.xlsx)"}</span>
+              <span>{isAr ? "تصدير جدول المحتوى (.xlsx)" : "Export Workbook (.xlsx)"}</span>
             </a>
           </div>
         </div>
