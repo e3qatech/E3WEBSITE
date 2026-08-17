@@ -183,8 +183,11 @@ export async function POST(request: Request) {
 
               if (secondaryTrackSlugs.length > 0) {
                 const secSts = await db.storyType.findMany({ where: { slug: { in: secondaryTrackSlugs } } })
-                secondaryStoryTypeIds = secSts.map((s: any) => s.id)
+                secondaryStoryTypeIds = secSts.map((s: any) => s.id).filter((id: string) => id !== primaryStoryTypeId)
               }
+
+              const resolvedPrimary = primaryStoryTypeId || existingAct?.primaryStoryTypeId || null
+              const finalSecondary = secondaryStoryTypeIds.filter((id: string) => id !== resolvedPrimary)
 
               if (existingAct) {
                 await db.attractionFeature.update({
@@ -195,8 +198,8 @@ export async function POST(request: Request) {
                     descriptionAr: act.descriptionAr || existingAct.descriptionAr,
                     imageUrl: act.imageUrl || existingAct.imageUrl,
                     highlightType: act.contentType || act.highlightType || existingAct.highlightType,
-                    primaryStoryTypeId: primaryStoryTypeId || existingAct.primaryStoryTypeId,
-                    secondaryStoryTypeIds: secondaryStoryTypeIds.length > 0 ? secondaryStoryTypeIds : existingAct.secondaryStoryTypeIds
+                    primaryStoryTypeId: resolvedPrimary,
+                    secondaryStoryTypeIds: finalSecondary.length > 0 ? finalSecondary : null
                   }
                 })
               } else {
@@ -209,8 +212,8 @@ export async function POST(request: Request) {
                     descriptionAr: String(act.descriptionAr || act["Description (AR)"] || ""),
                     imageUrl: String(act.imageUrl || ""),
                     highlightType: String(act.contentType || act.highlightType || "ACTIVITY"),
-                    primaryStoryTypeId,
-                    secondaryStoryTypeIds: secondaryStoryTypeIds.length > 0 ? secondaryStoryTypeIds : null,
+                    primaryStoryTypeId: resolvedPrimary,
+                    secondaryStoryTypeIds: finalSecondary.length > 0 ? finalSecondary : null,
                     orderIndex: i
                   }
                 })

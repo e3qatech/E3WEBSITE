@@ -443,23 +443,23 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
                       </div>
                     </div>
 
-                    {/* Dual Actions */}
+                    {/* Actions */}
                     <div className="mt-4 pt-1 space-y-2">
                       <div className="flex items-center gap-2">
                         <Link href={editB2CHref} data-testid={`edit-b2c-btn-${attraction.slug}`} className="flex-1">
-                          <AdminButton variant="outline" className="w-full text-xs" leftIcon={<Edit3 className="w-3.5 h-3.5" />}>
-                            {isAr ? "تعديل B2C" : "Edit B2C"}
+                          <AdminButton variant="outline" className="w-full text-xs font-bold" leftIcon={<Edit3 className="w-3.5 h-3.5" />}>
+                            {isAr ? "تعديل الوجهة" : "Edit Attraction"}
                           </AdminButton>
                         </Link>
 
                         <Link 
-                          href={editB2BHref} 
-                          data-testid={`edit-b2b-link-${attraction.slug}`}
-                          title={isAr ? "فتح محرر B2B المؤسسي" : "Open Enterprise B2B Editor"}
+                          href={localizeHref(`/dashboard/b2c/attractions/${attraction.id}/edit?stage=media`, locale)} 
+                          data-testid={`case-studies-link-${attraction.slug}`}
+                          title={isAr ? "عرض دراسات الحالة وروابط B2B" : "View Case Studies & B2B Links"}
                           className="px-2.5 py-1.5 text-xs font-bold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-lg transition-colors flex items-center gap-1"
                         >
                           <Briefcase className="w-3 h-3" />
-                          <span>{isAr ? "محرر B2B" : "B2B Editor"}</span>
+                          <span>{isAr ? "دراسات الحالة" : "Case Studies"}</span>
                         </Link>
                       </div>
 

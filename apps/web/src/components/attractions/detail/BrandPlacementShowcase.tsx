@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useState, useMemo } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react"
@@ -22,9 +23,34 @@ interface BrandPlacementShowcaseProps {
 }
 
 export function BrandPlacementShowcase({ brandPlacements, locale = "en" }: BrandPlacementShowcaseProps) {
-  if (!Array.isArray(brandPlacements) || brandPlacements.length === 0) return null
-
+  const [brokenIds, setBrokenIds] = useState<Set<string>>(new Set())
   const isAr = locale === "ar"
+
+  const validPlacements = useMemo(() => {
+    if (!Array.isArray(brandPlacements)) return []
+
+    return brandPlacements.filter((bp: any) => {
+      const b: BrandItem = bp.brand || bp
+      if (!b) return false
+
+      const name = (b.nameEn || b.nameAr || "").trim()
+      if (!name || name.toLowerCase().includes("placeholder") || name.toLowerCase() === "demo") {
+        return false
+      }
+
+      // Check if logo marked as broken
+      if (b.id && brokenIds.has(b.id)) {
+        return false
+      }
+
+      return true
+    })
+  }, [brandPlacements, brokenIds])
+
+  // Hide entire section when no valid partners remain
+  if (validPlacements.length === 0) {
+    return null
+  }
 
   return (
     <section className="py-24 bg-[var(--bg-level-1)] text-[var(--text-primary)] relative overflow-hidden border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
@@ -49,7 +75,7 @@ export function BrandPlacementShowcase({ brandPlacements, locale = "en" }: Brand
 
         {/* Brand Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {brandPlacements.map((bp: any, idx: number) => {
+          {validPlacements.map((bp: any, idx: number) => {
             const b: BrandItem = bp.brand || bp
             if (!b) return null
 
@@ -70,7 +96,16 @@ export function BrandPlacementShowcase({ brandPlacements, locale = "en" }: Brand
                   <div className="flex items-center justify-between gap-4">
                     {b.logoUrl ? (
                       <div className="w-16 h-16 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] p-2.5 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
-                        <img src={b.logoUrl} alt={name} className="w-full h-full object-contain" />
+                        <img 
+                          src={b.logoUrl} 
+                          alt={name} 
+                          className="w-full h-full object-contain"
+                          onError={() => {
+                            if (b.id) {
+                              setBrokenIds(prev => new Set(prev).add(b.id))
+                            }
+                          }}
+                        />
                       </div>
                     ) : (
                       <div className="w-16 h-16 rounded-2xl bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 flex items-center justify-center font-black text-2xl shrink-0">

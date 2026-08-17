@@ -301,8 +301,11 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               const formattedTitle = formatLocalizedText(titleVal, locale);
               const formattedDesc = formatLocalizedText(descVal, locale);
               const highlightType = feature.highlightType || "ACTIVITY";
-              const primaryTrack = feature.storyTypes?.[0] || (feature.primaryStoryTrackSlug ? { slug: feature.primaryStoryTrackSlug, titleEn: feature.primaryStoryTrackSlug } : null);
-              const secondaryTracks = (feature.storyTypes?.slice(1) || (Array.isArray(feature.secondaryStoryTrackSlugs) ? feature.secondaryStoryTrackSlugs.map((s: string) => ({ slug: s, titleEn: s })) : [])).slice(0, 2);
+              const primaryTrack = (feature.primaryStoryTypeId ? feature.storyTypes?.find(st => st.id === feature.primaryStoryTypeId) : null) ||
+                (feature.primaryStoryTrackSlug ? (feature.storyTypes?.find(st => st.slug === feature.primaryStoryTrackSlug) || { slug: feature.primaryStoryTrackSlug, titleEn: feature.primaryStoryTrackSlug }) : null) ||
+                feature.storyTypes?.[0] || null;
+              const secondaryTracks = (feature.storyTypes?.filter(st => st.id !== (primaryTrack as any)?.id && st.slug !== primaryTrack?.slug) ||
+                (Array.isArray(feature.secondaryStoryTrackSlugs) ? feature.secondaryStoryTrackSlugs.filter(s => s !== primaryTrack?.slug).map((s: string) => ({ slug: s, titleEn: s })) : [])).slice(0, 2);
 
               return (
                 <motion.div

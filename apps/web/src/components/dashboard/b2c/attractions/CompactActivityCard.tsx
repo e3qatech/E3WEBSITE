@@ -124,26 +124,40 @@ export function CompactActivityCard({
   if (!hasImage) missingFields.push("Image")
   if (!hasStory) missingFields.push("Story Track")
 
-  const primaryStory = availableStoryTypes.find(st => 
-    st.id === activity.primaryStoryTypeId || 
-    (activity.storyTypeIds && activity.storyTypeIds.includes(st.id))
-  )
+  // 1. Resolve Primary Story Track strictly by activity.primaryStoryTypeId first
+  const storyTypeIdsArr = Array.isArray(activity.storyTypeIds) ? activity.storyTypeIds : []
+  const primaryStory = (activity.primaryStoryTypeId 
+    ? availableStoryTypes.find(st => st.id === activity.primaryStoryTypeId) 
+    : null) || (storyTypeIdsArr.length > 0 
+    ? availableStoryTypes.find(st => st.id === storyTypeIdsArr[0]) 
+    : null)
+
+  // 2. Resolve Secondary Story Tracks (excluding primary track)
+  const secondaryStoryTracks = (Array.isArray(activity.secondaryStoryTypeIds)
+    ? activity.secondaryStoryTypeIds
+    : (storyTypeIdsArr.length > 0 ? storyTypeIdsArr.filter(id => id !== primaryStory?.id) : [])
+  ).map(id => availableStoryTypes.find(st => st.id === id)).filter(Boolean)
 
   const contentType = activity.contentType || 'ACTIVITY'
   const typeBadge = CONTENT_TYPE_LABELS[contentType] || CONTENT_TYPE_LABELS.ACTIVITY
 
   const toggleSecondaryStoryType = (stId: string) => {
-    const current = activity.secondaryStoryTypeIds || []
+    if (stId === (activity.primaryStoryTypeId || primaryStory?.id)) return
+    const current = (activity.secondaryStoryTypeIds || []).filter(id => id !== (activity.primaryStoryTypeId || primaryStory?.id))
     if (current.includes(stId)) {
+      const updated = current.filter(id => id !== stId)
       onUpdate({
         ...activity,
-        secondaryStoryTypeIds: current.filter(id => id !== stId)
+        secondaryStoryTypeIds: updated,
+        storyTypeIds: [activity.primaryStoryTypeId || primaryStory?.id, ...updated].filter(Boolean)
       })
     } else {
       if (current.length >= 2) return // Max 2 secondary types
+      const updated = [...current, stId]
       onUpdate({
         ...activity,
-        secondaryStoryTypeIds: [...current, stId]
+        secondaryStoryTypeIds: updated,
+        storyTypeIds: [activity.primaryStoryTypeId || primaryStory?.id, ...updated].filter(Boolean)
       })
     }
   }
@@ -198,11 +212,29 @@ export function CompactActivityCard({
                 {typeBadge.en}
               </span>
 
-              {/* Primary Story Type Badge */}
+              {/* Primary Story Type Badge (Always primary track) */}
               {primaryStory && (
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center gap-1">
+                <span 
+                  data-testid={`activity-primary-badge-${index}`}
+                  className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 flex items-center gap-1"
+                >
                   <Sparkles className="w-2.5 h-2.5" />
                   <span>{primaryStory.titleEn}</span>
+                </span>
+              )}
+
+              {/* Secondary Supporting Track Chips */}
+              {secondaryStoryTracks.slice(0, 2).map((st: any) => (
+                <span
+                  key={st.id}
+                  className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[9px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-300/80 border border-purple-500/20"
+                >
+                  {st.titleEn}
+                </span>
+              ))}
+              {secondaryStoryTracks.length > 2 && (
+                <span className="text-[9px] font-mono text-[var(--text-tertiary)]">
+                  +{secondaryStoryTracks.length - 2}
                 </span>
               )}
 
@@ -427,13 +459,15 @@ export function CompactActivityCard({
                   </button>
                 </div>
                 <select
-                  value={activity.primaryStoryTypeId || (activity.storyTypeIds?.[0]) || ''}
+                  value={activity.primaryStoryTypeId || primaryStory?.id || ''}
                   onChange={e => {
                     const stId = e.target.value
+                    const filteredSecondary = (activity.secondaryStoryTypeIds || []).filter(id => id !== stId)
                     onUpdate({
                       ...activity,
                       primaryStoryTypeId: stId,
-                      storyTypeIds: [stId, ...(activity.secondaryStoryTypeIds || [])].filter(Boolean)
+                      secondaryStoryTypeIds: filteredSecondary,
+                      storyTypeIds: [stId, ...filteredSecondary].filter(Boolean)
                     })
                   }}
                   className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-sm focus:border-[var(--color-primary)] focus:outline-none font-bold"
@@ -471,7 +505,7 @@ export function CompactActivityCard({
 
               <div className="flex flex-wrap gap-2">
                 {availableStoryTypes
-                  .filter(st => st.id !== (activity.primaryStoryTypeId || activity.storyTypeIds?.[0]))
+                  .filter(st => st.id !== (activity.primaryStoryTypeId || primaryStory?.id))
                   .filter(st => !trackSearchQuery || (st.titleEn || '').toLowerCase().includes(trackSearchQuery.toLowerCase()))
                   .map(st => {
                     const isSelected = (activity.secondaryStoryTypeIds || []).includes(st.id)

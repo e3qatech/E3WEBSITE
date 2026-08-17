@@ -167,10 +167,14 @@ export async function PUT(
         const featuresArr = Array.isArray(features) ? features.filter(f => f && (f.titleEn || f.titleAr)) : []
         for (let i = 0; i < featuresArr.length; i++) {
           const f = featuresArr[i]
+          const primaryId = f.primaryStoryTypeId || null
+          const secondaryFiltered = Array.isArray(f.secondaryStoryTypeIds) 
+            ? f.secondaryStoryTypeIds.filter((s: string) => s && s !== primaryId)
+            : []
           const storyIds = [
-            f.primaryStoryTypeId,
-            ...(Array.isArray(f.secondaryStoryTypeIds) ? f.secondaryStoryTypeIds : []),
-            ...(Array.isArray(f.storyTypeIds) ? f.storyTypeIds : [])
+            primaryId,
+            ...secondaryFiltered,
+            ...(Array.isArray(f.storyTypeIds) ? f.storyTypeIds.filter((s: string) => s && s !== primaryId) : [])
           ].filter(Boolean)
           const uniqueStoryIds = Array.from(new Set(storyIds))
 
@@ -184,8 +188,8 @@ export async function PUT(
               imageUrl: String(f.imageUrl || "").trim(),
               iconUrl: String(f.iconUrl || "").trim(),
               highlightType: String(f.contentType || f.highlightType || "ACTIVITY").trim(),
-              primaryStoryTypeId: f.primaryStoryTypeId || null,
-              secondaryStoryTypeIds: Array.isArray(f.secondaryStoryTypeIds) ? f.secondaryStoryTypeIds : null,
+              primaryStoryTypeId: primaryId,
+              secondaryStoryTypeIds: secondaryFiltered.length > 0 ? secondaryFiltered : null,
               intensityLevel: f.intensityLevel || "MEDIUM",
               durationMinutes: f.durationMinutes || null,
               minAge: f.minAge || null,
