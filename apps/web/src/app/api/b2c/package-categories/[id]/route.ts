@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,19 +19,24 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     if (!category) return NextResponse.json({ error: "Category not found" }, { status: 404 })
     return NextResponse.json({ data: category })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("[GET /api/b2c/package-categories/[id]] Error:", error?.message || error)
+    return NextResponse.json({ error: "Failed to fetch category" }, { status: 500 })
   }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const { packages: _p, _count: _c, createdAt: _created, updatedAt: _updated, ...data } = body
 
     const updated = await db.packageCategory.update({
@@ -41,14 +46,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({ data: updated })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("[PUT /api/b2c/package-categories/[id]] Error:", error?.message || error)
+    return NextResponse.json({ error: "Failed to update category" }, { status: 500 })
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session?.user && process.env.NODE_ENV === "production") {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -68,6 +78,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     await db.packageCategory.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("[DELETE /api/b2c/package-categories/[id]] Error:", error?.message || error)
+    return NextResponse.json({ error: "Failed to delete category" }, { status: 500 })
   }
 }

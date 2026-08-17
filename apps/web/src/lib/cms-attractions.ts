@@ -143,11 +143,19 @@ export function resolveBookingUrl(attraction: any, locale: string = 'en'): strin
   }
   
   if (mode === 'EXTERNAL_URL' && attraction?.bookingUrl) {
-    return attraction.bookingUrl
+    const rawUrl = String(attraction.bookingUrl).trim()
+    // Canonicalize any legacy slug or internal anchor to the current attraction route
+    if (rawUrl.includes('urban-arena-doha-mall') || rawUrl.includes('/b2c/attractions/')) {
+      return `/${locale}/b2c/attractions/${attraction.slug || 'urban-arena'}#pricing`
+    }
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      return rawUrl
+    }
+    return rawUrl.startsWith('/') ? `/${locale}${rawUrl}` : `/${locale}/${rawUrl}`
   }
 
-  if (mode === 'INTERNAL_ROUTE' && attraction?.slug) {
-    return `/${locale}/b2c/attractions/${attraction.slug}#booking`
+  if (mode === 'INTERNAL_ROUTE' || !attraction?.bookingMode) {
+    return `/${locale}/b2c/attractions/${attraction?.slug || 'urban-arena'}#pricing`
   }
 
   if (mode === 'CONTACT') {

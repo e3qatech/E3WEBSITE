@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 import { roundCurrency } from "@/lib/package-pricing-engine"
+
+async function enforceQuotationPermission() {
+  try {
+    return await requirePermission("crm.leads.manage")
+  } catch {
+    return await requirePermission("b2c.packages.manage")
+  }
+}
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await enforceQuotationPermission()
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -40,19 +52,24 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: quotations, count: quotations.length })
   } catch (error: any) {
-    console.error("[GET /api/b2c/quotations] Error:", error)
+    console.error("[GET /api/b2c/quotations] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch quotations" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    let user: any = null
+    try {
+      user = await enforceQuotationPermission()
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const {
       leadId,
       packageId,
@@ -65,6 +82,7 @@ export async function POST(req: NextRequest) {
       currency,
       items,
       discountTotal,
+      taxTotal,
       depositAmount,
       paymentSchedule,
       termsEn,
@@ -82,7 +100,7 @@ export async function POST(req: NextRequest) {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000)
     const quoteNumber = `E3-QTE-${datePrefix}-${randomSuffix}`
 
-    // 2. Compute server-side totals safely
+    // 2. Compute server-side totals strictly from item quantity and unitPrice (never trust browser grand totals)
     const lineItems: any[] = Array.isArray(items) ? items : []
     let subtotal = 0
 
@@ -93,10 +111,10 @@ export async function POST(req: NextRequest) {
       subtotal += total
       return {
         itemType: item.itemType || "PACKAGE_TIER",
-        titleEn: item.titleEn || `Item #${idx + 1}`,
-        titleAr: item.titleAr || item.titleEn || `بند #${idx + 1}`,
-        descriptionEn: item.descriptionEn || null,
-        descriptionAr: item.descriptionAr || null,
+        titleEn: item.titleEn ? String(item.titleEn).trim() : `Item #${idx + 1}`,
+        titleAr: item.titleAr ? String(item.titleAr).trim() : (item.titleEn ? String(item.titleEn).trim() : `بند #${idx + 1}`),
+        descriptionEn: item.descriptionEn ? String(item.descriptionEn).trim() : null,
+        descriptionAr: item.descriptionAr ? String(item.descriptionAr).trim() : null,
         quantity: qty,
         unitPrice: unit,
         totalPrice: total,
@@ -106,7 +124,7 @@ export async function POST(req: NextRequest) {
 
     subtotal = roundCurrency(subtotal)
     const discount = roundCurrency(Math.min(subtotal, Math.max(0, parseFloat(discountTotal) || 0)))
-    const tax = 0 // Qatar 0% standard VAT
+    const tax = taxTotal !== undefined ? roundCurrency(Math.max(0, parseFloat(taxTotal) || 0)) : 0
     const grandTotal = roundCurrency(Math.max(0, subtotal - discount + tax))
 
     const validUntil = new Date()
@@ -118,8 +136,8 @@ export async function POST(req: NextRequest) {
         version: 1,
         leadId: leadId || undefined,
         packageId: packageId || undefined,
-        customerName: customerName.trim(),
-        customerEmail: customerEmail.toLowerCase().trim(),
+        customerName: String(customerName).trim(),
+        customerEmail: String(customerEmail).toLowerCase().trim(),
         customerPhone: customerPhone ? String(customerPhone).trim() : null,
         companyOrOrg: companyOrOrg ? String(companyOrOrg).trim() : null,
         eventDate: eventDate ? new Date(eventDate) : null,
@@ -136,7 +154,7 @@ export async function POST(req: NextRequest) {
         customerNotes,
         internalNotes,
         status: "DRAFT",
-        createdById: session.user.name || "Staff",
+        createdById: user?.name || "Staff",
         items: {
           create: formattedItems
         }
@@ -161,7 +179,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data: quotation })
   } catch (error: any) {
-    console.error("[POST /api/b2c/quotations] Error:", error)
+    console.error("[POST /api/b2c/quotations] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to create quotation" }, { status: 500 })
   }
 }

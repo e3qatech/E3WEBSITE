@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,19 +19,24 @@ export async function GET(req: NextRequest) {
     const showAll = searchParams.get("all") === "true" || searchParams.get("includeDrafts") === "true"
     const includeTemplates = searchParams.get("templates") === "true"
 
-    const session = await auth()
-    const isAdmin = Boolean(session?.user)
+    let hasManagePermission = false
+    try {
+      const user = await requirePermission("b2c.packages.manage")
+      hasManagePermission = Boolean(user)
+    } catch {
+      hasManagePermission = false
+    }
 
     const where: any = {}
 
-    // Filter by publish status unless admin specifically requests all/drafts
-    if (!showAll) {
+    // Public callers can only see published active packages
+    if (!hasManagePermission || !showAll) {
       where.isPublished = true
       where.status = "PUBLISHED"
     }
 
-    // By default, exclude templates unless requested by admin
-    if (!includeTemplates && !showAll) {
+    // By default, exclude templates unless requested by authorized manager
+    if (!includeTemplates && !hasManagePermission) {
       where.isTemplate = false
     } else if (includeTemplates) {
       where.isTemplate = true
@@ -135,7 +140,7 @@ export async function GET(req: NextRequest) {
 
     // Security: sanitize internal financial and administrative fields for unauthenticated public requests
     const sanitizedPackages = packages.map((pkg: any) => {
-      if (!isAdmin) {
+      if (!hasManagePermission) {
         const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = pkg
         return safe
       }
@@ -144,19 +149,23 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: sanitizedPackages, count: sanitizedPackages.length })
   } catch (error: any) {
-    console.error("[GET /api/b2c/packages] Error:", error)
+    console.error("[GET /api/b2c/packages] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch packages" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const {
       titleEn,
       titleAr,
@@ -182,10 +191,10 @@ export async function POST(req: NextRequest) {
 
     const newPackage = await db.package.create({
       data: {
-        titleEn,
-        titleAr: titleAr || titleEn,
+        titleEn: String(titleEn).trim(),
+        titleAr: titleAr ? String(titleAr).trim() : String(titleEn).trim(),
         slug: finalSlug,
-        code: code || `PKG-${Date.now().toString().slice(-6)}`,
+        code: code ? String(code).trim() : `PKG-${Date.now().toString().slice(-6)}`,
         categoryId: categoryId || undefined,
         category: category || "BIRTHDAY",
         startingPrice: startingPrice !== undefined ? parseFloat(startingPrice) : 0,
@@ -200,7 +209,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data: newPackage })
   } catch (error: any) {
-    console.error("[POST /api/b2c/packages] Error:", error)
+    console.error("[POST /api/b2c/packages] Error:", error?.message || error)
     return NextResponse.json({ error: error.message || "Failed to create package" }, { status: 500 })
   }
 }

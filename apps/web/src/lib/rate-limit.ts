@@ -11,6 +11,9 @@ export async function rateLimit(
 ): Promise<{ success: boolean; error?: string; retryAfter?: number }> {
   try {
     const currentCount = await redis.incr(key);
+    if (typeof currentCount !== 'number' || Number.isNaN(currentCount)) {
+      throw new Error('Redis client unavailable or returned non-numeric count');
+    }
     if (currentCount === 1) {
       await redis.expire(key, windowSec);
     }
@@ -21,8 +24,8 @@ export async function rateLimit(
   } catch (_error) {
     console.warn(`[CSO] Redis rate limit error for key: ${key}`);
 
-    // Only allow memory fallback in Development
-    const isDev = process.env.NODE_ENV === 'development';
+    // Only allow memory fallback in Development & Testing
+    const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || !process.env.NODE_ENV;
 
     if (!isDev && !failOpen) {
       // Production & Preview: fail-closed

@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { calculatePackagePrice, CouponRule } from "@/lib/package-pricing-engine"
+import { enforceBodyLimit } from "@/lib/body-limit"
+import { rateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { code, packageId, categorySlug, guestCount, subtotal, customerEmail } = body
+    // 1. Enforce 4KB body limit
+    const limitResp = enforceBodyLimit(req, 4 * 1024)
+    if (limitResp) return limitResp
+
+    // 2. Distributed Rate Limiting (10 attempts / 60 seconds per IP)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown_ip"
+    const rl = await rateLimit(`rate_limit:coupon_validate:${ip}`, 10, 60, false)
+    if (!rl.success) {
+      return NextResponse.json(
+        { valid: false, error: rl.error || "Too many validation attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfter || 60) } }
+      )
+    }
+
+    const rawBody = await req.json().catch(() => ({}))
+    const { code, packageId, categorySlug, guestCount, subtotal, customerEmail } = rawBody
 
     if (!code || typeof code !== "string") {
       return NextResponse.json({ valid: false, message: "Invalid or unavailable coupon code" }, { status: 400 })
@@ -16,13 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ valid: false, message: "Invalid or unavailable coupon code" }, { status: 400 })
     }
 
-    // 1. Find coupon
+    // 3. Find coupon
     const coupon = await db.coupon.findUnique({
       where: { code: upperCode },
       include: { promotion: true }
     })
 
-    // Return neutral response for invalid / inactive / expired / limit reached
+    // Return neutral response for invalid / inactive / expired / limit reached without leaking existence details
     if (!coupon || coupon.status !== "ACTIVE") {
       return NextResponse.json({ valid: false, message: "Invalid or unavailable coupon code" }, { status: 400 })
     }
@@ -57,7 +72,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Validate against promotion rules if promotion is linked
+    // 4. Validate against promotion rules if promotion is linked
     const promo = coupon.promotion
     let discountAmount = 0
     let discountType = "FIXED"
@@ -110,7 +125,7 @@ export async function POST(req: NextRequest) {
         discountAmount = promo.discountValue
       }
     } else {
-      discountAmount = 50
+      discountAmount = 0
     }
 
     return NextResponse.json({
@@ -122,7 +137,7 @@ export async function POST(req: NextRequest) {
       description: coupon.description || promo?.labelEn || "Promotional Discount"
     })
   } catch (error: any) {
-    console.error("[POST /api/b2c/coupons/validate] Error:", error)
+    console.error("[POST /api/b2c/coupons/validate] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to validate coupon" }, { status: 500 })
   }
 }

@@ -1,25 +1,30 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    const isAdmin = Boolean(session?.user)
+    let hasManagePermission = false
+    try {
+      const user = await requirePermission("b2c.packages.manage")
+      hasManagePermission = Boolean(user)
+    } catch {
+      hasManagePermission = false
+    }
 
     const { searchParams } = new URL(req.url)
-    const activeOnly = searchParams.get("active") === "true" || !isAdmin
+    const activeOnly = searchParams.get("active") === "true" || !hasManagePermission
 
     const where: any = activeOnly ? { isActive: true } : {}
 
     const promotions = await db.packagePromotion.findMany({
       where,
       orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
-      include: isAdmin ? { _count: { select: { coupons: true } } } : undefined
+      include: hasManagePermission ? { _count: { select: { coupons: true } } } : undefined
     })
 
     const sanitizedPromotions = promotions.map((p: any) => {
-      if (!isAdmin) {
+      if (!hasManagePermission) {
         return {
           id: p.id,
           name: p.name,
@@ -42,19 +47,23 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: sanitizedPromotions })
   } catch (error: any) {
-    console.error("[GET /api/b2c/package-promotions] Error:", error)
+    console.error("[GET /api/b2c/package-promotions] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch promotions" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const {
       name,
       code,
@@ -84,10 +93,10 @@ export async function POST(req: NextRequest) {
 
     const promotion = await db.packagePromotion.create({
       data: {
-        name,
-        code: code ? code.toUpperCase().trim() : undefined,
-        labelEn,
-        labelAr: labelAr || labelEn,
+        name: String(name).trim(),
+        code: code ? String(code).toUpperCase().trim() : undefined,
+        labelEn: String(labelEn).trim(),
+        labelAr: labelAr ? String(labelAr).trim() : String(labelEn).trim(),
         discountType: discountType || "PERCENTAGE",
         discountValue: parseFloat(discountValue) || 0,
         maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null,
@@ -109,7 +118,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data: promotion })
   } catch (error: any) {
-    console.error("[POST /api/b2c/package-promotions] Error:", error)
+    console.error("[POST /api/b2c/package-promotions] Error:", error?.message || error)
     return NextResponse.json({ error: error.message || "Failed to create promotion" }, { status: 500 })
   }
 }

@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
+import { enforceBodyLimit } from "@/lib/body-limit"
+import { rateLimit } from "@/lib/rate-limit"
+import { PackageLeadSubmissionSchema } from "@/lib/validations/package-lead-schema"
+import { calculatePackagePrice } from "@/lib/package-pricing-engine"
 import { sendInternalPackageLeadAlert, sendCustomerLeadAcknowledgement } from "@/lib/package-email-notifications"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // RBAC: Requires crm.leads.manage or b2c.packages.manage capability
+    try {
+      await requirePermission("crm.leads.manage")
+    } catch {
+      try {
+        await requirePermission("b2c.packages.manage")
+      } catch (err: any) {
+        if (err instanceof AppAuthError) {
+          return NextResponse.json({ error: err.message }, { status: err.statusCode })
+        }
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
     }
 
     const { searchParams } = new URL(req.url)
@@ -48,75 +61,49 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: leads, count: leads.length })
   } catch (error: any) {
-    console.error("[GET /api/b2c/package-leads] Error:", error)
+    console.error("[GET /api/b2c/package-leads] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch package leads" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    // 1. Request Body Size Limit (16KB)
+    const limitResp = enforceBodyLimit(req, 16 * 1024)
+    if (limitResp) return limitResp
 
-    // 1. Anti-spam honeypot verification
-    if (body.website_hp || body.honeypot) {
+    // 2. Distributed Rate Limiting (5 submissions / 60 seconds per IP)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown_ip"
+    const rl = await rateLimit(`rate_limit:package_leads:${ip}`, 5, 60, false)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: rl.error || "Too many submissions. Please wait before trying again." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfter || 60) } }
+      )
+    }
+
+    const rawBody = await req.json().catch(() => ({}))
+
+    // 3. Honeypot check
+    if (rawBody.website_hp || rawBody.honeypot) {
       console.warn("[ANTI-SPAM] Bot honeypot triggered on lead submission")
       return NextResponse.json({ success: true, referenceNumber: "E3-LEAD-BOT" })
     }
 
-    const {
-      customerName,
-      companyOrOrg,
-      email,
-      phone,
-      whatsApp,
-      contactMethod,
-      celebrationName,
-      ageGroup,
-      preferredDate,
-      alternativeDate,
-      preferredTimeSlot,
-      expectedGuests,
-      expectedChildren,
-      expectedAdults,
-      budgetRange,
-      estimatedValue,
-      packageId,
-      selectedTierId,
-      selectedTierName,
-      selectedAddOns,
-      customSelections,
-      themePreference,
-      cateringRequirements,
-      accessibilityReqs,
-      specialRequests,
-      attachments,
-      leadType,
-      sourcePage,
-      utmSource,
-      utmMedium,
-      utmCampaign,
-      couponCode,
-      referralCode,
-      locale,
-      marketingConsent
-    } = body
-
-    if (!customerName || typeof customerName !== "string" || customerName.trim().length < 2) {
-      return NextResponse.json({ error: "Please provide a valid contact name" }, { status: 400 })
+    // 4. Strict Zod Schema Validation & Sanitization
+    const parseResult = PackageLeadSubmissionSchema.safeParse(rawBody)
+    if (!parseResult.success) {
+      const firstError = parseResult.error.issues[0]?.message || "Validation failed"
+      return NextResponse.json({ error: firstError }, { status: 400 })
     }
 
-    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      return NextResponse.json({ error: "Please provide a valid email address" }, { status: 400 })
-    }
+    const validated = parseResult.data
 
-    const cleanEmail = email.toLowerCase().trim()
-    const cleanPhone = phone ? String(phone).replace(/[^\d+]/g, "").slice(0, 20) : null
-
-    // 2. Duplicate Throttle (reject exact same email + package within 30s)
+    // 5. Duplicate Throttle (reject duplicate email + package within 30s)
     const recentDuplicate = await db.packageLead.findFirst({
       where: {
-        email: cleanEmail,
-        packageId: packageId || undefined,
+        email: validated.email,
+        packageId: validated.packageId || undefined,
         createdAt: { gte: new Date(Date.now() - 30000) }
       }
     })
@@ -129,15 +116,44 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 3. Generate human-readable Unique Lead Reference
+    // 6. Server-Side Price Calculation (Never blindly trust browser estimate)
+    let calculatedEstimatedValue = validated.estimatedValue || null
+    let linkedPackage: any = null
+
+    if (validated.packageId) {
+      linkedPackage = await db.package.findUnique({
+        where: { id: validated.packageId }
+      })
+
+      if (linkedPackage) {
+        const pricingResult = calculatePackagePrice({
+          basePackage: {
+            id: linkedPackage.id,
+            startingPrice: linkedPackage.startingPrice || 0,
+            priceDisplayMode: linkedPackage.priceDisplayMode,
+            minGuests: linkedPackage.minGuests || 10,
+            maxGuests: linkedPackage.maxGuests || 100,
+            includedGuestCount: linkedPackage.minGuests || 10,
+            extraGuestPrice: linkedPackage.extraGuestPrice || 0,
+            tiers: Array.isArray(linkedPackage.priceTiers) ? (linkedPackage.priceTiers as any) : []
+          },
+          selectedTierId: validated.selectedTierId || undefined,
+          guestCount: validated.expectedGuests,
+          selectedAddOns: Array.isArray(validated.selectedAddOns) ? (validated.selectedAddOns as any) : []
+        })
+        calculatedEstimatedValue = pricingResult.grandTotal
+      }
+    }
+
+    // 7. Generate Unique Lead Reference
     const datePrefix = new Date().toISOString().slice(2, 10).replace(/-/g, "")
     const randomSuffix = Math.floor(1000 + Math.random() * 9000)
     const formattedLeadId = `E3-LEAD-${datePrefix}-${randomSuffix}`
 
-    // 4. Handle Coupon and Referral Attribution
-    let verifiedCouponCode = undefined
-    if (couponCode && typeof couponCode === "string") {
-      const c = await db.coupon.findUnique({ where: { code: couponCode.toUpperCase().trim() } })
+    // 8. Handle Coupon and Referral Attribution
+    let verifiedCouponCode: string | undefined = undefined
+    if (validated.couponCode) {
+      const c = await db.coupon.findUnique({ where: { code: validated.couponCode.toUpperCase().trim() } })
       if (c && c.status === "ACTIVE") {
         verifiedCouponCode = c.code
         await db.coupon.update({
@@ -147,9 +163,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    let verifiedReferralCode = undefined
-    if (referralCode && typeof referralCode === "string") {
-      const r = await db.referralCode.findUnique({ where: { code: referralCode.toUpperCase().trim() } })
+    let verifiedReferralCode: string | undefined = undefined
+    if (validated.referralCode) {
+      const r = await db.referralCode.findUnique({ where: { code: validated.referralCode.toUpperCase().trim() } })
       if (r && r.status === "ACTIVE") {
         verifiedReferralCode = r.code
         await db.referralCode.update({
@@ -162,53 +178,52 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Initial Activity Log
+    // 9. Initial Activity Log
     const initialActivityLog = [
       {
         id: `act-${Date.now()}`,
         action: "LEAD_CREATED",
         timestamp: new Date().toISOString(),
-        details: `Inquiry submitted via ${sourcePage || "Public Packages Page"} (${locale || "en"})`
+        details: `Inquiry submitted via ${validated.sourcePage || "Public Packages Page"} (${validated.locale})`
       }
     ]
 
     const lead = await db.packageLead.create({
       data: {
         leadId: formattedLeadId,
-        customerName: customerName.trim(),
-        companyOrOrg: companyOrOrg ? String(companyOrOrg).trim().slice(0, 150) : null,
-        email: cleanEmail,
-        phone: cleanPhone,
-        whatsApp: whatsApp ? String(whatsApp).trim().slice(0, 30) : null,
-        contactMethod: contactMethod || "WHATSAPP",
-        celebrationName: celebrationName ? String(celebrationName).trim().slice(0, 150) : null,
-        ageGroup: ageGroup ? String(ageGroup).trim().slice(0, 50) : null,
-        preferredDate: preferredDate ? new Date(preferredDate) : null,
-        alternativeDate: alternativeDate ? new Date(alternativeDate) : null,
-        preferredTimeSlot: preferredTimeSlot ? String(preferredTimeSlot).slice(0, 50) : null,
-        expectedGuests: expectedGuests ? Math.max(1, parseInt(expectedGuests)) : 10,
-        expectedChildren: expectedChildren ? parseInt(expectedChildren) : null,
-        expectedAdults: expectedAdults ? parseInt(expectedAdults) : null,
-        budgetRange: budgetRange ? String(budgetRange).slice(0, 50) : null,
-        estimatedValue: estimatedValue ? parseFloat(estimatedValue) : null,
-        packageId: packageId || undefined,
-        selectedTierId: selectedTierId ? String(selectedTierId).slice(0, 50) : null,
-        selectedTierName: selectedTierName ? String(selectedTierName).slice(0, 100) : null,
-        selectedAddOns: Array.isArray(selectedAddOns) ? selectedAddOns : [],
-        customSelections: customSelections || null,
-        themePreference: themePreference ? String(themePreference).slice(0, 100) : null,
-        cateringRequirements: cateringRequirements ? String(cateringRequirements).slice(0, 300) : null,
-        accessibilityReqs: accessibilityReqs ? String(accessibilityReqs).slice(0, 300) : null,
-        specialRequests: specialRequests ? String(specialRequests).slice(0, 1000) : null,
-        attachments: Array.isArray(attachments) ? attachments : [],
-        leadType: leadType || "BIRTHDAY",
+        customerName: validated.customerName,
+        companyOrOrg: validated.companyOrOrg,
+        email: validated.email,
+        phone: validated.phone,
+        whatsApp: validated.whatsApp,
+        contactMethod: validated.contactMethod,
+        celebrationName: validated.celebrationName,
+        preferredDate: validated.preferredDate ? new Date(validated.preferredDate) : null,
+        alternativeDate: validated.alternativeDate ? new Date(validated.alternativeDate) : null,
+        preferredTimeSlot: validated.preferredTimeSlot,
+        expectedGuests: validated.expectedGuests,
+        expectedChildren: validated.expectedChildren,
+        expectedAdults: validated.expectedAdults,
+        budgetRange: validated.budgetRange,
+        estimatedValue: calculatedEstimatedValue,
+        packageId: validated.packageId || undefined,
+        selectedTierId: validated.selectedTierId,
+        selectedTierName: validated.selectedTierName,
+        selectedAddOns: validated.selectedAddOns,
+        customSelections: validated.customSelections,
+        themePreference: validated.themePreference,
+        cateringRequirements: validated.cateringRequirements,
+        accessibilityReqs: validated.accessibilityReqs,
+        specialRequests: validated.specialRequests,
+        attachments: validated.attachments,
+        leadType: validated.leadType,
         status: "NEW",
         priority: "NORMAL",
-        sourcePage: sourcePage || "/b2c/packages",
-        utmSource: utmSource ? String(utmSource).slice(0, 100) : null,
-        utmMedium: utmMedium ? String(utmMedium).slice(0, 100) : null,
-        utmCampaign: utmCampaign ? String(utmCampaign).slice(0, 100) : null,
-        marketingConsent: Boolean(marketingConsent),
+        sourcePage: validated.sourcePage,
+        utmSource: validated.utmSource,
+        utmMedium: validated.utmMedium,
+        utmCampaign: validated.utmCampaign,
+        marketingConsent: validated.marketingConsent,
         termsAccepted: true,
         termsAcceptedAt: new Date(),
         activityLog: initialActivityLog
@@ -218,26 +233,26 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Dispatch background email notifications safely
+    // 10. Dispatch background email notifications safely
     const notificationPayload = {
       leadId: formattedLeadId,
       customerName: lead.customerName,
-      email: cleanEmail,
-      phone: cleanPhone,
-      packageTitle: lead.package?.titleEn || leadType,
-      leadType: leadType || "GENERAL",
-      expectedGuests: expectedGuests ? parseInt(expectedGuests) : 10,
-      preferredDate: preferredDate || null,
-      budgetRange: budgetRange || null,
-      specialRequests: specialRequests || null,
-      sourcePage: sourcePage || "/b2c/packages",
-      locale: locale || "en"
+      email: validated.email,
+      phone: validated.phone,
+      packageTitle: linkedPackage?.titleEn || validated.leadType,
+      leadType: validated.leadType,
+      expectedGuests: validated.expectedGuests,
+      preferredDate: validated.preferredDate || null,
+      budgetRange: validated.budgetRange || null,
+      specialRequests: validated.specialRequests || null,
+      sourcePage: validated.sourcePage,
+      locale: validated.locale
     }
 
     sendInternalPackageLeadAlert(notificationPayload).catch(console.warn)
     sendCustomerLeadAcknowledgement(notificationPayload).catch(console.warn)
 
-    // Return safe public reference without exposing internal CRM tracking fields
+    // Return safe public reference without exposing internal CRM fields
     return NextResponse.json({
       success: true,
       referenceNumber: formattedLeadId,
@@ -245,7 +260,7 @@ export async function POST(req: NextRequest) {
       message: "Thank you! Your package inquiry has been received. Our team will contact you shortly."
     })
   } catch (error: any) {
-    console.error("[POST /api/b2c/package-leads] Error:", error)
+    console.error("[POST /api/b2c/package-leads] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to submit inquiry. Please try again or contact us directly." }, { status: 500 })
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
+import { rateLimit } from "@/lib/rate-limit"
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,6 +10,15 @@ export async function GET(req: NextRequest) {
 
     // If code is requested publicly (e.g. during checkout/lead inquiry submission)
     if (code) {
+      const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown_ip"
+      const rl = await rateLimit(`rate_limit:referral_validate:${ip}`, 10, 60, false)
+      if (!rl.success) {
+        return NextResponse.json(
+          { valid: false, error: rl.error || "Too many validation attempts. Please try again later." },
+          { status: 429, headers: { "Retry-After": String(rl.retryAfter || 60) } }
+        )
+      }
+
       const upperCode = code.toUpperCase().trim()
       const referral = await db.referralCode.findUnique({
         where: { code: upperCode },
@@ -28,9 +38,13 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // Listing programmes requires dashboard authentication
-    const session = await auth()
-    if (!session?.user) {
+    // Listing programmes requires b2c.packages.manage capability
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -44,19 +58,23 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: programmes })
   } catch (error: any) {
-    console.error("[GET /api/b2c/referrals] Error:", error)
+    console.error("[GET /api/b2c/referrals] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch referrals" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const {
       type, // 'programme' or 'code'
       name,
@@ -84,9 +102,9 @@ export async function POST(req: NextRequest) {
         data: {
           programmeId,
           code: upperCode,
-          ownerName,
-          ownerEmail,
-          ownerPhone,
+          ownerName: String(ownerName).trim(),
+          ownerEmail: ownerEmail ? String(ownerEmail).toLowerCase().trim() : null,
+          ownerPhone: ownerPhone ? String(ownerPhone).trim() : null,
           status: "ACTIVE"
         },
         include: { programme: true }
@@ -101,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     const programme = await db.referralProgramme.create({
       data: {
-        name,
+        name: String(name).trim(),
         ownerType: ownerType || "CUSTOMER",
         rewardType: rewardType || "DISCOUNT",
         referrerReward,
@@ -112,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data: programme })
   } catch (error: any) {
-    console.error("[POST /api/b2c/referrals] Error:", error)
-    return NextResponse.json({ error: error.message || "Failed to create referral" }, { status: 500 })
+    console.error("[POST /api/b2c/referrals] Error:", error?.message || error)
+    return NextResponse.json({ error: "Failed to create referral" }, { status: 500 })
   }
 }

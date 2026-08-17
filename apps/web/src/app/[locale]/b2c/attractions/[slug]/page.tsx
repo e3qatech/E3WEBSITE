@@ -23,6 +23,7 @@ import { getDay, isWithinInterval } from "date-fns"
 import { formatLocalizedText } from "@/lib/utils"
 import { resolveBookingUrl } from "@/lib/cms-attractions"
 import { getPublicCaseStudies } from "@/lib/case-studies"
+import { normalizeServerPartnerData } from "@/lib/partners/partner-resolver"
 
 async function getAttractionData(slug: string) {
   const baseSlugKey = (slug || "").split('-')[0] || slug;
@@ -178,16 +179,20 @@ async function getAttractionData(slug: string) {
     ? attraction.featuresList
     : (Array.isArray(attraction.features) ? attraction.features : [])
 
+  const sanitizedAttraction = normalizeServerPartnerData(attraction)
+  const sanitizedOperations = normalizeServerPartnerData(operations)
+  const sanitizedBrandPlacements = normalizeServerPartnerData(attraction.brandPlacements || [])
+
   return { 
-    attraction, 
+    attraction: sanitizedAttraction, 
     features: resolvedFeatures,
     pricing: attraction.pricing, 
     gallery: attraction.gallery, 
     faq: attraction.faqs, 
     schedule: null, 
-    operations,
+    operations: sanitizedOperations,
     projects,
-    brandPlacements: attraction.brandPlacements || [],
+    brandPlacements: sanitizedBrandPlacements,
     coordinates: { lat, lng },
     primaryLocation
   }

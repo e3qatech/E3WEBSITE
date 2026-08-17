@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -25,19 +29,23 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: coupons })
   } catch (error: any) {
-    console.error("[GET /api/b2c/coupons] Error:", error)
+    console.error("[GET /api/b2c/coupons] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch coupons" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const {
       code,
       promotionId,
@@ -114,7 +122,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data: coupon })
   } catch (error: any) {
-    console.error("[POST /api/b2c/coupons] Error:", error)
+    console.error("[POST /api/b2c/coupons] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to create coupon" }, { status: 500 })
   }
 }

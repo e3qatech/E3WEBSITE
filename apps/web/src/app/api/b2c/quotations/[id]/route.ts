@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 import { roundCurrency } from "@/lib/package-pricing-engine"
+
+async function enforceQuotationPermission() {
+  try {
+    return await requirePermission("crm.leads.manage")
+  } catch {
+    return await requirePermission("b2c.packages.manage")
+  }
+}
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await enforceQuotationPermission()
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -23,20 +35,25 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     if (!quotation) return NextResponse.json({ error: "Quotation not found" }, { status: 404 })
     return NextResponse.json({ data: quotation })
   } catch (error: any) {
+    console.error("[GET /api/b2c/quotations/[id]] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to load quotation" }, { status: 500 })
   }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await enforceQuotationPermission()
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
-    const body = await req.json()
-    const { status, sentAt, acceptedAt, rejectedAt, items, discountTotal, depositAmount, ...rest } = body
+    const body = await req.json().catch(() => ({}))
+    const { status, sentAt, acceptedAt, rejectedAt, items, discountTotal, depositAmount, taxTotal, ...rest } = body
 
     const existing = await db.packageQuotation.findFirst({
       where: { OR: [{ id }, { quoteNumber: id }] },
@@ -45,14 +62,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (!existing) return NextResponse.json({ error: "Quotation not found" }, { status: 404 })
 
     // Historical quotation immutability guard:
-    // If quotation was already accepted or rejected, items/pricing cannot be mutated in-place
-    if ((existing.status === "ACCEPTED" || existing.status === "REJECTED") && (items !== undefined || discountTotal !== undefined)) {
-      return NextResponse.json({ error: "Finalized quotations cannot be edited. Please create a new quotation version." }, { status: 400 })
+    // Finalized quotations (ACCEPTED, REJECTED, EXPIRED) cannot have items, pricing, or terms mutated in-place
+    const isFinalized = existing.status === "ACCEPTED" || existing.status === "REJECTED" || existing.status === "EXPIRED"
+    if (isFinalized && (items !== undefined || discountTotal !== undefined || depositAmount !== undefined || taxTotal !== undefined)) {
+      return NextResponse.json(
+        { error: "Finalized quotations cannot be repriced or edited. Please create a new quotation version." },
+        { status: 400 }
+      )
     }
 
     // If items are provided, recompute subtotal and grandTotal strictly on server
     let subtotal = existing.subtotal
-    let discount = discountTotal !== undefined ? roundCurrency(Math.max(0, parseFloat(discountTotal) || 0)) : existing.discountTotal
+    const discount = discountTotal !== undefined ? roundCurrency(Math.max(0, parseFloat(discountTotal) || 0)) : existing.discountTotal
+    const tax = taxTotal !== undefined ? roundCurrency(Math.max(0, parseFloat(taxTotal) || 0)) : existing.taxTotal
     let grandTotal = existing.grandTotal
 
     if (Array.isArray(items)) {
@@ -66,10 +88,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         return {
           quotationId: existing.id,
           itemType: item.itemType || "PACKAGE_TIER",
-          titleEn: item.titleEn || `Item #${idx + 1}`,
-          titleAr: item.titleAr || item.titleEn || `بند #${idx + 1}`,
-          descriptionEn: item.descriptionEn || null,
-          descriptionAr: item.descriptionAr || null,
+          titleEn: item.titleEn ? String(item.titleEn).trim() : `Item #${idx + 1}`,
+          titleAr: item.titleAr ? String(item.titleAr).trim() : (item.titleEn ? String(item.titleEn).trim() : `بند #${idx + 1}`),
+          descriptionEn: item.descriptionEn ? String(item.descriptionEn).trim() : null,
+          descriptionAr: item.descriptionAr ? String(item.descriptionAr).trim() : null,
           quantity: qty,
           unitPrice: unit,
           totalPrice: total,
@@ -78,7 +100,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       })
       await db.quotationItem.createMany({ data: formattedItems })
       subtotal = roundCurrency(subtotal)
-      grandTotal = roundCurrency(Math.max(0, subtotal - discount))
+      grandTotal = roundCurrency(Math.max(0, subtotal - discount + tax))
     }
 
     const updated = await db.packageQuotation.update({
@@ -90,6 +112,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         rejectedAt: status === "REJECTED" && !existing.rejectedAt ? new Date() : (rejectedAt ? new Date(rejectedAt) : undefined),
         subtotal,
         discountTotal: discount,
+        taxTotal: tax,
         grandTotal,
         depositAmount: depositAmount !== undefined ? roundCurrency(parseFloat(depositAmount)) : undefined,
         ...rest
@@ -103,14 +126,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({ data: updated })
   } catch (error: any) {
+    console.error("[PUT /api/b2c/quotations/[id]] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to update quotation" }, { status: 500 })
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await enforceQuotationPermission()
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -123,6 +151,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     await db.packageQuotation.delete({ where: { id: existing.id } })
     return NextResponse.json({ success: true })
   } catch (error: any) {
+    console.error("[DELETE /api/b2c/quotations/[id]] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to delete quotation" }, { status: 500 })
   }
 }

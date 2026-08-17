@@ -394,12 +394,25 @@ export function resolvePartnerLogoUrl(url?: string | null): string | null {
     return null;
   }
 
-  // 3. Local relative paths
-  if (trimmed.startsWith('/assets/partners/')) {
-    return trimmed;
-  }
-
   return sanitizeUrl(trimmed);
+}
+
+/**
+ * Server-side data sanitizer ensuring no legacy eeeqa.com partner URLs
+ * are serialized into React Server Component page payloads.
+ */
+export function normalizeServerPartnerData<T>(data: T): T {
+  if (!data) return data;
+  const jsonStr = JSON.stringify(data);
+  if (jsonStr.includes('eeeqa.com/assets/partners/')) {
+    const sanitizedStr = jsonStr.replace(/https?:\/\/(?:www\.)?eeeqa\.com\/assets\/partners\//gi, '/assets/partners/');
+    try {
+      return JSON.parse(sanitizedStr);
+    } catch {
+      return data;
+    }
+  }
+  return data;
 }
 
 /**

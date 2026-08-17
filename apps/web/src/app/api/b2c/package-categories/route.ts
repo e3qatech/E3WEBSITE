@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { auth } from "@/lib/auth"
+import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    const isAdmin = Boolean(session?.user)
+    let hasManagePermission = false
+    try {
+      const user = await requirePermission("b2c.packages.manage")
+      hasManagePermission = Boolean(user)
+    } catch {
+      hasManagePermission = false
+    }
 
     const { searchParams } = new URL(req.url)
-    const showAll = isAdmin && searchParams.get("all") === "true"
+    const showAll = hasManagePermission && searchParams.get("all") === "true"
 
     const where: any = showAll ? {} : { isActive: true }
 
@@ -28,19 +33,23 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: categories })
   } catch (error: any) {
-    console.error("[GET /api/b2c/package-categories] Error:", error)
+    console.error("[GET /api/b2c/package-categories] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user) {
+    try {
+      await requirePermission("b2c.packages.manage")
+    } catch (err: any) {
+      if (err instanceof AppAuthError) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode })
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const { nameEn, nameAr, slug, descriptionEn, descriptionAr, icon, coverMediaUrl, theme, audience, sortOrder, isActive, isFeatured } = body
 
     if (!nameEn) {
@@ -53,8 +62,8 @@ export async function POST(req: NextRequest) {
 
     const category = await db.packageCategory.create({
       data: {
-        nameEn,
-        nameAr: nameAr || nameEn,
+        nameEn: String(nameEn).trim(),
+        nameAr: nameAr ? String(nameAr).trim() : String(nameEn).trim(),
         slug: categorySlug,
         descriptionEn,
         descriptionAr,
@@ -70,7 +79,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data: category })
   } catch (error: any) {
-    console.error("[POST /api/b2c/package-categories] Error:", error)
+    console.error("[POST /api/b2c/package-categories] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to create category" }, { status: 500 })
   }
 }
