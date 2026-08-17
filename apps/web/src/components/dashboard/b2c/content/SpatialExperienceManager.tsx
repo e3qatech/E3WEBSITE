@@ -456,69 +456,129 @@ export function SpatialExperienceManager({
                     </div>
                   </div>
 
-                  {/* Media Selector */}
-                  <div className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-primary)] space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                        {isAr ? "وسائط الوجه (Face Media)" : "Face Media Asset"}
-                      </span>
+                  {/* Media Selector & Preview State */}
+                  <div className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-primary)] space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleUpdateFace(index, {
-                              media: {
-                                ...(face.media || { url: "" }),
-                                type: "IMAGE",
-                              },
-                            })
-                          }
-                          className={cn(
-                            "px-2.5 py-1 rounded text-[10px] font-bold transition-colors",
-                            face.media?.type !== "VIDEO"
-                              ? "bg-[var(--color-primary)] text-white"
-                              : "bg-[var(--surface-ground)] text-[var(--text-secondary)]"
-                          )}
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                          {isAr ? "وسائط الوجه (Face Media)" : "Face Media Asset"}
+                        </span>
+                        {/* Media Status Indicator */}
+                        {face.media?.url ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                            <CheckCircle2 className="w-3 h-3" />
+                            {isAr ? "تم اختيار وسائط" : "Media Selected"} ({face.media?.type || "IMAGE"})
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                            <Sparkles className="w-3 h-3 text-purple-400" />
+                            {isAr ? "بدون وسائط (خلفية شبكية وهالة E3)" : "No Media (E3 Mesh & Halo)"}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center flex-wrap gap-2">
+                        {/* Media Format Switcher */}
+                        <div className="inline-flex rounded-lg p-0.5 bg-[var(--surface-ground)] border border-[var(--border-level-1)]">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleUpdateFace(index, {
+                                media: {
+                                  ...(face.media || { url: "" }),
+                                  type: "IMAGE",
+                                },
+                              })
+                            }
+                            className={cn(
+                              "px-2.5 py-1 rounded text-[10px] font-bold transition-colors",
+                              face.media?.type !== "VIDEO"
+                                ? "bg-[var(--color-primary)] text-white shadow-xs"
+                                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                            )}
+                          >
+                            <ImageIcon className="w-3 h-3 inline me-1" />
+                            Image
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleUpdateFace(index, {
+                                media: {
+                                  ...(face.media || { url: "" }),
+                                  type: "VIDEO",
+                                },
+                              })
+                            }
+                            className={cn(
+                              "px-2.5 py-1 rounded text-[10px] font-bold transition-colors",
+                              face.media?.type === "VIDEO"
+                                ? "bg-[var(--color-primary)] text-white shadow-xs"
+                                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                            )}
+                          >
+                            <Film className="w-3 h-3 inline me-1" />
+                            Video
+                          </button>
+                        </div>
+
+                        {/* Preview Face Link */}
+                        <a
+                          href={`/${isAr ? "ar" : "en"}/motion-lab/horizontal-cylinder#${face.slug || "discover"}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 transition-colors"
+                          title={isAr ? "معاينة هذا الوجه مباشرة" : "Preview this face live"}
                         >
-                          <ImageIcon className="w-3 h-3 inline me-1" />
-                          Image
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleUpdateFace(index, {
-                              media: {
-                                ...(face.media || { url: "" }),
-                                type: "VIDEO",
-                              },
-                            })
-                          }
-                          className={cn(
-                            "px-2.5 py-1 rounded text-[10px] font-bold transition-colors",
-                            face.media?.type === "VIDEO"
-                              ? "bg-[var(--color-primary)] text-white"
-                              : "bg-[var(--surface-ground)] text-[var(--text-secondary)]"
-                          )}
-                        >
-                          <Film className="w-3 h-3 inline me-1" />
-                          Video
-                        </button>
+                          <ExternalLink className="w-3 h-3" />
+                          <span>{isAr ? "معاينة الوجه" : "Preview Face"}</span>
+                        </a>
                       </div>
                     </div>
 
-                    <AdminMediaPicker
-                      label={isAr ? "اختر صورة أو فيديو الخلفية" : "Select Background Image or Video"}
-                      value={face.media?.url || ""}
-                      onChange={(url) =>
-                        handleUpdateFace(index, {
-                          media: {
-                            ...(face.media || { type: "IMAGE" }),
-                            url,
-                            posterUrl: face.media?.posterUrl || url,
-                          },
-                        })
-                      }
-                    />
+                    {/* Recommended Ratios Spec Banner */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono text-[var(--text-tertiary)] p-2.5 rounded-lg bg-[var(--surface-ground)] border border-[var(--border-level-1)]">
+                      <div>
+                        <span className="text-[var(--text-secondary)] font-semibold">{isAr ? "النسبة الموصى بها للشاشات الكبيرة:" : "Recommended Desktop:"}</span>{" "}
+                        <span className="text-zinc-300">16:9 (1920×1080 / 1200×675)</span>
+                      </div>
+                      <div>
+                        <span className="text-[var(--text-secondary)] font-semibold">{isAr ? "النسبة الموصى بها للهواتف:" : "Recommended Mobile:"}</span>{" "}
+                        <span className="text-zinc-300">9:16 (1080×1920 / 750×1334)</span>
+                      </div>
+                    </div>
+
+                    {/* Media Picker & Remove Action */}
+                    <div className="space-y-2">
+                      <AdminMediaPicker
+                        label={isAr ? "صورة أو فيديو الخلفية" : "Background Image or Video"}
+                        value={face.media?.url || ""}
+                        onChange={(url) =>
+                          handleUpdateFace(index, {
+                            media: url
+                              ? {
+                                  ...(face.media || { type: "IMAGE" }),
+                                  url,
+                                  posterUrl: face.media?.posterUrl || url,
+                                }
+                              : undefined,
+                          })
+                        }
+                      />
+
+                      {face.media?.url && (
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateFace(index, { media: undefined })}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>{isAr ? "إزالة الوسائط (استخدام الخلفية الهندسية)" : "Remove Media (Use E3 Mesh)"}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Color Palette & Preset Swatches */}

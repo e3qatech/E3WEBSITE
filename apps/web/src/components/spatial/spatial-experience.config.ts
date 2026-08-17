@@ -31,8 +31,8 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaUrl: '/b2c/discover',
     media: {
       type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop',
+      url: '/hero-bg.png',
+      posterUrl: '/hero-bg.png',
       altEn: 'E3 Qatar Event Engineering Landmark',
       altAr: 'معلم ترفيهي من هندسة إي ثري قطر',
     },
@@ -68,13 +68,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Plan Your Visit',
     secondaryCtaLabelAr: 'خطط لزيارتك',
     secondaryCtaUrl: '/b2c/calendar',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'Urban Arena at Doha Mall',
-      altAr: 'أوربان أرينا في دوحة مول',
-    },
     backgroundColor: '#0c0f1d',
     accentColor: '#10b981', // Emerald green
     haloColor: '#059669',
@@ -108,13 +101,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Seasonal Passes',
     secondaryCtaLabelAr: 'الباقات الموسمية',
     secondaryCtaUrl: '/b2c/packages',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'InflataRUN Qatar Festival',
-      altAr: 'مهرجان إنفلاتارن قطر',
-    },
     backgroundColor: '#170c24',
     accentColor: '#ec4899', // Hot pink / Magenta
     haloColor: '#db2777',
@@ -147,13 +133,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Custom Group Quote',
     secondaryCtaLabelAr: 'طلب عرض سعر خاص',
     secondaryCtaUrl: '/b2c/packages#custom-quote',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'E3 Birthday & VIP Celebrations',
-      altAr: 'احتفالات أعياد الميلاد وباقات VIP',
-    },
     backgroundColor: '#181206',
     accentColor: '#f59e0b', // Amber / Gold
     haloColor: '#d97706',
@@ -187,13 +166,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Interactive Qatar Map',
     secondaryCtaLabelAr: 'خريطة قطر التفاعلية',
     secondaryCtaUrl: '/b2c#qatar-map',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'E3 Brands and Qatar GIS Map',
-      altAr: 'علامات إي ثري وخارطة قطر التفاعلية',
-    },
     backgroundColor: '#07161b',
     accentColor: '#06b6d4', // Cyan
     haloColor: '#0891b2',
@@ -226,13 +198,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Story Tracks',
     secondaryCtaLabelAr: 'مسارات التجارب',
     secondaryCtaUrl: '/b2c#storyTracks',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'E3 Guest Memories and Media Vault',
-      altAr: 'أرشيف ذكريات الزوار وخزانة الوسائط',
-    },
     backgroundColor: '#190a1f',
     accentColor: '#a855f7', // Purple / Violet
     haloColor: '#9333ea',
@@ -265,13 +230,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Talent Network',
     secondaryCtaLabelAr: 'شبكة الكفاءات',
     secondaryCtaUrl: '/careers#talent-pool',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'E3 Engineering and Production Team',
-      altAr: 'فريق الهندسة والإنتاج في إي ثري',
-    },
     backgroundColor: '#0a1715',
     accentColor: '#14b8a6', // Teal
     haloColor: '#0d9488',
@@ -305,13 +263,6 @@ export const DEFAULT_SPATIAL_SECTIONS: SpatialSection[] = [
     secondaryCtaLabelEn: 'Partner With Us',
     secondaryCtaLabelAr: 'تواصل مع فريق الأعمال',
     secondaryCtaUrl: '/b2b/contact',
-    media: {
-      type: 'IMAGE',
-      url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1200&auto=format&fit=crop',
-      posterUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1200&auto=format&fit=crop',
-      altEn: 'E3 Enterprise Event Production',
-      altAr: 'إنتاج فعاليات الشركات من إي ثري',
-    },
     backgroundColor: '#13111c',
     accentColor: '#818cf8', // Indigo
     haloColor: '#6366f1',

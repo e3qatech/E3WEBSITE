@@ -24,32 +24,66 @@ export function SpatialDOMLayer({
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none z-10 flex items-center justify-center overflow-hidden">
-      {/* Subtle Atmospheric Backdrop Image for Active Face */}
+      {/* Subtle Atmospheric Backdrop for Active Face */}
       <AnimatePresence mode="wait">
-        {activeSection.media?.url && (
-          <motion.div
-            key={`backdrop-${activeSection.id}`}
-            initial={{ opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 0.18, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden"
-          >
-            <img
-              src={activeSection.media.url}
-              alt=""
-              aria-hidden="true"
-              className="w-full h-full object-cover filter blur-[2px] brightness-75"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-[#050811]/60 to-[#050811]/90" />
-            <div
-              className="absolute inset-0 opacity-40 mix-blend-color-dodge"
-              style={{
-                background: `radial-gradient(circle at 50% 50%, ${activeSection.accentColor} 0%, transparent 65%)`,
-              }}
-            />
-          </motion.div>
-        )}
+        <motion.div
+          key={`backdrop-${activeSection.id}`}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden"
+        >
+          {activeSection.media?.url ? (
+            <>
+              {activeSection.media.type === 'VIDEO' ? (
+                <video
+                  src={activeSection.media.url}
+                  poster={activeSection.media.posterUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover filter blur-[2px] brightness-75 opacity-20"
+                />
+              ) : (
+                <img
+                  src={activeSection.media.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-full h-full object-cover filter blur-[2px] brightness-75 opacity-20"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-[#050811]/60 to-[#050811]/90" />
+            </>
+          ) : (
+            /* Intentional E3 Designed Geometric Halo & Cyber-Mesh Ambient Treatment */
+            <div className="absolute inset-0 w-full h-full">
+              <div
+                className="absolute inset-0 opacity-20 mix-blend-screen"
+                style={{
+                  background: `radial-gradient(ellipse 80% 60% at 50% 50%, ${activeSection.accentColor || '#38bdf8'} 0%, ${activeSection.haloColor || '#0284c7'}33 45%, transparent 70%)`,
+                }}
+              />
+              <div
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: `radial-gradient(${activeSection.accentColor || '#38bdf8'}44 1px, transparent 1px)`,
+                  backgroundSize: '36px 36px',
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-transparent to-[#050811]/80" />
+            </div>
+          )}
+
+          {/* Glowing Radial Color-Dodge Aura */}
+          <div
+            className="absolute inset-0 opacity-35 mix-blend-color-dodge pointer-events-none"
+            style={{
+              background: `radial-gradient(circle at 50% 50%, ${activeSection.accentColor || '#38bdf8'} 0%, transparent 65%)`,
+            }}
+          />
+        </motion.div>
       </AnimatePresence>
 
       {/* 8 Synchronized Section Panels */}

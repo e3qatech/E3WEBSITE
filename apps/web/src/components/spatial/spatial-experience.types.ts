@@ -40,7 +40,7 @@ export interface SpatialSection {
   secondaryCtaLabelEn?: string;
   secondaryCtaLabelAr?: string;
   secondaryCtaUrl?: string;
-  media: SpatialMediaConfig;
+  media?: SpatialMediaConfig;
   backgroundColor: string;
   accentColor: string;
   haloColor: string;

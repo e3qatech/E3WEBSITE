@@ -25,10 +25,23 @@ export function useWebGLSupport(): WebGLSupportStatus {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // URL query overrides for QA testing (?reducedMotion=true or ?webgl=false)
+    // URL query overrides strictly permitted only in development or for authorized admin/staff preview sessions
+    const isDev = process.env.NODE_ENV !== 'production';
+    const isLocalhost = typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.includes('.local')
+    );
+    const hasAdminCookie = typeof document !== 'undefined' && (
+      document.cookie.includes('next-auth.session-token') ||
+      document.cookie.includes('__Secure-next-auth.session-token') ||
+      document.cookie.includes('e3_admin_preview')
+    );
+    const allowTestOverrides = isDev || isLocalhost || hasAdminCookie;
+
     const urlParams = new URLSearchParams(window.location.search);
-    const forceReducedMotion = urlParams.get('reducedMotion') === 'true' || urlParams.get('motion') === 'false';
-    const forceNoWebGL = urlParams.get('webgl') === 'false' || urlParams.get('nowebgl') === 'true';
+    const forceReducedMotion = allowTestOverrides && (urlParams.get('reducedMotion') === 'true' || urlParams.get('motion') === 'false');
+    const forceNoWebGL = allowTestOverrides && (urlParams.get('webgl') === 'false' || urlParams.get('nowebgl') === 'true');
 
     // 1. Reduced Motion Detection
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
