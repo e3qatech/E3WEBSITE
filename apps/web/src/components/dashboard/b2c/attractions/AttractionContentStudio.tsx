@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -18,6 +18,7 @@ import {
   Eye,
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
   Plus,
   Trash2,
   Copy,
@@ -29,7 +30,25 @@ import {
   ArrowRight,
   ShieldCheck,
   Building,
-  Wand2
+  Wand2,
+  Briefcase,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
+  Maximize2,
+  Minimize2,
+  Tag,
+  Trophy,
+  Users,
+  Activity,
+  Compass,
+  Flame,
+  Search,
+  Filter,
+  Check,
+  AlertTriangle,
+  Upload
 } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
@@ -37,31 +56,86 @@ import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
 import {
   DashboardPageShell,
-  DashboardPageHeader
+  EditorHeader
 } from "@/components/dashboard/ui"
 import { CompactActivityCard, ActivityItem } from "./CompactActivityCard"
 import { CompactRepeaterList } from "./CompactRepeaterList"
 import { LocationSelectorModal } from "./LocationSelectorModal"
+import { CaseStudiesAttractionPanel } from "./CaseStudiesAttractionPanel"
+import { ContentIntakeHub } from "./ContentIntakeHub"
 
 export type StudioStage = 'identity' | 'experiences' | 'visit' | 'media' | 'review'
 
 const STUDIO_STAGES: Array<{ id: StudioStage; labelEn: string; labelAr: string; icon: any; description: string }> = [
-  { id: 'identity', labelEn: '1. Identity & Brand', labelAr: '١. الهوية والعلامة', icon: Layers, description: 'Core names, slug, brand IP, format & hero media' },
-  { id: 'experiences', labelEn: '2. What\'s Inside', labelAr: '٢. التجارب والأنشطة', icon: Sparkles, description: 'Activities, story tracks, intensity & age guidelines' },
+  { id: 'identity', labelEn: '1. Identity & Classification', labelAr: '١. الهوية والتصنيف', icon: Layers, description: 'Core names, entity type, format, access & hero media' },
+  { id: 'experiences', labelEn: '2. What\'s Inside', labelAr: '٢. التجارب والأنشطة', icon: Sparkles, description: 'Activities, primary & secondary story tracks, intensity' },
   { id: 'visit', labelEn: '3. Visit & Booking', labelAr: '٣. المواقع والأسعار', icon: MapPin, description: 'Canonical Qatar venues, operating timetable & ticket tiers' },
-  { id: 'media', labelEn: '4. Media & Trust', labelAr: '٤. الوسائط والشركاء', icon: ImageIcon, description: 'Gallery photos, partner badges, reviews, news & FAQs' },
+  { id: 'media', labelEn: '4. Media, Case Studies & Trust', labelAr: '٤. الوسائط ودراسات الحالة', icon: ImageIcon, description: 'Gallery, linked B2B case studies, partners & FAQs' },
   { id: 'review', labelEn: '5. Review & Publish', labelAr: '٥. المراجعة والنشر', icon: FileCheck, description: 'SEO metadata, translation health & live publishing' },
+]
+
+export const ENTITY_TYPES = [
+  { value: "ATTRACTION", labelEn: "Attraction (Permanent Destination)", labelAr: "وجهة ترفيهية دائمة" },
+  { value: "EVENT", labelEn: "Event (Time-Bounded)", labelAr: "فعالية محددة المدة" },
+  { value: "ACTIVATION", labelEn: "Activation (Brand / Pop-up)", labelAr: "تفعيل ترويجي / مؤقت" },
+  { value: "PROGRAMME", labelEn: "Programme (Curated Series)", labelAr: "برنامج ترفيهي منظم" },
+  { value: "VENUE", labelEn: "Venue / Arena", labelAr: "موقع أو ساحة فعاليات" },
+]
+
+export const EXPERIENCE_FORMATS = [
+  { value: "PERMANENT_FEC", labelEn: "Permanent FEC / Entertainment Centre", labelAr: "مركز ترفيهي عائلي دائم" },
+  { value: "MALL_ANCHOR", labelEn: "Mall Anchor Attraction", labelAr: "وجهة رئيسية في مجمع تجاري" },
+  { value: "SEASONAL_EVENT", labelEn: "Seasonal Event", labelAr: "فعالية موسمية" },
+  { value: "TOURING_POPUP", labelEn: "Touring Pop-Up", labelAr: "معرض متنقل / بوپ-أب" },
+  { value: "SPORTS_ACTIVATION", labelEn: "Sports Activation", labelAr: "تفعيل رياضي وتحدي" },
+  { value: "FESTIVAL", labelEn: "Festival / Carnival", labelAr: "مهرجان أو كرنفال" },
+  { value: "WORKSHOP_EDU", labelEn: "Workshop / Educational Experience", labelAr: "ورشة عمل / تجربة تعليمية" },
+  { value: "CORPORATE_PRIVATE", labelEn: "Corporate / Private Event", labelAr: "فعالية شركات أو خاصة" },
+  { value: "COMMUNITY_PUBLIC", labelEn: "Community / Public Event", labelAr: "فعالية مجتمعية عامة" },
+  { value: "EXHIBITION_ZONE", labelEn: "Exhibition / Experience Zone", labelAr: "معرض / منطقة تجارب" },
+  { value: "CUSTOM", labelEn: "Custom Experience", labelAr: "تجربة مخصصة" },
+]
+
+export const ACCESS_MODELS = [
+  { value: "PAID", labelEn: "Paid Tickets / Passes", labelAr: "تذاكر مدفوعة" },
+  { value: "FREE", labelEn: "Free Access", labelAr: "دخول مجاني" },
+  { value: "REGISTRATION_REQUIRED", labelEn: "Registration Required", labelAr: "تسجيل مسبق مطلوب" },
+  { value: "INVITE_ONLY", labelEn: "Invite Only", labelAr: "دعوات خاصة فقط" },
+  { value: "MIXED", labelEn: "Mixed Free & Paid Activities", labelAr: "مزيج من المجاني والمدفوع" },
+]
+
+export const DURATION_MODELS = [
+  { value: "PERMANENT", labelEn: "Permanent (Year-Round)", labelAr: "دائم طوال العام" },
+  { value: "SINGLE_DAY", labelEn: "Single Day", labelAr: "يوم واحد" },
+  { value: "MULTI_DAY", labelEn: "Multi-Day Limited", labelAr: "أيام متعددة محدودة" },
+  { value: "RECURRING", labelEn: "Recurring (Weekly / Monthly)", labelAr: "دوري (أسبوعي / شهري)" },
+  { value: "SEASONAL", labelEn: "Seasonal (Winter / Summer)", labelAr: "موسمي (شتوي / صيفي)" },
+]
+
+export const ENVIRONMENT_MODELS = [
+  { value: "INDOOR", labelEn: "Indoor (Climate Controlled)", labelAr: "داخلي (مكيف)" },
+  { value: "OUTDOOR", labelEn: "Outdoor", labelAr: "في الهواء الطلق" },
+  { value: "HYBRID", labelEn: "Hybrid (Indoor & Outdoor)", labelAr: "مزدوج (داخلي وخارجي)" },
 ]
 
 export function AttractionContentStudio({ initialData }: { initialData?: any }) {
   const router = useRouter()
   const isEditing = Boolean(initialData?.id)
 
-  // Top Level Studio Mode & Navigation
+  // Full-Screen Focus Mode & Panel Collapse States
+  const [isFocusMode, setIsFocusMode] = useState(false)
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false)
+  const [isDiagnosticsCollapsed, setIsDiagnosticsCollapsed] = useState(false)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [isMobileDiagnosticsOpen, setIsMobileDiagnosticsOpen] = useState(false)
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop')
+
+  // Top Level Navigation & Dirty State
   const [activeStage, setActiveStage] = useState<StudioStage>('identity')
-  const [isQuickSetup, setIsQuickSetup] = useState(false)
   const [bilingualView, setBilingualView] = useState<'BOTH' | 'EN' | 'AR'>('BOTH')
+  const [isIntakeOpen, setIsIntakeOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
   const [saveSuccessNotice, setSaveSuccessNotice] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -73,10 +147,34 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   const [taglineAr, setTaglineAr] = useState(initialData?.taglineAr || "")
   const [descriptionEn, setDescriptionEn] = useState(initialData?.descriptionEn || "")
   const [descriptionAr, setDescriptionAr] = useState(initialData?.descriptionAr || "")
-  const [formatCategory, setFormatCategory] = useState(initialData?.formatCategory || "FEC")
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? false)
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
   const [isB2bVisible, setIsB2bVisible] = useState(initialData?.isB2bVisible !== false)
+
+  // 5-Dimensional Classification Controlled Fields
+  const [entityType, setEntityType] = useState(initialData?.entityType || "ATTRACTION")
+  const [experienceFormat, setExperienceFormat] = useState(initialData?.experienceFormat || "PERMANENT_FEC")
+  const [accessModel, setAccessModel] = useState(initialData?.accessModel || "PAID")
+  const [durationModel, setDurationModel] = useState(initialData?.durationModel || "PERMANENT")
+  const [environment, setEnvironment] = useState(initialData?.environment || "INDOOR")
+
+  // Conditional Event & Sports Details
+  const [eventDetails, setEventDetails] = useState<any>(() => {
+    const existing = initialData?.eventDetails || {}
+    return {
+      startDate: existing.startDate || "",
+      endDate: existing.endDate || "",
+      sessionTimes: existing.sessionTimes || "",
+      dailyCapacity: existing.dailyCapacity || 500,
+      organizer: existing.organizer || "E3 Experiences Qatar",
+      registrationUrl: existing.registrationUrl || "",
+      sportCategory: existing.sportCategory || "Football / Tactical",
+      participantRules: existing.participantRules || "",
+      ageLimits: existing.ageLimits || "All Ages",
+      equipmentRequirements: existing.equipmentRequirements || "Standard sports gear",
+      competitionFormat: existing.competitionFormat || "Casual & Tournament"
+    }
+  })
 
   // Hero Media & Logos
   const [heroMediaType, setHeroMediaType] = useState(initialData?.heroMediaType || "IMAGE")
@@ -85,7 +183,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   const [heroThumbnailUrl, setHeroThumbnailUrl] = useState(initialData?.heroThumbnailUrl || "")
   const [logoUrl, setLogoUrl] = useState(initialData?.logoUrl || "")
 
-  // Advanced WebGL & Motion Presets (Collapsible)
+  // Advanced WebGL & Motion Presets
   const [showAdvancedMotion, setShowAdvancedMotion] = useState(false)
   const [motionPreset, setMotionPreset] = useState(initialData?.motionPreset || "MEDIA_CINEMATIC")
   const [motionIntensity, setMotionIntensity] = useState(initialData?.motionIntensity || "MEDIUM")
@@ -105,8 +203,8 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
         iconUrl: f.iconUrl || '',
         contentType: f.highlightType || 'ACTIVITY',
         highlightType: f.highlightType || 'ACTIVITY',
-        primaryStoryTypeId: f.storyTypes?.[0]?.id || f.primaryStoryTypeId,
-        secondaryStoryTypeIds: f.storyTypes?.slice(1).map((st: any) => st.id) || [],
+        primaryStoryTypeId: f.primaryStoryTypeId || f.storyTypes?.[0]?.id,
+        secondaryStoryTypeIds: Array.isArray(f.secondaryStoryTypeIds) ? f.secondaryStoryTypeIds : (f.storyTypes?.slice(1).map((st: any) => st.id) || []),
         storyTypeIds: f.storyTypes?.map((st: any) => st.id) || [],
         durationMinutes: f.durationMinutes,
         intensityLevel: f.intensityLevel || 'MEDIUM',
@@ -193,6 +291,22 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     ogImageUrl: initialData?.seo?.ogImageUrl || initialData?.heroMediaUrl || ""
   }))
 
+  // Track user edits to set isDirty
+  const markDirty = useCallback(() => {
+    setIsDirty(true)
+  }, [])
+
+  // Escape key handler for Focus Mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFocusMode) {
+        setIsFocusMode(false)
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [isFocusMode])
+
   // Load auxiliary data
   const loadData = async () => {
     try {
@@ -222,7 +336,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     loadData()
   }, [])
 
-  // Translation Health Audit Calculator (Strict Arabic validation: no empty or English fallback)
+  // Translation Health Audit Calculator
   const translationAudit = useMemo(() => {
     const untranslated: string[] = []
     let totalChecked = 0
@@ -288,7 +402,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     }
   }, [nameAr, nameEn, taglineAr, taglineEn, descriptionAr, descriptionEn, activities, faqs, pricingTiers, seo])
 
-  // Content Health Issues Auditor (5 Core Audits)
+  // Content Health Issues Auditor
   const contentHealthAudit = useMemo(() => {
     const issues: string[] = []
     const validCategories = ['ACCESS_PASS', 'PREMIUM_ACTIVITY', 'HOURLY_ACTIVITY', 'ADD_ON']
@@ -319,7 +433,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
       }
     })
 
-    // 4. Empty Partner Sections
+    // 4. Validate Partner Logos
     const validPartners = partners.filter(p => {
       const name = p.name || p.partnerName
       const logo = p.logoUrl || p.logo || p.image
@@ -329,19 +443,21 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
       issues.push("No authentic partners configured (Partners section hidden on live page)")
     }
 
-    // 5. Incorrect or missing pricing categories
-    pricingTiers.forEach((tier, idx) => {
-      const cat = String(tier.type || '').toUpperCase().trim()
-      if (!validCategories.includes(cat)) {
-        issues.push(`Pricing "${tier.titleEn || idx + 1}": invalid category "${tier.type || 'EMPTY'}"`)
-      }
-    })
+    // 5. Pricing categories (only required for PAID access model)
+    if (accessModel === 'PAID') {
+      pricingTiers.forEach((tier, idx) => {
+        const cat = String(tier.type || '').toUpperCase().trim()
+        if (!validCategories.includes(cat)) {
+          issues.push(`Pricing "${tier.titleEn || idx + 1}": invalid category "${tier.type || 'EMPTY'}"`)
+        }
+      })
+    }
 
     return {
       issues,
       isValid: issues.length === 0
     }
-  }, [activities, faqs, partners, pricingTiers])
+  }, [activities, faqs, partners, pricingTiers, accessModel])
 
   // Health Completion Score Calculator
   const healthAudit = useMemo(() => {
@@ -400,26 +516,20 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     // 3. Visit checks
     const visitChecks = [
       linkedLocations.length > 0,
-      pricingTiers.length > 0,
+      accessModel === 'FREE' ? true : pricingTiers.length > 0,
       Boolean(temporalStatus.openTime && temporalStatus.closeTime)
     ]
     scores.visit = Math.round((visitChecks.filter(Boolean).length / visitChecks.length) * 100)
     if (linkedLocations.length === 0) missing.push("Linked Canonical GIS Location")
-    if (pricingTiers.length === 0) missing.push("At least 1 Pricing Pass / Ticket Tier")
+    if (accessModel === 'PAID' && pricingTiers.length === 0) missing.push("At least 1 Pricing Pass / Ticket Tier")
 
-    // 4. Media checks (strictly exclude demo / placeholder URLs)
+    // 4. Media checks
     const validGallery = galleryItems.filter(g => g && g.url && !g.url.includes('example.com') && !g.url.includes('placeholder'))
     const validFaqs = faqs.filter(f => f && f.questionEn?.trim() && f.answerEn?.trim())
-    const validPartners = partners.filter(p => {
-      const name = p.name || p.partnerName
-      const logo = p.logoUrl || p.logo || p.image
-      return name && logo && !logo.includes('example.com') && !logo.includes('placeholder')
-    })
 
     const mediaChecks = [
       validGallery.length >= 2,
-      validFaqs.length >= 2,
-      validPartners.length >= 1
+      validFaqs.length >= 2
     ]
     scores.media = Math.round((mediaChecks.filter(Boolean).length / mediaChecks.length) * 100)
     if (validGallery.length < 2) missing.push("At least 2 authentic gallery photos")
@@ -444,7 +554,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     )
 
     return { scores, missing, overall }
-  }, [nameEn, nameAr, slug, taglineEn, descriptionEn, heroMediaUrl, activities, linkedLocations, pricingTiers, temporalStatus, galleryItems, faqs, partners, seo, isPublished])
+  }, [nameEn, nameAr, slug, taglineEn, descriptionEn, heroMediaUrl, activities, linkedLocations, pricingTiers, temporalStatus, galleryItems, faqs, seo, isPublished, accessModel])
 
   // Save Handler with Safe Deep Merge & Idempotent Linking
   const handleSave = async (publishOverride?: boolean) => {
@@ -473,10 +583,15 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
         taglineAr: taglineAr.trim(),
         descriptionEn: descriptionEn.trim(),
         descriptionAr: descriptionAr.trim(),
-        formatCategory,
         isPublished: nextIsPublished,
         isFeatured,
         isB2bVisible,
+        entityType,
+        experienceFormat,
+        accessModel,
+        durationModel,
+        environment,
+        eventDetails,
         heroMediaType,
         heroMediaUrl,
         heroFallbackUrl,
@@ -526,6 +641,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
         throw new Error(json.error || `Server responded with status ${res.status}`)
       }
 
+      setIsDirty(false)
       setSaveSuccessNotice(true)
       setTimeout(() => setSaveSuccessNotice(false), 3000)
 
@@ -541,59 +657,76 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     }
   }
 
+  const currentStageIndex = STUDIO_STAGES.findIndex(s => s.id === activeStage)
+
   return (
-    <DashboardPageShell>
-      {/* Top Floating App Bar */}
-      <div className="sticky top-0 z-40 bg-[var(--surface-default)]/95 backdrop-blur-xl border-b border-[var(--border-default)] px-4 py-3 sm:px-6 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Attraction Title & Back */}
-          <div className="flex items-center gap-3">
+    <div className={cn(
+      "w-full transition-all duration-300",
+      isFocusMode ? "fixed inset-0 z-50 bg-[var(--bg-level-1)] flex flex-col overflow-hidden" : ""
+    )}>
+      {/* 1. Consistent Top Navigation Header with Focus Mode Control */}
+      <EditorHeader
+        title={nameEn || "New Attraction / Event"}
+        titleAr={nameAr}
+        subtitle={slug ? `e3.qa/b2c/attractions/${slug}` : "Configure multi-purpose experience"}
+        statusBadge={{
+          label: isPublished ? "Published" : "Draft",
+          labelAr: isPublished ? "منشور Live" : "مسودة",
+          variant: isPublished ? "published" : "draft"
+        }}
+        backHref="/dashboard/b2c/attractions"
+        backLabel="Back to Attractions Roster"
+        backLabelAr="العودة إلى قائمة الوجهات"
+        breadcrumbs={[
+          { label: "B2C Content", labelAr: "محتوى الأفراد", href: "/dashboard/b2c/attractions" },
+          { label: "Attraction Studio", labelAr: "استوديو الوجهات والفعاليات" }
+        ]}
+        stages={STUDIO_STAGES}
+        currentStageIndex={currentStageIndex}
+        onPrevStage={() => {
+          if (currentStageIndex > 0) setActiveStage(STUDIO_STAGES[currentStageIndex - 1].id)
+        }}
+        onNextStage={() => {
+          if (currentStageIndex < STUDIO_STAGES.length - 1) setActiveStage(STUDIO_STAGES[currentStageIndex + 1].id)
+        }}
+        isDirty={isDirty}
+        onSave={() => handleSave()}
+        isSaving={isSaving}
+        previewUrl={slug ? `/en/b2c/attractions/${slug}` : undefined}
+        focusModeToggle={{
+          isFocusMode,
+          onToggle: () => setIsFocusMode(!isFocusMode),
+          label: "Focus Mode",
+          labelAr: "وضع التركيز الكامل"
+        }}
+        extraActions={
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => router.push("/dashboard/b2c/attractions")}
-              className="p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors"
+              onClick={() => setIsIntakeOpen(true)}
+              className="px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-primary)] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              <ChevronRight className="w-5 h-5 rotate-180" />
+              <Upload className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Intake Hub</span>
             </button>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-black text-[var(--text-primary)] truncate max-w-[280px] sm:max-w-md">
-                  {nameEn || "New Attraction"}
-                </h1>
-                <span className={cn(
-                  "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase",
-                  isPublished ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30" : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30"
-                )}>
-                  {isPublished ? "Published" : "Draft"}
-                </span>
-              </div>
-              <p className="text-[11px] text-[var(--text-secondary)] truncate">
-                {slug ? `e3.qa/b2c/attractions/${slug}` : "Configure attraction profile"}
-              </p>
-            </div>
-          </div>
-
-          {/* Controls Cluster */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* Bilingual Toggle */}
-            <div className="inline-flex items-center p-1 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)]">
+            <div className="inline-flex items-center p-1 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)]">
               <button
                 type="button"
                 onClick={() => setBilingualView('BOTH')}
                 className={cn(
-                  "px-2.5 py-1 rounded-lg text-xs font-bold transition-all",
-                  bilingualView === 'BOTH' ? "bg-[var(--surface-default)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+                  "px-2 py-1 rounded-lg text-xs font-bold transition-all",
+                  bilingualView === 'BOTH' ? "bg-[var(--surface-default)] text-[var(--text-primary)] shadow-xs" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                 )}
               >
-                EN + AR
+                EN+AR
               </button>
               <button
                 type="button"
                 onClick={() => setBilingualView('EN')}
                 className={cn(
-                  "px-2.5 py-1 rounded-lg text-xs font-bold transition-all",
-                  bilingualView === 'EN' ? "bg-[var(--surface-default)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+                  "px-2 py-1 rounded-lg text-xs font-bold transition-all",
+                  bilingualView === 'EN' ? "bg-[var(--surface-default)] text-[var(--text-primary)] shadow-xs" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                 )}
               >
                 EN
@@ -602,55 +735,16 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                 type="button"
                 onClick={() => setBilingualView('AR')}
                 className={cn(
-                  "px-2.5 py-1 rounded-lg text-xs font-bold transition-all",
-                  bilingualView === 'AR' ? "bg-[var(--surface-default)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+                  "px-2 py-1 rounded-lg text-xs font-bold transition-all",
+                  bilingualView === 'AR' ? "bg-[var(--surface-default)] text-[var(--text-primary)] shadow-xs" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                 )}
               >
-                العربية
+                عربي
               </button>
             </div>
-
-            {/* Quick Setup Mode Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsQuickSetup(!isQuickSetup)}
-              className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5",
-                isQuickSetup
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400"
-                  : "bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)]"
-              )}
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              <span>{isQuickSetup ? "Quick Mode (Active)" : "Full Studio"}</span>
-            </button>
-
-            {/* Public Page Preview */}
-            {slug && (
-              <a
-                href={`/en/b2c/attractions/${slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-xl border border-[var(--border-default)] hover:bg-[var(--surface-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all flex items-center gap-1.5"
-              >
-                <Eye className="w-3.5 h-3.5 text-blue-500" />
-                <span className="hidden sm:inline">Preview</span>
-              </a>
-            )}
-
-            {/* Save Button */}
-            <button
-              type="button"
-              disabled={isSaving}
-              onClick={() => handleSave()}
-              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50 cursor-pointer"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? "Saving..." : "Save Changes"}</span>
-            </button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Notifications Bar */}
       <AnimatePresence>
@@ -678,1010 +772,1061 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
         )}
       </AnimatePresence>
 
-      {/* Main Studio Body: Sticky Left Rail + Content Stage */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* 1. Sticky Left Stage Navigator (Desktop) */}
-          <div className="lg:col-span-3 sticky top-24 space-y-4">
-            <div className="p-4 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] shadow-sm space-y-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--text-tertiary)] px-2">
-                Workflow Stages
-              </span>
+      {/* 2. Responsive 3-Column Studio Body */}
+      <div className={cn(
+        "flex-1 flex overflow-hidden",
+        isFocusMode ? "h-[calc(100vh-65px)]" : "min-h-[85vh] py-6"
+      )}>
+        {/* Left Column: Workflow Navigation (Collapsible, 260-280px) */}
+        <aside className={cn(
+          "bg-[var(--surface-default)] border-r border-[var(--border-level-1)] transition-all duration-300 shrink-0 flex flex-col justify-between hidden md:flex",
+          isNavCollapsed ? "w-16 p-2 items-center" : "w-72 p-4"
+        )}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              {!isNavCollapsed && (
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Workflow Stages</h3>
+                  <p className="text-[11px] text-[var(--text-tertiary)]">5-stage production studio</p>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+                className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+                title={isNavCollapsed ? "Expand Navigation" : "Collapse Navigation"}
+              >
+                {isNavCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              </button>
+            </div>
 
-              <nav className="space-y-1">
-                {STUDIO_STAGES.map(st => {
-                  const Icon = st.icon
-                  const isActive = activeStage === st.id
-                  const score = healthAudit.scores[st.id]
+            <nav className="space-y-1.5">
+              {STUDIO_STAGES.map((stage, idx) => {
+                const Icon = stage.icon
+                const isActive = activeStage === stage.id
+                const stageScore = healthAudit.scores[stage.id] || 0
 
-                  return (
-                    <button
-                      key={st.id}
-                      type="button"
-                      onClick={() => setActiveStage(st.id)}
-                      className={cn(
-                        "w-full text-start p-3 rounded-2xl transition-all flex items-center justify-between gap-3 group select-none",
-                        isActive
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/30 shadow-sm"
-                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
-                      )}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className={cn(
-                          "p-2 rounded-xl transition-colors",
-                          isActive ? "bg-emerald-500 text-white" : "bg-[var(--surface-subtle)] text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]"
-                        )}>
-                          <Icon className="w-4 h-4" />
-                        </span>
-                        <div className="min-w-0">
-                          <div className="text-xs truncate">{st.labelEn}</div>
-                          <div className="text-[10px] text-[var(--text-tertiary)] truncate">{st.description}</div>
+                return (
+                  <button
+                    key={stage.id}
+                    type="button"
+                    onClick={() => setActiveStage(stage.id)}
+                    className={cn(
+                      "w-full text-left rounded-2xl transition-all flex items-center gap-3 cursor-pointer",
+                      isNavCollapsed ? "p-3 justify-center" : "p-3",
+                      isActive
+                        ? "bg-purple-500/15 border border-purple-500/40 text-purple-400 font-bold shadow-xs"
+                        : "hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] border border-transparent"
+                    )}
+                    title={stage.labelEn}
+                  >
+                    <div className={cn(
+                      "p-2 rounded-xl shrink-0 transition-colors",
+                      isActive ? "bg-purple-500 text-white" : "bg-[var(--surface-subtle)] text-[var(--text-secondary)]"
+                    )}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+
+                    {!isNavCollapsed && (
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold truncate text-[var(--text-primary)]">{stage.labelEn}</span>
+                          <span className={cn(
+                            "text-[10px] font-mono font-bold",
+                            stageScore === 100 ? "text-emerald-500" : "text-[var(--text-tertiary)]"
+                          )}>
+                            {stageScore}%
+                          </span>
                         </div>
+                        <p className="text-[10px] text-[var(--text-tertiary)] truncate mt-0.5">{stage.description}</p>
                       </div>
-
-                      <span className={cn(
-                        "text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shrink-0",
-                        score === 100 ? "text-emerald-500 bg-emerald-500/10" : "text-[var(--text-tertiary)] bg-[var(--surface-subtle)]"
-                      )}>
-                        {score}%
-                      </span>
-                    </button>
-                  )
-                })}
-              </nav>
-            </div>
-
-            {/* Content Health Completeness Widget */}
-            <div className="p-4 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] shadow-sm space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span>Profile Completion</span>
-                </span>
-                <span className="font-mono font-black text-emerald-500 text-sm">
-                  {healthAudit.overall}%
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden">
-                <div 
-                  className="h-full bg-emerald-500 transition-all duration-500"
-                  style={{ width: `${healthAudit.overall}%` }}
-                />
-              </div>
-
-              {healthAudit.missing.length > 0 ? (
-                <div className="text-[11px] text-amber-500 space-y-1">
-                  <span className="font-bold">Missing for 100%:</span>
-                  <ul className="list-disc ps-4 space-y-0.5 text-[10px] text-[var(--text-secondary)]">
-                    {healthAudit.missing.slice(0, 3).map((m, i) => (
-                      <li key={i}>{m}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className="text-[11px] text-emerald-500 font-bold">All mandatory requirements complete!</p>
-              )}
-            </div>
-
-            {/* Translation Health Widget (Strict Arabic Validation) */}
-            <div className="p-4 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] shadow-sm space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                  <Languages className="w-4 h-4 text-blue-500" />
-                  <span>Translation Health</span>
-                </span>
-                <span className={cn(
-                  "font-mono font-black text-sm",
-                  translationAudit.score === 100 ? "text-emerald-500" : "text-amber-500"
-                )}>
-                  {translationAudit.score}%
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden">
-                <div 
-                  className={cn(
-                    "h-full transition-all duration-500",
-                    translationAudit.score === 100 ? "bg-emerald-500" : "bg-amber-500"
-                  )}
-                  style={{ width: `${translationAudit.score}%` }}
-                />
-              </div>
-
-              {translationAudit.untranslated.length > 0 ? (
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-amber-500 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    <span>Untranslated / Fallback ({translationAudit.untranslated.length}):</span>
-                  </span>
-                  <ul className="list-disc ps-4 space-y-1 text-[10px] text-[var(--text-secondary)] max-h-36 overflow-y-auto">
-                    {translationAudit.untranslated.map((item, i) => (
-                      <li key={i} className="leading-tight">{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className="text-[11px] text-emerald-500 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  <span>100% Arabic coverage verified!</span>
-                </p>
-              )}
-            </div>
-
-            {/* Quality & Content Diagnostics (5 Core Hardening Checks) */}
-            {contentHealthAudit.issues.length > 0 && (
-              <div className="p-4 rounded-3xl bg-amber-500/5 border border-amber-500/30 space-y-2">
-                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-                  <AlertCircle className="w-4 h-4 text-amber-500" />
-                  <span>Quality Diagnostics ({contentHealthAudit.issues.length})</span>
-                </span>
-                <ul className="list-disc ps-4 space-y-1 text-[10px] text-[var(--text-secondary)] max-h-32 overflow-y-auto">
-                  {contentHealthAudit.issues.map((issue, i) => (
-                    <li key={i} className="leading-tight">{issue}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                    )}
+                  </button>
+                )
+              })}
+            </nav>
           </div>
 
-          {/* 2. Main Stage Content Panel */}
-          <div className="lg:col-span-9 space-y-8">
-            
-            {/* ========================================================================= */}
-            {/* STAGE 1: IDENTITY & BRAND */}
-            {/* ========================================================================= */}
-            {activeStage === 'identity' && (
-              <div className="space-y-6">
-                <div className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-6">
-                  <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-                    <div>
-                      <h2 className="text-lg font-black text-[var(--text-primary)]">1. Attraction Identity & Brand</h2>
-                      <p className="text-xs text-[var(--text-secondary)]">Canonical branding, naming, slug and format definition</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] text-xs font-mono font-bold">
-                      STAGE 1 / 5
-                    </span>
+          {/* Quick Roster Links */}
+          {!isNavCollapsed && (
+            <div className="p-3 bg-[var(--surface-subtle)] rounded-2xl border border-[var(--border-level-1)] space-y-2">
+              <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
+                <span className="font-bold">Overall Quality</span>
+                <span className="font-mono font-bold text-purple-400">{healthAudit.overall}%</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-purple-500 transition-all duration-500" style={{ width: `${healthAudit.overall}%` }} />
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* Center Column: Flexible Primary Editor Workspace */}
+        <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8 space-y-8 min-w-0">
+          
+          {/* ========================================================================= */}
+          {/* STAGE 1: IDENTITY & CLASSIFICATION */}
+          {/* ========================================================================= */}
+          {activeStage === 'identity' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs space-y-6">
+                <div>
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">1. Core Identity & Multi-Dimensional Classification</h2>
+                  <p className="text-xs text-[var(--text-secondary)]">Controlled taxonomy for permanent attractions, festivals, sports activations, and pop-ups.</p>
+                </div>
+
+                {/* Controlled 5-Dimensional Classification Grid */}
+                <div className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-[var(--border-level-1)]">
+                    <Sliders className="w-4 h-4 text-purple-400" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                      Experience Classification Matrix
+                    </h3>
                   </div>
 
-                  {/* Bilingual Names */}
-                  <div className={cn(
-                    "grid gap-6",
-                    bilingualView === 'BOTH' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
-                  )}>
-                    {(bilingualView === 'BOTH' || bilingualView === 'EN') && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                          Attraction Name (EN) *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. Urban Arena"
-                          value={nameEn}
-                          onChange={e => {
-                            setNameEn(e.target.value)
-                            if (!isEditing && !slug) {
-                              setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-                            }
-                          }}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none font-bold"
-                        />
-                      </div>
-                    )}
-
-                    {(bilingualView === 'BOTH' || bilingualView === 'AR') && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                          اسم الوجهة (العربية) *
-                        </label>
-                        <input
-                          type="text"
-                          dir="rtl"
-                          placeholder="مثال: أوربان أرينا"
-                          value={nameAr}
-                          onChange={e => setNameAr(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none font-bold text-right"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Slug & Format */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 space-y-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                        Public URL Slug *
-                      </label>
-                      <div className="flex items-center">
-                        <span className="px-3 py-3 rounded-s-xl bg-[var(--surface-default)] border border-e-0 border-[var(--border-default)] text-xs font-mono text-[var(--text-tertiary)]">
-                          e3.qa/b2c/attractions/
-                        </span>
-                        <input
-                          type="text"
-                          required
-                          placeholder="urban-arena-doha-mall"
-                          value={slug}
-                          onChange={e => setSlug(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-e-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none font-mono font-bold"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                        Attraction Format
-                      </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* 1. Entity Type */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)]">Entity Type *</label>
                       <select
-                        value={formatCategory}
-                        onChange={e => setFormatCategory(e.target.value)}
-                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:border-[var(--color-primary)] focus:outline-none font-bold"
+                        value={entityType}
+                        onChange={e => { setEntityType(e.target.value); markDirty(); }}
+                        className="w-full h-10 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-bold focus:border-purple-500"
                       >
-                        <option value="FEC">Permanent FEC / Center</option>
-                        <option value="MALL_ATTRACTION">Mall Anchor Attraction</option>
-                        <option value="SEASONAL_ACTIVATION">Seasonal Activation</option>
-                        <option value="TOURING_EXPERIENCE">Touring Pop-Up</option>
-                        <option value="FREE_EVENT">Free Public Event</option>
+                        {ENTITY_TYPES.map(t => (
+                          <option key={t.value} value={t.value}>{t.labelEn}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 2. Experience Format */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)]">Experience Format *</label>
+                      <select
+                        value={experienceFormat}
+                        onChange={e => { setExperienceFormat(e.target.value); markDirty(); }}
+                        className="w-full h-10 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-bold focus:border-purple-500"
+                      >
+                        {EXPERIENCE_FORMATS.map(f => (
+                          <option key={f.value} value={f.value}>{f.labelEn}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 3. Access Model */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)]">Access Model *</label>
+                      <select
+                        value={accessModel}
+                        onChange={e => { setAccessModel(e.target.value); markDirty(); }}
+                        className="w-full h-10 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-bold focus:border-purple-500"
+                      >
+                        {ACCESS_MODELS.map(m => (
+                          <option key={m.value} value={m.value}>{m.labelEn}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 4. Duration Model */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)]">Duration Model *</label>
+                      <select
+                        value={durationModel}
+                        onChange={e => { setDurationModel(e.target.value); markDirty(); }}
+                        className="w-full h-10 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-bold focus:border-purple-500"
+                      >
+                        {DURATION_MODELS.map(d => (
+                          <option key={d.value} value={d.value}>{d.labelEn}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 5. Environment */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)]">Environment *</label>
+                      <select
+                        value={environment}
+                        onChange={e => { setEnvironment(e.target.value); markDirty(); }}
+                        className="w-full h-10 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-bold focus:border-purple-500"
+                      >
+                        {ENVIRONMENT_MODELS.map(env => (
+                          <option key={env.value} value={env.value}>{env.labelEn}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
+                </div>
 
-                  {/* Taglines */}
-                  <div className={cn(
-                    "grid gap-6",
-                    bilingualView === 'BOTH' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
-                  )}>
-                    {(bilingualView === 'BOTH' || bilingualView === 'EN') && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                          Tagline / Punchline (EN)
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Next-Gen Mixed Reality Action Arena"
-                          value={taglineEn}
-                          onChange={e => setTaglineEn(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                        />
-                      </div>
-                    )}
-
-                    {(bilingualView === 'BOTH' || bilingualView === 'AR') && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                          الشعار التسويقي (العربية)
-                        </label>
-                        <input
-                          type="text"
-                          dir="rtl"
-                          placeholder="مثال: ساحة التحديات الرقمية والواقع المعزز"
-                          value={taglineAr}
-                          onChange={e => setTaglineAr(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Descriptions */}
-                  <div className={cn(
-                    "grid gap-6",
-                    bilingualView === 'BOTH' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
-                  )}>
-                    {(bilingualView === 'BOTH' || bilingualView === 'EN') && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                          Comprehensive Overview (EN)
-                        </label>
-                        <textarea
-                          rows={4}
-                          placeholder="Full narrative description of the attraction..."
-                          value={descriptionEn}
-                          onChange={e => setDescriptionEn(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl p-4 text-sm focus:border-[var(--color-primary)] focus:outline-none"
-                        />
-                      </div>
-                    )}
-
-                    {(bilingualView === 'BOTH' || bilingualView === 'AR') && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                          الوصف الشامل (العربية)
-                        </label>
-                        <textarea
-                          rows={4}
-                          dir="rtl"
-                          placeholder="وصف تفصيلي شامل للوجهة وتجاربها..."
-                          value={descriptionAr}
-                          onChange={e => setDescriptionAr(e.target.value)}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl p-4 text-sm focus:border-[var(--color-primary)] focus:outline-none text-right"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Hero Media & Logo */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border-default)]">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4 text-emerald-500" />
-                        <span>Hero Media (Image or Video)</span>
-                      </label>
-                      <MediaUploader
-                        value={heroMediaUrl}
-                        onChange={setHeroMediaUrl}
-                        placeholder="Upload or enter hero image/video URL"
-                      />
+                {/* Conditional Form: Events & Activations */}
+                {(entityType === 'EVENT' || entityType === 'ACTIVATION' || durationModel !== 'PERMANENT') && (
+                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <CalendarRange className="w-4 h-4 text-purple-400" />
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-purple-300">
+                        Event Schedule & Session Settings
+                      </h3>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-blue-500" />
-                        <span>Attraction Brand Logo</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Start Date</label>
+                        <input
+                          type="date"
+                          value={eventDetails.startDate || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, startDate: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">End Date</label>
+                        <input
+                          type="date"
+                          value={eventDetails.endDate || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, endDate: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Daily Capacity Gate</label>
+                        <input
+                          type="number"
+                          value={eventDetails.dailyCapacity || 500}
+                          onChange={e => { setEventDetails({ ...eventDetails, dailyCapacity: parseInt(e.target.value) || 500 }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-mono"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Session Times / Schedule Notes</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Morning: 10:00 - 14:00, Evening: 16:00 - 22:00"
+                          value={eventDetails.sessionTimes || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, sessionTimes: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Registration URL (if applicable)</label>
+                        <input
+                          type="url"
+                          placeholder="https://..."
+                          value={eventDetails.registrationUrl || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, registrationUrl: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Conditional Form: Sports Activation */}
+                {experienceFormat === 'SPORTS_ACTIVATION' && (
+                  <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-blue-400" />
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-blue-300">
+                        Sports Activation Guidelines & Rules
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Sport Category</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Tactical Combat / Obstacle Course / Football"
+                          value={eventDetails.sportCategory || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, sportCategory: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Competition Format</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Free Play & Timed Leaderboard"
+                          value={eventDetails.competitionFormat || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, competitionFormat: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Equipment Requirements</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Provided helmets and gear, closed shoes mandatory"
+                          value={eventDetails.equipmentRequirements || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, equipmentRequirements: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Participant Age Limits</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 8+ with signed waiver"
+                          value={eventDetails.ageLimits || ""}
+                          onChange={e => { setEventDetails({ ...eventDetails, ageLimits: e.target.value }); markDirty(); }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bilingual Titles & Slug */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(bilingualView === 'BOTH' || bilingualView === 'EN') && (
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                        Attraction Name (English) *
                       </label>
-                      <MediaUploader
-                        value={logoUrl}
-                        onChange={setLogoUrl}
-                        placeholder="Upload or enter logo URL"
+                      <input
+                        type="text"
+                        placeholder="e.g. Urban Arena"
+                        value={nameEn}
+                        onChange={e => {
+                          setNameEn(e.target.value)
+                          if (!slug) setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+                          markDirty()
+                        }}
+                        className="w-full h-10 px-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-sm text-[var(--text-primary)] font-bold focus:border-purple-500"
+                      />
+                    </div>
+                  )}
+
+                  {(bilingualView === 'BOTH' || bilingualView === 'AR') && (
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1" dir="rtl">
+                        اسم الوجهة (العربية) *
+                      </label>
+                      <input
+                        type="text"
+                        dir="rtl"
+                        placeholder="مثال: أوربان أرينا"
+                        value={nameAr}
+                        onChange={e => { setNameAr(e.target.value); markDirty(); }}
+                        className="w-full h-10 px-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-sm text-[var(--text-primary)] font-bold text-right focus:border-purple-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* URL Slug & Visibility */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                      URL Slug * (Unique Canonical Path)
+                    </label>
+                    <div className="flex items-center">
+                      <span className="h-10 px-3 rounded-l-xl bg-[var(--surface-subtle)] border border-r-0 border-[var(--border-level-2)] text-xs text-[var(--text-tertiary)] flex items-center font-mono">
+                        e3.qa/b2c/attractions/
+                      </span>
+                      <input
+                        type="text"
+                        value={slug}
+                        onChange={e => { setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')); markDirty(); }}
+                        className="flex-1 h-10 px-3 rounded-r-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-mono font-bold focus:border-purple-500"
                       />
                     </div>
                   </div>
 
-                  {/* Advanced Motion Accordion */}
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowAdvancedMotion(!showAdvancedMotion)}
-                      className="text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-2"
-                    >
-                      <Sliders className="w-3.5 h-3.5" />
-                      <span>{showAdvancedMotion ? "Hide" : "Show"} Advanced WebGL & Motion Presets</span>
-                    </button>
+                  <div className="flex items-end gap-3 pb-1">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isPublished}
+                        onChange={e => { setIsPublished(e.target.checked); markDirty(); }}
+                        className="w-4 h-4 rounded-sm border-[var(--border-level-2)] text-emerald-500 focus:ring-emerald-500"
+                      />
+                      <span className="text-xs font-bold text-[var(--text-primary)]">Publish Live</span>
+                    </label>
 
-                    {showAdvancedMotion && (
-                      <div className="mt-4 p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Motion Preset</label>
-                          <select
-                            value={motionPreset}
-                            onChange={e => setMotionPreset(e.target.value)}
-                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs"
-                          >
-                            <option value="MEDIA_CINEMATIC">Cinematic Video Glow</option>
-                            <option value="PARTICLE_ORBIT">Particle Orbit Network</option>
-                            <option value="GRADIENT_MESH">Dynamic Gradient Mesh</option>
-                            <option value="MINIMAL_STATIC">Minimal Static</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Motion Intensity</label>
-                          <select
-                            value={motionIntensity}
-                            onChange={e => setMotionIntensity(e.target.value)}
-                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs"
-                          >
-                            <option value="LOW">Subtle / Ambient</option>
-                            <option value="MEDIUM">Balanced</option>
-                            <option value="HIGH">High Energy</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Particle Density</label>
-                          <input
-                            type="number"
-                            min="10"
-                            max="100"
-                            value={particleDensity}
-                            onChange={e => setParticleDensity(parseInt(e.target.value) || 50)}
-                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs font-mono"
-                          />
-                        </div>
-                      </div>
-                    )}
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isFeatured}
+                        onChange={e => { setIsFeatured(e.target.checked); markDirty(); }}
+                        className="w-4 h-4 rounded-sm border-[var(--border-level-2)] text-purple-500 focus:ring-purple-500"
+                      />
+                      <span className="text-xs font-bold text-[var(--text-primary)]">Featured</span>
+                    </label>
                   </div>
                 </div>
 
-                {/* Stage 1 Footer Navigator */}
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('experiences')}
-                    className="px-6 py-3 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-2 transition-all shadow-sm"
-                  >
-                    <span>Proceed to Experiences (&quot;What&apos;s Inside&quot;)</span>
-                    <ArrowRight className="w-4 h-4 text-emerald-500" />
-                  </button>
+                {/* Taglines */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(bilingualView === 'BOTH' || bilingualView === 'EN') && (
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Tagline (EN)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Tactical Laser Tag & AR Entertainment"
+                        value={taglineEn}
+                        onChange={e => { setTaglineEn(e.target.value); markDirty(); }}
+                        className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)]"
+                      />
+                    </div>
+                  )}
+
+                  {(bilingualView === 'BOTH' || bilingualView === 'AR') && (
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1" dir="rtl">الشعار الترويجي (العربية)</label>
+                      <input
+                        type="text"
+                        dir="rtl"
+                        placeholder="مثال: ليزر تاغ تكتيكي وتجارب واقع معزز"
+                        value={taglineAr}
+                        onChange={e => { setTaglineAr(e.target.value); markDirty(); }}
+                        className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] text-right"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Overview Descriptions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(bilingualView === 'BOTH' || bilingualView === 'EN') && (
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Overview Description (EN)</label>
+                      <textarea
+                        rows={4}
+                        placeholder="Full experiential overview in English..."
+                        value={descriptionEn}
+                        onChange={e => { setDescriptionEn(e.target.value); markDirty(); }}
+                        className="w-full p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] resize-y"
+                      />
+                    </div>
+                  )}
+
+                  {(bilingualView === 'BOTH' || bilingualView === 'AR') && (
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1" dir="rtl">الوصف التعريفي (العربية)</label>
+                      <textarea
+                        rows={4}
+                        dir="rtl"
+                        placeholder="الوصف التعريفي الكامل باللغة العربية..."
+                        value={descriptionAr}
+                        onChange={e => { setDescriptionAr(e.target.value); markDirty(); }}
+                        className="w-full p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] resize-y text-right"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Hero Media & Logos */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border-level-1)]">
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                      Hero Poster / Video Media
+                    </label>
+                    <MediaUploader
+                      value={heroMediaUrl}
+                      onChange={url => { setHeroMediaUrl(url); markDirty(); }}
+                      placeholder="Upload or enter hero media URL"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                      Attraction / Brand Logo (SVG or PNG)
+                    </label>
+                    <MediaUploader
+                      value={logoUrl}
+                      onChange={url => { setLogoUrl(url); markDirty(); }}
+                      placeholder="Upload logo"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* ========================================================================= */}
-            {/* STAGE 2: EXPERIENCES ("WHAT'S INSIDE") */}
-            {/* ========================================================================= */}
-            {activeStage === 'experiences' && (
-              <div className="space-y-6">
-                <div className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-6">
-                  <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-                    <div>
-                      <h2 className="text-lg font-black text-[var(--text-primary)]">2. What&apos;s Inside Classification</h2>
-                      <p className="text-xs text-[var(--text-secondary)]">Activities, zones, games, duration and story tracks</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setActivities([
+          {/* ========================================================================= */}
+          {/* STAGE 2: WHAT'S INSIDE (ACTIVITIES & STORY TRACKS) */}
+          {/* ========================================================================= */}
+          {activeStage === 'experiences' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
+                  <div>
+                    <h2 className="text-lg font-black text-[var(--text-primary)]">2. What&apos;s Inside (Experiences & Activities)</h2>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Every activity requires one Primary Story Track and up to two optional Secondary Supporting Tracks.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActivities([
                         ...activities,
                         {
                           titleEn: "New Activity",
-                          titleAr: "",
+                          titleAr: "نشاط جديد",
                           contentType: "ACTIVITY",
                           intensityLevel: "MEDIUM"
                         }
-                      ])}
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md"
+                      ])
+                      markDirty()
+                    }}
+                    className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Activity</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {activities.map((activity, idx) => (
+                    <CompactActivityCard
+                      key={activity.id || idx}
+                      activity={activity}
+                      index={idx}
+                      availableStoryTypes={availableStoryTypes}
+                      availableBrands={availableBrands}
+                      bilingualView={bilingualView}
+                      onUpdate={updated => {
+                        const next = [...activities]
+                        next[idx] = updated
+                        setActivities(next)
+                        markDirty()
+                      }}
+                      onDuplicate={() => {
+                        const copy = { ...activity, id: undefined, titleEn: `${activity.titleEn} (Copy)` }
+                        setActivities([...activities, copy])
+                        markDirty()
+                      }}
+                      onDelete={() => {
+                        setActivities(activities.filter((_, i) => i !== idx))
+                        markDirty()
+                      }}
+                      onStoryTypeCreated={newTrack => {
+                        setAvailableStoryTypes([...availableStoryTypes, newTrack])
+                      }}
+                    />
+                  ))}
+
+                  {activities.length === 0 && (
+                    <div className="p-12 text-center border-2 border-dashed border-[var(--border-level-2)] rounded-3xl space-y-3">
+                      <Sparkles className="w-8 h-8 mx-auto text-purple-400" />
+                      <h4 className="text-sm font-bold text-[var(--text-primary)]">No activities added yet</h4>
+                      <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
+                        Add interactive games, VR setups, laser tag, and zone highlights.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActivities([{ titleEn: "Feature Activity", titleAr: "نشاط رئيسي", contentType: "ACTIVITY" }])
+                          markDirty()
+                        }}
+                        className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-sm"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add First Activity</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* STAGE 3: VISIT & BOOKING */}
+          {/* ========================================================================= */}
+          {activeStage === 'visit' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs space-y-6">
+                {/* Canonical GIS Locations */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
+                    <div>
+                      <h2 className="text-lg font-black text-[var(--text-primary)]">3. Linked Canonical Qatar Locations</h2>
+                      <p className="text-xs text-[var(--text-secondary)]">Resolved GIS coordinates and venue associations (never raw object IDs).</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsLocationModalOpen(true)}
+                      className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Activity</span>
+                      <span>Link GIS Venue</span>
                     </button>
                   </div>
 
-                  {/* Compact Activity Cards */}
-                  <div className="space-y-4">
-                    {activities.map((act, index) => (
-                      <CompactActivityCard
-                        key={act.id || index}
-                        activity={act}
-                        index={index}
-                        availableStoryTypes={availableStoryTypes}
-                        availableBrands={availableBrands}
-                        availableLocations={availableLocations}
-                        bilingualView={bilingualView}
-                        onUpdate={updated => {
-                          const next = [...activities]
-                          next[index] = updated
-                          setActivities(next)
-                        }}
-                        onDuplicate={() => {
-                          const copy = { ...act, id: undefined, titleEn: `${act.titleEn} (Copy)` }
-                          setActivities([...activities, copy])
-                        }}
-                        onDelete={() => {
-                          setActivities(activities.filter((_, i) => i !== index))
-                        }}
-                      />
+                  <div className="space-y-3">
+                    {linkedLocations.map((link, idx) => (
+                      <div
+                        key={link.locationId || idx}
+                        className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      >
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Building className="w-4 h-4 text-purple-400" />
+                            <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
+                              {link.location?.nameEn || link.nameEn || "Qatar Venue"}
+                            </h4>
+                            {link.isPrimary && (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                                Primary Venue
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[var(--text-secondary)] truncate">
+                            {link.location?.venueEn || link.venueEn || "Doha, Qatar"}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
+                            <input
+                              type="radio"
+                              name="primaryLocationRadio"
+                              checked={link.isPrimary}
+                              onChange={() => {
+                                setLinkedLocations(linkedLocations.map((l, i) => ({ ...l, isPrimary: i === idx })))
+                                markDirty()
+                              }}
+                              className="text-purple-500 focus:ring-purple-500"
+                            />
+                            <span>Set Primary</span>
+                          </label>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLinkedLocations(linkedLocations.filter((_, i) => i !== idx))
+                              markDirty()
+                            }}
+                            className="p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     ))}
 
-                    {activities.length === 0 && (
-                      <div className="p-12 text-center border-2 border-dashed border-[var(--border-default)] rounded-3xl space-y-3">
-                        <Sparkles className="w-8 h-8 text-[var(--color-primary)] mx-auto opacity-50" />
-                        <h4 className="text-sm font-bold text-[var(--text-primary)]">No Activities Defined Yet</h4>
-                        <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
-                          Add the core interactive games, zones, laser tag, and simulators that make up this attraction.
-                        </p>
+                    {linkedLocations.length === 0 && (
+                      <div className="p-8 text-center border-2 border-dashed border-[var(--border-level-2)] rounded-2xl space-y-2">
+                        <MapPin className="w-6 h-6 text-amber-500 mx-auto" />
+                        <p className="text-xs text-[var(--text-secondary)]">No canonical GIS venue linked yet.</p>
                         <button
                           type="button"
-                          onClick={() => setActivities([
-                            {
-                              titleEn: "Main Arena Experience",
-                              titleAr: "تجربة الساحة الرئيسية",
-                              contentType: "ACTIVITY",
-                              intensityLevel: "MEDIUM"
-                            }
-                          ])}
-                          className="px-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-default)] text-xs font-bold text-emerald-500 hover:border-emerald-500 transition-colors inline-flex items-center gap-1.5 shadow-sm"
+                          onClick={() => setIsLocationModalOpen(true)}
+                          className="text-xs font-bold text-purple-400 hover:underline inline-flex items-center gap-1"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>Add First Activity</span>
+                          <span>Link a Qatar Venue</span>
                         </button>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Stage 2 Footer Navigator */}
-                <div className="flex justify-between items-center">
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('identity')}
-                    className="px-5 py-2.5 rounded-2xl border border-[var(--border-default)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"
-                  >
-                    Back to Identity
-                  </button>
+                {/* Operating Timings */}
+                <div className="pt-6 border-t border-[var(--border-level-1)] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-purple-400" />
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Operating Timings (Qatar Time GMT+3)</h3>
+                    </div>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('visit')}
-                    className="px-6 py-3 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-2 transition-all shadow-sm"
-                  >
-                    <span>Proceed to Visit & Booking</span>
-                    <ArrowRight className="w-4 h-4 text-emerald-500" />
-                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1">Opening Time</label>
+                      <input
+                        type="time"
+                        value={temporalStatus.openTime}
+                        onChange={e => { setTemporalStatus({ ...temporalStatus, openTime: e.target.value }); markDirty(); }}
+                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1">Closing Time</label>
+                      <input
+                        type="time"
+                        value={temporalStatus.closeTime}
+                        onChange={e => { setTemporalStatus({ ...temporalStatus, closeTime: e.target.value }); markDirty(); }}
+                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1">Display Hours (EN)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Daily: 10:00 AM - 10:00 PM"
+                        value={temporalStatus.operatingHoursEn}
+                        onChange={e => { setTemporalStatus({ ...temporalStatus, operatingHoursEn: e.target.value }); markDirty(); }}
+                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1" dir="rtl">أوقات العمل (العربية)</label>
+                      <input
+                        type="text"
+                        dir="rtl"
+                        placeholder="مثال: يومياً: ١٠:٠٠ ص - ١٠:٠٠ م"
+                        value={temporalStatus.operatingHoursAr}
+                        onChange={e => { setTemporalStatus({ ...temporalStatus, operatingHoursAr: e.target.value }); markDirty(); }}
+                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-right"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* ========================================================================= */}
-            {/* STAGE 3: VISIT & BOOKING */}
-            {/* ========================================================================= */}
-            {activeStage === 'visit' && (
-              <div className="space-y-6">
-                <div className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-6">
-                  
-                  {/* Linked Canonical GIS Locations */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-                      <div>
-                        <h2 className="text-lg font-black text-[var(--text-primary)]">3. Linked Canonical Qatar Locations</h2>
-                        <p className="text-xs text-[var(--text-secondary)]">Direct coordinates, venue address, and location overrides</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsLocationModalOpen(true)}
-                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Link GIS Location</span>
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {linkedLocations.map((link, idx) => (
-                        <div
-                          key={link.locationId || idx}
-                          className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] flex flex-col md:flex-row md:items-center justify-between gap-4"
-                        >
-                          <div className="space-y-1 min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <Building className="w-4 h-4 text-[var(--color-primary)]" />
-                              <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
-                                {link.location?.nameEn || link.nameEn || "Qatar Venue"}
-                              </h4>
-                              {link.isPrimary && (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                  Primary Location
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-[var(--text-secondary)] truncate">
-                              {link.location?.venueEn || link.venueEn || "Doha, Qatar"}
-                            </p>
-                            <div className="flex items-center gap-3 text-[11px] font-mono text-[var(--text-tertiary)]">
-                              <span>Lat: {link.location?.latitude ?? 'N/A'}</span>
-                              <span>Lng: {link.location?.longitude ?? 'N/A'}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
-                              <input
-                                type="radio"
-                                name="primaryLocationRadio"
-                                checked={link.isPrimary}
-                                onChange={() => {
-                                  setLinkedLocations(linkedLocations.map((l, i) => ({
-                                    ...l,
-                                    isPrimary: i === idx
-                                  })))
-                                }}
-                                className="text-emerald-500 focus:ring-emerald-500"
-                              />
-                              <span>Set Primary</span>
-                            </label>
-
-                            <button
-                              type="button"
-                              onClick={() => setLinkedLocations(linkedLocations.filter((_, i) => i !== idx))}
-                              className="p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-
-                      {linkedLocations.length === 0 && (
-                        <div className="p-8 text-center border-2 border-dashed border-[var(--border-default)] rounded-2xl space-y-2">
-                          <MapPin className="w-6 h-6 text-amber-500 mx-auto" />
-                          <p className="text-xs text-[var(--text-tertiary)]">No canonical GIS venue linked yet.</p>
-                          <button
-                            type="button"
-                            onClick={() => setIsLocationModalOpen(true)}
-                            className="text-xs font-bold text-emerald-500 hover:underline inline-flex items-center gap-1"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Link a Qatar Venue</span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Qatar Operating Timings & Lifecycle */}
-                  <div className="pt-6 border-t border-[var(--border-default)] space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-emerald-500" />
-                        <h3 className="text-base font-bold text-[var(--text-primary)]">Operating Timings & Rules</h3>
-                      </div>
-                      <span className="text-xs font-mono font-bold text-[var(--text-tertiary)]">Qatar Time (GMT+3)</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Daily Opening Time</label>
-                        <input
-                          type="time"
-                          value={temporalStatus.openTime}
-                          onChange={e => setTemporalStatus({ ...temporalStatus, openTime: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm font-mono"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Daily Closing Time</label>
-                        <input
-                          type="time"
-                          value={temporalStatus.closeTime}
-                          onChange={e => setTemporalStatus({ ...temporalStatus, closeTime: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm font-mono"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Display Hours (EN)</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Daily: 10:00 AM - 10:00 PM"
-                          value={temporalStatus.operatingHoursEn}
-                          onChange={e => setTemporalStatus({ ...temporalStatus, operatingHoursEn: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">أوقات العمل (العربية)</label>
-                        <input
-                          type="text"
-                          dir="rtl"
-                          placeholder="مثال: يومياً: ١٠:٠٠ ص - ١٠:٠٠ م"
-                          value={temporalStatus.operatingHoursAr}
-                          onChange={e => setTemporalStatus({ ...temporalStatus, operatingHoursAr: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-right"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pricing Tiers Repeater */}
-                  <div className="pt-6 border-t border-[var(--border-default)]">
+                {/* Pricing Passes (Hidden if Free Access Model) */}
+                {accessModel !== 'FREE' ? (
+                  <div className="pt-6 border-t border-[var(--border-level-1)]">
                     <CompactRepeaterList
                       title="Pricing Passes & Ticket Tiers"
-                      subtitle="General passes, VIP packages, and add-on activities"
+                      subtitle="Classify each pass as: ACCESS_PASS, PREMIUM_ACTIVITY, HOURLY_ACTIVITY, or ADD_ON"
                       items={pricingTiers}
                       itemType="PRICING"
                       bilingualView={bilingualView}
-                      onAdd={() => setPricingTiers([
-                        ...pricingTiers,
-                        { titleEn: "Access Pass", titleAr: "تذكرة دخول", price: 50, currency: "QAR", type: "ACCESS_PASS" }
-                      ])}
+                      onAdd={() => {
+                        setPricingTiers([
+                          ...pricingTiers,
+                          { titleEn: "Access Pass", titleAr: "تذكرة دخول", price: 50, currency: "QAR", type: "ACCESS_PASS" }
+                        ])
+                        markDirty()
+                      }}
                       onUpdate={(idx, updated) => {
                         const next = [...pricingTiers]
                         next[idx] = updated
                         setPricingTiers(next)
+                        markDirty()
                       }}
-                      onDelete={idx => setPricingTiers(pricingTiers.filter((_, i) => i !== idx))}
+                      onDelete={idx => {
+                        setPricingTiers(pricingTiers.filter((_, i) => i !== idx))
+                        markDirty()
+                      }}
                       onDuplicate={idx => {
                         const copy = { ...pricingTiers[idx], id: undefined, titleEn: `${pricingTiers[idx].titleEn} (Copy)` }
                         setPricingTiers([...pricingTiers, copy])
+                        markDirty()
                       }}
+                    />
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Free Access Model selected. Ticket pricing requirement is optional.</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* STAGE 4: MEDIA, CASE STUDIES & TRUST */}
+          {/* ========================================================================= */}
+          {activeStage === 'media' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              {/* B2B Case Studies Integration Panel */}
+              <CaseStudiesAttractionPanel
+                attractionId={initialData?.id}
+                attractionNameEn={nameEn}
+                attractionNameAr={nameAr}
+                attractionSlug={slug}
+                heroMediaUrl={heroMediaUrl}
+                heroThumbnailUrl={heroThumbnailUrl}
+                logoUrl={logoUrl}
+                descriptionEn={descriptionEn}
+                descriptionAr={descriptionAr}
+                linkedLocations={linkedLocations}
+                isB2bVisible={isB2bVisible}
+                onToggleB2bVisible={val => { setIsB2bVisible(val); markDirty(); }}
+              />
+
+              {/* Gallery Photos */}
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs">
+                <CompactRepeaterList
+                  title="Gallery Photos (Minimum 2 authentic images)"
+                  subtitle="High-resolution venue photography"
+                  items={galleryItems}
+                  itemType="GALLERY"
+                  bilingualView={bilingualView}
+                  onAdd={() => {
+                    setGalleryItems([...galleryItems, { url: "", captionEn: "" }])
+                    markDirty()
+                  }}
+                  onUpdate={(idx, updated) => {
+                    const next = [...galleryItems]
+                    next[idx] = updated
+                    setGalleryItems(next)
+                    markDirty()
+                  }}
+                  onDelete={idx => {
+                    setGalleryItems(galleryItems.filter((_, i) => i !== idx))
+                    markDirty()
+                  }}
+                />
+              </div>
+
+              {/* FAQs */}
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs">
+                <CompactRepeaterList
+                  title="Frequently Asked Questions (Minimum 2 authentic FAQs)"
+                  subtitle="Bilingual answers to visitor questions"
+                  items={faqs}
+                  itemType="FAQ"
+                  bilingualView={bilingualView}
+                  onAdd={() => {
+                    setFaqs([
+                      ...faqs,
+                      { questionEn: "What are the rules?", questionAr: "ما هي القواعد؟", answerEn: "Safety gear is provided.", answerAr: "يتم توفير معدات السلامة." }
+                    ])
+                    markDirty()
+                  }}
+                  onUpdate={(idx, updated) => {
+                    const next = [...faqs]
+                    next[idx] = updated
+                    setFaqs(next)
+                    markDirty()
+                  }}
+                  onDelete={idx => {
+                    setFaqs(faqs.filter((_, i) => i !== idx))
+                    markDirty()
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* STAGE 5: REVIEW & PUBLISH */}
+          {/* ========================================================================= */}
+          {activeStage === 'review' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs space-y-6">
+                <div>
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">5. Review & Live Publishing</h2>
+                  <p className="text-xs text-[var(--text-secondary)]">SEO metadata, translation health audit, and live publishing controls.</p>
+                </div>
+
+                {/* Translation Health Audit Panel */}
+                <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Languages className="w-4 h-4 text-purple-400" />
+                      <h4 className="text-xs font-bold text-[var(--text-primary)]">Arabic Localization Audit</h4>
+                    </div>
+                    <span className={cn(
+                      "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold",
+                      translationAudit.score === 100 ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400"
+                    )}>
+                      {translationAudit.score}% Complete
+                    </span>
+                  </div>
+
+                  {translationAudit.untranslated.length > 0 ? (
+                    <ul className="text-xs text-amber-400 space-y-1 list-disc list-inside">
+                      {translationAudit.untranslated.slice(0, 5).map((u, i) => (
+                        <li key={i}>{u}</li>
+                      ))}
+                      {translationAudit.untranslated.length > 5 && (
+                        <li>...and {translationAudit.untranslated.length - 5} more fields</li>
+                      )}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-emerald-400 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>All Arabic fields contain authentic localized copy.</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* SEO Metadata */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">SEO Meta Title (EN)</label>
+                    <input
+                      type="text"
+                      value={seo.metaTitleEn || ""}
+                      onChange={e => { setSeo({ ...seo, metaTitleEn: e.target.value }); markDirty(); }}
+                      className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1" dir="rtl">عنوان سيو (العربية)</label>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      value={seo.metaTitleAr || ""}
+                      onChange={e => { setSeo({ ...seo, metaTitleAr: e.target.value }); markDirty(); }}
+                      className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] text-right"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">SEO Meta Description (EN)</label>
+                    <textarea
+                      rows={2}
+                      value={seo.metaDescriptionEn || ""}
+                      onChange={e => { setSeo({ ...seo, metaDescriptionEn: e.target.value }); markDirty(); }}
+                      className="w-full p-2.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1" dir="rtl">وصف سيو (العربية)</label>
+                    <textarea
+                      rows={2}
+                      dir="rtl"
+                      value={seo.metaDescriptionAr || ""}
+                      onChange={e => { setSeo({ ...seo, metaDescriptionAr: e.target.value }); markDirty(); }}
+                      className="w-full p-2.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] text-right"
                     />
                   </div>
                 </div>
 
-                {/* Stage 3 Footer Navigator */}
-                <div className="flex justify-between items-center">
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('experiences')}
-                    className="px-5 py-2.5 rounded-2xl border border-[var(--border-default)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"
-                  >
-                    Back to Experiences
-                  </button>
+                {/* Final Publish Trigger */}
+                <div className="p-6 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-[var(--text-primary)]">Ready to Publish Live?</h4>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      {isPublished
+                        ? "This attraction is currently published on public routes."
+                        : "Click below to publish this attraction to the public E3 website."}
+                    </p>
+                  </div>
 
                   <button
                     type="button"
-                    onClick={() => setActiveStage('media')}
-                    className="px-6 py-3 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-2 transition-all shadow-sm"
+                    disabled={isSaving}
+                    onClick={() => handleSave(!isPublished)}
+                    className={cn(
+                      "px-6 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-md cursor-pointer",
+                      isPublished ? "bg-amber-600 hover:bg-amber-500" : "bg-emerald-600 hover:bg-emerald-500"
+                    )}
                   >
-                    <span>Proceed to Media & Trust</span>
-                    <ArrowRight className="w-4 h-4 text-emerald-500" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ========================================================================= */}
-            {/* STAGE 4: MEDIA & TRUST */}
-            {/* ========================================================================= */}
-            {activeStage === 'media' && (
-              <div className="space-y-6">
-                <div className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-8">
-                  
-                  {/* Gallery */}
-                  <CompactRepeaterList
-                    title="Photo Gallery Lightbox"
-                    subtitle="High-resolution photos showcasing attractions and guest moments"
-                    items={galleryItems}
-                    itemType="GALLERY"
-                    onAdd={() => setGalleryItems([
-                      ...galleryItems,
-                      { url: "", captionEn: "", captionAr: "" }
-                    ])}
-                    onUpdate={(idx, updated) => {
-                      const next = [...galleryItems]
-                      next[idx] = updated
-                      setGalleryItems(next)
-                    }}
-                    onDelete={idx => setGalleryItems(galleryItems.filter((_, i) => i !== idx))}
-                  />
-
-                  <div className="h-px bg-[var(--border-default)] w-full" />
-
-                  {/* FAQs */}
-                  <CompactRepeaterList
-                    title="Frequently Asked Questions (FAQs)"
-                    subtitle="Answers regarding dress codes, ticketing, age limits, and bookings"
-                    items={faqs}
-                    itemType="FAQ"
-                    onAdd={() => setFaqs([
-                      ...faqs,
-                      { questionEn: "What are the age guidelines?", questionAr: "ما هي الفئات العمرية المسموح بها؟", answerEn: "", answerAr: "" }
-                    ])}
-                    onUpdate={(idx, updated) => {
-                      const next = [...faqs]
-                      next[idx] = updated
-                      setFaqs(next)
-                    }}
-                    onDelete={idx => setFaqs(faqs.filter((_, i) => i !== idx))}
-                  />
-
-                  <div className="h-px bg-[var(--border-default)] w-full" />
-
-                  {/* Verified Partners */}
-                  <CompactRepeaterList
-                    title="Official Partners & Brand Sponsors"
-                    subtitle="Partnership logos displayed in marquee banner"
-                    items={partners}
-                    itemType="PARTNER"
-                    onAdd={() => setPartners([
-                      ...partners,
-                      { name: "", tagline: "", logoUrl: "" }
-                    ])}
-                    onUpdate={(idx, updated) => {
-                      const next = [...partners]
-                      next[idx] = updated
-                      setPartners(next)
-                    }}
-                    onDelete={idx => setPartners(partners.filter((_, i) => i !== idx))}
-                  />
-
-                  <div className="h-px bg-[var(--border-default)] w-full" />
-
-                  {/* Social Links */}
-                  <CompactRepeaterList
-                    title="Official Social Profiles"
-                    subtitle="Instagram, TikTok, X, and YouTube profile channels"
-                    items={socialLinks}
-                    itemType="SOCIAL_LINK"
-                    onAdd={() => setSocialLinks([
-                      ...socialLinks,
-                      { platform: "Instagram", url: "" }
-                    ])}
-                    onUpdate={(idx, updated) => {
-                      const next = [...socialLinks]
-                      next[idx] = updated
-                      setSocialLinks(next)
-                    }}
-                    onDelete={idx => setSocialLinks(socialLinks.filter((_, i) => i !== idx))}
-                  />
-                </div>
-
-                {/* Stage 4 Footer Navigator */}
-                <div className="flex justify-between items-center">
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('visit')}
-                    className="px-5 py-2.5 rounded-2xl border border-[var(--border-default)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"
-                  >
-                    Back to Visit & Booking
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('review')}
-                    className="px-6 py-3 rounded-2xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-2 transition-all shadow-sm"
-                  >
-                    <span>Proceed to Review & Publish</span>
-                    <ArrowRight className="w-4 h-4 text-emerald-500" />
+                    {isPublished ? "Unpublish to Draft" : "Publish to Production"}
                   </button>
                 </div>
               </div>
-            )}
+            </div>
+          )}
+        </main>
 
-            {/* ========================================================================= */}
-            {/* STAGE 5: REVIEW & PUBLISH */}
-            {/* ========================================================================= */}
-            {activeStage === 'review' && (
-              <div className="space-y-6">
-                <div className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-6">
-                  <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4">
-                    <div>
-                      <h2 className="text-lg font-black text-[var(--text-primary)]">5. Review, SEO & Publication</h2>
-                      <p className="text-xs text-[var(--text-secondary)]">Search optimization, health validation, and launch</p>
-                    </div>
-                  </div>
-
-                  {/* SEO Metadata */}
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-bold uppercase text-[var(--text-primary)] flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-emerald-500" />
-                      <span>Search Engine Optimization (SEO)</span>
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold uppercase text-[var(--text-secondary)]">Meta Title (EN)</label>
-                        <input
-                          type="text"
-                          value={seo.metaTitleEn}
-                          onChange={e => setSeo({ ...seo, metaTitleEn: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold uppercase text-[var(--text-secondary)]">عنوان الميتا (العربية)</label>
-                        <input
-                          type="text"
-                          dir="rtl"
-                          value={seo.metaTitleAr}
-                          onChange={e => setSeo({ ...seo, metaTitleAr: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-sm text-right"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold uppercase text-[var(--text-secondary)]">Meta Description (EN)</label>
-                        <textarea
-                          rows={2}
-                          value={seo.metaDescriptionEn}
-                          onChange={e => setSeo({ ...seo, metaDescriptionEn: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl p-3 text-xs"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold uppercase text-[var(--text-secondary)]">وصف الميتا (العربية)</label>
-                        <textarea
-                          rows={2}
-                          dir="rtl"
-                          value={seo.metaDescriptionAr}
-                          onChange={e => setSeo({ ...seo, metaDescriptionAr: e.target.value })}
-                          className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl p-3 text-xs text-right"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Publication Toggles */}
-                  <div className="pt-6 border-t border-[var(--border-default)] space-y-4">
-                    <h3 className="text-sm font-bold uppercase text-[var(--text-primary)]">Publication Visibility</h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <label className={cn(
-                        "p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3",
-                        isPublished ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-bold" : "bg-[var(--surface-subtle)] border-[var(--border-default)]"
-                      )}>
-                        <input
-                          type="checkbox"
-                          checked={isPublished}
-                          onChange={e => setIsPublished(e.target.checked)}
-                          className="w-4 h-4 text-emerald-500 rounded"
-                        />
-                        <div>
-                          <div className="text-sm font-bold">Publicly Published</div>
-                          <div className="text-[11px] opacity-75">Visible to all Qatar visitors</div>
-                        </div>
-                      </label>
-
-                      <label className={cn(
-                        "p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3",
-                        isFeatured ? "bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400 font-bold" : "bg-[var(--surface-subtle)] border-[var(--border-default)]"
-                      )}>
-                        <input
-                          type="checkbox"
-                          checked={isFeatured}
-                          onChange={e => setIsFeatured(e.target.checked)}
-                          className="w-4 h-4 text-amber-500 rounded"
-                        />
-                        <div>
-                          <div className="text-sm font-bold">★ Featured on Hero</div>
-                          <div className="text-[11px] opacity-75">Highlighted on B2C home carousel</div>
-                        </div>
-                      </label>
-
-                      <label className={cn(
-                        "p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3",
-                        isB2bVisible ? "bg-blue-500/10 border-blue-500/40 text-blue-600 dark:text-blue-400 font-bold" : "bg-[var(--surface-subtle)] border-[var(--border-default)]"
-                      )}>
-                        <input
-                          type="checkbox"
-                          checked={isB2bVisible}
-                          onChange={e => setIsB2bVisible(e.target.checked)}
-                          className="w-4 h-4 text-blue-500 rounded"
-                        />
-                        <div>
-                          <div className="text-sm font-bold">Canonical B2C Attraction</div>
-                          <div className="text-[11px] opacity-75">Included in standard 34 roster</div>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Final Save & Launch Button */}
-                  <div className="pt-6 border-t border-[var(--border-default)] flex items-center justify-end gap-4">
-                    <button
-                      type="button"
-                      disabled={isSaving}
-                      onClick={() => handleSave(false)}
-                      className="px-6 py-3 rounded-2xl border border-[var(--border-default)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"
-                    >
-                      Save as Draft
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={isSaving}
-                      onClick={() => handleSave(true)}
-                      className="px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-xl"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      <span>{isSaving ? "Publishing..." : "Save & Publish Attraction"}</span>
-                    </button>
-                  </div>
+        {/* Right Column: Diagnostics & Preview Panel (Collapsible, 300-340px) */}
+        <aside className={cn(
+          "bg-[var(--surface-default)] border-l border-[var(--border-level-1)] transition-all duration-300 shrink-0 flex flex-col justify-between hidden lg:flex",
+          isDiagnosticsCollapsed ? "w-12 p-2 items-center" : "w-80 p-4 space-y-4 overflow-y-auto custom-scrollbar"
+        )}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              {!isDiagnosticsCollapsed && (
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-purple-400" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Studio Diagnostics</h3>
                 </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsDiagnosticsCollapsed(!isDiagnosticsCollapsed)}
+                className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+                title={isDiagnosticsCollapsed ? "Expand Diagnostics" : "Collapse Diagnostics"}
+              >
+                {isDiagnosticsCollapsed ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {!isDiagnosticsCollapsed && (
+              <div className="space-y-4">
+                {/* Overall Score */}
+                <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-center space-y-1">
+                  <span className="text-3xl font-black text-purple-400 font-mono">{healthAudit.overall}%</span>
+                  <p className="text-[11px] font-bold text-[var(--text-primary)]">Production Readiness Score</p>
+                </div>
+
+                {/* Stage Progress Bars */}
+                <div className="space-y-2 text-xs">
+                  {STUDIO_STAGES.map(s => (
+                    <div key={s.id} className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-[var(--text-secondary)] font-medium">{s.labelEn}</span>
+                        <span className="font-mono font-bold text-[var(--text-primary)]">{healthAudit.scores[s.id]}%</span>
+                      </div>
+                      <div className="w-full h-1 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full transition-all",
+                            healthAudit.scores[s.id] === 100 ? "bg-emerald-500" : "bg-purple-500"
+                          )}
+                          style={{ width: `${healthAudit.scores[s.id]}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Missing Elements */}
+                {healthAudit.missing.length > 0 && (
+                  <div className="p-3.5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] space-y-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>Missing Fields ({healthAudit.missing.length})</span>
+                    </span>
+                    <ul className="text-[11px] text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                      {healthAudit.missing.slice(0, 6).map((m, i) => (
+                        <li key={i} className="truncate">{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Public Link */}
+                {slug && (
+                  <a
+                    href={`/en/b2c/attractions/${slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Open Live Attraction</span>
+                  </a>
+                )}
               </div>
             )}
-
           </div>
-        </div>
+        </aside>
       </div>
 
       {/* Location Selector Modal */}
-      <LocationSelectorModal
-        isOpen={isLocationModalOpen}
-        onClose={() => setIsLocationModalOpen(false)}
-        availableLocations={availableLocations}
-        currentlyLinkedIds={linkedLocations.map(l => l.locationId)}
-        onLinkLocation={loc => {
-          setLinkedLocations([
-            ...linkedLocations,
-            {
-              locationId: loc.id,
-              location: loc,
-              isPrimary: linkedLocations.length === 0,
-              mapVisible: true
+      {isLocationModalOpen && (
+        <LocationSelectorModal
+          isOpen={isLocationModalOpen}
+          onClose={() => setIsLocationModalOpen(false)}
+          availableLocations={availableLocations}
+          currentlyLinkedIds={linkedLocations.map(l => l.locationId)}
+          onRefreshLocations={loadData}
+          onLinkLocation={(loc: any) => {
+            const already = linkedLocations.find(l => l.locationId === loc.id)
+            if (!already) {
+              setLinkedLocations([
+                ...linkedLocations,
+                {
+                  locationId: loc.id,
+                  location: loc,
+                  isPrimary: linkedLocations.length === 0,
+                  mapVisible: true
+                }
+              ])
+              markDirty()
             }
-          ])
+            setIsLocationModalOpen(false)
+          }}
+        />
+      )}
+
+      {/* Content Intake Hub Modal */}
+      <ContentIntakeHub
+        isOpen={isIntakeOpen}
+        onClose={() => setIsIntakeOpen(false)}
+        onSuccess={() => {
+          loadData()
         }}
-        onRefreshLocations={loadData}
       />
-    </DashboardPageShell>
+    </div>
   )
 }

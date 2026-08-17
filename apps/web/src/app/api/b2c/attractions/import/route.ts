@@ -81,10 +81,15 @@ export async function POST(request: Request) {
       const action = existing ? 'UPDATE' : 'CREATE'
       const details: string[] = []
 
-      // Deep merge non-empty values
+        // Deep merge non-empty values
       const updateData: any = {}
       if (nameEn) updateData.nameEn = nameEn
       if (nameAr) updateData.nameAr = nameAr
+      if (row.entityType || row["Entity Type"]) updateData.entityType = String(row.entityType || row["Entity Type"]).trim().toUpperCase()
+      if (row.experienceFormat || row["Experience Format"]) updateData.experienceFormat = String(row.experienceFormat || row["Experience Format"]).trim().toUpperCase()
+      if (row.accessModel || row["Access Model"]) updateData.accessModel = String(row.accessModel || row["Access Model"]).trim().toUpperCase()
+      if (row.durationModel || row["Duration Model"]) updateData.durationModel = String(row.durationModel || row["Duration Model"]).trim().toUpperCase()
+      if (row.environment || row["Environment"]) updateData.environment = String(row.environment || row["Environment"]).trim().toUpperCase()
       if (row.taglineEn || row["Tagline (EN)"]) updateData.taglineEn = String(row.taglineEn || row["Tagline (EN)"]).trim()
       if (row.taglineAr || row["Tagline (AR)"]) updateData.taglineAr = String(row.taglineAr || row["Tagline (AR)"]).trim()
       if (row.descriptionEn || row["Description (EN)"]) updateData.descriptionEn = String(row.descriptionEn || row["Description (EN)"]).trim()
@@ -131,6 +136,11 @@ export async function POST(request: Request) {
               slug: slugRaw,
               nameEn: nameEn,
               nameAr: nameAr,
+              entityType: updateData.entityType || "ATTRACTION",
+              experienceFormat: updateData.experienceFormat || "PERMANENT_FEC",
+              accessModel: updateData.accessModel || "PAID",
+              durationModel: updateData.durationModel || "PERMANENT",
+              environment: updateData.environment || "INDOOR",
               taglineEn: updateData.taglineEn || "",
               taglineAr: updateData.taglineAr || "",
               descriptionEn: updateData.descriptionEn || "",
@@ -159,6 +169,23 @@ export async function POST(request: Request) {
               if (!titleEn) continue
 
               const existingAct = existing?.featuresList.find((f: any) => f.titleEn.toLowerCase() === titleEn.toLowerCase())
+              const primaryTrackSlug = String(act.primaryStoryTrackSlug || act.primaryStoryTrack || act["Primary Story Track"] || "").trim().toLowerCase()
+              const secondaryTrackSlugs = String(act.secondaryStoryTrackSlugs || act.secondaryStoryTracks || act["Secondary Story Tracks"] || "").split(/[;,|]/).map((s: string) => s.trim().toLowerCase()).filter(Boolean)
+
+              // Lookup story types by slug
+              let primaryStoryTypeId: string | null = null
+              let secondaryStoryTypeIds: string[] = []
+
+              if (primaryTrackSlug) {
+                const st = await db.storyType.findFirst({ where: { slug: primaryTrackSlug } })
+                if (st) primaryStoryTypeId = st.id
+              }
+
+              if (secondaryTrackSlugs.length > 0) {
+                const secSts = await db.storyType.findMany({ where: { slug: { in: secondaryTrackSlugs } } })
+                secondaryStoryTypeIds = secSts.map((s: any) => s.id)
+              }
+
               if (existingAct) {
                 await db.attractionFeature.update({
                   where: { id: existingAct.id },
@@ -167,7 +194,9 @@ export async function POST(request: Request) {
                     descriptionEn: act.descriptionEn || existingAct.descriptionEn,
                     descriptionAr: act.descriptionAr || existingAct.descriptionAr,
                     imageUrl: act.imageUrl || existingAct.imageUrl,
-                    highlightType: act.contentType || act.highlightType || existingAct.highlightType
+                    highlightType: act.contentType || act.highlightType || existingAct.highlightType,
+                    primaryStoryTypeId: primaryStoryTypeId || existingAct.primaryStoryTypeId,
+                    secondaryStoryTypeIds: secondaryStoryTypeIds.length > 0 ? secondaryStoryTypeIds : existingAct.secondaryStoryTypeIds
                   }
                 })
               } else {
@@ -180,6 +209,8 @@ export async function POST(request: Request) {
                     descriptionAr: String(act.descriptionAr || act["Description (AR)"] || ""),
                     imageUrl: String(act.imageUrl || ""),
                     highlightType: String(act.contentType || act.highlightType || "ACTIVITY"),
+                    primaryStoryTypeId,
+                    secondaryStoryTypeIds: secondaryStoryTypeIds.length > 0 ? secondaryStoryTypeIds : null,
                     orderIndex: i
                   }
                 })
@@ -230,7 +261,26 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, report })
+    // Record import job in DB
+    const batchNumber = `E3-IMP-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`
+    const importJob = await db.importJob.create({
+      data: {
+        batchNumber,
+        fileName: file.name,
+        fileType: "XLSX",
+        intakeMethod: "SPREADSHEET_WORKBOOK",
+        targetType: "ATTRACTION",
+        recordsCreated: report.created,
+        recordsUpdated: report.updated,
+        recordsSkipped: report.skipped,
+        status: isDryRun ? "DRAFT_READY" : "APPLIED",
+        uploadedBy: (session.user as any)?.email || "admin",
+        appliedRecordIds: report.diffs.map(d => d.slug),
+        errorReport: report.errors.length > 0 ? { errors: report.errors } : null
+      }
+    })
+
+    return NextResponse.json({ success: true, report, importJob })
   } catch (error: any) {
     console.error("[IMPORT_ATTRACTIONS_ERROR]", error)
     return NextResponse.json({ error: error.message || "Failed to process spreadsheet import" }, { status: 500 })

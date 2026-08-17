@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import db from '@/lib/db';
 import { getCMSPageContentServer } from '@/lib/cms-server';
 import { B2CLandingClient } from '@/components/b2c/B2CLandingClient';
+import { HorizontalOctagonalExperience } from '@/components/spatial';
 import { formatLocalizedText } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -12,8 +13,18 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default async function B2CLandingPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+export default async function B2CLandingPage(props: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { locale } = await props.params;
+  const searchParams: Record<string, string | string[] | undefined> = props.searchParams
+    ? await props.searchParams
+    : {};
+  const isSpatialRequested =
+    process.env.NEXT_PUBLIC_SPATIAL_EXPERIENCE_V1 === 'true' ||
+    searchParams?.spatial === 'true' ||
+    searchParams?.barrel === 'true';
 
   const cmsData = await getCMSPageContentServer("b2c-landing");
 
@@ -183,6 +194,14 @@ export default async function B2CLandingPage({ params }: { params: Promise<{ loc
         status: 'PUBLISHED'
       }));
     }
+  }
+
+  if (isSpatialRequested) {
+    return (
+      <main className="min-h-screen bg-[#050811] text-white">
+        <HorizontalOctagonalExperience locale={locale} />
+      </main>
+    );
   }
 
   return (

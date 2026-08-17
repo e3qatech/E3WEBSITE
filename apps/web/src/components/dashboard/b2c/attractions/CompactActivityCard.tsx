@@ -17,7 +17,8 @@ import {
   ShieldAlert,
   Image as ImageIcon,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from "lucide-react"
 import { MediaUploader } from "@/components/ui/MediaUploader"
 import { cn } from "@/lib/utils"
@@ -57,12 +58,13 @@ interface CompactActivityCardProps {
   index: number
   availableStoryTypes: any[]
   availableBrands: any[]
-  availableLocations: any[]
+  availableLocations?: any[]
   bilingualView: 'BOTH' | 'EN' | 'AR'
   onUpdate: (updated: ActivityItem) => void
   onDuplicate: () => void
   onDelete: () => void
   onAutoTranslate?: () => void
+  onStoryTypeCreated?: (newTrack: any) => void
   isDragging?: boolean
 }
 
@@ -84,10 +86,24 @@ export function CompactActivityCard({
   onUpdate,
   onDuplicate,
   onDelete,
-  onAutoTranslate
+  onAutoTranslate,
+  onStoryTypeCreated
 }: CompactActivityCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showQuickTrackModal, setShowQuickTrackModal] = useState(false)
+  const [trackSearchQuery, setTrackSearchQuery] = useState("")
+
+  // Quick Track Creation State
+  const [newTrackTitleEn, setNewTrackTitleEn] = useState("")
+  const [newTrackTitleAr, setNewTrackTitleAr] = useState("")
+  const [newTrackSlug, setNewTrackSlug] = useState("")
+  const [newTrackDescEn, setNewTrackDescEn] = useState("")
+  const [newTrackDescAr, setNewTrackDescAr] = useState("")
+  const [newTrackIcon, setNewTrackIcon] = useState("sparkles")
+  const [newTrackColor, setNewTrackColor] = useState("#8b5cf6")
+  const [isCreatingTrack, setIsCreatingTrack] = useState(false)
+  const [trackError, setTrackError] = useState<string | null>(null)
 
   // Calculate completion percentage
   const hasEn = Boolean(activity.titleEn?.trim())
@@ -391,10 +407,25 @@ export function CompactActivityCard({
 
               {/* Primary Story Type */}
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Primary Story Track (Required)</span>
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Primary Story Track (Required)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewTrackSlug("")
+                      setNewTrackTitleEn("")
+                      setNewTrackTitleAr("")
+                      setShowQuickTrackModal(true)
+                    }}
+                    className="text-[11px] font-bold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Quick Create Track</span>
+                  </button>
+                </div>
                 <select
                   value={activity.primaryStoryTypeId || (activity.storyTypeIds?.[0]) || ''}
                   onChange={e => {
@@ -419,15 +450,29 @@ export function CompactActivityCard({
 
             {/* Secondary Story Types (Max 2) */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center justify-between">
-                <span>Secondary Story Tracks (Max 2)</span>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
+                  <span>Secondary Story Tracks (Optional, Max 2)</span>
+                </label>
                 <span className="text-[11px] text-[var(--text-tertiary)]">
                   {(activity.secondaryStoryTypeIds || []).length} / 2 selected
                 </span>
-              </label>
+              </div>
+
+              {availableStoryTypes.length > 6 && (
+                <input
+                  type="text"
+                  placeholder="Filter tracks by name..."
+                  value={trackSearchQuery}
+                  onChange={e => setTrackSearchQuery(e.target.value)}
+                  className="w-full h-8 px-3 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-default)] text-xs text-[var(--text-primary)] mb-2"
+                />
+              )}
+
               <div className="flex flex-wrap gap-2">
                 {availableStoryTypes
                   .filter(st => st.id !== (activity.primaryStoryTypeId || activity.storyTypeIds?.[0]))
+                  .filter(st => !trackSearchQuery || (st.titleEn || '').toLowerCase().includes(trackSearchQuery.toLowerCase()))
                   .map(st => {
                     const isSelected = (activity.secondaryStoryTypeIds || []).includes(st.id)
                     return (
@@ -436,19 +481,172 @@ export function CompactActivityCard({
                         type="button"
                         onClick={() => toggleSecondaryStoryType(st.id)}
                         className={cn(
-                          "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5",
+                          "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer",
                           isSelected 
-                            ? "bg-purple-500/15 border-purple-500/40 text-purple-600 dark:text-purple-300"
+                            ? "bg-purple-500/15 border-purple-500/40 text-purple-600 dark:text-purple-300 ring-1 ring-purple-500/20"
                             : "bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
                         )}
                       >
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: st.accentColor || '#8b5cf6' }} />
                         <span>{st.titleEn}</span>
-                        {isSelected && <CheckCircle2 className="w-3 h-3 text-purple-500" />}
+                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-purple-500" />}
                       </button>
                     )
                   })}
               </div>
             </div>
+
+            {/* Quick Create Story Track Modal */}
+            {showQuickTrackModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+                <div className="w-full max-w-md bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] p-6 shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[var(--border-level-1)]">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-500" />
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                        Quick Create Story Track
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickTrackModal(false)}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {trackError && (
+                    <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
+                      {trackError}
+                    </div>
+                  )}
+
+                  <div className="space-y-3 text-xs">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Track Name (EN) *</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Adrenaline"
+                          value={newTrackTitleEn}
+                          onChange={e => {
+                            setNewTrackTitleEn(e.target.value)
+                            if (!newTrackSlug) {
+                              setNewTrackSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+                            }
+                          }}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Track Name (AR) *</label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          placeholder="مثال: الإثارة والتشويق"
+                          value={newTrackTitleAr}
+                          onChange={e => setNewTrackTitleAr(e.target.value)}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-[var(--text-secondary)] block mb-1">URL Slug *</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. adrenaline"
+                        value={newTrackSlug}
+                        onChange={e => setNewTrackSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                        className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] font-mono"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Color Theme</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={newTrackColor}
+                            onChange={e => setNewTrackColor(e.target.value)}
+                            className="w-9 h-9 rounded-xl border border-[var(--border-default)] cursor-pointer p-0.5"
+                          />
+                          <span className="font-mono text-[11px] text-[var(--text-secondary)]">{newTrackColor}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="font-bold text-[var(--text-secondary)] block mb-1">Icon Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. zap, trophy, heart"
+                          value={newTrackIcon}
+                          onChange={e => setNewTrackIcon(e.target.value)}
+                          className="w-full h-9 px-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-level-1)]">
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickTrackModal(false)}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isCreatingTrack || !newTrackTitleEn.trim() || !newTrackSlug.trim()}
+                      onClick={async () => {
+                        setIsCreatingTrack(true)
+                        setTrackError(null)
+                        try {
+                          const res = await fetch("/api/b2c/story-types", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              titleEn: newTrackTitleEn.trim(),
+                              titleAr: newTrackTitleAr.trim() || newTrackTitleEn.trim(),
+                              slug: newTrackSlug.trim(),
+                              icon: newTrackIcon.trim(),
+                              accentColor: newTrackColor,
+                              isActive: true,
+                              orderIndex: 99
+                            })
+                          })
+                          if (!res.ok) {
+                            const errJson = await res.json().catch(() => ({}))
+                            throw new Error(errJson.error || "Failed to create track")
+                          }
+                          const resData = await res.json()
+                          const created = resData.data
+                          if (onStoryTypeCreated) {
+                            onStoryTypeCreated(created)
+                          }
+                          onUpdate({
+                            ...activity,
+                            primaryStoryTypeId: created.id,
+                            storyTypeIds: [created.id, ...(activity.secondaryStoryTypeIds || [])].filter(Boolean)
+                          })
+                          setShowQuickTrackModal(false)
+                        } catch (err: any) {
+                          setTrackError(err.message || "Failed to create track")
+                        } finally {
+                          setIsCreatingTrack(false)
+                        }
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>{isCreatingTrack ? "Creating..." : "Create Track"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Media & Brand Association */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-[var(--border-default)]">

@@ -38,10 +38,18 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { slug, titleEn, titleAr } = body
+    const { 
+      slug, titleEn, titleAr, clientName, year, category,
+      heroMediaType, heroImageUrl,
+      thumbnailMediaType, thumbnailUrl,
+      clientLogoUrl,
+      challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
+      isFeatured, isPublished,
+      attractionId, technicalSpecs, servicesUsed, metrics, gallery, testimonials
+    } = body
 
     if (!slug || !titleEn || !titleAr) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json({ error: "Missing required fields (slug, titleEn, titleAr)" }, { status: 400 })
     }
 
     const existing = await db.caseStudy.findUnique({ where: { slug } })
@@ -51,10 +59,31 @@ export async function POST(request: Request) {
 
     const caseStudy = await db.caseStudy.create({
       data: {
-        slug,
-        titleEn,
-        titleAr,
-        isPublished: false
+        slug: slug.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+        titleEn: titleEn.trim(),
+        titleAr: titleAr.trim(),
+        clientName: clientName || "E3 Experiences Qatar",
+        year: year ? parseInt(year) : new Date().getFullYear(),
+        category: category || "Entertainment",
+        heroMediaType: heroMediaType || "IMAGE",
+        heroImageUrl: heroImageUrl || null,
+        thumbnailMediaType: thumbnailMediaType || "IMAGE",
+        thumbnailUrl: thumbnailUrl || heroImageUrl || null,
+        clientLogoUrl: clientLogoUrl || null,
+        challengeEn: challengeEn || null,
+        challengeAr: challengeAr || null,
+        solutionEn: solutionEn || null,
+        solutionAr: solutionAr || null,
+        resultEn: resultEn || null,
+        resultAr: resultAr || null,
+        isFeatured: Boolean(isFeatured),
+        isPublished: Boolean(isPublished),
+        attractionId: attractionId || null,
+        technicalSpecs: technicalSpecs || [],
+        servicesUsed: servicesUsed || [],
+        metrics: metrics || [],
+        gallery: gallery || [],
+        testimonials: testimonials || []
       }
     })
 

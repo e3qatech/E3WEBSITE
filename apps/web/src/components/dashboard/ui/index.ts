@@ -25,3 +25,4 @@ export * from "./AdminTopBar";
 export * from "./AdminSidebar";
 export * from "./CommandPaletteModal";
 export * from "./ToastProvider";
+export * from "./EditorHeader";

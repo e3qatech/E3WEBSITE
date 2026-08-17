@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/Badge"
 import { useLocale } from "@/components/layout/LocaleProvider"
 import { localizeHref } from "@/lib/url-helper"
 import { AttractionDuplicationModal } from "./attractions/AttractionDuplicationModal"
-import { AiContentIntakeModal } from "./attractions/AiContentIntakeModal"
+import { ContentIntakeHub, IntakeTab } from "./attractions/ContentIntakeHub"
 
 type Attraction = {
   id: string
@@ -72,7 +72,8 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
   const [attractions, setAttractions] = useState(initialAttractions || [])
 
   // Modals
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false)
+  const [isIntakeHubOpen, setIsIntakeHubOpen] = useState(false)
+  const [intakeTab, setIntakeTab] = useState<IntakeTab>('smart_doc')
   const [isDuplicationModalOpen, setIsDuplicationModalOpen] = useState(false)
   const [targetDuplicateAttraction, setTargetDuplicateAttraction] = useState<any>(null)
 
@@ -144,15 +145,16 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
     <DashboardPageShell variant="wide">
       <div dir={dir} className="space-y-6">
         <DashboardPageHeader
-          title={isAr ? "قائمة وجهات B2C الجماهيرية" : "B2C Attractions Roster"}
+          title={isAr ? "إدارة الوجهات والفعاليات" : "Attractions & Events Studio"}
           description={
             isAr
-              ? "إدارة وجهات الترفيه العائلية، قواعد التذاكر، باقات VIP، وقوائم الأسئلة الشائعة."
-              : "Manage consumer entertainment worlds, ticketing rules, VIP pricing tiers, and FAQ rosters."
+              ? `إدارة استوديو محتوى الوجهات الترفيهية، الفعاليات الموسمية والتفعيلات الرياضية (${canonicalCount} وجهة أساسية)`
+              : `Manage experiential content, story tracks, ticket passes, and seasonal activations (${canonicalCount} canonical records)`
           }
           breadcrumbs={[
+            { label: isAr ? "لوحة التحكم" : "Dashboard", href: "/dashboard" },
             { label: isAr ? "محتوى B2C" : "B2C Content", href: "/dashboard/b2c/attractions" },
-            { label: isAr ? "قائمة الوجهات" : "Attractions Roster" }
+            { label: isAr ? "الوجهات" : "Attractions" },
           ]}
           badge={{ 
             label: isAr ? `${attractions.length} وجهة وفعالية` : `${attractions.length} Destinations`, 
@@ -170,11 +172,26 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
-              onClick={() => setIsAiModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md"
+              onClick={() => {
+                setIntakeTab('smart_doc')
+                setIsIntakeHubOpen(true)
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
             >
               <Wand2 className="w-3.5 h-3.5" />
-              <span>{isAr ? "إنشاء بالذكاء الاصطناعي" : "Create with AI"}</span>
+              <span>{isAr ? "مركز الاستيراد الذكي (OCR/نص)" : "Smart Intake Hub"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIntakeTab('spreadsheet')
+                setIsIntakeHubOpen(true)
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm cursor-pointer"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{isAr ? "استيراد جدول Excel" : "Spreadsheet Import"}</span>
             </button>
 
             <button
@@ -183,21 +200,24 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
                 setTargetDuplicateAttraction(null)
                 setIsDuplicationModalOpen(true)
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm cursor-pointer"
             >
-              <Copy className="w-3.5 h-3.5 text-purple-500" />
-              <span>{isAr ? "بدء من قالب / تكرار" : "Start from Template / Duplicate"}</span>
+              <Copy className="w-3.5 h-3.5 text-purple-400" />
+              <span>{isAr ? "بدء من قالب / تكرار" : "Start from Template"}</span>
             </button>
           </div>
 
           <div className="flex items-center gap-2.5">
-            <Link
-              href={localizeHref('/dashboard/b2c/attractions/import', locale)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
+            <button
+              type="button"
+              onClick={() => {
+                setIntakeTab('history')
+                setIsIntakeHubOpen(true)
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all shadow-sm cursor-pointer"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{isAr ? "مركز استيراد Excel" : "Spreadsheet Import"}</span>
-            </Link>
+              <span>{isAr ? "سجل الاستيراد" : "Import History"}</span>
+            </button>
 
             <a
               href="/api/b2c/attractions/export"
@@ -501,9 +521,13 @@ export function AttractionsList({ initialAttractions }: { initialAttractions: At
           availableAttractions={attractions}
         />
 
-        <AiContentIntakeModal
-          isOpen={isAiModalOpen}
-          onClose={() => setIsAiModalOpen(false)}
+        <ContentIntakeHub
+          isOpen={isIntakeHubOpen}
+          initialTab={intakeTab}
+          onClose={() => setIsIntakeHubOpen(false)}
+          onSuccess={() => {
+            router.refresh()
+          }}
         />
       </div>
     </DashboardPageShell>

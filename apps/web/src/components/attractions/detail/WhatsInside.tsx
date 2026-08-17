@@ -20,12 +20,18 @@ interface Feature {
   highlightType?: string;
   linkedBrandId?: string;
   showBrandLogo?: boolean;
+  primaryStoryTypeId?: string;
+  secondaryStoryTypeIds?: string[];
+  primaryStoryTrackSlug?: string;
+  secondaryStoryTrackSlugs?: string[];
+  storyTypeIds?: string[];
   storyTypes?: Array<{
     id?: string;
     slug: string;
     titleEn: string;
     titleAr?: string;
     color?: string;
+    accentColor?: string;
   }>;
 }
 
@@ -86,6 +92,7 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
     const trackMap = new Map<string, { slug: string; titleEn: string; titleAr: string; color?: string }>();
 
     features.forEach(f => {
+      // 1. Relational or expanded storyTypes array
       if (Array.isArray(f.storyTypes)) {
         f.storyTypes.forEach(st => {
           if (st && st.slug && !trackMap.has(st.slug)) {
@@ -93,7 +100,28 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               slug: st.slug,
               titleEn: st.titleEn || st.slug,
               titleAr: st.titleAr || st.titleEn || st.slug,
-              color: st.color || '#10b981'
+              color: st.accentColor || st.color || '#10b981'
+            });
+          }
+        });
+      }
+      // 2. Direct slug fields
+      if (f.primaryStoryTrackSlug && !trackMap.has(f.primaryStoryTrackSlug)) {
+        trackMap.set(f.primaryStoryTrackSlug, {
+          slug: f.primaryStoryTrackSlug,
+          titleEn: f.primaryStoryTrackSlug.toUpperCase(),
+          titleAr: f.primaryStoryTrackSlug,
+          color: '#8b5cf6'
+        });
+      }
+      if (Array.isArray(f.secondaryStoryTrackSlugs)) {
+        f.secondaryStoryTrackSlugs.forEach((slug: string) => {
+          if (slug && !trackMap.has(slug)) {
+            trackMap.set(slug, {
+              slug,
+              titleEn: slug.toUpperCase(),
+              titleAr: slug,
+              color: '#3b82f6'
             });
           }
         });
@@ -109,7 +137,11 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
 
     return features.filter(f => {
       const types = f.storyTypes || [];
-      return types.some(st => st.slug === selectedTrackSlug);
+      const hasInTypes = types.some(st => st.slug === selectedTrackSlug);
+      const hasInPrimary = f.primaryStoryTrackSlug === selectedTrackSlug || f.primaryStoryTypeId === selectedTrackSlug;
+      const hasInSecondary = Array.isArray(f.secondaryStoryTrackSlugs) && f.secondaryStoryTrackSlugs.includes(selectedTrackSlug);
+      const hasInIds = Array.isArray(f.storyTypeIds) && f.storyTypeIds.includes(selectedTrackSlug);
+      return hasInTypes || hasInPrimary || hasInSecondary || hasInIds;
     });
   }, [features, selectedTrackSlug]);
 
@@ -269,7 +301,8 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               const formattedTitle = formatLocalizedText(titleVal, locale);
               const formattedDesc = formatLocalizedText(descVal, locale);
               const highlightType = feature.highlightType || "ACTIVITY";
-              const primaryTrack = feature.storyTypes?.[0];
+              const primaryTrack = feature.storyTypes?.[0] || (feature.primaryStoryTrackSlug ? { slug: feature.primaryStoryTrackSlug, titleEn: feature.primaryStoryTrackSlug } : null);
+              const secondaryTracks = (feature.storyTypes?.slice(1) || (Array.isArray(feature.secondaryStoryTrackSlugs) ? feature.secondaryStoryTrackSlugs.map((s: string) => ({ slug: s, titleEn: s })) : [])).slice(0, 2);
 
               return (
                 <motion.div
@@ -285,8 +318,8 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
                   ) : null}
 
                   <div className="relative z-10 flex-1 flex flex-col justify-between space-y-8">
-                    {/* Header Icon, Highlight Badge & Story Track Badge */}
-                    <div className="flex items-center justify-between gap-3">
+                    {/* Header Icon, Highlight Badge & Story Track Badges */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="p-3 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 transition-all duration-500 ease-out shadow-sm">
                         {feature.iconUrl ? (
                           <img src={feature.iconUrl} alt={formattedTitle} className="w-5 h-5 object-contain" />
@@ -295,15 +328,27 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {/* Primary Story Track Badge */}
                         {primaryTrack && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300 shadow-sm">
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryTrack.color || '#a855f7' }} />
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 border border-purple-500/40 text-purple-600 dark:text-purple-300 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: (primaryTrack as any).color || (primaryTrack as any).accentColor || '#a855f7' }} />
                             <span>{getStoryTrackLabel(primaryTrack, isAr)}</span>
                           </span>
                         )}
 
-                        <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--surface-hover)] border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 shadow-sm">
+                        {/* Secondary Supporting Track Chips (Max 2) */}
+                        {secondaryTracks.map((st: any, sIdx: number) => (
+                          <span
+                            key={st.slug || sIdx}
+                            className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-mono bg-purple-500/10 text-purple-600 dark:text-purple-300/80 border border-purple-500/20"
+                          >
+                            {getStoryTrackLabel(st, isAr)}
+                          </span>
+                        ))}
+
+                        {/* Activity Type Badge */}
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--surface-hover)] border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 shadow-sm">
                           {getActivityTypeLabel(highlightType, isAr)}
                         </span>
                       </div>

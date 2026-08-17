@@ -109,6 +109,17 @@ export async function POST(request: Request) {
     })) : []
 
     const attraction = await db.$transaction(async (tx: any) => {
+      const { 
+        nameEn, nameAr, slug, descriptionEn, descriptionAr, 
+        taglineEn, taglineAr, mapUrl, ticketingUrl, logoUrl,
+        heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
+        motionPreset, motionIntensity, heroSceneType, particleDensity,
+        isPublished, isFeatured, isHidden, isB2bVisible,
+        entityType, experienceFormat, accessModel, durationModel, environment, eventDetails,
+        features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
+        pricing, faqs, socialLinks, gallery, seo
+      } = body
+
       const attraction = await tx.attraction.create({
         data: {
           nameEn: cleanNameEn,
@@ -128,6 +139,13 @@ export async function POST(request: Request) {
           isPublished: isPublished !== undefined ? Boolean(isPublished) : true,
           isFeatured: Boolean(isFeatured),
           isHidden: Boolean(isHidden),
+          isB2bVisible: isB2bVisible !== false,
+          entityType: entityType || "ATTRACTION",
+          experienceFormat: experienceFormat || "PERMANENT_FEC",
+          accessModel: accessModel || "PAID",
+          durationModel: durationModel || "PERMANENT",
+          environment: environment || "INDOOR",
+          eventDetails: eventDetails || null,
           features: Array.isArray(features) ? features : [],
           partnerOffers: Array.isArray(partnerOffers) ? partnerOffers : [],
           partners: Array.isArray(partners) ? partners : [],

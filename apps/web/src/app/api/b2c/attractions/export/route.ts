@@ -39,6 +39,11 @@ export async function GET(request: Request) {
       slug: a.slug,
       nameEn: a.nameEn,
       nameAr: a.nameAr,
+      entityType: a.entityType || "ATTRACTION",
+      experienceFormat: a.experienceFormat || "PERMANENT_FEC",
+      accessModel: a.accessModel || "PAID",
+      durationModel: a.durationModel || "PERMANENT",
+      environment: a.environment || "INDOOR",
       taglineEn: a.taglineEn || "",
       taglineAr: a.taglineAr || "",
       descriptionEn: a.descriptionEn || "",
@@ -54,6 +59,11 @@ export async function GET(request: Request) {
         slug: "sample-attraction",
         nameEn: "Sample Entertainment Center",
         nameAr: "مركز ترفيهي تجريبي",
+        entityType: "ATTRACTION",
+        experienceFormat: "PERMANENT_FEC",
+        accessModel: "PAID",
+        durationModel: "PERMANENT",
+        environment: "INDOOR",
         taglineEn: "Next-Gen Mixed Reality Arena",
         taglineAr: "ساحة التحديات التفاعلية",
         descriptionEn: "Experience high-energy games and simulators.",
@@ -97,23 +107,37 @@ export async function GET(request: Request) {
     XLSX.utils.book_append_sheet(workbook, wsLocations, "Locations")
 
     // 3. Activities Sheet
-    const activitiesData = attractions.flatMap((a: any) => (a.featuresList || []).map((f: any) => ({
-      attractionSlug: a.slug,
-      titleEn: f.titleEn,
-      titleAr: f.titleAr,
-      contentType: f.highlightType || "ACTIVITY",
-      primaryStoryTrack: f.storyTypes?.[0]?.slug || "explore",
-      descriptionEn: f.descriptionEn || "",
-      descriptionAr: f.descriptionAr || "",
-      imageUrl: f.imageUrl || ""
-    })))
+    const activitiesData = attractions.flatMap((a: any) => (a.featuresList || []).map((f: any) => {
+      const primaryTrack = f.storyTypes?.[0]?.slug || "explore"
+      const secondaryTracks = (f.storyTypes?.slice(1) || []).map((st: any) => st.slug).join("; ")
+      return {
+        attractionSlug: a.slug,
+        titleEn: f.titleEn,
+        titleAr: f.titleAr,
+        contentType: f.highlightType || "ACTIVITY",
+        primaryStoryTrackSlug: primaryTrack,
+        secondaryStoryTrackSlugs: secondaryTracks,
+        intensityLevel: f.intensityLevel || "MEDIUM",
+        durationMinutes: f.durationMinutes || "",
+        minAge: f.minAge || "",
+        minHeightCm: f.minHeightCm || "",
+        descriptionEn: f.descriptionEn || "",
+        descriptionAr: f.descriptionAr || "",
+        imageUrl: f.imageUrl || ""
+      }
+    }))
     if (activitiesData.length === 0) {
       activitiesData.push({
         attractionSlug: "sample-attraction",
         titleEn: "AR Racing Simulator",
         titleAr: "محاكي السباق بالواقع المعزز",
         contentType: "ACTIVITY",
-        primaryStoryTrack: "drive",
+        primaryStoryTrackSlug: "drive",
+        secondaryStoryTrackSlugs: "compete; adrenaline",
+        intensityLevel: "HIGH",
+        durationMinutes: 15,
+        minAge: 10,
+        minHeightCm: 130,
         descriptionEn: "High speed electric karting with augmented reality boosts.",
         descriptionAr: "سباقات كارتينغ كهربائية سريعة ومعززة بالتحديات الرقمية.",
         imageUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7"

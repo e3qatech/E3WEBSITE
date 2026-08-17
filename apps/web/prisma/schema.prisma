@@ -146,6 +146,14 @@ model Attraction {
   logoUrl             String?
   seo                 Json?
 
+  // Multi-Purpose Classification (Events, Activations & Venues)
+  entityType          String                   @default("ATTRACTION") // ATTRACTION, EVENT, ACTIVATION, PROGRAMME, VENUE
+  experienceFormat    String                   @default("PERMANENT_FEC") // PERMANENT_FEC, MALL_ANCHOR, SEASONAL_EVENT, TOURING_POPUP, SPORTS_ACTIVATION, FESTIVAL, WORKSHOP_EDU, CORPORATE_PRIVATE, COMMUNITY_PUBLIC, EXHIBITION_ZONE, CUSTOM
+  accessModel         String                   @default("PAID") // FREE, PAID, REGISTRATION_REQUIRED, INVITE_ONLY, MIXED
+  durationModel       String                   @default("PERMANENT") // PERMANENT, SINGLE_DAY, MULTI_DAY, RECURRING, SEASONAL
+  environment         String                   @default("INDOOR") // INDOOR, OUTDOOR, HYBRID
+  eventDetails        Json?
+
   // B2B Portfolio & Case Study Extensions
   isB2bVisible        Boolean                  @default(true)
   b2bCategory         String?
@@ -894,18 +902,25 @@ model AttractionFeature {
   attraction    Attraction  @relation(fields: [attractionId], references: [id], onDelete: Cascade)
   storyTypes    StoryType[]
 
-  iconUrl       String?
-  highlightType String     @default("ACTIVITY")
-  linkedBrandId String?
-  linkedBrand   BrandIP?   @relation(fields: [linkedBrandId], references: [id])
-  showBrandLogo Boolean    @default(false)
-  logoVariant   String     @default("AUTO")
-  ctaLabelEn    String?
-  ctaLabelAr    String?
-  ctaUrl        String?
-  startDate     DateTime?
-  endDate       DateTime?
-  availableAt   Location[]
+  iconUrl               String?
+  highlightType         String     @default("ACTIVITY")
+  primaryStoryTypeId    String?
+  secondaryStoryTypeIds Json?
+  intensityLevel        String?    @default("MEDIUM")
+  durationMinutes       Int?
+  minAge                Int?
+  minHeightCm           Int?
+  targetAudience        Json?
+  linkedBrandId         String?
+  linkedBrand           BrandIP?   @relation(fields: [linkedBrandId], references: [id])
+  showBrandLogo         Boolean    @default(false)
+  logoVariant           String     @default("AUTO")
+  ctaLabelEn            String?
+  ctaLabelAr            String?
+  ctaUrl                String?
+  startDate             DateTime?
+  endDate               DateTime?
+  availableAt           Location[]
 
   @@index([attractionId])
 }
@@ -1170,6 +1185,32 @@ model Insight {
   @@index([featured])
 }
 
+model PackageCategory {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  nameEn        String
+  nameAr        String
+  descriptionEn String?
+  descriptionAr String?
+  icon          String?
+  coverMediaUrl String?
+  theme         String?
+  audience      String?
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  isFeatured    Boolean   @default(false)
+  startDate     DateTime?
+  endDate       DateTime?
+  seo           Json?
+  packages      Package[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
 model Package {
   id                 String  @id @default(cuid())
   slug               String  @unique
@@ -1182,8 +1223,8 @@ model Package {
   shortDescriptionAr String?
   fullDescriptionEn  String?
   fullDescriptionAr  String?
-  category           String  @default("BIRTHDAY") // BIRTHDAY, GROUP, SCHOOL, CORPORATE, PRIVATE_EVENT, CUSTOM
-  audienceType       String  @default("KIDS") // KIDS, TEENS, ADULTS, FAMILIES, CORPORATE, ALL_AGES
+  category           String  @default("BIRTHDAY") // Legacy/Fallback category string
+  audienceType       String  @default("KIDS")
   coverMediaUrl      String?
   heroMediaUrl       String?
   heroMediaType      String  @default("IMAGE")
@@ -1203,15 +1244,52 @@ model Package {
   bookingType        String  @default("ENQUIRY_REQUIRED") // ENQUIRY_REQUIRED, INSTANT_BOOKING
   bookingQubeUrl     String?
 
-  // Relations
-  attractionId String?
-  attraction   Attraction? @relation(fields: [attractionId], references: [id])
-  brandId      String?
-  brand        BrandIP?    @relation(fields: [brandId], references: [id])
-  locationId   String?
-  location     Location?   @relation(fields: [locationId], references: [id])
+  // Package Studio & Lifecycle additions
+  packageType        String  @default("READY_TO_BOOK") // READY_TO_BOOK, REQUEST_A_QUOTE, SEASONAL, CAMP_COURSE, CORPORATE, SCHOOL, GROUP, EVENT, CUSTOM_TEMPLATE
+  status             String  @default("PUBLISHED") // DRAFT, IN_REVIEW, SCHEDULED, PUBLISHED, PAUSED, SOLD_OUT, EXPIRED, ARCHIVED
+  isTemplate         Boolean @default(false)
+  templateType       String?
+  templateCategory   String?
+  audienceTypes      Json?   // String[]
+  targetAudienceEn   String?
+  targetAudienceAr   String?
+  minAge             Int?
+  maxAge             Int?
+  childrenAllowed    Boolean @default(true)
+  adultsAllowed      Boolean @default(true)
+  isPopular          Boolean @default(false)
+  isNew              Boolean @default(false)
+  isSeasonal         Boolean @default(false)
+  isLimited          Boolean @default(false)
+  tags               Json?   // String[]
+  internalNotes      String?
+  internalCost       Float?
+  estimatedMargin    Float?
+  depositRequired    Boolean @default(false)
+  depositType        String? // FIXED, PERCENTAGE
+  depositAmount      Float?
+  includedGuestCount Int?
+  extraGuestPrice    Float?
+  operatingDays      Json?   // ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+  bookingNoticeHours Int     @default(24)
+  cutoffTime         String?
+  availableFrom      DateTime?
+  availableTo        DateTime?
+  blackoutDates      Json?   // String[] ISO dates
+  capacityPerSlot    Int?
+  waitingListEnabled Boolean @default(false)
 
-  // Complex repeaters stored as JSON
+  // Relations
+  categoryId   String?
+  categoryRel  PackageCategory? @relation(fields: [categoryId], references: [id])
+  attractionId String?
+  attraction   Attraction?      @relation(fields: [attractionId], references: [id])
+  brandId      String?
+  brand        BrandIP?         @relation(fields: [brandId], references: [id])
+  locationId   String?
+  location     Location?        @relation(fields: [locationId], references: [id])
+
+  // Complex repeaters stored as JSON (preserved for flexibility & fast read)
   tiers           Json?
   inclusions      Json?
   addOns          Json?
@@ -1228,18 +1306,22 @@ model Package {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  leads PackageLead[]
+  leads       PackageLead[]
+  quotations  PackageQuotation[]
 
   @@index([category])
+  @@index([categoryId])
   @@index([isPublished])
   @@index([isFeatured])
   @@index([attractionId])
+  @@index([status])
+  @@index([isTemplate])
 }
 
 model PackageLead {
   id       String @id @default(cuid())
   leadId   String @unique @default(cuid())
-  leadType String @default("BIRTHDAY") // BIRTHDAY, GROUP_SCHOOL, CORPORATE, GENERAL
+  leadType String @default("BIRTHDAY") // BIRTHDAY, GROUP_SCHOOL, CORPORATE, GENERAL, CUSTOM
 
   // Contact Info
   customerName  String
@@ -1258,6 +1340,7 @@ model PackageLead {
   expectedGuests    Int       @default(10)
   expectedChildren  Int?
   expectedAdults    Int?
+  budgetRange       String?
   estimatedValue    Float?
 
   // Package Selection
@@ -1266,6 +1349,7 @@ model PackageLead {
   selectedTierId   String?
   selectedTierName String?
   selectedAddOns   Json?
+  customSelections Json?
 
   // Requirements & Notes
   themePreference      String?
@@ -1275,14 +1359,19 @@ model PackageLead {
   attachments          Json?
 
   // Status & Tracking
-  status        String  @default("NEW") // NEW, CONTACTED, QUALIFIED, AVAILABILITY_CHECK, QUOTATION_SENT, NEGOTIATION, DEPOSIT_PENDING, CONFIRMED, COMPLETED, LOST, SPAM
+  status        String  @default("NEW") // NEW, CONTACTED, QUALIFIED, AVAILABILITY_CHECK, QUOTATION_SENT, NEGOTIATION, DEPOSIT_PENDING, CONFIRMED, COMPLETED, WON, LOST, ON_HOLD, SPAM, ARCHIVED
   priority      String  @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
   assignedToId  String?
   assignedTo    User?   @relation(fields: [assignedToId], references: [id])
   internalNotes Json?
+  tasks         Json?
+  activityLog   Json?
   sourcePage    String?
   utmSource     String?
+  utmMedium     String?
   utmCampaign   String?
+  couponCode    String?
+  referralCode  String?
   locale        String  @default("en")
 
   // Legal Consents
@@ -1290,12 +1379,197 @@ model PackageLead {
   termsAccepted    Boolean  @default(true)
   termsAcceptedAt  DateTime @default(now())
 
+  quotations PackageQuotation[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([leadType])
   @@index([packageId])
+  @@index([assignedToId])
+}
+
+model PackagePromotion {
+  id                 String    @id @default(cuid())
+  name               String
+  code               String?   @unique
+  labelEn            String
+  labelAr            String
+  discountType       String    @default("PERCENTAGE") // PERCENTAGE, FIXED, EARLY_BIRD, GROUP_SIZE, SEASONAL
+  discountValue      Float     @default(0)
+  maxDiscount        Float?
+  minSpend           Float?
+  minGuests          Int?
+  applicableCategories Json?   // String[]
+  applicablePackages   Json?   // String[] package IDs
+  validFrom          DateTime?
+  validTo            DateTime?
+  daysOfWeek         Json?     // String[]
+  usageLimit         Int?
+  perUserLimit       Int?      @default(1)
+  isStackable        Boolean   @default(false)
+  isAutomatic        Boolean   @default(false)
+  isActive           Boolean   @default(true)
+  priority           Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  coupons            Coupon[]
+
+  @@index([isActive])
+  @@index([code])
+}
+
+model Coupon {
+  id                String            @id @default(cuid())
+  code              String            @unique
+  promotionId       String?
+  promotion         PackagePromotion? @relation(fields: [promotionId], references: [id])
+  description       String?
+  status            String            @default("ACTIVE") // ACTIVE, PAUSED, EXPIRED
+  validFrom         DateTime?
+  validTo           DateTime?
+  usageLimit        Int?
+  perUserLimit      Int?              @default(1)
+  minSpend          Float?
+  usedCount         Int               @default(0)
+  discountDelivered Float             @default(0)
+  utmSource         String?
+  utmCampaign       String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  usages            CouponUsage[]
+
+  @@index([code])
+  @@index([status])
+}
+
+model CouponUsage {
+  id             String    @id @default(cuid())
+  couponId       String
+  coupon         Coupon    @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  leadId         String?
+  quotationId    String?
+  discountAmount Float     @default(0)
+  contactEmail   String?
+  usedAt         DateTime  @default(now())
+
+  @@index([couponId])
+  @@index([leadId])
+}
+
+model ReferralProgramme {
+  id                     String         @id @default(cuid())
+  name                   String
+  ownerType              String         @default("CUSTOMER") // CUSTOMER, STAFF, CORPORATE, SCHOOL, VENUE_PARTNER, MARKETING
+  rewardType             String         @default("DISCOUNT") // DISCOUNT, CASH, COMMISSION, COMPLIMENTARY_PASS
+  referrerReward         String?
+  referredCustomerReward String?
+  applicablePackages     Json?          // String[]
+  validFrom              DateTime?
+  validTo                DateTime?
+  usageLimit             Int?
+  status                 String         @default("ACTIVE") // ACTIVE, PAUSED, CLOSED
+  notes                  String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  codes                  ReferralCode[]
+
+  @@index([status])
+}
+
+model ReferralCode {
+  id              String            @id @default(cuid())
+  programmeId     String
+  programme       ReferralProgramme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  code            String            @unique
+  ownerName       String
+  ownerEmail      String?
+  ownerPhone      String?
+  status          String            @default("ACTIVE") // ACTIVE, PAUSED, EXPIRED
+  usedCount       Int               @default(0)
+  leadsGenerated  Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([code])
+  @@index([status])
+  @@index([programmeId])
+}
+
+model LeadFormTemplate {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  nameEn        String
+  nameAr        String
+  descriptionEn String?
+  descriptionAr String?
+  formType      String    @default("GENERAL") // GENERAL, BIRTHDAY, SCHOOL, GROUP, CAMP, CORPORATE, EVENT, CUSTOM, CALL_BACK
+  fields        Json?     // FormFieldDefinition[]
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model PackageQuotation {
+  id              String          @id @default(cuid())
+  quoteNumber     String          @unique
+  version         Int             @default(1)
+  leadId          String?
+  lead            PackageLead?    @relation(fields: [leadId], references: [id])
+  packageId       String?
+  package         Package?        @relation(fields: [packageId], references: [id])
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  companyOrOrg    String?
+  eventDate       DateTime?
+  validUntil      DateTime?
+  currency        String          @default("QAR")
+  subtotal        Float           @default(0)
+  discountTotal   Float           @default(0)
+  taxTotal        Float           @default(0)
+  grandTotal      Float           @default(0)
+  depositAmount   Float           @default(0)
+  paymentSchedule Json?
+  termsEn         String?
+  termsAr         String?
+  customerNotes   String?
+  internalNotes   String?
+  status          String          @default("DRAFT") // DRAFT, INTERNAL_REVIEW, APPROVED, SENT, VIEWED, ACCEPTED, REJECTED, EXPIRED, REVISED, CANCELLED
+  sentAt          DateTime?
+  acceptedAt      DateTime?
+  rejectedAt      DateTime?
+  createdById     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  items           QuotationItem[]
+
+  @@index([quoteNumber])
+  @@index([status])
+  @@index([leadId])
+  @@index([packageId])
+}
+
+model QuotationItem {
+  id            String           @id @default(cuid())
+  quotationId   String
+  quotation     PackageQuotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  itemType      String           @default("PACKAGE_TIER") // PACKAGE_TIER, ADDON, SERVICE, CUSTOM, DISCOUNT
+  titleEn       String
+  titleAr       String?
+  descriptionEn String?
+  descriptionAr String?
+  quantity      Int              @default(1)
+  unitPrice     Float            @default(0)
+  totalPrice    Float            @default(0)
+  sortOrder     Int              @default(0)
+
+  @@index([quotationId])
 }
 
 // ============================================================================
@@ -1721,3 +1995,30 @@ model SocialSyncLock {
   @@index([lockedUntil])
   @@index([accountId])
 }
+
+model ImportJob {
+  id               String    @id @default(cuid())
+  batchNumber      String    @unique
+  fileName         String
+  fileType         String    @default("SPREADSHEET") // SPREADSHEET, DOCUMENT, MEDIA_ZIP, JSON
+  intakeMethod     String    @default("SPREADSHEET") // SMART_DOC, SPREADSHEET, EXPORT_EDIT, BULK_MEDIA
+  targetType       String    @default("ATTRACTIONS") // ATTRACTIONS, EVENTS, PACKAGES, CASE_STUDIES
+  uploadedBy       String?   @default("Admin")
+  recordsCreated   Int       @default(0)
+  recordsUpdated   Int       @default(0)
+  recordsSkipped   Int       @default(0)
+  warningsCount    Int       @default(0)
+  errorsCount      Int       @default(0)
+  status           String    @default("DRAFT_READY") // DRAFT_READY, APPLIED, ROLLED_BACK, FAILED
+  appliedRecordIds Json?    // Array of created/updated record IDs for rollback
+  snapshotData     Json?     // Pre-import snapshots of modified records for rollback
+  errorReport      Json?     // Array of rejected rows / errors
+  metadata         Json?     // Custom mapping details
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([status])
+  @@index([targetType])
+  @@index([createdAt])
+}
+
