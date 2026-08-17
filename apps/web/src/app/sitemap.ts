@@ -46,18 +46,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 3. Map Dynamic Routes to Sitemap
     const dynamicRoutes: MetadataRoute.Sitemap = [
-      ...attractions.map((item: any) => ({
-        url: `${baseUrl}/b2c/attractions/${item.slug}`,
-        lastModified: item.updatedAt,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-        alternates: {
-          languages: {
-            en: `${baseUrl}/en/b2c/attractions/${item.slug}`,
-            ar: `${baseUrl}/ar/b2c/attractions/${item.slug}`,
+      ...attractions.map((item: any) => {
+        const canonicalSlug = item.slug === 'urban-arena-doha-mall' ? 'urban-arena' : item.slug
+        return {
+          url: `${baseUrl}/en/b2c/attractions/${canonicalSlug}`,
+          lastModified: item.updatedAt,
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+          alternates: {
+            languages: {
+              en: `${baseUrl}/en/b2c/attractions/${canonicalSlug}`,
+              ar: `${baseUrl}/ar/b2c/attractions/${canonicalSlug}`,
+              'x-default': `${baseUrl}/en/b2c/attractions/${canonicalSlug}`,
+            },
           },
-        },
-      })),
+        }
+      }),
       ...services.map((item: any) => ({
         url: `${baseUrl}/b2b/services/${item.slug}`,
         lastModified: item.updatedAt,

@@ -55,7 +55,13 @@ export async function GET() {
       teamMembers = [];
     }
 
-    const attractionUrls = attractions.map((a) => `/en/b2c/attractions/${a.slug}`);
+    const attractionUrls = attractions.flatMap((a) => {
+      const canonicalSlug = a.slug === 'urban-arena-doha-mall' ? 'urban-arena' : a.slug
+      return [
+        `/en/b2c/attractions/${canonicalSlug}`,
+        `/ar/b2c/attractions/${canonicalSlug}`,
+      ]
+    });
     const teamUrls = teamMembers.flatMap((m) => [
       `/en/b2b/team/${m.slug}`,
       `/ar/b2b/team/${m.slug}`,

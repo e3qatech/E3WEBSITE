@@ -154,7 +154,11 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   // Stage 1: Identity & Brand
   const [nameEn, setNameEn] = useState(initialData?.nameEn || "")
   const [nameAr, setNameAr] = useState(initialData?.nameAr || "")
-  const [slug, setSlug] = useState(initialData?.slug || "")
+  const [slug, setSlug] = useState(
+    initialData?.slug === 'urban-arena-doha-mall'
+      ? 'urban-arena'
+      : (initialData?.slug || (initialData?.nameEn === 'Urban Arena' ? 'urban-arena' : ""))
+  )
   const [taglineEn, setTaglineEn] = useState(initialData?.taglineEn || "")
   const [taglineAr, setTaglineAr] = useState(initialData?.taglineAr || "")
   const [descriptionEn, setDescriptionEn] = useState(initialData?.descriptionEn || "")
@@ -1820,13 +1824,13 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                 {/* Public Link */}
                 {slug && (
                   <a
-                    href={`/en/b2c/attractions/${slug}`}
+                    href={`/${locale}/b2c/attractions/${slug === 'urban-arena-doha-mall' ? 'urban-arena' : slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full py-2.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                   >
                     <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Open Live Attraction</span>
+                    <span>{isAr ? "فتح الوجهة المباشرة" : "Open Live Attraction"}</span>
                   </a>
                 )}
               </div>

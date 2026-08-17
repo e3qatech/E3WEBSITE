@@ -201,26 +201,58 @@ async function getAttractionData(slug: string) {
 
 export async function generateMetadata(props: { params: Promise<{ slug: string, locale: string }> }): Promise<Metadata> {
   const params = await props.params
-  const baseSlugKey = (params.slug || "").split('-')[0] || params.slug;
+  const { slug, locale } = params
+  const canonicalSlug = slug === "urban-arena-doha-mall" ? "urban-arena" : slug
+  const baseSlugKey = (canonicalSlug || "").split('-')[0] || canonicalSlug
+
   const attraction = await db.attraction.findFirst({
     where: {
       OR: [
-        { slug: params.slug },
-        { slug: { startsWith: params.slug } },
+        { slug: canonicalSlug },
+        { slug: slug },
+        { slug: { startsWith: canonicalSlug } },
         { slug: { contains: baseSlugKey, mode: 'insensitive' } }
       ]
     },
-    select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true }
+    select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true, slug: true, heroMediaUrl: true }
   })
   
-  if (!attraction) return { title: "Attraction Not Found" }
+  if (!attraction) return { title: "Attraction Not Found | E3 Qatar" }
 
-  const displayName = params.locale === "ar" ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr)
-  const displayDesc = params.locale === "ar" ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr)
+  const trueSlug = attraction.slug === "urban-arena-doha-mall" ? "urban-arena" : (attraction.slug || canonicalSlug)
+  const displayName = locale === "ar" ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr)
+  const displayDesc = locale === "ar" ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr)
+
+  const enCanonical = `https://e3.qa/en/b2c/attractions/${trueSlug}`
+  const arCanonical = `https://e3.qa/ar/b2c/attractions/${trueSlug}`
+  const currentCanonical = locale === "ar" ? arCanonical : enCanonical
 
   return {
     title: `${displayName || "Attraction"} | E3 Qatar`,
     description: displayDesc || "",
+    alternates: {
+      canonical: currentCanonical,
+      languages: {
+        en: enCanonical,
+        ar: arCanonical,
+        "x-default": enCanonical,
+      },
+    },
+    openGraph: {
+      title: `${displayName || "Attraction"} | E3 Qatar`,
+      description: displayDesc || "",
+      url: currentCanonical,
+      siteName: "E3 Qatar",
+      locale: locale === "ar" ? "ar_QA" : "en_US",
+      type: "website",
+      images: attraction.heroMediaUrl ? [{ url: attraction.heroMediaUrl }] : undefined
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${displayName || "Attraction"} | E3 Qatar`,
+      description: displayDesc || "",
+      images: attraction.heroMediaUrl ? [attraction.heroMediaUrl] : undefined
+    }
   }
 }
 

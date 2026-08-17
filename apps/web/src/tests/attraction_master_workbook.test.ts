@@ -135,7 +135,26 @@ vi.mock('../lib/db', () => {
           return Promise.resolve({ id: `st-${where.slug}`, slug: where.slug, titleEn: where.slug, titleAr: where.slug })
         }),
         create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: `st-${data.slug}`, ...data }))
-      }
+      },
+      $transaction: vi.fn().mockImplementation(async (cb: any) => {
+        return cb({
+          attraction: {
+            findUnique: vi.fn().mockImplementation(({ where }) => {
+              if (where?.id === 'cmqy7l8iq000gxxg441lib86l' || where?.slug === 'urban-arena') {
+                return Promise.resolve(mockAttraction)
+              }
+              return Promise.resolve(null)
+            }),
+            findFirst: vi.fn().mockImplementation(({ where }) => {
+              if (where?.slug === 'urban-arena' || where?.id === 'cmqy7l8iq000gxxg441lib86l') {
+                return Promise.resolve(mockAttraction)
+              }
+              return Promise.resolve(null)
+            }),
+            update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ ...mockAttraction, ...data }))
+          }
+        })
+      })
     }
   }
 })
