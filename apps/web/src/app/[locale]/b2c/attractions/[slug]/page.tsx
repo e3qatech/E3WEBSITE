@@ -284,7 +284,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         status={attraction.isFeatured ? (locale === 'ar' ? "تجربة متميزة" : "Featured Experience") : undefined}
         logoUrl={attraction.logoUrl}
         ctaText={locale === 'ar' ? "احجز التذاكر" : "Get Tickets"}
-        ctaLink={resolveBookingUrl(attraction, locale)}
+        ctaLink={resolveBookingUrl({ ...attraction, slug: params.slug || attraction.slug }, locale)}
         motionPreset={(attraction as any).motionPreset || "MEDIA_CINEMATIC"}
         rotatingWordsEn={(attraction as any).rotatingWordsEn || (attraction as any).rotatingPhrasesEn || []}
         rotatingWordsAr={(attraction as any).rotatingWordsAr || (attraction as any).rotatingPhrasesAr || []}

@@ -154,15 +154,17 @@ export function resolveBookingUrl(attraction: any, locale: string = 'en'): strin
     return rawUrl.startsWith('/') ? `/${locale}${rawUrl}` : `/${locale}/${rawUrl}`
   }
 
+  const canonicalSlug = (attraction?.slug === 'urban-arena-doha-mall' ? 'urban-arena' : attraction?.slug) || 'urban-arena'
+
   if (mode === 'INTERNAL_ROUTE' || !attraction?.bookingMode) {
-    return `/${locale}/b2c/attractions/${attraction?.slug || 'urban-arena'}#pricing`
+    return `/${locale}/b2c/attractions/${canonicalSlug}#pricing`
   }
 
   if (mode === 'CONTACT') {
     return `/${locale}/b2c/contact?subject=${encodeURIComponent(attraction?.nameEn || 'Booking Inquiry')}`
   }
 
-  return `/${locale}/b2c/tickets?attraction=${encodeURIComponent(attraction?.slug || attraction?.id || '')}`
+  return `/${locale}/b2c/tickets?attraction=${encodeURIComponent(canonicalSlug || attraction?.id || '')}`
 }
 
 /**
