@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { repairUrbanArenaCanonicalSlug } from "@/lib/canonical-urban-arena-repair"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     const result = await repairUrbanArenaCanonicalSlug()
