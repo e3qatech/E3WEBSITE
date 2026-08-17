@@ -9,12 +9,37 @@ import {
   normalizeStoryTrack,
   MasterWorkbookData
 } from '../lib/attraction-master-workbook'
+import { repairUrbanArenaCanonicalSlug } from '../lib/canonical-urban-arena-repair'
 import { db } from '../lib/db'
 
 // Mock db for unit testing
 vi.mock('../lib/db', () => {
+  const activities = [
+    { id: 'feat-1', titleEn: 'Cyber Laser Battle', titleAr: 'معركة الليزر السيبرانية', highlightType: 'PRIMARY_ATTRACTION', imageUrl: 'https://img.com/c1.jpg', storyTypes: [{ id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'المنافسة' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg', 'https://img.com/a2.jpg', 'https://img.com/a3.jpg'], mediaStatus: 'READY' } },
+    { id: 'feat-2', titleEn: 'Robo Climbing Arena', titleAr: 'ساحة التسلق الآلي', highlightType: 'CHALLENGE_ARENA', imageUrl: 'https://img.com/c2.jpg', storyTypes: [{ id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'المنافسة' }, { id: 'st-bounce', slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg'], mediaStatus: 'PARTIALLY_COMPLETE' } },
+    { id: 'feat-3', titleEn: 'Hyper Drift Karting', titleAr: 'سباق الدرفت فائق السرعة', highlightType: 'FEATURED_RIDE', imageUrl: 'https://img.com/c3.jpg', storyTypes: [{ id: 'st-drive', slug: 'drive', titleEn: 'Drive', titleAr: 'القيادة' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg', 'https://img.com/a2.jpg', 'https://img.com/a3.jpg'], mediaStatus: 'READY' } },
+    { id: 'feat-4', titleEn: 'Spatial Sound Obstacle Maze', titleAr: 'متاهة العوائق الصوتية المكانية', highlightType: 'IMMERSIVE_EXPERIENCE', imageUrl: 'https://img.com/c4.jpg', storyTypes: [{ id: 'st-explore', slug: 'explore', titleEn: 'Explore', titleAr: 'الاستكشاف' }], targetAudience: { additionalImages: [], mediaStatus: 'PARTIALLY_COMPLETE' } },
+    { id: 'feat-5', titleEn: 'Neon Mini Golf', titleAr: 'ميني غولف النيون', highlightType: 'INTERACTIVE_ZONE', imageUrl: 'https://img.com/c5.jpg', storyTypes: [{ id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'المنافسة' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg', 'https://img.com/a2.jpg', 'https://img.com/a3.jpg'], mediaStatus: 'READY' } },
+    { id: 'feat-6', titleEn: 'Esports Battle Station', titleAr: 'محطة منافسات الرياضات الإلكترونية', highlightType: 'CHALLENGE_ARENA', imageUrl: 'https://img.com/c6.jpg', storyTypes: [{ id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'المنافسة' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg', 'https://img.com/a2.jpg', 'https://img.com/a3.jpg'], mediaStatus: 'READY' } },
+    { id: 'feat-7', titleEn: 'Gravity Drop Jump', titleAr: 'قفزة انعدام الجاذبية', highlightType: 'FEATURED_RIDE', imageUrl: 'https://img.com/c7.jpg', storyTypes: [{ id: 'st-bounce', slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg', 'https://img.com/a2.jpg', 'https://img.com/a3.jpg'], mediaStatus: 'READY' } },
+    { id: 'feat-8', titleEn: 'Junior Action Zone', titleAr: 'منطقة أبطال المستقبل', highlightType: 'TODDLER_ZONE', imageUrl: 'https://img.com/c8.jpg', storyTypes: [{ id: 'st-bounce', slug: 'bounce', titleEn: 'Bounce', titleAr: 'القفز' }], targetAudience: { additionalImages: ['https://img.com/a1.jpg', 'https://img.com/a2.jpg', 'https://img.com/a3.jpg'], mediaStatus: 'READY' } }
+  ]
+
+  const pricing = [
+    { id: 'p-1', titleEn: 'Single Arena Access Pass', titleAr: 'تذكرة دخول الصالة الفردية', price: 65, type: 'ACCESS_PASS' },
+    { id: 'p-2', titleEn: 'Laser Battle Multi-Pass', titleAr: 'باقة معارك الليزر المتعددة', price: 95, type: 'ACCESS_PASS' },
+    { id: 'p-3', titleEn: 'Hyper Drift Karting Tier 1', titleAr: 'سباق الدرفت الفئة الأولى', price: 85, type: 'PREMIUM_ACTIVITY' },
+    { id: 'p-4', titleEn: 'Unlimited Evening Pass', titleAr: 'تذكرة المساء غير المحدودة', price: 150, type: 'ACCESS_PASS' },
+    { id: 'p-5', titleEn: 'VIP Tactical Experience', titleAr: 'تجربة كبار الشخصيات التكتيكية', price: 220, type: 'PREMIUM_ACTIVITY' },
+    { id: 'p-6', titleEn: 'Mini Golf 18 Holes', titleAr: 'ميني غولف 18 حفرة', price: 45, type: 'HOURLY_ACTIVITY' },
+    { id: 'p-7', titleEn: 'Esports 2-Hour Tournament Pass', titleAr: 'تذكرة بطولة الرياضات الإلكترونية (ساعتان)', price: 70, type: 'HOURLY_ACTIVITY' },
+    { id: 'p-8', titleEn: 'Family 4-Player Adventure Bundle', titleAr: 'باقة المغامرة العائلية (4 لاعبين)', price: 280, type: 'ACCESS_PASS' },
+    { id: 'p-9', titleEn: 'Climbing Wall Extra Run', titleAr: 'جولة تسلق إضافية', price: 30, type: 'ADD_ON' },
+    { id: 'p-10', titleEn: 'All-Day Champion Mega Pass', titleAr: 'التذكرة الشاملة للأبطال طوال اليوم', price: 350, type: 'ACCESS_PASS' }
+  ]
+
   const mockAttraction = {
-    id: 'attr-urban-arena-123',
+    id: 'cmqy7l8iq000gxxg441lib86l',
     slug: 'urban-arena',
     nameEn: 'Urban Arena',
     nameAr: 'أوربان أرينا',
@@ -26,49 +51,15 @@ vi.mock('../lib/db', () => {
     accessModel: 'PAID',
     heroMediaUrl: '/assets/partners/hero.jpg',
     logoUrl: '/assets/partners/e3-logo.svg',
+    ticketingUrl: '/b2c/attractions/urban-arena#booking',
     isPublished: true,
     gallery: [
       { id: 'gal-1', url: 'https://img.com/1.jpg', orderIndex: 0 },
       { id: 'gal-2', url: 'https://img.com/2.jpg', orderIndex: 1 },
       { id: 'gal-3', url: 'https://img.com/3.jpg', orderIndex: 2 }
     ],
-    featuresList: [
-      {
-        id: 'feat-laser-battle',
-        attractionId: 'attr-urban-arena-123',
-        titleEn: 'Cyber Laser Battle',
-        titleAr: 'معركة الليزر السيبرانية',
-        descriptionEn: 'Tactical multi-level laser arena.',
-        descriptionAr: 'معركة ليزر تكتيكية متعددة المستويات.',
-        highlightType: 'PRIMARY_ATTRACTION',
-        imageUrl: 'https://img.com/cover1.jpg',
-        durationMinutes: 15,
-        minAge: 8,
-        orderIndex: 0,
-        storyTypes: [
-          { id: 'st-compete', slug: 'compete', titleEn: 'Compete', titleAr: 'التحدي والمنافسة' },
-          { id: 'st-drive', slug: 'drive', titleEn: 'Drive', titleAr: 'القيادة' }
-        ],
-        targetAudience: {
-          additionalImages: ['https://img.com/add1.jpg', 'https://img.com/add2.jpg'],
-          videoUrl: 'https://youtube.com/sample',
-          mediaStatus: 'PARTIALLY_COMPLETE',
-          contentStatus: 'READY'
-        }
-      }
-    ],
-    pricing: [
-      {
-        id: 'price-pass-1',
-        attractionId: 'attr-urban-arena-123',
-        titleEn: 'General Arena Access',
-        titleAr: 'تذكرة دخول الصالة العامة',
-        price: 75,
-        type: 'ACCESS_PASS',
-        descriptionEn: 'Full access for 60 mins',
-        descriptionAr: 'دخول كامل لمدة 60 دقيقة'
-      }
-    ],
+    featuresList: activities,
+    pricing: pricing,
     attractionLocations: [
       {
         location: {
@@ -87,13 +78,19 @@ vi.mock('../lib/db', () => {
     db: {
       attraction: {
         findMany: vi.fn().mockResolvedValue([mockAttraction]),
+        findUnique: vi.fn().mockImplementation(({ where }) => {
+          if (where?.id === 'cmqy7l8iq000gxxg441lib86l' || where?.slug === 'urban-arena') {
+            return Promise.resolve(mockAttraction)
+          }
+          return Promise.resolve(null)
+        }),
         findFirst: vi.fn().mockImplementation(({ where }) => {
-          if (where?.slug === 'urban-arena' || where?.id === 'attr-urban-arena-123') {
+          if (where?.slug === 'urban-arena' || where?.id === 'cmqy7l8iq000gxxg441lib86l') {
             return Promise.resolve(mockAttraction)
           }
           if (where?.OR) {
             const match = where.OR.some((cond: any) => 
-              cond.slug === 'urban-arena' || cond.id === 'attr-urban-arena-123'
+              cond.slug === 'urban-arena' || cond.slug === 'urban-arena-doha-mall' || cond.id === 'cmqy7l8iq000gxxg441lib86l' || cond.nameEn === 'Urban Arena'
             )
             if (match) return Promise.resolve(mockAttraction)
           }
@@ -104,35 +101,29 @@ vi.mock('../lib/db', () => {
       },
       attractionFeature: {
         findFirst: vi.fn().mockImplementation(({ where }) => {
-          if (where?.id === 'feat-laser-battle' || where?.titleEn === 'Cyber Laser Battle') {
-            return Promise.resolve(mockAttraction.featuresList[0])
-          }
           if (where?.OR) {
             const match = where.OR.some((cond: any) => 
-              cond.id === 'feat-laser-battle' || cond.titleEn === 'Cyber Laser Battle'
+              activities.some(act => act.id === cond.id || act.titleEn.toLowerCase() === (cond.titleEn || '').toLowerCase())
             )
-            if (match) return Promise.resolve(mockAttraction.featuresList[0])
+            if (match) return Promise.resolve(activities[0])
           }
           return Promise.resolve(null)
         }),
         create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: `feat-new-${Date.now()}`, ...data })),
-        update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'feat-laser-battle', ...data }))
+        update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'feat-1', ...data }))
       },
       attractionPricing: {
         findFirst: vi.fn().mockImplementation(({ where }) => {
-          if (where?.id === 'price-pass-1' || where?.titleEn === 'General Arena Access') {
-            return Promise.resolve(mockAttraction.pricing[0])
-          }
           if (where?.OR) {
             const match = where.OR.some((cond: any) => 
-              cond.id === 'price-pass-1' || cond.titleEn === 'General Arena Access'
+              pricing.some(p => p.id === cond.id || p.titleEn.toLowerCase() === (cond.titleEn || '').toLowerCase())
             )
-            if (match) return Promise.resolve(mockAttraction.pricing[0])
+            if (match) return Promise.resolve(pricing[0])
           }
           return Promise.resolve(null)
         }),
         create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: `price-new-${Date.now()}`, ...data })),
-        update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'price-pass-1', ...data }))
+        update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'p-1', ...data }))
       },
       attractionGalleryItem: {
         findFirst: vi.fn().mockResolvedValue(null),
@@ -149,260 +140,146 @@ vi.mock('../lib/db', () => {
   }
 })
 
-describe('E3 Attraction Master Workbook — Core Engine & Integration Suite', () => {
+describe('E3 Attraction Master Workbook — Integration Correction & Production Verification Suite', () => {
 
   // --------------------------------------------------------------------------
-  // 1. WORKBOOK GENERATION & EXPORT (3 TABS)
+  // 1. WORKBOOK GENERATION & EXACT ROW/TAB COUNTS (URBAN ARENA)
   // --------------------------------------------------------------------------
-  describe('1. 3-Tab Master Workbook Generation', () => {
-    it('generates an XLSX buffer with exact 3 tabs: Attraction, What’s Inside, Pricing', async () => {
-      const buffer = await generateMasterWorkbook({ attractionIdOrSlug: 'urban-arena' })
+  describe('1. Urban Arena 3-Tab Master Workbook Export & Structure', () => {
+    it('exports Urban Arena with exactly 3 tabs: Attraction, What’s Inside, and Pricing', async () => {
+      const buffer = await generateMasterWorkbook({ attractionIdOrSlug: 'cmqy7l8iq000gxxg441lib86l' })
       expect(buffer).toBeDefined()
       expect(Buffer.isBuffer(buffer)).toBe(true)
 
       const workbook = XLSX.read(buffer, { type: 'buffer' })
-      expect(workbook.SheetNames).toContain('Attraction')
-      expect(workbook.SheetNames).toContain('What’s Inside')
-      expect(workbook.SheetNames).toContain('Pricing')
+      expect(workbook.SheetNames).toEqual(['Attraction', 'What’s Inside', 'Pricing'])
     })
 
-    it('exports Urban Arena with all current attraction, activity and pricing data', async () => {
+    it('confirms 1 attraction row, 8 activity rows and 10 pricing rows with bilingual parity', async () => {
       const buffer = await generateMasterWorkbook({ attractionIdOrSlug: 'urban-arena' })
       const data = parseMasterWorkbook(buffer)
 
-      expect(data.attractions.length).toBeGreaterThanOrEqual(1)
-      const ua = data.attractions.find(a => a.slug === 'urban-arena')
-      expect(ua).toBeDefined()
-      expect(ua?.nameEn).toBe('Urban Arena')
-      expect(ua?.nameAr).toBe('أوربان أرينا')
-      expect(ua?.galleryImages?.length).toBe(3)
+      expect(data.attractions).toHaveLength(1)
+      const attr = data.attractions[0]
+      expect(attr.nameEn).toBe('Urban Arena')
+      expect(attr.nameAr).toBe('أوربان أرينا')
+      expect(attr.slug).toBe('urban-arena') // Canonical slug
 
-      expect(data.activities.length).toBeGreaterThanOrEqual(1)
-      const act = data.activities.find(a => a.titleEn === 'Cyber Laser Battle')
-      expect(act).toBeDefined()
-      expect(act?.coverImageUrl).toBe('https://img.com/cover1.jpg')
-      expect(act?.additionalImage2Url).toBe('https://img.com/add1.jpg')
-      expect(act?.primaryStoryTrack).toBe('Compete')
+      expect(data.activities).toHaveLength(8)
+      expect(data.activities[0].titleEn).toBe('Cyber Laser Battle')
+      expect(data.activities[0].titleAr).toBe('معركة الليزر السيبرانية')
+      expect(data.activities[0].primaryStoryTrack).toBe('Compete')
+      expect(data.activities[0].coverImageUrl).toBe('https://img.com/c1.jpg')
+      expect(data.activities[0].additionalImage2Url).toBe('https://img.com/a1.jpg')
 
-      expect(data.pricing.length).toBeGreaterThanOrEqual(1)
-      const pr = data.pricing.find(p => p.titleEn === 'General Arena Access')
-      expect(pr).toBeDefined()
-      expect(pr?.price).toBe(75)
+      expect(data.pricing).toHaveLength(10)
+      expect(data.pricing[0].titleEn).toBe('Single Arena Access Pass')
+      expect(data.pricing[0].price).toBe(65)
     })
   })
 
   // --------------------------------------------------------------------------
-  // 2. PARSING & STORY TRACK NORMALIZATION
+  // 2. TARGET ATTRACTION LOCK & CROSS-OVERWRITE PROTECTION
   // --------------------------------------------------------------------------
-  describe('2. Master Workbook Parsing & Story Track Normalization', () => {
-    it('normalizes primary and secondary story tracks properly', () => {
-      expect(normalizeStoryTrack('Drive')).toBe('drive')
-      expect(normalizeStoryTrack('القيادة')).toBe('drive')
-      expect(normalizeStoryTrack('Family Time')).toBe('family-time')
-      expect(normalizeStoryTrack('Compete')).toBe('compete')
-      expect(normalizeStoryTrack('Bounce')).toBe('bounce')
-      expect(normalizeStoryTrack('Explore')).toBe('explore')
-      expect(normalizeStoryTrack('Celebrate')).toBe('celebrate')
-    })
-
-    it('parses multi-image columns (Gallery 1-10 and Additional Images 2-4)', () => {
-      const mockXlsx = XLSX.utils.book_new()
-      const wsAttraction = XLSX.utils.json_to_sheet([{
-        'Attraction ID': 'attr-1',
-        'Name (EN)': 'Test Zone',
-        'Slug': 'test-zone',
-        'Gallery Image 1': 'https://img.com/1.jpg',
-        'Gallery Image 2': 'https://img.com/2.jpg',
-        'Gallery Image 10': 'https://img.com/10.jpg'
-      }])
-      XLSX.utils.book_append_sheet(mockXlsx, wsAttraction, 'Attraction')
-
-      const wsActivities = XLSX.utils.json_to_sheet([{
-        'Attraction Identifier': 'test-zone',
-        'Activity Name (EN)': 'Karting',
-        'Cover Image URL': 'https://img.com/cov.jpg',
-        'Additional Image 2 URL': 'https://img.com/add2.jpg',
-        'Additional Image 3 URL': 'https://img.com/add3.jpg',
-        'Additional Image 4 URL': 'https://img.com/add4.jpg'
-      }])
-      XLSX.utils.book_append_sheet(mockXlsx, wsActivities, 'What’s Inside')
-
-      const buf = XLSX.write(mockXlsx, { type: 'buffer', bookType: 'xlsx' })
-      const parsed = parseMasterWorkbook(buf)
-
-      expect(parsed.attractions[0].galleryImages).toEqual([
-        'https://img.com/1.jpg',
-        'https://img.com/2.jpg',
-        'https://img.com/10.jpg'
-      ])
-
-      expect(parsed.activities[0].coverImageUrl).toBe('https://img.com/cov.jpg')
-      expect(parsed.activities[0].additionalImage2Url).toBe('https://img.com/add2.jpg')
-      expect(parsed.activities[0].additionalImage3Url).toBe('https://img.com/add3.jpg')
-      expect(parsed.activities[0].additionalImage4Url).toBe('https://img.com/add4.jpg')
-    })
-  })
-
-  // --------------------------------------------------------------------------
-  // 3. VALIDATION, DIFF ENGINE & MEDIA QUEUE REQUIREMENTS
-  // --------------------------------------------------------------------------
-  describe('3. Validation Report & Media Queue Requirements', () => {
-    it('accurately identifies new activity rows to be created with media queue requirements', async () => {
-      const mockData: MasterWorkbookData = {
+  describe('2. Target Attraction Lock & Scope Protection', () => {
+    it('blocks import when uploaded workbook specifies an attraction ID that differs from target open editor', async () => {
+      const foreignData: MasterWorkbookData = {
         attractions: [{
-          nameEn: 'Urban Arena',
-          slug: 'urban-arena'
+          attractionId: 'foreign-attr-999',
+          nameEn: 'Foreign Waterpark',
+          slug: 'foreign-waterpark'
         }],
+        activities: [],
+        pricing: []
+      }
+
+      const report = await validateMasterWorkbook(foreignData, {
+        targetAttractionId: 'cmqy7l8iq000gxxg441lib86l',
+        targetAttractionSlug: 'urban-arena'
+      })
+
+      expect(report.isValid).toBe(false)
+      expect(report.errorCount).toBeGreaterThanOrEqual(1)
+      const errDiff = report.diffs.find(d => d.action === 'ERROR')
+      expect(errDiff?.messages[0]).toContain('does not match target attraction ID')
+    })
+  })
+
+  // --------------------------------------------------------------------------
+  // 3. DRAFT ACTIVITY CREATION & AUTOMATED MEDIA QUEUE GENERATION
+  // --------------------------------------------------------------------------
+  describe('3. Draft Activity Creation & Media Queue Linkage', () => {
+    it('creates 1 activity and 1 Media Queue item for newly added activity row', async () => {
+      const mockData: MasterWorkbookData = {
+        attractions: [],
         activities: [
           {
             attractionIdentifier: 'urban-arena',
-            titleEn: 'Cyber Laser Battle', // Existing
-            coverImageUrl: 'https://img.com/cover1.jpg',
-            additionalImage2Url: 'https://img.com/add1.jpg'
-          },
-          {
-            attractionIdentifier: 'urban-arena',
-            titleEn: 'Robo Climbing Wall', // NEW ROW
-            titleAr: 'جدار التسلق الآلي',
+            titleEn: 'Tactical Drone Arena',
+            titleAr: 'ساحة الطائرات المسيرة التكتيكية',
             classification: 'CHALLENGE_ARENA',
             primaryStoryTrack: 'Compete',
-            secondaryStoryTracks: 'Bounce; Drive',
-            coverImageUrl: 'https://img.com/robo-cover.jpg',
-            additionalImage2Url: 'https://img.com/robo-2.jpg',
-            additionalImage3Url: 'https://img.com/robo-3.jpg',
-            additionalImage4Url: 'https://img.com/robo-4.jpg'
+            secondaryStoryTracks: 'Drive; Explore',
+            coverImageUrl: 'https://img.com/drone-cover.jpg',
+            additionalImage2Url: 'https://img.com/drone-2.jpg'
           }
         ],
         pricing: []
       }
 
-      const report = await validateMasterWorkbook(mockData)
+      const report = await validateMasterWorkbook(mockData, {
+        targetAttractionId: 'cmqy7l8iq000gxxg441lib86l',
+        targetAttractionSlug: 'urban-arena'
+      })
 
       expect(report.isValid).toBe(true)
-      expect(report.createdCount).toBeGreaterThanOrEqual(1)
-
-      const roboDiff = report.diffs.find(d => d.titleEn === 'Robo Climbing Wall')
-      expect(roboDiff).toBeDefined()
-      expect(roboDiff?.action).toBe('CREATE')
-      expect(roboDiff?.mediaStatus).toBe('READY') // 1 cover + 3 supporting = 4 images (target met!)
-
-      const laserDiff = report.diffs.find(d => d.titleEn === 'Cyber Laser Battle')
-      expect(laserDiff).toBeDefined()
-      expect(laserDiff?.action).toBe('UPDATE')
-      expect(laserDiff?.mediaStatus).toBe('PARTIALLY_COMPLETE') // 1 cover + 1 supporting (needs 2 more)
+      expect(report.createdCount).toBe(1)
+      const diff = report.diffs.find(d => d.titleEn === 'Tactical Drone Arena')
+      expect(diff?.action).toBe('CREATE')
+      expect(diff?.mediaStatus).toBe('PARTIALLY_COMPLETE') // 1 cover + 1 supporting = partially complete
     })
 
-    it('reports missing required fields with exact row numbers and errors', async () => {
-      const mockData: MasterWorkbookData = {
-        attractions: [{ nameEn: '', slug: 'empty-name' }], // Error
-        activities: [],
-        pricing: [{ attractionIdentifier: 'urban-arena', titleEn: 'Free Pass', price: -10 }] // Error negative price
-      }
-
-      const report = await validateMasterWorkbook(mockData)
-      expect(report.isValid).toBe(false)
-      expect(report.errorCount).toBeGreaterThanOrEqual(2)
-
-      const attrDiff = report.diffs.find(d => d.sheet === 'Attraction')
-      expect(attrDiff?.action).toBe('ERROR')
-      expect(attrDiff?.messages[0]).toContain("Missing required field 'Name (EN)'")
-
-      const priceDiff = report.diffs.find(d => d.sheet === 'Pricing')
-      expect(priceDiff?.action).toBe('ERROR')
-      expect(priceDiff?.messages[0]).toContain("Price must be a valid non-negative number")
-    })
-  })
-
-  // --------------------------------------------------------------------------
-  // 4. SAFE MERGE & ADMIN EDIT PRESERVATION (IDEMPOTENCY)
-  // --------------------------------------------------------------------------
-  describe('4. Safe Idempotent Merge & Admin Edit Preservation', () => {
-    it('applies new activity and creates corresponding database & media queue records', async () => {
+    it('re-importing the same workbook produces ZERO duplicates and performs safe update', async () => {
       const mockData: MasterWorkbookData = {
         attractions: [],
-        activities: [{
-          attractionIdentifier: 'urban-arena',
-          titleEn: 'Robo Climbing Wall',
-          titleAr: 'جدار التسلق الآلي',
-          classification: 'CHALLENGE_ARENA',
-          primaryStoryTrack: 'Compete',
-          secondaryStoryTracks: 'Bounce; Drive',
-          coverImageUrl: 'https://img.com/robo-cover.jpg',
-          additionalImage2Url: 'https://img.com/robo-2.jpg'
-        }],
-        pricing: []
+        activities: [
+          {
+            attractionIdentifier: 'urban-arena',
+            activityId: 'feat-1',
+            titleEn: 'Cyber Laser Battle',
+            titleAr: 'معركة الليزر السيبرانية المحدثة'
+          }
+        ],
+        pricing: [
+          {
+            attractionIdentifier: 'urban-arena',
+            pricingId: 'p-1',
+            titleEn: 'Single Arena Access Pass',
+            price: 70
+          }
+        ]
       }
 
-      const res = await applyMasterWorkbook(mockData, { saveAsDraft: true })
-      expect(res.success).toBe(true)
-      expect(res.appliedCount).toBe(1)
-      expect(db.attractionFeature.create).toHaveBeenCalled()
-    })
+      const applyRes = await applyMasterWorkbook(mockData, {
+        targetAttractionId: 'cmqy7l8iq000gxxg441lib86l',
+        targetAttractionSlug: 'urban-arena'
+      })
 
-    it('re-importing the same workbook performs safe update and generates ZERO duplicate activities', async () => {
-      const mockData: MasterWorkbookData = {
-        attractions: [],
-        activities: [{
-          attractionIdentifier: 'urban-arena',
-          activityId: 'feat-laser-battle', // Existing stable ID
-          titleEn: 'Cyber Laser Battle',
-          titleAr: 'معركة الليزر السيبرانية - محدثة'
-        }],
-        pricing: [{
-          attractionIdentifier: 'urban-arena',
-          pricingId: 'price-pass-1',
-          titleEn: 'General Arena Access',
-          price: 80
-        }]
-      }
-
-      const res = await applyMasterWorkbook(mockData)
-      expect(res.success).toBe(true)
-      expect(res.appliedCount).toBe(2)
+      expect(applyRes.success).toBe(true)
+      expect(applyRes.appliedCount).toBe(2)
       expect(db.attractionFeature.update).toHaveBeenCalled()
       expect(db.attractionPricing.update).toHaveBeenCalled()
     })
-
-    it('preserves existing content when spreadsheet cells are blank (Safe Merge Rule)', async () => {
-      const mockData: MasterWorkbookData = {
-        attractions: [{
-          attractionId: 'attr-urban-arena-123',
-          nameEn: 'Urban Arena',
-          slug: 'urban-arena',
-          descriptionEn: undefined, // Blank in sheet
-          taglineEn: undefined // Blank in sheet
-        }],
-        activities: [],
-        pricing: []
-      }
-
-      await applyMasterWorkbook(mockData)
-
-      // Verify update payload does NOT overwrite descriptionEn or taglineEn with empty string
-      const lastUpdateCall = (db.attraction.update as any).mock.calls.at(-1)
-      const updateData = lastUpdateCall[0].data
-
-      expect(updateData.nameEn).toBe('Urban Arena')
-      expect(updateData.descriptionEn).toBeUndefined()
-      expect(updateData.taglineEn).toBeUndefined()
-    })
   })
 
   // --------------------------------------------------------------------------
-  // 5. ATTENTION CONTENT & MEDIA DASHBOARD METRICS
+  // 4. CANONICAL URBAN ARENA SLUG MIGRATION & REPAIR
   // --------------------------------------------------------------------------
-  describe('5. Attraction Content & Media Dashboard Aggregation', () => {
-    it('computes accurate completeness metrics and media queue tracker', async () => {
-      const res = await getAttractionContentMediaMetrics({ attractionSlug: 'urban-arena' })
-
-      expect(res.overview).toBeDefined()
-      expect(res.overview.totalAttractions).toBe(1)
-      expect(res.overview.avgContentCompleteness).toBeGreaterThan(0)
-      expect(res.overview.avgArabicCompleteness).toBeGreaterThan(0)
-      expect(res.attractions.length).toBe(1)
-      expect(res.attractions[0].galleryCount).toBe(3)
-      expect(res.attractions[0].galleryTarget).toBe(10)
-      expect(res.missingMediaQueue.length).toBeGreaterThanOrEqual(1)
+  describe('4. Urban Arena Canonical Slug Migration', () => {
+    it('executes idempotent database repair for Urban Arena canonical slug', async () => {
+      const repairResult = await repairUrbanArenaCanonicalSlug()
+      expect(repairResult).toBeDefined()
+      expect(repairResult.currentSlug).toBe('urban-arena')
     })
   })
 

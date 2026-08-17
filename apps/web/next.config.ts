@@ -37,6 +37,18 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // 0. Urban Arena Canonical Public Slug Migration
+      {
+        source: '/:locale(en|ar)/b2c/attractions/urban-arena-doha-mall',
+        destination: '/:locale/b2c/attractions/urban-arena',
+        permanent: true,
+      },
+      {
+        source: '/b2c/attractions/urban-arena-doha-mall',
+        destination: '/en/b2c/attractions/urban-arena',
+        permanent: true,
+      },
+
       // 0. Balloon Parade Duplicate Case Study 301 Consolidation (QF-13-C)
       {
         source: '/:locale(en|ar)/b2b/cases/doha-balloon-parade',

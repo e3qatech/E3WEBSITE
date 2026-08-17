@@ -29,6 +29,9 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
+    const targetAttractionId = (formData.get("targetAttractionId") as string) || undefined
+    const targetAttractionSlug = (formData.get("targetAttractionSlug") as string) || undefined
+
     // 1. Parse Master Workbook
     const parsedData = parseMasterWorkbook(buffer)
 
@@ -43,7 +46,10 @@ export async function POST(request: Request) {
     }
 
     // 2. Validate and produce diff report
-    const validationReport = await validateMasterWorkbook(parsedData)
+    const validationReport = await validateMasterWorkbook(parsedData, {
+      targetAttractionId,
+      targetAttractionSlug
+    })
 
     // 3. If live execution requested and valid, apply changes
     let applyResult: { success: boolean; appliedCount: number; errors: string[] } | null = null
@@ -56,7 +62,11 @@ export async function POST(request: Request) {
         }, { status: 422 })
       }
 
-      applyResult = await applyMasterWorkbook(parsedData, { saveAsDraft })
+      applyResult = await applyMasterWorkbook(parsedData, {
+        saveAsDraft,
+        targetAttractionId,
+        targetAttractionSlug
+      })
     }
 
     return NextResponse.json({

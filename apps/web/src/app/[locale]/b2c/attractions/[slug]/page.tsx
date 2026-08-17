@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { Metadata } from "next"
 import Link from "next/link"
 import { localizeHref } from "@/lib/url-helper"
+import { repairUrbanArenaCanonicalSlug } from "@/lib/canonical-urban-arena-repair"
 
 // Component Imports
 import { HeroViewer } from "@/components/attractions/detail/HeroViewer"
@@ -227,10 +228,19 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
   const params = await props.params
   const { slug, locale } = params
 
+  if (slug === "urban-arena-doha-mall") {
+    await repairUrbanArenaCanonicalSlug()
+    redirect(`/${locale}/b2c/attractions/urban-arena`)
+  }
+
   const data = await getAttractionData(slug)
 
   if (!data) {
     notFound()
+  }
+
+  if (data.attraction?.slug === "urban-arena" && slug !== "urban-arena") {
+    redirect(`/${locale}/b2c/attractions/urban-arena`)
   }
 
   const { attraction, features, pricing, gallery, faq, schedule, projects, brandPlacements, coordinates, operations, primaryLocation } = data

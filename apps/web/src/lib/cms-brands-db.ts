@@ -102,7 +102,7 @@ export async function getLiveB2CBrandsFromDB(): Promise<any[]> {
           lifecycleStatus: "ACTIVE",
           b2cDisplayOrder: 4,
           b2bDisplayOrder: 4,
-          b2cCtaUrl: "/b2c/attractions/urban-arena-doha-mall",
+          b2cCtaUrl: "/b2c/attractions/urban-arena",
           b2bInquiryUrl: "/b2b/contact?subject=UrbanArena"
         },
         {

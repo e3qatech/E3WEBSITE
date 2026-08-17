@@ -21,14 +21,14 @@ export const FALLBACK_ATTRACTIONS: any[] = [
   },
   {
     id: "cmqy7l8iq000gxxg441lib86l",
-    slug: "urban-arena-doha-mall",
+    slug: "urban-arena",
     nameEn: "Urban Arena",
     nameAr: "أوربان أرينا",
     taglineEn: "A High-Energy Indoor Arena for Games, Challenges, and Urban Entertainment",
     taglineAr: "ساحة داخلية مليئة بالحماس للألعاب والتحديات والترفيه الحضري",
     category: "KINETIC & GAMES",
     heroMediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/93ab62a1-8628-4355-a687-308a8f83b42c.png",
-    ticketingUrl: "/b2c/attractions/urban-arena-doha-mall#booking",
+    ticketingUrl: "/b2c/attractions/urban-arena#booking",
     coordinates: { lat: 25.2410, lng: 51.5130 },
     operations: {
       openingTime: "14:00",

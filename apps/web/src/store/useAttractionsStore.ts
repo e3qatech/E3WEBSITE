@@ -113,7 +113,7 @@ export const DEFAULT_FALLBACK_ATTRACTIONS: Attraction[] = [
   },
   {
     id: "cmqy7l8iq000gxxg441lib86l",
-    slug: "urban-arena-doha-mall",
+    slug: "urban-arena",
     nameEn: "Urban Arena",
     nameAr: "أوربان أرينا",
     taglineEn: "A High-Energy Indoor Arena for Games, Challenges, and Urban Entertainment",

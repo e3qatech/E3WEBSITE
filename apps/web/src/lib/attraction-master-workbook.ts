@@ -445,13 +445,22 @@ export function parseMasterWorkbook(buffer: Buffer): MasterWorkbookData {
 /**
  * Validates Master Workbook data and computes record diffs with media requirement metrics.
  */
-export async function validateMasterWorkbook(data: MasterWorkbookData): Promise<ValidationReport> {
+export async function validateMasterWorkbook(
+  data: MasterWorkbookData,
+  options?: {
+    targetAttractionId?: string
+    targetAttractionSlug?: string
+  }
+): Promise<ValidationReport> {
   const diffs: ValidationRecordDiff[] = []
   let createdCount = 0
   let updatedCount = 0
   let unchangedCount = 0
   let warningCount = 0
   let errorCount = 0
+
+  const targetId = options?.targetAttractionId?.trim()
+  const targetSlug = options?.targetAttractionSlug?.trim().toLowerCase()
 
   // Fetch all existing attractions from DB to compare
   const existingAttractions = await db.attraction.findMany({
@@ -471,6 +480,17 @@ export async function validateMasterWorkbook(data: MasterWorkbookData): Promise<
     if (!attr.nameEn) {
       action = 'ERROR'
       messages.push("Missing required field 'Name (EN)'")
+      errorCount++
+    }
+
+    // Check target attraction lock
+    if (targetId && attr.attractionId && attr.attractionId !== targetId) {
+      action = 'ERROR'
+      messages.push(`Record attraction ID "${attr.attractionId}" does not match target attraction ID "${targetId}". Cross-attraction import blocked to prevent accidental overwrite.`)
+      errorCount++
+    } else if (targetSlug && attr.slug && attr.slug.toLowerCase() !== targetSlug && targetId && attr.attractionId !== targetId) {
+      action = 'ERROR'
+      messages.push(`Record slug "${attr.slug}" does not match target attraction "${targetSlug}". Cross-attraction import blocked.`)
       errorCount++
     }
 
@@ -697,15 +717,26 @@ export async function validateMasterWorkbook(data: MasterWorkbookData): Promise<
  */
 export async function applyMasterWorkbook(
   data: MasterWorkbookData,
-  options: { saveAsDraft?: boolean } = {}
+  options: {
+    saveAsDraft?: boolean
+    targetAttractionId?: string
+    targetAttractionSlug?: string
+  } = {}
 ): Promise<{ success: boolean; appliedCount: number; errors: string[] }> {
   const errors: string[] = []
   let appliedCount = 0
   const saveAsDraft = options.saveAsDraft ?? true
+  const targetId = options.targetAttractionId?.trim()
+  const targetSlug = options.targetAttractionSlug?.trim().toLowerCase()
 
   try {
     // 1. Process Attractions
     for (const attr of data.attractions) {
+      if (targetId && attr.attractionId && attr.attractionId !== targetId) {
+        errors.push(`Attraction ID "${attr.attractionId}" does not match target attraction "${targetId}". Skipped to prevent cross-attraction modification.`)
+        continue
+      }
+
       const cleanSlug = attr.slug || attr.nameEn.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
       
       const existing = await db.attraction.findFirst({
@@ -1025,8 +1056,10 @@ export async function getAttractionContentMediaMetrics(filter?: { attractionSlug
       else if (hasCover || addImgs.length > 0) status = 'PARTIALLY_COMPLETE'
 
       if (status === 'MISSING' || status === 'PARTIALLY_COMPLETE') {
+        const canonicalSlug = (a.slug === 'urban-arena-doha-mall' ? 'urban-arena' : a.slug) || ''
         missingMediaQueue.push({
-          attractionSlug: a.slug,
+          attractionId: a.id,
+          attractionSlug: canonicalSlug,
           attractionName: a.nameEn,
           activityId: f.id,
           activityName: f.titleEn,

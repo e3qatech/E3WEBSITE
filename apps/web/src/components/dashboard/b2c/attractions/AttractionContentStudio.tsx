@@ -48,8 +48,14 @@ import {
   Filter,
   Check,
   AlertTriangle,
-  Upload
+  Upload,
+  Download,
+  UploadCloud,
+  FileSpreadsheet
 } from "lucide-react"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { localizeHref } from "@/lib/url-helper"
 
 import { Button } from "@/components/ui/Button"
 import { MediaUploader } from "@/components/ui/MediaUploader"
@@ -63,6 +69,7 @@ import { CompactRepeaterList } from "./CompactRepeaterList"
 import { LocationSelectorModal } from "./LocationSelectorModal"
 import { CaseStudiesAttractionPanel } from "./CaseStudiesAttractionPanel"
 import { ContentIntakeHub } from "./ContentIntakeHub"
+import { AttractionMasterWorkbookModal } from "./AttractionMasterWorkbookModal"
 
 export type StudioStage = 'identity' | 'experiences' | 'visit' | 'media' | 'review'
 
@@ -130,10 +137,15 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   const [isMobileDiagnosticsOpen, setIsMobileDiagnosticsOpen] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop')
 
+  const params = useParams()
+  const locale = (params?.locale as string) || 'en'
+  const isAr = locale === 'ar'
+
   // Top Level Navigation & Dirty State
   const [activeStage, setActiveStage] = useState<StudioStage>('identity')
   const [bilingualView, setBilingualView] = useState<'BOTH' | 'EN' | 'AR'>('BOTH')
   const [isIntakeOpen, setIsIntakeOpen] = useState(false)
+  const [showMasterWorkbookModal, setShowMasterWorkbookModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const [saveSuccessNotice, setSaveSuccessNotice] = useState(false)
@@ -700,15 +712,46 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
           labelAr: "وضع التركيز الكامل"
         }}
         extraActions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setIsIntakeOpen(true)}
               className="px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-primary)] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Upload className="w-3.5 h-3.5 text-purple-400" />
-              <span className="hidden sm:inline">Intake Hub</span>
+              <span className="hidden sm:inline">{isAr ? "مركز الإدخال الذكي" : "Intake Hub"}</span>
             </button>
+
+            {initialData?.id && (
+              <a
+                href={`/api/b2c/attractions/master-workbook/export?attractionId=${initialData.id}`}
+                download
+                className="px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-primary)] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title={isAr ? "تحميل جدول البيانات لهذا المعلم (.xlsx)" : "Download 3-Tab Master Workbook for this attraction (.xlsx)"}
+              >
+                <Download className="w-3.5 h-3.5 text-blue-400" />
+                <span className="hidden md:inline">{isAr ? "تحميل الجدول" : "Download Workbook"}</span>
+              </a>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setShowMasterWorkbookModal(true)}
+              className="px-3 py-1.5 rounded-xl border border-purple-500/40 bg-purple-600/20 hover:bg-purple-600/30 text-xs font-bold text-purple-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title={isAr ? "استيراد وتحديث جدول البيانات (.xlsx / .csv)" : "Import and validate Master Workbook (.xlsx / .csv)"}
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden md:inline">{isAr ? "استيراد الجدول" : "Import Workbook"}</span>
+            </button>
+
+            <Link
+              href={localizeHref("/dashboard/b2c/attractions/workbook", locale)}
+              className="px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title={isAr ? "لوحة تحكم المحتوى والوسائط" : "Attraction Content & Media Dashboard"}
+            >
+              <Layers className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden lg:inline">{isAr ? "لوحة الوسائط" : "Content & Media"}</span>
+            </Link>
 
             <div className="inline-flex items-center p-1 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)]">
               <button
@@ -1825,6 +1868,18 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
         onClose={() => setIsIntakeOpen(false)}
         onSuccess={() => {
           loadData()
+        }}
+      />
+
+      {/* Master Workbook Import & Validation Modal */}
+      <AttractionMasterWorkbookModal
+        isOpen={showMasterWorkbookModal}
+        onClose={() => setShowMasterWorkbookModal(false)}
+        attractionId={initialData?.id}
+        attractionSlug={slug || initialData?.slug}
+        attractionName={nameEn || initialData?.nameEn}
+        onImportComplete={() => {
+          router.refresh()
         }}
       />
     </div>
