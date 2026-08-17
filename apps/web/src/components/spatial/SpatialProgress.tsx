@@ -27,11 +27,11 @@ export function SpatialProgress({
 
   return (
     <>
-      {/* 1. Side Navigation Dots & Section Labels */}
+      {/* 1. Side Navigation Dots & Section Labels (Desktop & Tablet) */}
       <aside
         aria-label={isAr ? "التنقل بين أقسام الأسطوانة" : "Spatial section navigation"}
         className={cn(
-          "fixed top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3 pointer-events-auto px-4 md:px-8",
+          "hidden md:flex fixed top-1/2 -translate-y-1/2 z-30 flex-col gap-3 pointer-events-auto px-4 md:px-8",
           isAr ? "right-0 items-end" : "left-0 items-start"
         )}
       >

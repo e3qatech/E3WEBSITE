@@ -86,12 +86,50 @@ describe('E3 Seeded 8-Section Content & Localization Integrity', () => {
     });
   });
 
-  it('ensures all primary and secondary CTA links resolve to valid internal routes', () => {
+  it('ensures all primary and secondary CTA links resolve to valid relative internal routes without hardcoded /en/', () => {
     DEFAULT_SPATIAL_SECTIONS.forEach((section) => {
       expect(section.primaryCtaUrl.startsWith('/')).toBe(true);
+      expect(section.primaryCtaUrl.startsWith('/en/')).toBe(false);
       if (section.secondaryCtaUrl) {
         expect(section.secondaryCtaUrl.startsWith('/')).toBe(true);
+        expect(section.secondaryCtaUrl.startsWith('/en/')).toBe(false);
       }
     });
   });
+
+  it('confirms face 5 uses canonical approved brands and visitor-friendly copy', () => {
+    const brandsFace = DEFAULT_SPATIAL_SECTIONS.find((s) => s.slug === 'brands');
+    expect(brandsFace).toBeDefined();
+    expect(brandsFace?.headingEn).not.toContain('VR Galaxy');
+    expect(brandsFace?.headingAr).not.toContain('في آر جلاكسي');
+    expect(brandsFace?.eyebrowEn).toBe('Signature Brands & Locations');
+  });
 });
+
+describe('E3 Spatial Experience CMS Merge Integration', () => {
+  it('merges spatialExperience correctly in getMergedCMSPageContent', async () => {
+    const { getMergedCMSPageContent } = await import('../lib/cms-default-pages');
+    
+    // Test with empty payload
+    const emptyMerged = getMergedCMSPageContent('b2c-landing', {});
+    expect(emptyMerged.spatialExperience).toBeDefined();
+    expect(emptyMerged.spatialExperience.enabled).toBe(false);
+    expect(emptyMerged.spatialExperience.faces.length).toBe(8);
+
+    // Test with custom enabled flag and custom face
+    const customMerged = getMergedCMSPageContent('b2c-landing', {
+      spatialExperience: {
+        enabled: true,
+        faces: [
+          {
+            ...DEFAULT_SPATIAL_SECTIONS[0],
+            headingEn: 'Custom Test Heading',
+          }
+        ]
+      }
+    });
+    expect(customMerged.spatialExperience.enabled).toBe(true);
+    expect(customMerged.spatialExperience.faces[0].headingEn).toBe('Custom Test Heading');
+  });
+});
+

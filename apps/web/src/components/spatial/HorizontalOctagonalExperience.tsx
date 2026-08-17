@@ -10,6 +10,7 @@ import { SpatialDOMLayer } from './SpatialDOMLayer';
 import { SpatialProgress } from './SpatialProgress';
 import { SpatialNavigation } from './SpatialNavigation';
 import { SpatialExperienceFallback } from './SpatialExperienceFallback';
+import { cn } from '@/lib/utils';
 
 // Dynamically import Three.js Scene with SSR disabled to prevent hydration mismatch
 const OctagonalBarrelScene = dynamic(
@@ -19,81 +20,91 @@ const OctagonalBarrelScene = dynamic(
 
 export interface HorizontalOctagonalExperienceProps {
   sections?: SpatialSection[];
+  customSections?: SpatialSection[];
   locale?: string;
   className?: string;
 }
 
 export function HorizontalOctagonalExperience({
   sections = DEFAULT_SPATIAL_SECTIONS,
+  customSections,
   locale = 'en',
   className = '',
 }: HorizontalOctagonalExperienceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const { isSupported, isReducedMotion, tier, reason } = useWebGLSupport();
+  const effectiveSections = (Array.isArray(customSections) && customSections.length > 0)
+    ? customSections
+    : (Array.isArray(sections) && sections.length > 0 ? sections : DEFAULT_SPATIAL_SECTIONS);
+
+  const { isSupported, isReducedMotion, tier, reason, isMounted } = useWebGLSupport();
+  const isFallback = isMounted && (!isSupported || isReducedMotion || tier === 'minimal');
 
   const { scrollState, scrollToIndex, skipExperience } = useSpatialScroll({
-    sections,
+    sections: effectiveSections,
     containerRef,
     trackRef,
-    isReducedMotion,
+    isReducedMotion: isFallback,
   });
 
-  const activeSection = sections[scrollState.activeIndex] || sections[0];
-
-  // If WebGL is not supported or reduced motion is preferred, render clean accessible fallback
-  if (!isSupported || isReducedMotion || tier === 'minimal') {
-    return (
-      <SpatialExperienceFallback
-        sections={sections}
-        locale={locale}
-        reason={reason}
-      />
-    );
-  }
+  const activeSection = effectiveSections[scrollState.activeIndex] || effectiveSections[0];
 
   return (
     <section
       ref={containerRef}
       id="e3-spatial-barrel-experience"
       aria-label="E3 Horizontal Octagonal Experience"
-      className={`relative w-full h-screen bg-[#050811] text-white overflow-hidden select-none ${className}`}
+      className={cn(
+        "relative w-full text-white select-none",
+        isFallback ? "min-h-screen bg-[#070a12]" : "h-screen bg-[#050811] overflow-hidden",
+        className
+      )}
     >
-      {/* 1. Floating Header Navigation (Back & Skip) */}
-      <SpatialNavigation
-        activeSection={activeSection}
-        locale={locale}
-        onSkip={skipExperience}
-      />
-
-      {/* 2. Three.js R3F WebGL Octagonal Cylinder Scene */}
-      <div ref={trackRef} className="absolute inset-0 w-full h-full">
-        <OctagonalBarrelScene
-          sections={sections}
-          targetRotationX={scrollState.targetRotationX}
-          activeIndex={scrollState.activeIndex}
-          scrollVelocity={scrollState.scrollVelocity}
-          isMobile={tier !== 'full'}
-          tier={tier}
+      {isFallback ? (
+        <SpatialExperienceFallback
+          sections={effectiveSections}
+          locale={locale}
+          reason={reason}
         />
-      </div>
+      ) : (
+        <>
+          {/* 1. Floating Header Navigation (Back & Skip) */}
+          <SpatialNavigation
+            activeSection={activeSection}
+            locale={locale}
+            onSkip={skipExperience}
+          />
 
-      {/* 3. Synchronized Semantic HTML DOM Layer */}
-      <SpatialDOMLayer
-        sections={sections}
-        activeIndex={scrollState.activeIndex}
-        locale={locale}
-      />
+          {/* 2. Three.js R3F WebGL Octagonal Cylinder Scene */}
+          <div ref={trackRef} className="absolute inset-0 w-full h-full">
+            <OctagonalBarrelScene
+              sections={effectiveSections}
+              targetRotationX={scrollState.targetRotationX}
+              activeIndex={scrollState.activeIndex}
+              scrollVelocity={scrollState.scrollVelocity}
+              isMobile={tier !== 'full'}
+              tier={tier}
+            />
+          </div>
 
-      {/* 4. Navigation Dots, 01/08 Counter, and Scroll Direction Cues */}
-      <SpatialProgress
-        sections={sections}
-        activeIndex={scrollState.activeIndex}
-        progress={scrollState.progress}
-        locale={locale}
-        onSelectIndex={scrollToIndex}
-      />
+          {/* 3. Synchronized Semantic HTML DOM Layer */}
+          <SpatialDOMLayer
+            sections={effectiveSections}
+            activeIndex={scrollState.activeIndex}
+            locale={locale}
+          />
+
+          {/* 4. Navigation Dots, 01/08 Counter, and Scroll Direction Cues */}
+          <SpatialProgress
+            sections={effectiveSections}
+            activeIndex={scrollState.activeIndex}
+            progress={scrollState.progress}
+            locale={locale}
+            onSelectIndex={scrollToIndex}
+          />
+        </>
+      )}
     </section>
   );
 }

@@ -23,12 +23,12 @@ export function SpatialFace({
   // Angular position of this face around the horizontal X-axis
   const faceAngle = index * angleStep;
 
-  // Calculate face center in Y-Z plane
-  const posY = Math.sin(faceAngle) * radius;
+  // Calculate face center in Y-Z plane (next face index+1 rises from below along -Y)
+  const posY = -Math.sin(faceAngle) * radius;
   const posZ = Math.cos(faceAngle) * radius;
 
-  // Rotation: rotate around X-axis by -faceAngle so normal points outward
-  const rotX = -faceAngle;
+  // Rotation: rotate around X-axis by faceAngle so normal points outward
+  const rotX = faceAngle;
 
   const accentColor = section.accentColor || '#38bdf8';
   const bgColor = section.backgroundColor || '#0a0d14';

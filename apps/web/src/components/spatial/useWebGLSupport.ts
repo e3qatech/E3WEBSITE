@@ -9,6 +9,7 @@ export interface WebGLSupportStatus {
   isLowPower: boolean;
   tier: 'full' | 'balanced' | 'minimal';
   reason?: string;
+  isMounted: boolean;
 }
 
 export function useWebGLSupport(): WebGLSupportStatus {
@@ -18,14 +19,20 @@ export function useWebGLSupport(): WebGLSupportStatus {
     isReducedMotion: false,
     isLowPower: false,
     tier: 'balanced',
+    isMounted: false,
   });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // URL query overrides for QA testing (?reducedMotion=true or ?webgl=false)
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceReducedMotion = urlParams.get('reducedMotion') === 'true' || urlParams.get('motion') === 'false';
+    const forceNoWebGL = urlParams.get('webgl') === 'false' || urlParams.get('nowebgl') === 'true';
+
     // 1. Reduced Motion Detection
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const prefersReducedMotion = motionQuery.matches;
+    const prefersReducedMotion = forceReducedMotion || motionQuery.matches;
 
     // 2. Data Saver / Low Power Detection
     const nav = navigator as any;
@@ -39,25 +46,30 @@ export function useWebGLSupport(): WebGLSupportStatus {
     let isWebGL2 = false;
     let failureReason: string | undefined;
 
-    try {
-      const canvas = document.createElement('canvas');
-      const gl2 = canvas.getContext('webgl2');
-      if (gl2) {
-        isSupported = true;
-        isWebGL2 = true;
-      } else {
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (gl) {
-          isSupported = true;
-          isWebGL2 = false;
-        } else {
-          isSupported = false;
-          failureReason = 'WebGL context not available on this device/browser';
-        }
-      }
-    } catch (e: any) {
+    if (forceNoWebGL) {
       isSupported = false;
-      failureReason = e?.message || 'WebGL initialization error';
+      failureReason = 'WebGL manually disabled via URL test parameter';
+    } else {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl2 = canvas.getContext('webgl2');
+        if (gl2) {
+          isSupported = true;
+          isWebGL2 = true;
+        } else {
+          const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+          if (gl) {
+            isSupported = true;
+            isWebGL2 = false;
+          } else {
+            isSupported = false;
+            failureReason = 'WebGL context not available on this device/browser';
+          }
+        }
+      } catch (e: any) {
+        isSupported = false;
+        failureReason = e?.message || 'WebGL initialization error';
+      }
     }
 
     let tier: 'full' | 'balanced' | 'minimal' = 'balanced';
@@ -76,6 +88,7 @@ export function useWebGLSupport(): WebGLSupportStatus {
       isLowPower: isDataSaver,
       tier,
       reason: failureReason,
+      isMounted: true,
     });
 
     const handleMotionChange = (e: MediaQueryListEvent) => {

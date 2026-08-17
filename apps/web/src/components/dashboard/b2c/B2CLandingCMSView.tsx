@@ -57,6 +57,7 @@ import {
 } from "@/components/dashboard/ui";
 import { MediaUploader } from "@/components/shared/MediaUploader";
 import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
+import { SpatialExperienceManager } from "@/components/dashboard/b2c/content/SpatialExperienceManager";
 
 interface B2CLandingCMSViewProps {
   initialData?: any;
@@ -122,6 +123,11 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         id: "footer-cta",
         label: isAr ? "٨. خاتمة الصفحة ووسائط الفوتر" : "8. Footer Framing & Universal Media",
         icon: <Layers className="w-3.5 h-3.5" />,
+      },
+      {
+        id: "spatial-experience",
+        label: isAr ? "٩. الأسطوانة المكانية التفاعلية" : "9. Octagonal Spatial Experience",
+        icon: <Box className="w-3.5 h-3.5" />,
       },
     ],
     [isAr]
@@ -2135,6 +2141,43 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
               </div>
             </div>
           </div>
+        </DashboardSectionCard>
+      )}
+
+      {/* SECTION 9: OCTAGONAL SPATIAL EXPERIENCE */}
+      {activeSectionId === "spatial-experience" && (
+        <DashboardSectionCard
+          title={isAr ? "الأسطوانة المكانية التفاعلية (8 Faces)" : "Octagonal Spatial Experience (8 Faces)"}
+          description={
+            isAr
+              ? "التحكم في الأسطوانة التفاعلية ثلاثية الأبعاد، تفعيل التجربة على صفحة B2C، وتخصيص النصوص والوسائط والألوان لكل وجه."
+              : "Manage the full-screen horizontal 3D octagonal cylinder, enable on the public B2C landing page, and customize copy, media, and styling per face."
+          }
+          badge={
+            <span
+              className={cn(
+                "px-2.5 py-0.5 rounded-full text-[10px] font-bold border",
+                content.spatialExperience?.enabled
+                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                  : "bg-slate-500/15 text-slate-400 border-slate-500/30"
+              )}
+            >
+              {content.spatialExperience?.enabled ? (isAr ? "مفعّل" : "Active") : (isAr ? "معطّل" : "Disabled")}
+            </span>
+          }
+        >
+          <SpatialExperienceManager
+            value={content.spatialExperience}
+            onChange={(updated) => {
+              setContent((prev: any) => ({
+                ...prev,
+                spatialExperience: updated,
+              }));
+              setIsDirty(true);
+            }}
+            languageMode={languageMode}
+            isAr={isAr}
+          />
         </DashboardSectionCard>
       )}
 

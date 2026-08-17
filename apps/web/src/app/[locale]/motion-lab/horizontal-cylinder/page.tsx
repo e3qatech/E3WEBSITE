@@ -5,6 +5,8 @@ import { ArrowDown, Sparkles, Layers } from 'lucide-react';
 import { HorizontalOctagonalExperience } from '@/components/spatial';
 import { localizeHref } from '@/lib/url-helper';
 
+import { getCMSPageContentServer } from '@/lib/cms-server';
+
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(props: {
@@ -20,6 +22,10 @@ export async function generateMetadata(props: {
     description: isAr
       ? 'تجربة تفاعلية أفقية ثمانية الأوجه لتدوير أقسام الموقع واستكشاف عوالم إي ثري.'
       : 'Full-screen scroll-driven horizontal octagonal cylinder experience rotating through E3 ecosystems.',
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 
@@ -28,6 +34,28 @@ export default async function MotionLabHorizontalCylinderPage(props: {
 }) {
   const { locale } = await props.params;
   const isAr = locale === 'ar';
+
+  const isDev = process.env.NODE_ENV !== 'production';
+  let isAuthorized = isDev;
+  if (!isAuthorized) {
+    try {
+      const { auth } = await import('@/lib/auth');
+      const session = await auth();
+      const role = (session?.user as any)?.role;
+      if (['SUPER_ADMIN', 'ADMIN', 'STAFF', 'EDITOR', 'SALES_ADMIN', 'SUPPORT_ADMIN'].includes(role)) {
+        isAuthorized = true;
+      }
+    } catch (_e) {}
+  }
+
+  // If in production and not authorized, redirect or show safe fallback
+  if (!isAuthorized) {
+    const { redirect } = await import('next/navigation');
+    redirect(`/${locale}/b2c`);
+  }
+
+  const cmsData = await getCMSPageContentServer("b2c-landing");
+  const cmsFaces = cmsData?.spatialExperience?.faces;
 
   return (
     <main className="min-h-screen bg-[#050811] text-white flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
@@ -77,7 +105,7 @@ export default async function MotionLabHorizontalCylinderPage(props: {
       </section>
 
       {/* 2. Pinned 8-Sided Horizontal Barrel Experience */}
-      <HorizontalOctagonalExperience locale={locale} />
+      <HorizontalOctagonalExperience locale={locale} customSections={cmsFaces} />
 
       {/* 3. Post-Experience Lower Page Section (Smooth Unpinning Continuity) */}
       <section className="relative py-28 px-6 md:px-12 lg:px-20 bg-zinc-950 border-t border-zinc-800 flex flex-col items-center text-center">

@@ -21,12 +21,26 @@ export default async function B2CLandingPage(props: {
   const searchParams: Record<string, string | string[] | undefined> = props.searchParams
     ? await props.searchParams
     : {};
-  const isSpatialRequested =
-    process.env.NEXT_PUBLIC_SPATIAL_EXPERIENCE_V1 === 'true' ||
-    searchParams?.spatial === 'true' ||
-    searchParams?.barrel === 'true';
-
   const cmsData = await getCMSPageContentServer("b2c-landing");
+
+  const isDev = process.env.NODE_ENV !== 'production';
+  const isEnvFlagEnabled = process.env.NEXT_PUBLIC_SPATIAL_EXPERIENCE_V1 === 'true';
+  const isCmsEnabled = cmsData?.spatialExperience?.enabled === true;
+  const hasQueryParam = searchParams?.spatial === 'true' || searchParams?.barrel === 'true';
+
+  let isAuthorizedForPreview = isDev;
+  if (!isAuthorizedForPreview && hasQueryParam) {
+    try {
+      const { auth } = await import('@/lib/auth');
+      const session = await auth();
+      const role = (session?.user as any)?.role;
+      if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'STAFF' || role === 'EDITOR') {
+        isAuthorizedForPreview = true;
+      }
+    } catch (_e) {}
+  }
+
+  const isSpatialRequested = isCmsEnabled || isEnvFlagEnabled || (hasQueryParam && isAuthorizedForPreview);
 
   let attractions: any[] = [];
   try {
@@ -199,7 +213,10 @@ export default async function B2CLandingPage(props: {
   if (isSpatialRequested) {
     return (
       <main className="min-h-screen bg-[#050811] text-white">
-        <HorizontalOctagonalExperience locale={locale} />
+        <HorizontalOctagonalExperience
+          locale={locale}
+          customSections={cmsData?.spatialExperience?.faces}
+        />
       </main>
     );
   }

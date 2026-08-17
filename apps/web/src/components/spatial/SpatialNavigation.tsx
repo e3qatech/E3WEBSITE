@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ArrowLeft, ArrowRight, SkipForward, Globe } from 'lucide-react';
 import { SpatialSection } from './spatial-experience.types';
 import { cn } from '@/lib/utils';
@@ -19,9 +19,10 @@ export function SpatialNavigation({
   activeSection,
   locale = 'en',
   onSkip,
-  fallbackBackUrl = '/en/b2c',
+  fallbackBackUrl = '/b2c',
 }: SpatialNavigationProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const isAr = locale === 'ar';
 
   const handleBack = () => {
@@ -33,7 +34,9 @@ export function SpatialNavigation({
   };
 
   const otherLocale = isAr ? 'en' : 'ar';
-  const otherLocaleLabel = isAr ? 'English' : 'العربية';
+  const targetPath = pathname
+    ? pathname.replace(/^\/(en|ar)(\/|$)/, `/${otherLocale}$2`)
+    : `/${otherLocale}/b2c`;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 px-6 py-4 md:px-10 flex items-center justify-between pointer-events-none backdrop-blur-xs">
@@ -70,8 +73,9 @@ export function SpatialNavigation({
         </button>
 
         <Link
-          href={`/${otherLocale}/b2c`}
-          className="p-2 rounded-xl bg-zinc-950/70 hover:bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono backdrop-blur-md"
+          href={targetPath}
+          aria-label={isAr ? "تبديل اللغة إلى الإنجليزية" : "Switch language to Arabic"}
+          className="px-3 py-2 rounded-xl bg-zinc-950/70 hover:bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono backdrop-blur-md"
         >
           {otherLocale.toUpperCase()}
         </Link>

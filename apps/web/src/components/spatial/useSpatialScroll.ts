@@ -48,27 +48,25 @@ export function useSpatialScroll({
 
   // Programmatic smooth scroll to specific face index (0..7)
   const scrollToIndex = useCallback((index: number) => {
-    if (!scrollTriggerRef.current || isReducedMotion) return;
+    if (!scrollTriggerRef.current || isReducedMotion || typeof window === 'undefined') return;
     const clamped = Math.max(0, Math.min(index, faceCount - 1));
     const targetProgress = clamped / maxStep;
     const trigger = scrollTriggerRef.current;
     const targetScroll = trigger.start + targetProgress * (trigger.end - trigger.start);
 
-    gsap.to(window, {
-      scrollTo: { y: targetScroll, autoKill: false },
-      duration: 0.8,
-      ease: 'power2.out',
+    window.scrollTo({
+      top: targetScroll,
+      behavior: 'smooth',
     });
   }, [faceCount, maxStep, isReducedMotion]);
 
-  // Skip the pinned spatial experience completely
+  // Skip the pinned spatial experience completely and release to lower page
   const skipExperience = useCallback(() => {
-    if (!scrollTriggerRef.current) return;
+    if (!scrollTriggerRef.current || typeof window === 'undefined') return;
     const trigger = scrollTriggerRef.current;
-    gsap.to(window, {
-      scrollTo: { y: trigger.end + 20, autoKill: false },
-      duration: 1.0,
-      ease: 'power2.inOut',
+    window.scrollTo({
+      top: trigger.end + 60,
+      behavior: 'smooth',
     });
   }, []);
 
@@ -122,8 +120,8 @@ export function useSpatialScroll({
         lastTimeRef.current = now;
         lastProgressRef.current = p;
 
-        // Continuous target rotation
-        const targetRotX = p * totalSteps * angleStep;
+        // Continuous target rotation (scrolling down rotates barrel backwards around X so face rolls upward)
+        const targetRotX = -p * totalSteps * angleStep;
 
         // Discrete active face calculation
         const calculatedIndex = Math.max(0, Math.min(Math.round(p * totalSteps), faceCount - 1));
@@ -170,7 +168,9 @@ export function useSpatialScroll({
 
     return () => {
       if (hashUpdateTimerRef.current) clearTimeout(hashUpdateTimerRef.current);
-      trigger.kill();
+      if (trigger) {
+        trigger.kill(true);
+      }
       scrollTriggerRef.current = null;
     };
   }, [sections, containerRef, isReducedMotion, faceCount, maxStep, angleStep, scrollToIndex, updateHashDebounced, onFaceChange]);

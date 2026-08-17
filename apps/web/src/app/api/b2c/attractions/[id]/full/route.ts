@@ -116,7 +116,7 @@ export async function PUT(
             isPublished: Boolean(isPublished),
             isFeatured: Boolean(isFeatured),
             isHidden: Boolean(isHidden),
-            isB2bVisible: isB2bVisible !== false,
+            ...(isB2bVisible !== undefined ? { isB2bVisible: Boolean(isB2bVisible) } : {}),
             entityType: entityType || "ATTRACTION",
             experienceFormat: experienceFormat || "PERMANENT_FEC",
             accessModel: accessModel || "PAID",
