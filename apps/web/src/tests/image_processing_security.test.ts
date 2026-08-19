@@ -63,17 +63,21 @@ describe('Image Processing Security & Sharp Pipeline (sharp@0.35.3 / libvips CVE
   })
 
   it('enforces limitInputPixels to prevent decompression bombs (oversized images)', async () => {
-    // Create oversized dimension request exceeding memory limits
-    const hugeImagePromise = sharp({
+    // 100x100 = 10,000 pixels
+    const sampleBuffer = await sharp({
       create: {
-        width: 100000,
-        height: 100000,
+        width: 100,
+        height: 100,
         channels: 4,
         background: { r: 0, g: 0, b: 0, alpha: 1 },
       },
-      limitInputPixels: 25000000, // 25 megapixels limit
-    }).toBuffer()
+    })
+      .png()
+      .toBuffer()
 
-    await expect(hugeImagePromise).rejects.toThrow()
+    // Enforce limit of 100 pixels (less than 10,000)
+    await expect(
+      sharp(sampleBuffer, { limitInputPixels: 100 }).toBuffer()
+    ).rejects.toThrow()
   })
 })
