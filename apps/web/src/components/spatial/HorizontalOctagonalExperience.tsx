@@ -50,7 +50,7 @@ export function HorizontalOctagonalExperience({
   }, [rawSections]);
 
   const { isSupported, isReducedMotion, tier, reason, isMounted } = useWebGLSupport();
-  
+
   // Single section or zero section boundary condition
   const isZeroSection = visibleSections.length === 0;
   const isSingleSection = visibleSections.length === 1;

@@ -48,7 +48,7 @@ describe('Spatial Barrel Dynamic Sections & Virtualization Invariants', () => {
 
   it('2. Tests dynamic visible section counts: 0, 1, 2, 4, 8, 10, 12 with strict totalSteps definition', () => {
     const counts = [0, 1, 2, 4, 8, 10, 12];
-    
+
     counts.forEach((count) => {
       const sections = generateSections(count);
       const visible = sections.filter((s) => s.visibility !== false);
@@ -106,7 +106,7 @@ describe('Spatial Barrel Dynamic Sections & Virtualization Invariants', () => {
           const sec = sections[sIdx];
           if (sec) {
             const slotIndex = ((sIdx % 8) + 8) % 8;
-            
+
             // CRITICAL INVARIANT: No two mounted faces in the scene ever share the same physical slot!
             expect(usedSlots.has(slotIndex)).toBe(false);
             usedSlots.add(slotIndex);

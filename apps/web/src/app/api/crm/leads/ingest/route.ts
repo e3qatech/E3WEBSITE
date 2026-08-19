@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       if (match) sessionToken = match[1];
     }
 
-    const expectedSessionHash = sessionToken 
+    const expectedSessionHash = sessionToken
       ? createHash('sha256').update(sessionToken).digest('hex')
       : null;
 

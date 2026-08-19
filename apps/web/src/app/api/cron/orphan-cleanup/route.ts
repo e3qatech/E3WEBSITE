@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   // 1. Authoritative timing-safe authentication check for scheduled cron runner
   const authHeader = req.headers.get('authorization') || '';
   const cronSecret = process.env.CRON_SECRET;
-  
+
   if (cronSecret) {
     const expectedHeader = `Bearer ${cronSecret}`;
     if (!compareSignatures(authHeader, expectedHeader)) {

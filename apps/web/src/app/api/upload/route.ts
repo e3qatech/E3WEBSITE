@@ -80,7 +80,7 @@ export async function POST(request: Request) {
   if (contentType.includes("application/json")) {
     try {
       const body = (await request.json()) as HandleUploadBody;
-      
+
       // Upload-session capability resolution for anonymous submissions
       let uploadSessionToken: string | undefined = undefined;
       try {
