@@ -7,7 +7,7 @@ const withBundleAnalyzer = createBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  output: process.env.VERCEL ? undefined : (process.env.BUILD_STANDALONE === 'true' ? 'standalone' : undefined),
   poweredByHeader: false,
   images: {
     remotePatterns: [
