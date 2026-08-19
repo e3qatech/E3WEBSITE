@@ -17,7 +17,7 @@ describe('Gate 05 / Socket.IO Parser Security & Memory Exhaustion Defenses (GHSA
     expect(encoded.length).toBeGreaterThan(0)
 
     let decodedPacket: any = null
-    decoder.on('decoded', (p) => {
+    decoder.on('decoded', (p: any) => {
       decodedPacket = p
     })
 
