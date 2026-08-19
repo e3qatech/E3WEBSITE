@@ -221,7 +221,7 @@ describe('B2B RFP Secure Direct Client Upload & Complete Lifecycle Hardening', (
   });
 
   describe('3. Direct Upload Token Generation & Options', () => {
-    it('returns 503 if dedicated RFP storage token is unconfigured', async () => {
+    it('returns 503 and redacted error if dedicated RFP storage token is unconfigured', async () => {
       delete process.env.RFP_BLOB_READ_WRITE_TOKEN;
 
       const req = new Request('http://localhost:3000/api/upload', {
@@ -242,6 +242,18 @@ describe('B2B RFP Secure Direct Client Upload & Complete Lifecycle Hardening', (
 
       const res = await uploadHandler(req);
       expect(res.status).toBe(503);
+      const json = await res.json();
+      expect(json).toEqual({
+        success: false,
+        code: 'RFP_STORAGE_UNAVAILABLE',
+        error: 'Document upload is temporarily unavailable.',
+      });
+
+      // Strict security invariant: Never leak internal env var names, storage names, or process.env to public client
+      const rawBody = JSON.stringify(json);
+      expect(rawBody).not.toContain('RFP_BLOB_READ_WRITE_TOKEN');
+      expect(rawBody).not.toContain('TOKEN');
+      expect(rawBody).not.toContain('process.env');
     });
 
     it('rejects forbidden file extensions for B2B RFP', async () => {

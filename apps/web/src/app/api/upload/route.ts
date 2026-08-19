@@ -125,7 +125,7 @@ export async function POST(request: Request) {
           if (context === 'b2b_rfp') {
             const rfpToken = process.env.RFP_BLOB_READ_WRITE_TOKEN;
             if (!rfpToken) {
-              throw new Error("Dedicated private RFP storage is unconfigured (RFP_BLOB_READ_WRITE_TOKEN missing)");
+              throw new Error("RFP_STORAGE_UNCONFIGURED");
             }
 
             // Fail-Closed Rate Limiting
@@ -180,7 +180,7 @@ export async function POST(request: Request) {
 
           if (context === 'public_resume') {
             const resumeToken = process.env.RESUME_BLOB_READ_WRITE_TOKEN;
-            if (!resumeToken) throw new Error("Resume storage is unconfigured");
+            if (!resumeToken) throw new Error("RESUME_STORAGE_UNCONFIGURED");
 
             const uploadId = randomUUID();
             targetPathname = `private_resumes/${uploadId}.bin`;
@@ -221,10 +221,15 @@ export async function POST(request: Request) {
 
       return res;
     } catch (error: any) {
-      console.error('Error in direct upload token exchange:', error);
+      const correlationId = randomUUID();
+      console.error(`[Upload Error ${correlationId}] in direct upload token exchange:`, error?.message || error);
       const msg = error?.message || 'Upload token error';
-      if (msg.includes('storage is unconfigured') || msg.includes('STORAGE_UNCONFIGURED') || msg.includes('Redis unavailable')) {
-        return NextResponse.json({ success: false, error: msg }, { status: 503 });
+      if (msg.includes('storage is unconfigured') || msg.includes('STORAGE_UNCONFIGURED') || msg.includes('RFP_STORAGE_UNCONFIGURED') || msg.includes('Redis unavailable')) {
+        return NextResponse.json({
+          success: false,
+          code: "RFP_STORAGE_UNAVAILABLE",
+          error: "Document upload is temporarily unavailable."
+        }, { status: 503 });
       }
       if (msg.includes('Rate limit') || msg.includes('rate limit') || msg.includes('RATE_LIMITED')) {
         return NextResponse.json({ success: false, error: msg }, { status: 429 });

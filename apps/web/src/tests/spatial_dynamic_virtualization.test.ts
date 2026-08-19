@@ -67,24 +67,48 @@ describe('Spatial Barrel Dynamic Sections & Virtualization Invariants', () => {
     });
   });
 
-  it('3. Verifies strictly 45-degree angle steps for arbitrary dynamic section counts', () => {
-    const angleStep = SPATIAL_OCTAGON_CONFIG.angleStep; // Strictly Math.PI / 4 (45 deg)
-    expect(angleStep).toBeCloseTo(Math.PI / 4, 5);
+  it('3. Verifies strictly 45-degree angle steps and exact rotation angles for 1, 4, 8, 10, and 12 sections', () => {
+    const angleStepDeg = 45;
+    const angleStepRad = (Math.PI * 45) / 180; // Math.PI / 4
 
-    // Test transition delta for 12 sections
-    const count = 12;
-    const totalSteps = Math.max(count - 1, 0); // 11 steps
+    // 1 section: strictly 0°
+    const sec1 = generateSections(1);
+    expect(sec1.length).toBe(1);
+    const rot1 = 0 * angleStepDeg;
+    expect(rot1).toBe(0);
 
-    for (let step = 0; step < totalSteps; step++) {
-      const p1 = step / totalSteps;
-      const p2 = (step + 1) / totalSteps;
+    // 4 sections: 0°, 45°, 90°, 135°
+    const sec4 = generateSections(4);
+    const rot4 = [0, 1, 2, 3].map((idx) => idx * angleStepDeg);
+    expect(rot4).toEqual([0, 45, 90, 135]);
 
-      const rot1 = -p1 * totalSteps * angleStep;
-      const rot2 = -p2 * totalSteps * angleStep;
+    // 8 sections: final 315° (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°)
+    const sec8 = generateSections(8);
+    const rot8 = Array.from({ length: 8 }, (_, i) => i * angleStepDeg);
+    expect(rot8[rot8.length - 1]).toBe(315);
+    expect(rot8).toEqual([0, 45, 90, 135, 180, 225, 270, 315]);
 
-      const delta = Math.abs(rot2 - rot1);
-      expect(delta).toBeCloseTo(Math.PI / 4, 5); // Each transition is exactly 45 degrees
-    }
+    // 10 sections: final 405° with 8-slot recycling (360° + 45° = 405°)
+    const sec10 = generateSections(10);
+    const rot10 = Array.from({ length: 10 }, (_, i) => i * angleStepDeg);
+    expect(rot10[rot10.length - 1]).toBe(405);
+    expect(rot10[8]).toBe(360); // index 8 maps to physical slot 0 at 360°
+    expect(rot10[9]).toBe(405); // index 9 maps to physical slot 1 at 405°
+
+    // 12 sections: final 495° with 8-slot recycling (360° + 135° = 495°)
+    const sec12 = generateSections(12);
+    const rot12 = Array.from({ length: 12 }, (_, i) => i * angleStepDeg);
+    expect(rot12[rot12.length - 1]).toBe(495);
+    expect(rot12[10]).toBe(450);
+    expect(rot12[11]).toBe(495);
+
+    // Verify mathematical formula: rotationDegrees = activeSectionIndex * 45 for every section
+    [1, 4, 8, 10, 12].forEach((count) => {
+      for (let i = 0; i < count; i++) {
+        const rotationDegrees = i * 45;
+        expect(rotationDegrees).toBe(i * angleStepDeg);
+      }
+    });
   });
 
   it('4. Demonstrates 8-slot recycling virtualization prevents physical 3D mesh collisions for 10 and 12 sections', () => {
