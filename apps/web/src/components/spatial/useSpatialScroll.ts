@@ -38,17 +38,18 @@ export function useSpatialScroll({
 
   const activeIndexRef = useRef<number>(0);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
-  const lastTimeRef = useRef<number>(Date.now());
+  const lastTimeRef = useRef<number>(0);
   const lastProgressRef = useRef<number>(0);
   const hashUpdateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const faceCount = sections.length || SPATIAL_OCTAGON_CONFIG.faceCount;
+  const faceCount = sections.length;
+  const isSingleOrZero = faceCount <= 1;
   const maxStep = Math.max(1, faceCount - 1);
-  const angleStep = SPATIAL_OCTAGON_CONFIG.angleStep;
+  const angleStep = SPATIAL_OCTAGON_CONFIG.angleStep; // Strictly 45 degrees (Math.PI / 4)
 
-  // Programmatic smooth scroll to specific face index (0..7)
+  // Programmatic smooth scroll to specific face index (0..faceCount-1)
   const scrollToIndex = useCallback((index: number) => {
-    if (!scrollTriggerRef.current || isReducedMotion || typeof window === 'undefined') return;
+    if (!scrollTriggerRef.current || isReducedMotion || typeof window === 'undefined' || isSingleOrZero) return;
     const clamped = Math.max(0, Math.min(index, faceCount - 1));
     const targetProgress = clamped / maxStep;
     const trigger = scrollTriggerRef.current;
@@ -58,7 +59,7 @@ export function useSpatialScroll({
       top: targetScroll,
       behavior: 'smooth',
     });
-  }, [faceCount, maxStep, isReducedMotion]);
+  }, [faceCount, maxStep, isReducedMotion, isSingleOrZero]);
 
   // Skip the pinned spatial experience completely and release to lower page
   const skipExperience = useCallback(() => {
@@ -88,7 +89,19 @@ export function useSpatialScroll({
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !containerRef.current || isReducedMotion) return;
+    if (typeof window === 'undefined' || !containerRef.current || isReducedMotion || isSingleOrZero) {
+      if (isSingleOrZero) {
+        setScrollState((prev) => ({
+          ...prev,
+          progress: 0,
+          activeIndex: 0,
+          targetRotationX: 0,
+          isPinned: false,
+          isSettled: true,
+        }));
+      }
+      return;
+    }
 
     const container = containerRef.current;
     const totalSteps = maxStep;
@@ -173,7 +186,7 @@ export function useSpatialScroll({
       }
       scrollTriggerRef.current = null;
     };
-  }, [sections, containerRef, isReducedMotion, faceCount, maxStep, angleStep, scrollToIndex, updateHashDebounced, onFaceChange]);
+  }, [sections, containerRef, isReducedMotion, isSingleOrZero, faceCount, maxStep, angleStep, scrollToIndex, updateHashDebounced, onFaceChange]);
 
   // Keyboard navigation
   useEffect(() => {

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -10,18 +9,14 @@ import {
   CheckCircle2,
   AlertCircle,
   Play,
-  Layers,
   ArrowRight,
-  Sparkles,
-  RefreshCw,
   Eye,
   ShieldCheck,
   ChevronRight
 } from "lucide-react"
 
 import {
-  DashboardPageShell,
-  DashboardPageHeader
+  DashboardPageShell
 } from "@/components/dashboard/ui"
 import { cn } from "@/lib/utils"
 
@@ -33,7 +28,7 @@ export default function BulkImportCenterPage() {
   const [executionReport, setExecutionReport] = useState<any | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const handleFileDrop = (e: React.DragEvent) => {
+  const _handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault()
     if (e.dataTransfer.files?.[0]) {
       setFile(e.dataTransfer.files[0])
@@ -43,7 +38,7 @@ export default function BulkImportCenterPage() {
     }
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const _handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       setFile(e.target.files[0])
       setDryRunReport(null)
@@ -108,16 +103,20 @@ export default function BulkImportCenterPage() {
 
           {/* Action Downloads */}
           <div className="flex items-center gap-3 ps-8 md:ps-0">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/b2c/attractions/export?template=true"
+              download
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
             >
               <Download className="w-3.5 h-3.5 text-emerald-500" />
               <span>Download Blank Template (.xlsx)</span>
             </a>
 
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/b2c/attractions/export"
+              download
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] transition-all shadow-sm"
             >
               <Download className="w-3.5 h-3.5 text-blue-500" />
@@ -145,24 +144,22 @@ export default function BulkImportCenterPage() {
           ))}
         </div>
 
+        {/* Maintenance / Disabled Notice */}
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 text-amber-300 text-xs">
+          <AlertCircle className="w-5 h-5 shrink-0 text-amber-400" />
+          <span>Workbook import is temporarily unavailable while the spreadsheet processor is being upgraded.</span>
+        </div>
+
         {/* File Drop Area */}
-        <div className="p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-6">
+        <div className="p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] space-y-6 opacity-60 pointer-events-none">
           <div
-            onDragOver={e => e.preventDefault()}
-            onDrop={handleFileDrop}
-            className={cn(
-              "border-2 border-dashed rounded-3xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-4",
-              file
-                ? "border-emerald-500/50 bg-emerald-500/5"
-                : "border-[var(--border-default)] hover:border-[var(--color-primary)] bg-[var(--surface-subtle)]"
-            )}
-            onClick={() => document.getElementById("spreadsheetFileInput")?.click()}
+            className="border-2 border-dashed rounded-3xl p-10 text-center transition-all flex flex-col items-center justify-center space-y-4 border-[var(--border-default)] bg-[var(--surface-subtle)]"
           >
             <input
               id="spreadsheetFileInput"
               type="file"
+              disabled
               accept=".xlsx,.xls,.csv"
-              onChange={handleFileSelect}
               className="hidden"
             />
 

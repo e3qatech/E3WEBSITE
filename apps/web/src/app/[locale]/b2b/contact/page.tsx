@@ -1,17 +1,30 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { CheckCircle2, ArrowRight } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { CheckCircle2, ArrowRight, UploadCloud, FileText, X, AlertCircle, Loader2 } from 'lucide-react'
 import { useB2BRFP } from '@/store/b2b-store'
 import { useParams } from 'next/navigation'
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
+import { localizeHref } from '@/lib/url-helper'
+
+import { upload } from '@vercel/blob/client'
 
 export default function ContactRFPPage() {
   const { inquiryType, setInquiryType } = useB2BRFP()
   const [submitted, setSubmitted] = useState(false)
   const [cmsData, setCmsData] = useState<any>({})
   
+  // Real RFP file upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadedDoc, setUploadedDoc] = useState<{ uploadId: string; url: string; fileName: string; fileSize?: number } | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const params = useParams()
   const locale = params?.locale as string || 'en'
   const isAr = locale === 'ar'
@@ -29,17 +42,109 @@ export default function ContactRFPPage() {
       .catch(console.error)
   }, [])
 
+  const handleFileSelect = async (file: File) => {
+    setUploadError(null)
+    const allowedExtensions = ['pdf', 'docx']
+    const ext = file.name.split('.').pop()?.toLowerCase() || ''
+    
+    if (!allowedExtensions.includes(ext)) {
+      setUploadError(isAr ? 'نوع الملف غير مدعوم. يرجى اختيار ملف PDF أو DOCX.' : 'Unsupported file type. Please choose a PDF or DOCX document.')
+      return
+    }
+
+    if (file.size > 25 * 1024 * 1024) {
+      setUploadError(isAr ? 'حجم الملف يتجاوز الحد المسموح به (25 ميجابايت كحد أقصى).' : 'File size exceeds the 25MB limit.')
+      return
+    }
+
+    setSelectedFile(file)
+    setUploadStatus('uploading')
+    setUploadProgress(15)
+
+    try {
+      // 1. Direct Browser-to-Blob upload via @vercel/blob/client (bypasses 4.5MB serverless body limit)
+      const newBlob = await upload(file.name, file, {
+        access: 'private',
+        handleUploadUrl: '/api/upload',
+        clientPayload: JSON.stringify({
+          context: 'b2b_rfp',
+          originalName: file.name,
+        }),
+        onUploadProgress: (progressEvent) => {
+          setUploadProgress(Math.round(15 + progressEvent.percentage * 0.65))
+        },
+      })
+
+      setUploadProgress(85)
+
+      // 2. Server finalization and deep security validation
+      const finalizeRes = await fetch('/api/upload/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uploadId: (newBlob as any).uploadId || newBlob.pathname.split('/').pop()?.split('.')[0],
+          pathname: newBlob.pathname,
+        }),
+      })
+
+      const finalizeJson = await finalizeRes.json()
+
+      if (finalizeRes.ok && finalizeJson.success) {
+        setUploadProgress(100)
+        setUploadStatus('success')
+        setUploadedDoc({
+          uploadId: finalizeJson.uploadId,
+          url: newBlob.pathname,
+          fileName: finalizeJson.fileName || file.name,
+          fileSize: finalizeJson.fileSize || file.size,
+        })
+      } else {
+        setUploadStatus('error')
+        setUploadError(finalizeJson.error || (isAr ? 'فشل التحقق من الملف.' : 'File validation failed.'))
+      }
+    } catch (err: any) {
+      console.error('Direct RFP upload error:', err)
+      setUploadStatus('error')
+      setUploadError(err?.message || (isAr ? 'خطأ في الاتصال أثناء التحميل.' : 'Network error during upload.'))
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null)
+    setUploadedDoc(null)
+    setUploadStatus('idle')
+    setUploadProgress(0)
+    setUploadError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
+    if (uploadStatus === 'uploading') {
+      alert(isAr ? 'يرجى الانتظار حتى يكتمل تحميل المرفق.' : 'Please wait until file upload completes.')
+      return
+    }
+
     const formData = new FormData(e.currentTarget)
+    const rawNotes = formData.get("notes")?.toString() || ""
+    const attachmentsNote = uploadedDoc 
+      ? `\n\n[RFP Attachment: ${uploadedDoc.fileName} (${Math.round((uploadedDoc.fileSize || 0) / 1024)} KB) | Ref ID: ${uploadedDoc.uploadId} | URL: ${uploadedDoc.url}]` 
+      : ""
+
     const data = {
       name: formData.get("name"),
       company: formData.get("company"),
       email: formData.get("email"),
       phone: formData.get("phone"),
-      interestServices: [inquiryType],
-      notes: formData.get("notes"),
+      interestServices: [
+        inquiryType,
+        ...(uploadedDoc ? [`RFP_UPLOAD:${uploadedDoc.uploadId}`] : [])
+      ],
+      notes: `${rawNotes}${attachmentsNote}`,
+      uploadId: uploadedDoc?.uploadId,
     }
 
     try {
@@ -257,21 +362,148 @@ export default function ContactRFPPage() {
                     />
                   </div>
 
-                  {/* File Upload (Mock) */}
+                  {/* Real Accessible RFP File Upload */}
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-400">{isAr ? 'المرفقات (اختياري)' : 'Attachments (Optional)'}</label>
-                    <div className="w-full border-2 border-dashed border-zinc-800 rounded-sm p-8 text-center hover:border-zinc-600 transition-colors cursor-pointer bg-zinc-950">
-                      <p className="text-sm text-zinc-500 font-medium">{isAr ? 'اسحب وأفلت مستندات هنا، أو انقر للتصفح' : 'Drag & drop RFP documents here, or click to browse'}</p>
-                      <p className="text-xs text-zinc-600 mt-2">PDF, DOCX, ZIP up to 50MB</p>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="rfp-file-input" className="text-sm font-bold text-zinc-400">
+                        {isAr ? 'المرفقات ووثائق العطاء (اختياري)' : 'RFP Documents & Attachments (Optional)'}
+                      </label>
+                      <span className="text-xs text-zinc-500 font-mono">PDF, DOC, DOCX (Max 25MB)</span>
                     </div>
+
+                    <input
+                      ref={fileInputRef}
+                      id="rfp-file-input"
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileSelect(file);
+                      }}
+                    />
+
+                    {!selectedFile ? (
+                      <div
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDragging(true);
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          setIsDragging(false);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsDragging(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) handleFileSelect(file);
+                        }}
+                        onClick={() => fileInputRef.current?.click()}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            fileInputRef.current?.click();
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={isAr ? "انقر لتحميل ملف العطاء أو اسحب وأفلت الملف هنا" : "Click to upload RFP document or drag and drop file here"}
+                        className={cn(
+                          "w-full border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-500",
+                          isDragging
+                            ? "border-emerald-500 bg-emerald-950/20"
+                            : "border-zinc-800 hover:border-zinc-600"
+                        )}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center mx-auto mb-3 text-zinc-400">
+                          <UploadCloud className="w-5 h-5 text-emerald-400" />
+                        </div>
+                        <p className="text-sm text-zinc-300 font-medium">
+                          {isAr ? 'انقر لتصفح الملفات أو اسحب وأفلت مستند العطاء هنا' : 'Click to browse or drag and drop RFP documents here'}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1.5 font-mono">
+                          PDF, DOC, DOCX • {isAr ? 'حتى 25 ميجابايت' : 'up to 25MB'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+                              {uploadStatus === 'uploading' ? (
+                                <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
+                              ) : uploadStatus === 'success' ? (
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              ) : uploadStatus === 'error' ? (
+                                <AlertCircle className="w-4 h-4 text-rose-400" />
+                              ) : (
+                                <FileText className="w-4 h-4 text-emerald-400" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-zinc-200 truncate">{selectedFile.name}</p>
+                              <p className="text-xs text-zinc-500 font-mono">
+                                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • {uploadStatus === 'uploading' ? (isAr ? 'جاري الرفع...' : 'Uploading...') : uploadStatus === 'success' ? (isAr ? 'تم الرفع بأمان' : 'Uploaded securely') : (isAr ? 'فشل الرفع' : 'Upload failed')}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveFile}
+                            aria-label={isAr ? "إزالة الملف" : "Remove file"}
+                            className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {uploadStatus === 'uploading' && (
+                          <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="bg-emerald-500 h-full transition-all duration-300 rounded-full"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        )}
+
+                        {uploadStatus === 'error' && uploadError && (
+                          <div className="flex items-center gap-2 text-xs text-rose-400 pt-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{uploadError}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {uploadError && !selectedFile && (
+                      <div className="flex items-center gap-2 text-xs text-rose-400 pt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{uploadError}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Submit */}
                   <button 
                     type="submit"
-                    className="w-full py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                    disabled={uploadStatus === 'uploading'}
+                    className={cn(
+                      "w-full py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm transition-colors flex items-center justify-center gap-2",
+                      uploadStatus === 'uploading' ? "opacity-60 cursor-not-allowed bg-emerald-600" : "hover:bg-emerald-400"
+                    )}
                   >
-                    {isAr ? 'إرسال الاستفسار' : 'Submit Inquiry'} <ArrowRight className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
+                    {uploadStatus === 'uploading' ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{isAr ? 'جاري رفع المرفق...' : 'Uploading attachment...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{isAr ? 'إرسال الاستفسار' : 'Submit Inquiry'}</span>
+                        <ArrowRight className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
+                      </>
+                    )}
                   </button>
 
                   <p className="text-xs text-zinc-600 text-center max-w-sm mx-auto">
@@ -378,7 +610,7 @@ export default function ContactRFPPage() {
                       {faqCtaDesc}
                     </p>
                     <Link 
-                      href={cmsData?.faqCta?.ctaLink || '#'} 
+                      href={localizeHref(cmsData?.faqCta?.ctaLink || '/b2b/faqs', locale)} 
                       className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
                     >
                       {faqCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />

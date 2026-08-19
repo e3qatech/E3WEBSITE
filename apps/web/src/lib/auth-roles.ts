@@ -108,3 +108,36 @@ export function isClientRole(role?: string | null): boolean {
 export function isCandidateRole(role?: string | null): boolean {
   return normalizeRole(role) === ('CANDIDATE' as any);
 }
+
+export type AppPermission =
+  | 'CRM_RFP_DOCUMENT_READ'
+  | 'CRM_LEADS_MANAGE'
+  | 'CMS_PAGES_EDIT'
+  | 'SETTINGS_VIEW';
+
+const PERMISSION_ROLE_MAP: Record<AppPermission, string[]> = {
+  CRM_RFP_DOCUMENT_READ: ['SUPER_ADMIN', 'SALES_ADMIN', 'B2B_ADMIN', 'CRM_MANAGER', 'ADMIN'],
+  CRM_LEADS_MANAGE: ['SUPER_ADMIN', 'SALES_ADMIN', 'B2B_ADMIN', 'CRM_MANAGER', 'ADMIN'],
+  CMS_PAGES_EDIT: ['SUPER_ADMIN', 'ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN'],
+  SETTINGS_VIEW: ['SUPER_ADMIN', 'ADMIN'],
+};
+
+/**
+ * Authoritative server permission verification.
+ * Evaluates whether a user's role grants a specific fine-grained permission.
+ */
+export function hasPermission(role: string | null | undefined, permission: AppPermission): boolean {
+  if (!role) return false;
+  const norm = normalizeRole(role);
+  const clean = String(role).trim().toUpperCase();
+  const allowed = PERMISSION_ROLE_MAP[permission] || [];
+  return allowed.includes(clean) || allowed.includes(norm);
+}
+
+/**
+ * Authoritative check for CRM lead / RFP document read permissions.
+ * Maps to canonical permission CRM_RFP_DOCUMENT_READ.
+ */
+export function canAccessB2BRFPDocuments(role?: string | null): boolean {
+  return hasPermission(role, 'CRM_RFP_DOCUMENT_READ');
+}
