@@ -100,7 +100,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Massive interconnected bouncy castles with launch pads, balance beams, and climbing walls.",
       descriptionAr: "قلعة هوائية عملاقة مترابطة مع منصات إطلاق وجسور توازن وجدران تسلق.",
       highlightType: "INFLATABLE",
-      imageUrl: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
       attractionSlug: "inflatacity-city-center",
       attractionNameEn: "InflataCity",
       attractionNameAr: "إنفلاتا سيتي"
@@ -112,7 +112,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Continuous wall-to-wall trampolines with dodgeball zones and slam dunk basketball hoops.",
       descriptionAr: "مساحات ترامبولين متصلة من الجدار للجدار مع مناطق كرة الخروج وكرة السلة الهوائية.",
       highlightType: "TRAMPOLINE",
-      imageUrl: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -124,7 +124,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Flip, spin, and launch safely from high dive platforms into cloud-soft giant air mattresses.",
       descriptionAr: "شقلبة وقفز بهلواني آمن من منصات مرتفعة نحو وسائد هوائية متطورة.",
       highlightType: "FREESTYLE",
-      imageUrl: "https://images.unsplash.com/photo-1526676037777-05a232554f77?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/Post%20Event%20Report%20InflataCity%202025%20_Page_013_Image_0007.jpg",
       attractionSlug: "inflatacity-city-center",
       attractionNameEn: "InflataCity",
       attractionNameAr: "إنفلاتا سيتي"
@@ -138,7 +138,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Multi-level futuristic labyrinth with ultraviolet glow, smoke effects, and live team scoring.",
       descriptionAr: "متاهة مستقبلية متعددة الطوابق بإضاءة فوق بنفسجية ومؤثرات دخانية وتسجيل مباشر للنقاط.",
       highlightType: "TACTICAL",
-      imageUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -150,7 +150,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Pugil stick jousting on elevated podiums above soft air pits — ultimate balance and reflexes.",
       descriptionAr: "مبارزة على منصات مرتفعة فوق وسائد هوائية ناعمة لاختبار التوازن وردود الفعل السريعة.",
       highlightType: "TOURNAMENT",
-      imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/984f661d-5185-4d2e-aa3c-4ca54b54d6e9.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -162,7 +162,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Immersive multiplayer VR motion tracking battles with real-time spectator display boards.",
       descriptionAr: "معارك واقع افتراضي جماعية غامرة مع تتبع حركة فوري وشاشات عرض للمشاهدين.",
       highlightType: "ESPORTS",
-      imageUrl: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8138.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -188,7 +188,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Darkened sensory room with UV fluorescent obstacles, optical illusions, and hidden puzzles.",
       descriptionAr: "غرفة حسية مظلمة مع عوائق نيون متوهجة وخداع بصري وألغاز سرية لاكتشافها.",
       highlightType: "SENSORY",
-      imageUrl: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC09277-2.jpg",
       attractionSlug: "crayons-and-bricks-place-vendome",
       attractionNameEn: "Crayons & Bricks",
       attractionNameAr: "كرايونز آند بريكس"
@@ -200,7 +200,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Splash-filled interactive world bringing Nickelodeon characters, waterslides, and photo zones to life.",
       descriptionAr: "عالم مائي تفاعلي مبهج يجمع شخصيات نيكلوديون المحبوبة والزلاقات المائية والمناظر المميزة.",
       highlightType: "ADVENTURE",
-      imageUrl: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/2809137c-b6cd-48f0-94d4-80e19c038e4e.JPG",
       attractionSlug: "spongebob-squarepants-paw-patrol-activation-meryal",
       attractionNameEn: "SpongeBob & PAW Patrol Activation",
       attractionNameAr: "فعالية سبونج بوب وباو باترول"
@@ -214,7 +214,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Private immersive themed birthday suites with dedicated party hosts, custom lighting, and catering.",
       descriptionAr: "أجنحة أعياد ميلاد خاصة ذات طابع فضائي غامر مع منسق حفلات خاص وإضاءة مخصصة وضيافة.",
       highlightType: "BIRTHDAYS",
-      imageUrl: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC06321.jpg",
       attractionSlug: "inflatacity-city-center",
       attractionNameEn: "InflataCity",
       attractionNameAr: "إنفلاتا سيتي"
@@ -226,7 +226,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Exclusive mezzanine lounge overlooking the arena for milestone celebrations and private gatherings.",
       descriptionAr: "صالة ميزانين حصرية تطل على الميدان الترفيهي للاحتفالات الخاصة والمناسبات الكبرى.",
       highlightType: "VIP LOUNGE",
-      imageUrl: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -238,7 +238,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "After-dark music festival sessions with live DJs, glowing wristbands, and illuminated night runs.",
       descriptionAr: "سهرات ليلية موسيقية مميزة مع دي جي وأساور متوهجة وسباقات ليلية ممتعة لجميع الأعمار.",
       highlightType: "CARNIVAL",
-      imageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC00640.jpg",
       attractionSlug: "inflatarun-qatar",
       attractionNameEn: "InflataRUN Qatar",
       attractionNameAr: "إنفلاتارن قطر"
@@ -252,7 +252,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Multi-age exploration zones with padded toddler labyrinths, ball pits, and sensory discovery rooms.",
       descriptionAr: "مناطق استكشاف لجميع الأعمار مع متاهات آمنة للأطفال وحفر كرات وغرف حسية ممتعة.",
       highlightType: "ALL AGES",
-      imageUrl: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC01674.jpg",
       attractionSlug: "inflatacity-city-center",
       attractionNameEn: "InflataCity",
       attractionNameAr: "إنفلاتا سيتي"
@@ -264,7 +264,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Dedicated morning sensory sessions for toddlers with soft lighting and gentle musical journeys.",
       descriptionAr: "جلسات صباحية مخصصة للأطفال الصغار مع إضاءة هادئة وموسيقى تفاعلية خفيفة.",
       highlightType: "TODDLER",
-      imageUrl: "https://images.unsplash.com/photo-1596464716127-f2a829822301?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/79a8b014-64b7-4d8f-97f3-0fedca268e8a.jpeg",
       attractionSlug: "crayons-and-bricks-place-vendome",
       attractionNameEn: "Crayons & Bricks",
       attractionNameAr: "كرايونز آند بريكس"
