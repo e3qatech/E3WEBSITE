@@ -34,11 +34,28 @@ if (!dbUrl) {
   process.exit(1);
 }
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: { url: dbUrl }
+let prisma;
+async function initPrisma() {
+  const urlsToTry = [
+    dbUrl,
+    dbUrl.replace('-pooler', ''),
+    dbUrl.replace('.neon.tech', '-pooler.neon.tech') + (dbUrl.includes('?') ? '&pgbouncer=true' : '?pgbouncer=true')
+  ];
+
+  for (const u of urlsToTry) {
+    try {
+      const client = new PrismaClient({ datasources: { db: { url: u } } });
+      await client.$connect();
+      console.log('Connected to DB successfully');
+      prisma = client;
+      return;
+    } catch (e) {
+      console.log('Could not connect with url variant, trying next...');
+    }
   }
-});
+  // Fallback to default
+  prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
+}
 
 const DEFAULT_SPATIAL_SECTIONS = [
   {
@@ -230,7 +247,30 @@ const DEFAULT_SPATIAL_SECTIONS = [
   }
 ];
 
+function cleanUnsplash(obj) {
+  if (!obj) return;
+  if (typeof obj === 'string') return;
+  if (Array.isArray(obj)) {
+    for (let i = 0; i < obj.length; i++) {
+      if (typeof obj[i] === 'string' && obj[i].includes('unsplash.com')) {
+        obj[i] = 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg';
+      } else if (typeof obj[i] === 'object') {
+        cleanUnsplash(obj[i]);
+      }
+    }
+  } else if (typeof obj === 'object') {
+    for (const k of Object.keys(obj)) {
+      if (typeof obj[k] === 'string' && obj[k].includes('unsplash.com')) {
+        obj[k] = 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg';
+      } else if (typeof obj[k] === 'object') {
+        cleanUnsplash(obj[k]);
+      }
+    }
+  }
+}
+
 async function main() {
+  await initPrisma();
   console.log('--- 1. Updating b2c-landing page in Preview DB ---');
   const b2cPage = await prisma.pages.findUnique({
     where: { slug: 'b2c-landing' }
@@ -247,30 +287,53 @@ async function main() {
       faces: DEFAULT_SPATIAL_SECTIONS
     };
 
-    // Clean any remaining unsplash URLs in b2c-landing content
-    if (rawContent.act3Worlds && Array.isArray(rawContent.act3Worlds)) {
-      rawContent.act3Worlds.forEach(w => {
-        if (w.mediaUrl && w.mediaUrl.includes('unsplash.com')) {
-          w.mediaUrl = 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg';
-        }
-      });
-    }
-
-    if (rawContent.ourBrands && Array.isArray(rawContent.ourBrands.brands)) {
-      rawContent.ourBrands.brands.forEach(b => {
-        if (b.logoDark && b.logoDark.includes('unsplash.com')) {
-          b.logoDark = 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/2809137c-b6cd-48f0-94d4-80e19c038e4e.JPG';
-        }
-      });
-    }
+    cleanUnsplash(rawContent);
 
     await prisma.pages.update({
       where: { slug: 'b2c-landing' },
       data: { content: rawContent }
     });
-    console.log('[SUCCESS] b2c-landing updated: spatialExperience.enabled = true');
+    console.log('[SUCCESS] b2c-landing updated: spatialExperience.enabled = true and all unsplash URLs cleaned');
   } else {
     console.log('[WARN] b2c-landing page record not found in Pages table');
+  }
+
+  console.log('--- 1b. Cleaning pulse-orbit and other preview DB pages ---');
+  const otherPages = await prisma.pages.findMany({
+    where: {
+      slug: { in: ['pulse-orbit', 'b2c-pulse-orbit', 'b2b-team-page'] }
+    }
+  });
+  for (const op of otherPages) {
+    const contentObj = (typeof op.content === 'object' && op.content !== null)
+      ? op.content
+      : JSON.parse(op.content || '{}');
+    cleanUnsplash(contentObj);
+    await prisma.pages.update({
+      where: { id: op.id },
+      data: { content: contentObj }
+    });
+    console.log(`[SUCCESS] Cleaned page: ${op.slug}`);
+  }
+
+  console.log('--- 1c. Cleaning preview DB settings ---');
+  const settings = await prisma.setting.findMany({
+    where: {
+      key: { in: ['cms_page_b2c-pulse-orbit', 'gateway_customization_draft', 'gateway_customization_published', 'gateway_experience_versions'] }
+    }
+  });
+  for (const s of settings) {
+    const valObj = (typeof s.value === 'object' && s.value !== null)
+      ? s.value
+      : (typeof s.value === 'string' && s.value.startsWith('{') ? JSON.parse(s.value) : s.value);
+    if (typeof valObj === 'object') {
+      cleanUnsplash(valObj);
+      await prisma.setting.update({
+        where: { id: s.id },
+        data: { value: valObj }
+      });
+      console.log(`[SUCCESS] Cleaned setting: ${s.key}`);
+    }
   }
 
   console.log('--- 2. Updating StoryType in Preview DB ---');
