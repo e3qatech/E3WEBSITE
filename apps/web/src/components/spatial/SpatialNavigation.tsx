@@ -3,9 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { ArrowLeft, ArrowRight, SkipForward, Globe } from 'lucide-react';
+import { ArrowLeft, ArrowRight, SkipForward } from 'lucide-react';
 import { SpatialSection } from './spatial-experience.types';
-import { cn } from '@/lib/utils';
 import { localizeHref } from '@/lib/url-helper';
 
 export interface SpatialNavigationProps {

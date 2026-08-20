@@ -98,7 +98,7 @@ export function E3EnergyHub({
       uVelocity: { value: 0 },
       uPulse: { value: 0 },
     }),
-    []
+    [haloColor, accentColor]
   );
 
   // Ambient dust particle cloud along horizontal axle
@@ -111,24 +111,30 @@ export function E3EnergyHub({
     const baseColor = new THREE.Color(accentColor);
     const axleWidth = SPATIAL_OCTAGON_CONFIG.faceWidth * 0.9;
 
+    // Pure deterministic PRNG based on index for rendering purity
+    const prng = (seed: number) => {
+      const x = Math.sin(seed * 9301 + 49297) * 233280;
+      return x - Math.floor(x);
+    };
+
     for (let i = 0; i < particleCount; i++) {
       // Spread across horizontal axle X in [-axleWidth/2, +axleWidth/2]
-      pos[i * 3] = (Math.random() - 0.5) * axleWidth;
+      pos[i * 3] = (prng(i * 4 + 1) - 0.5) * axleWidth;
       // Orbit in Y-Z radius between 0.8 and 3.2
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 0.8 + Math.random() * 2.4;
+      const angle = prng(i * 4 + 2) * Math.PI * 2;
+      const radius = 0.8 + prng(i * 4 + 3) * 2.4;
       pos[i * 3 + 1] = Math.sin(angle) * radius;
       pos[i * 3 + 2] = Math.cos(angle) * radius;
 
-      col[i * 3] = baseColor.r * (0.6 + Math.random() * 0.5);
-      col[i * 3 + 1] = baseColor.g * (0.6 + Math.random() * 0.5);
-      col[i * 3 + 2] = baseColor.b * (0.6 + Math.random() * 0.5);
+      col[i * 3] = baseColor.r * (0.6 + prng(i * 4 + 4) * 0.5);
+      col[i * 3 + 1] = baseColor.g * (0.6 + prng(i * 4 + 4) * 0.5);
+      col[i * 3 + 2] = baseColor.b * (0.6 + prng(i * 4 + 4) * 0.5);
 
-      spd[i] = 0.2 + Math.random() * 0.8;
+      spd[i] = 0.2 + prng(i * 4 + 5) * 0.8;
     }
 
     return { positions: pos, colors: col, speeds: spd };
-  }, [particleCount, isMobile, accentColor]);
+  }, [particleCount, accentColor]);
 
   useFrame((state, delta) => {
     // 1. Detect rotation change to trigger energy pulse

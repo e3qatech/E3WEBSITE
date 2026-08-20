@@ -81,18 +81,12 @@ export function UniversalMediaRenderer({
   const [hasError, setHasError] = React.useState(false)
   
   if (!src || hasError) {
-    if (poster && !hasError) {
-      return (
-        <div className={cn("relative w-full h-full overflow-hidden", className)}>
-          <img src={poster} alt={alt} className="w-full h-full object-cover" onError={() => setHasError(true)} />
-        </div>
-      )
-    }
+    const fallbackSrc = poster || "/hero-bg.png";
     return (
       <div className={cn("relative w-full h-full overflow-hidden bg-zinc-950", className)}>
-        <img src="/hero-bg.png" alt={alt} className="w-full h-full object-cover opacity-70" />
+        <img src={fallbackSrc} alt={alt} className="w-full h-full object-cover" />
       </div>
-    )
+    );
   }
 
   let effectiveSrc = src.trim();
@@ -129,18 +123,21 @@ export function UniversalMediaRenderer({
   }
 
   switch (type) {
-    case 'IMAGE':
+    case 'IMAGE': {
+      const isSpline = effectiveSrc.includes('spline.design') || effectiveSrc.includes('.splinecode') || effectiveSrc.includes('<iframe');
+      const finalImgSrc = isSpline ? (poster || '/hero-bg.png') : effectiveSrc;
       return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
           <img 
-            key={src}
-            src={src}
+            key={finalImgSrc}
+            src={finalImgSrc}
             alt={alt}
             onError={() => setHasError(true)}
             className="w-full h-full object-cover"
           />
         </div>
-      )
+      );
+    }
       
     case 'VIDEO':
       return (
@@ -158,14 +155,25 @@ export function UniversalMediaRenderer({
             className="w-full h-full object-cover"
           />
         </div>
-      )
+      );
       
     case 'IFRAME':
+      if (hasError) {
+        return (
+          <div className={cn("relative w-full h-full overflow-hidden", className)}>
+            <img 
+              src={poster || "/hero-bg.png"} 
+              alt={alt} 
+              className="w-full h-full object-cover" 
+            />
+          </div>
+        );
+      }
       return (
         <div className={cn("relative w-full h-full", className)}>
           <iframe 
-            key={src}
-            src={src}
+            key={effectiveSrc}
+            src={effectiveSrc}
             title={alt}
             onError={() => setHasError(true)}
             className="w-full h-full border-0"
@@ -173,7 +181,7 @@ export function UniversalMediaRenderer({
             loading="lazy"
           />
         </div>
-      )
+      );
       
     case 'SPLINE':
       if (!src.includes('.splinecode') && !src.includes('spline.design')) {
