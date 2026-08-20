@@ -161,17 +161,17 @@ export function UniversalMediaRenderer({
       if (hasError) {
         return (
           <div className={cn("relative w-full h-full overflow-hidden", className)}>
-            <img 
-              src={poster || "/hero-bg.png"} 
-              alt={alt} 
-              className="w-full h-full object-cover" 
+            <img
+              src={poster || "/hero-bg.png"}
+              alt={alt}
+              className="w-full h-full object-cover"
             />
           </div>
         );
       }
       return (
         <div className={cn("relative w-full h-full", className)}>
-          <iframe 
+          <iframe
             key={effectiveSrc}
             src={effectiveSrc}
             title={alt}
