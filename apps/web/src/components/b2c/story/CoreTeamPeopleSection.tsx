@@ -14,7 +14,7 @@ interface CoreTeamPeopleSectionProps {
 
 function getValidPortraitUrl(url?: string): string {
   if (!url || typeof url !== 'string' || url.includes('eeeqa.com') || url.includes('placeholder')) {
-    return "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop"
+    return "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC01674.jpg"
   }
   return url
 }
