@@ -35,25 +35,6 @@ export default async function MotionLabHorizontalCylinderPage(props: {
   const { locale } = await props.params;
   const isAr = locale === 'ar';
 
-  const isDev = process.env.NODE_ENV !== 'production';
-  let isAuthorized = isDev;
-  if (!isAuthorized) {
-    try {
-      const { auth } = await import('@/lib/auth');
-      const session = await auth();
-      const role = (session?.user as any)?.role;
-      if (['SUPER_ADMIN', 'ADMIN', 'STAFF', 'EDITOR', 'SALES_ADMIN', 'SUPPORT_ADMIN'].includes(role)) {
-        isAuthorized = true;
-      }
-    } catch (_e) {}
-  }
-
-  // If in production and not authorized, redirect or show safe fallback
-  if (!isAuthorized) {
-    const { redirect } = await import('next/navigation');
-    redirect(`/${locale}/b2c`);
-  }
-
   const cmsData = await getCMSPageContentServer("b2c-landing");
   const cmsFaces = cmsData?.spatialExperience?.faces;
 

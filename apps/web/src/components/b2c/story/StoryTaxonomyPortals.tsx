@@ -24,7 +24,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "High-speed indoor electric karts with hairpins, neon lighting, and digital telemetry timing.",
       descriptionAr: "كارتينج كهربائي عالي السرعة داخل الصالة مع إضاءة نيون وتوقيت رقمي متطور.",
       highlightType: "RACING",
-      imageUrl: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/298ec2c1-9ff1-4cf9-b5f4-e61f9176c059.jpg",
       attractionSlug: "kids-city-driving-school",
       attractionNameEn: "Kids City Driving School",
       attractionNameAr: "مدرسة قيادة مدينة الأطفال"
@@ -36,7 +36,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Interactive junior track with real traffic lights, road rules, and personalized driving licenses.",
       descriptionAr: "مسار تفاعلي للأطفال مع إشارات مرور حقيقية ورخص قيادة خاصة.",
       highlightType: "ACADEMY",
-      imageUrl: "https://images.unsplash.com/photo-1595760780346-f972eb49709f?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/72ab2c19-e5de-4554-9ae2-b1beecc7ffab.jpg",
       attractionSlug: "kids-city-driving-school",
       attractionNameEn: "Kids City Driving School",
       attractionNameAr: "مدرسة قيادة مدينة الأطفال"
@@ -48,7 +48,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Challenging off-road obstacle track with banks, elevation shifts, and rugged karts.",
       descriptionAr: "مسار عقبات رملي ووعر مع منحدرات وتحديات القيادة الحماسية.",
       highlightType: "OFF-ROAD",
-      imageUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -62,7 +62,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Conquer the world's longest continuous inflatable obstacle course and set official leaderboard times.",
       descriptionAr: "تحدَّ أطول مسار عقبات هوائي مسجل في غينيس للأرقام القياسية وحقق أفضل الأوقات.",
       highlightType: "WORLD RECORD",
-      imageUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/Post%20Event%20Report%20InflataCity%202025%20_Page_013_Image_0007.jpg",
       attractionSlug: "inflatarun-qatar",
       attractionNameEn: "InflataRUN Qatar",
       attractionNameAr: "إنفلاتارن قطر"
@@ -74,7 +74,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Multi-tiered sprint zones, climbing towers, and extreme slide drops designed for top athletes.",
       descriptionAr: "مناطق انطلاق متعددة المستويات وأبراج تسلق وزلاقات عملاقة للمحترفين.",
       highlightType: "CHALLENGE",
-      imageUrl: "https://images.unsplash.com/photo-1471295253337-3ceaaedca402?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
       attractionSlug: "inflatarun-qatar",
       attractionNameEn: "InflataRUN Qatar",
       attractionNameAr: "إنفلاتارن قطر"
@@ -86,7 +86,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionEn: "Zero-gravity drop into giant air cushioned impact zones with precision high-speed camera captures.",
       descriptionAr: "قفز حر من منصات مرتفعة نحو وسائد هوائية عملاقة مع توثيق احترافي بالفيديو.",
       highlightType: "AERIAL",
-      imageUrl: "https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/984f661d-5185-4d2e-aa3c-4ca54b54d6e9.jpg",
       attractionSlug: "rush-action-park",
       attractionNameEn: "Rush Action Park",
       attractionNameAr: "راش أكشن بارك"
@@ -277,7 +277,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
   const router = useRouter()
   const searchParams = useSearchParams()
   const capabilityTier = useCapabilityTier()
-  const isReducedMotion = capabilityTier === 'minimal'
+  const _isReducedMotion = capabilityTier === 'minimal'
 
   const selector = content?.intentSelector || {}
   
@@ -360,7 +360,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
           category: String(titleEnStr || st.slug || st.id || 'CATEGORY').toUpperCase(),
           mediaUrl: st.coverMediaUrl 
             || displayActivities[0]?.imageUrl 
-            || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=2071&auto=format&fit=crop',
+            || 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg',
           accentColor: st.accentColor || '#a855f7',
           orderIndex: st.orderIndex ?? 0,
           hasPublishedActivities: displayActivities.length > 0,

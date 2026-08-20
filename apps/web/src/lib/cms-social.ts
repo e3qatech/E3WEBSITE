@@ -103,7 +103,7 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
     platform: "INSTAGRAM",
     postUrl: "https://instagram.com/p/C_e3qatar2",
     mediaType: "IMAGE",
-    mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
     captionEn: "Pure joy bouncing at InflataPark! Over 5,000 sqm of continuous obstacle courses.",
     captionAr: "بهجة غير محدودة في إنفلاتابارك! أكثر من ٥٠٠٠ متر مربع من الألعاب الهوائية.",
     platformPostId: "ig_67890",
