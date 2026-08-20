@@ -1,13 +1,27 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ArrowDown, Sparkles, Layers } from 'lucide-react';
 import { HorizontalOctagonalExperience } from '@/components/spatial';
 import { localizeHref } from '@/lib/url-helper';
-
 import { getCMSPageContentServer } from '@/lib/cms-server';
 
 export const dynamic = 'force-dynamic';
+
+export function isMotionLabAllowedInEnvironment(): boolean {
+  // Available in local development and Vercel Preview
+  const isVercelPreview = process.env.VERCEL_ENV === 'preview';
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+
+  if (isVercelPreview || isDevelopment) {
+    return true;
+  }
+
+  // In production, requires explicit server-only opt-in flag (default: disabled)
+  const isExplicitlyEnabled = process.env.ENABLE_MOTION_LAB_PRODUCTION === 'true';
+  return isExplicitlyEnabled;
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -34,6 +48,11 @@ export default async function MotionLabHorizontalCylinderPage(props: {
 }) {
   const { locale } = await props.params;
   const isAr = locale === 'ar';
+
+  // In production without explicit feature flag, redirect to B2C
+  if (!isMotionLabAllowedInEnvironment()) {
+    redirect(`/${locale}/b2c`);
+  }
 
   const cmsData = await getCMSPageContentServer("b2c-landing");
   const cmsFaces = cmsData?.spatialExperience?.faces;

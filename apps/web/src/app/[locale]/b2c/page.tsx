@@ -197,7 +197,7 @@ export default async function B2CLandingPage(props: {
         roleAr: m.roleAr || m.designationAr || m.designation || "قيادي",
         bioEn: m.bioEn || m.aboutSummary || m.tagline || "",
         bioAr: m.bioAr || m.aboutSummaryAr || m.bioEn || m.aboutSummary || m.tagline || "",
-        portrait: m.portrait || m.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+        portrait: m.portrait || m.profileImage || "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC01674.jpg",
         showProfileLink: true,
         profileCtaLabelEn: "View Profile",
         profileCtaLabelAr: "عرض الملف",
