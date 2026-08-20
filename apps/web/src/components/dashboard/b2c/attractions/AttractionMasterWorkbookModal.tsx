@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import { useParams } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -10,22 +9,16 @@ import {
   CheckCircle2,
   AlertCircle,
   Play,
-  Layers,
   X,
-  RefreshCw,
   Eye,
   ShieldCheck,
   Image as ImageIcon,
-  Sparkles,
-  Info,
-  Check,
-  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Lock
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ValidationReport, ValidationRecordDiff } from "@/lib/attraction-master-workbook"
+import { ValidationReport } from "@/lib/attraction-master-workbook"
 
 interface AttractionMasterWorkbookModalProps {
   isOpen: boolean
@@ -45,10 +38,9 @@ export function AttractionMasterWorkbookModal({
   onImportComplete
 }: AttractionMasterWorkbookModalProps) {
   const params = useParams()
-  const locale = (params?.locale as string) || "en"
-  const isAr = locale === "ar"
+  const isAr = params?.locale === "ar"
 
-  const [file, setFile] = useState<File | null>(null)
+  const [file, _setFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [report, setReport] = useState<ValidationReport | null>(null)
   const [applied, setApplied] = useState(false)
@@ -68,25 +60,6 @@ export function AttractionMasterWorkbookModal({
       if (!confirmLeave) return
     }
     onClose()
-  }
-
-  const handleFileDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    if (e.dataTransfer.files?.[0]) {
-      setFile(e.dataTransfer.files[0])
-      setReport(null)
-      setApplied(false)
-      setErrorMessage(null)
-    }
-  }
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setFile(e.target.files[0])
-      setReport(null)
-      setApplied(false)
-      setErrorMessage(null)
-    }
   }
 
   const runValidation = async (dryRun: boolean) => {
@@ -218,24 +191,26 @@ export function AttractionMasterWorkbookModal({
             </div>
           )}
 
-          {/* File Dropzone */}
+          {/* Maintenance / Disabled Notice */}
+          <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/30 flex items-center gap-3 text-xs text-amber-300">
+            <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>
+              {isAr
+                ? "استيراد ملفات العمل متوقف مؤقتاً أثناء ترقية معالج جداول البيانات."
+                : "Workbook import is temporarily unavailable while the spreadsheet processor is being upgraded."}
+            </span>
+          </div>
+
+          {/* File Dropzone (Disabled) */}
           {!applied && (
             <div
-              onDragOver={e => e.preventDefault()}
-              onDrop={handleFileDrop}
-              onClick={() => document.getElementById("masterWorkbookFileInput")?.click()}
-              className={cn(
-                "border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-3",
-                file
-                  ? "border-emerald-500/50 bg-emerald-500/5"
-                  : "border-slate-800 hover:border-purple-500/50 bg-[#0f172a]/40"
-              )}
+              className="border-2 border-dashed rounded-2xl p-8 text-center transition-all flex flex-col items-center justify-center space-y-3 border-slate-800 bg-[#0f172a]/20 opacity-60 pointer-events-none"
             >
               <input
                 id="masterWorkbookFileInput"
                 type="file"
+                disabled
                 accept=".xlsx,.xls,.csv"
-                onChange={handleFileSelect}
                 className="hidden"
               />
 

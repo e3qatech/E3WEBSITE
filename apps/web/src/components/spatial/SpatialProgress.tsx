@@ -42,6 +42,7 @@ export function SpatialProgress({
               <button
                 key={section.id}
                 onClick={() => onSelectIndex(idx)}
+                aria-current={isActive ? "step" : undefined}
                 aria-label={`${isAr ? 'الانتقال إلى' : 'Jump to'} ${isAr ? section.eyebrowAr : section.eyebrowEn}`}
                 className="group flex items-center gap-3 p-1.5 rounded-xl transition-all duration-300 hover:bg-zinc-800/60 focus:outline-none focus:ring-1 focus:ring-zinc-400"
               >

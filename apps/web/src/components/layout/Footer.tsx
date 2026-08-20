@@ -73,26 +73,40 @@ export function Footer({ portal, settings = {} }: FooterProps) {
   const footerMediaObj: any = typeof settings.footerMedia === "object" ? settings.footerMedia : null;
   const backgroundMediaObj: any = settings.backgroundMedia ? (typeof settings.backgroundMedia === "string" ? (settings.backgroundMedia.startsWith("{") ? JSON.parse(settings.backgroundMedia) : { mediaUrl: settings.backgroundMedia }) : settings.backgroundMedia) : null;
   
-  const bgMediaUrl = settings.footerMediaUrl || settings.footerBackgroundMediaUrl || settings.backgroundMediaUrl || (typeof settings.footerMedia === "string" ? settings.footerMedia : footerMediaObj?.mediaUrl || footerMediaObj?.url || footerMediaObj?.backgroundImage) || backgroundMediaObj?.mediaUrl || backgroundMediaObj?.url;
+  const bgMediaUrl = settings.footerMediaUrl || settings.footerBackgroundMediaUrl || settings.backgroundMediaUrl || (typeof settings.footerMedia === "string" ? settings.footerMedia : footerMediaObj?.mediaUrl || footerMediaObj?.url || footerMediaObj?.backgroundImage) || backgroundMediaObj?.mediaUrl || backgroundMediaObj?.url || "";
+  const bgPosterUrl = settings.footerPosterUrl || settings.backgroundPosterUrl || footerMediaObj?.posterMediaUrl || footerMediaObj?.posterUrl || backgroundMediaObj?.posterMediaUrl || backgroundMediaObj?.posterUrl || "";
+
+  const isSpline = typeof bgMediaUrl === 'string' && (bgMediaUrl.includes('spline.design') || bgMediaUrl.includes('.splinecode'));
+
   let rawType = (settings.footerMediaType || settings.backgroundMediaType || settings.mediaType || footerMediaObj?.mediaType || backgroundMediaObj?.mediaType || "").toString().toUpperCase();
 
   if (!rawType && bgMediaUrl) {
     if (bgMediaUrl.includes('youtube.com') || bgMediaUrl.includes('youtu.be')) rawType = 'YOUTUBE';
     else if (bgMediaUrl.includes('vimeo.com')) rawType = 'VIMEO';
     else if (bgMediaUrl.endsWith('.mp4') || bgMediaUrl.endsWith('.webm')) rawType = 'VIDEO';
-    else if (bgMediaUrl.includes('.splinecode') || bgMediaUrl.includes('spline.design')) rawType = 'THREE_D';
+    else if (isSpline) rawType = 'IFRAME';
     else rawType = 'IMAGE';
   }
-  const bgMediaType = rawType === "MODEL_3D" ? "THREE_D" : (rawType || "IMAGE");
-  const bgPosterUrl = settings.footerPosterUrl || settings.backgroundPosterUrl || footerMediaObj?.posterMediaUrl || footerMediaObj?.posterUrl || backgroundMediaObj?.posterMediaUrl || backgroundMediaObj?.posterUrl;
+
+  // Enforce: Render footerMediaUrl only inside an iframe when footerMediaType === "IFRAME"
+  const isIframe = rawType === "IFRAME" || rawType === "YOUTUBE" || rawType === "VIMEO";
+  const bgMediaType: string = isIframe ? rawType : (rawType === "VIDEO" ? "VIDEO" : "IMAGE");
+
+  // Effective src: For IMAGE mode, use footerPosterUrl (or non-spline bgMediaUrl, never Spline iframe URL)
+  let effectiveSrc = bgMediaUrl;
+  if (bgMediaType === "IMAGE") {
+    effectiveSrc = bgPosterUrl || (!isSpline ? bgMediaUrl : "/hero-bg.png");
+  } else if (!isIframe && isSpline) {
+    effectiveSrc = bgPosterUrl || "/hero-bg.png";
+  }
 
   return (
     <footer className="relative bg-[var(--surface-default)] border-t border-[var(--border-level-2)] pt-16 pb-8 overflow-hidden">
       {/* Full-Bleed Footer Background Media Container (Image, Video, Iframe, 3D) */}
-      {bgMediaUrl ? (
+      {(effectiveSrc || bgPosterUrl) ? (
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
           <UniversalMediaRenderer
-            src={bgMediaUrl}
+            src={effectiveSrc || bgPosterUrl}
             type={bgMediaType as any}
             alt="Footer Background Media"
             className="w-full h-full object-cover"

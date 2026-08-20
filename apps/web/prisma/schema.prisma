@@ -451,6 +451,7 @@ model Lead {
   updatedAt        DateTime       @updatedAt
   inquiries        Inquiry[]
   activities       LeadActivity[]
+  attachments      UploadRecord[]
 
   @@index([status])
 }
@@ -2020,5 +2021,49 @@ model ImportJob {
   @@index([status])
   @@index([targetType])
   @@index([createdAt])
+}
+
+enum UploadStatus {
+  INITIATED
+  UPLOADED
+  VALIDATING
+  VALIDATED
+  ATTACHED
+  REJECTED
+  EXPIRED
+  DELETED
+}
+
+enum QuarantineStatus {
+  UNSCANNED
+  QUARANTINED
+  CLEAN
+  REJECTED
+}
+
+model UploadRecord {
+  id               String           @id @default(uuid())
+  purpose          String           @default("B2B_RFP") // B2B_RFP, PUBLIC_RESUME, CMS_MEDIA
+  pathname         String           @unique
+  originalFilename String
+  extension        String
+  mimeType         String
+  sizeBytes        Int
+  sha256           String?
+  sessionHash      String
+  status           UploadStatus     @default(INITIATED)
+  quarantineStatus QuarantineStatus @default(UNSCANNED)
+  leadId           String?
+  lead             Lead?            @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  expiresAt        DateTime
+  attachedAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([sessionHash])
+  @@index([status])
+  @@index([purpose])
+  @@index([expiresAt])
+  @@index([leadId])
 }
 

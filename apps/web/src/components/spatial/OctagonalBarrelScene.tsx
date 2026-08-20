@@ -57,6 +57,42 @@ function BarrelCore({
     }
   });
 
+  // 3. Virtualized Recycled Face Window:
+  // Dynamically map active and transition faces into an 8-slot physical cylinder without geometry collisions
+  const virtualFaces = useMemo(() => {
+    if (!sections || sections.length === 0) return [];
+
+    // For <= 8 sections, map directly
+    if (sections.length <= 8) {
+      return sections.map((section, sIdx) => ({
+        section,
+        sectionIndex: sIdx,
+        slotIndex: sIdx,
+        isActive: sIdx === activeIndex,
+      }));
+    }
+
+    // For > 8 sections, compute an 8-face window around activeIndex (e.g. [-3 .. +4])
+    const windowStart = Math.max(0, activeIndex - 3);
+    const windowEnd = Math.min(sections.length - 1, windowStart + 7);
+    const adjustedStart = Math.max(0, Math.min(windowStart, windowEnd - 7));
+
+    const result = [];
+    for (let sIdx = adjustedStart; sIdx <= windowEnd; sIdx++) {
+      const section = sections[sIdx];
+      if (section) {
+        const slotIndex = ((sIdx % 8) + 8) % 8;
+        result.push({
+          section,
+          sectionIndex: sIdx,
+          slotIndex,
+          isActive: sIdx === activeIndex,
+        });
+      }
+    }
+    return result;
+  }, [sections, activeIndex]);
+
   const activeSection = sections[activeIndex] || sections[0];
   const haloColor = activeSection?.haloColor || '#0284c7';
   const accentColor = activeSection?.accentColor || '#38bdf8';
@@ -90,14 +126,15 @@ function BarrelCore({
         color={haloColor}
       />
 
-      {/* 3. The 8-Sided Horizontal Rotating Barrel Group */}
+      {/* 3. The 8-Sided Horizontal Rotating Barrel Group with Recycled Virtual Face Pool */}
       <group ref={barrelGroupRef} position={[0, 0, 0]}>
-        {sections.map((section, idx) => (
+        {virtualFaces.map((item) => (
           <SpatialFace
-            key={section.id}
-            section={section}
-            index={idx}
-            isActive={idx === activeIndex}
+            key={item.section.id}
+            section={item.section}
+            slotIndex={item.slotIndex}
+            sectionIndex={item.sectionIndex}
+            isActive={item.isActive}
             barrelRotationX={smoothedRotationX.current}
           />
         ))}

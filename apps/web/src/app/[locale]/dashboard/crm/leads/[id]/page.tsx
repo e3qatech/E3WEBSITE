@@ -27,6 +27,9 @@ export default async function LeadDetailPage({
       },
       inquiries: {
         orderBy: { createdAt: "desc" }
+      },
+      attachments: {
+        orderBy: { createdAt: "desc" }
       }
     }
   })
@@ -47,6 +50,13 @@ export default async function LeadDetailPage({
       ...i,
       createdAt: i.createdAt.toISOString(),
       updatedAt: i.updatedAt.toISOString()
+    })),
+    attachments: (lead.attachments || []).map((att: any) => ({
+      ...att,
+      createdAt: att.createdAt.toISOString(),
+      updatedAt: att.updatedAt.toISOString(),
+      expiresAt: att.expiresAt.toISOString(),
+      attachedAt: att.attachedAt ? att.attachedAt.toISOString() : null,
     }))
   }
 

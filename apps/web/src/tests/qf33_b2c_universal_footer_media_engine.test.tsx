@@ -99,6 +99,49 @@ describe('QF-33: B2C Universal Footer Multi-Media Engine & Landing Editor Integr
       expect(html).toContain('<video');
       expect(html).toContain('src="https://cdn.e3.qa/assets/laser-night.mp4"');
     });
+
+    it('never passes a Spline iframe URL to an <img> and renders iframe or poster backdrop', () => {
+      const settings = {
+        siteNameEn: 'E3 Qatar',
+        footerMediaUrl: 'https://my.spline.design/animatedpaperboat-ahi7E6PPIrYTnd679KdwEtKu/',
+        footerMediaType: 'IFRAME',
+        footerPosterUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg',
+      };
+
+      const html = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <ThemeProvider>
+            <Footer portal="b2c" settings={settings} />
+          </ThemeProvider>
+        </LocaleProvider>
+      );
+
+      expect(html).toContain('<iframe');
+      expect(html).toContain('src="https://my.spline.design/animatedpaperboat-ahi7E6PPIrYTnd679KdwEtKu/"');
+      // Must not pass the spline iframe url to an img src
+      expect(html).not.toContain('<img src="https://my.spline.design/animatedpaperboat-ahi7E6PPIrYTnd679KdwEtKu/"');
+    });
+
+    it('uses footerPosterUrl for image background when footerMediaType is IMAGE', () => {
+      const settings = {
+        siteNameEn: 'E3 Qatar',
+        footerMediaUrl: 'https://my.spline.design/animatedpaperboat-ahi7E6PPIrYTnd679KdwEtKu/',
+        footerMediaType: 'IMAGE',
+        footerPosterUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg',
+      };
+
+      const html = renderToStaticMarkup(
+        <LocaleProvider defaultLocale="en">
+          <ThemeProvider>
+            <Footer portal="b2c" settings={settings} />
+          </ThemeProvider>
+        </LocaleProvider>
+      );
+
+      expect(html).toContain('<img');
+      expect(html).toContain('src="https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg"');
+      expect(html).not.toContain('src="https://my.spline.design');
+    });
   });
 
   describe('2. B2C Landing Page Editor Section 8 Studio', () => {

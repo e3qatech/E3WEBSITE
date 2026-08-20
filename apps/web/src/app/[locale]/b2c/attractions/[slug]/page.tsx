@@ -298,18 +298,30 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     }
   }
 
-  const faqJsonLd = faq?.length ? {
+  const validFaqs = Array.isArray(faq) ? faq.filter((f: any) => {
+    if (!f) return false;
+    const q = locale === 'ar' ? (f.questionAr || f.questionEn) : (f.questionEn || f.questionAr);
+    const a = locale === 'ar' ? (f.answerAr || f.answerEn) : (f.answerEn || f.answerAr);
+    return Boolean(q && a && q.trim().length > 0 && a.trim().length > 0);
+  }) : [];
+
+  const faqJsonLd = validFaqs.length ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faq.map((f: any) => ({
-      "@type": "Question",
-      name: f.questionEn,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: f.answerEn
-      }
-    }))
-  } : null
+    inLanguage: locale === 'ar' ? "ar-QA" : "en-US",
+    mainEntity: validFaqs.map((f: any) => {
+      const q = locale === 'ar' ? (f.questionAr || f.questionEn) : (f.questionEn || f.questionAr);
+      const a = locale === 'ar' ? (f.answerAr || f.answerEn) : (f.answerEn || f.answerAr);
+      return {
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: a
+        }
+      };
+    })
+  } : null;
 
   return (
     <main className="min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] relative selection:bg-emerald-500 selection:text-white">
