@@ -16,54 +16,55 @@ describe('Motion Lab Horizontal Cylinder Route Protection & Environment Routing'
     process.env = { ...originalEnv };
   });
 
-  it('1. VERCEL_ENV=preview renders motion lab directly without redirect', () => {
-    process.env.VERCEL_ENV = 'preview';
-    (process.env as any).NODE_ENV = 'production';
-    delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
-
-    expect(isMotionLabAllowedInEnvironment()).toBe(true);
-  });
-
-  it('2. VERCEL_ENV=production without feature flag blocks access and requires redirect', () => {
+  it('1. VERCEL_ENV=production blocks access (fail-closed)', () => {
     process.env.VERCEL_ENV = 'production';
-    (process.env as any).NODE_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
     delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
 
     expect(isMotionLabAllowedInEnvironment()).toBe(false);
   });
 
-  it('3. VERCEL_ENV=production with ENABLE_MOTION_LAB_PRODUCTION=true renders motion lab', () => {
+  it('2. VERCEL_ENV=production and ENABLE_MOTION_LAB_PRODUCTION=true remains blocked', () => {
     process.env.VERCEL_ENV = 'production';
-    (process.env as any).NODE_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
     process.env.ENABLE_MOTION_LAB_PRODUCTION = 'true';
+
+    expect(isMotionLabAllowedInEnvironment()).toBe(false);
+  });
+
+  it('3. VERCEL_ENV=preview allows access', () => {
+    process.env.VERCEL_ENV = 'preview';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+    delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
 
     expect(isMotionLabAllowedInEnvironment()).toBe(true);
   });
 
-  it('4. Arabic redirect preserves /ar/b2c and English redirect preserves /en/b2c', () => {
-    expect(getMotionLabRedirectUrl('ar')).toBe('/ar/b2c');
+  it('4. NODE_ENV=development without VERCEL_ENV allows access', () => {
+    delete process.env.VERCEL_ENV;
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'development';
+    delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
+
+    expect(isMotionLabAllowedInEnvironment()).toBe(true);
+  });
+
+  it('5. NODE_ENV=production without VERCEL_ENV blocks access', () => {
+    delete process.env.VERCEL_ENV;
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+    delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
+
+    expect(isMotionLabAllowedInEnvironment()).toBe(false);
+  });
+
+  it('6. English redirect target is /en/b2c', () => {
     expect(getMotionLabRedirectUrl('en')).toBe('/en/b2c');
   });
 
-  it('5. Missing Vercel environment in normal local development renders directly', () => {
-    delete process.env.VERCEL_ENV;
-    delete process.env.NEXT_PUBLIC_VERCEL_ENV;
-    (process.env as any).NODE_ENV = 'development';
-    delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
-
-    expect(isMotionLabAllowedInEnvironment()).toBe(true);
+  it('7. Arabic redirect target is /ar/b2c', () => {
+    expect(getMotionLabRedirectUrl('ar')).toBe('/ar/b2c');
   });
 
-  it('6. Missing Vercel environment without NODE_ENV defaults safely to rendering in development', () => {
-    delete process.env.VERCEL_ENV;
-    delete process.env.NEXT_PUBLIC_VERCEL_ENV;
-    delete (process.env as any).NODE_ENV;
-    delete process.env.ENABLE_MOTION_LAB_PRODUCTION;
-
-    expect(isMotionLabAllowedInEnvironment()).toBe(true);
-  });
-
-  it('7. Enforces noindex, nofollow metadata for English and Arabic locales', async () => {
+  it('8. Robots metadata remains no-index/no-follow', async () => {
     const metaEn = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
     expect(metaEn.robots).toEqual({ index: false, follow: false });
     expect(metaEn.title).toContain('Motion Lab');
