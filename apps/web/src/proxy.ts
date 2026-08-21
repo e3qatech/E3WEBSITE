@@ -49,7 +49,20 @@ export function proxy(req: NextRequest) {
     // Keep raw on malformed decode
   }
 
-  // 4. Legacy Root Login Routes (Redirect to localized canonical login)
+  // 4. Motion Lab Production Boundary Guard (Authoritative Non-Streamed Redirect)
+  const motionLabMatch = normalizedPath.match(/^\/(en|ar)\/motion-lab\/horizontal-cylinder\/?$/i);
+  if (motionLabMatch) {
+    const isProduction =
+      process.env.VERCEL_ENV === 'production' ||
+      (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'production');
+
+    if (isProduction) {
+      const locale = motionLabMatch[1].toLowerCase();
+      return NextResponse.redirect(new URL(`/${locale}/b2c`, nextUrl.origin), 307);
+    }
+  }
+
+  // 5. Legacy Root Login Routes (Redirect to localized canonical login)
   if (normalizedPath === '/client/login') {
     return NextResponse.redirect(new URL(`/${targetLocale}/login/business`, nextUrl));
   }

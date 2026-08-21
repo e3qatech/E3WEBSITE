@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { proxy } from '../proxy';
 
@@ -134,5 +134,119 @@ describe('Gate 03: proxy.ts Routing Boundary', () => {
     const req1 = createMockRequest('/DASHBOARD/');
     const res1 = proxy(req1) as NextResponse;
     expect(res1).toBeDefined();
+  });
+});
+
+describe('Motion Lab Production Proxy Boundary Guard', () => {
+  const originalEnv = { ...process.env };
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  const createMockRequest = (pathname: string, cookies: Record<string, string> = {}) => {
+    const url = new URL(`https://e3-qatar.com${pathname}`);
+    const req = new NextRequest(url);
+    for (const [key, value] of Object.entries(cookies)) {
+      req.cookies.set(key, value);
+    }
+    return req;
+  };
+
+  it('1. Production English redirects to /en/b2c with status 307 and discards query params', () => {
+    process.env.VERCEL_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+
+    const req = createMockRequest('/en/motion-lab/horizontal-cylinder?ref=promo&v=2');
+    const res = proxy(req) as NextResponse;
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://e3-qatar.com/en/b2c');
+  });
+
+  it('2. Production Arabic redirects to /ar/b2c with status 307 and discards query params', () => {
+    process.env.VERCEL_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+
+    const req = createMockRequest('/ar/motion-lab/horizontal-cylinder?tab=preview');
+    const res = proxy(req) as NextResponse;
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://e3-qatar.com/ar/b2c');
+  });
+
+  it('3. Production with ENABLE_MOTION_LAB_PRODUCTION=true remains blocked', () => {
+    process.env.VERCEL_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+    process.env.ENABLE_MOTION_LAB_PRODUCTION = 'true';
+
+    const reqEn = createMockRequest('/en/motion-lab/horizontal-cylinder');
+    const resEn = proxy(reqEn) as NextResponse;
+    expect(resEn.status).toBe(307);
+    expect(resEn.headers.get('location')).toBe('https://e3-qatar.com/en/b2c');
+
+    const reqAr = createMockRequest('/ar/motion-lab/horizontal-cylinder');
+    const resAr = proxy(reqAr) as NextResponse;
+    expect(resAr.status).toBe(307);
+    expect(resAr.headers.get('location')).toBe('https://e3-qatar.com/ar/b2c');
+  });
+
+  it('4. Preview English and Arabic continue through the proxy', () => {
+    process.env.VERCEL_ENV = 'preview';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+
+    const reqEn = createMockRequest('/en/motion-lab/horizontal-cylinder');
+    const resEn = proxy(reqEn) as NextResponse;
+    expect(resEn.status).toBe(200);
+
+    const reqAr = createMockRequest('/ar/motion-lab/horizontal-cylinder');
+    const resAr = proxy(reqAr) as NextResponse;
+    expect(resAr.status).toBe(200);
+  });
+
+  it('5. Local development continues through the proxy', () => {
+    delete process.env.VERCEL_ENV;
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'development';
+
+    const reqEn = createMockRequest('/en/motion-lab/horizontal-cylinder');
+    const resEn = proxy(reqEn) as NextResponse;
+    expect(resEn.status).toBe(200);
+
+    const reqAr = createMockRequest('/ar/motion-lab/horizontal-cylinder');
+    const resAr = proxy(reqAr) as NextResponse;
+    expect(resAr.status).toBe(200);
+  });
+
+  it('6. Unrelated routes remain unchanged', () => {
+    process.env.VERCEL_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+
+    const reqB2c = createMockRequest('/en/b2c');
+    const resB2c = proxy(reqB2c) as NextResponse;
+    expect(resB2c.status).toBe(200);
+
+    const reqB2b = createMockRequest('/b2b');
+    const resB2b = proxy(reqB2b) as NextResponse;
+    expect(resB2b.status).toBe(307);
+    expect(resB2b.headers.get('location')).toBe('https://e3-qatar.com/en/b2b');
+  });
+
+  it('7. Trailing-slash variants redirect correctly in production', () => {
+    process.env.VERCEL_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+
+    const reqEn = createMockRequest('/en/motion-lab/horizontal-cylinder/');
+    const resEn = proxy(reqEn) as NextResponse;
+    expect(resEn.status).toBe(307);
+    expect(resEn.headers.get('location')).toBe('https://e3-qatar.com/en/b2c');
+
+    const reqAr = createMockRequest('/ar/motion-lab/horizontal-cylinder/');
+    const resAr = proxy(reqAr) as NextResponse;
+    expect(resAr.status).toBe(307);
+    expect(resAr.headers.get('location')).toBe('https://e3-qatar.com/ar/b2c');
   });
 });
