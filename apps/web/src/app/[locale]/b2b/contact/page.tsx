@@ -41,7 +41,6 @@ export default function ContactRFPPage() {
 
     let rfpUploadId: string | undefined;
     let rfpClaimToken: string | undefined;
-    let rfpFileName: string | undefined;
 
     if (rfpFile) {
       const uploadData = new FormData();
@@ -56,7 +55,6 @@ export default function ContactRFPPage() {
           const uploadJson = await uploadRes.json();
           rfpUploadId = uploadJson.uploadId;
           rfpClaimToken = uploadJson.claimToken;
-          rfpFileName = uploadJson.fileName || rfpFile.name;
         } else {
           const errData = await uploadRes.json().catch(() => ({}));
           setErrorMessage(errData.error || (isAr ? 'فشل تحميل ملف طلب العروض.' : 'RFP document upload failed.'));
@@ -80,7 +78,6 @@ export default function ContactRFPPage() {
       notes: formData.get("notes"),
       rfpUploadId,
       rfpClaimToken,
-      rfpFileName,
     }
 
     try {

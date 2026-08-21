@@ -4,7 +4,16 @@ import crypto from 'crypto';
 import zlib from 'zlib';
 
 // Helper to construct real, conforming in-memory ZIP buffers for test fixtures
-function createInMemoryZip(files: Array<{ name: string; content: string | Buffer }>): Buffer {
+function createInMemoryZip(
+  files: Array<{
+    name: string;
+    content: string | Buffer;
+    compressionMethod?: number;
+    flags?: number;
+    uncompressedSizeOverride?: number;
+    compressedSizeOverride?: number;
+  }>
+): Buffer {
   const localHeaders: Buffer[] = [];
   const cdHeaders: Buffer[] = [];
   let offset = 0;
@@ -12,7 +21,9 @@ function createInMemoryZip(files: Array<{ name: string; content: string | Buffer
   for (const file of files) {
     const nameBuf = Buffer.from(file.name, 'utf8');
     const rawContent = Buffer.isBuffer(file.content) ? file.content : Buffer.from(file.content, 'utf8');
-    const compressed = zlib.deflateRawSync(rawContent);
+    const method = file.compressionMethod !== undefined ? file.compressionMethod : 8;
+    const flags = file.flags !== undefined ? file.flags : 0;
+    const compressed = method === 8 ? zlib.deflateRawSync(rawContent) : rawContent;
 
     // Compute CRC32
     let crc = 0 ^ (-1);
@@ -21,17 +32,20 @@ function createInMemoryZip(files: Array<{ name: string; content: string | Buffer
     }
     crc = (crc ^ (-1)) >>> 0;
 
+    const uncompSize = file.uncompressedSizeOverride !== undefined ? file.uncompressedSizeOverride : rawContent.length;
+    const compSize = file.compressedSizeOverride !== undefined ? file.compressedSizeOverride : compressed.length;
+
     // 1. Local file header (30 bytes + filename + compressed data)
     const localHeader = Buffer.alloc(30);
     localHeader.writeUInt32LE(0x04034b50, 0); // PK\x03\x04
     localHeader.writeUInt16LE(20, 4); // version needed
-    localHeader.writeUInt16LE(0, 6); // general flags
-    localHeader.writeUInt16LE(8, 8); // compression method (deflate)
+    localHeader.writeUInt16LE(flags, 6); // general flags
+    localHeader.writeUInt16LE(method, 8); // compression method
     localHeader.writeUInt16LE(0, 10); // mod time
     localHeader.writeUInt16LE(0, 12); // mod date
     localHeader.writeUInt32LE(crc, 14); // crc32
-    localHeader.writeUInt32LE(compressed.length, 18); // compressed size
-    localHeader.writeUInt32LE(rawContent.length, 22); // uncompressed size
+    localHeader.writeUInt32LE(compSize, 18); // compressed size
+    localHeader.writeUInt32LE(uncompSize, 22); // uncompressed size
     localHeader.writeUInt16LE(nameBuf.length, 26); // filename len
     localHeader.writeUInt16LE(0, 28); // extra field len
 
@@ -43,13 +57,13 @@ function createInMemoryZip(files: Array<{ name: string; content: string | Buffer
     cdHeader.writeUInt32LE(0x02014b50, 0); // PK\x01\x02
     cdHeader.writeUInt16LE(20, 4); // version made by
     cdHeader.writeUInt16LE(20, 6); // version needed
-    cdHeader.writeUInt16LE(0, 8); // flags
-    cdHeader.writeUInt16LE(8, 10); // compression method
+    cdHeader.writeUInt16LE(flags, 8); // flags
+    cdHeader.writeUInt16LE(method, 10); // compression method
     cdHeader.writeUInt16LE(0, 12); // mod time
     cdHeader.writeUInt16LE(0, 14); // mod date
     cdHeader.writeUInt32LE(crc, 16); // crc32
-    cdHeader.writeUInt32LE(compressed.length, 20); // compressed size
-    cdHeader.writeUInt32LE(rawContent.length, 24); // uncompressed size
+    cdHeader.writeUInt32LE(compSize, 20); // compressed size
+    cdHeader.writeUInt32LE(uncompSize, 24); // uncompressed size
     cdHeader.writeUInt16LE(nameBuf.length, 28); // filename len
     cdHeader.writeUInt16LE(0, 30); // extra len
     cdHeader.writeUInt16LE(0, 32); // comment len
@@ -187,8 +201,23 @@ vi.mock('@/lib/db', () => ({
       findUnique: vi.fn().mockImplementation(({ where }: any) => {
         return Promise.resolve(memoryStore.rfpUploads.get(where.id) || null);
       }),
-      findMany: vi.fn().mockResolvedValue([]),
-      delete: vi.fn().mockResolvedValue({ id: 'rfp_del' }),
+      findMany: vi.fn().mockImplementation(({ where }: any) => {
+        const all = Array.from(memoryStore.rfpUploads.values());
+        return Promise.resolve(
+          all.filter((r) => {
+            if (where.purpose && r.purpose !== where.purpose) return false;
+            if (where.status?.in && !where.status.in.includes(r.status)) return false;
+            if (where.leadId === null && r.leadId !== null) return false;
+            if (where.expiresAt?.lt && !(new Date(r.expiresAt) < where.expiresAt.lt)) return false;
+            return true;
+          })
+        );
+      }),
+      delete: vi.fn().mockImplementation(({ where }: any) => {
+        const record = memoryStore.rfpUploads.get(where.id);
+        memoryStore.rfpUploads.delete(where.id);
+        return Promise.resolve(record || { id: where.id });
+      }),
       updateMany: vi.fn().mockImplementation(({ where, data }: any) => {
         const record = memoryStore.rfpUploads.get(where.id);
         if (record && record.status === where.status && record.leadId === where.leadId) {
@@ -345,8 +374,23 @@ vi.mock('@/lib/db', () => ({
       findUnique: vi.fn().mockImplementation(({ where }: any) => {
         return Promise.resolve(memoryStore.rfpUploads.get(where.id) || null);
       }),
-      findMany: vi.fn().mockResolvedValue([]),
-      delete: vi.fn().mockResolvedValue({ id: 'rfp_del' }),
+      findMany: vi.fn().mockImplementation(({ where }: any) => {
+        const all = Array.from(memoryStore.rfpUploads.values());
+        return Promise.resolve(
+          all.filter((r) => {
+            if (where.purpose && r.purpose !== where.purpose) return false;
+            if (where.status?.in && !where.status.in.includes(r.status)) return false;
+            if (where.leadId === null && r.leadId !== null) return false;
+            if (where.expiresAt?.lt && !(new Date(r.expiresAt) < where.expiresAt.lt)) return false;
+            return true;
+          })
+        );
+      }),
+      delete: vi.fn().mockImplementation(({ where }: any) => {
+        const record = memoryStore.rfpUploads.get(where.id);
+        memoryStore.rfpUploads.delete(where.id);
+        return Promise.resolve(record || { id: where.id });
+      }),
       updateMany: vi.fn().mockImplementation(({ where, data }: any) => {
         const record = memoryStore.rfpUploads.get(where.id);
         if (record && record.status === where.status && record.leadId === where.leadId) {
@@ -492,7 +536,8 @@ import { POST as postSubscribe } from '@/app/api/subscribe/route';
 import { POST as postAdminEmailTest } from '@/app/api/admin/email/test/route';
 import { POST as postUpload } from '@/app/api/upload/route';
 import { GET as getDownload } from '@/app/api/upload/download/route';
-import { isValidDocxOoxml, isValidMagicBytes, parseZipCentralDirectory } from '@/lib/security';
+import { GET as getCronCleanup } from '@/app/api/cron/cleanup/route';
+import { isValidDocxOoxml, isValidMagicBytes, parseAndValidateZipArchive } from '@/lib/security';
 
 describe('Public Business Connections & Security Hardening Final Regression Suite', () => {
 
@@ -506,6 +551,7 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
     delete process.env.RFP_BLOB_READ_WRITE_TOKEN;
     delete process.env.BLOB_READ_WRITE_TOKEN;
     delete process.env.APP_BASE_URL;
+    delete process.env.CRON_SECRET;
   });
 
   describe('1. Upload Authentication & Alternate Path Rejection', () => {
@@ -564,16 +610,16 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
     });
   });
 
-  describe('2. Real DOCX ZIP Structure Validation', () => {
+  describe('2. Real DOCX ZIP Structure Validation & Attack Mitigation', () => {
     it('should validate a real in-memory valid DOCX ZIP with [Content_Types].xml and word/document.xml', () => {
       const validDocx = createInMemoryZip([
         { name: '[Content_Types].xml', content: '<?xml version="1.0"?><Types/>' },
         { name: 'word/document.xml', content: '<?xml version="1.0"?><w:document/>' },
       ]);
 
-      const parsed = parseZipCentralDirectory(validDocx);
-      expect(parsed).not.toBeNull();
-      expect(parsed?.entries.length).toBe(2);
+      const parsed = parseAndValidateZipArchive(validDocx);
+      expect(parsed.valid).toBe(true);
+      expect(parsed.entries?.length).toBe(2);
       expect(isValidDocxOoxml(validDocx)).toBe(true);
       expect(isValidMagicBytes(validDocx, 'docx')).toBe(true);
     });
@@ -584,14 +630,67 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
         { name: 'data.json', content: '{"key":1}' },
       ]);
 
-      const parsed = parseZipCentralDirectory(genericZip);
-      expect(parsed).not.toBeNull();
+      const parsed = parseAndValidateZipArchive(genericZip);
+      expect(parsed.valid).toBe(true);
       expect(isValidDocxOoxml(genericZip)).toBe(false);
+    });
+
+    it('should reject path traversal in archive entries', () => {
+      const traversalZip = createInMemoryZip([
+        { name: '[Content_Types].xml', content: '<Types/>' },
+        { name: '../../etc/passwd', content: 'root:x:0:0' },
+      ]);
+
+      const parsed = parseAndValidateZipArchive(traversalZip);
+      expect(parsed.valid).toBe(false);
+      expect(parsed.reason).toContain('Illegal path');
+      expect(isValidDocxOoxml(traversalZip)).toBe(false);
+    });
+
+    it('should reject encrypted ZIP entries', () => {
+      const encryptedZip = createInMemoryZip([
+        { name: '[Content_Types].xml', content: '<Types/>', flags: 1 },
+        { name: 'word/document.xml', content: '<w:document/>' },
+      ]);
+
+      const parsed = parseAndValidateZipArchive(encryptedZip);
+      expect(parsed.valid).toBe(false);
+      expect(parsed.reason).toContain('Encrypted');
+      expect(isValidDocxOoxml(encryptedZip)).toBe(false);
+    });
+
+    it('should reject unsupported compression methods', () => {
+      const unsupportedZip = createInMemoryZip([
+        { name: '[Content_Types].xml', content: '<Types/>', compressionMethod: 9 },
+        { name: 'word/document.xml', content: '<w:document/>' },
+      ]);
+
+      const parsed = parseAndValidateZipArchive(unsupportedZip);
+      expect(parsed.valid).toBe(false);
+      expect(parsed.reason).toContain('Unsupported compression method');
+      expect(isValidDocxOoxml(unsupportedZip)).toBe(false);
+    });
+
+    it('should reject decompression bomb / dangerous compression ratio entries', () => {
+      const bombZip = createInMemoryZip([
+        {
+          name: 'word/document.xml',
+          content: 'a',
+          uncompressedSizeOverride: 10 * 1024 * 1024, // Claims 10MB uncompressed
+          compressedSizeOverride: 10, // from 10 bytes (ratio 1,000,000:1)
+        },
+        { name: '[Content_Types].xml', content: '<Types/>' },
+      ]);
+
+      const parsed = parseAndValidateZipArchive(bombZip);
+      expect(parsed.valid).toBe(false);
+      expect(parsed.reason).toContain('compression ratio');
+      expect(isValidDocxOoxml(bombZip)).toBe(false);
     });
 
     it('should reject corrupt ZIP bytes and fake string buffers', () => {
       const corruptBytes = Buffer.from([0x50, 0x4B, 0x03, 0x04, 0x00, 0x00, 0x12, 0x34]);
-      expect(parseZipCentralDirectory(corruptBytes)).toBeNull();
+      expect(parseAndValidateZipArchive(corruptBytes).valid).toBe(false);
       expect(isValidDocxOoxml(corruptBytes)).toBe(false);
 
       const fakeSubstringBuffer = Buffer.from('PK\x03\x04 fake data containing [Content_Types].xml and word/document.xml but no EOCD');
@@ -727,7 +826,54 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
     });
   });
 
-  describe('5. Hardened Lead Ingest & 400/409 Error Mapping', () => {
+  describe('5. B2B RFP Form Contract & Lead Ingest Integration', () => {
+    it('should successfully submit actual B2B page form payload without rfpFileName', async () => {
+      const rawClaim = crypto.randomBytes(32).toString('hex');
+      const claimHash = crypto.createHash('sha256').update(rawClaim).digest('hex');
+      const uploadId = 'rfp_page_contract_101';
+
+      memoryStore.rfpUploads.set(uploadId, {
+        id: uploadId,
+        purpose: 'B2B_RFP',
+        pathname: 'private_rfps/contract_spec.pdf',
+        originalFileName: 'contract_spec.pdf',
+        fileSize: 45000,
+        claimTokenHash: claimHash,
+        status: 'VALIDATED',
+        leadId: null,
+        expiresAt: new Date(Date.now() + 3600000),
+      });
+
+      // Payload exactly matching apps/web/src/app/[locale]/b2b/contact/page.tsx
+      const browserPayload = {
+        name: 'Mansoor Al-Hajri',
+        company: 'Doha Event Logistics',
+        email: 'mansoor@dohaevents.qa',
+        phone: '+974 4455 6677',
+        interestServices: ['BRAND_ACTIVATIONS'],
+        notes: 'Need full inflatable stadium activation for National Day.',
+        rfpUploadId: uploadId,
+        rfpClaimToken: rawClaim,
+      };
+
+      const req = new NextRequest('http://localhost/api/crm/leads/ingest', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(browserPayload),
+      });
+
+      const res = await postLeadsIngest(req);
+      expect(res.status).toBe(201);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(json.leadId).toBeDefined();
+
+      // Verify that the record transitioned to ATTACHED state
+      const attached = memoryStore.rfpUploads.get(uploadId);
+      expect(attached.status).toBe('ATTACHED');
+      expect(attached.leadId).toBe(json.leadId);
+    });
+
     it('should require rfpUploadId and rfpClaimToken together', async () => {
       const req = new NextRequest('http://localhost/api/crm/leads/ingest', {
         method: 'POST',
@@ -807,7 +953,76 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
     });
   });
 
-  describe('6. Password Reset Security & Strict Test-Only Token Guard', () => {
+  describe('6. Expired Unattached RFP Cleanup & Cron Protection', () => {
+    it('should delete expired unattached records and preserve ATTACHED records', async () => {
+      process.env.RFP_BLOB_READ_WRITE_TOKEN = 'test_rfp_token';
+      process.env.CRON_SECRET = 'secret_cron_key_123';
+
+      const expiredId = 'rfp_expired_01';
+      const attachedId = 'rfp_attached_01';
+      const validUnexpiredId = 'rfp_valid_active_01';
+
+      // 1. Expired unattached record
+      memoryStore.rfpUploads.set(expiredId, {
+        id: expiredId,
+        purpose: 'B2B_RFP',
+        pathname: 'private_rfps/old_expired.pdf',
+        status: 'VALIDATED',
+        leadId: null,
+        expiresAt: new Date(Date.now() - 3600000), // 1 hour ago
+      });
+
+      // 2. Attached record
+      memoryStore.rfpUploads.set(attachedId, {
+        id: attachedId,
+        purpose: 'B2B_RFP',
+        pathname: 'private_rfps/attached_proposal.pdf',
+        status: 'ATTACHED',
+        leadId: 'lead_real_999',
+        expiresAt: new Date(Date.now() - 3600000), // Even if past expiresAt, must NEVER be deleted
+      });
+
+      // 3. Active unexpired unattached record
+      memoryStore.rfpUploads.set(validUnexpiredId, {
+        id: validUnexpiredId,
+        purpose: 'B2B_RFP',
+        pathname: 'private_rfps/active.pdf',
+        status: 'VALIDATED',
+        leadId: null,
+        expiresAt: new Date(Date.now() + 3600000), // 1 hour future
+      });
+
+      // Run cleanup via authenticated cron route
+      const cronReq = new NextRequest('http://localhost/api/cron/cleanup', {
+        headers: { authorization: 'Bearer secret_cron_key_123' },
+      });
+
+      const res = await getCronCleanup(cronReq);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(json.cleaned.rfpUploadsDeleted).toBe(1);
+
+      // Assertions
+      expect(memoryStore.rfpUploads.has(expiredId)).toBe(false);
+      expect(memoryStore.rfpUploads.has(attachedId)).toBe(true);
+      expect(memoryStore.rfpUploads.has(validUnexpiredId)).toBe(true);
+      expect(mockBlobDel).toHaveBeenCalledWith('private_rfps/old_expired.pdf');
+    });
+
+    it('should reject unauthenticated cron cleanup requests', async () => {
+      process.env.CRON_SECRET = 'secret_cron_key_123';
+
+      const cronReq = new NextRequest('http://localhost/api/cron/cleanup', {
+        headers: { authorization: 'Bearer wrong_secret' },
+      });
+
+      const res = await getCronCleanup(cronReq);
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('7. Password Reset Security & Strict Test-Only Token Guard', () => {
     it('should never expose resetToken in non-test runtime environments', async () => {
       const origNodeEnv = process.env.NODE_ENV;
       const origVitest = process.env.VITEST;
@@ -838,7 +1053,7 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
     });
   });
 
-  describe('7. Chatbot & Public Support Invariants', () => {
+  describe('8. Chatbot & Public Support Invariants', () => {
     it('should return honest unconfigured state and fallback to info@eeeqa.com', async () => {
       delete process.env.OPENAI_API_KEY;
       delete process.env.GEMINI_API_KEY;
