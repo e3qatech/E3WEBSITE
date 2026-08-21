@@ -1020,6 +1020,24 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
       const res = await getCronCleanup(cronReq);
       expect(res.status).toBe(401);
     });
+
+    it('should verify /api/cron/cleanup and /api/cron/social-sync are registered in authoritative vercel.json', async () => {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const rootVercelJsonPath = path.resolve(process.cwd(), '../../vercel.json');
+      const content = JSON.parse(await fs.readFile(rootVercelJsonPath, 'utf8'));
+
+      expect(content.crons).toBeDefined();
+      expect(Array.isArray(content.crons)).toBe(true);
+
+      const socialSyncCron = content.crons.find((c: any) => c.path === '/api/cron/social-sync');
+      expect(socialSyncCron).toBeDefined();
+      expect(socialSyncCron.schedule).toBe('*/30 * * * *');
+
+      const cleanupCron = content.crons.find((c: any) => c.path === '/api/cron/cleanup');
+      expect(cleanupCron).toBeDefined();
+      expect(cleanupCron.schedule).toBe('0 * * * *');
+    });
   });
 
   describe('7. Password Reset Security & Strict Test-Only Token Guard', () => {
