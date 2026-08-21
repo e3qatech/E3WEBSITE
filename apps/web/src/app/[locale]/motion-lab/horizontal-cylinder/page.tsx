@@ -1,13 +1,31 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ArrowDown, Sparkles, Layers } from 'lucide-react';
 import { HorizontalOctagonalExperience } from '@/components/spatial';
 import { localizeHref } from '@/lib/url-helper';
-
 import { getCMSPageContentServer } from '@/lib/cms-server';
 
 export const dynamic = 'force-dynamic';
+
+export function isMotionLabAllowedInEnvironment(): boolean {
+  // Available in local development and Vercel Preview
+  const isVercelPreview = process.env.VERCEL_ENV === 'preview' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
+  const isDevelopment = process.env.NODE_ENV === 'development' || (!process.env.NODE_ENV && !process.env.VERCEL_ENV);
+
+  if (isVercelPreview || isDevelopment) {
+    return true;
+  }
+
+  // In production, requires explicit server-only opt-in flag (default: disabled)
+  const isExplicitlyEnabled = process.env.ENABLE_MOTION_LAB_PRODUCTION === 'true';
+  return isExplicitlyEnabled;
+}
+
+export function getMotionLabRedirectUrl(locale: string): string {
+  return `/${locale}/b2c`;
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -35,22 +53,8 @@ export default async function MotionLabHorizontalCylinderPage(props: {
   const { locale } = await props.params;
   const isAr = locale === 'ar';
 
-  const isDev = process.env.NODE_ENV !== 'production';
-  let isAuthorized = isDev;
-  if (!isAuthorized) {
-    try {
-      const { auth } = await import('@/lib/auth');
-      const session = await auth();
-      const role = (session?.user as any)?.role;
-      if (['SUPER_ADMIN', 'ADMIN', 'STAFF', 'EDITOR', 'SALES_ADMIN', 'SUPPORT_ADMIN'].includes(role)) {
-        isAuthorized = true;
-      }
-    } catch (_e) {}
-  }
-
-  // If in production and not authorized, redirect or show safe fallback
-  if (!isAuthorized) {
-    const { redirect } = await import('next/navigation');
+  // In production without explicit feature flag, redirect to B2C
+  if (!isMotionLabAllowedInEnvironment()) {
     redirect(`/${locale}/b2c`);
   }
 

@@ -2,10 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, ArrowLeft, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink, ShieldCheck } from 'lucide-react';
 import { SpatialSection } from './spatial-experience.types';
 import { localizeHref } from '@/lib/url-helper';
-import { cn } from '@/lib/utils';
 
 export interface SpatialExperienceFallbackProps {
   sections: SpatialSection[];
@@ -16,7 +15,7 @@ export interface SpatialExperienceFallbackProps {
 export function SpatialExperienceFallback({
   sections,
   locale = 'en',
-  reason,
+  reason: _reason,
 }: SpatialExperienceFallbackProps) {
   const isAr = locale === 'ar';
 
@@ -36,14 +35,14 @@ export function SpatialExperienceFallback({
         </h1>
         <p className="text-zinc-400 max-w-xl mx-auto text-base">
           {isAr
-            ? "تصفح الأقسام الثمانية الرئيسية لمنظومة إي ثري الترفيهية في قطر بكل سلاسة وتوافق تام."
-            : "Browse all eight core chapters of E3 Qatar’s entertainment, event engineering, and attraction ecosystems."}
+            ? "تصفح أقسام منظومة إي ثري الترفيهية في قطر بكل سلاسة وتوافق تام."
+            : "Browse the chapters of E3 Qatar’s entertainment, event engineering, and attraction ecosystems."}
         </p>
       </div>
 
-      {/* 2. Vertical Section Cards (8 Sections) */}
+      {/* 2. Vertical Section Cards */}
       <div className="max-w-5xl mx-auto space-y-16">
-        {sections.map((section, idx) => (
+        {sections.map((section, _idx) => (
           <article
             key={section.id}
             id={section.slug}
@@ -57,7 +56,7 @@ export function SpatialExperienceFallback({
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-zinc-900 border border-zinc-800">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: section.accentColor }} />
-                <span>{section.sectionNumber} / 08</span>
+                <span>{section.sectionNumber} / {String(sections.length).padStart(2, '0')}</span>
                 <span className="text-zinc-600">•</span>
                 <span style={{ color: section.accentColor }}>{isAr ? section.eyebrowAr : section.eyebrowEn}</span>
               </div>

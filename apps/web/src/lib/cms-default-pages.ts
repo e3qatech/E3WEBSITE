@@ -272,7 +272,7 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
       ctaAr: "اقفز إلى المتعة",
       accentColor: "#ec4899",
       materialType: "INFLATABLE_SEAM",
-      mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop"
+      mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg"
     },
     {
       id: "crayons-bricks",
@@ -506,25 +506,25 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     buttonTextEn: "EXPLORE ALL ATTRACTIONS",
     buttonTextAr: "استكشف كافة الوجهات",
     buttonUrl: "/b2c/attractions",
-    backgroundImage: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
+    backgroundImage: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
+    mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
     mediaType: "IMAGE",
-    posterMediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+    posterMediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
   },
   footerMedia: {
     mediaType: "IMAGE",
-    mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
-    posterMediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
-    backgroundImage: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
+    mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
+    posterMediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
+    backgroundImage: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
     descriptionEn: "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.",
     descriptionAr: "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار.",
   },
-  footerMediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
+  footerMediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
   footerMediaType: "IMAGE",
-  footerPosterUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
-  footerBackgroundMediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop",
+  footerPosterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
+  footerBackgroundMediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
   footerBackgroundMediaType: "IMAGE",
-  footerBackgroundPosterUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+  footerBackgroundPosterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
   footerDescriptionEn: "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.",
   footerDescriptionAr: "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار.",
   careersCta: {
@@ -618,7 +618,7 @@ export const DEFAULT_B2B_TEAM_PAGE_CONTENT = {
   },
   heroMedia: {
     mediaType: "IMAGE",
-    mediaUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop",
+    mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC01674.jpg",
     posterUrl: ""
   },
   footerMedia: {
@@ -652,7 +652,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/attractions",
       descEn: "Pristine Snow Park, Urban Arena, Kids City, and kinetic entertainment.",
       descAr: "حديقة الثلج النقي، والساحة التفاعلية، وعالم الأطفال.",
-      mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
+      mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
       enabled: true,
     },
     {
@@ -662,7 +662,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/calendar",
       descEn: "Live concerts, seasonal festivals, passes, and exclusive entertainment shows.",
       descAr: "الحفلات الحية والمهرجانات الموسمية والتذاكر والعروض الترفيهية.",
-      mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
+      mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
       enabled: true,
     },
     {
@@ -672,7 +672,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/discover",
       descEn: "Curated visitor guides, dining, and spatial technology showcases.",
       descAr: "دليل الزوار، المطاعم، والتكنولوجيا التفاعلية.",
-      mediaUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC09277-2.jpg",
       enabled: true,
     },
     {
@@ -682,7 +682,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/packages",
       descEn: "VIP Birthday parties, corporate team outings, and private venue buyouts.",
       descAr: "حفلات أعياد الميلاد، الفعاليات الخاصة، وحجوزات الشركات.",
-      mediaUrl: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+      mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC06321.jpg",
       enabled: true,
     },
     {
@@ -692,7 +692,7 @@ export const DEFAULT_PULSE_ORBIT_CONTENT = {
       href: "/b2c/contact",
       descEn: "24/7 guest support, venue location, and concierge services.",
       descAr: "خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.",
-      mediaUrl: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1200&q=80",
+      mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
       enabled: true,
     },
   ]
@@ -1696,7 +1696,7 @@ export const DEFAULT_B2C_PACKAGES_PAGE_CONTENT = {
   campaignBadgeAr: "باقات كبار الشخصيات",
   heroMedia: {
     mediaType: "IMAGE",
-    mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop",
+    mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC06321.jpg",
   },
   footerMedia: {
     mediaType: "VIDEO",
@@ -1745,7 +1745,7 @@ export const DEFAULT_B2C_ATTRACTIONS_PAGE_CONTENT = {
   },
   footerMedia: {
     mediaType: "IMAGE",
-    mediaUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+    mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
   },
   seoTitle: "Experiences & Attractions | E3 Qatar",
   seoDescription: "Discover live events, family attractions, InflataPark, and tactical arenas."
@@ -2038,8 +2038,8 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
   if (slug === 'pulse-orbit') {
     const raw = rawContent || {};
     const defaultDestinations = [
-      { id: 'attractions', labelEn: 'Attractions', mediaUrl: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop' },
-      { id: 'packages', labelEn: 'Packages', mediaUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop' }
+      { id: 'attractions', labelEn: 'Attractions', mediaUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg' },
+      { id: 'packages', labelEn: 'Packages', mediaUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC06321.jpg' }
     ];
     return {
       ...raw,

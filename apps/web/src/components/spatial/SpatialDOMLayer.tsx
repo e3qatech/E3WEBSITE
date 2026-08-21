@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Sparkles, ExternalLink } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
 import { SpatialSection } from './spatial-experience.types';
 import { cn } from '@/lib/utils';
 import { localizeHref } from '@/lib/url-helper';
@@ -92,11 +92,13 @@ export function SpatialDOMLayer({
         const isPrev = idx === (activeIndex - 1 + sections.length) % sections.length;
         const isNext = idx === (activeIndex + 1) % sections.length;
 
-        // Render readable DOM content
+        // Render readable DOM content with proper accessibility inert/aria-hidden isolation
         return (
           <div
             key={section.id}
             id={`spatial-section-${section.slug}`}
+            aria-hidden={!isActive}
+            inert={!isActive ? true : undefined}
             className={cn(
               "absolute inset-0 w-full h-full flex flex-col justify-center items-center px-4 sm:px-8 md:px-12 lg:px-20 transition-all duration-700 ease-out",
               isActive ? "opacity-100 pointer-events-auto z-20" : "opacity-0 pointer-events-none z-0",
@@ -114,7 +116,7 @@ export function SpatialDOMLayer({
                 transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                 className="max-w-3xl lg:max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8"
               >
-                {/* 1. Eyebrow Badge & Section Tracker */}
+                {/* 1. Eyebrow Badge & Dynamic Section Tracker */}
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -127,7 +129,7 @@ export function SpatialDOMLayer({
                   }}
                 >
                   <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full animate-pulse" style={{ backgroundColor: section.accentColor }} />
-                  <span>{section.sectionNumber} / 08</span>
+                  <span>{section.sectionNumber} / {String(sections.length).padStart(2, '0')}</span>
                   <span className="text-zinc-500">•</span>
                   <span>{isAr ? section.eyebrowAr : section.eyebrowEn}</span>
                 </motion.div>

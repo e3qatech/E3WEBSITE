@@ -78,7 +78,7 @@ export function HorizontalGPUParallaxGallery({ content, locale }: HorizontalGPUP
                   />
                 ) : (
                   <img
-                    src={getCleanMediaUrl(moment.mediaUrl) || 'https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1200&auto=format&fit=crop'}
+                    src={getCleanMediaUrl(moment.mediaUrl) || 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC00640.jpg'}
                     alt={moment.titleEn || "Memory Moment"}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

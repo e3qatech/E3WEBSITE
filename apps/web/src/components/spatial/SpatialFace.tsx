@@ -7,21 +7,21 @@ import { SPATIAL_OCTAGON_CONFIG } from './spatial-experience.config';
 
 export interface SpatialFaceProps {
   section: SpatialSection;
-  index: number;
+  slotIndex: number;
   isActive: boolean;
-  barrelRotationX: number;
+  sectionIndex?: number;
+  barrelRotationX?: number;
 }
 
 export function SpatialFace({
   section,
-  index,
+  slotIndex,
   isActive,
-  barrelRotationX,
 }: SpatialFaceProps) {
   const { radius, faceWidth, faceHeight, angleStep } = SPATIAL_OCTAGON_CONFIG;
 
-  // Angular position of this face around the horizontal X-axis
-  const faceAngle = index * angleStep;
+  // Angular position of this face around the horizontal X-axis on the 8-sided physical cylinder (0..7)
+  const faceAngle = slotIndex * angleStep;
 
   // Calculate face center in Y-Z plane (next face index+1 rises from below along -Y)
   const posY = -Math.sin(faceAngle) * radius;

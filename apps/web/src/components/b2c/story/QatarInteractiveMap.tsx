@@ -74,7 +74,7 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
             shortDescription: isAr ? attr.taglineAr : attr.taglineEn,
             locationType: 'PERMANENT_ATTRACTION',
             operationalStatus: 'OPEN',
-            thumbnailUrl: attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
+            thumbnailUrl: attr.heroMediaUrl || 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg',
             pinColorToken: idx === 0 ? 'CYAN' : idx === 1 ? 'GOLD' : idx === 2 ? 'PURPLE' : 'AMBER',
             featured: true,
             attractionCount: 1,
