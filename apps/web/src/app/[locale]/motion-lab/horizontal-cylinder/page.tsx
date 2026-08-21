@@ -10,17 +10,17 @@ import { getCMSPageContentServer } from '@/lib/cms-server';
 export const dynamic = 'force-dynamic';
 
 export function isMotionLabAllowedInEnvironment(): boolean {
-  // Available in local development and Vercel Preview
-  const isVercelPreview = process.env.VERCEL_ENV === 'preview' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
-  const isDevelopment = process.env.NODE_ENV === 'development' || (!process.env.NODE_ENV && !process.env.VERCEL_ENV);
+  const vercelEnvironment = process.env.VERCEL_ENV;
 
-  if (isVercelPreview || isDevelopment) {
+  if (vercelEnvironment === "production") {
+    return false;
+  }
+
+  if (vercelEnvironment === "preview") {
     return true;
   }
 
-  // In production, requires explicit server-only opt-in flag (default: disabled)
-  const isExplicitlyEnabled = process.env.ENABLE_MOTION_LAB_PRODUCTION === 'true';
-  return isExplicitlyEnabled;
+  return process.env.NODE_ENV === "development";
 }
 
 export function getMotionLabRedirectUrl(locale: string): string {
