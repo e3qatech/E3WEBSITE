@@ -256,8 +256,8 @@ export function AttractionFeedbackContactSection({
                     <span className="text-[11px] font-mono text-[var(--text-tertiary)] block uppercase">
                       {isAr ? "هاتف خدمة الزوار" : "Visitor Care Line"}
                     </span>
-                    <a href="tel:+97444000000" className="text-sm font-bold text-[var(--text-primary)] hover:text-sky-500 transition-colors font-mono">
-                      +974 4400 0000
+                    <a href="tel:+97430489955" className="text-sm font-bold text-[var(--text-primary)] hover:text-sky-500 transition-colors font-mono">
+                      +974 3048 9955
                     </a>
                   </div>
                 </div>

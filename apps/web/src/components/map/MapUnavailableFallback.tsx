@@ -29,11 +29,12 @@ export function MapUnavailableFallback({
       className="relative w-full h-full min-h-[520px] rounded-3xl border border-[var(--border-level-2)] bg-[#090514] overflow-hidden shadow-2xl flex flex-col justify-between"
       dir={isAr ? "rtl" : "ltr"}
     >
-      {/* Visual Background Poster / Stylized Qatar Cartography Backdrop */}
+      {/* Visual Background / Neutral E3 Cartographic Pattern Backdrop */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-15 pointer-events-none mix-blend-luminosity"
+        className="absolute inset-0 opacity-15 pointer-events-none"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80')",
+          backgroundImage: "radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 70%), radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)",
+          backgroundSize: "100% 100%, 24px 24px",
         }}
         aria-hidden="true"
       />

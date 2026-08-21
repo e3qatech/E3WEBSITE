@@ -47,8 +47,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid pathname' }, { status: 400 });
   }
 
-  // Enforce candidate ownership if not an admin/staff role
+  // Enforce candidate/client ownership if not an admin/staff role
   if (!isPrivileged) {
+    if (blobPathname.startsWith('private_rfps/')) {
+      return NextResponse.json({ error: 'Forbidden: RFP documents require administrator privileges' }, { status: 403 });
+    }
+
     if (user.role === 'CANDIDATE' as any) {
       const ownsApplication = await db.jobApplication.findFirst({
         where: {

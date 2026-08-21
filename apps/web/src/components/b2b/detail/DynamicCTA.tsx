@@ -82,7 +82,7 @@ export function DynamicCTA({ type, serviceSlug, locale }: DynamicCTAProps) {
           </div>
 
           <div className="flex flex-col gap-6 w-full md:w-auto min-w-[250px]">
-            <a href="tel:+97444000000" className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-default)] hover:border-[var(--color-primary)] transition-colors group">
+            <a href="tel:+97430489955" className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-default)] hover:border-[var(--color-primary)] transition-colors group">
               <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
                 <Phone className="w-5 h-5" />
               </div>
@@ -90,7 +90,7 @@ export function DynamicCTA({ type, serviceSlug, locale }: DynamicCTAProps) {
                 <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider font-bold mb-1">
                   {locale === 'ar' ? 'اتصل بنا' : 'Call Us'}
                 </p>
-                <p className="font-bold text-[var(--text-primary)]" dir="ltr">+974 4400 0000</p>
+                <p className="font-bold text-[var(--text-primary)]" dir="ltr">+974 3048 9955</p>
               </div>
             </a>
 

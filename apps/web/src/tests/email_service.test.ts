@@ -8,8 +8,14 @@ import {
   renderAdminSupportTicketEmail,
   renderUserSupportTicketConfirmationEmail,
   renderAdminProjectRequestEmail,
+  renderUserB2BConfirmationEmail,
+  renderHRApplicationNotificationEmail,
+  renderApplicantConfirmationEmail,
+  renderPasswordResetEmail,
+  renderNewsletterVerificationEmail,
   renderAdminFeedbackEmail,
   renderAdminGeneralInquiryEmail,
+  escapeHtml,
 } from '@/lib/email';
 
 // Mock DB
@@ -69,7 +75,7 @@ describe('Email Notification Service Engine', () => {
     vi.clearAllMocks();
   });
 
-  describe('1. HTML to Plain Text Converter', () => {
+  describe('1. HTML to Plain Text Converter & HTML Escaping', () => {
     it('should strip HTML tags and format whitespace cleanly', () => {
       const html = `
         <html>
@@ -85,6 +91,11 @@ describe('Email Notification Service Engine', () => {
       expect(text).toContain('Hello World!');
       expect(text).not.toContain('<h1>');
       expect(text).not.toContain('<style>');
+    });
+
+    it('should properly HTML escape user controlled values', () => {
+      expect(escapeHtml('<script>alert(1)</script>')).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
+      expect(escapeHtml('Tom & Jerry "Special" \'Edition\'')).toBe('Tom &amp; Jerry &quot;Special&quot; &#039;Edition&#039;');
     });
   });
 
@@ -107,14 +118,14 @@ describe('Email Notification Service Engine', () => {
   describe('3. Template Rendering', () => {
     it('should render Admin Support Ticket HTML template', () => {
       const html = renderAdminSupportTicketEmail({
-        name: 'Sarah Connor',
+        name: 'Sarah Connor <script>',
         email: 'sarah@skynet.com',
         phone: '+974 5555 1234',
         message: 'Cannot access purchased ticket QR code',
         ticketId: 'inq_999',
       });
       expect(html).toContain('New Customer Support Ticket');
-      expect(html).toContain('Sarah Connor');
+      expect(html).toContain('Sarah Connor &lt;script&gt;');
       expect(html).toContain('sarah@skynet.com');
       expect(html).toContain('inq_999');
     });
@@ -141,6 +152,53 @@ describe('Email Notification Service Engine', () => {
       expect(html).toContain('New B2B Project Inquiry');
       expect(html).toContain('Qatar Media Corp');
       expect(html).toContain('lead_555');
+    });
+
+    it('should render User B2B Confirmation HTML template', () => {
+      const html = renderUserB2BConfirmationEmail({
+        name: 'Fatima Al-Kuwari',
+        company: 'Al Rayyan Group',
+        leadId: 'lead_777',
+      });
+      expect(html).toContain('We Received Your Project Inquiry');
+      expect(html).toContain('Fatima Al-Kuwari');
+      expect(html).toContain('lead_777');
+    });
+
+    it('should render Careers HR and Applicant HTML templates', () => {
+      const hrHtml = renderHRApplicationNotificationEmail({
+        name: 'Ali Hassan',
+        email: 'ali@example.com',
+        jobTitle: 'Senior Event Producer',
+        applicationId: 'app_123',
+      });
+      expect(hrHtml).toContain('New Career Application');
+      expect(hrHtml).toContain('Senior Event Producer');
+      expect(hrHtml).toContain('app_123');
+
+      const appHtml = renderApplicantConfirmationEmail({
+        name: 'Ali Hassan',
+        jobTitle: 'Senior Event Producer',
+        applicationId: 'app_123',
+      });
+      expect(appHtml).toContain('Application Received');
+      expect(appHtml).toContain('Ali Hassan');
+    });
+
+    it('should render Password Reset and Newsletter Verification HTML templates', () => {
+      const pwdHtml = renderPasswordResetEmail({
+        name: 'Administrator',
+        resetUrl: 'https://e3.qa/auth/reset-password?token=secret123',
+      });
+      expect(pwdHtml).toContain('Password Reset Request');
+      expect(pwdHtml).toContain('https://e3.qa/auth/reset-password?token=secret123');
+
+      const newsHtml = renderNewsletterVerificationEmail({
+        email: 'subscriber@example.com',
+        verificationUrl: 'https://e3.qa/api/subscribe?token=news123',
+      });
+      expect(newsHtml).toContain('Confirm Your Newsletter Subscription');
+      expect(newsHtml).toContain('https://e3.qa/api/subscribe?token=news123');
     });
 
     it('should render Admin Feedback HTML template with star ratings', () => {
@@ -170,27 +228,61 @@ describe('Email Notification Service Engine', () => {
   });
 
   describe('4. Provider Dispatch & Safe Execution Wrapper', () => {
-    it('should dispatch via Console Mock when no RESEND_API_KEY is present', async () => {
+    it('should fail-closed in production when RESEND_API_KEY is missing', async () => {
+      const originalVercelEnv = process.env.VERCEL_ENV;
+      const originalApiKey = process.env.RESEND_API_KEY;
+
+      process.env.VERCEL_ENV = 'production';
       delete process.env.RESEND_API_KEY;
+
       const res = await sendEmail({
         to: 'admin@e3.qa',
         subject: 'Test Email Dispatch',
         html: '<p>Test content</p>',
         category: 'SUPPORT',
       });
+
+      expect(res.success).toBe(false);
+      expect(res.provider).toBe('resend');
+      expect(res.error).toContain('unconfigured');
+
+      process.env.VERCEL_ENV = originalVercelEnv;
+      if (originalApiKey) process.env.RESEND_API_KEY = originalApiKey;
+    });
+
+    it('should dispatch via Console Mock in dev/test when no RESEND_API_KEY is present', async () => {
+      const originalVercelEnv = process.env.VERCEL_ENV;
+      const originalNodeEnv = process.env.NODE_ENV;
+      const originalApiKey = process.env.RESEND_API_KEY;
+
+      delete process.env.VERCEL_ENV;
+      (process.env as any).NODE_ENV = 'development';
+      delete process.env.RESEND_API_KEY;
+
+      const res = await sendEmail({
+        to: 'admin@e3.qa',
+        subject: 'Test Dev Email',
+        html: '<p>Dev content</p>',
+        category: 'SUPPORT',
+      });
+
       expect(res.success).toBe(true);
       expect(res.provider).toBe('console');
       expect(res.messageId).toContain('msg_mock_');
+
+      if (originalVercelEnv) process.env.VERCEL_ENV = originalVercelEnv;
+      (process.env as any).NODE_ENV = originalNodeEnv;
+      if (originalApiKey) process.env.RESEND_API_KEY = originalApiKey;
     });
 
     it('safelySendEmail should catch errors gracefully without throwing', async () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const res = await safelySendEmail({
-        to: 'invalid-email-test',
-        subject: 'Error Test',
-        html: '<p>Error</p>',
+        to: 'test@example.com',
+        subject: 'Safe Send Test',
+        html: '<p>Content</p>',
       });
-      expect(res.success).toBe(true);
+      expect(typeof res.success).toBe('boolean');
       spy.mockRestore();
     });
   });

@@ -44,8 +44,8 @@ export function BrandEditor({
 
   // 2. Logos & Media
   const [primaryLogoUrl, setPrimaryLogoUrl] = useState(initialData?.primaryLogoUrl || "")
-  const [lightLogoUrl, _setLightLogoUrl] = useState(initialData?.lightLogoUrl || "")
-  const [darkLogoUrl, _setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
+  const [lightLogoUrl, setLightLogoUrl] = useState(initialData?.lightLogoUrl || "")
+  const [darkLogoUrl, setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
   const [compactLogoUrl, setCompactLogoUrl] = useState(initialData?.compactLogoUrl || "")
   
   const [mediaType, _setMediaType] = useState(initialData?.mediaType || "IMAGE")
@@ -245,10 +245,18 @@ export function BrandEditor({
           {activeTab === "media" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <h2 className="text-lg font-black mb-6">Logo System</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Primary Logo</label>
                   <MediaUploader value={primaryLogoUrl} onChange={setPrimaryLogoUrl} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Light Logo</label>
+                  <MediaUploader value={lightLogoUrl} onChange={setLightLogoUrl} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Dark Logo</label>
+                  <MediaUploader value={darkLogoUrl} onChange={setDarkLogoUrl} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Compact/App Icon</label>

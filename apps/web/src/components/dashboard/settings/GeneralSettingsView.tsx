@@ -36,6 +36,8 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [activeSectionId, setActiveSectionId] = useState("identity")
   const [toast, setToast] = useState(false)
+  const [isTestingEmail, setIsTestingEmail] = useState(false)
+  const [testEmailMsg, setTestEmailMsg] = useState<{ success: boolean; text: string } | null>(null)
   
   const [data, setData] = useState({
     siteNameEn: initialSettings.siteNameEn || "E3",
@@ -94,6 +96,28 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
       console.error("Failed to save settings", error)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleTestEmail = async () => {
+    setIsTestingEmail(true)
+    setTestEmailMsg(null)
+    try {
+      const res = await fetch("/api/admin/email/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+      const json = await res.json()
+      if (res.ok && json.success) {
+        setTestEmailMsg({ success: true, text: isAr ? `تم إرسال البريد الاختباري بنجاح عبر ${json.provider || 'Resend'}.` : `Test email dispatched via ${json.provider || 'Resend'}.` })
+      } else {
+        setTestEmailMsg({ success: false, text: json.error || (isAr ? "فشل إرسال البريد الاختباري." : "Failed to dispatch test email.") })
+      }
+    } catch {
+      setTestEmailMsg({ success: false, text: isAr ? "خطأ في الاتصال بالخادم." : "Network error connecting to test endpoint." })
+    } finally {
+      setIsTestingEmail(false)
     }
   }
 
@@ -439,14 +463,31 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Email / SMS Gateway Key</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-[var(--text-secondary)]">
+                    {isAr ? "مفتاح الربط البرمجي لـ Resend Email" : "Resend Outbound Email API Key"}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleTestEmail}
+                    disabled={isTestingEmail}
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 disabled:opacity-50 cursor-pointer transition-colors"
+                  >
+                    {isTestingEmail ? (isAr ? "جارٍ الفحص..." : "Testing...") : (isAr ? "اختبار الإرسال" : "Send Test Email")}
+                  </button>
+                </div>
                 <input 
                   type="password" 
                   value={data.emailGatewayKey} 
                   onChange={e => handleChange("emailGatewayKey", e.target.value)}
-                  placeholder={data.emailGatewayKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
+                  placeholder={data.emailGatewayKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "re_... (Resend API Key)"}
                   className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono transition-colors"
                 />
+                {testEmailMsg && (
+                  <p className={`text-xs mt-1.5 font-medium ${testEmailMsg.success ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {testEmailMsg.text}
+                  </p>
+                )}
               </div>
             </div>
           </div>
