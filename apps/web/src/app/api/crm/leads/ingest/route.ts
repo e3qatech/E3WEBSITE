@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { enforceBodyLimit } from "@/lib/body-limit";
 import { z } from "zod";
+import crypto from "crypto";
 import {
   safelySendEmail,
   getNotificationTargetEmail,
@@ -18,6 +19,8 @@ const ingestSchema = z.object({
   phone: z.string().max(20).optional(),
   interestServices: z.array(z.string()).max(20).optional(),
   notes: z.string().max(2000).optional(),
+  rfpUploadId: z.string().optional(),
+  rfpClaimToken: z.string().optional(),
   rfpUrl: z.string().optional(),
   rfpFileName: z.string().optional(),
 }).strict();
@@ -43,55 +46,88 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, status: 'ignored' }, { status: 201 });
     }
 
-    let enrichedNotes = validatedData.notes || "";
-    if (validatedData.rfpFileName || validatedData.rfpUrl) {
-      enrichedNotes += `\n\n[RFP Attachment: ${validatedData.rfpFileName || 'RFP Document'} (${validatedData.rfpUrl || ''})]`;
-    }
+    let attachedUpload: any = null;
+    let rfpOriginalName: string | undefined;
 
-    // Prevent RFP upload reuse between multiple leads
-    if (validatedData.rfpUrl) {
-      if (!validatedData.rfpUrl.startsWith('private_rfps/')) {
-        return NextResponse.json({ error: 'Invalid RFP document reference' }, { status: 400 });
+    // 3. Atomic Database Transaction
+    const lead = await (db as any).$transaction(async (tx: any) => {
+      // If RFP upload credentials provided, verify statefully
+      if (validatedData.rfpUploadId && validatedData.rfpClaimToken) {
+        const upload = await tx.rfpUpload.findUnique({
+          where: { id: validatedData.rfpUploadId },
+        });
+
+        if (!upload) {
+          throw new Error('RFP_NOT_FOUND: Upload document record not found');
+        }
+        if (upload.purpose !== 'B2B_RFP') {
+          throw new Error('RFP_INVALID_PURPOSE: Upload purpose mismatch');
+        }
+        if (upload.status !== 'VALIDATED') {
+          throw new Error('RFP_INVALID_STATUS: Document is not in validated state');
+        }
+        if (upload.leadId !== null) {
+          throw new Error('RFP_ALREADY_ATTACHED: Document has already been attached to a lead');
+        }
+        if (new Date(upload.expiresAt) < new Date()) {
+          throw new Error('RFP_EXPIRED: Upload has expired');
+        }
+
+        const submittedHash = crypto.createHash('sha256').update(validatedData.rfpClaimToken.trim()).digest('hex');
+        if (upload.claimTokenHash !== submittedHash) {
+          throw new Error('RFP_INVALID_CLAIM: Invalid claim credential');
+        }
+
+        attachedUpload = upload;
+        rfpOriginalName = upload.originalFileName;
       }
 
-      try {
-        const existingAttachment = await db.leadActivity.findFirst({
+      let enrichedNotes = validatedData.notes || "";
+      if (rfpOriginalName || validatedData.rfpFileName) {
+        enrichedNotes += `\n\n[RFP Attachment: ${rfpOriginalName || validatedData.rfpFileName || 'RFP Document'} (Upload ID: ${validatedData.rfpUploadId || 'direct'})]`;
+      }
+
+      const createdLead = await tx.lead.create({
+        data: {
+          name: validatedData.name,
+          email: validatedData.email,
+          company: validatedData.company,
+          phone: validatedData.phone,
+          interestServices: validatedData.interestServices || [],
+          notes: enrichedNotes.trim(),
+          status: "NEW",
+        },
+      });
+
+      if (attachedUpload) {
+        // Atomic conditional transition to ATTACHED
+        const updateResult = await tx.rfpUpload.updateMany({
           where: {
-            type: 'RFP_ATTACHED',
-            description: { contains: validatedData.rfpUrl },
+            id: attachedUpload.id,
+            status: 'VALIDATED',
+            leadId: null,
+          },
+          data: {
+            status: 'ATTACHED',
+            leadId: createdLead.id,
           },
         });
-        if (existingAttachment) {
-          return NextResponse.json({ error: 'RFP document has already been attached to another inquiry' }, { status: 409 });
-        }
-      } catch (_e) {
-        // Continue if DB check fails
-      }
-    }
 
-    // 3. Database Insertion with atomic activity record
-    const lead = await db.lead.create({
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        company: validatedData.company,
-        phone: validatedData.phone,
-        interestServices: validatedData.interestServices || [],
-        notes: enrichedNotes.trim(),
-        status: "NEW", // Always starts as NEW
-        activities: validatedData.rfpUrl ? {
-          create: {
+        if (updateResult.count === 0) {
+          throw new Error('RFP_RACE_CONFLICT: RFP upload was claimed by another submission');
+        }
+
+        await tx.leadActivity.create({
+          data: {
+            leadId: createdLead.id,
             type: 'RFP_ATTACHED',
             author: 'system',
-            description: JSON.stringify({
-              rfpUrl: validatedData.rfpUrl,
-              rfpFileName: validatedData.rfpFileName || 'RFP Document',
-              status: 'ATTACHED',
-              attachedAt: new Date().toISOString(),
-            }),
+            description: `Attached verified RFP document "${attachedUpload.originalFileName}" (${Math.round(attachedUpload.fileSize / 1024)} KB) [Upload ID: ${attachedUpload.id}]`,
           },
-        } : undefined,
-      },
+        });
+      }
+
+      return createdLead;
     });
 
     // 4. Audit Log

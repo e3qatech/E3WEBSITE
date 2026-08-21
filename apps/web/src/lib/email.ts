@@ -86,11 +86,11 @@ export async function getNotificationTargetEmail(
   }
 
   const defaultEmails: Record<string, string> = {
-    SUPPORT: 'support@e3.qa',
-    CONTACT: 'contact@e3.qa',
-    FEEDBACK: 'feedback@e3.qa',
-    PROJECT: 'projects@e3.qa',
-    CAREERS: 'careers@e3.qa',
+    SUPPORT: 'info@eeeqa.com',
+    CONTACT: 'info@eeeqa.com',
+    FEEDBACK: 'info@eeeqa.com',
+    PROJECT: 'info@eeeqa.com',
+    CAREERS: 'info@eeeqa.com',
   };
 
   return defaultEmails[category] || 'info@eeeqa.com';
@@ -107,7 +107,7 @@ export async function getNotificationTargetEmail(
  */
 export async function sendEmail(options: SendEmailOptions): Promise<EmailDispatchResult> {
   const recipients = Array.isArray(options.to) ? options.to : [options.to];
-  const fromAddress = options.from || process.env.EMAIL_FROM_ADDRESS || 'E3 Qatar <notifications@e3.qa>';
+  const fromAddress = options.from || process.env.EMAIL_FROM_ADDRESS || 'E3 Qatar <notifications@eeeqa.com>';
   const plainText = options.text || htmlToPlainText(options.html);
 
   const isProduction =

@@ -39,7 +39,8 @@ export default function ContactRFPPage() {
     
     const formData = new FormData(e.currentTarget)
 
-    let rfpUrl: string | undefined;
+    let rfpUploadId: string | undefined;
+    let rfpClaimToken: string | undefined;
     let rfpFileName: string | undefined;
 
     if (rfpFile) {
@@ -53,16 +54,20 @@ export default function ContactRFPPage() {
         });
         if (uploadRes.ok) {
           const uploadJson = await uploadRes.json();
-          rfpUrl = uploadJson.url || uploadJson.pathname;
+          rfpUploadId = uploadJson.uploadId;
+          rfpClaimToken = uploadJson.claimToken;
           rfpFileName = uploadJson.fileName || rfpFile.name;
         } else {
           const errData = await uploadRes.json().catch(() => ({}));
-          console.warn('[RFP Upload Warning]', errData);
-          rfpFileName = rfpFile.name;
+          setErrorMessage(errData.error || (isAr ? 'فشل تحميل ملف طلب العروض.' : 'RFP document upload failed.'));
+          setIsSubmitting(false);
+          return;
         }
       } catch (uploadErr) {
         console.error('[RFP Upload Error]', uploadErr);
-        rfpFileName = rfpFile.name;
+        setErrorMessage(isAr ? 'خطأ في الاتصال أثناء تحميل الملف.' : 'Network error uploading RFP document.');
+        setIsSubmitting(false);
+        return;
       }
     }
 
@@ -73,7 +78,8 @@ export default function ContactRFPPage() {
       phone: formData.get("phone"),
       interestServices: [inquiryType],
       notes: formData.get("notes"),
-      rfpUrl,
+      rfpUploadId,
+      rfpClaimToken,
       rfpFileName,
     }
 

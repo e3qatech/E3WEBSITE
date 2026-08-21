@@ -4,7 +4,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { enforceBodyLimit } from '@/lib/body-limit';
 
 const messageSchema = z.object({
-  role: z.enum(['user', 'assistant', 'system']),
+  role: z.enum(['user', 'assistant']),
   content: z.string().min(1).max(2000),
 });
 
@@ -75,15 +75,14 @@ export async function POST(req: NextRequest) {
     // 4. Resolve AI Provider from Server Environment Variables
     const openaiApiKey = process.env.OPENAI_API_KEY;
     const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
-    const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
 
-    // If no provider is configured, return an honest unavailable status (never generate fake responses)
-    if (!openaiApiKey && !geminiApiKey && !anthropicApiKey) {
+    // If no supported provider is configured, return an honest unavailable status (never generate fake responses)
+    if (!openaiApiKey && !geminiApiKey) {
       return NextResponse.json({
         available: false,
         message: isAr
-          ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال أو البريد الإلكتروني support@e3.qa.'
-          : 'Chat support is temporarily unavailable. Please connect with our team via our contact form or support@e3.qa.',
+          ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال أو البريد الإلكتروني info@eeeqa.com.'
+          : 'Chat support is temporarily unavailable. Please connect with our team via our contact form or info@eeeqa.com.',
         escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
       });
     }
@@ -98,7 +97,7 @@ export async function POST(req: NextRequest) {
         const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
         const formattedMessages = [
           { role: 'system', content: SYSTEM_GROUNDING_PROMPT },
-          ...messages.filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content })),
+          ...messages.map(m => ({ role: m.role, content: m.content })),
         ];
 
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -132,6 +131,14 @@ export async function POST(req: NextRequest) {
         const data = await response.json();
         const reply = data.choices?.[0]?.message?.content?.trim() || '';
 
+        if (!reply) {
+          return NextResponse.json({
+            available: false,
+            message: isAr ? 'المساعد الآلي غير متاح حالياً.' : 'Chat service is temporarily unavailable.',
+            escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
+          });
+        }
+
         return NextResponse.json({
           available: true,
           reply,
@@ -144,7 +151,7 @@ export async function POST(req: NextRequest) {
         const contents = [
           { role: 'user', parts: [{ text: SYSTEM_GROUNDING_PROMPT }] },
           { role: 'model', parts: [{ text: 'Understood. I will act strictly as E3 Qatar support assistant following all grounding and safety rules.' }] },
-          ...messages.filter(m => m.role !== 'system').map(m => ({
+          ...messages.map(m => ({
             role: m.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: m.content }],
           })),
@@ -182,6 +189,14 @@ export async function POST(req: NextRequest) {
         const data = await response.json();
         const reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 
+        if (!reply) {
+          return NextResponse.json({
+            available: false,
+            message: isAr ? 'المساعد الآلي غير متاح حالياً.' : 'Chat service is temporarily unavailable.',
+            escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
+          });
+        }
+
         return NextResponse.json({
           available: true,
           reply,
@@ -191,9 +206,7 @@ export async function POST(req: NextRequest) {
       clearTimeout(timeoutId);
       return NextResponse.json({
         available: false,
-        message: isAr
-          ? 'المساعد الآلي غير متاح حالياً.'
-          : 'Chat is temporarily unavailable.',
+        message: isAr ? 'المساعد الآلي غير متاح حالياً.' : 'Chat is temporarily unavailable.',
       });
     } catch (providerError: any) {
       clearTimeout(timeoutId);
@@ -201,8 +214,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         available: false,
         message: isAr
-          ? 'خدمة المحادثة غير متاحة مؤقتاً. يرجى التواصل عبر البريد الإلكتروني support@e3.qa.'
-          : 'Chat service is temporarily unavailable. Please reach us at support@e3.qa.',
+          ? 'خدمة المحادثة غير متاحة مؤقتاً. يرجى التواصل عبر البريد الإلكتروني info@eeeqa.com.'
+          : 'Chat service is temporarily unavailable. Please reach us at info@eeeqa.com.',
         escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
       });
     }

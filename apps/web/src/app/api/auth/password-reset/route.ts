@@ -11,7 +11,7 @@ const requestSchema = z.object({
   action: z.literal('request'),
   email: z.string().email('Valid email is required'),
   portal: z.string().optional(),
-  locale: z.string().optional(),
+  locale: z.enum(['en', 'ar']).optional(),
 }).strict();
 
 const resetSchema = z.object({
@@ -23,6 +23,23 @@ const resetSchema = z.object({
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
 }).strict();
+
+function resolveAuthoritativeOrigin(): string {
+  const configuredOrigin = process.env.APP_BASE_URL || process.env.NEXTAUTH_URL;
+  if (configuredOrigin) {
+    let normalized = configuredOrigin.trim().replace(/\/+$/, '');
+    if (process.env.NODE_ENV === 'production' && !normalized.startsWith('https://')) {
+      normalized = normalized.replace(/^http:\/\//, 'https://');
+    }
+    return normalized;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://eeeqa.com';
+  }
+
+  return 'http://localhost:3000';
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,8 +70,9 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const { email, portal } = parseResult.data;
+      const { email, portal, locale } = parseResult.data;
       const cleanEmail = email.trim().toLowerCase();
+      const resolvedLocale = locale === 'ar' ? 'ar' : 'en';
 
       // Generic response to prevent account enumeration
       const genericSuccessResponse = {
@@ -97,16 +115,14 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Construct authoritative Password Reset URL
-      const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'e3.qa';
-      const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-      const origin = `${protocol}://${host}`;
-      const resetUrl = `${origin}/auth/reset-password?token=${encodeURIComponent(rawResetToken)}`;
+      // Construct authoritative Password Reset URL using server-controlled origin (Host header ignored)
+      const baseOrigin = resolveAuthoritativeOrigin();
+      const resetUrl = `${baseOrigin}/${resolvedLocale}/auth/reset-password?token=${encodeURIComponent(rawResetToken)}`;
 
       // Dispatch password reset email via Resend
       const emailResult = await sendEmail({
         to: cleanEmail,
-        subject: '[E3 Qatar] Reset Your Account Password',
+        subject: resolvedLocale === 'ar' ? '[E3 قطر] إعادة تعيين كلمة مرور الحساب' : '[E3 Qatar] Reset Your Account Password',
         html: renderPasswordResetEmail({
           name: user.name || cleanEmail,
           resetUrl,
@@ -118,13 +134,16 @@ export async function POST(req: NextRequest) {
         console.error('[PASSWORD_RESET_DISPATCH_FAILED] Email delivery failed in production');
       }
 
+      // Only return raw token under explicit test configuration (TEST_MODE=true)
+      const isExplicitTestMode = process.env.TEST_MODE === 'true' || process.env.VITEST === 'true';
+
       return NextResponse.json({
         ...genericSuccessResponse,
-        resetToken: process.env.NODE_ENV !== 'production' ? rawResetToken : undefined,
+        resetToken: isExplicitTestMode ? rawResetToken : undefined,
       });
     }
 
-    // Action 2: Reset Password Completion with Token Invalidation
+    // Action 2: Reset Password Completion with Atomic Conditional Invalidation
     if (body.action === 'reset') {
       const parseResult = resetSchema.safeParse(body);
       if (!parseResult.success) {
@@ -137,66 +156,86 @@ export async function POST(req: NextRequest) {
       const { token, password } = parseResult.data;
       const submittedHash = crypto.createHash('sha256').update(token.trim()).digest('hex');
 
-      let resetRecord = await (db as any).passwordResetToken.findUnique({
-        where: { token: submittedHash },
-      });
+      try {
+        const result = await (db as any).$transaction(async (tx: any) => {
+          // 1. Atomic conditional token invalidation (prevents concurrent race conditions)
+          const updateCount = await tx.passwordResetToken.updateMany({
+            where: {
+              token: submittedHash,
+              usedAt: null,
+              expiresAt: { gt: new Date() },
+            },
+            data: {
+              usedAt: new Date(),
+            },
+          });
 
-      if (!resetRecord) {
-        // Fallback for legacy unhashed token records
-        resetRecord = await (db as any).passwordResetToken.findUnique({
-          where: { token: token.trim() },
+          if (updateCount.count === 0) {
+            throw new Error('INVALID_OR_EXPIRED_TOKEN');
+          }
+
+          const resetRecord = await tx.passwordResetToken.findUnique({
+            where: { token: submittedHash },
+          });
+
+          if (!resetRecord) {
+            throw new Error('TOKEN_RECORD_NOT_FOUND');
+          }
+
+          const user = await tx.user.findUnique({
+            where: { email: resetRecord.email },
+          });
+
+          if (!user) {
+            throw new Error('USER_NOT_FOUND');
+          }
+
+          const hashedPassword = await bcrypt.hash(password, 10);
+          const currentVersion = user.sessionVersion || 1;
+
+          // 2. Update password and increment sessionVersion to revoke all existing sessions
+          await tx.user.update({
+            where: { id: user.id },
+            data: {
+              password: hashedPassword,
+              sessionVersion: currentVersion + 1,
+            },
+          });
+
+          return { portal: resetRecord.portal || 'admin' };
         });
+
+        const portalKey = result.portal;
+        let redirectUrl = `/en/login/admin`;
+        if (portalKey === 'staff') redirectUrl = `/en/login/staff`;
+        if (portalKey === 'business') redirectUrl = `/en/login/business`;
+        if (portalKey === 'careers') redirectUrl = `/en/login/careers`;
+
+        return NextResponse.json({
+          success: true,
+          message: 'Password has been reset successfully. Please log in with your new credentials.',
+          redirectUrl,
+        });
+
+      } catch (txError: any) {
+        if (txError.message === 'INVALID_OR_EXPIRED_TOKEN') {
+          return NextResponse.json(
+            { error: 'Invalid, expired, or already used password reset token' },
+            { status: 400 }
+          );
+        }
+        if (txError.message === 'USER_NOT_FOUND') {
+          return NextResponse.json({ error: 'Associated user account not found' }, { status: 404 });
+        }
+        console.error('[Password Reset Transaction Error]', txError);
+        return NextResponse.json({ error: 'Failed to complete password reset' }, { status: 500 });
       }
-
-      if (!resetRecord || resetRecord.usedAt || new Date(resetRecord.expiresAt) < new Date()) {
-        return NextResponse.json(
-          { error: 'Invalid, expired, or already used password reset token' },
-          { status: 400 }
-        );
-      }
-
-      const user = await db.user.findUnique({
-        where: { email: resetRecord.email },
-      });
-
-      if (!user) {
-        return NextResponse.json({ error: 'Associated user account not found' }, { status: 404 });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const currentVersion = (user as any).sessionVersion || 1;
-
-      // Update password and INCREMENT sessionVersion to revoke all existing active sessions
-      await db.user.update({
-        where: { id: user.id },
-        data: {
-          password: hashedPassword,
-          sessionVersion: currentVersion + 1,
-        },
-      });
-
-      // Mark token as used immediately
-      await (db as any).passwordResetToken.update({
-        where: { id: resetRecord.id },
-        data: { usedAt: new Date() },
-      });
-
-      const portalKey = resetRecord.portal || 'admin';
-      let redirectUrl = `/en/login/admin`;
-      if (portalKey === 'staff') redirectUrl = `/en/login/staff`;
-      if (portalKey === 'business') redirectUrl = `/en/login/business`;
-      if (portalKey === 'careers') redirectUrl = `/en/login/careers`;
-
-      return NextResponse.json({
-        success: true,
-        message: 'Password reset successfully. Active sessions revoked. Please log in with your new password.',
-        redirectUrl,
-      });
     }
 
-    return NextResponse.json({ error: 'Invalid action parameter' }, { status: 400 });
-  } catch (error: any) {
-    console.error('[PASSWORD_RESET_ERROR]', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+
+  } catch (error) {
+    console.error('[Password Reset Unhandled Exception]', error);
+    return NextResponse.json({ error: 'Internal server error processing password reset' }, { status: 500 });
   }
 }

@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { randomUUID } from "crypto";
+import crypto from "crypto";
 import { auth } from "@/lib/auth";
-import { isValidMagicBytes } from "@/lib/security";
+import { hasPermission } from "@/lib/permissions";
+import { isValidMagicBytes, isValidDocxOoxml } from "@/lib/security";
 import { rateLimit } from "@/lib/rate-limit";
-import { cookies } from "next/headers";
+import db from "@/lib/db";
 
 const CMS_MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const RESUME_MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -14,64 +16,63 @@ const RFP_MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 const ALLOWED_EXTENSIONS = [
   'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'avif',
   'mp4', 'webm', 'mov',
-  'pdf', 'doc', 'docx',
+  'pdf', 'docx',
   'glb', 'gltf'
 ];
-const RESUME_EXTENSIONS = ['pdf', 'doc', 'docx'];
-const RFP_EXTENSIONS = ['pdf', 'doc', 'docx'];
+const RESUME_EXTENSIONS = ['pdf', 'docx'];
+const RFP_EXTENSIONS = ['pdf', 'docx'];
 
 const ALLOWED_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/svg',
   'video/mp4', 'video/webm', 'video/quicktime',
   'application/pdf', 'application/x-pdf',
-  'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'model/gltf-binary', 'model/gltf+json',
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
 const RESUME_TYPES = [
   'application/pdf', 'application/x-pdf',
-  'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/octet-stream'
 ];
 const RFP_TYPES = [
   'application/pdf', 'application/x-pdf',
-  'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/octet-stream'
 ];
 
-async function checkUploadAuth(request?: Request, context?: string | null): Promise<boolean> {
-  if (context === 'public_resume' || context === 'public_rfp' || context === 'rfp_document' || context === 'public_attachment') {
+const KNOWN_CONTEXTS = [
+  'public_resume',
+  'public_rfp',
+  'public_attachment',
+  'cms_media',
+  'brand_logo',
+  'general_upload',
+] as const;
+
+async function checkUploadAuth(context?: string | null): Promise<boolean> {
+  // 1. Strictly enumerated public upload contexts do not require session auth
+  if (context === 'public_resume' || context === 'public_rfp' || context === 'public_attachment') {
     return true;
   }
+
+  // 2. Private/CMS upload contexts require a valid, verified server session
   try {
     const session = await auth();
-    if (session?.user) return true;
-  } catch (e) {
-    console.debug('[Upload Auth] session error', e);
-  }
+    if (!session?.user) return false;
 
-  try {
-    const cookieStore = await cookies();
-    const allCookies = cookieStore.getAll();
-    const isAuthed = allCookies.some(c =>
-      c.name.includes('session-token') ||
-      c.name.includes('authjs') ||
-      c.name.includes('next-auth') ||
-      c.name.includes('admin')
+    const userRole = (session.user as any)?.role;
+    return (
+      hasPermission(userRole, 'media.upload') ||
+      hasPermission(userRole, 'content.media.manage') ||
+      userRole === 'SUPER_ADMIN' ||
+      userRole === 'ADMIN' ||
+      userRole === 'MARKETING_DIRECTOR'
     );
-    if (isAuthed) return true;
   } catch (e) {
-    console.debug('[Upload Auth] cookie store error', e);
+    console.error('[Upload Auth Exception]', e);
+    return false;
   }
-
-  if (request) {
-    const cookieHeader = request.headers.get('cookie') || '';
-    if (cookieHeader.includes('session-token') || cookieHeader.includes('next-auth') || cookieHeader.includes('authjs')) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 export async function POST(request: Request) {
@@ -86,16 +87,21 @@ export async function POST(request: Request) {
         body,
         request,
         onBeforeGenerateToken: async (pathname, clientPayload) => {
-          let context = null;
+          let context: string | null = null;
           if (clientPayload) {
             try { context = JSON.parse(clientPayload).context; } catch {}
           }
-          const isAuthed = await checkUploadAuth(request, context);
+
+          if (context && !(KNOWN_CONTEXTS as readonly string[]).includes(context)) {
+            throw new Error("Invalid upload context");
+          }
+
+          const isAuthed = await checkUploadAuth(context);
           if (!isAuthed) {
             throw new Error("Unauthorized");
           }
-          
-          if (context === 'public_resume' || context === 'public_rfp' || context === 'rfp_document' || context === 'public_attachment') {
+
+          if (context === 'public_resume' || context === 'public_rfp' || context === 'public_attachment') {
             const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
             if (!rl.success) throw new Error(rl.error);
           }
@@ -103,10 +109,10 @@ export async function POST(request: Request) {
           let maxSize = CMS_MAX_FILE_SIZE;
           let allowedTypes = ALLOWED_TYPES;
 
-          if (context === 'public_resume') {
+          if (context === 'public_resume' || context === 'public_attachment') {
             maxSize = RESUME_MAX_FILE_SIZE;
             allowedTypes = RESUME_TYPES;
-          } else if (context === 'public_rfp' || context === 'rfp_document') {
+          } else if (context === 'public_rfp') {
             maxSize = RFP_MAX_FILE_SIZE;
             allowedTypes = RFP_TYPES;
           }
@@ -114,41 +120,45 @@ export async function POST(request: Request) {
           return {
             allowedContentTypes: allowedTypes,
             maximumSizeInBytes: maxSize,
-            tokenPayload: JSON.stringify({ userId: 'cms_admin', context })
+            tokenPayload: JSON.stringify({ userId: 'cms_admin', context }),
           };
         },
         onUploadCompleted: async ({ blob }) => {
-          console.log("Blob upload completed", blob.url);
+          console.log("[Blob Upload Completed]", blob.pathname);
         },
       });
       return NextResponse.json(jsonResponse);
     } catch (error) {
-      console.error('Error in handleUpload:', error);
-      return NextResponse.json({ success: false, error: (error as Error).message }, { status: 400 });
+      console.error('[Upload Token Error]', error);
+      return NextResponse.json({ success: false, error: 'Upload authorization failed' }, { status: 400 });
     }
   }
 
-  // 2. Handle Direct FormData file uploads (FormData request)
+  // 2. Handle Direct FormData file uploads
   try {
     const data = await request.formData();
     const context = data.get('context') as string | null;
 
-    const isAuthed = await checkUploadAuth(request, context);
+    // Validate upload context against strict allowlist
+    if (context && !(KNOWN_CONTEXTS as readonly string[]).includes(context)) {
+      return NextResponse.json({ success: false, error: 'Unknown upload context' }, { status: 400 });
+    }
+
+    const isAuthed = await checkUploadAuth(context);
     const isPublicResume = context === 'public_resume';
-    const isPublicRfp = context === 'public_rfp' || context === 'rfp_document';
+    const isPublicRfp = context === 'public_rfp';
     const isPublicAttachment = context === 'public_attachment';
 
     if (!isAuthed && !isPublicResume && !isPublicRfp && !isPublicAttachment) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Unauthorized: Authentication required' }, { status: 401 });
     }
-    
+
     if (isPublicResume || isPublicRfp || isPublicAttachment) {
       const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
       if (!rl.success) return NextResponse.json({ success: false, error: rl.error }, { status: 429 });
     }
 
     const file: File | null = data.get('file') as unknown as File;
-
     if (!file) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
@@ -156,15 +166,12 @@ export async function POST(request: Request) {
     let maxSize = CMS_MAX_FILE_SIZE;
     let validExtensions = ALLOWED_EXTENSIONS;
 
-    if (isPublicResume) {
+    if (isPublicResume || isPublicAttachment) {
       maxSize = RESUME_MAX_FILE_SIZE;
       validExtensions = RESUME_EXTENSIONS;
     } else if (isPublicRfp) {
       maxSize = RFP_MAX_FILE_SIZE;
       validExtensions = RFP_EXTENSIONS;
-    } else if (isPublicAttachment) {
-      maxSize = RESUME_MAX_FILE_SIZE;
-      validExtensions = RESUME_EXTENSIONS;
     }
 
     if (file.size > maxSize) {
@@ -189,43 +196,89 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Streamed byte length mismatch' }, { status: 400 });
     }
 
-    if (!isValidMagicBytes(buffer, ext)) {
-      return NextResponse.json({ success: false, error: 'Invalid file signature' }, { status: 400 });
+    if (!isValidMagicBytes(buffer, ext) || (ext === 'docx' && !isValidDocxOoxml(buffer))) {
+      return NextResponse.json({ success: false, error: 'Invalid file signature or corrupted document structure' }, { status: 400 });
     }
 
-    // Force unique naming with UUID
+    // Force unique randomized naming with UUID
     const fileName = `${randomUUID()}.${ext || 'bin'}`;
-    let fileUrl = "";
 
-    const rfpToken = process.env.RFP_BLOB_READ_WRITE_TOKEN || process.env.RESUME_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
-    const resumeToken = process.env.RESUME_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
-    const publicToken = process.env.BLOB_READ_WRITE_TOKEN;
+    // Dedicated Storage Token Resolution
+    if (isPublicRfp) {
+      const rfpToken = process.env.RFP_BLOB_READ_WRITE_TOKEN;
+      if (!rfpToken) {
+        return NextResponse.json({
+          success: false,
+          error: 'RFP document storage is unconfigured on the server: RFP_BLOB_READ_WRITE_TOKEN is missing.',
+        }, { status: 503 });
+      }
 
-    const storageToken = isPublicRfp ? rfpToken : (isPublicResume || isPublicAttachment) ? resumeToken : publicToken;
+      // Generate single-use cryptographic claim credential
+      const rawClaimToken = crypto.randomBytes(32).toString('hex');
+      const claimTokenHash = crypto.createHash('sha256').update(rawClaimToken).digest('hex');
 
-    if (isPublicRfp && !rfpToken) {
+      try {
+        const blob = await put(`private_rfps/${fileName}`, file, {
+          access: 'private',
+          contentType: ext === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          token: rfpToken,
+        });
+
+        const safeOriginalName = (file.name || 'rfp_document')
+          .replace(/\0/g, '')
+          .split(/[/\\]/).pop()
+          ?.replace(/[^a-zA-Z0-9._-]/g, '_')
+          .substring(0, 255) || 'rfp_document';
+
+        // Persist upload state in database
+        const uploadRecord = await (db as any).rfpUpload.create({
+          data: {
+            purpose: 'B2B_RFP',
+            pathname: blob.pathname,
+            originalFileName: safeOriginalName,
+            mimeType: file.type || (ext === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+            fileSize: buffer.byteLength,
+            claimTokenHash,
+            status: 'VALIDATED',
+            expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours expiry
+          },
+        });
+
+        const headers: Record<string, string> = {
+          'X-Upload-Status': 'validated',
+          'X-Content-Type-Options': 'nosniff',
+        };
+
+        // Return opaque upload ID + single-use claim token — NEVER expose the Blob URL or pathname
+        return NextResponse.json({
+          success: true,
+          uploadId: uploadRecord.id,
+          claimToken: rawClaimToken,
+          fileName: safeOriginalName,
+          fileSize: buffer.byteLength,
+          status: 'VALIDATED',
+        }, { headers });
+
+      } catch (blobError) {
+        console.error('[RFP Blob Upload Error]', blobError);
+        return NextResponse.json({ success: false, error: 'Document upload failed' }, { status: 500 });
+      }
+    }
+
+    // Public Candidate Resumes & Support Attachments
+    const isPrivate = isPublicResume || isPublicAttachment;
+    const storageToken = isPrivate
+      ? (process.env.RESUME_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN)
+      : process.env.BLOB_READ_WRITE_TOKEN;
+
+    if (!storageToken) {
       return NextResponse.json({
         success: false,
-        error: 'RFP document storage is unconfigured on the server.',
+        error: isPrivate ? 'Document storage is unconfigured on the server.' : 'Public media storage is unconfigured.',
       }, { status: 503 });
     }
 
-    if ((isPublicResume || isPublicAttachment) && !resumeToken) {
-      return NextResponse.json({
-        success: false,
-        error: 'Private document storage is unconfigured on the server.',
-      }, { status: 503 });
-    }
-
-    if (!isPublicResume && !isPublicRfp && !isPublicAttachment && !publicToken) {
-      return NextResponse.json({
-        success: false,
-        error: 'Public media storage is unconfigured: BLOB_READ_WRITE_TOKEN is missing.',
-      }, { status: 500 });
-    }
-
-    const isPrivate = isPublicResume || isPublicRfp || isPublicAttachment;
-    const prefix = isPublicResume ? 'private_resumes' : isPublicRfp ? 'private_rfps' : isPublicAttachment ? 'private_attachments' : 'uploads';
+    const prefix = isPublicResume ? 'private_resumes' : isPublicAttachment ? 'private_attachments' : 'uploads';
     const blobAccess = isPrivate ? 'private' : 'public';
 
     try {
@@ -234,37 +287,34 @@ export async function POST(request: Request) {
         contentType: ext === 'svg' ? 'image/svg+xml' : file.type,
         token: storageToken,
       });
-      // Private blobs: return pathname for download proxy, not public URL
-      fileUrl = isPrivate ? blob.pathname : blob.url;
-    } catch (blobError: any) {
-      console.error("[UPLOAD ERROR] Vercel Blob upload failed:", blobError);
+
+      const safeOriginalName = (file.name || 'upload')
+        .replace(/\0/g, '')
+        .split(/[/\\]/).pop()
+        ?.replace(/[^a-zA-Z0-9._-]/g, '_')
+        .substring(0, 255) || 'upload';
+
+      const headers: Record<string, string> = {
+        'X-Upload-Status': 'validated',
+        'X-Content-Type-Options': 'nosniff',
+      };
+
+      return NextResponse.json({
+        success: true,
+        url: isPrivate ? blob.pathname : blob.url,
+        pathname: isPrivate ? `${prefix}/${fileName}` : undefined,
+        fileName: safeOriginalName,
+        fileSize: buffer.byteLength,
+        status: 'VALIDATED',
+        downloadUrl: isPrivate ? `/api/upload/download?pathname=${encodeURIComponent(`${prefix}/${fileName}`)}` : blob.url,
+      }, { headers });
+    } catch (blobError) {
+      console.error("[UPLOAD ERROR] Storage operation failed:", blobError);
       return NextResponse.json({
         success: false,
-        error: `Object storage upload failed: ${blobError?.message || 'Upload error'}`,
+        error: 'File upload processing failed',
       }, { status: 500 });
     }
-
-    // Sanitize original filename — strip path components and null bytes
-    const safeOriginalName = (file.name || 'upload')
-      .replace(/\0/g, '')
-      .split(/[/\\]/).pop()
-      ?.replace(/[^a-zA-Z0-9._-]/g, '_')
-      .substring(0, 255) || 'upload';
-
-    const headers: Record<string, string> = {
-      'X-Upload-Status': 'validated',
-      'X-Content-Type-Options': 'nosniff',
-    };
-
-    return NextResponse.json({
-      success: true,
-      url: fileUrl,
-      pathname: isPrivate ? `${prefix}/${fileName}` : undefined,
-      fileName: safeOriginalName,
-      fileSize: buffer.byteLength,
-      status: 'VALIDATED',
-      downloadUrl: isPrivate ? `/api/upload/download?pathname=${encodeURIComponent(`${prefix}/${fileName}`)}` : fileUrl,
-    }, { headers });
 
   } catch (error) {
     console.error('[Upload API Exception]', error);

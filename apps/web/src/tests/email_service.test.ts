@@ -108,10 +108,10 @@ describe('Email Notification Service Engine', () => {
       expect(contactEmail).toBe('custom-contact@e3.qa');
     });
 
-    it('should default to category fallback emails if no db setting or env var exists', async () => {
+    it('should default to canonical info@eeeqa.com fallback if no db setting or env var exists', async () => {
       delete process.env.FEEDBACK_NOTIFICATION_EMAIL;
       const feedbackEmail = await getNotificationTargetEmail('FEEDBACK');
-      expect(feedbackEmail).toBe('feedback@e3.qa');
+      expect(feedbackEmail).toBe('info@eeeqa.com');
     });
   });
 

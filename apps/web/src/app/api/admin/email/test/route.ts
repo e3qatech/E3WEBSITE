@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { sendEmail } from '@/lib/email';
+import { sendEmail, escapeHtml } from '@/lib/email';
 import { enforceBodyLimit } from '@/lib/body-limit';
 import { rateLimit } from '@/lib/rate-limit';
 
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const userEmail = session.user.email || 'admin@e3.qa';
+    const userEmail = session.user.email || 'info@eeeqa.com';
     const testRecipient = body.recipientEmail || userEmail;
 
     // Validate email format
@@ -39,17 +39,22 @@ export async function POST(req: Request) {
     }
 
     const timestamp = new Date().toISOString();
+    const safeAdminName = escapeHtml(session.user.name || session.user.email || 'Administrator');
+    const safeRecipient = escapeHtml(testRecipient);
+    const safeTimestamp = escapeHtml(timestamp);
+    const safeEnvironment = escapeHtml(process.env.VERCEL_ENV || process.env.NODE_ENV || 'development');
+
     const result = await sendEmail({
       to: testRecipient,
       subject: `[E3 Admin] Email Delivery Diagnostic Test (${timestamp})`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: #fafafa; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
           <h2 style="color: #10b981; margin-top: 0;">E3 Qatar Email Gateway Test</h2>
-          <p>This is an automated diagnostic email triggered by an authorized administrator (<strong>${session.user.name || session.user.email}</strong>).</p>
+          <p>This is an automated diagnostic email triggered by an authorized administrator (<strong>${safeAdminName}</strong>).</p>
           <div style="background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 12px; margin: 16px 0;">
-            <p style="margin: 4px 0;"><strong>Timestamp:</strong> ${timestamp}</p>
-            <p style="margin: 4px 0;"><strong>Recipient:</strong> ${testRecipient}</p>
-            <p style="margin: 4px 0;"><strong>Environment:</strong> ${process.env.VERCEL_ENV || process.env.NODE_ENV || 'development'}</p>
+            <p style="margin: 4px 0;"><strong>Timestamp:</strong> ${safeTimestamp}</p>
+            <p style="margin: 4px 0;"><strong>Recipient:</strong> ${safeRecipient}</p>
+            <p style="margin: 4px 0;"><strong>Environment:</strong> ${safeEnvironment}</p>
           </div>
           <p style="color: #a1a1aa; font-size: 12px;">If you received this message, outbound transactional email delivery via Resend is operational.</p>
         </div>
@@ -61,7 +66,7 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: false,
         provider: result.provider,
-        error: result.error || 'Outbound email delivery failed',
+        error: 'Outbound email delivery failed. Please check the configured RESEND_API_KEY in General Settings.',
       }, { status: 502 });
     }
 
