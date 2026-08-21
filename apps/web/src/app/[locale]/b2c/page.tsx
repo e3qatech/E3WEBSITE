@@ -5,13 +5,45 @@ import { B2CLandingClient } from '@/components/b2c/B2CLandingClient';
 import { HorizontalOctagonalExperience } from '@/components/spatial';
 import { formatLocalizedText } from '@/lib/utils';
 
-export const metadata: Metadata = {
-  title: 'Experiences | E3 Qatar',
-  description: 'Immersive entertainment landmarks, InflataRUN world records, and kinetic attraction worlds in Qatar.'
-};
-
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await props.params;
+  const isAr = locale === 'ar';
+
+  const titleEn = 'Experiences | E3 Qatar';
+  const titleAr = 'التجارب | إي ثري قطر | خبراء هندسة الفعاليات';
+
+  const descEn = 'Immersive entertainment landmarks, InflataRUN world records, and kinetic attraction worlds in Qatar.';
+  const descAr = 'وجهات ترفيهية غامرة، أرقام قياسية عالمية مع إنفلاتارن، وعوالم تفاعلية حركية في قطر.';
+
+  return {
+    title: isAr ? { absolute: titleAr } : titleEn,
+    description: isAr ? descAr : descEn,
+    alternates: {
+      canonical: `/${locale}/b2c`,
+      languages: {
+        en: '/en/b2c',
+        ar: '/ar/b2c',
+      },
+    },
+    openGraph: {
+      title: isAr ? titleAr : titleEn,
+      description: isAr ? descAr : descEn,
+      locale: isAr ? 'ar_QA' : 'en_US',
+      alternateLocale: isAr ? ['en_US'] : ['ar_QA'],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isAr ? titleAr : titleEn,
+      description: isAr ? descAr : descEn,
+    },
+  };
+}
 
 export default async function B2CLandingPage(props: {
   params: Promise<{ locale: string }>;

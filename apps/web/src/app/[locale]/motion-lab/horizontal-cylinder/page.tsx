@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 
 export function isMotionLabAllowedInEnvironment(): boolean {
   // Available in local development and Vercel Preview
-  const isVercelPreview = process.env.VERCEL_ENV === 'preview';
-  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+  const isVercelPreview = process.env.VERCEL_ENV === 'preview' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
+  const isDevelopment = process.env.NODE_ENV === 'development' || (!process.env.NODE_ENV && !process.env.VERCEL_ENV);
 
   if (isVercelPreview || isDevelopment) {
     return true;
@@ -21,6 +21,10 @@ export function isMotionLabAllowedInEnvironment(): boolean {
   // In production, requires explicit server-only opt-in flag (default: disabled)
   const isExplicitlyEnabled = process.env.ENABLE_MOTION_LAB_PRODUCTION === 'true';
   return isExplicitlyEnabled;
+}
+
+export function getMotionLabRedirectUrl(locale: string): string {
+  return `/${locale}/b2c`;
 }
 
 export async function generateMetadata(props: {
