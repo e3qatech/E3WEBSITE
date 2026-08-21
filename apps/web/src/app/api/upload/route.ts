@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { randomUUID } from "crypto";
 import crypto from "crypto";
@@ -31,11 +31,6 @@ const ALLOWED_TYPES = [
   'application/octet-stream', 'text/xml', 'application/xml'
 ];
 const RESUME_TYPES = [
-  'application/pdf', 'application/x-pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/octet-stream'
-];
-const RFP_TYPES = [
   'application/pdf', 'application/x-pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/octet-stream'
@@ -75,6 +70,48 @@ async function checkUploadAuth(context?: string | null): Promise<boolean> {
   }
 }
 
+/**
+ * Cleanup expired unattached RFP documents and orphaned storage blobs.
+ * Never deletes ATTACHED records.
+ */
+export async function cleanupExpiredUnattachedRfps(): Promise<{ deletedCount: number }> {
+  const rfpToken = process.env.RFP_BLOB_READ_WRITE_TOKEN;
+  if (!rfpToken) return { deletedCount: 0 };
+
+  try {
+    const expiredUploads = await (db as any).rfpUpload.findMany({
+      where: {
+        purpose: 'B2B_RFP',
+        status: { in: ['INITIATED', 'VALIDATING', 'VALIDATED', 'EXPIRED'] },
+        leadId: null,
+        expiresAt: { lt: new Date() },
+      },
+      select: { id: true, pathname: true },
+      take: 50,
+    });
+
+    if (!expiredUploads || expiredUploads.length === 0) return { deletedCount: 0 };
+
+    let deletedCount = 0;
+    for (const item of expiredUploads) {
+      try {
+        if (item.pathname) {
+          await del(item.pathname, { token: rfpToken });
+        }
+        await (db as any).rfpUpload.delete({ where: { id: item.id } });
+        deletedCount++;
+      } catch (_delErr) {
+        // Continue to next item
+      }
+    }
+
+    return { deletedCount };
+  } catch (err) {
+    console.error('[CLEANUP_EXPIRED_RFPS_ERROR]', err);
+    return { deletedCount: 0 };
+  }
+}
+
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "unknown_ip";
   const contentType = request.headers.get("content-type") || "";
@@ -92,6 +129,11 @@ export async function POST(request: Request) {
             try { context = JSON.parse(clientPayload).context; } catch {}
           }
 
+          // Strict rejection: B2B RFP uploads MUST use the direct FormData workflow
+          if (context === 'public_rfp') {
+            throw new Error("RFP uploads must use direct multipart form upload workflow");
+          }
+
           if (context && !(KNOWN_CONTEXTS as readonly string[]).includes(context)) {
             throw new Error("Invalid upload context");
           }
@@ -101,7 +143,7 @@ export async function POST(request: Request) {
             throw new Error("Unauthorized");
           }
 
-          if (context === 'public_resume' || context === 'public_rfp' || context === 'public_attachment') {
+          if (context === 'public_resume' || context === 'public_attachment') {
             const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
             if (!rl.success) throw new Error(rl.error);
           }
@@ -112,9 +154,6 @@ export async function POST(request: Request) {
           if (context === 'public_resume' || context === 'public_attachment') {
             maxSize = RESUME_MAX_FILE_SIZE;
             allowedTypes = RESUME_TYPES;
-          } else if (context === 'public_rfp') {
-            maxSize = RFP_MAX_FILE_SIZE;
-            allowedTypes = RFP_TYPES;
           }
 
           return {
@@ -207,9 +246,12 @@ export async function POST(request: Request) {
     if (isPublicRfp) {
       const rfpToken = process.env.RFP_BLOB_READ_WRITE_TOKEN;
       if (!rfpToken) {
+        const correlationId = randomUUID();
+        console.error(`[RFP_STORAGE_CONFIG_ERROR] Correlation ID: ${correlationId} - RFP_BLOB_READ_WRITE_TOKEN is unconfigured.`);
         return NextResponse.json({
           success: false,
-          error: 'RFP document storage is unconfigured on the server: RFP_BLOB_READ_WRITE_TOKEN is missing.',
+          code: "RFP_STORAGE_UNAVAILABLE",
+          error: "Document upload is temporarily unavailable.",
         }, { status: 503 });
       }
 
@@ -217,12 +259,15 @@ export async function POST(request: Request) {
       const rawClaimToken = crypto.randomBytes(32).toString('hex');
       const claimTokenHash = crypto.createHash('sha256').update(rawClaimToken).digest('hex');
 
+      let uploadedBlobPathname: string | null = null;
+
       try {
         const blob = await put(`private_rfps/${fileName}`, file, {
           access: 'private',
           contentType: ext === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           token: rfpToken,
         });
+        uploadedBlobPathname = blob.pathname;
 
         const safeOriginalName = (file.name || 'rfp_document')
           .replace(/\0/g, '')
@@ -249,7 +294,7 @@ export async function POST(request: Request) {
           'X-Content-Type-Options': 'nosniff',
         };
 
-        // Return opaque upload ID + single-use claim token — NEVER expose the Blob URL or pathname
+        // Return opaque upload ID + single-use claim token — NEVER expose Blob URL or pathname
         return NextResponse.json({
           success: true,
           uploadId: uploadRecord.id,
@@ -260,7 +305,15 @@ export async function POST(request: Request) {
         }, { headers });
 
       } catch (blobError) {
-        console.error('[RFP Blob Upload Error]', blobError);
+        // Storage Failure Cleanup: If Blob was uploaded but DB record creation failed, delete orphaned Blob
+        if (uploadedBlobPathname) {
+          try {
+            await del(uploadedBlobPathname, { token: rfpToken });
+          } catch (cleanupErr) {
+            console.error('[RFP_ORPHAN_BLOB_CLEANUP_ERROR]', cleanupErr);
+          }
+        }
+        console.error('[RFP Upload Processing Error]', blobError);
         return NextResponse.json({ success: false, error: 'Document upload failed' }, { status: 500 });
       }
     }

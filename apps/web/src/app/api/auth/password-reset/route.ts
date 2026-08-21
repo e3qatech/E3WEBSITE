@@ -134,8 +134,8 @@ export async function POST(req: NextRequest) {
         console.error('[PASSWORD_RESET_DISPATCH_FAILED] Email delivery failed in production');
       }
 
-      // Only return raw token under explicit test configuration (TEST_MODE=true)
-      const isExplicitTestMode = process.env.TEST_MODE === 'true' || process.env.VITEST === 'true';
+      // Return raw token strictly only when executed under Vitest test runner
+      const isExplicitTestMode = process.env.NODE_ENV === 'test' && process.env.VITEST === 'true';
 
       return NextResponse.json({
         ...genericSuccessResponse,

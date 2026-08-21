@@ -44,6 +44,7 @@ export type Capability =
   | 'crm.clients.manage'
   | 'crm.inquiries.manage'
   | 'crm.subscribers.manage'
+  | 'crm.rfp.documents.read'
   // Operations
   | 'operations.events.manage'
   | 'operations.recap.manage'
@@ -135,6 +136,7 @@ export const rolePermissions: Record<Role, string[]> = {
     'crm.leads.manage',
     'crm.clients.manage',
     'crm.inquiries.manage',
+    'crm.rfp.documents.read',
     'media.read',
     'media.write',
     'view:b2b',
@@ -159,6 +161,7 @@ export const rolePermissions: Record<Role, string[]> = {
     'crm.clients.manage',
     'crm.inquiries.manage',
     'crm.subscribers.manage',
+    'crm.rfp.documents.read',
     'b2c.packages.read',
     'media.read',
     'media.write',

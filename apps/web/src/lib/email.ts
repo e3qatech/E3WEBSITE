@@ -313,6 +313,7 @@ export function renderAdminProjectRequestEmail(data: {
   message: string;
   leadId?: string;
   interestServices?: string[];
+  rfpUploadId?: string;
   rfpUrl?: string;
   rfpFileName?: string;
 }): string {
@@ -330,11 +331,11 @@ export function renderAdminProjectRequestEmail(data: {
     <div class="field"><div class="label">Corporate Email</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8;">${escapeHtml(data.email)}</a></div></div>
     ${data.phone ? `<div class="field"><div class="label">Phone / WhatsApp</div><div class="value">${escapeHtml(data.phone)}</div></div>` : ''}
     ${servicesList ? `<div class="field"><div class="label">Services of Interest</div><div class="value">${servicesList}</div></div>` : ''}
-    ${data.rfpFileName || data.rfpUrl ? `
+    ${data.rfpFileName || data.rfpUploadId ? `
       <div class="field">
         <div class="label">RFP Attachment</div>
         <div class="value" style="color:#10b981; font-weight:bold;">
-          📄 ${escapeHtml(data.rfpFileName || 'RFP Document attached')}
+          📄 ${escapeHtml(data.rfpFileName || 'RFP Document')} ${data.rfpUploadId ? `<span style="font-family: monospace; font-size: 12px; color: #94a3b8;">(Upload: #${escapeHtml(data.rfpUploadId)})</span>` : ''}
         </div>
       </div>` : ''}
     <div class="field"><div class="label">Project Brief & Details</div><div class="value" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div></div>
