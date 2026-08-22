@@ -242,8 +242,8 @@ export function AttractionFeedbackContactSection({
                     <span className="text-[11px] font-mono text-[var(--text-tertiary)] block uppercase">
                       {isAr ? "الدعم والاستفسارات" : "Support Email"}
                     </span>
-                    <a href="mailto:support@e3.qa" className="text-sm font-bold text-[var(--text-primary)] hover:text-emerald-500 transition-colors">
-                      support@e3.qa
+                    <a href="mailto:info@eeeqa.com" className="text-sm font-bold text-[var(--text-primary)] hover:text-emerald-500 transition-colors">
+                      info@eeeqa.com
                     </a>
                   </div>
                 </div>

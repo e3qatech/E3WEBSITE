@@ -178,7 +178,7 @@ export default function ContactRFPPage() {
                     {phone && (
                       <li>
                         <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'الهاتف' : 'Phone'}</div>
-                        <a href={`tel:${phone}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{phone}</a>
+                        <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{phone}</a>
                       </li>
                     )}
                   </ul>

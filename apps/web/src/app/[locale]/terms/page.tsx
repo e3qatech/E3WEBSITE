@@ -145,7 +145,7 @@ export default async function TermsOfServicePage(props: {
                 : 'For any legal or contractual inquiries concerning these Terms of Service, please reach out to our legal department:'}
             </p>
             <div className="text-sm font-bold text-emerald-400">
-              <a href="mailto:legal@e3.qa" className="underline hover:text-emerald-300">legal@e3.qa</a>
+              <a href="mailto:info@eeeqa.com" className="underline hover:text-emerald-300">info@eeeqa.com</a>
             </div>
           </section>
 

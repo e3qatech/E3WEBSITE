@@ -1149,5 +1149,13 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
       expect(json.success).toBe(true);
       expect(json.recipient).toBe('test@eeeqa.com');
     });
+
+    it('should verify canonical public email and phone constants across public contact surfaces', async () => {
+      const { getNotificationTargetEmail } = await import('@/lib/email');
+      const targetSupport = await getNotificationTargetEmail('SUPPORT');
+      const targetContact = await getNotificationTargetEmail('CONTACT');
+      expect(targetSupport).toBe('info@eeeqa.com');
+      expect(targetContact).toBe('info@eeeqa.com');
+    });
   });
 });
