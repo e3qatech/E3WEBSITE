@@ -176,18 +176,15 @@ export async function POST(req: NextRequest) {
         const model = resolveGeminiTextModel(process.env.GEMINI_MODEL);
         const correlationId = `gem_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-        const contents = [
-          ...messages.slice(0, -1).map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }],
-          })),
-          {
-            role: 'user',
-            parts: [{ text: `${SYSTEM_GROUNDING_PROMPT}\n\nUser Question:\n${messages[messages.length - 1]?.content || ''}` }],
-          },
-        ];
+        const contents = messages.map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        }));
 
         const geminiRequestBody = {
+          system_instruction: {
+            parts: [{ text: SYSTEM_GROUNDING_PROMPT }],
+          },
           contents,
           generationConfig: {
             maxOutputTokens: 500,
