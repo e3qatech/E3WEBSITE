@@ -52,7 +52,16 @@ export async function POST(req: NextRequest) {
     // 2. Per-IP Rate Limiting (15 requests per minute)
     const rl = await rateLimit(`rate_limit:chat:${ip}`, 15, 60, false);
     if (!rl.success) {
-      return NextResponse.json({ error: rl.error }, { status: 429 });
+      if (rl.isBackendUnavailable || rl.code === 'RATE_LIMIT_SERVICE_UNAVAILABLE') {
+        return NextResponse.json(
+          { error: 'Rate limit service unavailable', code: 'RATE_LIMIT_SERVICE_UNAVAILABLE' },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json(
+        { error: rl.error || 'Too many requests. Please try again later.' },
+        { status: 429, headers: rl.retryAfter ? { 'Retry-After': String(rl.retryAfter) } : undefined }
+      );
     }
 
     // 3. Validate Input Body
