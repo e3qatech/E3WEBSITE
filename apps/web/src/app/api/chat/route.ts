@@ -195,7 +195,8 @@ export async function POST(req: NextRequest) {
               ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال.'
               : 'Chat is temporarily unavailable. Please use our contact form.',
             escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
-            ...(process.env.NODE_ENV !== 'production' || process.env.VERCEL_ENV === 'preview' ? { providerError: sanitizedErrMsg } : {}),
+            upstreamStatus: response.status,
+            providerError: sanitizedErrMsg,
           });
         }
 
