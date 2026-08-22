@@ -17,7 +17,7 @@ vi.mock('@/lib/body-limit', () => ({
 }));
 
 import { rateLimit } from '@/lib/rate-limit';
-import { POST as postChat } from '@/app/api/chat/route';
+import { POST as postChat, resolveGeminiTextModel } from '@/app/api/chat/route';
 
 describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
   const originalVercelEnv = process.env.VERCEL_ENV;
@@ -25,6 +25,7 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
   const originalGeminiKey = process.env.GEMINI_API_KEY;
   const originalOpenAiKey = process.env.OPENAI_API_KEY;
   const originalGoogleAiKey = process.env.GOOGLE_AI_API_KEY;
+  const originalGeminiModel = process.env.GEMINI_MODEL;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,6 +33,7 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
     delete process.env.GEMINI_API_KEY;
     delete process.env.OPENAI_API_KEY;
     delete process.env.GOOGLE_AI_API_KEY;
+    delete process.env.GEMINI_MODEL;
   });
 
   afterEach(() => {
@@ -40,6 +42,7 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
     if (originalGeminiKey) process.env.GEMINI_API_KEY = originalGeminiKey;
     if (originalOpenAiKey) process.env.OPENAI_API_KEY = originalOpenAiKey;
     if (originalGoogleAiKey) process.env.GOOGLE_AI_API_KEY = originalGoogleAiKey;
+    if (originalGeminiModel) process.env.GEMINI_MODEL = originalGeminiModel;
   });
 
   describe('1. Vercel Preview + Redis Unavailable', () => {
@@ -186,7 +189,7 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
         const json = await res.json();
         expect(json.available).toBe(true);
         expect(json.reply).toContain('InflataRUN');
-        expect(fetchSpy).toHaveBeenCalled();
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
       } finally {
         globalThis.fetch = originalFetch;
       }
@@ -231,6 +234,109 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
       expect(resBlocked.status).toBe(429);
       const json = await resBlocked.json();
       expect(json.error).toContain('Too many requests');
+    });
+  });
+
+  describe('5. Gemini Model Selection & Single-Request Enforcement', () => {
+    it('defaults model to gemini-2.5-flash when GEMINI_MODEL is unset', () => {
+      expect(resolveGeminiTextModel()).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel(undefined)).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('')).toBe('gemini-2.5-flash');
+    });
+
+    it('rejects TTS, live, audio, image, and embedding models and falls back to gemini-2.5-flash', () => {
+      expect(resolveGeminiTextModel('gemini-2.5-flash-preview-tts')).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('gemini-2.5-flash-tts')).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('gemini-live-2.0')).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('gemini-audio-preview')).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('imagen-3.0-generate')).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('text-embedding-004')).toBe('gemini-2.5-flash');
+    });
+
+    it('makes exactly one upstream fetch with exact model string and no model probing', async () => {
+      process.env.VERCEL_ENV = 'preview';
+      process.env.GEMINI_API_KEY = 'test_gemini_api_key_mock';
+      process.env.GEMINI_MODEL = 'gemini-2.5-flash-preview-tts'; // Should be sanitized to gemini-2.5-flash
+
+      const fetchSpy = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({
+          candidates: [{ content: { parts: [{ text: 'E3 Qatar has amazing attractions.' }] } }],
+        }),
+      });
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = fetchSpy as any;
+
+      try {
+        const req = new NextRequest('http://localhost/api/chat', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-forwarded-for': '198.51.100.99',
+          },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: 'Tell me about E3' }],
+            locale: 'en',
+          }),
+        });
+
+        const res = await postChat(req);
+        expect(res.status).toBe(200);
+        const json = await res.json();
+        expect(json.available).toBe(true);
+        expect(json.reply).toBe('E3 Qatar has amazing attractions.');
+
+        // Exactly one fetch call made
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+        const calledUrl = fetchSpy.mock.calls[0][0];
+        expect(calledUrl).toContain('/models/gemini-2.5-flash:generateContent');
+        expect(calledUrl).not.toContain('tts');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('returns clean generic fallback without exposing providerError or internal details to browser on 429/500', async () => {
+      process.env.VERCEL_ENV = 'preview';
+      process.env.GEMINI_API_KEY = 'test_gemini_api_key_mock';
+
+      const fetchSpy = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+        json: () => Promise.resolve({
+          error: { message: 'Quota exceeded for project 123456789. Rate limit reached.' },
+        }),
+      });
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = fetchSpy as any;
+
+      try {
+        const req = new NextRequest('http://localhost/api/chat', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-forwarded-for': '198.51.100.100',
+          },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: 'Hello' }],
+            locale: 'en',
+          }),
+        });
+
+        const res = await postChat(req);
+        expect(res.status).toBe(200);
+        const json = await res.json();
+        expect(json.available).toBe(false);
+        expect(json.message).toBe('Chat is temporarily unavailable. Please use our contact form.');
+        expect(json.escalationUrl).toBe('/en/b2c/contact');
+        // Crucial security/cleanliness assertions:
+        expect(json.providerError).toBeUndefined();
+        expect(json.upstreamStatus).toBeUndefined();
+        expect(json.error).toBeUndefined();
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 });
