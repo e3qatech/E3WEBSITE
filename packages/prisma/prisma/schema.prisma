@@ -1318,3 +1318,32 @@ model B2BInquirySetting {
   isVisible      Boolean @default(true)
   sortOrder      Int     @default(0)
 }
+
+model RfpUpload {
+  id               String       @id @default(cuid())
+  purpose          String       @default("B2B_RFP")
+  pathname         String       @unique
+  originalFileName String
+  mimeType         String
+  fileSize         Int
+  claimTokenHash   String
+  status           UploadStatus @default(VALIDATING)
+  leadId           String?
+  expiresAt        DateTime
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([status])
+  @@index([claimTokenHash])
+  @@index([leadId])
+  @@index([expiresAt])
+}
+
+enum UploadStatus {
+  INITIATED
+  VALIDATING
+  VALIDATED
+  ATTACHED
+  REJECTED
+  EXPIRED
+}

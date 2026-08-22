@@ -7,6 +7,7 @@ import {
   safelySendEmail,
   getNotificationTargetEmail,
   renderAdminProjectRequestEmail,
+  renderUserB2BConfirmationEmail,
   renderAdminGeneralInquiryEmail,
 } from '@/lib/email';
 
@@ -18,6 +19,8 @@ const projectRequestSchema = z.object({
   email: z.string().email(),
   phone: z.string().max(20).optional(),
   message: z.string().min(1).max(2000),
+  rfpUrl: z.string().optional(),
+  rfpFileName: z.string().optional(),
 }).strict();
 
 const meetingRequestSchema = z.object({
@@ -128,10 +131,24 @@ export async function POST(req: NextRequest) {
             phone: parsed.phone,
             message: parsed.message,
             leadId: result.lead.id,
+            rfpUrl: parsed.rfpUrl,
+            rfpFileName: parsed.rfpFileName,
           }),
           category: 'PROJECT',
           replyTo: parsed.email,
         });
+      });
+
+      // Dispatch client acknowledgment email
+      safelySendEmail({
+        to: parsed.email,
+        subject: `[E3 Qatar] Project Inquiry Received (Ref: ${result.lead.id})`,
+        html: renderUserB2BConfirmationEmail({
+          name: parsed.name,
+          company: parsed.company,
+          leadId: result.lead.id,
+        }),
+        category: 'PROJECT',
       });
 
       return NextResponse.json(result, { status: 201 });

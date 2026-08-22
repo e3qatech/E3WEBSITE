@@ -49,9 +49,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "مسار عقبات رملي ووعر مع منحدرات وتحديات القيادة الحماسية.",
       highlightType: "OFF-ROAD",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "batabit-quad-bike-arena",
+      attractionNameEn: "Batabit Quad Bike Arena",
+      attractionNameAr: "حلبة بطابط لدراجات الدفع الرباعي"
     }
   ],
   achieve: [
@@ -63,7 +63,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "تحدَّ أطول مسار عقبات هوائي مسجل في غينيس للأرقام القياسية وحقق أفضل الأوقات.",
       highlightType: "WORLD RECORD",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/Post%20Event%20Report%20InflataCity%202025%20_Page_013_Image_0007.jpg",
-      attractionSlug: "inflatarun-qatar",
+      attractionSlug: "inflatarun-2025",
       attractionNameEn: "InflataRUN Qatar",
       attractionNameAr: "إنفلاتارن قطر"
     },
@@ -75,7 +75,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "مناطق انطلاق متعددة المستويات وأبراج تسلق وزلاقات عملاقة للمحترفين.",
       highlightType: "CHALLENGE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
-      attractionSlug: "inflatarun-qatar",
+      attractionSlug: "inflatarun-2025",
       attractionNameEn: "InflataRUN Qatar",
       attractionNameAr: "إنفلاتارن قطر"
     },
@@ -87,9 +87,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "قفز حر من منصات مرتفعة نحو وسائد هوائية عملاقة مع توثيق احترافي بالفيديو.",
       highlightType: "AERIAL",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/984f661d-5185-4d2e-aa3c-4ca54b54d6e9.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "urban-arena-doha-mall",
+      attractionNameEn: "Urban Arena",
+      attractionNameAr: "أوربان أرينا"
     }
   ],
   bounce: [
@@ -101,9 +101,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "قلعة هوائية عملاقة مترابطة مع منصات إطلاق وجسور توازن وجدران تسلق.",
       highlightType: "INFLATABLE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
-      attractionSlug: "inflatacity-city-center",
-      attractionNameEn: "InflataCity",
-      attractionNameAr: "إنفلاتا سيتي"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     },
     {
       id: "act-bounce-2",
@@ -113,9 +113,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "مساحات ترامبولين متصلة من الجدار للجدار مع مناطق كرة الخروج وكرة السلة الهوائية.",
       highlightType: "TRAMPOLINE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "urban-arena-doha-mall",
+      attractionNameEn: "Urban Arena",
+      attractionNameAr: "أوربان أرينا"
     },
     {
       id: "act-bounce-3",
@@ -125,9 +125,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "شقلبة وقفز بهلواني آمن من منصات مرتفعة نحو وسائد هوائية متطورة.",
       highlightType: "FREESTYLE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/Post%20Event%20Report%20InflataCity%202025%20_Page_013_Image_0007.jpg",
-      attractionSlug: "inflatacity-city-center",
-      attractionNameEn: "InflataCity",
-      attractionNameAr: "إنفلاتا سيتي"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     }
   ],
   compete: [
@@ -139,9 +139,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "متاهة مستقبلية متعددة الطوابق بإضاءة فوق بنفسجية ومؤثرات دخانية وتسجيل مباشر للنقاط.",
       highlightType: "TACTICAL",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "urban-arena-doha-mall",
+      attractionNameEn: "Urban Arena",
+      attractionNameAr: "أوربان أرينا"
     },
     {
       id: "act-compete-2",
@@ -151,9 +151,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "مبارزة على منصات مرتفعة فوق وسائد هوائية ناعمة لاختبار التوازن وردود الفعل السريعة.",
       highlightType: "TOURNAMENT",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/984f661d-5185-4d2e-aa3c-4ca54b54d6e9.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "inflatarun-2025",
+      attractionNameEn: "InflataRUN Arena",
+      attractionNameAr: "ميدان إنفلاتارن"
     },
     {
       id: "act-compete-3",
@@ -163,9 +163,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "معارك واقع افتراضي جماعية غامرة مع تتبع حركة فوري وشاشات عرض للمشاهدين.",
       highlightType: "ESPORTS",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8138.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "urban-arena-doha-mall",
+      attractionNameEn: "Urban Arena",
+      attractionNameAr: "أوربان أرينا"
     }
   ],
   explore: [
@@ -177,7 +177,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "ورش بناء المكعبات العملاقة ومحطات الألوان الحركية ومختبرات التصميم المعماري للأطفال.",
       highlightType: "STEM & ART",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/79a8b014-64b7-4d8f-97f3-0fedca268e8a.jpeg",
-      attractionSlug: "crayons-and-bricks-place-vendome",
+      attractionSlug: "crayons-bricks-place-vendome",
       attractionNameEn: "Crayons & Bricks",
       attractionNameAr: "كرايونز آند بريكس"
     },
@@ -189,21 +189,21 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "غرفة حسية مظلمة مع عوائق نيون متوهجة وخداع بصري وألغاز سرية لاكتشافها.",
       highlightType: "SENSORY",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC09277-2.jpg",
-      attractionSlug: "crayons-and-bricks-place-vendome",
+      attractionSlug: "crayons-bricks-place-vendome",
       attractionNameEn: "Crayons & Bricks",
       attractionNameAr: "كرايونز آند بريكس"
     },
     {
       id: "act-explore-3",
-      titleEn: "SpongeBob Bikini Bottom Adventure",
-      titleAr: "مغامرة سبونج بوب في قاع الهامور",
-      descriptionEn: "Splash-filled interactive world bringing Nickelodeon characters, waterslides, and photo zones to life.",
-      descriptionAr: "عالم مائي تفاعلي مبهج يجمع شخصيات نيكلوديون المحبوبة والزلاقات المائية والمناظر المميزة.",
+      titleEn: "Space Tribe Cosmic Explorer Zone",
+      titleAr: "منطقة سبيس ترايب لاستكشاف الفضاء",
+      descriptionEn: "Interactive cosmic flight simulations, planetarium domes, and zero-gravity training pods.",
+      descriptionAr: "محاكاة طيران فضائي تفاعلية وقباب فلكية ومناطق تدريب انعدام الجاذبية للأطفال.",
       highlightType: "ADVENTURE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/2809137c-b6cd-48f0-94d4-80e19c038e4e.JPG",
-      attractionSlug: "spongebob-squarepants-paw-patrol-activation-meryal",
-      attractionNameEn: "SpongeBob & PAW Patrol Activation",
-      attractionNameAr: "فعالية سبونج بوب وباو باترول"
+      attractionSlug: "space-tribe-place-vendome",
+      attractionNameEn: "Space Tribe",
+      attractionNameAr: "سبيس ترايب"
     }
   ],
   celebrate: [
@@ -215,9 +215,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "أجنحة أعياد ميلاد خاصة ذات طابع فضائي غامر مع منسق حفلات خاص وإضاءة مخصصة وضيافة.",
       highlightType: "BIRTHDAYS",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC06321.jpg",
-      attractionSlug: "inflatacity-city-center",
-      attractionNameEn: "InflataCity",
-      attractionNameAr: "إنفلاتا سيتي"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     },
     {
       id: "act-celebrate-2",

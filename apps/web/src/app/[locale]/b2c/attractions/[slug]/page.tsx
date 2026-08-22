@@ -260,9 +260,20 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
   const params = await props.params
   const { slug, locale } = params
 
-  if (slug === "urban-arena-doha-mall") {
-    await repairUrbanArenaCanonicalSlug()
-    redirect(`/${locale}/b2c/attractions/urban-arena`)
+  const SLUG_ALIASES: Record<string, string> = {
+    "urban-arena-doha-mall": "urban-arena",
+    "rush-action-park": "urban-arena",
+    "inflatarun-qatar": "inflatarun-2025",
+    "inflatacity-city-center": "inflatapark-city-center-doha",
+    "crayons-and-bricks-place-vendome": "crayons-bricks-place-vendome",
+    "spongebob-squarepants-paw-patrol-activation-meryal": "winter-activation-place-vendome",
+  };
+
+  if (SLUG_ALIASES[slug]) {
+    if (slug === "urban-arena-doha-mall") {
+      await repairUrbanArenaCanonicalSlug()
+    }
+    redirect(`/${locale}/b2c/attractions/${SLUG_ALIASES[slug]}`)
   }
 
   const data = await getAttractionData(slug)

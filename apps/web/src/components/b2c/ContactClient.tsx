@@ -213,37 +213,73 @@ export function ContactClient({
 function SupportForm({ attractions }: { attractions: any[] }) {
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [ticketNumber, setTicketNumber] = useState(0);
+  const [ticketNumber, setTicketNumber] = useState<string | null>(null);
   const {} = useB2CTheme();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage(null);
     
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
     try {
+      let attachmentUrl: string | undefined;
+      let attachmentFileName: string | undefined;
+
+      if (file) {
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        uploadData.append('context', 'public_attachment');
+        
+        try {
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: uploadData,
+          });
+          if (uploadRes.ok) {
+            const uploadJson = await uploadRes.json();
+            if (uploadJson.url) {
+              attachmentUrl = uploadJson.url;
+              attachmentFileName = uploadJson.fileName || file.name;
+            }
+          }
+        } catch {
+          // If upload fails, continue with metadata note so inquiry is never blocked
+          attachmentFileName = file.name;
+        }
+      }
+
       const res = await fetch("/api/contact/b2c", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          actionType: "SUPPORT",
+          actionType: "SUPPORT_TICKET",
           name: data.name,
           email: data.email,
-          phone: data.phone,
-          category: data.category,
-          attractionId: data.attractionId || null,
+          phone: data.phone || undefined,
+          category: data.category || undefined,
+          attractionId: data.attractionId || undefined,
           message: data.message,
+          attachmentUrl,
+          attachmentFileName: attachmentFileName || (file ? file.name : undefined),
         })
       });
-      if (res.ok) {
-        setTicketNumber(Math.floor(Math.random() * 10000));
+
+      const resData = await res.json().catch(() => ({}));
+
+      if (res.ok && (resData.ticketId || resData.id || resData.success)) {
+        setTicketNumber(resData.ticketId || resData.id || 'SUBMITTED');
         setSuccess(true);
+      } else {
+        setErrorMessage(resData.error || 'Failed to submit support ticket. Please verify your details.');
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('[SUPPORT_FORM_ERROR]', err);
+      setErrorMessage('Network connection error. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -256,8 +292,10 @@ function SupportForm({ attractions }: { attractions: any[] }) {
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Request Submitted</h3>
-        <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your ticket number is <strong>#E3-{ticketNumber}</strong>. We will get back to you shortly.</p>
-        <MagneticButton onClick={() => setSuccess(false)} variant="primary" size="sm">
+        <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">
+          Your ticket reference is <strong className="font-mono text-[var(--e3-royal-blue)]">#{ticketNumber}</strong>. Our support team will follow up via email.
+        </p>
+        <MagneticButton onClick={() => { setSuccess(false); setTicketNumber(null); setFile(null); }} variant="primary" size="sm">
           Submit Another Request
         </MagneticButton>
       </div>
@@ -325,6 +363,12 @@ function SupportForm({ attractions }: { attractions: any[] }) {
           />
         </label>
       </div>
+
+      {errorMessage && (
+        <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium">
+          {errorMessage}
+        </div>
+      )}
 
       <div className="pt-4">
         <MagneticButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4" disabled={isSubmitting}>

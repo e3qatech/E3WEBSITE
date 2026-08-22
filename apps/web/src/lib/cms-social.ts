@@ -85,7 +85,7 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
   {
     id: "post-ig-01",
     platform: "INSTAGRAM",
-    postUrl: "https://instagram.com/p/C_e3qatar1",
+    postUrl: "https://instagram.com/e3.qatar",
     mediaType: "VIDEO",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
     posterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
@@ -101,7 +101,7 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
   {
     id: "post-ig-02",
     platform: "INSTAGRAM",
-    postUrl: "https://instagram.com/p/C_e3qatar2",
+    postUrl: "https://instagram.com/e3.qatar",
     mediaType: "IMAGE",
     mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
     captionEn: "Pure joy bouncing at InflataPark! Over 5,000 sqm of continuous obstacle courses.",
@@ -111,12 +111,12 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
     isApproved: true,
     isFeatured: true,
     isVisible: true,
-    relatedAttractionSlug: "inflatapark"
+    relatedAttractionSlug: "inflatapark-city-center-doha"
   },
   {
     id: "post-yt-01",
     platform: "YOUTUBE",
-    postUrl: "https://youtube.com/watch?v=e3qatar_highlights",
+    postUrl: "https://youtube.com/@e3qatar_official",
     mediaType: "VIDEO",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-glowing-light-bulb-41525-large.mp4",
     posterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/72ab2c19-e5de-4554-9ae2-b1beecc7ffab.jpg",
@@ -127,6 +127,6 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
     isApproved: true,
     isFeatured: true,
     isVisible: true,
-    relatedAttractionSlug: "kids-driving-school"
+    relatedAttractionSlug: "kids-city-driving-school"
   }
 ]

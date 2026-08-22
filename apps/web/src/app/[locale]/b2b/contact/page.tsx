@@ -10,6 +10,9 @@ import Link from 'next/link'
 export default function ContactRFPPage() {
   const { inquiryType, setInquiryType } = useB2BRFP()
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [rfpFile, setRfpFile] = useState<File | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [cmsData, setCmsData] = useState<any>({})
   
   const params = useParams()
@@ -31,8 +34,41 @@ export default function ContactRFPPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setErrorMessage(null)
     
     const formData = new FormData(e.currentTarget)
+
+    let rfpUploadId: string | undefined;
+    let rfpClaimToken: string | undefined;
+
+    if (rfpFile) {
+      const uploadData = new FormData();
+      uploadData.append('file', rfpFile);
+      uploadData.append('context', 'public_rfp');
+      try {
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadData,
+        });
+        if (uploadRes.ok) {
+          const uploadJson = await uploadRes.json();
+          rfpUploadId = uploadJson.uploadId;
+          rfpClaimToken = uploadJson.claimToken;
+        } else {
+          const errData = await uploadRes.json().catch(() => ({}));
+          setErrorMessage(errData.error || (isAr ? 'فشل تحميل ملف طلب العروض.' : 'RFP document upload failed.'));
+          setIsSubmitting(false);
+          return;
+        }
+      } catch (uploadErr) {
+        console.error('[RFP Upload Error]', uploadErr);
+        setErrorMessage(isAr ? 'خطأ في الاتصال أثناء تحميل الملف.' : 'Network error uploading RFP document.');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const data = {
       name: formData.get("name"),
       company: formData.get("company"),
@@ -40,6 +76,8 @@ export default function ContactRFPPage() {
       phone: formData.get("phone"),
       interestServices: [inquiryType],
       notes: formData.get("notes"),
+      rfpUploadId,
+      rfpClaimToken,
     }
 
     try {
@@ -52,11 +90,14 @@ export default function ContactRFPPage() {
       if (res.ok) {
         setSubmitted(true)
       } else {
-        alert(isAr ? 'عذرًا، حدث خطأ أثناء إرسال طلبك. يرجى المحاولة لاحقًا.' : 'Sorry, there was an error submitting your request. Please try again later.')
+        const errJson = await res.json().catch(() => ({}));
+        setErrorMessage(errJson.error || (isAr ? 'عذرًا، حدث خطأ أثناء إرسال طلبك. يرجى التحقق من البيانات.' : 'Sorry, there was an error submitting your request. Please verify your data.'));
       }
     } catch (err) {
       console.error(err)
-      alert(isAr ? 'خطأ في الاتصال بالخادم.' : 'Error connecting to the server.')
+      setErrorMessage(isAr ? 'خطأ في الاتصال بالخادم.' : 'Error connecting to the server.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -67,9 +108,9 @@ export default function ContactRFPPage() {
     ? (cmsData?.header?.subtitleAr || cmsData?.header?.subtitleEn || 'هل لديك مشروع أو فعاليات كبرى تخطط لها؟ دعنا نساعدك في بناء خطة تنفيذ ناجحة.') 
     : (cmsData?.header?.subtitleEn || 'Planning a major event, venue, or activation? Let us help you engineer a successful delivery plan.');
   
-  const businessEmail = cmsData?.inquiries?.business;
-  const careersEmail = cmsData?.inquiries?.careers;
-  const phone = cmsData?.inquiries?.phone;
+  const businessEmail = cmsData?.inquiries?.business || "info@eeeqa.com";
+  const careersEmail = cmsData?.inquiries?.careers || "info@eeeqa.com";
+  const phone = cmsData?.inquiries?.phone || "+974 3048 9955";
 
   const hqAddress = isAr ? cmsData?.headquarters?.addressAr : cmsData?.headquarters?.addressEn;
 
@@ -137,7 +178,7 @@ export default function ContactRFPPage() {
                     {phone && (
                       <li>
                         <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-1">{isAr ? 'الهاتف' : 'Phone'}</div>
-                        <a href={`tel:${phone}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{phone}</a>
+                        <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-xl font-medium text-zinc-300 hover:text-zinc-100 transition-colors">{phone}</a>
                       </li>
                     )}
                   </ul>
@@ -257,21 +298,63 @@ export default function ContactRFPPage() {
                     />
                   </div>
 
-                  {/* File Upload (Mock) */}
+                  {/* Real RFP File Upload */}
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-400">{isAr ? 'المرفقات (اختياري)' : 'Attachments (Optional)'}</label>
-                    <div className="w-full border-2 border-dashed border-zinc-800 rounded-sm p-8 text-center hover:border-zinc-600 transition-colors cursor-pointer bg-zinc-950">
-                      <p className="text-sm text-zinc-500 font-medium">{isAr ? 'اسحب وأفلت مستندات هنا، أو انقر للتصفح' : 'Drag & drop RFP documents here, or click to browse'}</p>
-                      <p className="text-xs text-zinc-600 mt-2">PDF, DOCX, ZIP up to 50MB</p>
-                    </div>
+                    <label className="text-sm font-bold text-zinc-400">{isAr ? 'وثيقة طلب العروض / المرفقات (اختياري)' : 'RFP Document / Attachments (Optional)'}</label>
+                    <label className="block w-full border-2 border-dashed border-zinc-800 hover:border-emerald-500/50 rounded-sm p-6 text-center transition-colors cursor-pointer bg-zinc-950">
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.docx,.doc"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 25 * 1024 * 1024) {
+                              alert(isAr ? 'الحد الأقصى لحجم الملف هو 25 ميجابايت.' : 'File size must be under 25MB.');
+                              return;
+                            }
+                            setRfpFile(file);
+                          }
+                        }}
+                      />
+                      {rfpFile ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <span className="text-sm font-bold text-emerald-400">📄 {rfpFile.name} ({(rfpFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                          <button
+                            type="button"
+                            onClick={(ev) => { ev.preventDefault(); setRfpFile(null); }}
+                            className="text-xs text-rose-400 hover:underline cursor-pointer"
+                          >
+                            {isAr ? 'إلغاء' : 'Remove'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm text-zinc-400 font-medium">
+                            {isAr ? 'انقر لاختيار وثيقة RFP أو المخطط' : 'Click to select RFP document or brief'}
+                          </p>
+                          <p className="text-xs text-zinc-600 mt-1">PDF, DOCX up to 25MB (Encrypted & Qatar PDPL Compliant)</p>
+                        </div>
+                      )}
+                    </label>
                   </div>
+
+                  {errorMessage && (
+                    <div className="p-3.5 rounded-sm bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm font-medium">
+                      {errorMessage}
+                    </div>
+                  )}
 
                   {/* Submit */}
                   <button 
                     type="submit"
-                    className="w-full py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-sm hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
-                    {isAr ? 'إرسال الاستفسار' : 'Submit Inquiry'} <ArrowRight className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
+                    {isSubmitting
+                      ? (isAr ? 'جاري إرسال الطلب...' : 'Submitting Request...')
+                      : (isAr ? 'إرسال الاستفسار' : 'Submit Inquiry')}
+                    {!isSubmitting && <ArrowRight className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />}
                   </button>
 
                   <p className="text-xs text-zinc-600 text-center max-w-sm mx-auto">

@@ -4,6 +4,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { enforceBodyLimit } from "@/lib/body-limit";
 import { z } from "zod";
 import crypto from "crypto";
+import { sendEmail, renderNewsletterVerificationEmail } from "@/lib/email";
 
 const subscribeSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -22,48 +23,69 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: rl.error }, { status: 429 });
     }
 
-    // 2. Input Validation
+    // 3. Input Validation
     const body = await req.json();
     const validatedData = subscribeSchema.parse(body);
+    const cleanEmail = validatedData.email.trim().toLowerCase();
 
-    // 3. Database Insertion or Update
-    // Generate a unique token for verification/unsubscribe
+    // 4. Generate a unique verification token
     const token = crypto.randomBytes(32).toString('hex');
 
     const subscriber = await db.subscriber.upsert({
-      where: { email: validatedData.email },
+      where: { email: cleanEmail },
       update: {
-        // If they resubscribe, maybe we reset verification or just update updated_at
-        updatedAt: new Date()
+        token: token,
+        updatedAt: new Date(),
       },
       create: {
-        email: validatedData.email,
+        email: cleanEmail,
         token: token,
-        isVerified: true, // Auto-verifying for this demo, in prod send email
+        isVerified: false, // Explicit: Requires email verification link
         preferences: { all: true },
       },
     });
 
-    // 4. Audit Log
-    await db.systemLog.create({
-      data: {
-        action: "SUBSCRIBER_ADDED",
-        entity: "Subscriber",
-        entityId: subscriber.id,
-        metadata: {
-          ip: ip,
-          timestamp: new Date().toISOString()
+    // 5. Audit Log
+    try {
+      await db.systemLog.create({
+        data: {
+          action: "SUBSCRIBER_ADDED",
+          entity: "Subscriber",
+          entityId: subscriber.id,
+          metadata: {
+            ip: ip,
+            timestamp: new Date().toISOString(),
+          }
         }
-      }
+      });
+    } catch (_logErr) {}
+
+    // 6. Dispatch Verification Email
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'e3.qa';
+    const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const origin = `${protocol}://${host}`;
+    const verificationUrl = `${origin}/api/subscribe?token=${encodeURIComponent(token)}`;
+
+    await sendEmail({
+      to: cleanEmail,
+      subject: '[E3 Qatar] Confirm Your Newsletter Subscription',
+      html: renderNewsletterVerificationEmail({
+        email: cleanEmail,
+        verificationUrl,
+      }),
+      category: 'NEWSLETTER',
     });
 
-    return NextResponse.json({ success: true, message: "Subscribed successfully" }, { status: 201 });
+    return NextResponse.json({
+      success: true,
+      message: "Please check your email to confirm your subscription.",
+    }, { status: 201 });
 
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: "Invalid data", details: error.flatten().fieldErrors }, { status: 400 });
     }
-    console.error("[CSO] Subscribe Error:", error);
+    console.error("[CRM Subscribe Error]:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

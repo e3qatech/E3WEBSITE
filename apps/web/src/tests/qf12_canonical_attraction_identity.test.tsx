@@ -219,7 +219,7 @@ describe('QF-12: Canonical Attraction & Project Identity Architecture', () => {
     expect(b2cHtml).toContain('href="/en/dashboard/b2c/attractions/new"');
     expect(b2cHtml).toContain('href="/en/dashboard/b2b/attractions"');
     expect(b2cHtml).toContain('href="/en/dashboard/b2c/attractions/attr-1/edit"');
-    expect(b2cHtml).toContain('href="/en/dashboard/b2b/attractions/attr-1/edit"');
+    expect(b2cHtml).toContain('href="/en/dashboard/b2c/attractions/attr-1/edit?stage=media"');
     expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2b\/attractions"/);
     expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2c\/attractions\/new"/);
   });
@@ -274,11 +274,11 @@ describe('QF-12: Canonical Attraction & Project Identity Architecture', () => {
     expect(b2cHtml).toContain('dir="rtl"');
     expect(b2cHtml).toContain('الهوية الموحدة لوجهات ومشاريع E3');
     expect(b2cHtml).toContain('دليل مشاريع B2B');
-    expect(b2cHtml).toContain('محرر B2B');
+    expect(b2cHtml).toContain('دراسات الحالة');
     expect(b2cHtml).toContain('href="/ar/dashboard/b2c/attractions/new"');
     expect(b2cHtml).toContain('href="/ar/dashboard/b2b/attractions"');
     expect(b2cHtml).toContain('href="/ar/dashboard/b2c/attractions/attr-1/edit"');
-    expect(b2cHtml).toContain('href="/ar/dashboard/b2b/attractions/attr-1/edit"');
+    expect(b2cHtml).toContain('href="/ar/dashboard/b2c/attractions/attr-1/edit?stage=media"');
     expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2b\/attractions"/);
     expect(b2cHtml).not.toMatch(/href="\/dashboard\/b2c\/attractions\/new"/);
   });
