@@ -156,14 +156,6 @@ export async function POST(req: NextRequest) {
 
       // 5B. Gemini Provider
       if (geminiApiKey) {
-        const configuredModel = process.env.GEMINI_MODEL;
-        const candidateModels: string[] = [];
-        if (configuredModel && configuredModel !== 'gemini-2.5-flash' && configuredModel !== 'gemini-3.6-flash') {
-          candidateModels.push(configuredModel);
-        }
-        candidateModels.push('gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash-latest');
-
-        const uniqueModels = Array.from(new Set(candidateModels));
         const lastUserMsg = messages[messages.length - 1]?.content || '';
         const history = messages.slice(0, -1);
 
@@ -186,6 +178,34 @@ export async function POST(req: NextRequest) {
           },
         };
 
+        // Dynamically resolve supported models from Gemini ListModels or fallback to standard candidates
+        let candidateModels: string[] = ['gemini-1.5-flash', 'gemini-1.5-flash-001', 'gemini-1.5-flash-002', 'gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+        const configuredModel = process.env.GEMINI_MODEL;
+        if (configuredModel && !configuredModel.includes('2.5') && !configuredModel.includes('3.6')) {
+          candidateModels = [configuredModel, ...candidateModels];
+        }
+
+        try {
+          const listModelsRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`,
+            { method: 'GET', signal: controller.signal }
+          );
+          if (listModelsRes.ok) {
+            const listData = await listModelsRes.json();
+            if (Array.isArray(listData.models)) {
+              const supportedModels = listData.models
+                .filter((m: any) => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+                .map((m: any) => String(m.name).replace(/^models\//, ''));
+              if (supportedModels.length > 0) {
+                candidateModels = supportedModels;
+              }
+            }
+          }
+        } catch (_listErr) {
+          // Fallback to candidateModels on list failure
+        }
+
+        const uniqueModels = Array.from(new Set(candidateModels));
         let lastStatus = 500;
         let lastErrorMsg = 'Upstream error';
 
