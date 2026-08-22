@@ -157,27 +157,28 @@ export async function POST(req: NextRequest) {
       // 5B. Gemini Provider
       if (geminiApiKey) {
         const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-        const contents = [
-          { role: 'user', parts: [{ text: SYSTEM_GROUNDING_PROMPT }] },
-          { role: 'model', parts: [{ text: 'Understood. I will act strictly as E3 Qatar support assistant following all grounding and safety rules.' }] },
-          ...messages.map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }],
-          })),
-        ];
+        const contents = messages.map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        }));
+
+        const geminiRequestBody = {
+          system_instruction: {
+            parts: [{ text: SYSTEM_GROUNDING_PROMPT }],
+          },
+          contents,
+          generationConfig: {
+            maxOutputTokens: 500,
+            temperature: 0.3,
+          },
+        };
 
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents,
-              generationConfig: {
-                maxOutputTokens: 500,
-                temperature: 0.3,
-              },
-            }),
+            body: JSON.stringify(geminiRequestBody),
             signal: controller.signal,
           }
         );
@@ -185,13 +186,16 @@ export async function POST(req: NextRequest) {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          console.error(`[CHAT_GEMINI_ERROR] Status: ${response.status}`);
+          const errData = await response.json().catch(() => ({}));
+          const sanitizedErrMsg = errData?.error?.message ? String(errData.error.message).substring(0, 200) : 'Upstream error';
+          console.error(`[CHAT_GEMINI_ERROR] Status: ${response.status} - ${sanitizedErrMsg}`);
           return NextResponse.json({
             available: false,
             message: isAr
               ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال.'
               : 'Chat is temporarily unavailable. Please use our contact form.',
             escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
+            ...(process.env.NODE_ENV !== 'production' || process.env.VERCEL_ENV === 'preview' ? { providerError: sanitizedErrMsg } : {}),
           });
         }
 
@@ -209,6 +213,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           available: true,
           reply,
+          model,
         });
       }
 
