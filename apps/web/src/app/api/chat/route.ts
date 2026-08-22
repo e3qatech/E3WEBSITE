@@ -156,11 +156,15 @@ export async function POST(req: NextRequest) {
 
       // 5B. Gemini Provider
       if (geminiApiKey) {
+        const configuredModel = process.env.GEMINI_MODEL;
         const candidateModels: string[] = [];
-        if (process.env.GEMINI_MODEL) {
-          candidateModels.push(process.env.GEMINI_MODEL);
+        if (configuredModel && configuredModel !== 'gemini-2.5-flash') {
+          candidateModels.push(configuredModel);
         }
-        candidateModels.push('gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-1.5-flash');
+        candidateModels.push('gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro');
+        if (configuredModel === 'gemini-2.5-flash') {
+          candidateModels.push(configuredModel);
+        }
 
         const uniqueModels = Array.from(new Set(candidateModels));
         const contents = messages.map(m => ({
