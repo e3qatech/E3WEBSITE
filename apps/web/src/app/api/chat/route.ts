@@ -156,7 +156,13 @@ export async function POST(req: NextRequest) {
 
       // 5B. Gemini Provider
       if (geminiApiKey) {
-        const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+        const candidateModels: string[] = [];
+        if (process.env.GEMINI_MODEL) {
+          candidateModels.push(process.env.GEMINI_MODEL);
+        }
+        candidateModels.push('gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-1.5-flash');
+
+        const uniqueModels = Array.from(new Set(candidateModels));
         const contents = messages.map(m => ({
           role: m.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: m.content }],
@@ -173,48 +179,58 @@ export async function POST(req: NextRequest) {
           },
         };
 
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geminiRequestBody),
-            signal: controller.signal,
+        let lastStatus = 500;
+        let lastErrorMsg = 'Upstream error';
+
+        for (const currentModel of uniqueModels) {
+          try {
+            const response = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${geminiApiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(geminiRequestBody),
+                signal: controller.signal,
+              }
+            );
+
+            if (response.ok) {
+              clearTimeout(timeoutId);
+              const data = await response.json();
+              const reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+              if (reply) {
+                return NextResponse.json({
+                  available: true,
+                  reply,
+                  model: currentModel,
+                });
+              }
+            } else {
+              lastStatus = response.status;
+              const errData = await response.json().catch(() => ({}));
+              lastErrorMsg = errData?.error?.message ? String(errData.error.message).substring(0, 200) : `HTTP ${response.status}`;
+              console.error(`[CHAT_GEMINI_ERROR] Model ${currentModel} Status: ${response.status} - ${lastErrorMsg}`);
+              if (response.status === 400 || response.status === 404) {
+                continue;
+              }
+              break;
+            }
+          } catch (modelErr: any) {
+            lastErrorMsg = modelErr?.message || 'Fetch failed';
+            break;
           }
-        );
+        }
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          const sanitizedErrMsg = errData?.error?.message ? String(errData.error.message).substring(0, 200) : 'Upstream error';
-          console.error(`[CHAT_GEMINI_ERROR] Status: ${response.status} - ${sanitizedErrMsg}`);
-          return NextResponse.json({
-            available: false,
-            message: isAr
-              ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال.'
-              : 'Chat is temporarily unavailable. Please use our contact form.',
-            escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
-            upstreamStatus: response.status,
-            providerError: sanitizedErrMsg,
-          });
-        }
-
-        const data = await response.json();
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-
-        if (!reply) {
-          return NextResponse.json({
-            available: false,
-            message: isAr ? 'المساعد الآلي غير متاح حالياً.' : 'Chat service is temporarily unavailable.',
-            escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
-          });
-        }
-
         return NextResponse.json({
-          available: true,
-          reply,
-          model,
+          available: false,
+          message: isAr
+            ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال.'
+            : 'Chat is temporarily unavailable. Please use our contact form.',
+          escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
+          upstreamStatus: lastStatus,
+          providerError: lastErrorMsg,
         });
       }
 
