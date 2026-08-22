@@ -158,24 +158,27 @@ export async function POST(req: NextRequest) {
       if (geminiApiKey) {
         const configuredModel = process.env.GEMINI_MODEL;
         const candidateModels: string[] = [];
-        if (configuredModel && configuredModel !== 'gemini-2.5-flash') {
+        if (configuredModel && configuredModel !== 'gemini-2.5-flash' && configuredModel !== 'gemini-3.6-flash') {
           candidateModels.push(configuredModel);
         }
-        candidateModels.push('gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro');
-        if (configuredModel === 'gemini-2.5-flash') {
-          candidateModels.push(configuredModel);
-        }
+        candidateModels.push('gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash-latest');
 
         const uniqueModels = Array.from(new Set(candidateModels));
-        const contents = messages.map(m => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }],
-        }));
+        const lastUserMsg = messages[messages.length - 1]?.content || '';
+        const history = messages.slice(0, -1);
+
+        const contents = [
+          ...history.map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }],
+          })),
+          {
+            role: 'user',
+            parts: [{ text: `${SYSTEM_GROUNDING_PROMPT}\n\nUser Question:\n${lastUserMsg}` }],
+          },
+        ];
 
         const geminiRequestBody = {
-          system_instruction: {
-            parts: [{ text: SYSTEM_GROUNDING_PROMPT }],
-          },
           contents,
           generationConfig: {
             maxOutputTokens: 500,
