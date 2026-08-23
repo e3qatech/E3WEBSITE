@@ -110,8 +110,9 @@ export async function POST(req: Request) {
       });
     } catch (_logErr) {}
 
-    // 7. Dispatch HR Notification Email
-    getNotificationTargetEmail('CAREERS').then(hrEmail => {
+    // 7. Dispatch HR Notification & Candidate Auto-Acknowledgment before lambda exit
+    const hrEmail = await getNotificationTargetEmail('CAREERS');
+    await Promise.allSettled([
       safelySendEmail({
         to: hrEmail,
         subject: `[E3 Talent Ingest] New Candidate: ${validatedData.name} - ${validatedData.position || 'General'}`,
@@ -126,20 +127,18 @@ export async function POST(req: Request) {
         }),
         category: 'CAREERS',
         replyTo: validatedData.email,
-      });
-    });
-
-    // 8. Dispatch Candidate Auto-Acknowledgment Email
-    safelySendEmail({
-      to: validatedData.email,
-      subject: `[E3 Qatar] Application Received: ${validatedData.position || 'Talent Pool'}`,
-      html: renderApplicantConfirmationEmail({
-        name: validatedData.name,
-        jobTitle: validatedData.position || 'Talent Pool Submission',
-        applicationId: talent.id,
       }),
-      category: 'CAREERS',
-    });
+      safelySendEmail({
+        to: validatedData.email,
+        subject: `[E3 Qatar] Application Received: ${validatedData.position || 'Talent Pool'}`,
+        html: renderApplicantConfirmationEmail({
+          name: validatedData.name,
+          jobTitle: validatedData.position || 'Talent Pool Submission',
+          applicationId: talent.id,
+        }),
+        category: 'CAREERS',
+      })
+    ]);
 
     return NextResponse.json({ success: true, talentId: talent.id, aiSummary: parsedData }, { status: 201 });
 

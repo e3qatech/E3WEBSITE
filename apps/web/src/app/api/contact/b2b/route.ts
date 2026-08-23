@@ -119,8 +119,9 @@ export async function POST(req: NextRequest) {
         return { lead, inquiry };
       });
 
-      // Dispatch admin project request notification (non-blocking)
-      getNotificationTargetEmail('PROJECT').then(adminEmail => {
+      // Dispatch admin project request notification & client acknowledgment before lambda exit
+      const adminEmail = await getNotificationTargetEmail('PROJECT');
+      await Promise.allSettled([
         safelySendEmail({
           to: adminEmail,
           subject: `[E3 B2B Project Lead] ${parsed.name} (${parsed.company || 'Direct'})`,
@@ -136,20 +137,18 @@ export async function POST(req: NextRequest) {
           }),
           category: 'PROJECT',
           replyTo: parsed.email,
-        });
-      });
-
-      // Dispatch client acknowledgment email
-      safelySendEmail({
-        to: parsed.email,
-        subject: `[E3 Qatar] Project Inquiry Received (Ref: ${result.lead.id})`,
-        html: renderUserB2BConfirmationEmail({
-          name: parsed.name,
-          company: parsed.company,
-          leadId: result.lead.id,
         }),
-        category: 'PROJECT',
-      });
+        safelySendEmail({
+          to: parsed.email,
+          subject: `[E3 Qatar] Project Inquiry Received (Ref: ${result.lead.id})`,
+          html: renderUserB2BConfirmationEmail({
+            name: parsed.name,
+            company: parsed.company,
+            leadId: result.lead.id,
+          }),
+          category: 'PROJECT',
+        })
+      ]);
 
       return NextResponse.json(result, { status: 201 });
     }
@@ -207,21 +206,20 @@ export async function POST(req: NextRequest) {
       });
 
       // Dispatch admin lead email notification
-      getNotificationTargetEmail('CONTACT').then(adminEmail => {
-        safelySendEmail({
-          to: adminEmail,
-          subject: `[E3 B2B Meeting Request] ${parsed.name} (${parsed.company || 'Corporate'})`,
-          html: renderAdminProjectRequestEmail({
-            name: parsed.name,
-            company: parsed.company,
-            email: parsed.email,
-            phone: parsed.phone,
-            message: `Consultation Requested for ${new Date(parsed.startTime).toLocaleString()}\n\nNote: ${parsed.message || 'None'}`,
-            leadId: result.lead.id,
-          }),
-          category: 'CONTACT',
-          replyTo: parsed.email,
-        });
+      const adminEmail = await getNotificationTargetEmail('CONTACT');
+      await safelySendEmail({
+        to: adminEmail,
+        subject: `[E3 B2B Meeting Request] ${parsed.name} (${parsed.company || 'Corporate'})`,
+        html: renderAdminProjectRequestEmail({
+          name: parsed.name,
+          company: parsed.company,
+          email: parsed.email,
+          phone: parsed.phone,
+          message: `Consultation Requested for ${new Date(parsed.startTime).toLocaleString()}\n\nNote: ${parsed.message || 'None'}`,
+          leadId: result.lead.id,
+        }),
+        category: 'CONTACT',
+        replyTo: parsed.email,
       });
 
       return NextResponse.json(result, { status: 201 });
@@ -240,19 +238,18 @@ export async function POST(req: NextRequest) {
       });
 
       // Dispatch admin general inquiry email notification
-      getNotificationTargetEmail('CONTACT').then(adminEmail => {
-        safelySendEmail({
-          to: adminEmail,
-          subject: `[E3 B2B General Inquiry] ${parsed.name}`,
-          html: renderAdminGeneralInquiryEmail({
-            name: parsed.name,
-            email: parsed.email,
-            phone: parsed.phone,
-            message: parsed.message,
-          }),
-          category: 'CONTACT',
-          replyTo: parsed.email,
-        });
+      const adminEmail = await getNotificationTargetEmail('CONTACT');
+      await safelySendEmail({
+        to: adminEmail,
+        subject: `[E3 B2B General Inquiry] ${parsed.name}`,
+        html: renderAdminGeneralInquiryEmail({
+          name: parsed.name,
+          email: parsed.email,
+          phone: parsed.phone,
+          message: parsed.message,
+        }),
+        category: 'CONTACT',
+        replyTo: parsed.email,
       });
 
       return NextResponse.json(inquiry, { status: 201 });
@@ -273,21 +270,20 @@ export async function POST(req: NextRequest) {
       });
 
       // Dispatch admin career inquiry email notification
-      getNotificationTargetEmail('CONTACT').then(adminEmail => {
-        safelySendEmail({
-          to: adminEmail,
-          subject: `[E3 Career Enquiry] ${parsed.name} (${parsed.enquiryType || 'General'})`,
-          html: renderAdminGeneralInquiryEmail({
-            name: parsed.name,
-            email: parsed.email,
-            phone: parsed.phone,
-            message: parsed.enquiryType
-              ? `[Enquiry Type: ${parsed.enquiryType}]\n\n${parsed.message}`
-              : parsed.message,
-          }),
-          category: 'CONTACT',
-          replyTo: parsed.email,
-        });
+      const adminEmail = await getNotificationTargetEmail('CONTACT');
+      await safelySendEmail({
+        to: adminEmail,
+        subject: `[E3 Career Enquiry] ${parsed.name} (${parsed.enquiryType || 'General'})`,
+        html: renderAdminGeneralInquiryEmail({
+          name: parsed.name,
+          email: parsed.email,
+          phone: parsed.phone,
+          message: parsed.enquiryType
+            ? `[Enquiry Type: ${parsed.enquiryType}]\n\n${parsed.message}`
+            : parsed.message,
+        }),
+        category: 'CONTACT',
+        replyTo: parsed.email,
       });
 
       return NextResponse.json(inquiry, { status: 201 });

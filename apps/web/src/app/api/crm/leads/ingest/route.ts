@@ -165,8 +165,9 @@ export async function POST(req: Request) {
         // Non-blocking log error
       }
 
-      // 5. Internal Project Request Email Notification
-      getNotificationTargetEmail('PROJECT').then(adminEmail => {
+      // 5. Internal Project Request Email Notification & Client Acknowledgment
+      const adminEmail = await getNotificationTargetEmail('PROJECT');
+      await Promise.allSettled([
         safelySendEmail({
           to: adminEmail,
           subject: `[E3 B2B Lead & RFP] ${validatedData.name} (${validatedData.company || 'Direct Client'})`,
@@ -183,20 +184,18 @@ export async function POST(req: Request) {
           }),
           category: 'PROJECT',
           replyTo: validatedData.email,
-        });
-      });
-
-      // 6. Client Acknowledgment Email
-      safelySendEmail({
-        to: validatedData.email,
-        subject: `[E3 Qatar] Project Inquiry Received (Ref: ${lead.id})`,
-        html: renderUserB2BConfirmationEmail({
-          name: validatedData.name,
-          company: validatedData.company,
-          leadId: lead.id,
         }),
-        category: 'PROJECT',
-      });
+        safelySendEmail({
+          to: validatedData.email,
+          subject: `[E3 Qatar] Project Inquiry Received (Ref: ${lead.id})`,
+          html: renderUserB2BConfirmationEmail({
+            name: validatedData.name,
+            company: validatedData.company,
+            leadId: lead.id,
+          }),
+          category: 'PROJECT',
+        })
+      ]);
 
       return NextResponse.json({ success: true, leadId: lead.id }, { status: 201 });
 

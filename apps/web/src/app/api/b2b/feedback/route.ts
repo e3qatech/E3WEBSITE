@@ -60,20 +60,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Dispatch admin feedback email notification (non-blocking)
-    getNotificationTargetEmail('FEEDBACK').then(adminEmail => {
-      safelySendEmail({
-        to: adminEmail,
-        subject: `[E3 B2B Feedback] ${data.title || 'New Feedback'} - ${data.name || 'Corporate Guest'}`,
-        html: renderAdminFeedbackEmail({
-          name: data.name || undefined,
-          email: data.email || undefined,
-          rating: parsedRating || null,
-          message: `${data.title ? `[${data.title}]\n\n` : ''}${data.message}`,
-        }),
-        category: 'FEEDBACK',
-        replyTo: data.email || undefined,
-      });
+    // Dispatch admin feedback email notification
+    const adminEmail = await getNotificationTargetEmail('FEEDBACK');
+    await safelySendEmail({
+      to: adminEmail,
+      subject: `[E3 B2B Feedback] ${data.title || 'New Feedback'} - ${data.name || 'Corporate Guest'}`,
+      html: renderAdminFeedbackEmail({
+        name: data.name || undefined,
+        email: data.email || undefined,
+        rating: parsedRating || null,
+        message: `${data.title ? `[${data.title}]\n\n` : ''}${data.message}`,
+      }),
+      category: 'FEEDBACK',
+      replyTo: data.email || undefined,
     });
 
     return NextResponse.json(feedback, { status: 201 });

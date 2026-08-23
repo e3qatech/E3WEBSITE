@@ -120,20 +120,19 @@ export async function POST(req: NextRequest) {
       });
 
       // Dispatch admin feedback email notification
-      getNotificationTargetEmail('FEEDBACK').then(adminEmail => {
-        safelySendEmail({
-          to: adminEmail,
-          subject: `[E3 Qatar Feedback] Rating: ${parsed.rating || 'N/A'} - ${parsed.name || 'Anonymous'}`,
-          html: renderAdminFeedbackEmail({
-            name: parsed.name,
-            email: parsed.email,
-            rating: parsed.rating,
-            attractionId: parsed.attractionId,
-            message: parsed.message,
-          }),
-          category: 'FEEDBACK',
-          replyTo: parsed.email || undefined,
-        });
+      const adminEmail = await getNotificationTargetEmail('FEEDBACK');
+      await safelySendEmail({
+        to: adminEmail,
+        subject: `[E3 Qatar Feedback] Rating: ${parsed.rating || 'N/A'} - ${parsed.name || 'Anonymous'}`,
+        html: renderAdminFeedbackEmail({
+          name: parsed.name,
+          email: parsed.email,
+          rating: parsed.rating,
+          attractionId: parsed.attractionId,
+          message: parsed.message,
+        }),
+        category: 'FEEDBACK',
+        replyTo: parsed.email || undefined,
       });
 
       return NextResponse.json({
@@ -166,8 +165,9 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Dispatch admin notification email
-      getNotificationTargetEmail('SUPPORT').then(adminEmail => {
+      // Dispatch admin notification email & user acknowledgment synchronously before lambda exit
+      const adminEmail = await getNotificationTargetEmail('SUPPORT');
+      await Promise.allSettled([
         safelySendEmail({
           to: adminEmail,
           subject: `[E3 Support Ticket] ${parsed.name} - Ticket #${inquiry.id}`,
@@ -182,19 +182,17 @@ export async function POST(req: NextRequest) {
           }),
           category: 'SUPPORT',
           replyTo: parsed.email,
-        });
-      });
-
-      // Dispatch user auto-acknowledgment email
-      safelySendEmail({
-        to: parsed.email,
-        subject: `[E3 Qatar] Support Request Received (#${inquiry.id})`,
-        html: renderUserSupportTicketConfirmationEmail({
-          name: parsed.name,
-          ticketId: inquiry.id,
         }),
-        category: 'SUPPORT',
-      });
+        safelySendEmail({
+          to: parsed.email,
+          subject: `[E3 Qatar] Support Request Received (#${inquiry.id})`,
+          html: renderUserSupportTicketConfirmationEmail({
+            name: parsed.name,
+            ticketId: inquiry.id,
+          }),
+          category: 'SUPPORT',
+        })
+      ]);
 
       return NextResponse.json({
         success: true,
@@ -218,20 +216,19 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      getNotificationTargetEmail('CONTACT').then(adminEmail => {
-        safelySendEmail({
-          to: adminEmail,
-          subject: `[E3 Package Inquiry] ${parsed.name} - ${parsed.subject || 'Package Booking'}`,
-          html: renderAdminGeneralInquiryEmail({
-            name: parsed.name,
-            email: parsed.email,
-            phone: parsed.phone,
-            subject: parsed.subject,
-            message: parsed.message,
-          }),
-          category: 'CONTACT',
-          replyTo: parsed.email,
-        });
+      const adminEmail = await getNotificationTargetEmail('CONTACT');
+      await safelySendEmail({
+        to: adminEmail,
+        subject: `[E3 Package Inquiry] ${parsed.name} - ${parsed.subject || 'Package Booking'}`,
+        html: renderAdminGeneralInquiryEmail({
+          name: parsed.name,
+          email: parsed.email,
+          phone: parsed.phone,
+          subject: parsed.subject,
+          message: parsed.message,
+        }),
+        category: 'CONTACT',
+        replyTo: parsed.email,
       });
 
       return NextResponse.json({
