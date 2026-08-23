@@ -179,16 +179,32 @@ export async function POST(req: NextRequest) {
         );
         const correlationId = `gem_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-        const contents = messages.map(m => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }],
-        }));
+        // Clean and filter conversation turns to ensure strictly alternating user/model turns starting with 'user'
+        const validTurns: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }> = [];
+        for (const m of messages) {
+          const role = m.role === 'assistant' ? 'model' : 'user';
+          if (validTurns.length === 0 && role === 'model') {
+            continue; // first turn must be 'user'
+          }
+          if (validTurns.length > 0 && validTurns[validTurns.length - 1].role === role) {
+            validTurns[validTurns.length - 1].parts[0].text += `\n\n${m.content}`;
+          } else {
+            validTurns.push({
+              role,
+              parts: [{ text: m.content }],
+            });
+          }
+        }
+
+        if (validTurns.length === 0) {
+          validTurns.push({ role: 'user', parts: [{ text: 'Hello' }] });
+        }
 
         const geminiRequestBody = {
-          system_instruction: {
+          systemInstruction: {
             parts: [{ text: SYSTEM_GROUNDING_PROMPT }],
           },
-          contents,
+          contents: validTurns,
           generationConfig: {
             maxOutputTokens: 500,
             temperature: 0.3,
@@ -197,6 +213,7 @@ export async function POST(req: NextRequest) {
 
         let successfulReply: string | null = null;
         let lastStatus = 500;
+        let lastErrorMessage = '';
 
         for (const candidateModel of candidateModels) {
           try {
@@ -219,14 +236,20 @@ export async function POST(req: NextRequest) {
                 successfulReply = text;
                 break;
               }
-            } else if (response.status === 400 || response.status === 404) {
-              console.warn(`[CHAT_GEMINI_FALLBACK] Model ${candidateModel} failed with status ${response.status}, trying fallback...`);
-              continue;
             } else {
-              break;
+              const errData = await response.json().catch(() => ({}));
+              lastErrorMessage = errData?.error?.message || response.statusText || 'Upstream error';
+
+              if (response.status === 400 || response.status === 404) {
+                console.warn(`[CHAT_GEMINI_FALLBACK] Model ${candidateModel} failed with status ${response.status} (${lastErrorMessage}), trying fallback...`);
+                continue;
+              } else {
+                break;
+              }
             }
           } catch (modelErr: any) {
-            console.error(`[CHAT_GEMINI_MODEL_ERROR] Model ${candidateModel} dispatch error:`, modelErr?.message || modelErr);
+            lastErrorMessage = modelErr?.message || 'Network dispatch error';
+            console.error(`[CHAT_GEMINI_MODEL_ERROR] Model ${candidateModel} dispatch error:`, lastErrorMessage);
             break;
           }
         }
@@ -240,13 +263,16 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        console.error(`[CHAT_GEMINI_ERROR] CorrelationId: ${correlationId} Status: ${lastStatus}`);
+        console.error(`[CHAT_GEMINI_ERROR] CorrelationId: ${correlationId} Status: ${lastStatus} Error: ${lastErrorMessage}`);
         return NextResponse.json({
           available: false,
           message: isAr
             ? 'المساعد الآلي غير متاح حالياً. يرجى التواصل معنا عبر نموذج الاتصال.'
             : 'Chat is temporarily unavailable. Please use our contact form.',
           escalationUrl: isAr ? '/ar/b2c/contact' : '/en/b2c/contact',
+          ...(process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV !== 'production'
+            ? { _previewDiagnostics: { lastStatus, lastErrorMessage, modelsTried: candidateModels } }
+            : {}),
         });
       }
 
