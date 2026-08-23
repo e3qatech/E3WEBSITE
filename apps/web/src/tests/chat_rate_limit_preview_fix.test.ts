@@ -237,26 +237,28 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
     });
   });
 
-  describe('5. Gemini Model Selection & Single-Request Enforcement', () => {
-    it('defaults model to gemini-2.5-flash when GEMINI_MODEL is unset', () => {
-      expect(resolveGeminiTextModel()).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel(undefined)).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('')).toBe('gemini-2.5-flash');
+  describe('5. Gemini Model Selection & Resilient Fallback Enforcement', () => {
+    it('defaults model to gemini-2.0-flash when GEMINI_MODEL is unset', () => {
+      expect(resolveGeminiTextModel()).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel(undefined)).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('')).toBe('gemini-2.0-flash');
     });
 
-    it('rejects TTS, live, audio, image, and embedding models and falls back to gemini-2.5-flash', () => {
-      expect(resolveGeminiTextModel('gemini-2.5-flash-preview-tts')).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('gemini-2.5-flash-tts')).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('gemini-live-2.0')).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('gemini-audio-preview')).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('imagen-3.0-generate')).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('text-embedding-004')).toBe('gemini-2.5-flash');
+    it('rejects TTS, live, audio, image, embedding, and non-existent version models and falls back to gemini-2.0-flash', () => {
+      expect(resolveGeminiTextModel('gemini-2.5-flash-preview-tts')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('gemini-2.5-flash-tts')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('gemini-2.5-flash')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('gemini-3.6-flash')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('gemini-live-2.0')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('gemini-audio-preview')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('imagen-3.0-generate')).toBe('gemini-2.0-flash');
+      expect(resolveGeminiTextModel('text-embedding-004')).toBe('gemini-2.0-flash');
     });
 
-    it('makes exactly one upstream fetch with exact model string and no model probing', async () => {
+    it('makes upstream fetch with sanitized model string and returns candidate reply', async () => {
       process.env.VERCEL_ENV = 'preview';
       process.env.GEMINI_API_KEY = 'test_gemini_api_key_mock';
-      process.env.GEMINI_MODEL = 'gemini-2.5-flash-preview-tts'; // Should be sanitized to gemini-2.5-flash
+      process.env.GEMINI_MODEL = 'gemini-2.5-flash-preview-tts'; // Should be sanitized to gemini-2.0-flash
 
       const fetchSpy = vi.fn().mockResolvedValue({
         ok: true,
@@ -287,11 +289,61 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
         expect(json.available).toBe(true);
         expect(json.reply).toBe('E3 Qatar has amazing attractions.');
 
-        // Exactly one fetch call made
+        // Upstream fetch called with sanitized model
         expect(fetchSpy).toHaveBeenCalledTimes(1);
         const calledUrl = fetchSpy.mock.calls[0][0];
-        expect(calledUrl).toContain('/models/gemini-2.5-flash:generateContent');
+        expect(calledUrl).toContain('/models/gemini-2.0-flash:generateContent');
         expect(calledUrl).not.toContain('tts');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('falls back to next candidate model if first model returns 404 or 400', async () => {
+      process.env.VERCEL_ENV = 'preview';
+      process.env.GEMINI_API_KEY = 'test_gemini_api_key_mock';
+      process.env.GEMINI_MODEL = 'gemini-custom-experiment';
+
+      let callCount = 0;
+      const fetchSpy = vi.fn().mockImplementation((url: string) => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({ error: { message: 'Model not found' } }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({
+            candidates: [{ content: { parts: [{ text: 'Fallback model response.' }] } }],
+          }),
+        });
+      });
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = fetchSpy as any;
+
+      try {
+        const req = new NextRequest('http://localhost/api/chat', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-forwarded-for': '198.51.100.101',
+          },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: 'Hello' }],
+            locale: 'en',
+          }),
+        });
+
+        const res = await postChat(req);
+        expect(res.status).toBe(200);
+        const json = await res.json();
+        expect(json.available).toBe(true);
+        expect(json.reply).toBe('Fallback model response.');
+        expect(callCount).toBe(2);
       } finally {
         globalThis.fetch = originalFetch;
       }
