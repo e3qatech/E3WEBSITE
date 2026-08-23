@@ -15,13 +15,17 @@ export async function rateLimit(
   retryAfter?: number;
   isBackendUnavailable?: boolean;
 }> {
+  // Ensure Redis keys are strictly namespaced by environment to isolate Preview & Production
+  const envPrefix = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
+  const namespacedKey = key.startsWith(`${envPrefix}:`) ? key : `${envPrefix}:${key}`;
+
   try {
-    const currentCount = await redis.incr(key);
+    const currentCount = await redis.incr(namespacedKey);
     if (typeof currentCount !== 'number' || Number.isNaN(currentCount)) {
       throw new Error('Redis client unavailable or returned non-numeric count');
     }
     if (currentCount === 1) {
-      await redis.expire(key, windowSec);
+      await redis.expire(namespacedKey, windowSec);
     }
     if (currentCount > limit) {
       return {
@@ -67,10 +71,10 @@ export async function rateLimit(
       });
     }
 
-    const record = memoryStore.get(key);
+    const record = memoryStore.get(namespacedKey);
     if (record) {
       if (now > record.resetAt) {
-        memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+        memoryStore.set(namespacedKey, { count: 1, resetAt: now + windowMs });
         return { success: true };
       } else {
         if (record.count >= limit) {
@@ -85,7 +89,7 @@ export async function rateLimit(
         return { success: true };
       }
     } else {
-      memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+      memoryStore.set(namespacedKey, { count: 1, resetAt: now + windowMs });
       return { success: true };
     }
   }

@@ -42,7 +42,7 @@ CORE GROUNDING KNOWLEDGE:
 `;
 
 export function resolveGeminiTextModel(rawModel?: string): string {
-  const defaultModel = 'gemini-2.0-flash';
+  const defaultModel = 'gemini-2.5-flash';
   if (!rawModel || typeof rawModel !== 'string') {
     return defaultModel;
   }
@@ -50,7 +50,7 @@ export function resolveGeminiTextModel(rawModel?: string): string {
   const lower = cleaned.toLowerCase();
 
   // Block audio, TTS, live, image, embedding, preview-only TTS models and non-existent version tags
-  const invalidTokens = ['tts', 'live', 'audio', 'image', 'imagen', 'embedding', 'embed', 'realtime', '2.5', '3.6'];
+  const invalidTokens = ['tts', 'live', 'audio', 'image', 'imagen', 'embedding', 'embed', 'realtime', '3.6'];
   if (invalidTokens.some(token => lower.includes(token))) {
     return defaultModel;
   }
@@ -179,6 +179,7 @@ export async function POST(req: NextRequest) {
         let candidateModels: string[] = Array.from(
           new Set([
             primaryModel,
+            'gemini-2.5-flash',
             'gemini-2.0-flash',
             'gemini-1.5-flash-latest',
             'gemini-1.5-flash',
