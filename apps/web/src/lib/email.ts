@@ -107,7 +107,7 @@ export async function getNotificationTargetEmail(
  */
 export async function sendEmail(options: SendEmailOptions): Promise<EmailDispatchResult> {
   const recipients = Array.isArray(options.to) ? options.to : [options.to];
-  const fromAddress = options.from || process.env.EMAIL_FROM_ADDRESS || 'E3 Qatar <notifications@eeeqa.com>';
+  const fromAddress = options.from || process.env.EMAIL_FROM_ADDRESS || 'E3 Qatar <noreply@notifications.eeeqa.com>';
   const plainText = options.text || htmlToPlainText(options.html);
 
   const isProduction =
@@ -148,11 +148,13 @@ export async function sendEmail(options: SendEmailOptions): Promise<EmailDispatc
       });
 
       if (!res.ok) {
-        console.error(`[EMAIL_RESEND_HTTP_ERROR] Status: ${res.status}`);
+        const errJson = await res.json().catch(() => ({}));
+        const errMessage = errJson?.message || `HTTP ${res.status}`;
+        console.error(`[EMAIL_RESEND_HTTP_ERROR] Status: ${res.status}, Message: ${errMessage}`);
         return {
           success: false,
           provider: 'resend',
-          error: 'Email delivery failed at upstream provider',
+          error: `Resend error: ${errMessage}`,
         };
       }
 
