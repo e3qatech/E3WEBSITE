@@ -221,8 +221,33 @@ export async function safelySendEmail(options: SendEmailOptions): Promise<EmailD
   }
 }
 
+/**
+ * Formats raw database IDs into human-friendly, easily dictatable and sharable ticket reference numbers.
+ * Example: 'cmt6bo1g70000k8p08zgi408w' -> 'E3-SUP-8ZGI-408W'
+ */
+export function formatReadableTicketId(
+  id?: string | null,
+  category: 'SUPPORT' | 'PROJECT' | 'FEEDBACK' | 'CAREERS' = 'SUPPORT'
+): string {
+  if (!id) return 'E3-REF';
+  const prefixMap: Record<string, string> = {
+    SUPPORT: 'E3-SUP',
+    PROJECT: 'E3-B2B',
+    FEEDBACK: 'E3-FBK',
+    CAREERS: 'E3-APP',
+  };
+  const prefix = prefixMap[category] || 'E3-REF';
+  const clean = String(id).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  
+  if (clean.length <= 8) {
+    return `${prefix}-${clean}`;
+  }
+  const suffix = clean.slice(-8);
+  return `${prefix}-${suffix.slice(0, 4)}-${suffix.slice(4)}`;
+}
+
 /* ============================================================================
- * HTML TEMPLATE RENDERERS (All user-controlled values HTML-escaped)
+ * LUXURY HTML TEMPLATE RENDERERS (All user-controlled values HTML-escaped)
  * ============================================================================ */
 
 function getBaseEmailLayout(title: string, contentHtml: string): string {
@@ -234,33 +259,154 @@ function getBaseEmailLayout(title: string, contentHtml: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${safeTitle}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #09090b; color: #f4f4f5; margin: 0; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #18181b; border-radius: 12px; border: 1px solid #27272a; overflow: hidden; }
-    .header { background: linear-gradient(135deg, #0284c7 0%, #10b981 100%); padding: 28px 24px; text-align: center; }
-    .header h1 { color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-    .header p { color: #f0fdf4; margin: 6px 0 0 0; font-size: 13px; font-weight: 500; }
-    .body { padding: 32px 24px; }
-    .field { margin-bottom: 20px; }
-    .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #a1a1aa; margin-bottom: 6px; font-weight: 700; }
-    .value { font-size: 14px; color: #fafafa; background-color: #09090b; padding: 12px 16px; border-radius: 8px; border: 1px solid #27272a; word-break: break-word; }
-    .btn-container { text-align: center; margin: 28px 0; }
-    .btn { display: inline-block; background-color: #10b981; color: #09090b; padding: 14px 28px; font-size: 14px; font-weight: 700; text-decoration: none; border-radius: 8px; }
-    .footer { padding: 24px; text-align: center; font-size: 12px; color: #71717a; border-top: 1px solid #27272a; background-color: #09090b; }
-    .footer a { color: #38bdf8; text-decoration: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #050608;
+      color: #e4e4e7;
+      margin: 0;
+      padding: 32px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #0c0d12;
+      border-radius: 16px;
+      border: 1px solid #1f222e;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7);
+    }
+    .brand-header {
+      padding: 32px 28px 24px;
+      text-align: center;
+      border-bottom: 1px solid #181a24;
+      background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.12) 0%, rgba(12, 13, 18, 0) 70%);
+    }
+    .brand-logo-text {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .brand-tagline {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #10b981;
+      margin: 6px 0 0 0;
+      text-transform: uppercase;
+    }
+    .body {
+      padding: 32px 28px;
+    }
+    .reference-box {
+      background: linear-gradient(180deg, #13151f 0%, #0e1017 100%);
+      border: 1px solid #272b3c;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 24px 0;
+    }
+    .reference-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .reference-code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #38bdf8;
+      background: #08090d;
+      display: inline-block;
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .reference-hint {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+    .field {
+      margin-bottom: 18px;
+    }
+    .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #71717a;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .value {
+      font-size: 14px;
+      color: #f4f4f5;
+      background-color: #13141c;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #222533;
+      word-break: break-word;
+    }
+    .info-card {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    .btn-container {
+      text-align: center;
+      margin: 28px 0;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff !important;
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+    .footer {
+      padding: 24px 28px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      border-top: 1px solid #181a24;
+      background-color: #08090d;
+    }
+    .footer a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>E3 Qatar Platform</h1>
-      <p>${safeTitle}</p>
+  <div class="wrapper">
+    <div class="brand-header">
+      <div class="brand-logo-text">E3 QATAR</div>
+      <div class="brand-tagline">Event Engineering & Entertainment Landmarks</div>
     </div>
     <div class="body">
       ${contentHtml}
     </div>
     <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} E3 Qatar Entertainment & Events. All rights reserved.</p>
-      <p><a href="https://e3.qa">www.e3.qa</a> | Doha, State of Qatar</p>
+      <p style="margin: 0 0 8px;">&copy; ${new Date().getFullYear()} E3 Qatar Entertainment & Events. All rights reserved.</p>
+      <p style="margin: 0 0 12px;"><a href="https://e3.qa">www.e3.qa</a> &bull; Doha, State of Qatar &bull; Tel: +974 3048 9955</p>
+      <p style="margin: 0; font-size: 11px; color: #475569;">Qatar PDPL Compliant: Law No. (13) of 2016 concerning Personal Data Privacy Protection.</p>
     </div>
   </div>
 </body>
@@ -276,17 +422,23 @@ export function renderAdminSupportTicketEmail(data: {
   category?: string;
   attractionId?: string;
 }): string {
+  const readableRef = formatReadableTicketId(data.ticketId, 'SUPPORT');
   const content = `
-    <h2 style="color: #38bdf8; margin-top: 0;">New Customer Support Ticket</h2>
-    <p style="color: #cbd5e1;">A new support request has been submitted on the B2C portal.</p>
+    <h2 style="color: #38bdf8; margin: 0 0 8px; font-size: 20px; font-weight: 800;">New Customer Support Ticket</h2>
+    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">A new support request has been submitted on the B2C portal.</p>
     
-    ${data.ticketId ? `<div class="field"><div class="label">Ticket ID</div><div class="value" style="font-family: monospace; color: #38bdf8; font-weight: bold;">#${escapeHtml(data.ticketId)}</div></div>` : ''}
+    <div class="reference-box">
+      <div class="reference-label">Ticket Reference Number</div>
+      <div class="reference-code">${escapeHtml(readableRef)}</div>
+      ${data.ticketId ? `<div class="reference-hint">Internal DB UUID: #${escapeHtml(data.ticketId)}</div>` : ''}
+    </div>
+
     <div class="field"><div class="label">Customer Name</div><div class="value">${escapeHtml(data.name)}</div></div>
-    <div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8;">${escapeHtml(data.email)}</a></div></div>
+    <div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8; text-decoration: none;">${escapeHtml(data.email)}</a></div></div>
     ${data.phone ? `<div class="field"><div class="label">Phone Number</div><div class="value">${escapeHtml(data.phone)}</div></div>` : ''}
     ${data.category ? `<div class="field"><div class="label">Category</div><div class="value">${escapeHtml(data.category)}</div></div>` : ''}
     ${data.attractionId ? `<div class="field"><div class="label">Related Attraction</div><div class="value">${escapeHtml(data.attractionId)}</div></div>` : ''}
-    <div class="field"><div class="label">Message & Issue Details</div><div class="value" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div></div>
+    <div class="field"><div class="label">Message & Issue Details</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
   return getBaseEmailLayout('New Customer Support Ticket', content);
 }
@@ -295,14 +447,24 @@ export function renderUserSupportTicketConfirmationEmail(data: {
   name: string;
   ticketId?: string;
 }): string {
+  const readableRef = formatReadableTicketId(data.ticketId, 'SUPPORT');
   const content = `
-    <h2 style="color: #38bdf8; margin-top: 0;">We Received Your Support Request</h2>
-    <p style="color: #cbd5e1;">Dear ${escapeHtml(data.name)},</p>
-    <p style="color: #cbd5e1; line-height: 1.6;">Thank you for reaching out to E3 Qatar Support. We have received your inquiry and our operations team is reviewing your ticket.</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">We Received Your Support Request</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${escapeHtml(data.name)},</p>
+    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+      Thank you for reaching out to E3 Qatar Support. Your inquiry has been securely registered in our operations queue and assigned to our guest relations team.
+    </p>
     
-    ${data.ticketId ? `<div class="field"><div class="label">Your Reference Ticket ID</div><div class="value" style="font-family: monospace; color: #38bdf8; font-weight: bold;">#${escapeHtml(data.ticketId)}</div></div>` : ''}
+    <div class="reference-box">
+      <div class="reference-label">Your Official Reference Number</div>
+      <div class="reference-code">${escapeHtml(readableRef)}</div>
+      <div class="reference-hint">Please share this reference code when calling or checking status. ${data.ticketId ? `(#${escapeHtml(data.ticketId)})` : ''}</div>
+    </div>
     
-    <p style="color: #94a3b8; font-size: 14px; margin-top: 24px; line-height: 1.5;">Our support representative will follow up with you within 24 business hours. If you have additional details to provide, simply reply to this email.</p>
+    <div class="info-card">
+      <p style="margin: 0 0 6px; font-weight: 700; color: #10b981;">⏱️ Response Target: Within 24 Business Hours</p>
+      <p style="margin: 0;">Our operations team is actively reviewing your request. If you need to attach screenshots, receipts, or additional notes, simply <strong>reply directly to this email</strong>.</p>
+    </div>
   `;
   return getBaseEmailLayout('Support Request Received - E3 Qatar', content);
 }
@@ -319,18 +481,24 @@ export function renderAdminProjectRequestEmail(data: {
   rfpUrl?: string;
   rfpFileName?: string;
 }): string {
+  const readableRef = formatReadableTicketId(data.leadId, 'PROJECT');
   const servicesList = Array.isArray(data.interestServices) && data.interestServices.length > 0
-    ? data.interestServices.map(s => `<span style="display:inline-block; background:#27272a; padding:4px 8px; border-radius:4px; margin-right:6px; font-size:12px;">${escapeHtml(s)}</span>`).join('')
+    ? data.interestServices.map(s => `<span style="display:inline-block; background:#181a24; border: 1px solid #272b3c; padding:4px 10px; border-radius:6px; margin: 2px 4px 2px 0; font-size:12px; color:#38bdf8;">${escapeHtml(s)}</span>`).join('')
     : null;
 
   const content = `
-    <h2 style="color: #f59e0b; margin-top: 0;">New B2B Project Inquiry & Lead</h2>
-    <p style="color: #cbd5e1;">A new corporate project request has been submitted on the B2B portal.</p>
+    <h2 style="color: #f59e0b; margin: 0 0 8px; font-size: 20px; font-weight: 800;">New B2B Project Inquiry & Lead</h2>
+    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">A new corporate project request has been submitted on the B2B enterprise portal.</p>
     
-    ${data.leadId ? `<div class="field"><div class="label">Lead Reference ID</div><div class="value" style="font-family: monospace; color: #f59e0b; font-weight: bold;">${escapeHtml(data.leadId)}</div></div>` : ''}
+    <div class="reference-box">
+      <div class="reference-label">Lead Reference Code</div>
+      <div class="reference-code" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);">${escapeHtml(readableRef)}</div>
+      ${data.leadId ? `<div class="reference-hint">Internal Lead UUID: #${escapeHtml(data.leadId)}</div>` : ''}
+    </div>
+
     <div class="field"><div class="label">Full Name</div><div class="value">${escapeHtml(data.name)}</div></div>
-    ${data.company ? `<div class="field"><div class="label">Company / Organization</div><div class="value">${escapeHtml(data.company)}</div></div>` : ''}
-    <div class="field"><div class="label">Corporate Email</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8;">${escapeHtml(data.email)}</a></div></div>
+    ${data.company ? `<div class="field"><div class="label">Company / Organization</div><div class="value" style="font-weight: 700; color: #ffffff;">${escapeHtml(data.company)}</div></div>` : ''}
+    <div class="field"><div class="label">Corporate Email</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8; text-decoration: none;">${escapeHtml(data.email)}</a></div></div>
     ${data.phone ? `<div class="field"><div class="label">Phone / WhatsApp</div><div class="value">${escapeHtml(data.phone)}</div></div>` : ''}
     ${servicesList ? `<div class="field"><div class="label">Services of Interest</div><div class="value">${servicesList}</div></div>` : ''}
     ${data.rfpFileName || data.rfpUploadId ? `
@@ -340,7 +508,7 @@ export function renderAdminProjectRequestEmail(data: {
           📄 ${escapeHtml(data.rfpFileName || 'RFP Document')} ${data.rfpUploadId ? `<span style="font-family: monospace; font-size: 12px; color: #94a3b8;">(Upload: #${escapeHtml(data.rfpUploadId)})</span>` : ''}
         </div>
       </div>` : ''}
-    <div class="field"><div class="label">Project Brief & Details</div><div class="value" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div></div>
+    <div class="field"><div class="label">Project Brief & Requirements</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
   return getBaseEmailLayout('New B2B Project Inquiry', content);
 }
@@ -350,14 +518,24 @@ export function renderUserB2BConfirmationEmail(data: {
   company?: string;
   leadId?: string;
 }): string {
+  const readableRef = formatReadableTicketId(data.leadId, 'PROJECT');
   const content = `
-    <h2 style="color: #10b981; margin-top: 0;">We Received Your Project Inquiry</h2>
-    <p style="color: #cbd5e1;">Dear ${escapeHtml(data.name)}${data.company ? ` (${escapeHtml(data.company)})` : ''},</p>
-    <p style="color: #cbd5e1; line-height: 1.6;">Thank you for contacting E3 Qatar. We have received your project inquiry and our Business Development & Event Engineering team is reviewing your requirements.</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">We Received Your Project Inquiry</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${escapeHtml(data.name)}${data.company ? ` (${escapeHtml(data.company)})` : ''},</p>
+    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+      Thank you for engaging with E3 Qatar. We have received your project inquiry and our Business Development & Event Engineering leadership is reviewing your specifications.
+    </p>
     
-    ${data.leadId ? `<div class="field"><div class="label">Your Reference Number</div><div class="value" style="font-family: monospace; color: #10b981; font-weight: bold;">${escapeHtml(data.leadId)}</div></div>` : ''}
+    <div class="reference-box">
+      <div class="reference-label">Your Project Reference Number</div>
+      <div class="reference-code" style="color: #10b981; border-color: rgba(16, 185, 129, 0.3);">${escapeHtml(readableRef)}</div>
+      <div class="reference-hint">Keep this code handy for executive communications. ${data.leadId ? `(#${escapeHtml(data.leadId)})` : ''}</div>
+    </div>
     
-    <p style="color: #94a3b8; font-size: 14px; margin-top: 24px; line-height: 1.5;">An executive specialist will connect with you within 24 hours to discuss execution frameworks, timelines, and delivery plans.</p>
+    <div class="info-card">
+      <p style="margin: 0 0 6px; font-weight: 700; color: #10b981;">🤝 Executive Follow-Up: Within 24 Hours</p>
+      <p style="margin: 0;">An engineering lead or client account executive will connect with you to review feasibility, execution timelines, and commercial proposals.</p>
+    </div>
   `;
   return getBaseEmailLayout('Project Inquiry Received - E3 Qatar', content);
 }
@@ -375,14 +553,14 @@ export function renderAdminFeedbackEmail(data: {
     : 'Not provided';
 
   const content = `
-    <h2 style="color: #10b981; margin-top: 0;">New Guest Feedback Submitted</h2>
-    <p style="color: #cbd5e1;">A new rating and review has been received on the public portal.</p>
+    <h2 style="color: #10b981; margin: 0 0 8px; font-size: 20px; font-weight: 800;">New Guest Feedback Submitted</h2>
+    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">A new rating and review has been received on the public portal.</p>
     
-    <div class="field"><div class="label">Overall Rating</div><div class="value" style="color: #f59e0b; font-size: 16px; font-weight: bold;">${escapeHtml(ratingDisplay)}</div></div>
-    <div class="field"><div class="label">Guest Name</div><div class="value">${escapeHtml(data.name || 'Anonymous')}</div></div>
-    ${data.email ? `<div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8;">${escapeHtml(data.email)}</a></div></div>` : ''}
-    ${data.attractionId ? `<div class="field"><div class="label">Attraction ID</div><div class="value">${escapeHtml(data.attractionId)}</div></div>` : ''}
-    <div class="field"><div class="label">Feedback Message</div><div class="value" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div></div>
+    <div class="field"><div class="label">Overall Rating</div><div class="value" style="color: #f59e0b; font-size: 18px; font-weight: bold;">${escapeHtml(ratingDisplay)}</div></div>
+    <div class="field"><div class="label">Guest Name</div><div class="value">${escapeHtml(data.name || 'Anonymous Guest')}</div></div>
+    ${data.email ? `<div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8; text-decoration: none;">${escapeHtml(data.email)}</a></div></div>` : ''}
+    ${data.attractionId ? `<div class="field"><div class="label">Attraction</div><div class="value">${escapeHtml(data.attractionId)}</div></div>` : ''}
+    <div class="field"><div class="label">Feedback Message</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
   return getBaseEmailLayout('New Customer Feedback Received', content);
 }
@@ -396,16 +574,22 @@ export function renderHRApplicationNotificationEmail(data: {
   applicationId: string;
   cvUrl?: string;
 }): string {
+  const readableRef = formatReadableTicketId(data.applicationId, 'CAREERS');
   const content = `
-    <h2 style="color: #a855f7; margin-top: 0;">New Career Application Submitted</h2>
-    <p style="color: #cbd5e1;">A new candidate application has been submitted for review.</p>
+    <h2 style="color: #a855f7; margin: 0 0 8px; font-size: 20px; font-weight: 800;">New Career Application Submitted</h2>
+    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">A new candidate application has been submitted for talent review.</p>
     
-    <div class="field"><div class="label">Application ID</div><div class="value" style="font-family: monospace; color: #a855f7; font-weight: bold;">#${escapeHtml(data.applicationId)}</div></div>
-    <div class="field"><div class="label">Candidate Name</div><div class="value">${escapeHtml(data.name)}</div></div>
-    <div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8;">${escapeHtml(data.email)}</a></div></div>
+    <div class="reference-box">
+      <div class="reference-label">Application Reference Code</div>
+      <div class="reference-code" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.3);">${escapeHtml(readableRef)}</div>
+      ${data.applicationId ? `<div class="reference-hint">Internal App UUID: #${escapeHtml(data.applicationId)}</div>` : ''}
+    </div>
+
+    <div class="field"><div class="label">Candidate Name</div><div class="value" style="font-weight: 700; color: #ffffff;">${escapeHtml(data.name)}</div></div>
+    <div class="field"><div class="label">Position Applied For</div><div class="value" style="font-weight: 700; color: #10b981;">${escapeHtml(data.jobTitle)}${data.department ? ` (${escapeHtml(data.department)})` : ''}</div></div>
+    <div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8; text-decoration: none;">${escapeHtml(data.email)}</a></div></div>
     ${data.phone ? `<div class="field"><div class="label">Phone Number</div><div class="value">${escapeHtml(data.phone)}</div></div>` : ''}
-    <div class="field"><div class="label">Position Applied For</div><div class="value" style="font-weight: bold;">${escapeHtml(data.jobTitle)}${data.department ? ` (${escapeHtml(data.department)})` : ''}</div></div>
-    ${data.cvUrl ? `<div class="field"><div class="label">Resume / CV Document</div><div class="value"><a href="${escapeHtml(data.cvUrl)}" style="color: #38bdf8; font-weight: bold;" target="_blank">View Resume Document</a></div></div>` : ''}
+    ${data.cvUrl ? `<div class="field"><div class="label">Resume / CV Document</div><div class="value"><a href="${escapeHtml(data.cvUrl)}" style="color: #38bdf8; font-weight: bold; text-decoration: none;" target="_blank">📄 View Attached Resume</a></div></div>` : ''}
   `;
   return getBaseEmailLayout('New Career Application - E3 Qatar', content);
 }
@@ -415,14 +599,24 @@ export function renderApplicantConfirmationEmail(data: {
   jobTitle: string;
   applicationId: string;
 }): string {
+  const readableRef = formatReadableTicketId(data.applicationId, 'CAREERS');
   const content = `
-    <h2 style="color: #10b981; margin-top: 0;">Application Received</h2>
-    <p style="color: #cbd5e1;">Dear ${escapeHtml(data.name)},</p>
-    <p style="color: #cbd5e1; line-height: 1.6;">Thank you for applying for the <strong>${escapeHtml(data.jobTitle)}</strong> role at E3 Qatar. We have safely received your application and resume.</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">Application Received</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${escapeHtml(data.name)},</p>
+    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+      Thank you for applying for the <strong>${escapeHtml(data.jobTitle)}</strong> position at E3 Qatar. We have safely received your application and resume credentials.
+    </p>
     
-    <div class="field"><div class="label">Your Application Reference</div><div class="value" style="font-family: monospace; color: #10b981; font-weight: bold;">#${escapeHtml(data.applicationId)}</div></div>
+    <div class="reference-box">
+      <div class="reference-label">Your Application Reference Number</div>
+      <div class="reference-code" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.3);">${escapeHtml(readableRef)}</div>
+      <div class="reference-hint">Keep this reference for status tracking with talent acquisition. (#${escapeHtml(data.applicationId)})</div>
+    </div>
     
-    <p style="color: #94a3b8; font-size: 14px; margin-top: 24px; line-height: 1.5;">Our talent acquisition team will review your qualifications. If your experience matches our operational needs, an HR representative will contact you for the next steps.</p>
+    <div class="info-card">
+      <p style="margin: 0 0 6px; font-weight: 700; color: #a855f7;">📋 Next Steps</p>
+      <p style="margin: 0;">Our talent acquisition team reviews candidates on a rolling basis. If your profile aligns with our current operational requirements, an HR specialist will contact you directly.</p>
+    </div>
   `;
   return getBaseEmailLayout('Application Received - E3 Qatar Careers', content);
 }
@@ -432,15 +626,19 @@ export function renderPasswordResetEmail(data: {
   resetUrl: string;
 }): string {
   const content = `
-    <h2 style="color: #f43f5e; margin-top: 0;">Password Reset Request</h2>
-    <p style="color: #cbd5e1;">Hello ${escapeHtml(data.name)},</p>
-    <p style="color: #cbd5e1; line-height: 1.6;">We received a request to reset the password for your E3 account. Click the button below to choose a new password. This single-use link will expire in 1 hour.</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">Password Reset Request</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Hello ${escapeHtml(data.name)},</p>
+    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+      We received a request to reset the password for your E3 account. Click the button below to choose a new password. This single-use link expires in <strong>1 hour</strong>.
+    </p>
     
     <div class="btn-container">
-      <a href="${escapeHtml(data.resetUrl)}" class="btn" style="background-color: #f43f5e; color: #ffffff;">Reset My Password</a>
+      <a href="${escapeHtml(data.resetUrl)}" class="btn" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);">Reset My Password</a>
     </div>
     
-    <p style="color: #71717a; font-size: 12px; margin-top: 24px; line-height: 1.5;">If you did not request this password reset, please ignore this email or contact security at support@e3.qa. Your password will remain unchanged.</p>
+    <p style="color: #64748b; font-size: 12px; margin-top: 24px; line-height: 1.5; text-align: center;">
+      If you did not request this password reset, please disregard this email. Your account remains fully secure.
+    </p>
   `;
   return getBaseEmailLayout('Reset Your Password - E3 Qatar', content);
 }
@@ -450,15 +648,19 @@ export function renderNewsletterVerificationEmail(data: {
   verificationUrl: string;
 }): string {
   const content = `
-    <h2 style="color: #10b981; margin-top: 0;">Confirm Your Newsletter Subscription</h2>
-    <p style="color: #cbd5e1;">Thank you for subscribing to E3 Qatar Event & Attraction updates.</p>
-    <p style="color: #cbd5e1; line-height: 1.6;">Please verify your email address (<strong>${escapeHtml(data.email)}</strong>) to start receiving exclusive ticket releases, festival launches, and attraction announcements.</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">Confirm Your Newsletter Subscription</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Welcome to E3 Qatar Experiences,</p>
+    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+      Please verify your email address (<strong>${escapeHtml(data.email)}</strong>) to activate VIP festival announcements, attraction ticket drops, and exclusive invitations.
+    </p>
     
     <div class="btn-container">
       <a href="${escapeHtml(data.verificationUrl)}" class="btn">Confirm Subscription</a>
     </div>
     
-    <p style="color: #71717a; font-size: 12px; margin-top: 24px; line-height: 1.5;">If you did not subscribe to this newsletter, no action is required.</p>
+    <p style="color: #64748b; font-size: 12px; margin-top: 24px; line-height: 1.5; text-align: center;">
+      If you did not subscribe to this newsletter, no action is required.
+    </p>
   `;
   return getBaseEmailLayout('Confirm Your Subscription - E3 Qatar', content);
 }
@@ -471,14 +673,14 @@ export function renderAdminGeneralInquiryEmail(data: {
   message: string;
 }): string {
   const content = `
-    <h2 style="color: #38bdf8; margin-top: 0;">New General Inquiry</h2>
-    <p style="color: #cbd5e1;">A general contact submission was received.</p>
+    <h2 style="color: #38bdf8; margin: 0 0 8px; font-size: 20px; font-weight: 800;">New General Inquiry</h2>
+    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">A general contact submission was received from the public website.</p>
     
-    ${data.subject ? `<div class="field"><div class="label">Subject</div><div class="value">${escapeHtml(data.subject)}</div></div>` : ''}
+    ${data.subject ? `<div class="field"><div class="label">Subject</div><div class="value" style="font-weight: 700; color: #ffffff;">${escapeHtml(data.subject)}</div></div>` : ''}
     <div class="field"><div class="label">Contact Name</div><div class="value">${escapeHtml(data.name)}</div></div>
-    <div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8;">${escapeHtml(data.email)}</a></div></div>
+    <div class="field"><div class="label">Email Address</div><div class="value"><a href="mailto:${escapeHtml(data.email)}" style="color: #38bdf8; text-decoration: none;">${escapeHtml(data.email)}</a></div></div>
     ${data.phone ? `<div class="field"><div class="label">Phone Number</div><div class="value">${escapeHtml(data.phone)}</div></div>` : ''}
-    <div class="field"><div class="label">Inquiry Details</div><div class="value" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div></div>
+    <div class="field"><div class="label">Inquiry Details</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
   return getBaseEmailLayout('New General Inquiry Submission', content);
 }

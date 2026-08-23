@@ -25,6 +25,7 @@ const SECTIONS: EditorSectionItem[] = [
   { id: "tickets", label: "5. Ticket CTA Bar", labelAr: "5. شريط حجز التذاكر" },
   { id: "integrations", label: "6. API Gateways", labelAr: "6. بوابات الربط البرمجي (API)" },
   { id: "gateway", label: "7. Gateway Customization", labelAr: "7. تخصيص بوابة الدخول" },
+  { id: "emails", label: "8. Automated Email Templates", labelAr: "8. قوالب البريد ورسائل المتابعة" },
 ]
 
 export function GeneralSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
@@ -66,6 +67,12 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     bookTicketsLabelAr: initialSettings.bookTicketsLabelAr || "احجز التذاكر",
     bookTicketsEnabled: initialSettings.bookTicketsEnabled ?? "true",
     bookTicketsExternal: initialSettings.bookTicketsExternal ?? "false",
+    emailSupportGreetingEn: initialSettings.emailSupportGreetingEn || "Thank you for reaching out to E3 Qatar Support. Your inquiry has been securely registered in our operations queue and assigned to our guest relations team.",
+    emailSupportGreetingAr: initialSettings.emailSupportGreetingAr || "شكراً لتواصلك مع فريق الدعم في إي ثري قطر. تم تسجيل طلبك بأمان وتوجيهه إلى فريق خدمة الضيوف.",
+    emailResponseTimeEn: initialSettings.emailResponseTimeEn || "Within 24 Business Hours",
+    emailResponseTimeAr: initialSettings.emailResponseTimeAr || "خلال 24 ساعة عمل",
+    emailB2BMessageEn: initialSettings.emailB2BMessageEn || "Thank you for engaging with E3 Qatar. We have received your project inquiry and our Business Development & Event Engineering leadership is reviewing your specifications.",
+    emailB2BMessageAr: initialSettings.emailB2BMessageAr || "شكراً لاهتمامكم بالتعاون مع إي ثري قطر. لقد استلمنا تفاصيل مشروعكم ويقوم فريق هندسة الفعاليات وتطوير الأعمال بمراجعتها.",
   })
 
   const handleChange = (field: string, value: string) => {
@@ -527,6 +534,98 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   <span>{isAr ? "فتح محرر بوابة الدخول" : "Open Gateway Editor"}</span>
                   <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
                 </Link>
+              </div>
+            </div>
+          </div>
+
+          <div id="emails" className="bg-[var(--surface-default)] border border-[var(--border-default)] rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center border-b border-[var(--border-default)] pb-4">
+              <Mail className="w-5 h-5 me-2 text-emerald-500" />
+              <span>{isAr ? "8. قوالب البريد ورسائل المتابعة التلقائية" : "8. Automated Email Templates & Messaging"}</span>
+            </h3>
+            <div className="space-y-4">
+              <p className="text-xs text-[var(--text-secondary)]">
+                {isAr
+                  ? "تخصيص نصوص رسائل التأكيد التلقائية المرسلة للعملاء والضيوف عند تقديم طلبات الدعم واستفسارات B2B."
+                  : "Customize the automated confirmation copy delivered to guests and corporate clients when submitting support tickets or B2B project briefs."}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "نص رسالة تأكيد الدعم (EN)" : "B2C Support Greeting (EN)"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={data.emailSupportGreetingEn}
+                    onChange={e => handleChange("emailSupportGreetingEn", e.target.value)}
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "نص رسالة تأكيد الدعم (AR)" : "B2C Support Greeting (AR)"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={data.emailSupportGreetingAr}
+                    onChange={e => handleChange("emailSupportGreetingAr", e.target.value)}
+                    dir="rtl"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "وقت الاستجابة المتوقع (EN)" : "Response Target Window (EN)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={data.emailResponseTimeEn}
+                    onChange={e => handleChange("emailResponseTimeEn", e.target.value)}
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "وقت الاستجابة المتوقع (AR)" : "Response Target Window (AR)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={data.emailResponseTimeAr}
+                    onChange={e => handleChange("emailResponseTimeAr", e.target.value)}
+                    dir="rtl"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "نص تأكيد مشاريع B2B (EN)" : "B2B Project Brief Confirmation (EN)"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={data.emailB2BMessageEn}
+                    onChange={e => handleChange("emailB2BMessageEn", e.target.value)}
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                    {isAr ? "نص تأكيد مشاريع B2B (AR)" : "B2B Project Brief Confirmation (AR)"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={data.emailB2BMessageAr}
+                    onChange={e => handleChange("emailB2BMessageAr", e.target.value)}
+                    dir="rtl"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed"
+                  />
+                </div>
               </div>
             </div>
           </div>
