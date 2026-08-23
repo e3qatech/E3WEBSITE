@@ -173,11 +173,23 @@ export async function POST(req: NextRequest) {
 
       // 5B. Gemini Provider
       if (geminiApiKey) {
-        const primaryModel = resolveGeminiTextModel(process.env.GEMINI_MODEL);
-        const candidateModels = Array.from(
-          new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'])
-        );
         const correlationId = `gem_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const primaryModel = resolveGeminiTextModel(process.env.GEMINI_MODEL);
+
+        let candidateModels: string[] = Array.from(
+          new Set([
+            primaryModel,
+            'gemini-2.0-flash',
+            'gemini-1.5-flash-latest',
+            'gemini-1.5-flash',
+            'gemini-1.5-flash-001',
+            'gemini-1.5-flash-002',
+            'gemini-2.0-flash-exp',
+            'gemini-1.5-pro-latest',
+            'gemini-1.5-pro',
+            'gemini-pro',
+          ])
+        );
 
         // Clean and filter conversation turns to ensure strictly alternating user/model turns starting with 'user'
         const validTurns: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }> = [];
@@ -214,44 +226,88 @@ export async function POST(req: NextRequest) {
         let successfulReply: string | null = null;
         let lastStatus = 500;
         let lastErrorMessage = '';
+        let listModelsAttempted = false;
 
-        for (const candidateModel of candidateModels) {
-          try {
-            const response = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/${candidateModel}:generateContent?key=${geminiApiKey}`,
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(geminiRequestBody),
-                signal: controller.signal,
-              }
-            );
+        for (let i = 0; i < candidateModels.length; i++) {
+          const candidateModel = candidateModels[i];
 
-            lastStatus = response.status;
+          for (const apiVersion of ['v1beta', 'v1']) {
+            try {
+              const response = await fetch(
+                `https://generativelanguage.googleapis.com/${apiVersion}/models/${candidateModel}:generateContent?key=${geminiApiKey}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(geminiRequestBody),
+                  signal: controller.signal,
+                }
+              );
 
-            if (response.ok) {
-              const data = await response.json();
-              const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-              if (text) {
-                successfulReply = text;
-                break;
-              }
-            } else {
-              const errData = await response.json().catch(() => ({}));
-              lastErrorMessage = errData?.error?.message || response.statusText || 'Upstream error';
+              lastStatus = response.status;
 
-              if (response.status === 400 || response.status === 404) {
-                console.warn(`[CHAT_GEMINI_FALLBACK] Model ${candidateModel} failed with status ${response.status} (${lastErrorMessage}), trying fallback...`);
-                continue;
+              if (response.ok) {
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                if (text) {
+                  successfulReply = text;
+                  break;
+                }
               } else {
-                break;
+                const errData = await response.json().catch(() => ({}));
+                lastErrorMessage = errData?.error?.message || response.statusText || 'Upstream error';
+
+                if (response.status === 400 || response.status === 404) {
+                  console.warn(`[CHAT_GEMINI_FALLBACK] Model ${candidateModel} (${apiVersion}) failed with status ${response.status} (${lastErrorMessage}), trying fallback...`);
+
+                  // If primary model failed with 404/400 and we haven't queried ListModels yet, query it once dynamically
+                  if (!listModelsAttempted) {
+                    listModelsAttempted = true;
+                    try {
+                      const listRes = await fetch(
+                        `https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`,
+                        { method: 'GET', signal: controller.signal }
+                      );
+                      if (listRes.ok) {
+                        const listData = await listRes.json();
+                        if (Array.isArray(listData.models)) {
+                          const activeTextModels = listData.models
+                            .filter((m: any) => {
+                              const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+                              const name = String(m.name || '').toLowerCase();
+                              return (
+                                methods.includes('generateContent') &&
+                                !name.includes('embedding') &&
+                                !name.includes('imagen') &&
+                                !name.includes('tts') &&
+                                !name.includes('audio') &&
+                                !name.includes('realtime')
+                              );
+                            })
+                            .map((m: any) => String(m.name).replace(/^models\//i, ''));
+
+                          if (activeTextModels.length > 0) {
+                            activeTextModels.sort((a: string, b: string) => (b.includes('flash') ? 1 : 0) - (a.includes('flash') ? 1 : 0));
+                            candidateModels = Array.from(new Set([...candidateModels, ...activeTextModels]));
+                          }
+                        }
+                      }
+                    } catch (_err) {
+                      // fallback to existing candidate roster
+                    }
+                  }
+
+                  continue;
+                } else {
+                  break;
+                }
               }
+            } catch (modelErr: any) {
+              lastErrorMessage = modelErr?.message || 'Network dispatch error';
+              console.error(`[CHAT_GEMINI_MODEL_ERROR] Model ${candidateModel} (${apiVersion}) dispatch error:`, lastErrorMessage);
+              break;
             }
-          } catch (modelErr: any) {
-            lastErrorMessage = modelErr?.message || 'Network dispatch error';
-            console.error(`[CHAT_GEMINI_MODEL_ERROR] Model ${candidateModel} dispatch error:`, lastErrorMessage);
-            break;
           }
+          if (successfulReply) break;
         }
 
         clearTimeout(timeoutId);

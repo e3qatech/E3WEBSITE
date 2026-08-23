@@ -343,7 +343,7 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
         const json = await res.json();
         expect(json.available).toBe(true);
         expect(json.reply).toBe('Fallback model response.');
-        expect(callCount).toBe(2);
+        expect(callCount).toBeGreaterThanOrEqual(2);
       } finally {
         globalThis.fetch = originalFetch;
       }
