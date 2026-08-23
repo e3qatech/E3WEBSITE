@@ -23,17 +23,17 @@ export function useSocket(namespace: string) {
     // Socket.io config: default to polling first for serverless environment compatibility
     const socketInstance = io(namespace, {
       path: '/api/socket.io',
-      transports: ['polling', 'websocket'],
+      transports: ['websocket', 'polling'],
       withCredentials: true,
-      reconnectionAttempts: 3,
-      reconnectionDelay: 2000,
-      reconnectionDelayMax: 5000,
-      timeout: 10000,
-      autoConnect: true
+      reconnection: false,
+      reconnectionAttempts: 1,
+      timeout: 4000,
+      autoConnect: true,
     })
 
     socketInstance.on('connect_error', () => {
       // Gracefully suppress socket errors on Vercel serverless functions without WebSockets
+      socketInstance.disconnect()
     })
 
 // eslint-disable-next-line react-hooks/set-state-in-effect
