@@ -37,13 +37,12 @@ export async function rateLimit(
     }
     return { success: true };
   } catch (_error) {
-    // Determine actual Vercel Production:
-    // MUST use process.env.VERCEL_ENV === "production" to identify actual Vercel Production.
-    // Do not use NODE_ENV === "production" because Next.js sets NODE_ENV="production" on both Preview and Production.
+    // Determine if Redis is configured
+    const hasRedisConfig = Boolean(process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL);
     const isActualProduction = process.env.VERCEL_ENV === 'production';
 
-    if (isActualProduction && !failOpen) {
-      // In actual Production, remain fail-closed when Redis is unavailable
+    if (isActualProduction && hasRedisConfig && !failOpen) {
+      // In actual Production with Redis configured, remain fail-closed when Redis encounters an error
       return {
         success: false,
         error: 'Rate limit service unavailable',
