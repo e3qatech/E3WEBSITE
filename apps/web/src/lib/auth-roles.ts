@@ -52,6 +52,8 @@ export function normalizeRole(role?: string | null): RoleType {
   return 'CLIENT';
 }
 
+export const VALID_PORTAL_KEYS: PortalKey[] = ['admin', 'staff', 'business', 'careers'];
+
 /**
  * Returns allowed RoleType values for a specific portal key.
  */
@@ -72,9 +74,12 @@ export function allowedRolesForPortal(portal: PortalKey): string[] {
 
 /**
  * Checks if a given user role is authorized for a specific portal key.
+ * Strictly fails closed on empty or unrecognized portal keys.
  */
 export function isAuthorizedForPortal(role: string | null | undefined, portal: PortalKey): boolean {
-  if (!role) return false;
+  if (!role || !portal) return false;
+  if (!VALID_PORTAL_KEYS.includes(portal)) return false;
+
   const clean = String(role).trim().toUpperCase();
   const normRole = normalizeRole(role);
   const allowed = allowedRolesForPortal(portal);

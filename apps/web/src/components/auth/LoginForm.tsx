@@ -10,6 +10,7 @@ import { PasswordField } from './PasswordField';
 import { PortalError } from './PortalError';
 import { Mail, ArrowRight, ArrowLeft } from 'lucide-react';
 import { sanitizeCallbackUrl, getAuthorizedLandingRoute } from '@/lib/landing-route';
+import { isAuthorizedForPortal, normalizeRole } from '@/lib/auth-roles';
 
 interface LoginFormProps {
   config: PortalConfig;
@@ -67,9 +68,9 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         return;
       }
 
-      // 3. Verify user's database role is permitted for this portal
-      const allowedRoles = config.allowedRoles;
-      if (!allowedRoles.includes(userRole) && userRole !== 'SUPER_ADMIN') {
+      // 3. Verify user's database role is permitted for this portal using canonical helper
+      const normalizedUserRole = normalizeRole(userRole);
+      if (!isAuthorizedForPortal(normalizedUserRole, config.portalKey)) {
         // Reject unpermitted roles trying to log in at this portal endpoint with generic error
         setError(
           isAr
@@ -81,8 +82,8 @@ export function LoginForm({ config, locale }: LoginFormProps) {
       }
 
       // 4. Calculate authorized landing route
-      let destination = getAuthorizedLandingRoute(sessionData.user, locale);
-      if (userRole === 'SUPER_ADMIN' && config.portalKey === 'admin') {
+      let destination = getAuthorizedLandingRoute({ role: normalizedUserRole }, locale);
+      if (normalizedUserRole === 'SUPER_ADMIN' && config.portalKey === 'admin') {
         if (activeWorkspace === 'b2b') destination = `/${locale}/dashboard/b2b`;
         else if (activeWorkspace === 'b2c') destination = `/${locale}/dashboard/b2c`;
         else destination = `/${locale}/dashboard`;
@@ -90,7 +91,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
 
       // 5. Sanitize callbackUrl if provided
       if (rawCallback) {
-        destination = sanitizeCallbackUrl(rawCallback, sessionData.user, locale);
+        destination = sanitizeCallbackUrl(rawCallback, { ...sessionData.user, role: normalizedUserRole }, locale);
       }
 
       window.location.href = destination;
