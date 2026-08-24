@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!user || !user.isActive) {
-        return NextResponse.json({ ...genericSuccessResponse, debugUserFound: false });
+        return NextResponse.json(genericSuccessResponse);
       }
 
       // Invalidate any existing unused reset tokens for this email
@@ -138,8 +138,6 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         ...genericSuccessResponse,
-        debugUserFound: true,
-        debugTokenCreated: true,
         resetToken: isExplicitTestMode ? rawResetToken : undefined,
       });
     }
