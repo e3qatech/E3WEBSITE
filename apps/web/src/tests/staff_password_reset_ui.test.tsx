@@ -51,11 +51,8 @@ interface MemoryUser {
 interface MemoryResetToken {
   id: string;
   token: string; // SHA-256 hash
-  email: string;
-  portal: string;
-  expiresAt: Date;
-  usedAt: Date | null;
-  createdAt: Date;
+  identifier: string;
+  expires: Date;
 }
 
 const memoryUsers = new Map<string, MemoryUser>();
@@ -86,22 +83,29 @@ vi.mock('@/lib/db', () => ({
         throw new Error('User not found');
       }),
     },
-    passwordResetToken: {
-      findFirst: vi.fn(async ({ where }: { where: { email?: string } }) => {
+    verificationToken: {
+      findFirst: vi.fn(async ({ where }: { where: { identifier?: any; token?: string } }) => {
         for (const t of Array.from(memoryTokens.values())) {
-          if (where.email && t.email === where.email.toLowerCase()) {
-            return t;
-          }
+          if (where.token && t.token === where.token) return t;
         }
         return null;
       }),
       findUnique: vi.fn(async ({ where }: { where: { token: string } }) => {
         return memoryTokens.get(where.token) || null;
       }),
-      deleteMany: vi.fn(async ({ where }: { where: { email: string; usedAt?: any } }) => {
+      delete: vi.fn(async ({ where }: { where: { token: string } }) => {
+        const t = memoryTokens.get(where.token);
+        if (t) {
+          memoryTokens.delete(where.token);
+          return t;
+        }
+        throw new Error('Record to delete does not exist.');
+      }),
+      deleteMany: vi.fn(async ({ where }: { where: { identifier?: any } }) => {
         let count = 0;
+        const prefix = where?.identifier?.startsWith;
         for (const [k, t] of Array.from(memoryTokens.entries())) {
-          if (t.email === where.email.toLowerCase()) {
+          if (!prefix || t.identifier.startsWith(prefix)) {
             memoryTokens.delete(k);
             count++;
           }
@@ -110,27 +114,14 @@ vi.mock('@/lib/db', () => ({
       }),
       create: vi.fn(async ({ data }: { data: any }) => {
         const id = `tok_${crypto.randomBytes(8).toString('hex')}`;
-        const record: MemoryResetToken = {
+        const record: any = {
           id,
           token: data.token,
-          email: data.email.toLowerCase(),
-          portal: data.portal || 'admin',
-          expiresAt: data.expiresAt,
-          usedAt: null,
-          createdAt: new Date(),
+          identifier: data.identifier,
+          expires: data.expires,
         };
         memoryTokens.set(data.token, record);
         return record;
-      }),
-      updateMany: vi.fn(async ({ where, data }: { where: any; data: any }) => {
-        const t = memoryTokens.get(where.token);
-        if (!t) return { count: 0 };
-        if (where.usedAt === null && t.usedAt !== null) return { count: 0 };
-        if (where.expiresAt?.gt && t.expiresAt <= where.expiresAt.gt) return { count: 0 };
-
-        t.usedAt = data.usedAt;
-        memoryTokens.set(where.token, t);
-        return { count: 1 };
       }),
     },
     $transaction: vi.fn(async (cb: any) => {
@@ -316,12 +307,9 @@ describe('Staff Password Reset UI & Security Regression Suite', () => {
       memoryTokens.set(tokenHash, {
         id: 'tok_01',
         token: tokenHash,
-        email,
-        portal: 'staff',
-        expiresAt: new Date(Date.now() + 3600000),
-        usedAt: null,
-        createdAt: new Date(),
-      });
+        identifier: `pwd_reset:${email}:staff`,
+        expires: new Date(Date.now() + 3600000),
+      } as any);
 
       // 2. Submit new password
       const newPassword = 'NewStaffSecurePassword2026!';
@@ -341,9 +329,9 @@ describe('Staff Password Reset UI & Security Regression Suite', () => {
       expect(json.success).toBe(true);
       expect(json.redirectUrl).toBe('/en/login/staff');
 
-      // Verify token is marked as used
+      // Verify token is deleted after single use
       const storedToken = memoryTokens.get(tokenHash);
-      expect(storedToken?.usedAt).toBeInstanceOf(Date);
+      expect(storedToken).toBeUndefined();
 
       // Verify user's password was updated and sessionVersion was incremented
       const updatedUser = memoryUsers.get(email);
@@ -389,12 +377,9 @@ describe('Staff Password Reset UI & Security Regression Suite', () => {
       memoryTokens.set(tokenHash, {
         id: 'tok_expired',
         token: tokenHash,
-        email,
-        portal: 'staff',
-        expiresAt: new Date(Date.now() - 1000), // Expired 1 second ago
-        usedAt: null,
-        createdAt: new Date(Date.now() - 3600000),
-      });
+        identifier: `pwd_reset:${email}:staff`,
+        expires: new Date(Date.now() - 1000), // Expired 1 second ago
+      } as any);
 
       const req = new NextRequest('http://localhost/api/auth/password-reset', {
         method: 'POST',

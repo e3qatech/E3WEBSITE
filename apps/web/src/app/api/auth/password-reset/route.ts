@@ -91,10 +91,9 @@ export async function POST(req: NextRequest) {
 
       // Invalidate any existing unused reset tokens for this email
       try {
-        await (db as any).passwordResetToken.deleteMany({
+        await db.verificationToken.deleteMany({
           where: {
-            email: cleanEmail,
-            usedAt: null,
+            identifier: { startsWith: `pwd_reset:${cleanEmail}:` },
           },
         });
       } catch (_e) {
@@ -105,13 +104,13 @@ export async function POST(req: NextRequest) {
       const rawResetToken = crypto.randomBytes(32).toString('hex');
       const tokenHash = crypto.createHash('sha256').update(rawResetToken).digest('hex');
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      const identifier = `pwd_reset:${cleanEmail}:${portal || 'staff'}`;
 
-      await (db as any).passwordResetToken.create({
+      await db.verificationToken.create({
         data: {
           token: tokenHash,
-          email: cleanEmail,
-          portal: portal || 'admin',
-          expiresAt,
+          identifier,
+          expires: expiresAt,
         },
       });
 
@@ -143,7 +142,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Action 2: Reset Password Completion with Atomic Conditional Invalidation
+    // Action 2: Reset Password Completion with Atomic Invalidation
     if (body.action === 'reset') {
       const parseResult = resetSchema.safeParse(body);
       if (!parseResult.success) {
@@ -158,32 +157,30 @@ export async function POST(req: NextRequest) {
 
       try {
         const result = await (db as any).$transaction(async (tx: any) => {
-          // 1. Atomic conditional token invalidation (prevents concurrent race conditions)
-          const updateCount = await tx.passwordResetToken.updateMany({
-            where: {
-              token: submittedHash,
-              usedAt: null,
-              expiresAt: { gt: new Date() },
-            },
-            data: {
-              usedAt: new Date(),
-            },
-          });
-
-          if (updateCount.count === 0) {
-            throw new Error('INVALID_OR_EXPIRED_TOKEN');
-          }
-
-          const resetRecord = await tx.passwordResetToken.findUnique({
+          // 1. Atomic token lookup and single-use validation
+          const resetRecord = await tx.verificationToken.findUnique({
             where: { token: submittedHash },
           });
 
-          if (!resetRecord) {
-            throw new Error('TOKEN_RECORD_NOT_FOUND');
+          if (
+            !resetRecord ||
+            !resetRecord.identifier?.startsWith('pwd_reset:') ||
+            resetRecord.expires <= new Date()
+          ) {
+            throw new Error('INVALID_OR_EXPIRED_TOKEN');
           }
 
+          // Single-use enforcement: Delete token atomically within transaction
+          await tx.verificationToken.delete({
+            where: { token: submittedHash },
+          });
+
+          const parts = resetRecord.identifier.split(':');
+          const email = parts[1];
+          const portalKey = parts[2] || 'staff';
+
           const user = await tx.user.findUnique({
-            where: { email: resetRecord.email },
+            where: { email },
           });
 
           if (!user) {
@@ -202,7 +199,7 @@ export async function POST(req: NextRequest) {
             },
           });
 
-          return { portal: resetRecord.portal || 'admin' };
+          return { portal: portalKey };
         });
 
         const portalKey = result.portal;
