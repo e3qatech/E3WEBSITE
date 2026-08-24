@@ -8,7 +8,11 @@ import {
   isClientRole,
   PortalKey
 } from '../lib/auth-roles';
-import { getAuthorizedLandingRoute, sanitizeCallbackUrl } from '../lib/landing-route';
+import {
+  getAuthorizedLandingRoute,
+  sanitizeCallbackUrl,
+  resolveServerLandingDestination
+} from '../lib/landing-route';
 import { PORTAL_CONFIGS } from '../components/auth/PortalConfigs';
 
 describe('Preview Admin Portal RBAC Regression Tests', () => {
@@ -54,7 +58,67 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
     });
   });
 
-  describe('3. CLIENT + admin portal fails', () => {
+  describe('3. Server-Authoritative Landing Resolver for SUPER_ADMIN Workspaces', () => {
+    const superAdminUser = { id: 'usr-admin-1', role: 'SUPER_ADMIN', isActive: true, sessionVersion: 2 };
+
+    it('SUPER_ADMIN with workspace=super reaches /en/dashboard', () => {
+      const result = resolveServerLandingDestination({
+        user: superAdminUser,
+        portal: 'admin',
+        workspace: 'super',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/dashboard');
+    });
+
+    it('SUPER_ADMIN with workspace=b2b reaches /en/dashboard/b2b', () => {
+      const result = resolveServerLandingDestination({
+        user: superAdminUser,
+        portal: 'admin',
+        workspace: 'b2b',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/dashboard/b2b');
+    });
+
+    it('SUPER_ADMIN with workspace=b2c reaches /en/dashboard/b2c', () => {
+      const result = resolveServerLandingDestination({
+        user: superAdminUser,
+        portal: 'admin',
+        workspace: 'b2c',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/dashboard/b2c');
+    });
+
+    it('SUPER_ADMIN with invalid workspace fails closed safely to /en/dashboard', () => {
+      const result = resolveServerLandingDestination({
+        user: superAdminUser,
+        portal: 'admin',
+        workspace: 'invalid_malicious_workspace',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/dashboard');
+    });
+
+    it('Arabic locale routes correctly to localized dashboard', () => {
+      const result = resolveServerLandingDestination({
+        user: superAdminUser,
+        portal: 'admin',
+        workspace: 'b2b',
+        locale: 'ar'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/ar/dashboard/b2b');
+    });
+  });
+
+  describe('4. CLIENT + admin portal fails and is denied entry', () => {
+    const clientUser = { id: 'usr-client-1', role: 'CLIENT', isActive: true, sessionVersion: 1 };
     const clientVariations = ['CLIENT', 'client', 'Client', ' BUSINESS ', 'CUSTOMER', 'BUSINESS_USER'];
 
     clientVariations.forEach((variation) => {
@@ -65,6 +129,29 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
       });
     });
 
+    it('Server landing resolver denies CLIENT attempting to access admin portal', () => {
+      const result = resolveServerLandingDestination({
+        user: clientUser,
+        portal: 'admin',
+        workspace: 'super',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(false);
+      expect(result.destination).toBe('/en/login/admin?error=unauthorized');
+    });
+
+    it('CLIENT cannot elevate privileges via workspace=super on business portal', () => {
+      const result = resolveServerLandingDestination({
+        user: clientUser,
+        portal: 'business',
+        workspace: 'super',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/business');
+      expect(result.destination).not.toContain('/dashboard');
+    });
+
     it('CLIENT cannot be routed to /dashboard via callbackUrl injection', () => {
       const sanitized = sanitizeCallbackUrl('/en/dashboard', { role: 'CLIENT' }, 'en');
       expect(sanitized).toBe('/en/business');
@@ -72,11 +159,24 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
     });
   });
 
-  describe('4. STAFF + admin portal fails unless explicitly privileged', () => {
+  describe('5. STAFF + admin portal fails unless explicitly privileged', () => {
+    const staffUser = { id: 'usr-staff-1', role: 'STAFF', isActive: true, sessionVersion: 1 };
+
     it('ordinary STAFF role cannot access admin portal', () => {
       expect(isAuthorizedForPortal('STAFF', 'admin')).toBe(false);
       expect(isAdminRole('STAFF')).toBe(false);
       expect(isStaffRole('STAFF')).toBe(true);
+    });
+
+    it('Server landing resolver denies ordinary STAFF attempting to access admin portal', () => {
+      const result = resolveServerLandingDestination({
+        user: staffUser,
+        portal: 'admin',
+        workspace: 'super',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(false);
+      expect(result.destination).toBe('/en/login/admin?error=unauthorized');
     });
 
     it('ordinary EMPLOYEE variant maps to STAFF and cannot access admin portal', () => {
@@ -93,7 +193,7 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
     });
   });
 
-  describe('5. Incorrect portal values fail closed', () => {
+  describe('6. Incorrect portal values fail closed', () => {
     const invalidPortals = ['super', 'dashboard', 'invalid', '', null, undefined, 'ADMIN_PORTAL', 'root'];
 
     invalidPortals.forEach((invalidPortal) => {
@@ -106,7 +206,19 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
     });
   });
 
-  describe('6. Password-reset and role update session invalidation', () => {
+  describe('7. Inactive Accounts & Session Invalidation', () => {
+    it('inactive account is rejected by landing resolver', () => {
+      const inactiveUser = { id: 'usr-inactive', role: 'SUPER_ADMIN', isActive: false, sessionVersion: 1 };
+      const result = resolveServerLandingDestination({
+        user: inactiveUser,
+        portal: 'admin',
+        workspace: 'super',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(false);
+      expect(result.destination).toBe('/en/login/admin?error=inactive');
+    });
+
     it('sessionVersion bump strictly invalidates stale tokens', () => {
       const activeUser = { id: 'usr-1', sessionVersion: 2, role: 'SUPER_ADMIN' };
       const staleToken = { id: 'usr-1', sessionVersion: 1, role: 'CLIENT' };

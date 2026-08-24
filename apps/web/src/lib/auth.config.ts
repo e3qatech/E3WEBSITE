@@ -13,6 +13,8 @@ export const authConfig = {
       if (user) {
         token.id = user.id
         token.role = (user as any).role
+        token.sessionVersion = (user as any).sessionVersion
+        token.isActive = (user as any).isActive
       }
       return token
     },
@@ -20,6 +22,8 @@ export const authConfig = {
       if (token && session.user) {
         session.user.id = token.id as string
         ;(session.user as any).role = token.role as string
+        ;(session.user as any).sessionVersion = token.sessionVersion as number
+        ;(session.user as any).isActive = token.isActive as boolean
       }
       return session
     }

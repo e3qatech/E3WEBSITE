@@ -9,8 +9,6 @@ import { PortalSelector } from './PortalSelector';
 import { PasswordField } from './PasswordField';
 import { PortalError } from './PortalError';
 import { Mail, ArrowRight, ArrowLeft } from 'lucide-react';
-import { sanitizeCallbackUrl, getAuthorizedLandingRoute } from '@/lib/landing-route';
-import { isAuthorizedForPortal, normalizeRole } from '@/lib/auth-roles';
 
 interface LoginFormProps {
   config: PortalConfig;
@@ -57,44 +55,18 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         return;
       }
 
-      // 2. Fetch authenticated user session to verify portal authorization on server
-      const sessionRes = await fetch('/api/auth/session');
-      const sessionData = await sessionRes.json();
-      const userRole = sessionData?.user?.role;
-
-      if (!sessionData?.user || !userRole) {
-        setError(isAr ? 'تعذر التحقق من جلسة الدخول.' : 'Failed to verify authenticated session.');
-        setIsLoading(false);
-        return;
+      // 2. Build server-authoritative landing resolver URL
+      const queryParams = new URLSearchParams();
+      queryParams.set('portal', config.portalKey);
+      if (config.portalKey === 'admin' && activeWorkspace) {
+        queryParams.set('workspace', activeWorkspace);
       }
-
-      // 3. Verify user's database role is permitted for this portal using canonical helper
-      const normalizedUserRole = normalizeRole(userRole);
-      if (!isAuthorizedForPortal(normalizedUserRole, config.portalKey)) {
-        // Reject unpermitted roles trying to log in at this portal endpoint with generic error
-        setError(
-          isAr
-            ? 'هذا الحساب غير مخوّل للدخول إلى هذه البوابة.'
-            : 'This account is not authorized for this portal.'
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      // 4. Calculate authorized landing route
-      let destination = getAuthorizedLandingRoute({ role: normalizedUserRole }, locale);
-      if (normalizedUserRole === 'SUPER_ADMIN' && config.portalKey === 'admin') {
-        if (activeWorkspace === 'b2b') destination = `/${locale}/dashboard/b2b`;
-        else if (activeWorkspace === 'b2c') destination = `/${locale}/dashboard/b2c`;
-        else destination = `/${locale}/dashboard`;
-      }
-
-      // 5. Sanitize callbackUrl if provided
       if (rawCallback) {
-        destination = sanitizeCallbackUrl(rawCallback, { ...sessionData.user, role: normalizedUserRole }, locale);
+        queryParams.set('callbackUrl', rawCallback);
       }
 
-      window.location.href = destination;
+      // 3. Immediately hand off to server-authoritative landing resolver
+      window.location.href = `/${locale}/auth/landing?${queryParams.toString()}`;
     } catch (_err) {
       setError(
         isAr

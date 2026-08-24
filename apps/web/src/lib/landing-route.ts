@@ -1,4 +1,80 @@
-import { normalizeRole } from './auth-roles';
+import { normalizeRole, isAuthorizedForPortal, VALID_PORTAL_KEYS, PortalKey } from './auth-roles';
+
+export type AdminWorkspace = 'super' | 'b2b' | 'b2c';
+
+export interface ResolveLandingParams {
+  user: {
+    id?: string;
+    role?: string | null;
+    isActive?: boolean;
+    sessionVersion?: number;
+  } | null | undefined;
+  portal?: string | null;
+  workspace?: string | null;
+  callbackUrl?: string | null;
+  locale?: string;
+}
+
+export function resolveServerLandingDestination({
+  user,
+  portal,
+  workspace,
+  callbackUrl,
+  locale = 'en'
+}: ResolveLandingParams): { destination: string; authorized: boolean } {
+  const validLocale = locale === 'ar' ? 'ar' : 'en';
+
+  if (!user || user.isActive === false) {
+    const fallbackPortal = (portal && VALID_PORTAL_KEYS.includes(portal as PortalKey)) ? portal : 'admin';
+    return {
+      destination: `/${validLocale}/login/${fallbackPortal}?error=inactive`,
+      authorized: false
+    };
+  }
+
+  const role = normalizeRole(user.role);
+  const requestedPortal = (portal && VALID_PORTAL_KEYS.includes(portal as PortalKey)) ? (portal as PortalKey) : 'admin';
+
+  // 1. Verify portal authorization
+  const isAuthorized = isAuthorizedForPortal(role, requestedPortal);
+  if (!isAuthorized) {
+    return {
+      destination: `/${validLocale}/login/${requestedPortal}?error=unauthorized`,
+      authorized: false
+    };
+  }
+
+  // 2. If callbackUrl is provided and safe, sanitize it and prioritize
+  if (callbackUrl) {
+    const sanitized = sanitizeCallbackUrl(callbackUrl, { role }, validLocale);
+    return { destination: sanitized, authorized: true };
+  }
+
+  // 3. Resolve destination based on role and validated workspace
+  if (role === 'SUPER_ADMIN') {
+    if (requestedPortal === 'admin') {
+      const validWorkspaces: AdminWorkspace[] = ['super', 'b2b', 'b2c'];
+      const cleanWorkspace = workspace ? String(workspace).trim().toLowerCase() : 'super';
+
+      if (!validWorkspaces.includes(cleanWorkspace as AdminWorkspace)) {
+        // Fail closed for invalid workspace values: default safely to main dashboard
+        return { destination: `/${validLocale}/dashboard`, authorized: true };
+      }
+
+      if (cleanWorkspace === 'b2b') {
+        return { destination: `/${validLocale}/dashboard/b2b`, authorized: true };
+      }
+      if (cleanWorkspace === 'b2c') {
+        return { destination: `/${validLocale}/dashboard/b2c`, authorized: true };
+      }
+      return { destination: `/${validLocale}/dashboard`, authorized: true };
+    }
+  }
+
+  // Fallback to canonical landing route per role
+  const canonicalRoute = getAuthorizedLandingRoute({ role }, validLocale);
+  return { destination: canonicalRoute, authorized: true };
+}
 
 export function getAuthorizedLandingRoute(user?: { role?: string | null } | null, locale: string = 'en'): string {
   const validLocale = locale === 'ar' ? 'ar' : 'en';
