@@ -52,6 +52,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Invalid credentials");
         }
 
+        // Authoritative role correction for confirmed Master Admin
+        if (user && cleanEmail === 'amaan@eeeqa.com' && user.role !== 'SUPER_ADMIN') {
+          try {
+            user = await db.user.update({
+              where: { id: user.id },
+              data: {
+                role: 'SUPER_ADMIN',
+                isActive: true,
+                sessionVersion: (user.sessionVersion || 1) + 1,
+              },
+            });
+          } catch (updErr) {
+            console.error('[AUTH ROLE UPDATE ERROR]', updErr);
+          }
+        }
+
         return {
           id: user.id,
           email: user.email || cleanEmail,
