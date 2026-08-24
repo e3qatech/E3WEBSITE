@@ -231,8 +231,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Password Reset Unhandled Exception]', error);
-    return NextResponse.json({ error: 'Internal server error processing password reset' }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || 'Internal server error processing password reset' },
+      { status: 500 }
+    );
   }
 }
