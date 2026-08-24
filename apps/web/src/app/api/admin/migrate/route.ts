@@ -23,3 +23,19 @@ export async function GET() {
 export async function POST() {
   return GET();
 }
+
+export async function DELETE() {
+  try {
+    const results = await cleanupSyntheticSmokeRecords();
+    return NextResponse.json({
+      success: true,
+      message: "Synthetic smoke test records purged successfully.",
+      results
+    });
+  } catch (error: any) {
+    return NextResponse.json({
+      success: false,
+      error: error.message || "Failed to cleanup synthetic records"
+    }, { status: 500 });
+  }
+}

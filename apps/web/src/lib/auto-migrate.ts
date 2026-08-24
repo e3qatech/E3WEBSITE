@@ -409,3 +409,22 @@ export async function applyPendingDatabaseMigrations() {
 
   return results;
 }
+
+export async function cleanupSyntheticSmokeRecords(prefix: string = 'E3-PRODUCTION-SMOKE-094e2ee') {
+  try {
+    const deletedInquiries = await db.$executeRawUnsafe(`DELETE FROM "Inquiry" WHERE "name" LIKE '%${prefix}%' OR "message" LIKE '%${prefix}%'`);
+    const deletedLeads = await db.$executeRawUnsafe(`DELETE FROM "Lead" WHERE "name" LIKE '%${prefix}%' OR "company" LIKE '%${prefix}%'`);
+    const deletedRfpUploads = await db.$executeRawUnsafe(`DELETE FROM "RfpUpload" WHERE "originalFileName" LIKE '%${prefix}%'`);
+    return {
+      success: true,
+      deletedInquiries,
+      deletedLeads,
+      deletedRfpUploads
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message
+    };
+  }
+}
