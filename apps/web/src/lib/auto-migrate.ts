@@ -8,6 +8,28 @@ interface MigrationDefinition {
 
 export const PENDING_MIGRATIONS: MigrationDefinition[] = [
   {
+    name: '20260813130000_add_b2b_attraction_fields',
+    sql: [
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "isB2bVisible" BOOLEAN NOT NULL DEFAULT true`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "b2bCategory" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "projectType" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "clientName" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "year" INTEGER`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "attendance" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "areaSize" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "servicesDelivered" JSONB`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "operationalScope" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "challengeEn" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "challengeAr" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "solutionEn" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "solutionAr" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "resultEn" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "resultAr" TEXT`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "downloadableProfile" TEXT`,
+      `CREATE INDEX IF NOT EXISTS "Attraction_isB2bVisible_idx" ON "Attraction"("isB2bVisible")`
+    ]
+  },
+  {
     name: '20260816000000_qf24e_bilingual_team_cms',
     sql: [
       `ALTER TABLE "EmployeeProfile" ADD COLUMN IF NOT EXISTS "showOnTeamPage" BOOLEAN NOT NULL DEFAULT true`,
