@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { applyPendingDatabaseMigrations } from "@/lib/auto-migrate";
+import { applyPendingDatabaseMigrations, cleanupSyntheticSmokeRecords } from "@/lib/auto-migrate";
 
 export const dynamic = "force-dynamic";
 
