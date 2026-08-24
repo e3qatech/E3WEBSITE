@@ -143,8 +143,9 @@ export function LoginForm({ config, locale }: LoginFormProps) {
             {isAr ? 'كلمة المرور' : 'Password'}
           </label>
           <Link
-            href={`/${locale}/auth/forgot-password?portal=${config.portalKey}`}
-            className="text-xs text-zinc-400 hover:text-white transition-colors"
+            href={`/${locale}/forgot-password?portal=${config.portalKey}`}
+            data-testid="forgot-password-link"
+            className="text-xs text-zinc-400 hover:text-white transition-colors underline-offset-4 hover:underline"
           >
             {isAr ? 'نسيت كلمة المرور؟' : 'Forgot password?'}
           </Link>

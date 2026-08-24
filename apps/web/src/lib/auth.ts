@@ -25,9 +25,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        const isSuperAdminEmail = cleanEmail === 'admin@e3.qa' || cleanEmail === 'admin@e3qatar.com';
-        const isKnownSuperAdminPassword = inputPassword === 'supersecret' || inputPassword === 'Password123!';
-
         let user: any = null;
         try {
           user = await db.user.findUnique({
@@ -37,67 +34,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.error('[AUTH DB QUERY ERROR]', dbErr);
         }
 
-        // Automatic Super Admin bootstrap / password sync if missing or outdated in active DB
-        if ((!user || !user.password) && isSuperAdminEmail && isKnownSuperAdminPassword) {
-          try {
-            const hashedPassword = await bcrypt.hash(inputPassword, 10);
-            user = await db.user.upsert({
-              where: { email: cleanEmail },
-              update: {
-                password: hashedPassword,
-                role: 'SUPER_ADMIN',
-                isActive: true,
-              },
-              create: {
-                email: cleanEmail,
-                name: 'Super Admin',
-                password: hashedPassword,
-                role: 'SUPER_ADMIN',
-                isActive: true,
-                emailVerified: new Date(),
-              }
-            });
-          } catch (seedErr) {
-            console.error('[AUTH AUTO-BOOTSTRAP ERROR]', seedErr);
-            // Fallback emergency super admin session if database is unavailable
-            return {
-              id: 'super-admin-emergency',
-              email: cleanEmail,
-              role: 'SUPER_ADMIN' as RoleType,
-              sessionVersion: 1,
-              isActive: true
-            };
-          }
-        }
-
-        if (!user) {
-          if (isSuperAdminEmail && isKnownSuperAdminPassword) {
-            return {
-              id: 'super-admin-emergency',
-              email: cleanEmail,
-              role: 'SUPER_ADMIN' as RoleType,
-              sessionVersion: 1,
-              isActive: true
-            };
-          }
-          throw new Error("Invalid credentials")
-        }
-
-        if (!user.isActive) {
-          throw new Error("Invalid credentials")
-        }
-
-        if (!user.password) {
-          if (isSuperAdminEmail && isKnownSuperAdminPassword) {
-            return {
-              id: user.id || 'super-admin-emergency',
-              email: cleanEmail,
-              role: 'SUPER_ADMIN' as RoleType,
-              sessionVersion: 1,
-              isActive: true
-            };
-          }
-          throw new Error("Invalid credentials")
+        if (!user || !user.isActive || !user.password) {
+          throw new Error("Invalid credentials");
         }
 
         let isPasswordValid = false;
@@ -110,32 +48,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.error('[AUTH BCRYPT ERROR]', cmpErr);
         }
 
-        // If bcrypt check failed for a known super admin password, refresh the password hash in DB
-        if (!isPasswordValid && isSuperAdminEmail && isKnownSuperAdminPassword) {
-          try {
-            const newHash = await bcrypt.hash(inputPassword, 10);
-            user = await db.user.update({
-              where: { id: user.id },
-              data: { password: newHash, role: 'SUPER_ADMIN', isActive: true }
-            });
-            isPasswordValid = true;
-          } catch (updateErr) {
-            console.error('[AUTH PASSWORD REFRESH ERROR]', updateErr);
-            isPasswordValid = true; // Still allow authentication for super admin
-          }
-        }
-
         if (!isPasswordValid) {
-          throw new Error("Invalid credentials")
+          throw new Error("Invalid credentials");
         }
 
         return {
-          id: user.id || 'super-admin-emergency',
+          id: user.id,
           email: user.email || cleanEmail,
-          role: (user.role || 'SUPER_ADMIN') as RoleType,
+          role: (user.role || 'CLIENT') as RoleType,
           sessionVersion: user.sessionVersion || 1,
           isActive: user.isActive ?? true
-        }
+        };
       }
     })
   ],

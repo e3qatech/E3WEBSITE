@@ -1,5 +1,4 @@
-import ResetPasswordPage from "@/app/auth/reset-password/page";
+import ResetPasswordPage, { generateMetadata } from '../../reset-password/page';
 
-export default function LocalizedResetPasswordPage() {
-  return <ResetPasswordPage />;
-}
+export { generateMetadata };
+export default ResetPasswordPage;

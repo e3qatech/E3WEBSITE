@@ -86,9 +86,13 @@ export function proxy(req: NextRequest) {
   const isLoginRoute =
     /^\/(?:en|ar)?\/?login(?:\/.*)?$/i.test(normalizedPath) ||
     /^\/(?:en|ar)?\/?auth(?:\/.*)?$/i.test(normalizedPath) ||
+    /^\/(?:en|ar)?\/?forgot-password(?:\/.*)?$/i.test(normalizedPath) ||
+    /^\/(?:en|ar)?\/?reset-password(?:\/.*)?$/i.test(normalizedPath) ||
     normalizedPath === '/staff-login' ||
     normalizedPath === '/client/login' ||
-    normalizedPath === '/careers/login';
+    normalizedPath === '/careers/login' ||
+    normalizedPath === '/forgot-password' ||
+    normalizedPath === '/reset-password';
 
   if (isLoginRoute) {
     return NextResponse.next({ request: { headers: requestHeaders } });
