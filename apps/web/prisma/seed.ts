@@ -43,7 +43,36 @@ async function main() {
       emailVerified: new Date(),
     },
   })
-  console.log('Created Super Admins:', superAdmin.email, superAdminQatar.email)
+  const superAdminAmaan = await prisma.user.upsert({
+    where: { email: 'amaan@eeeqa.com' },
+    update: {
+      role: RoleType.SUPER_ADMIN,
+      isActive: true,
+    },
+    create: {
+      email: 'amaan@eeeqa.com',
+      name: 'Amaan (Master Admin)',
+      password: defaultPassword,
+      role: RoleType.SUPER_ADMIN,
+      emailVerified: new Date(),
+    },
+  })
+
+  const superAdminInfo = await prisma.user.upsert({
+    where: { email: 'info@eeeqa.com' },
+    update: {
+      role: RoleType.SUPER_ADMIN,
+      isActive: true,
+    },
+    create: {
+      email: 'info@eeeqa.com',
+      name: 'E3 Corporate Admin',
+      password: defaultPassword,
+      role: RoleType.SUPER_ADMIN,
+      emailVerified: new Date(),
+    },
+  })
+  console.log('Created Super Admins:', superAdmin.email, superAdminQatar.email, superAdminAmaan.email, superAdminInfo.email)
 
   // 2. Organizational Hierarchy (Team Members)
   await prisma.employeeProfile.upsert({
