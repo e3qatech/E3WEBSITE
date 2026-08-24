@@ -11,8 +11,8 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id || token.sub
-        token.sub = user.id || token.sub
+        token.id = (user.id || token.sub || '') as string
+        token.sub = (user.id || token.sub || '') as string
         token.role = (user as any).role
         token.sessionVersion = (user as any).sessionVersion
         token.isActive = (user as any).isActive

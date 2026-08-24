@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import db from '@/lib/db';
 import { resolveServerLandingDestination } from '@/lib/landing-route';
 import { normalizeRole } from '@/lib/auth-roles';
 
 export const dynamic = 'force-dynamic';
+
+const AUTH_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "e3-qatar-super-secret-key-development-2026!";
 
 export async function GET(
   req: NextRequest,
@@ -19,14 +22,21 @@ export async function GET(
 
   // 1. Read fresh authenticated session server-side
   const session = await auth();
+  let token: any = null;
 
-  if (!session || !session.user) {
+  try {
+    token = await getToken({ req: req as any, secret: AUTH_SECRET });
+  } catch (tErr) {
+    console.error('[AUTH LANDING TOKEN ERROR]', tErr);
+  }
+
+  if (!session?.user && !token) {
     return NextResponse.redirect(new URL(`/${locale}/login/${portal}`, nextUrl.origin));
   }
 
   // 2. Resolve database user by ID or Email
-  const sessionUserId = session.user.id || (session.user as any).sub;
-  const sessionUserEmail = session.user.email?.toLowerCase().trim();
+  const sessionUserId = session?.user?.id || (session?.user as any)?.sub || token?.id || token?.sub;
+  const sessionUserEmail = session?.user?.email?.toLowerCase().trim() || (token?.email as string)?.toLowerCase().trim();
 
   let dbUser: any = null;
   try {
@@ -58,11 +68,11 @@ export async function GET(
     console.error('[AUTH LANDING ROUTE DB ERROR]', err);
   }
 
-  const rawRole = dbUser?.role || (session.user as any)?.role || 'CLIENT';
+  const rawRole = dbUser?.role || (session?.user as any)?.role || token?.role || 'CLIENT';
   const normalizedRole = normalizeRole(rawRole);
-  const isActive = dbUser ? dbUser.isActive : ((session.user as any)?.isActive ?? true);
-  const dbSessionVersion = dbUser?.sessionVersion ?? (session.user as any)?.sessionVersion ?? 1;
-  const tokenSessionVersion = (session.user as any)?.sessionVersion ?? 1;
+  const isActive = dbUser ? dbUser.isActive : ((session?.user as any)?.isActive ?? token?.isActive ?? true);
+  const dbSessionVersion = dbUser?.sessionVersion ?? (session?.user as any)?.sessionVersion ?? token?.sessionVersion ?? 1;
+  const tokenSessionVersion = (session?.user as any)?.sessionVersion ?? token?.sessionVersion ?? 1;
 
   if (!isActive) {
     return NextResponse.redirect(new URL(`/${locale}/login/${portal}?error=inactive`, nextUrl.origin));
