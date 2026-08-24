@@ -24,7 +24,19 @@ const resetSchema = z.object({
     .regex(/[0-9]/, 'Password must contain at least one number'),
 }).strict();
 
-function resolveAuthoritativeOrigin(): string {
+function resolveAuthoritativeOrigin(req?: NextRequest): string {
+  // 1. In Vercel Preview environments, prioritize deployment domain
+  if (process.env.VERCEL_ENV === 'preview') {
+    if (process.env.VERCEL_URL) {
+      return `https://${process.env.VERCEL_URL}`;
+    }
+    const host = req?.headers.get('x-forwarded-host') || req?.headers.get('host');
+    if (host && host.includes('vercel.app')) {
+      return `https://${host}`;
+    }
+  }
+
+  // 2. Production configured origin
   const configuredOrigin = process.env.APP_BASE_URL || process.env.NEXTAUTH_URL;
   if (configuredOrigin) {
     let normalized = configuredOrigin.trim().replace(/\/+$/, '');
@@ -32,6 +44,10 @@ function resolveAuthoritativeOrigin(): string {
       normalized = normalized.replace(/^http:\/\//, 'https://');
     }
     return normalized;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
   }
 
   if (process.env.NODE_ENV === 'production') {
@@ -114,9 +130,9 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Construct authoritative Password Reset URL using server-controlled origin (Host header ignored)
-      const baseOrigin = resolveAuthoritativeOrigin();
-      const resetUrl = `${baseOrigin}/${resolvedLocale}/auth/reset-password?token=${encodeURIComponent(rawResetToken)}`;
+      // Construct authoritative Password Reset URL (preview-aware and production-validated)
+      const baseOrigin = resolveAuthoritativeOrigin(req);
+      const resetUrl = `${baseOrigin}/${resolvedLocale}/reset-password?token=${encodeURIComponent(rawResetToken)}`;
 
       // Dispatch password reset email via Resend
       const emailResult = await sendEmail({
