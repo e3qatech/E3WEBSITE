@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import db from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { resolveServerLandingDestination } from '@/lib/landing-route';
+import { normalizeRole } from '@/lib/auth-roles';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,43 +24,71 @@ export default async function AuthLandingPage({
   // 1. Read fresh authenticated session server-side
   const session = await auth();
 
-  if (!session || !session.user || !session.user.id) {
+  if (!session || !session.user) {
     const portal = query.portal || 'admin';
     redirect(`/${validLocale}/login/${portal}`);
   }
 
-  // 2. Resolve authoritative database user
+  // 2. Resolve authoritative user by ID or Email
+  const sessionUserId = session.user.id || (session.user as any).sub;
+  const sessionUserEmail = session.user.email?.toLowerCase().trim();
+
   let dbUser: any = null;
   try {
-    dbUser = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        id: true,
-        role: true,
-        isActive: true,
-        sessionVersion: true,
-      },
-    });
+    if (sessionUserId) {
+      dbUser = await db.user.findUnique({
+        where: { id: sessionUserId },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          isActive: true,
+          sessionVersion: true,
+        },
+      });
+    }
+    if (!dbUser && sessionUserEmail) {
+      dbUser = await db.user.findUnique({
+        where: { email: sessionUserEmail },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          isActive: true,
+          sessionVersion: true,
+        },
+      });
+    }
   } catch (err) {
     console.error('[AUTH LANDING DB ERROR]', err);
   }
 
-  if (!dbUser || !dbUser.isActive) {
+  // Fallback to token claims if DB temporarily unavailable during serverless cold start
+  const rawRole = dbUser?.role || (session.user as any)?.role || 'CLIENT';
+  const normalizedRole = normalizeRole(rawRole);
+  const isActive = dbUser ? dbUser.isActive : ((session.user as any)?.isActive ?? true);
+  const dbSessionVersion = dbUser?.sessionVersion ?? (session.user as any)?.sessionVersion ?? 1;
+  const tokenSessionVersion = (session.user as any)?.sessionVersion ?? 1;
+
+  if (!isActive) {
     const portal = query.portal || 'admin';
     redirect(`/${validLocale}/login/${portal}?error=inactive`);
   }
 
-  // 3. Verify sessionVersion (stale/revoked session invalidation)
-  const dbSessionVersion = dbUser.sessionVersion ?? 1;
-  const tokenSessionVersion = (session.user as any).sessionVersion ?? 1;
-  if (dbSessionVersion !== tokenSessionVersion) {
+  // Session revocation validation
+  if (dbUser && dbSessionVersion !== tokenSessionVersion) {
     const portal = query.portal || 'admin';
     redirect(`/${validLocale}/login/${portal}?error=session_revoked`);
   }
 
-  // 4. Resolve destination using canonical server-authoritative resolver
+  // 3. Resolve destination using canonical server-authoritative resolver
   const { destination } = resolveServerLandingDestination({
-    user: dbUser,
+    user: {
+      id: sessionUserId || dbUser?.id,
+      role: normalizedRole,
+      isActive,
+      sessionVersion: dbSessionVersion,
+    },
     portal: query.portal,
     workspace: query.workspace,
     callbackUrl: query.callbackUrl,

@@ -22,9 +22,23 @@ export function LoginForm({ config, locale }: LoginFormProps) {
   const isAr = locale === 'ar';
   const dir = isAr ? 'rtl' : 'ltr';
 
+  const urlError = searchParams?.get('error');
+  const getInitialError = () => {
+    if (urlError === 'unauthorized') {
+      return isAr ? 'هذا الحساب غير مخوّل للدخول إلى هذه البوابة.' : 'This account is not authorized for this portal.';
+    }
+    if (urlError === 'inactive') {
+      return isAr ? 'هذا الحساب غير مفعل.' : 'This account is inactive.';
+    }
+    if (urlError === 'session_revoked') {
+      return isAr ? 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً.' : 'Session expired or revoked. Please log in again.';
+    }
+    return '';
+  };
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(getInitialError);
   const [isLoading, setIsLoading] = useState(false);
   const [activeWorkspace, setActiveWorkspace] = useState<'super' | 'b2b' | 'b2c'>('super');
 
