@@ -9,7 +9,6 @@ import { PortalSelector } from './PortalSelector';
 import { PasswordField } from './PasswordField';
 import { PortalError } from './PortalError';
 import { Mail, ArrowRight, ArrowLeft } from 'lucide-react';
-import { sanitizeCallbackUrl, getAuthorizedLandingRoute } from '@/lib/landing-route';
 
 interface LoginFormProps {
   config: PortalConfig;
@@ -23,9 +22,23 @@ export function LoginForm({ config, locale }: LoginFormProps) {
   const isAr = locale === 'ar';
   const dir = isAr ? 'rtl' : 'ltr';
 
+  const urlError = searchParams?.get('error');
+  const getInitialError = () => {
+    if (urlError === 'unauthorized') {
+      return isAr ? 'هذا الحساب غير مخوّل للدخول إلى هذه البوابة.' : 'This account is not authorized for this portal.';
+    }
+    if (urlError === 'inactive') {
+      return isAr ? 'هذا الحساب غير مفعل.' : 'This account is inactive.';
+    }
+    if (urlError === 'session_revoked') {
+      return isAr ? 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً.' : 'Session expired or revoked. Please log in again.';
+    }
+    return '';
+  };
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(getInitialError);
   const [isLoading, setIsLoading] = useState(false);
   const [activeWorkspace, setActiveWorkspace] = useState<'super' | 'b2b' | 'b2c'>('super');
 
@@ -56,44 +69,19 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         return;
       }
 
-      // 2. Fetch authenticated user session to verify portal authorization on server
-      const sessionRes = await fetch('/api/auth/session');
-      const sessionData = await sessionRes.json();
-      const userRole = sessionData?.user?.role;
-
-      if (!sessionData?.user || !userRole) {
-        setError(isAr ? 'تعذر التحقق من جلسة الدخول.' : 'Failed to verify authenticated session.');
-        setIsLoading(false);
-        return;
+      // 2. Build server-authoritative landing resolver URL
+      const queryParams = new URLSearchParams();
+      queryParams.set('portal', config.portalKey);
+      queryParams.set('locale', locale);
+      if (config.portalKey === 'admin' && activeWorkspace) {
+        queryParams.set('workspace', activeWorkspace);
       }
-
-      // 3. Verify user's database role is permitted for this portal
-      const allowedRoles = config.allowedRoles;
-      if (!allowedRoles.includes(userRole) && userRole !== 'SUPER_ADMIN') {
-        // Reject unpermitted roles trying to log in at this portal endpoint with generic error
-        setError(
-          isAr
-            ? 'هذا الحساب غير مخوّل للدخول إلى هذه البوابة.'
-            : 'This account is not authorized for this portal.'
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      // 4. Calculate authorized landing route
-      let destination = getAuthorizedLandingRoute(sessionData.user, locale);
-      if (userRole === 'SUPER_ADMIN' && config.portalKey === 'admin') {
-        if (activeWorkspace === 'b2b') destination = `/${locale}/dashboard/b2b`;
-        else if (activeWorkspace === 'b2c') destination = `/${locale}/dashboard/b2c`;
-        else destination = `/${locale}/dashboard`;
-      }
-
-      // 5. Sanitize callbackUrl if provided
       if (rawCallback) {
-        destination = sanitizeCallbackUrl(rawCallback, sessionData.user, locale);
+        queryParams.set('callbackUrl', rawCallback);
       }
 
-      window.location.href = destination;
+      // 3. Immediately hand off to server-authoritative landing resolver API
+      window.location.href = `/api/auth/landing?${queryParams.toString()}`;
     } catch (_err) {
       setError(
         isAr
@@ -143,8 +131,9 @@ export function LoginForm({ config, locale }: LoginFormProps) {
             {isAr ? 'كلمة المرور' : 'Password'}
           </label>
           <Link
-            href={`/${locale}/auth/forgot-password?portal=${config.portalKey}`}
-            className="text-xs text-zinc-400 hover:text-white transition-colors"
+            href={`/${locale}/forgot-password?portal=${config.portalKey}`}
+            data-testid="forgot-password-link"
+            className="text-xs text-zinc-400 hover:text-white transition-colors underline-offset-4 hover:underline"
           >
             {isAr ? 'نسيت كلمة المرور؟' : 'Forgot password?'}
           </Link>

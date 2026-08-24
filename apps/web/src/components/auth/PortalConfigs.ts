@@ -1,4 +1,4 @@
-import { PortalKey } from '@/lib/auth-roles';
+import { PortalKey, allowedRolesForPortal } from '@/lib/auth-roles';
 
 export interface PortalConfig {
   portalKey: PortalKey;
@@ -26,7 +26,7 @@ export const PORTAL_CONFIGS: Record<PortalKey, PortalConfig> = {
     descriptionAr: 'إدارة المنصة، والقياسات الآلية، والإشراف المؤسسي',
     badgeEn: 'Admin Control',
     badgeAr: 'بوابة الإدارة',
-    allowedRoles: ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN'],
+    allowedRoles: allowedRolesForPortal('admin'),
     defaultLanding: '/dashboard',
     accentColor: '#10b981', // Jade
     secondaryAccent: '#0f172a', // Slate

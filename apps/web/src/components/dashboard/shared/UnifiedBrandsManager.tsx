@@ -347,7 +347,7 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
   // Logos & Media
   const [primaryLogoUrl, setPrimaryLogoUrl] = useState(initialData?.primaryLogoUrl || "")
   const [lightLogoUrl, setLightLogoUrl] = useState(initialData?.lightLogoUrl || "")
-  const [darkLogoUrl, _setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
+  const [darkLogoUrl, setDarkLogoUrl] = useState(initialData?.darkLogoUrl || "")
   const [primaryMediaUrl, setPrimaryMediaUrl] = useState(initialData?.primaryMediaUrl || "")
 
   const handleSave = async () => {
@@ -696,7 +696,7 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
       {/* TAB 4: LOGOS & MEDIA */}
       {activeTab === "media" && (
         <div className="space-y-4 animate-in fade-in duration-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Primary Logo (Local Upload)</label>
               <MediaUploader
@@ -714,6 +714,16 @@ function UnifiedBrandEditor({ initialData, onClose, onSave }: { initialData?: an
                 onChange={setLightLogoUrl}
                 accept="image/*,.svg"
                 placeholder="Upload Light Logo"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Dark Logo (For Light Backgrounds)</label>
+              <MediaUploader
+                value={darkLogoUrl}
+                onChange={setDarkLogoUrl}
+                accept="image/*,.svg"
+                placeholder="Upload Dark Logo"
               />
             </div>
           </div>

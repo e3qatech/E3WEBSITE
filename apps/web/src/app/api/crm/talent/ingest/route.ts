@@ -3,14 +3,22 @@ import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { enforceBodyLimit } from "@/lib/body-limit";
 import { z } from "zod";
+import {
+  safelySendEmail,
+  getNotificationTargetEmail,
+  renderHRApplicationNotificationEmail,
+  renderApplicantConfirmationEmail,
+} from "@/lib/email";
 
 const ingestSchema = z.object({
+  website_hp: z.string().optional(),
   name: z.string().min(2, "Name is required").max(100),
   email: z.string().email("Invalid email address"),
   phone: z.string().max(20).optional(),
   position: z.string().max(100).optional(),
   department: z.string().max(100).optional(),
-  cvText: z.string().max(10000).optional(), // Simulating raw text from CV upload
+  resumeUrl: z.string().optional(),
+  cvText: z.string().max(10000).optional(),
 }).strict();
 
 // Simulated AI Parser Function
@@ -53,24 +61,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: rl.error }, { status: 429 });
     }
 
-    // 2. Input Validation
+    // 3. Input Validation
     const body = await req.json();
     const validatedData = ingestSchema.parse(body);
 
-    // 3. AI Parsing Simulation
+    if (validatedData.website_hp) {
+      return NextResponse.json({ success: true, status: 'ignored' }, { status: 201 });
+    }
+
+    // 4. AI Parsing Simulation
     let parsedData = { experienceLevel: "Unknown", skills: [] as string[], languages: [] as string[] };
     if (validatedData.cvText) {
       parsedData = simulateAIParse(validatedData.cvText);
+    } else {
+      parsedData = simulateAIParse(validatedData.position || "");
     }
 
-    // 4. Database Insertion
+    // 5. Database Insertion
     const talent = await db.talent.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,
         phone: validatedData.phone,
-        position: validatedData.position,
+        position: validatedData.position || "General Candidate",
         department: validatedData.department,
+        resumeUrl: validatedData.resumeUrl,
         experienceLevel: parsedData.experienceLevel,
         skills: parsedData.skills,
         languages: parsedData.languages,
@@ -79,19 +94,51 @@ export async function POST(req: Request) {
       },
     });
 
-    // 5. Audit Log
-    await db.systemLog.create({
-      data: {
-        action: "TALENT_INGESTED",
-        entity: "Talent",
-        entityId: talent.id,
-        metadata: {
-          ip: ip,
-          parsedSkills: parsedData.skills,
-          timestamp: new Date().toISOString()
-        }
-      }
-    });
+    // 6. Audit Log
+    try {
+      await db.systemLog.create({
+        data: {
+          action: "TALENT_INGESTED",
+          entity: "Talent",
+          entityId: talent.id,
+          metadata: {
+            ip: ip,
+            parsedSkills: parsedData.skills,
+            timestamp: new Date().toISOString(),
+          },
+        },
+      });
+    } catch (_logErr) {}
+
+    // 7. Dispatch HR Notification & Candidate Auto-Acknowledgment before lambda exit
+    const hrEmail = await getNotificationTargetEmail('CAREERS');
+    await Promise.allSettled([
+      safelySendEmail({
+        to: hrEmail,
+        subject: `[E3 Talent Ingest] New Candidate: ${validatedData.name} - ${validatedData.position || 'General'}`,
+        html: renderHRApplicationNotificationEmail({
+          name: validatedData.name,
+          email: validatedData.email,
+          phone: validatedData.phone,
+          jobTitle: validatedData.position || 'General Applicant',
+          department: validatedData.department,
+          applicationId: talent.id,
+          cvUrl: validatedData.resumeUrl,
+        }),
+        category: 'CAREERS',
+        replyTo: validatedData.email,
+      }),
+      safelySendEmail({
+        to: validatedData.email,
+        subject: `[E3 Qatar] Application Received: ${validatedData.position || 'Talent Pool'}`,
+        html: renderApplicantConfirmationEmail({
+          name: validatedData.name,
+          jobTitle: validatedData.position || 'Talent Pool Submission',
+          applicationId: talent.id,
+        }),
+        category: 'CAREERS',
+      })
+    ]);
 
     return NextResponse.json({ success: true, talentId: talent.id, aiSummary: parsedData }, { status: 201 });
 
@@ -99,7 +146,7 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: "Invalid data", details: error.flatten().fieldErrors }, { status: 400 });
     }
-    console.error("[CSO] Talent Ingest Error:", error);
+    console.error("[CRM Talent Ingest Error]:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

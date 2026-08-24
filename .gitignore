@@ -20,3 +20,5 @@ dist/
 .env*
 **/.turbo/
 .qa-evidence/
+.agents/skills/
+skills-lock.json

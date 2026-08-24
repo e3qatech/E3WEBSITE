@@ -21,13 +21,14 @@ export function useTelemetry(attractionId?: string) {
     if (!socketInstance) {
       socketInstance = io('/public', {
         path: '/api/socket.io',
-        transports: ['polling', 'websocket'],
-        reconnectionAttempts: 3,
-        timeout: 10000,
+        transports: ['websocket', 'polling'],
+        reconnection: false,
+        reconnectionAttempts: 1,
+        timeout: 4000,
       });
 
       socketInstance.on('connect_error', () => {
-        // Silent fallback for Vercel serverless functions
+        socketInstance?.disconnect();
       });
     }
 

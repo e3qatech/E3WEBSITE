@@ -245,7 +245,7 @@ export function Sidebar() {
         )}
         
         <MotionLink 
-          href="#"
+          href="/auth/login"
           onClick={(e) => { e.preventDefault(); signOut({ callbackUrl: "/auth/login" }) }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

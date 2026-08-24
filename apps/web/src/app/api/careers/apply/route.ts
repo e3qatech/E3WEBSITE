@@ -6,6 +6,12 @@ import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { enforceBodyLimit } from '@/lib/body-limit';
 import { isJobPubliclyEligible } from '@/lib/careers/job-eligibility';
+import {
+  safelySendEmail,
+  getNotificationTargetEmail,
+  renderHRApplicationNotificationEmail,
+  renderApplicantConfirmationEmail,
+} from '@/lib/email';
 
 const applicationSchema = z.object({
   website_hp: z.string().optional(),
@@ -184,6 +190,37 @@ export async function POST(req: NextRequest) {
     } catch (_tErr) {
       // Talent creation is supplementary
     }
+
+    // 5. Dispatch HR notification & Candidate auto-acknowledgment before lambda exit
+    const candidateFullName = `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`;
+    const hrEmail = await getNotificationTargetEmail('CAREERS');
+    await Promise.allSettled([
+      safelySendEmail({
+        to: hrEmail,
+        subject: `[E3 Careers] New Application: ${candidateFullName} - ${verifiedJobTitle}`,
+        html: renderHRApplicationNotificationEmail({
+          name: candidateFullName,
+          email: cleanEmail,
+          phone: validatedData.phone,
+          jobTitle: verifiedJobTitle,
+          department: verifiedDepartment || undefined,
+          applicationId: application.id,
+          cvUrl: validatedData.cvUrl,
+        }),
+        category: 'CAREERS',
+        replyTo: cleanEmail,
+      }),
+      safelySendEmail({
+        to: cleanEmail,
+        subject: `[E3 Qatar] Application Received: ${verifiedJobTitle}`,
+        html: renderApplicantConfirmationEmail({
+          name: candidateFullName,
+          jobTitle: verifiedJobTitle,
+          applicationId: application.id,
+        }),
+        category: 'CAREERS',
+      })
+    ]);
 
     return NextResponse.json({ success: true, application, talentId });
   } catch (error) {

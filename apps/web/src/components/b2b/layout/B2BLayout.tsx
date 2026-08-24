@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
-import React, { useEffect } from 'react'
-import { PulseOrbitNav } from '@/components/b2c/nav/PulseOrbitNav'
+import React, { useEffect } from 'react';
+import { PulseOrbitNav } from '@/components/b2c/nav/PulseOrbitNav';
 import { B2BFooter } from './B2BFooter'
+import { ChatAssistant } from '@/components/shared/ChatAssistant'
 import { cn } from '@/lib/utils'
 import { useMounted } from '@/hooks/useMounted'
 
@@ -45,6 +46,7 @@ export function B2BLayout({
         </main>
         
         <B2BFooter settings={settings} />
+        <ChatAssistant portal="b2b" />
       </div>
     </B2CExperienceProvider>
   )

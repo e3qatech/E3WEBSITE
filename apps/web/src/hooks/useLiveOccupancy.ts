@@ -18,11 +18,11 @@ export function useLiveOccupancy() {
     try {
       socketRef.current = io(socketUrl, {
         path: '/api/socket.io',
+        transports: ['websocket', 'polling'],
         autoConnect: true,
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        reconnectionAttempts: 3, // Prevent infinite loops if server doesn't exist yet
+        reconnection: false,
+        reconnectionAttempts: 1,
+        timeout: 4000,
       });
 
       const socket = socketRef.current;

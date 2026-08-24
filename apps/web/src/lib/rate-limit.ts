@@ -1,6 +1,6 @@
 import { redis } from '@/lib/redis';
 
-// In-memory fallback — Development only
+// In-memory fallback — Used in Vercel Preview, local development, and test environments
 const memoryStore = new Map<string, { count: number; resetAt: number }>();
 
 export async function rateLimit(
@@ -8,57 +8,91 @@ export async function rateLimit(
   limit: number = 5,
   windowSec: number = 60,
   failOpen: boolean = false
-): Promise<{ success: boolean; error?: string; retryAfter?: number }> {
+): Promise<{
+  success: boolean;
+  error?: string;
+  code?: string;
+  retryAfter?: number;
+  isBackendUnavailable?: boolean;
+}> {
+  // Ensure Redis keys are strictly namespaced by environment to isolate Preview & Production
+  const envPrefix = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
+  const namespacedKey = key.startsWith(`${envPrefix}:`) ? key : `${envPrefix}:${key}`;
+
   try {
-    const currentCount = await redis.incr(key);
+    const currentCount = await redis.incr(namespacedKey);
     if (typeof currentCount !== 'number' || Number.isNaN(currentCount)) {
       throw new Error('Redis client unavailable or returned non-numeric count');
     }
     if (currentCount === 1) {
-      await redis.expire(key, windowSec);
+      await redis.expire(namespacedKey, windowSec);
     }
     if (currentCount > limit) {
-      return { success: false, error: 'Too many requests. Please try again later.', retryAfter: windowSec };
+      return {
+        success: false,
+        error: 'Too many requests. Please try again later.',
+        code: 'RATE_LIMIT_EXCEEDED',
+        retryAfter: windowSec,
+      };
     }
     return { success: true };
   } catch (_error) {
-    console.warn(`[CSO] Redis rate limit error for key: ${key}`);
+    // Determine actual Vercel Production:
+    // MUST use process.env.VERCEL_ENV === "production" to identify actual Vercel Production.
+    // Do not use NODE_ENV === "production" because Next.js sets NODE_ENV="production" on both Preview and Production.
+    const isActualProduction = process.env.VERCEL_ENV === 'production';
 
-    // Only allow memory fallback in Development & Testing
-    const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || !process.env.NODE_ENV;
-
-    if (!isDev && !failOpen) {
-      // Production & Preview: fail-closed
-      console.error(`[CSO] Rate limit failing closed — Redis unavailable in ${process.env.NODE_ENV || 'unknown'} environment.`);
-      return { success: false, error: 'Service Unavailable', retryAfter: 30 };
+    if (isActualProduction && !failOpen) {
+      // In actual Production, remain fail-closed when Redis is unavailable
+      return {
+        success: false,
+        error: 'Rate limit service unavailable',
+        code: 'RATE_LIMIT_SERVICE_UNAVAILABLE',
+        isBackendUnavailable: true,
+        retryAfter: 30,
+      };
     }
 
-    if (!isDev && failOpen) {
-      // failOpen routes in production/preview — allow but log
-      console.warn(`[CSO] Rate limit fail-open in ${process.env.NODE_ENV || 'unknown'} for key: ${key}`);
+    if (isActualProduction && failOpen) {
       return { success: true };
     }
 
-    // Development memory fallback
+    // In Vercel Preview (VERCEL_ENV === 'preview' | 'development'), local development, and test environments:
+    // Use bounded in-memory per-IP / per-key limiter. Rate limiting is preserved, not disabled.
     const now = Date.now();
     const windowMs = windowSec * 1000;
 
-    const record = memoryStore.get(key);
+    // Prune stale entries if store grows large to keep memory bounded
+    if (memoryStore.size > 5000) {
+      memoryStore.forEach((v, k) => {
+        if (now > v.resetAt) {
+          memoryStore.delete(k);
+        }
+      });
+    }
+
+    const record = memoryStore.get(namespacedKey);
     if (record) {
       if (now > record.resetAt) {
-        memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+        memoryStore.set(namespacedKey, { count: 1, resetAt: now + windowMs });
         return { success: true };
       } else {
         if (record.count >= limit) {
-          return { success: false, error: 'Too many requests. Please try again later.', retryAfter: windowSec };
+          return {
+            success: false,
+            error: 'Too many requests. Please try again later.',
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: Math.max(1, Math.ceil((record.resetAt - now) / 1000)),
+          };
         }
         record.count++;
         return { success: true };
       }
     } else {
-      memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+      memoryStore.set(namespacedKey, { count: 1, resetAt: now + windowMs });
       return { success: true };
     }
   }
 }
+
 

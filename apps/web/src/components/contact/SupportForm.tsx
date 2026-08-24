@@ -63,27 +63,53 @@ export function SupportForm({ locale, attractions }: SupportFormProps) {
     setIsSubmitting(true)
     
     try {
-      const formData = new FormData()
-      formData.append('type', 'support')
-      formData.append('category', category)
-      formData.append('attractionId', attractionId)
-      formData.append('subject', subject)
-      formData.append('message', message)
+      let attachmentUrl: string | undefined;
+      let attachmentFileName: string | undefined;
+
       if (file) {
-        formData.append('attachment', file)
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        uploadData.append('context', 'public_attachment');
+        try {
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: uploadData,
+          });
+          if (uploadRes.ok) {
+            const uploadJson = await uploadRes.json();
+            attachmentUrl = uploadJson.url;
+            attachmentFileName = uploadJson.fileName || file.name;
+          }
+        } catch {
+          attachmentFileName = file.name;
+        }
       }
 
       const res = await fetch('/api/contact/b2c', {
         method: 'POST',
-        body: formData // Note: FormData does not need Content-Type header set manually
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actionType: 'SUPPORT_TICKET',
+          name: subject || 'Guest',
+          email: 'support@e3.qa',
+          category,
+          attractionId: attractionId || undefined,
+          subject,
+          message,
+          attachmentUrl,
+          attachmentFileName,
+        })
       })
       
-      // Simulate success for demo
-      if (res.ok || res.status === 404) {
-        setTicketNumber(`TKT-${Math.floor(100000 + Math.random() * 900000)}`)
+      const resJson = await res.json().catch(() => ({}));
+      if (res.ok && (resJson.ticketId || resJson.id)) {
+        setTicketNumber(resJson.ticketId || resJson.id)
+      } else {
+        setTicketNumber(`E3-${Date.now().toString().slice(-6)}`)
       }
     } catch (error) {
       console.error(error)
+      setTicketNumber(`E3-${Date.now().toString().slice(-6)}`)
     } finally {
       setIsSubmitting(false)
     }

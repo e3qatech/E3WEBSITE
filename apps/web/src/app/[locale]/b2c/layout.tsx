@@ -2,6 +2,7 @@ import { Footer } from "@/components/layout/Footer";
 import { B2CThemeProvider, B2CPageShell } from "@/components/ui/B2CThemeComponents";
 import { B2CExperienceProvider, B2CSceneHost, B2CRouteTransition } from "@/components/b2c/runtime/B2CExperienceRuntime";
 import { PulseOrbitNav } from "@/components/b2c/nav/PulseOrbitNav";
+import { ChatAssistant } from "@/components/shared/ChatAssistant";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import db from "@/lib/db";
 import { getPublicSettingsServer, resolvePublicSiteSettings } from "@/lib/settings/public-settings";
@@ -125,6 +126,7 @@ export default async function B2CLayout({
             <B2CRouteTransition>{children}</B2CRouteTransition>
           </main>
           <Footer portal="b2c" settings={mergedFooterSettings} />
+          <ChatAssistant portal="b2c" />
         </B2CPageShell>
       </B2CThemeProvider>
     </B2CExperienceProvider>
