@@ -1,35 +1,27 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import db from '@/lib/db';
-import { redirect } from 'next/navigation';
 import { resolveServerLandingDestination } from '@/lib/landing-route';
 import { normalizeRole } from '@/lib/auth-roles';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AuthLandingPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{
-    portal?: string;
-    workspace?: string;
-    callbackUrl?: string;
-  }>;
-}) {
-  const { locale } = await params;
-  const validLocale = locale === 'ar' ? 'ar' : 'en';
-  const query = await searchParams;
+export async function GET(req: NextRequest) {
+  const { nextUrl } = req;
+  const portal = nextUrl.searchParams.get('portal') || 'admin';
+  const workspace = nextUrl.searchParams.get('workspace') || 'super';
+  const callbackUrl = nextUrl.searchParams.get('callbackUrl');
+  const rawLocale = nextUrl.searchParams.get('locale') || 'en';
+  const locale = rawLocale === 'ar' ? 'ar' : 'en';
 
   // 1. Read fresh authenticated session server-side
   const session = await auth();
 
   if (!session || !session.user) {
-    const portal = query.portal || 'admin';
-    redirect(`/${validLocale}/login/${portal}`);
+    return NextResponse.redirect(new URL(`/${locale}/login/${portal}`, nextUrl.origin));
   }
 
-  // 2. Resolve authoritative user by ID or Email
+  // 2. Resolve database user by ID or Email
   const sessionUserId = session.user.id || (session.user as any).sub;
   const sessionUserEmail = session.user.email?.toLowerCase().trim();
 
@@ -60,10 +52,10 @@ export default async function AuthLandingPage({
       });
     }
   } catch (err) {
-    console.error('[AUTH LANDING DB ERROR]', err);
+    console.error('[AUTH LANDING API DB ERROR]', err);
   }
 
-  // Fallback to token claims if DB temporarily unavailable during serverless cold start
+  // Fallback to token claims if DB cold-start
   const rawRole = dbUser?.role || (session.user as any)?.role || 'CLIENT';
   const normalizedRole = normalizeRole(rawRole);
   const isActive = dbUser ? dbUser.isActive : ((session.user as any)?.isActive ?? true);
@@ -71,14 +63,12 @@ export default async function AuthLandingPage({
   const tokenSessionVersion = (session.user as any)?.sessionVersion ?? 1;
 
   if (!isActive) {
-    const portal = query.portal || 'admin';
-    redirect(`/${validLocale}/login/${portal}?error=inactive`);
+    return NextResponse.redirect(new URL(`/${locale}/login/${portal}?error=inactive`, nextUrl.origin));
   }
 
   // Session revocation validation
   if (dbUser && dbSessionVersion !== tokenSessionVersion) {
-    const portal = query.portal || 'admin';
-    redirect(`/${validLocale}/login/${portal}?error=session_revoked`);
+    return NextResponse.redirect(new URL(`/${locale}/login/${portal}?error=session_revoked`, nextUrl.origin));
   }
 
   // 3. Resolve destination using canonical server-authoritative resolver
@@ -89,11 +79,11 @@ export default async function AuthLandingPage({
       isActive,
       sessionVersion: dbSessionVersion,
     },
-    portal: query.portal,
-    workspace: query.workspace,
-    callbackUrl: query.callbackUrl,
-    locale: validLocale,
+    portal,
+    workspace,
+    callbackUrl,
+    locale,
   });
 
-  redirect(destination);
+  return NextResponse.redirect(new URL(destination, nextUrl.origin));
 }

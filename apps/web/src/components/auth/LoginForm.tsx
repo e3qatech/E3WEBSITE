@@ -72,6 +72,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
       // 2. Build server-authoritative landing resolver URL
       const queryParams = new URLSearchParams();
       queryParams.set('portal', config.portalKey);
+      queryParams.set('locale', locale);
       if (config.portalKey === 'admin' && activeWorkspace) {
         queryParams.set('workspace', activeWorkspace);
       }
@@ -79,8 +80,8 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         queryParams.set('callbackUrl', rawCallback);
       }
 
-      // 3. Immediately hand off to server-authoritative landing resolver
-      window.location.href = `/${locale}/auth/landing?${queryParams.toString()}`;
+      // 3. Immediately hand off to server-authoritative landing resolver API
+      window.location.href = `/api/auth/landing?${queryParams.toString()}`;
     } catch (_err) {
       setError(
         isAr
