@@ -1,15 +1,26 @@
 import { ContactClient } from "@/components/b2c/ContactClient";
 import { db } from "@/lib/db";
+import { getPublicSettingsServer } from "@/lib/settings/public-settings";
+import { Metadata } from "next";
 
-export const metadata = {
-  title: "Contact Us | E3 Qatar",
-  description: "Need support, want to leave feedback, or have a question? We're here for you.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const isAr = locale === "ar";
+  return {
+    title: isAr ? "اتصل بنا | إي ثري قطر" : "Contact Us | E3 Qatar",
+    description: isAr
+      ? "تواصل مع فريق الدعم في إي ثري قطر، شاركنا تقييمك، أو استفسر عن باقاتنا وتجاربنا الترفيهية."
+      : "Need support with a ticket, want to leave feedback, or have a question? We're here for you.",
+  };
+}
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function getContactData() {
-  
   // Fetch active attractions for the dropdowns
   let attractions: any[] = [];
   try {
@@ -17,27 +28,27 @@ async function getContactData() {
       where: {
         isPublished: true,
         isHidden: false,
-      }
+      },
     });
     attractions = dbAttractions.map((attraction: any) => ({
       attractionId: attraction.id,
       attractionNameEn: attraction.nameEn,
-      attractionNameAr: attraction.nameAr
+      attractionNameAr: attraction.nameAr || attraction.nameEn,
     }));
   } catch (e) {
     console.error("Failed to fetch attractions directly from DB:", e);
   }
-  
+
   // Fetch Attraction FAQs
   let attractionFaqs: any[] = [];
   try {
     attractionFaqs = await db.attractionFaq.findMany({
-      orderBy: { orderIndex: 'asc' },
+      orderBy: { orderIndex: "asc" },
       include: {
         attraction: {
-          select: { nameEn: true, nameAr: true }
-        }
-      }
+          select: { nameEn: true, nameAr: true },
+        },
+      },
     });
   } catch (e) {
     console.error("Failed to fetch attraction FAQs directly from DB:", e);
@@ -48,9 +59,9 @@ async function getContactData() {
     const settingModel = (db as any).siteSettings || (db as any).setting;
     if (settingModel) {
       settingsRecords = await settingModel.findMany({
-        where: { 
-          key: { in: ["B2C_CONTACT_PAGE_SETTINGS", "B2C_CONTACT_FAQS"] }
-        }
+        where: {
+          key: { in: ["B2C_CONTACT_PAGE_SETTINGS", "B2C_CONTACT_FAQS"] },
+        },
       });
     }
   } catch (e) {
@@ -59,7 +70,7 @@ async function getContactData() {
 
   const settings = settingsRecords.reduce((acc, curr) => {
     try {
-      acc[curr.key] = typeof curr.value === 'string' ? JSON.parse(curr.value) : curr.value;
+      acc[curr.key] = typeof curr.value === "string" ? JSON.parse(curr.value) : curr.value;
     } catch {
       acc[curr.key] = curr.value;
     }
@@ -70,31 +81,49 @@ async function getContactData() {
     title: "How Can We Help?",
     tagline: "Need support with a ticket, want to leave feedback, or just have a general question? We're here for you.",
     heroMediaType: "IMAGE",
-    heroMediaUrl: ""
+    heroMediaUrl: "",
   };
 
   const generalFaqs = settings.B2C_CONTACT_FAQS || [];
 
   const featuredFeedbacks = await db.feedback.findMany({
     where: { isFeatured: true },
-    orderBy: { createdAt: 'desc' },
-    take: 5
-  });
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  }).catch(() => []);
 
-  return { attractions, attractionFaqs, generalFaqs, pageSettings, featuredFeedbacks };
+  // Fetch central platform site settings (contact email, phone, whatsapp, address, hours, social links)
+  const siteSettings = await getPublicSettingsServer();
+
+  return { attractions, attractionFaqs, generalFaqs, pageSettings, featuredFeedbacks, siteSettings };
 }
 
-export default async function ContactPage() {
-  const { attractions, attractionFaqs, generalFaqs, pageSettings, featuredFeedbacks } = await getContactData();
+export default async function ContactPage({
+  params,
+}: {
+  params?: Promise<{ locale: string }>;
+} = {}) {
+  const resolvedParams = params ? await params : { locale: "en" };
+  const locale = resolvedParams?.locale || "en";
+  const {
+    attractions,
+    attractionFaqs,
+    generalFaqs,
+    pageSettings,
+    featuredFeedbacks,
+    siteSettings,
+  } = await getContactData();
 
   return (
     <div className="min-h-screen bg-[var(--surface-default)]">
-      <ContactClient 
-        attractions={attractions} 
-        attractionFaqs={attractionFaqs} 
+      <ContactClient
+        locale={locale}
+        attractions={attractions}
+        attractionFaqs={attractionFaqs}
         generalFaqs={generalFaqs}
         pageSettings={pageSettings}
         featuredFeedbacks={featuredFeedbacks}
+        siteSettings={siteSettings}
       />
     </div>
   );
