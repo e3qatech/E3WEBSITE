@@ -440,10 +440,10 @@ export async function publishAllContent() {
 
 export async function inspectMediaState() {
   try {
-    const team: any[] = await db.$queryRawUnsafe(`SELECT "id", "firstName", "lastName", "designation", "profileImage", "showOnTeamPage" FROM "EmployeeProfile" ORDER BY "order" ASC, "createdAt" ASC`);
+    const team: any[] = await db.$queryRawUnsafe(`SELECT "id", "firstName", "lastName", "designation", "profileImage", "showOnTeamPage" FROM "EmployeeProfile" ORDER BY "createdAt" ASC`);
     const settings: any[] = await db.$queryRawUnsafe(`SELECT "key", "value" FROM "Setting" WHERE "key" IN ('lightLogoUrl', 'darkLogoUrl', 'faviconUrl', 'gateway_customization_published')`);
     const pages: any[] = await db.$queryRawUnsafe(`SELECT "slug", "status", "updatedAt" FROM "Pages" ORDER BY "slug" ASC`);
-    const attractions: any[] = await db.$queryRawUnsafe(`SELECT "id", "slug", "nameEn", "isPublished", "coverImage" FROM "Attraction" ORDER BY "nameEn" ASC`);
+    const attractions: any[] = await db.$queryRawUnsafe(`SELECT "id", "slug", "nameEn", "isPublished", "heroImageUrl" FROM "Attraction" ORDER BY "nameEn" ASC`);
 
     return {
       success: true,
