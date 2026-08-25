@@ -7,7 +7,7 @@ import { Users, Clock, Ticket, ChevronLeft, ChevronRight, Pause, Play, Sparkles,
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
-import { calculateQatarOperatingStatus, getTodayTimingDisplay } from '@/lib/operating-schedule-helper'
+import { calculateQatarOperatingStatus, getTodayTimingDisplay, calculateAttractionStartingPrice } from '@/lib/operating-schedule-helper'
 import { resolveBookingUrl } from '@/lib/cms-attractions'
 
 export const DEFAULT_ATTRACTION_WORLDS = [
@@ -165,9 +165,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
 
   // Combine database attractions with CMS worlds
   const dbMappedWorlds = dbAttractions.map(attr => {
-    const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
-      ? Math.min(...attr.pricing.map((p: any) => p.price))
-      : (attr.accessModel === 'FREE' ? 0 : 45)
+    const minPrice = calculateAttractionStartingPrice(attr, attr.price || 35)
 
     const primaryLoc = attr.attractionLocations?.[0]?.location
     const venueEn = primaryLoc?.nameEn || primaryLoc?.addressEn || attr.operations?.venueName || attr.operations?.venueAddressEn || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
