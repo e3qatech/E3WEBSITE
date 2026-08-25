@@ -571,7 +571,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     )
 
     return { scores, missing, overall }
-  }, [nameEn, nameAr, slug, taglineEn, descriptionEn, heroMediaUrl, activities, linkedLocations, pricingTiers, temporalStatus, galleryItems, faqs, seo, isPublished, accessModel])
+  }, [nameEn, nameAr, slug, taglineEn, descriptionEn, heroMediaUrl, heroThumbnailUrl, logoUrl, activities, linkedLocations, pricingTiers, temporalStatus, galleryItems, faqs, seo, isPublished, accessModel])
 
   // Save Handler with Safe Deep Merge & Idempotent Linking
   const handleSave = async (publishOverride?: boolean) => {
@@ -1262,28 +1262,86 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                   )}
                 </div>
 
-                {/* Hero Media & Logos */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border-level-1)]">
-                  <div>
-                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
-                      Hero Poster / Video Media
-                    </label>
-                    <MediaUploader
-                      value={heroMediaUrl}
-                      onChange={url => { setHeroMediaUrl(url); markDirty(); }}
-                      placeholder="Upload or enter hero media URL"
-                    />
+                {/* Hero Media, Thumbnails & Logos */}
+                <div className="pt-4 border-t border-[var(--border-level-1)] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Key Media & Visual Assets</h3>
+                      <p className="text-xs text-[var(--text-secondary)]">Thumbnails, hero visual backdrops, logos, and fallback graphics.</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
-                      Attraction / Brand Logo (SVG or PNG)
-                    </label>
-                    <MediaUploader
-                      value={logoUrl}
-                      onChange={url => { setLogoUrl(url); markDirty(); }}
-                      placeholder="Upload logo"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Thumbnail Media */}
+                    <div className="space-y-1.5 p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)]">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                          <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Thumbnail Media (Listing & Cards) *</span>
+                        </label>
+                        {heroMediaUrl && !heroThumbnailUrl && (
+                          <button
+                            type="button"
+                            onClick={() => { setHeroThumbnailUrl(heroMediaUrl); markDirty(); }}
+                            className="text-[10px] font-bold text-purple-400 hover:underline cursor-pointer"
+                          >
+                            Copy Hero Media
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">Shown on Constellation showcase, B2C landing cards, and Discover lists.</p>
+                      <MediaUploader
+                        value={heroThumbnailUrl}
+                        onChange={url => { setHeroThumbnailUrl(url); markDirty(); }}
+                        placeholder="Upload or enter thumbnail media URL"
+                      />
+                    </div>
+
+                    {/* Hero Poster / Video */}
+                    <div className="space-y-1.5 p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)]">
+                      <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Hero Poster / Video Media</span>
+                      </label>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">Full-screen hero banner visual or video loop on the detail page.</p>
+                      <MediaUploader
+                        value={heroMediaUrl}
+                        onChange={url => {
+                          setHeroMediaUrl(url);
+                          if (!heroThumbnailUrl) setHeroThumbnailUrl(url);
+                          markDirty();
+                        }}
+                        placeholder="Upload or enter hero media URL"
+                      />
+                    </div>
+
+                    {/* Attraction / Brand Logo */}
+                    <div className="space-y-1.5 p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)]">
+                      <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                        <Building className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Attraction / Brand Logo (SVG or PNG)</span>
+                      </label>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">Transparent brand emblem for tickets, badges, and header overlay.</p>
+                      <MediaUploader
+                        value={logoUrl}
+                        onChange={url => { setLogoUrl(url); markDirty(); }}
+                        placeholder="Upload brand emblem"
+                      />
+                    </div>
+
+                    {/* Fallback Image */}
+                    <div className="space-y-1.5 p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)]">
+                      <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Fallback / Secondary Poster Image</span>
+                      </label>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">Reliable backup image if primary video/3D media is buffering or offline.</p>
+                      <MediaUploader
+                        value={heroFallbackUrl}
+                        onChange={url => { setHeroFallbackUrl(url); markDirty(); }}
+                        placeholder="Upload fallback poster"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
