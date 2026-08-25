@@ -197,30 +197,7 @@ export function CalendarView({
           />
         </div>
 
-        {/* Ambient Hero Media Background (if provided) */}
-        {heroMediaUrl && (
-          <div className="absolute inset-0 z-0 h-[65vh] md:h-[80vh] w-full overflow-hidden pointer-events-none">
-            {heroMediaType === 'VIDEO' ? (
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover opacity-20"
-              >
-                <source src={heroMediaUrl} type="video/mp4" />
-              </video>
-            ) : (
-              <img 
-                src={heroMediaUrl}
-                alt=""
-                aria-hidden="true"
-                className="w-full h-full object-cover opacity-20"
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--bg-level-1)]/80 to-[var(--bg-level-1)]" />
-          </div>
-        )}
+
 
         {/* Industrial Grain Texture */}
         <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay">
