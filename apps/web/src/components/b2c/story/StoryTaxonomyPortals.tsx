@@ -43,29 +43,29 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
     },
     {
       id: "act-drive-3",
-      titleEn: "All-Terrain Off-Road Quad Track",
-      titleAr: "مسار الدراجات الرباعية والوعرة",
-      descriptionEn: "Challenging off-road obstacle track with banks, elevation shifts, and rugged karts.",
-      descriptionAr: "مسار عقبات رملي ووعر مع منحدرات وتحديات القيادة الحماسية.",
-      highlightType: "OFF-ROAD",
+      titleEn: "Kids City Driving Track",
+      titleAr: "مسار قيادة مدينة الأطفال",
+      descriptionEn: "Interactive realistic junior roadway simulation with fuel pumps and garage stops.",
+      descriptionAr: "محاكاة واقعية للطرق للصغار مع محطات وقود وصيانة تفاعلية.",
+      highlightType: "JUNIOR TRACK",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
-      attractionSlug: "batabit-quad-bike-arena",
-      attractionNameEn: "Batabit Quad Bike Arena",
-      attractionNameAr: "حلبة بطابط لدراجات الدفع الرباعي"
+      attractionSlug: "kids-city-driving-school",
+      attractionNameEn: "Kids City Driving School",
+      attractionNameAr: "مدرسة قيادة مدينة الأطفال"
     }
   ],
   achieve: [
     {
       id: "act-achieve-1",
-      titleEn: "InflataRUN Guinness Record Arena",
-      titleAr: "ميدان إنفلاتارن للأرقام القياسية العالمية",
-      descriptionEn: "Conquer the world's longest continuous inflatable obstacle course and set official leaderboard times.",
-      descriptionAr: "تحدَّ أطول مسار عقبات هوائي مسجل في غينيس للأرقام القياسية وحقق أفضل الأوقات.",
-      highlightType: "WORLD RECORD",
-      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/Post%20Event%20Report%20InflataCity%202025%20_Page_013_Image_0007.jpg",
-      attractionSlug: "inflatarun-2025",
-      attractionNameEn: "InflataRUN Qatar",
-      attractionNameAr: "إنفلاتارن قطر"
+      titleEn: "InflataPark Obstacle Gauntlet",
+      titleAr: "مضمار عقبات إنفلاتابارك الحماسي",
+      descriptionEn: "Conquer the continuous inflatable obstacle course and set official leaderboard times.",
+      descriptionAr: "تحدَّ مسار العقبات الهوائي المتصل وحقق أفضل الأوقات.",
+      highlightType: "OBSTACLES",
+      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     },
     {
       id: "act-achieve-2",
@@ -75,9 +75,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "مناطق انطلاق متعددة المستويات وأبراج تسلق وزلاقات عملاقة للمحترفين.",
       highlightType: "CHALLENGE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
-      attractionSlug: "inflatarun-2025",
-      attractionNameEn: "InflataRUN Qatar",
-      attractionNameAr: "إنفلاتارن قطر"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     },
     {
       id: "act-achieve-3",
@@ -145,15 +145,15 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
     },
     {
       id: "act-compete-2",
-      titleEn: "Gladiator Battledome Tournament",
+      titleEn: "Gladiator Battledome Arena",
       titleAr: "بطولة صالة المحاربين التنافسية",
       descriptionEn: "Pugil stick jousting on elevated podiums above soft air pits — ultimate balance and reflexes.",
       descriptionAr: "مبارزة على منصات مرتفعة فوق وسائد هوائية ناعمة لاختبار التوازن وردود الفعل السريعة.",
       highlightType: "TOURNAMENT",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/984f661d-5185-4d2e-aa3c-4ca54b54d6e9.jpg",
-      attractionSlug: "inflatarun-2025",
-      attractionNameEn: "InflataRUN Arena",
-      attractionNameAr: "ميدان إنفلاتارن"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     },
     {
       id: "act-compete-3",
@@ -227,21 +227,21 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "صالة ميزانين حصرية تطل على الميدان الترفيهي للاحتفالات الخاصة والمناسبات الكبرى.",
       highlightType: "VIP LOUNGE",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
-      attractionSlug: "rush-action-park",
-      attractionNameEn: "Rush Action Park",
-      attractionNameAr: "راش أكشن بارك"
+      attractionSlug: "urban-arena-doha-mall",
+      attractionNameEn: "Urban Arena",
+      attractionNameAr: "أوربان أرينا"
     },
     {
       id: "act-celebrate-3",
-      titleEn: "Glow Night Carnival Spectacular",
-      titleAr: "كرنفال الليالي المضيئة الاحتفالي",
-      descriptionEn: "After-dark music festival sessions with live DJs, glowing wristbands, and illuminated night runs.",
-      descriptionAr: "سهرات ليلية موسيقية مميزة مع دي جي وأساور متوهجة وسباقات ليلية ممتعة لجميع الأعمار.",
-      highlightType: "CARNIVAL",
+      titleEn: "Glow Night Celebration Hub",
+      titleAr: "مركز الليالي المضيئة الاحتفالي",
+      descriptionEn: "Vibrant themed music and light sessions with glowing wristbands and energetic party zones.",
+      descriptionAr: "أجواء احتفالية موسيقية مميزة مع أساور متوهجة ومناطق لعب ممتعة لجميع الأعمار.",
+      highlightType: "PARTY",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC00640.jpg",
-      attractionSlug: "inflatarun-qatar",
-      attractionNameEn: "InflataRUN Qatar",
-      attractionNameAr: "إنفلاتارن قطر"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     }
   ],
   "family-time": [
@@ -253,9 +253,9 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "مناطق استكشاف لجميع الأعمار مع متاهات آمنة للأطفال وحفر كرات وغرف حسية ممتعة.",
       highlightType: "ALL AGES",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC01674.jpg",
-      attractionSlug: "inflatacity-city-center",
-      attractionNameEn: "InflataCity",
-      attractionNameAr: "إنفلاتا سيتي"
+      attractionSlug: "inflatapark-city-center-doha",
+      attractionNameEn: "InflataPark City Center",
+      attractionNameAr: "إنفلاتابارك سيتي سنتر"
     },
     {
       id: "act-family-2",
@@ -265,7 +265,7 @@ export const CANONICAL_TRACK_ACTIVITIES: Record<string, any[]> = {
       descriptionAr: "جلسات صباحية مخصصة للأطفال الصغار مع إضاءة هادئة وموسيقى تفاعلية خفيفة.",
       highlightType: "TODDLER",
       imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/79a8b014-64b7-4d8f-97f3-0fedca268e8a.jpeg",
-      attractionSlug: "crayons-and-bricks-place-vendome",
+      attractionSlug: "crayons-bricks-place-vendome",
       attractionNameEn: "Crayons & Bricks",
       attractionNameAr: "كرايونز آند بريكس"
     }
@@ -333,7 +333,31 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
         const fallbackKey = normalizedSlug === 'family' ? 'family-time' : normalizedSlug;
         const canonicalFallbackActivities = CANONICAL_TRACK_ACTIVITIES[fallbackKey] || CANONICAL_TRACK_ACTIVITIES.compete || [];
 
-        const displayActivities = explicitActivities.length > 0
+        const INACTIVE_ATTRACTION_SLUGS = new Set([
+          'inflatacity-2025',
+          'inflatacity-2024',
+          'inflatarun-2025',
+          'inflatarun-2024',
+          'inflatarun-2023',
+          'lego-shows-qatar-2024',
+          'lego-shows-qatar-2025',
+          'summer-entertainment-city',
+          'national-sports-day-2022',
+          'udc-national-sport-day-2026',
+          'doha-balloon-parade-2022',
+          'asian-town-sports-carnival',
+          'afc-football-fest-2023',
+          'le-marche-2024',
+          'tudor-pit-stop-challenge-2025',
+          'influencer-cup-dinner-gala',
+          'world-cup-2022-fanzone',
+          'winter-activation-place-vendome',
+          'festival-inflatapark-dfc',
+          'rush-action-park',
+          'inflatacity-city-center'
+        ]);
+
+        const rawActivities = explicitActivities.length > 0
           ? explicitActivities
           : attractions.length > 0
           ? attractions.map((attr: any) => ({
@@ -349,6 +373,17 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               attractionNameAr: attr.nameAr
             }))
           : canonicalFallbackActivities;
+
+        const displayActivities = rawActivities.filter((act: any) => {
+          if (!act) return false;
+          const slug = (act.attractionSlug || '').toLowerCase().trim();
+          if (slug && INACTIVE_ATTRACTION_SLUGS.has(slug)) return false;
+          const nameEn = (act.attractionNameEn || '').toLowerCase();
+          const titleEn = (act.titleEn || '').toLowerCase();
+          if (nameEn.includes('2024') || nameEn.includes('2025') || nameEn.includes('2023') || nameEn.includes('2022')) return false;
+          if (titleEn.includes('2024') || titleEn.includes('2025') || titleEn.includes('2023') || titleEn.includes('2022')) return false;
+          return true;
+        });
 
         const titleEnStr = formatLocalizedText(st.titleEn || st.nameEn || st.slug || '', 'en')
         const titleArStr = formatLocalizedText(st.titleAr || st.nameAr || st.titleEn || st.slug || '', 'ar')
