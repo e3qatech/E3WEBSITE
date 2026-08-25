@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const statusFilter = searchParams.get('status');
     const featuredOnly = searchParams.get('featured') === 'true';
     const openNowOnly = searchParams.get('openNow') === 'true';
-    const activeOnly = searchParams.get('activeOnly') === 'true';
+    const activeOnly = searchParams.get('activeOnly') !== 'false' && searchParams.get('includePast') !== 'true' && searchParams.get('all') !== 'true';
 
     // 1. Fetch Landing CMS settings if present
     let qatarMapSettings: any = {};
