@@ -1,4 +1,5 @@
-import DashboardBrandsPage, { metadata, dynamic } from "../../brands/page";
+import DashboardBrandsPage, { metadata } from "../../brands/page";
 
-export { metadata, dynamic };
+export const dynamic = "force-dynamic";
+export { metadata };
 export default DashboardBrandsPage;
