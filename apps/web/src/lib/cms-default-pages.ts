@@ -1,4 +1,5 @@
 import { DEFAULT_SPATIAL_SECTIONS } from "@/components/spatial/spatial-experience.config";
+import { DEFAULT_SOCIAL_CHANNELS, DEFAULT_SOCIAL_POSTS } from "@/lib/cms-social";
 
 export interface B2CSectionItem {
   id: string;
@@ -527,6 +528,16 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
   footerBackgroundPosterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg",
   footerDescriptionEn: "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation.",
   footerDescriptionAr: "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار.",
+  socialFeed: {
+    eyebrowEn: "LIVE MEMORY WALL — HAPPENING NOW",
+    eyebrowAr: "جدار الذكريات التفاعلي — LIVE MEMORY WALL",
+    headlineEn: "E3 Happening Now — Live Moments",
+    headlineAr: "إي ثري الآن — لحظات حية مباشرة",
+    subtextEn: "Real-time moments, live event highlights, and guest stories streaming across official E3 channels.",
+    subtextAr: "تابع أحدث الفعاليات واللحظات الترفيهية الحية عبر حساباتنا الرسمية.",
+    channels: DEFAULT_SOCIAL_CHANNELS,
+    posts: DEFAULT_SOCIAL_POSTS,
+  },
   careersCta: {
     titleEn: "HOST YOUR BIRTHDAY PARTY OR CORPORATE EVENT",
     titleAr: "احجز حفل عيد ميلادك أو فعاليتك الخاصة",
@@ -2251,10 +2262,14 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       ...(raw.coreTeam || {}),
     },
     socialFeed: {
+      eyebrowEn: "LIVE MEMORY WALL — HAPPENING NOW",
+      eyebrowAr: "جدار الذكريات التفاعلي — LIVE MEMORY WALL",
       headlineEn: "E3 Happening Now — Live Moments",
       headlineAr: "إي ثري الآن — لحظات حية مباشرة",
       subtextEn: "Real-time moments, live event highlights, and guest stories streaming across official E3 channels.",
       subtextAr: "تابع أحدث الفعاليات واللحظات الترفيهية الحية عبر حساباتنا الرسمية.",
+      channels: (Array.isArray(raw.socialFeed?.channels) && raw.socialFeed.channels.length > 0) ? raw.socialFeed.channels : DEFAULT_SOCIAL_CHANNELS,
+      posts: (Array.isArray(raw.socialFeed?.posts) && raw.socialFeed.posts.length > 0) ? raw.socialFeed.posts : DEFAULT_SOCIAL_POSTS,
       ...(raw.socialFeed || {}),
     },
     liveFeed: {
