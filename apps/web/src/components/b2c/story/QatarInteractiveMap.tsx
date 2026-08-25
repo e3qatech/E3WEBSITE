@@ -181,7 +181,7 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
         {/* Interactive Map System Split Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Active Attraction Location Cards (5 Cols) */}
-          <div className="lg:col-span-5 space-y-4 max-h-[600px] overflow-y-auto pe-2 no-scrollbar">
+          <div className="lg:col-span-5 space-y-4 max-h-[640px] lg:max-h-[680px] overflow-y-auto pe-2 pb-8 scrollbar-thin scrollbar-thumb-slate-700/60 scrollbar-track-transparent scroll-smooth focus:outline-none">
             {loading ? (
               <div className="p-8 text-center rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-secondary)] font-medium shadow-md">
                 {isAr ? "جاري تحميل الخريطة التفاعلية والوجهات النشطة..." : "Loading active map system & destinations..."}
@@ -204,7 +204,7 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
           </div>
 
           {/* MapLibre GL Vector Cartography Canvas (7 Cols) */}
-          <div className="lg:col-span-7 h-[600px] sticky top-24 rounded-3xl overflow-hidden border border-[var(--border-level-2)] shadow-xl">
+          <div className="lg:col-span-7 h-[500px] sm:h-[600px] lg:h-[680px] sticky top-24 rounded-3xl overflow-hidden border border-[var(--border-level-2)] shadow-2xl">
             <AttractionMapCanvas
               geoJson={filteredGeoJson}
               selectedLocationId={selectedLocation?.locationId}

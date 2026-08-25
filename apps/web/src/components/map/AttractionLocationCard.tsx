@@ -45,6 +45,7 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
 
   return (
     <div
+      id={`attraction-card-${location.locationId}`}
       onClick={onSelect}
       onMouseEnter={onSelect}
       onFocus={onSelect}
@@ -58,7 +59,7 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
       }`}
     >
       {/* Cover Image & Scrim */}
-      <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-950 shrink-0">
+      <div className="relative w-full aspect-[16/9] max-h-[210px] overflow-hidden bg-slate-950 shrink-0">
         <img
           src={imgSrc}
           alt={name}

@@ -315,10 +315,12 @@ export function resolveQatarMapPins({
     const address = isAr ? addressAr : addressEn;
 
     const thumbnailUrl =
-      loc.coverMediaUrl ||
-      primaryAttr.heroMediaUrl ||
       primaryAttr.heroThumbnailUrl ||
-      'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop';
+      primaryAttr.heroMediaUrl ||
+      primaryAttr.heroFallbackUrl ||
+      loc.coverMediaUrl ||
+      primaryAttr.gallery?.[0]?.url ||
+      'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/18840624-4dec-488f-a735-758d1468ae14.jpg';
 
     const ticketingUrl = loc.ticketingUrl || primaryAttr.ticketingUrl || `/${locale}/b2c/calendar`;
     const directionsUrl =
