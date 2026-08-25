@@ -10,12 +10,17 @@ interface Feature {
   id?: string;
   icon?: string;
   iconUrl?: string;
+  name?: string;
+  nameEn?: string;
+  nameAr?: string;
   title?: string;
   titleEn?: string;
   titleAr?: string;
   description?: string;
   descriptionEn?: string;
   descriptionAr?: string;
+  descEn?: string;
+  descAr?: string;
   imageUrl?: string;
   highlightType?: string;
   linkedBrandId?: string;
@@ -291,12 +296,12 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               const isLarge = idx === 0 && filteredFeatures.length % 2 !== 0 && selectedTrackSlug === 'ALL';
 
               const titleVal = isAr 
-                ? (feature.titleAr || feature.titleEn || feature.title || '')
-                : (feature.titleEn || feature.title || feature.titleAr || '');
+                ? (feature.nameAr || feature.titleAr || feature.nameEn || feature.titleEn || feature.title || feature.name || '')
+                : (feature.nameEn || feature.titleEn || feature.title || feature.name || feature.nameAr || feature.titleAr || '');
 
               const descVal = isAr 
-                ? (feature.descriptionAr || feature.descriptionEn || feature.description || '')
-                : (feature.descriptionEn || feature.description || feature.descriptionAr || '');
+                ? (feature.descriptionAr || feature.descriptionEn || feature.description || feature.descAr || feature.descEn || '')
+                : (feature.descriptionEn || feature.description || feature.descEn || feature.descriptionAr || feature.descAr || '');
 
               const formattedTitle = formatLocalizedText(titleVal, locale);
               const formattedDesc = formatLocalizedText(descVal, locale);

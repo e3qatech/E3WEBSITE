@@ -39,6 +39,26 @@ export async function PUT(
         particleDensity: particleDensity !== undefined ? Number(particleDensity) : 50,
       }
 
+      const safeFeatures = (features || [])
+        .filter((f: any) => f && (f.titleEn || f.nameEn || f.title || f.titleAr || f.nameAr))
+        .map((f: any, i: number) => ({
+          attractionId: id,
+          titleEn: (f.titleEn || f.nameEn || f.title || f.titleAr || f.nameAr || "Activity").trim(),
+          titleAr: (f.titleAr || f.nameAr || f.titleEn || f.nameEn || "نشاط").trim(),
+          descriptionEn: (f.descriptionEn || f.description || f.descEn || "").trim(),
+          descriptionAr: (f.descriptionAr || f.description || f.descAr || "").trim(),
+          imageUrl: f.imageUrl || "",
+          iconUrl: f.iconUrl || "",
+          highlightType: f.highlightType || f.contentType || "ACTIVITY",
+          intensityLevel: f.intensityLevel || "MEDIUM",
+          durationMinutes: f.durationMinutes !== null && f.durationMinutes !== undefined && !isNaN(parseInt(f.durationMinutes)) ? parseInt(f.durationMinutes) : null,
+          minAge: f.minAge !== null && f.minAge !== undefined && !isNaN(parseInt(f.minAge)) ? parseInt(f.minAge) : null,
+          minHeightCm: f.minHeightCm !== null && f.minHeightCm !== undefined && !isNaN(parseInt(f.minHeightCm)) ? parseInt(f.minHeightCm) : null,
+          linkedBrandId: f.linkedBrandId || null,
+          showBrandLogo: Boolean(f.showBrandLogo),
+          orderIndex: i
+        }))
+
       // Filter and sanitize relations
       const safePricing = (pricing || [])
         .filter((p: any) => p && (p.titleEn || p.titleAr || p.price !== undefined))
@@ -144,6 +164,10 @@ export async function PUT(
             brandPlacements: { create: safeBrandPlacements },
           }
         })
+
+        if (safeFeatures.length > 0) {
+          await tx.attractionFeature.createMany({ data: safeFeatures })
+        }
 
         // Link canonical locations via AttractionLocation join model
         if (Array.isArray(locations) && locations.length > 0) {

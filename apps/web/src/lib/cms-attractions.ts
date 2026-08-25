@@ -212,35 +212,33 @@ export function resolveAvailabilityStatus(attraction: any): ResolvedAvailability
  * Resolves canonical booking URL across CTAs, cards, tickets, and microsites
  */
 export function resolveBookingUrl(attraction: any, locale: string = 'en'): string {
-  const mode: BookingMode = attraction?.bookingMode || (attraction?.bookingProductId ? 'BOOKINGQUBE_PRODUCT' : attraction?.bookingUrl ? 'EXTERNAL_URL' : 'INTERNAL_ROUTE')
+  const directUrl = (attraction?.ticketingUrl || attraction?.bookingUrl || '').trim()
+
+  if (directUrl) {
+    if (directUrl.startsWith('http://') || directUrl.startsWith('https://')) {
+      return directUrl
+    }
+    if (directUrl.startsWith('/')) {
+      return `/${locale}${directUrl}`
+    }
+    if (directUrl.startsWith('#')) {
+      return directUrl
+    }
+  }
+
+  const mode: BookingMode = attraction?.bookingMode || (attraction?.bookingProductId ? 'BOOKINGQUBE_PRODUCT' : directUrl ? 'EXTERNAL_URL' : 'INTERNAL_ROUTE')
   
   if (mode === 'BOOKINGQUBE_PRODUCT' && attraction?.bookingProductId) {
     return `/${locale}/b2c/tickets?product=${encodeURIComponent(attraction.bookingProductId)}`
   }
   
-  if (mode === 'EXTERNAL_URL' && attraction?.bookingUrl) {
-    const rawUrl = String(attraction.bookingUrl).trim()
-    // Canonicalize any legacy slug or internal anchor to the current attraction route
-    if (rawUrl.includes('urban-arena-doha-mall') || rawUrl.includes('/b2c/attractions/')) {
-      return `/${locale}/b2c/attractions/${attraction.slug || 'urban-arena'}#pricing`
-    }
-    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
-      return rawUrl
-    }
-    return rawUrl.startsWith('/') ? `/${locale}${rawUrl}` : `/${locale}/${rawUrl}`
-  }
-
-  const canonicalSlug = (attraction?.slug === 'urban-arena-doha-mall' ? 'urban-arena' : attraction?.slug) || 'urban-arena'
-
-  if (mode === 'INTERNAL_ROUTE' || !attraction?.bookingMode) {
-    return `/${locale}/b2c/attractions/${canonicalSlug}#pricing`
-  }
-
   if (mode === 'CONTACT') {
     return `/${locale}/b2c/contact?subject=${encodeURIComponent(attraction?.nameEn || 'Booking Inquiry')}`
   }
 
-  return `/${locale}/b2c/tickets?attraction=${encodeURIComponent(canonicalSlug || attraction?.id || '')}`
+  const canonicalSlug = (attraction?.slug === 'urban-arena-doha-mall' ? 'urban-arena' : attraction?.slug) || 'urban-arena'
+
+  return `/${locale}/b2c/attractions/${canonicalSlug}#pricing`
 }
 
 /**
