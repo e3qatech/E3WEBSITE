@@ -1896,8 +1896,8 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
         enableRotatingWords,
         primaryCta,
         secondaryCta,
-        media: mergedHeroMedia,
-        ...(raw.e3LivingHero || {})
+        ...(raw.e3LivingHero || {}),
+        media: (raw.heroMedia && raw.heroMedia.mediaUrl !== undefined) ? mergedHeroMedia : (raw.e3LivingHero?.media || mergedHeroMedia)
       }
     };
   }
