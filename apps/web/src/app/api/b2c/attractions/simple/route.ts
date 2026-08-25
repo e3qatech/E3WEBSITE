@@ -9,11 +9,15 @@ export async function GET() {
       },
       select: {
         id: true,
-        nameEn: true
+        slug: true,
+        nameEn: true,
+        nameAr: true,
+        isFeatured: true,
       },
-      orderBy: {
-        nameEn: 'asc'
-      }
+      orderBy: [
+        { isFeatured: 'desc' },
+        { nameEn: 'asc' }
+      ]
     });
 
     return NextResponse.json(attractions);

@@ -81,12 +81,22 @@ export default async function B2CLandingPage(props: {
       include: {
         gallery: {
           orderBy: { orderIndex: 'asc' },
-          take: 1
+          take: 3
         },
         pricing: {
-          take: 1
+          orderBy: { price: 'asc' }
+        },
+        offers: true,
+        attractionLocations: {
+          include: {
+            location: true
+          }
         }
       },
+      orderBy: [
+        { isFeatured: 'desc' },
+        { createdAt: 'desc' }
+      ],
       take: 50
     });
   } catch (error) {
@@ -142,26 +152,35 @@ export default async function B2CLandingPage(props: {
 
   if (cmsData) {
     if (attractions.length > 0) {
+      const { calculateQatarOperatingStatus } = await import('@/lib/operating-schedule-helper');
+      const { resolveBookingUrl } = await import('@/lib/cms-attractions');
+
       cmsData.attractions = attractions;
       cmsData.act3Worlds = attractions.map((attr: any) => {
         const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
           ? Math.min(...attr.pricing.map((p: any) => p.price))
-          : 45;
+          : (attr.accessModel === 'FREE' ? 0 : 45);
 
         const ops = (attr.operations as any) || {};
-        const venueEn = formatLocalizedText(ops.venueName || ops.venueAddressEn || "Doha, Qatar", 'en') || "Doha, Qatar";
-        const venueAr = formatLocalizedText(ops.venueName || ops.venueAddressAr || "الدوحة، قطر", 'ar') || "الدوحة، قطر";
+        const primaryLoc = attr.attractionLocations?.[0]?.location;
+        const venueEn = formatLocalizedText(primaryLoc?.nameEn || primaryLoc?.addressEn || ops.venueName || ops.venueAddressEn || "Doha, Qatar", 'en') || "Doha, Qatar";
+        const venueAr = formatLocalizedText(primaryLoc?.nameAr || primaryLoc?.addressAr || ops.venueName || ops.venueAddressAr || "الدوحة، قطر", 'ar') || "الدوحة، قطر";
         const nameEn = formatLocalizedText(attr.nameEn, 'en') || "Attraction";
         const nameAr = formatLocalizedText(attr.nameAr || attr.nameEn, 'ar') || "وجهة ترفيهية";
         const taglineEn = formatLocalizedText(attr.taglineEn || attr.descriptionEn?.substring(0, 90) || "Flagship E3 Interactive World", 'en');
         const taglineAr = formatLocalizedText(attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية", 'ar');
         const audienceEn = formatLocalizedText(ops.audienceEn || "Families & Groups", 'en');
         const audienceAr = formatLocalizedText(ops.audienceAr || "العائلات والأصدقاء", 'ar');
-        const timingsEn = formatLocalizedText(ops.timingsEn || "02:00 PM - 12:00 AM", 'en');
-        const timingsAr = formatLocalizedText(ops.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص", 'ar');
+        const timingsEn = formatLocalizedText(attr.temporalStatus?.operatingHoursEn || ops.timingsEn || ops.operatingHoursEn || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "Daily: 10:00 AM - 10:00 PM"), 'en');
+        const timingsAr = formatLocalizedText(attr.temporalStatus?.operatingHoursAr || ops.timingsAr || ops.operatingHoursAr || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "يومياً: ١٠:٠٠ ص - ١٠:٠٠ م"), 'ar');
 
-        const rawBadge = ops.materialType || "E3 WORLD";
-        const safeBadge = formatLocalizedText((rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge, 'en');
+        const liveStatus = calculateQatarOperatingStatus(attr.temporalStatus);
+        const statusEn = liveStatus.statusTextEn || (attr.isPublished ? "OPEN NOW" : "COMING SOON");
+        const statusAr = liveStatus.statusTextAr || (attr.isPublished ? "مفتوح الآن" : "قريباً");
+
+        const rawBadge = ops.materialType || (attr.isFeatured ? "FEATURED ATTRACTION" : "E3 WORLD");
+        const safeBadge = formatLocalizedText((rawBadge === "STAGE_RIBBON" || !rawBadge) ? (attr.isFeatured ? "FEATURED WORLD" : "E3 WORLD") : rawBadge, 'en');
+        const bookingLink = resolveBookingUrl(attr, locale);
 
         return {
           id: attr.id,
@@ -172,8 +191,8 @@ export default async function B2CLandingPage(props: {
           taglineAr,
           locationEn: venueEn,
           locationAr: venueAr,
-          statusEn: "OPEN NOW",
-          statusAr: "مفتوح الآن",
+          statusEn,
+          statusAr,
           materialType: safeBadge,
           accentColor: ops.accentColor || "#10b981",
           mediaUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.gallery?.[0]?.url || "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
@@ -185,7 +204,9 @@ export default async function B2CLandingPage(props: {
           price: minPrice,
           currency: "QAR",
           ctaEn: "Book Pass & Ticket",
-          ctaAr: "احجز التذكرة والمواعيد"
+          ctaAr: "احجز التذكرة والمواعيد",
+          ticketingUrl: bookingLink,
+          isFeatured: Boolean(attr.isFeatured),
         };
       });
     }
