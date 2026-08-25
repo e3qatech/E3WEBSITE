@@ -53,8 +53,8 @@ export function SocialFeedSection({ content, locale = 'en' }: SocialFeedSectionP
   const carouselContainerRef = useRef<HTMLDivElement>(null)
 
   const filteredPosts = activePlatform === 'ALL'
-    ? posts.filter(p => p.isApproved && p.isVisible)
-    : posts.filter(p => p.isApproved && p.isVisible && p.platform === activePlatform)
+    ? posts.filter(p => p.isApproved !== false && p.isVisible !== false)
+    : posts.filter(p => p.isApproved !== false && p.isVisible !== false && p.platform === activePlatform)
 
   // Scroll step navigation
   const scrollStep = (direction: 'left' | 'right') => {
