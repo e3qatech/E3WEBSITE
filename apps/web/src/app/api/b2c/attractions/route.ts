@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth"
 
 export async function GET(_request: Request) {
   try {
-    const attractions = await db.attraction.findMany({
+    let attractions = await db.attraction.findMany({
       where: { isPublished: true },
       orderBy: { createdAt: "desc" },
       include: {
@@ -17,11 +17,37 @@ export async function GET(_request: Request) {
           }
         }
       }
-    })
-    return NextResponse.json(attractions)
+    });
+
+    if (!attractions || attractions.length === 0) {
+      try {
+        const { populateAllAttractions, publishAllContent } = await import("@/lib/auto-migrate");
+        await populateAllAttractions();
+        await publishAllContent();
+
+        attractions = await db.attraction.findMany({
+          where: { isPublished: true },
+          orderBy: { createdAt: "desc" },
+          include: {
+            pricing: true,
+            faqs: true,
+            gallery: true,
+            attractionLocations: {
+              include: {
+                location: true
+              }
+            }
+          }
+        });
+      } catch (autoErr) {
+        console.error("[AUTO_POPULATE_ATTRACTIONS_ERROR]", autoErr);
+      }
+    }
+
+    return NextResponse.json(attractions || []);
   } catch (error: any) {
-    console.error("[ATTRACTIONS_GET_ERROR]", error)
-    return NextResponse.json({ error: "Failed to fetch attractions" }, { status: 500 })
+    console.error("[ATTRACTIONS_GET_ERROR]", error);
+    return NextResponse.json({ error: "Failed to fetch attractions" }, { status: 500 });
   }
 }
 
