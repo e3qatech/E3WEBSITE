@@ -410,16 +410,47 @@ export async function applyPendingDatabaseMigrations() {
   return results;
 }
 
-export async function cleanupSyntheticSmokeRecords(prefix: string = 'E3-PRODUCTION-SMOKE-094e2ee') {
+export async function publishAllContent() {
   try {
-    const deletedInquiries = await db.$executeRawUnsafe(`DELETE FROM "Inquiry" WHERE "name" LIKE '%${prefix}%' OR "message" LIKE '%${prefix}%'`);
-    const deletedLeads = await db.$executeRawUnsafe(`DELETE FROM "Lead" WHERE "name" LIKE '%${prefix}%' OR "company" LIKE '%${prefix}%'`);
-    const deletedRfpUploads = await db.$executeRawUnsafe(`DELETE FROM "RfpUpload" WHERE "originalFileName" LIKE '%${prefix}%'`);
+    const publishedAttractions = await db.$executeRawUnsafe(`UPDATE "Attraction" SET "isPublished" = true, "isHidden" = false, "updatedAt" = NOW()`);
+    const publishedPages = await db.$executeRawUnsafe(`UPDATE "Pages" SET "status" = 'PUBLISHED', "updatedAt" = NOW()`);
+    
+    // Copy gateway draft to published if available
+    try {
+      await db.$executeRawUnsafe(`
+        UPDATE "Setting" 
+        SET "value" = (SELECT "value" FROM "Setting" WHERE "key" = 'gateway_customization_draft'), "updatedAt" = NOW() 
+        WHERE "key" = 'gateway_customization_published' 
+        AND EXISTS (SELECT 1 FROM "Setting" WHERE "key" = 'gateway_customization_draft')
+      `);
+    } catch (_gwErr) {}
+
     return {
       success: true,
-      deletedInquiries,
-      deletedLeads,
-      deletedRfpUploads
+      publishedAttractions,
+      publishedPages
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message
+    };
+  }
+}
+
+export async function inspectMediaState() {
+  try {
+    const team: any[] = await db.$queryRawUnsafe(`SELECT "id", "firstName", "lastName", "designation", "profileImage", "showOnTeamPage" FROM "EmployeeProfile" ORDER BY "order" ASC, "createdAt" ASC`);
+    const settings: any[] = await db.$queryRawUnsafe(`SELECT "key", "value" FROM "Setting" WHERE "key" IN ('lightLogoUrl', 'darkLogoUrl', 'faviconUrl', 'gateway_customization_published')`);
+    const pages: any[] = await db.$queryRawUnsafe(`SELECT "slug", "status", "updatedAt" FROM "Pages" ORDER BY "slug" ASC`);
+    const attractions: any[] = await db.$queryRawUnsafe(`SELECT "id", "slug", "nameEn", "isPublished", "coverImage" FROM "Attraction" ORDER BY "nameEn" ASC`);
+
+    return {
+      success: true,
+      team,
+      settings,
+      pages,
+      attractions
     };
   } catch (err: any) {
     return {
