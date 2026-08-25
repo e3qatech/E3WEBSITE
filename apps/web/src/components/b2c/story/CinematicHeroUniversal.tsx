@@ -65,9 +65,9 @@ export function CinematicHeroUniversal({
   const descriptionAr = livingHeroData.descriptionAr || content?.descriptionAr || content?.descAr || act1Hero.subtextAr || act1.subtextAr || hero.subHeaderAr || "استكشف واحجز أفضل تجارب الترفيه العائلي والمدن الحركية المغلقة والفعاليات الحية في قطر."
 
   const mediaUrl = (
-    livingHeroData.media?.mediaUrl ||
     content?.heroMedia?.mediaUrl ||
     heroMedia.mediaUrl ||
+    livingHeroData.media?.mediaUrl ||
     hero.mediaUrl ||
     act1Hero.desktopVideoUrl ||
     act1Hero.mediaUrl ||
@@ -76,16 +76,16 @@ export function CinematicHeroUniversal({
   ).trim()
 
   const mobileMediaUrl = (
-    livingHeroData.media?.mobileMediaUrl ||
     content?.heroMedia?.mobileMediaUrl ||
     heroMedia.mobileMediaUrl ||
+    livingHeroData.media?.mobileMediaUrl ||
     ""
   ).trim()
 
   const posterUrl = (
-    livingHeroData.media?.posterUrl ||
     content?.heroMedia?.posterUrl ||
     heroMedia.posterUrl ||
+    livingHeroData.media?.posterUrl ||
     hero.posterUrl ||
     act1Hero.posterUrl ||
     act1.posterUrl ||
@@ -93,9 +93,9 @@ export function CinematicHeroUniversal({
   ).trim()
 
   const rawMediaType = (
-    livingHeroData.media?.mediaType ||
     content?.heroMedia?.mediaType ||
     heroMedia.mediaType ||
+    livingHeroData.media?.mediaType ||
     hero.mediaType ||
     act1Hero.mediaType ||
     'IMAGE'

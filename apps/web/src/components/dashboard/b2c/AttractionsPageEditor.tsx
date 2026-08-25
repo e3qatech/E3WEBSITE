@@ -140,13 +140,32 @@ export function AttractionsPageEditor() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const payloadConfig = {
+        ...pageConfig,
+        e3LivingHero: {
+          ...(pageConfig.e3LivingHero || {}),
+          eyebrowEn: pageConfig.eyebrowEn,
+          eyebrowAr: pageConfig.eyebrowAr,
+          fixedHeadlineEn: pageConfig.fixedHeadlineEn,
+          fixedHeadlineAr: pageConfig.fixedHeadlineAr,
+          headlineTemplateEn: pageConfig.headlineTemplateEn,
+          headlineTemplateAr: pageConfig.headlineTemplateAr,
+          rotatingWordsEn: pageConfig.rotatingWordsEn,
+          rotatingWordsAr: pageConfig.rotatingWordsAr,
+          descriptionEn: pageConfig.descriptionEn || pageConfig.descEn,
+          descriptionAr: pageConfig.descriptionAr || pageConfig.descAr,
+          preset: pageConfig.preset,
+          media: pageConfig.heroMedia,
+        },
+      };
+
       await Promise.all([
         fetch("/api/cms/pages/b2c-attractions", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             data: {
-              content: pageConfig,
+              content: payloadConfig,
               title: { en: pageConfig.titleEn, ar: pageConfig.titleAr },
               published: true,
             },
@@ -155,9 +174,15 @@ export function AttractionsPageEditor() {
         fetch("/api/cms/pages/b2c-attractions-page", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: { content: pageConfig, published: true } }),
+          body: JSON.stringify({ data: { content: payloadConfig, published: true } }),
         }),
       ]);
+
+      try {
+        const bc = new BroadcastChannel("e3_cms_sync");
+        bc.postMessage({ type: "b2c_attractions_updated" });
+        bc.close();
+      } catch (_e) {}
 
       setIsDirty(false);
       setLastSaved(new Date());
