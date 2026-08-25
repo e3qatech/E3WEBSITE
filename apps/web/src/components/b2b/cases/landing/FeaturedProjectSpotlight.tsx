@@ -133,7 +133,7 @@ export function FeaturedProjectSpotlight({
             </div>
 
             {/* Content Column (5 Cols on desktop) */}
-            <div className="lg:col-span-5 p-8 md:p-10 lg:p-12 flex flex-col justify-between relative z-10">
+            <div className="lg:col-span-5 p-5 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-between relative z-10">
               <div>
                 {/* Meta Badges */}
                 <div className="flex flex-wrap items-center gap-3 mb-6">

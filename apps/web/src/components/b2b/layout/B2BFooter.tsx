@@ -59,7 +59,7 @@ export function B2BFooter({ settings = {}, locale: propLocale }: { settings?: Re
       <div className="container mx-auto px-4 md:px-8">
         
         {/* Connect / Inquiry Strip */}
-        <div className="mb-20 p-10 md:p-16 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-sm">
+        <div className="mb-20 p-6 sm:p-10 md:p-16 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-sm">
           <div className="relative z-10 max-w-xl">
             <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] mb-4 tracking-tight">
               {isAr ? "هل لديك مشروع في ذهنك؟" : "Have a project in mind?"}

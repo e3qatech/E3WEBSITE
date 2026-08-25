@@ -137,7 +137,7 @@ export function BehindTheBuildTeam({
             return (
               <div
                 key={i}
-                className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors shadow-sm"
+                className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors shadow-sm"
               >
                 <Quote className="w-12 h-12 text-[var(--border-level-2)]/50 absolute top-6 end-6 -rotate-6 pointer-events-none" />
 

@@ -61,10 +61,10 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 text-[var(--text-primary)] drop-shadow-md">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 sm:mb-6 text-[var(--text-primary)] drop-shadow-md">
               We Build <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]">Experiences</span>
             </h1>
-            <p className="text-xl md:text-2xl text-[var(--text-secondary)] font-light mb-12 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl md:text-2xl text-[var(--text-secondary)] font-light mb-8 sm:mb-12 max-w-3xl mx-auto">
               End-to-end event engineering, entertainment solutions, and immersive installations.
             </p>
           </motion.div>
@@ -73,7 +73,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="flex flex-wrap justify-center gap-6 md:gap-12 py-6 px-8 rounded-2xl bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-sm"
+            className="flex flex-wrap justify-center gap-6 md:gap-12 py-4 sm:py-6 px-4 sm:px-8 rounded-2xl bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-sm"
           >
             <div className="text-center">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--color-primary)]">9+</h3>
@@ -115,13 +115,13 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="p-10 rounded-3xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
+            className="p-6 sm:p-10 rounded-3xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
           >
-            <h3 className="text-3xl font-black mb-6 text-[var(--text-primary)] flex items-center gap-4">
+            <h3 className="text-2xl sm:text-3xl font-black mb-4 sm:mb-6 text-[var(--text-primary)] flex items-center gap-4">
               <span className="text-[var(--color-accent)]">The Wow</span>
               <div className="h-1 flex-1 bg-gradient-to-r from-[var(--color-accent)] to-transparent opacity-30 rounded-full" />
             </h3>
-            <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed">
               We design for visual impact and unforgettable first impressions. Through state-of-the-art lighting, immersive visuals, and cutting-edge audio, we create atmospheres that captivate audiences and leave lasting memories.
             </p>
           </motion.div>
@@ -129,13 +129,13 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="p-10 rounded-3xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
+            className="p-6 sm:p-10 rounded-3xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
           >
-            <h3 className="text-3xl font-black mb-6 text-[var(--text-primary)] flex items-center gap-4">
+            <h3 className="text-2xl sm:text-3xl font-black mb-4 sm:mb-6 text-[var(--text-primary)] flex items-center gap-4">
               <span className="text-[var(--color-primary)]">The How</span>
               <div className="h-1 flex-1 bg-gradient-to-r from-[var(--color-primary)] to-transparent opacity-30 rounded-full" />
             </h3>
-            <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed">
               Behind every spectacle is rigorous engineering. We handle the complex logistics, structural integrity, power distribution, and strict safety protocols to ensure that the magic happens flawlessly, every single time.
             </p>
           </motion.div>
@@ -167,7 +167,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
                   transition={{ delay: i * 0.1, duration: 0.5 }}
                   className={`
                     group relative overflow-hidden rounded-3xl bg-[var(--surface-default)] border border-[var(--border-subtle)]
-                    hover:shadow-xl dark:hover:border-transparent transition-all duration-500 flex flex-col justify-between p-8
+                    hover:shadow-xl dark:hover:border-transparent transition-all duration-500 flex flex-col justify-between p-6 sm:p-8
                     ${isLarge ? "md:col-span-2 md:row-span-2" : isWide ? "md:col-span-2 lg:col-span-2" : "col-span-1"}
                   `}
                 >
@@ -186,10 +186,10 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
                       <div className="w-14 h-14 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--color-primary)] mb-8 shadow-sm group-hover:scale-110 transition-transform duration-500">
                         {getIcon(i)}
                       </div>
-                      <h3 className={`font-bold text-[var(--text-primary)] mb-4 ${isLarge ? "text-3xl" : "text-2xl"}`}>
+                      <h3 className={`font-bold text-[var(--text-primary)] mb-4 ${isLarge ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"}`}>
                         {service.titleEn}
                       </h3>
-                      <p className={`text-[var(--text-secondary)] ${isLarge ? "text-lg max-w-md" : "text-base"} line-clamp-3`}>
+                      <p className={`text-[var(--text-secondary)] ${isLarge ? "text-base sm:text-lg max-w-md" : "text-sm sm:text-base"} line-clamp-3`}>
                         {service.taglineEn || "Professional event services tailored for scale and impact."}
                       </p>
                     </div>
@@ -249,15 +249,15 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
       </section>
 
       {/* 5. CTA SECTION */}
-      <section className="py-32 px-4 relative overflow-hidden bg-[var(--bg-level-1)] text-[var(--text-primary)] border-t border-[var(--border-level-1)] transition-colors">
+      <section className="py-20 sm:py-32 px-4 relative overflow-hidden bg-[var(--bg-level-1)] text-[var(--text-primary)] border-t border-[var(--border-level-1)] transition-colors">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-0 end-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-primary)] to-transparent" />
           <div className="absolute bottom-0 start-0 w-1/2 h-full bg-gradient-to-r from-[var(--color-accent)] to-transparent" />
         </div>
         
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl font-black mb-8 text-[var(--text-primary)]">Ready to Start?</h2>
-          <p className="text-xl text-[var(--text-secondary)] mb-12 max-w-2xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 sm:mb-8 text-[var(--text-primary)]">Ready to Start?</h2>
+          <p className="text-lg sm:text-xl text-[var(--text-secondary)] mb-8 sm:mb-12 max-w-2xl mx-auto">
             Partner with E3 Qatar to bring your next monumental event or immersive installation to life with unparalleled precision.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

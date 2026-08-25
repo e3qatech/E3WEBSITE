@@ -130,7 +130,7 @@ export default function ContactRFPPage() {
     <div className="flex flex-col w-full min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] pt-20 transition-colors" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
-      <section className="relative py-32 border-b border-[var(--border-level-1)] overflow-hidden">
+      <section className="relative py-20 sm:py-28 md:py-32 border-b border-[var(--border-level-1)] overflow-hidden">
         {cmsData?.header?.mediaUrl && (
           <div className="absolute inset-0 z-0">
             <UniversalMediaRenderer 
@@ -143,19 +143,19 @@ export default function ContactRFPPage() {
           </div>
         )}
         <div className="container mx-auto px-4 md:px-8 relative z-10">
-          <h1 className="text-5xl md:text-7xl font-black text-[var(--text-primary)] tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-[var(--text-primary)] tracking-tight mb-4 sm:mb-6">
             {headerTitle}
           </h1>
-          <p className="text-xl text-[var(--text-secondary)] max-w-2xl font-medium">
+          <p className="text-lg sm:text-xl text-[var(--text-secondary)] max-w-2xl font-medium">
             {headerSubtitle}
           </p>
         </div>
       </section>
 
       {/* Form Section */}
-      <section className="py-24">
+      <section className="py-12 sm:py-16 md:py-24">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid md:grid-cols-12 gap-16">
+          <div className="grid md:grid-cols-12 gap-10 md:gap-16">
             
             {/* Left Column - Contact Info */}
             <div className="md:col-span-5 space-y-12">
@@ -166,19 +166,19 @@ export default function ContactRFPPage() {
                     {businessEmail && (
                       <li>
                         <div className="text-sm font-bold text-[var(--text-tertiary)] uppercase tracking-widest mb-1">{isAr ? 'تطوير الأعمال' : 'Business Development'}</div>
-                        <a href={`mailto:${businessEmail}`} className="text-xl font-medium text-emerald-500 hover:text-emerald-600 transition-colors">{businessEmail}</a>
+                        <a href={`mailto:${businessEmail}`} className="text-lg sm:text-xl font-medium text-emerald-500 hover:text-emerald-600 transition-colors break-all">{businessEmail}</a>
                       </li>
                     )}
                     {careersEmail && (
                       <li>
                         <div className="text-sm font-bold text-[var(--text-tertiary)] uppercase tracking-widest mb-1">{isAr ? 'الوظائف والمواهب' : 'Careers & Talent'}</div>
-                        <a href={`mailto:${careersEmail}`} className="text-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">{careersEmail}</a>
+                        <a href={`mailto:${careersEmail}`} className="text-lg sm:text-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors break-all">{careersEmail}</a>
                       </li>
                     )}
                     {phone && (
                       <li>
                         <div className="text-sm font-bold text-[var(--text-tertiary)] uppercase tracking-widest mb-1">{isAr ? 'الهاتف' : 'Phone'}</div>
-                        <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">{phone}</a>
+                        <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-lg sm:text-xl font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">{phone}</a>
                       </li>
                     )}
                   </ul>
@@ -188,7 +188,7 @@ export default function ContactRFPPage() {
               {hqAddress && (
                 <div>
                   <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-6 tracking-tight">{isAr ? 'المقر الرئيسي' : 'Headquarters'}</h3>
-                  <div className="text-lg text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
+                  <div className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
                     {hqAddress}
                   </div>
                 </div>
@@ -198,12 +198,12 @@ export default function ContactRFPPage() {
             {/* Right Column - Form */}
             <div className="md:col-span-7">
               {submitted ? (
-                <div className="p-12 rounded-2xl bg-[var(--surface-default)] border border-emerald-500/50 text-center shadow-lg">
-                  <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                <div className="p-6 sm:p-10 md:p-12 rounded-2xl bg-[var(--surface-default)] border border-emerald-500/50 text-center shadow-lg">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" />
                   </div>
-                  <h3 className="text-3xl font-black text-[var(--text-primary)] tracking-tight mb-4">{isAr ? 'تم استلام الطلب' : 'Request Received'}</h3>
-                  <p className="text-[var(--text-secondary)] text-lg mb-8">
+                  <h3 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight mb-4">{isAr ? 'تم استلام الطلب' : 'Request Received'}</h3>
+                  <p className="text-[var(--text-secondary)] text-base sm:text-lg mb-8">
                     {isAr ? 'سيقوم فريقنا بمراجعة استفسارك والتواصل معك خلال 24 ساعة.' : 'Our team will review your inquiry and connect with you within 24 hours.'}
                   </p>
                   <button 
@@ -214,7 +214,7 @@ export default function ContactRFPPage() {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-8 p-10 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-sm">
+                <form onSubmit={handleSubmit} className="space-y-8 p-5 sm:p-8 md:p-10 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-sm">
                   
                   {/* Inquiry Type */}
                   <div className="space-y-4">
@@ -376,7 +376,7 @@ export default function ContactRFPPage() {
               
               {/* Careers CTA */}
               {careersCtaTitle && (
-                <div className="relative group overflow-hidden rounded-2xl aspect-square md:aspect-auto md:h-[400px] flex flex-col justify-end p-8 border border-zinc-800/50">
+                <div className="relative group overflow-hidden rounded-2xl min-h-[280px] md:h-[400px] flex flex-col justify-end p-6 sm:p-8 border border-[var(--border-level-2)]">
                   {cmsData?.careersCta?.mediaUrl && (
                     <div className="absolute inset-0 z-0">
                       <UniversalMediaRenderer 
@@ -391,14 +391,14 @@ export default function ContactRFPPage() {
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent pointer-events-none" />
                   <div className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500 pointer-events-none" />
                   
-                  <div className="relative z-20 mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="text-2xl font-black text-white mb-2">{careersCtaTitle}</h3>
-                    <p className="text-zinc-300 font-medium mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <div className="relative z-20 mt-auto transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-2">{careersCtaTitle}</h3>
+                    <p className="text-zinc-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       {careersCtaDesc}
                     </p>
                     <Link 
                       href={`/${locale}/b2b/careers`} 
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
                     >
                       {careersCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                     </Link>
@@ -408,7 +408,7 @@ export default function ContactRFPPage() {
 
               {/* Feedback CTA */}
               {feedbackCtaTitle && (
-                <div className="relative group overflow-hidden rounded-2xl aspect-square md:aspect-auto md:h-[400px] flex flex-col justify-end p-8 border border-zinc-800/50">
+                <div className="relative group overflow-hidden rounded-2xl min-h-[280px] md:h-[400px] flex flex-col justify-end p-6 sm:p-8 border border-[var(--border-level-2)]">
                   {cmsData?.feedbackCta?.mediaUrl && (
                     <div className="absolute inset-0 z-0">
                       <UniversalMediaRenderer 
@@ -423,14 +423,14 @@ export default function ContactRFPPage() {
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent pointer-events-none" />
                   <div className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500 pointer-events-none" />
                   
-                  <div className="relative z-20 mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="text-2xl font-black text-white mb-2">{feedbackCtaTitle}</h3>
-                    <p className="text-zinc-300 font-medium mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <div className="relative z-20 mt-auto transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-2">{feedbackCtaTitle}</h3>
+                    <p className="text-zinc-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       {feedbackCtaDesc}
                     </p>
                     <Link 
                       href={`/${locale}/b2b/feedback`} 
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
                     >
                       {feedbackCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                     </Link>
@@ -440,7 +440,7 @@ export default function ContactRFPPage() {
 
               {/* FAQ CTA */}
               {faqCtaTitle && (
-                <div className="relative group overflow-hidden rounded-2xl aspect-square md:aspect-auto md:h-[400px] flex flex-col justify-end p-8 border border-zinc-800/50">
+                <div className="relative group overflow-hidden rounded-2xl min-h-[280px] md:h-[400px] flex flex-col justify-end p-6 sm:p-8 border border-[var(--border-level-2)]">
                   {cmsData?.faqCta?.mediaUrl && (
                     <div className="absolute inset-0 z-0">
                       <UniversalMediaRenderer 
@@ -455,14 +455,14 @@ export default function ContactRFPPage() {
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent pointer-events-none" />
                   <div className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] group-hover:backdrop-blur-0 transition-all duration-500 pointer-events-none" />
                   
-                  <div className="relative z-20 mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="text-2xl font-black text-white mb-2">{faqCtaTitle}</h3>
-                    <p className="text-zinc-300 font-medium mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <div className="relative z-20 mt-auto transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-2">{faqCtaTitle}</h3>
+                    <p className="text-zinc-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       {faqCtaDesc}
                     </p>
                     <Link 
                       href={cmsData?.faqCta?.ctaLink || '#'} 
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-md transition-colors"
                     >
                       {faqCtaText} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                     </Link>

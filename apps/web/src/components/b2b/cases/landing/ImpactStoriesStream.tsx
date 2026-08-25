@@ -126,7 +126,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
         </div>
 
         {/* Carousel Showcase Card */}
-        <div className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-md backdrop-blur-xl">
+        <div className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-5 sm:p-8 md:p-12 relative overflow-hidden shadow-md backdrop-blur-xl">
           {/* Progress Bar Top Edge */}
           {facts.length > 1 && (
             <div className="absolute top-0 inset-x-0 h-1 bg-[var(--border-level-2)]">

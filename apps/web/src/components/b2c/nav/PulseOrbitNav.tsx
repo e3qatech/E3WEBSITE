@@ -570,7 +570,7 @@ export function PulseOrbitNav({
       {menuOpen && (
         <div
           className={cn(
-            "fixed inset-0 z-50 flex flex-col justify-between backdrop-blur-xl p-6 sm:p-10 animate-fade-in transition-colors duration-300",
+            "fixed inset-0 z-50 flex flex-col justify-between backdrop-blur-xl p-4 sm:p-6 md:p-10 overflow-y-auto min-h-full animate-fade-in transition-colors duration-300",
             isLight
               ? "bg-[#FFF8EC]/98 text-slate-900 shadow-2xl"
               : "bg-slate-950/95 text-slate-100"
@@ -581,7 +581,7 @@ export function PulseOrbitNav({
         >
           {/* Top Bar inside Overlay - Managed EXCLUSIVELY by Pulse Orbit CMS Hub Logo */}
           <div className={cn(
-            "flex flex-wrap items-center justify-between gap-4 border-b pb-6",
+            "flex flex-wrap items-center justify-between gap-3 border-b pb-4 sm:pb-6",
             isLight ? "border-slate-200" : "border-slate-800/80"
           )}>
             <div className="flex items-center gap-3">

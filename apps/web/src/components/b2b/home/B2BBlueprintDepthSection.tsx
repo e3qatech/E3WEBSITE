@@ -79,7 +79,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
           </Reveal>
 
           {/* Interactive Mode Selector */}
-          <div className="flex items-center justify-center gap-2 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
             <button
               onClick={() => { setMode('blueprint'); setSliderPosition(100); }}
               className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
@@ -256,28 +256,28 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
 
         {/* Feature Highlights Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
-          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+          <div className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
               <Compass className="w-5 h-5" />
             </div>
-            <h4 className="text-base font-bold text-zinc-100 mb-1">{isAr ? "دقة التصميم الإنشائي" : "Structural Precision"}</h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">{isAr ? "مخططات هندسية متكاملة تتوافق مع أعلى معايير السلامة القطرية." : "Full engineering blueprints certified for municipal and crowd safety compliance."}</p>
+            <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{isAr ? "دقة التصميم الإنشائي" : "Structural Precision"}</h4>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? "مخططات هندسية متكاملة تتوافق مع أعلى معايير السلامة القطرية." : "Full engineering blueprints certified for municipal and crowd safety compliance."}</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+          <div className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4">
               <Layers className="w-5 h-5" />
             </div>
-            <h4 className="text-base font-bold text-zinc-100 mb-1">{isAr ? "محاكاة الإضاءة والصوت" : "Acoustic & Lighting Staging"}</h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">{isAr ? "محاكاة بصرية وصوتية متقدمة تضمن تجربة استثنائية في كل نقطة." : "Advanced ray-traced spatial audio and DMX lighting simulations."}</p>
+            <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{isAr ? "محاكاة الإضاءة والصوت" : "Acoustic & Lighting Staging"}</h4>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? "محاكاة بصرية وصوتية متقدمة تضمن تجربة استثنائية في كل نقطة." : "Advanced ray-traced spatial audio and DMX lighting simulations."}</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+          <div className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h4 className="text-base font-bold text-zinc-100 mb-1">{isAr ? "تسليم تشغيلي متكامل" : "Turnkey Commissioning"}</h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">{isAr ? "من الفكرة إلى حفل الافتتاح وإدارة العمليات اليومية وإصدار التذاكر." : "Zero-gap handover with live crowd telemetry, staff operations, and ticketing."}</p>
+            <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{isAr ? "تسليم تشغيلي متكامل" : "Turnkey Commissioning"}</h4>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? "من الفكرة إلى حفل الافتتاح وإدارة العمليات اليومية وإصدار التذاكر." : "Zero-gap handover with live crowd telemetry, staff operations, and ticketing."}</p>
           </div>
         </div>
 
