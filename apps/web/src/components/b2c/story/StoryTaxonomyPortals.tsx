@@ -542,18 +542,16 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     src={option.mediaUrl}
                     alt={labelText}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
-                      isSelected ? 'scale-110 opacity-45' : 'opacity-25 group-hover:opacity-35 group-hover:scale-105'
+                      isSelected ? 'scale-105 opacity-90' : 'opacity-70 group-hover:opacity-85 group-hover:scale-105'
                     }`}
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/75 to-transparent transition-opacity ${
-                    isSelected ? 'opacity-90' : 'opacity-95'
-                  }`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 </div>
 
                 {/* Accent glow on selected */}
                 {isSelected && (
                   <div 
-                    className="absolute inset-0 z-0 opacity-25 pointer-events-none"
+                    className="absolute inset-0 z-0 opacity-20 pointer-events-none mix-blend-color"
                     style={{ backgroundColor: option.accentColor }}
                   />
                 )}
@@ -561,28 +559,28 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                 {/* Top Badge: Category Identifier & Open Icon */}
                 <div className="relative z-10 flex items-center justify-between w-full gap-1.5">
                   <span 
-                    className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider border shadow-xs transition-colors truncate max-w-[105px]"
+                    className="px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-wider border shadow-sm transition-colors truncate max-w-[110px]"
                     style={{
-                      backgroundColor: isSelected ? option.accentColor : 'var(--surface-default)',
-                      color: isSelected ? '#ffffff' : option.accentColor,
-                      borderColor: isSelected ? option.accentColor : 'var(--border-level-2)'
+                      backgroundColor: isSelected ? option.accentColor : 'rgba(0,0,0,0.6)',
+                      color: '#ffffff',
+                      borderColor: isSelected ? option.accentColor : 'rgba(255,255,255,0.2)'
                     }}
                     title={labelText}
                   >
                     {labelText}
                   </span>
 
-                  <ArrowUpRight
-                    className={`w-3.5 h-3.5 shrink-0 transition-all duration-300 ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}`}
-                    style={isSelected ? { color: option.accentColor } : {}}
-                  />
+                  <div className="w-6 h-6 rounded-full bg-black/50 border border-white/20 flex items-center justify-center backdrop-blur-md">
+                    <ArrowUpRight
+                      className={`w-3.5 h-3.5 shrink-0 transition-all duration-300 text-white ${isSelected ? 'translate-x-0.5 -translate-y-0.5 scale-110' : 'group-hover:scale-110'}`}
+                      style={isSelected ? { color: option.accentColor } : {}}
+                    />
+                  </div>
                 </div>
 
                 {/* Oversized Typographic Doorway Name */}
                 <div className="relative z-10 mt-auto w-full">
-                  <h3 className={`text-base sm:text-lg xl:text-xl font-extrabold uppercase tracking-tight break-words leading-tight transition-colors ${
-                    isSelected ? 'text-white drop-shadow-md' : 'text-[var(--text-primary)] group-hover:text-purple-500'
-                  }`}>
+                  <h3 className="text-base sm:text-lg xl:text-xl font-black uppercase tracking-tight break-words leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                     {labelText}
                   </h3>
                 </div>
@@ -630,7 +628,6 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {visibleActivities.map((act: any, idx: number) => {
                   const actTitle = formatLocalizedText(isAr ? (act.titleAr || act.titleEn) : (act.titleEn || act.titleAr), locale)
-                  const actDesc = formatLocalizedText(isAr ? (act.descriptionAr || act.descriptionEn) : (act.descriptionEn || act.descriptionAr), locale)
                   const venueName = formatLocalizedText(isAr ? (act.attractionNameAr || act.attractionNameEn) : (act.attractionNameEn || act.attractionNameAr), locale)
                   const badgeText = formatLocalizedText(act.highlightType || "ACTIVITY", locale)
 
@@ -638,50 +635,45 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
                     <a
                       key={act.id || idx}
                       href={localizeHref(`/b2c/attractions/${act.attractionSlug || 'all'}`, locale)}
-                      className="group relative overflow-hidden rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 flex flex-col justify-between min-h-[220px] transition-all duration-500 hover:border-purple-500/50 hover:bg-[var(--surface-hover)] hover:shadow-2xl hover:-translate-y-1 shadow-md"
+                      className="group relative overflow-hidden rounded-3xl border border-[var(--border-level-2)] bg-slate-950 p-5 flex flex-col justify-between min-h-[220px] sm:min-h-[240px] transition-all duration-500 hover:border-purple-500/50 hover:shadow-2xl hover:-translate-y-1 shadow-lg"
                     >
-                      {/* Background Image overlay */}
+                      {/* Background Image (High visibility, minimal overlay) */}
                       {act.imageUrl && (
                         <div className="absolute inset-0 z-0 overflow-hidden">
                           <img
                             src={act.imageUrl}
                             alt={actTitle}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-25 dark:opacity-30 group-hover:opacity-45"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-95"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/80 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                         </div>
                       )}
 
                       {/* Header Badge */}
                       <div className="relative z-10 flex items-center justify-between gap-2">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase tracking-wider bg-black/60 text-white border border-white/20 backdrop-blur-md shadow-md">
                           {badgeText}
                         </span>
-                        <div className="w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center backdrop-blur-md opacity-80 group-hover:opacity-100 transition-all group-hover:scale-110 shadow-sm">
-                          <ArrowUpRight className="w-4 h-4 text-[var(--text-primary)]" />
+                        <div className="w-8 h-8 rounded-full bg-black/50 border border-white/20 flex items-center justify-center backdrop-blur-md text-white opacity-90 group-hover:opacity-100 transition-all group-hover:scale-110 group-hover:bg-purple-500 group-hover:border-purple-400 shadow-md">
+                          <ArrowUpRight className="w-4 h-4" />
                         </div>
                       </div>
 
-                      {/* Content */}
-                      <div className="relative z-10 space-y-2 mt-6">
-                        <h5 className="text-xl font-bold text-[var(--text-primary)] group-hover:text-purple-500 transition-colors leading-snug">
+                      {/* Card Footer: Clean Title + Venue Tag (Image is unobstructed) */}
+                      <div className="relative z-10 space-y-2 mt-auto pt-8">
+                        <h5 className="text-xl sm:text-2xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-purple-300 transition-colors leading-snug">
                           {actTitle}
                         </h5>
-                        {actDesc && (
-                          <p className="text-xs text-[var(--text-secondary)] font-normal line-clamp-2 leading-relaxed">
-                            {actDesc}
-                          </p>
-                        )}
 
                         {/* Venue Tag */}
                         {venueName && (
-                          <div className="pt-3 border-t border-[var(--border-level-2)] flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)]">
-                            <span className="flex items-center gap-1.5 text-purple-500 dark:text-purple-400 font-bold">
-                              <MapPin className="w-3.5 h-3.5" />
+                          <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs font-mono text-white/90">
+                            <span className="flex items-center gap-1.5 font-bold text-purple-300 drop-shadow-sm">
+                              <MapPin className="w-3.5 h-3.5 text-purple-400" />
                               <span>{venueName}</span>
                             </span>
-                            <span className="group-hover:text-[var(--text-primary)] transition-colors">
-                              {isAr ? "عرض التفاصيل ↗" : "Explore ↗"}
+                            <span className="text-white/80 group-hover:text-white font-bold transition-colors">
+                              {isAr ? "استكشف ↗" : "Explore ↗"}
                             </span>
                           </div>
                         )}
