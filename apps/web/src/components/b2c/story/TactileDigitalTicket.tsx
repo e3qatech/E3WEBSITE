@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Ticket, Sparkles, ArrowRight, Compass, Calendar, MapPin, Users, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { DEFAULT_ATTRACTION_WORLDS } from './ExperienceWorldsStage'
 import { localizeHref } from '@/lib/url-helper'
 import { cn, formatLocalizedText } from '@/lib/utils'
+import { calculateAttractionStartingPrice, calculateQatarOperatingStatus, getTodayTimingDisplay } from '@/lib/operating-schedule-helper'
+import { isAttractionActiveByDate, resolveBookingUrl } from '@/lib/cms-attractions'
 
 interface TactileDigitalTicketProps {
   content: any
@@ -17,41 +19,96 @@ const SLIDE_DURATION_MS = 5000;
 
 export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketProps) {
   const isAr = locale === 'ar'
-  const ticketData = content?.act7Ticket || {}
+  const ticketData = content?.act7Ticket || content?.cta || {}
+  
   const secondaryActions = ticketData.secondaryActions || [
-    { labelEn: "Explore Map GIS", labelAr: "تصفح الخريطة التفاعلية", url: "/b2c/attractions#interactive-attractions-map" },
-    { labelEn: "View Calendar Schedule", labelAr: "جدول الفعاليات والمواعيد", url: "/b2c/calendar" },
-    { labelEn: "Browse All Attractions", labelAr: "استكشف كافة الوجهات", url: "/b2c/attractions" }
+    { labelEn: "Explore All Attractions", labelAr: "استكشف كافة الوجهات", url: "/b2c/attractions" },
+    { labelEn: "See Upcoming Events", labelAr: "جدول الفعاليات والمواعيد", url: "/b2c/calendar" },
+    { labelEn: "Find a Location", labelAr: "استكشف المواقع بالخريطة", url: "/b2c/attractions#interactive-attractions-map" }
   ]
 
-  const rawWorlds = content?.act3Worlds
-  const worlds = (Array.isArray(rawWorlds) && rawWorlds.length > 0) ? rawWorlds : DEFAULT_ATTRACTION_WORLDS
+  const initialAttractions = Array.isArray(content?.attractions) && content.attractions.length > 0
+    ? content.attractions
+    : []
+
+  const [dbAttractions, setDbAttractions] = useState<any[]>(initialAttractions)
+
+  // Fetch live active attractions directly from database API on mount
+  useEffect(() => {
+    let isMounted = true
+    fetch('/api/b2c/attractions')
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch attractions")
+        return res.json()
+      })
+      .then(data => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setDbAttractions(data)
+        }
+      })
+      .catch(err => {
+        console.warn("[TACTILE_DIGITAL_TICKET_FETCH_WARN]", err)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Map attractions into normalized digital pass items
+  const worlds = useMemo(() => {
+    const rawList = dbAttractions.length > 0
+      ? dbAttractions.filter(attr => attr.isPublished !== false && isAttractionActiveByDate(attr))
+      : (Array.isArray(content?.act3Worlds) && content.act3Worlds.length > 0 ? content.act3Worlds : DEFAULT_ATTRACTION_WORLDS)
+
+    const listToMap = rawList.length > 0 ? rawList : DEFAULT_ATTRACTION_WORLDS
+
+    return listToMap.map((attr: any) => {
+      const ops = (attr.operations as any) || {}
+      const primaryLoc = attr.attractionLocations?.[0]?.location
+      const venueEn = formatLocalizedText(primaryLoc?.nameEn || primaryLoc?.addressEn || ops.venueName || ops.venueAddressEn || attr.locationEn || "Doha, Qatar", 'en') || "Doha, Qatar"
+      const venueAr = formatLocalizedText(primaryLoc?.nameAr || primaryLoc?.addressAr || ops.venueName || ops.venueAddressAr || attr.locationAr || "الدوحة، قطر", 'ar') || "الدوحة، قطر"
+      const nameEn = formatLocalizedText(attr.nameEn, 'en') || "E3 Attraction"
+      const nameAr = formatLocalizedText(attr.nameAr || attr.nameEn, 'ar') || "وجهة ترفيهية"
+      const taglineEn = formatLocalizedText(attr.taglineEn || attr.descriptionEn?.substring(0, 90) || "Flagship E3 Interactive World", 'en')
+      const taglineAr = formatLocalizedText(attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية", 'ar')
+      const audienceEn = formatLocalizedText(ops.audienceEn || attr.audienceEn || "Families & Groups", 'en')
+      const audienceAr = formatLocalizedText(ops.audienceAr || attr.audienceAr || "العائلات والأصدقاء", 'ar')
+      
+      const minPrice = calculateAttractionStartingPrice(attr, attr.price || 45)
+      const bookingLink = resolveBookingUrl(attr, locale)
+
+      const slug = attr.slug || 'e3'
+      const prefix = slug.split('-')[0]?.toUpperCase() || 'E3'
+
+      return {
+        id: attr.id || slug,
+        slug: slug,
+        passCode: `#${prefix}-2026`,
+        nameEn,
+        nameAr,
+        taglineEn,
+        taglineAr,
+        locationEn: venueEn,
+        locationAr: venueAr,
+        audienceEn,
+        audienceAr,
+        price: minPrice,
+        currency: "QAR",
+        accentColor: ops.accentColor || attr.accentColor || "#10b981",
+        logoUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.logoUrl || attr.gallery?.[0]?.url || "",
+        mediaUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.mediaUrl || attr.gallery?.[0]?.url || "",
+        ticketingUrl: bookingLink || attr.ticketingUrl || `/b2c/attractions/${slug}`
+      }
+    })
+  }, [dbAttractions, content?.act3Worlds, locale])
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [progress, setProgress] = useState(0)
   const pillsContainerRef = useRef<HTMLDivElement>(null)
 
-  const rawActiveWorld = worlds[currentIndex] || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
-  const fallback = DEFAULT_ATTRACTION_WORLDS[0]
-
-  const activeWorld = {
-    ...fallback,
-    ...rawActiveWorld,
-    nameEn: formatLocalizedText(rawActiveWorld.nameEn || fallback.nameEn, 'en'),
-    nameAr: formatLocalizedText(rawActiveWorld.nameAr || fallback.nameAr, 'ar'),
-    taglineEn: formatLocalizedText(rawActiveWorld.taglineEn || fallback.taglineEn, 'en'),
-    taglineAr: formatLocalizedText(rawActiveWorld.taglineAr || fallback.taglineAr, 'ar'),
-    locationEn: formatLocalizedText(rawActiveWorld.locationEn || rawActiveWorld.locationNameEn || fallback.locationEn, 'en'),
-    locationAr: formatLocalizedText(rawActiveWorld.locationAr || rawActiveWorld.locationNameAr || fallback.locationAr, 'ar'),
-    audienceEn: formatLocalizedText(rawActiveWorld.audienceEn || fallback.audienceEn || "All Ages", 'en'),
-    audienceAr: formatLocalizedText(rawActiveWorld.audienceAr || fallback.audienceAr || "جميع الأعمار", 'ar'),
-    price: rawActiveWorld.price || fallback.price || 45,
-    currency: rawActiveWorld.currency || "QAR",
-    accentColor: rawActiveWorld.accentColor || fallback.accentColor || "#10b981",
-    logoUrl: rawActiveWorld.logoUrl || fallback.logoUrl || rawActiveWorld.mediaUrl || fallback.mediaUrl,
-    ticketingUrl: rawActiveWorld.ticketingUrl || '/b2c/calendar'
-  };
+  const activeWorld = worlds[currentIndex] || worlds[0] || DEFAULT_ATTRACTION_WORLDS[0]
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % worlds.length)
@@ -104,6 +161,20 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     }
   }, [currentIndex])
 
+  const headline = formatLocalizedText(
+    isAr
+      ? (ticketData.headlineAr || content?.cta?.titleAr || "هل أنت مستعد لخوض تجربة إي ثري؟")
+      : (ticketData.headlineEn || content?.cta?.titleEn || "READY TO EXPERIENCE E3 QATAR?"),
+    locale
+  )
+
+  const subtext = formatLocalizedText(
+    isAr
+      ? (ticketData.subtextAr || content?.cta?.subtextAr || content?.cta?.subtitleAr || "اختر تجربتك، احجز مكانك، واجعل من اليوم ذكرى لا تُنسى.")
+      : (ticketData.subtextEn || content?.cta?.subtextEn || content?.cta?.subtitleEn || "Choose an experience, book your place and turn today into a memory."),
+    locale
+  )
+
   const footerBgUrl = (
     ticketData.backgroundImage ||
     content?.cta?.backgroundImage ||
@@ -114,7 +185,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
   ).trim();
 
   return (
-    <section className="relative py-32 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300" dir={isAr ? "rtl" : "ltr"}>
+    <section className="relative py-28 md:py-32 bg-[var(--bg-level-1)] text-[var(--text-primary)] border-b border-[var(--border-level-2)] overflow-hidden transition-colors duration-300" dir={isAr ? "rtl" : "ltr"}>
       {/* Optional Background Media Backdrop */}
       {footerBgUrl && (
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
@@ -141,13 +212,11 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
             <Ticket className="w-4 h-4 text-emerald-500 animate-pulse" />
             <span>{isAr ? "بوابة الخيال إلى الذاكرة — DIGITAL PORTAL PASS" : "FROM IMAGINATION TO MEMORY — DIGITAL PASS"}</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-[var(--text-primary)] leading-tight">
-            {isAr ? (ticketData.headlineAr || "حكايتك القادمة بانتظارك.") : (ticketData.headlineEn || "Your next story is waiting.")}
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-[var(--text-primary)] leading-tight uppercase">
+            {headline}
           </h2>
-          <p className="text-base sm:text-xl text-[var(--text-secondary)] font-light max-w-xl mx-auto leading-relaxed">
-            {isAr
-              ? (ticketData.subtextAr || "اختر تجربتك، احجز مكانك، واجعل من اليوم ذكرى لا تُنسى.")
-              : (ticketData.subtextEn || "Choose an experience, book your place and turn today into a memory.")}
+          <p className="text-base sm:text-xl text-[var(--text-secondary)] font-normal max-w-xl mx-auto leading-relaxed">
+            {subtext}
           </p>
         </div>
 
@@ -175,7 +244,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
             <div className="flex items-center gap-3.5">
               <div 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center border transition-all shadow-sm overflow-hidden p-1.5 shrink-0 bg-[var(--surface-hover)]"
+                className="w-14 h-14 rounded-2xl flex items-center justify-center border transition-all shadow-sm overflow-hidden p-1.5 shrink-0 bg-[var(--surface-hover)]"
                 style={{
                   borderColor: `${activeWorld.accentColor || '#10b981'}50`,
                   boxShadow: `0 0 15px ${activeWorld.accentColor || '#10b981'}25`
@@ -209,7 +278,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
                     {isAr ? "تذكرة الشرف الرقمية" : "OFFICIAL DIGITAL PASS"}
                   </span>
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[var(--surface-active)] text-[var(--text-tertiary)] border border-[var(--border-level-1)]">
-                    {activeWorld.slug ? `#${activeWorld.slug.split('-')[0]?.toUpperCase()}-2026` : "#E3-2026"}
+                    {activeWorld.passCode || "#E3-2026"}
                   </span>
                 </div>
                 <AnimatePresence mode="wait">
@@ -219,7 +288,7 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.2 }}
-                    className="text-xl sm:text-2xl font-extrabold text-[var(--text-primary)] tracking-tight mt-0.5"
+                    className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight mt-0.5"
                   >
                     {isAr ? activeWorld.nameAr : activeWorld.nameEn}
                   </motion.h3>
@@ -270,10 +339,10 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
           <div className="space-y-2">
             <div 
               ref={pillsContainerRef}
-              className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x"
+              className="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar snap-x"
             >
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] shrink-0 me-1">
-                {isAr ? "الوجهات السريعة:" : "Quick Pass:"}
+                {isAr ? "الوجهات المتاحة:" : "Available Passes:"}
               </span>
               {worlds.map((w: any, idx: number) => {
                 const isSelected = idx === currentIndex;
@@ -349,14 +418,14 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
 
               <div className="flex flex-col gap-3">
                 <div className="flex items-baseline justify-end sm:justify-start gap-2 text-xs text-[var(--text-tertiary)]">
-                  <span>{isAr ? "سعر التذكرة:" : "Pass starting at:"}</span>
+                  <span>{isAr ? "سعر التذكرة يبدأ من:" : "Pass starting at:"}</span>
                   <span className="text-lg font-black text-[var(--text-primary)] font-mono">
-                    {activeWorld.price ? `${activeWorld.price} ${activeWorld.currency || 'QAR'}` : "Free Admission"}
+                    {activeWorld.price && Number(activeWorld.price) > 0 ? `${activeWorld.price} ${activeWorld.currency || 'QAR'}` : (isAr ? "دخول مجاني" : "Free Admission")}
                   </span>
                 </div>
 
                 <Link
-                  href={localizeHref(activeWorld.ticketingUrl || '/b2c/calendar', locale)}
+                  href={localizeHref(activeWorld.ticketingUrl || `/b2c/attractions/${activeWorld.slug}`, locale)}
                   className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-base transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   <Ticket className="w-5 h-5" />
@@ -385,4 +454,3 @@ export function TactileDigitalTicket({ content, locale }: TactileDigitalTicketPr
     </section>
   )
 }
-
