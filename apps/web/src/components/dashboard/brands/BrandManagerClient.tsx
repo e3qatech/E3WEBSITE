@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -25,6 +25,8 @@ import {
   HelpCircle,
   AlertTriangle,
   Star,
+  FolderPlus,
+  Check,
 } from "lucide-react";
 import {
   DashboardPageShell,
@@ -33,6 +35,18 @@ import {
 import { MediaUploader } from "@/components/shared/MediaUploader";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { localizeHref } from "@/lib/url-helper";
+
+const DEFAULT_CANONICAL_CATEGORIES = [
+  { id: "festivals-parades", slug: "festivals-parades", nameEn: "Festivals & Parades", nameAr: "المهرجانات والكرنفالات" },
+  { id: "inflatables-parks", slug: "inflatables-parks", nameEn: "Inflatables & Parks", nameAr: "المدن الهوائية والمطاطية" },
+  { id: "fec-family-entertainment", slug: "fec-family-entertainment", nameEn: "Family Entertainment (FEC)", nameAr: "الترفيه العائلي ومراكز الألعاب" },
+  { id: "edutainment-workshops", slug: "edutainment-workshops", nameEn: "Edutainment & Workshops", nameAr: "الترفيه التعليمي والورش" },
+  { id: "spatial-ticketing-tech", slug: "spatial-ticketing-tech", nameEn: "Ticketing & Spatial Tech", nameAr: "تكنولوجيا حجز التذاكر والتشغيل" },
+  { id: "kinetic-esports", slug: "kinetic-esports", nameEn: "Kinetic Arenas & Esports", nameAr: "حلبات المنافسات والرياضات الإلكترونية" },
+  { id: "pop-culture-ip", slug: "pop-culture-ip", nameEn: "Licensed Pop Culture IP", nameAr: "حقوق الشخصيات والترفيه المرخص" },
+  { id: "hospitality-fnb", slug: "hospitality-fnb", nameEn: "F&B & Themed Hospitality", nameAr: "المطاعم والضيافة الترفيهية" },
+  { id: "seasonal-popups", slug: "seasonal-popups", nameEn: "Seasonal Pop-ups & Activations", nameAr: "الفعاليات المؤقتة والموسمية" },
+];
 
 interface BrandManagerProps {
   initialBrands: any[];
@@ -51,6 +65,9 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
 
   const isAr = locale === "ar";
   const [brands, setBrands] = useState<any[]>(initialBrands || []);
+  const [categoryList, setCategoryList] = useState<any[]>(
+    categories && categories.length > 0 ? categories : DEFAULT_CANONICAL_CATEGORIES
+  );
   const [search, setSearch] = useState("");
   const [portalFilter, setPortalFilter] = useState<"ALL" | "B2C" | "B2B">("ALL");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -63,6 +80,26 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // New Category Inline Creator
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCatNameEn, setNewCatNameEn] = useState("");
+  const [newCatNameAr, setNewCatNameAr] = useState("");
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+
+  // Fetch categories on mount if empty
+  useEffect(() => {
+    if (!categories || categories.length === 0) {
+      fetch("/api/b2c/brand-categories")
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setCategoryList(data);
+          }
+        })
+        .catch((err) => console.warn("[LOAD_CATEGORIES_ERR]", err));
+    }
+  }, [categories]);
 
   // Filtered Brands
   const filteredBrands = useMemo(() => {
@@ -83,7 +120,10 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
         statusFilter === "ALL" || brand.lifecycleStatus === statusFilter;
 
       const matchesCategory =
-        categoryFilter === "ALL" || brand.categoryId === categoryFilter;
+        categoryFilter === "ALL" ||
+        brand.categoryId === categoryFilter ||
+        brand.category?.id === categoryFilter ||
+        brand.category?.slug === categoryFilter;
 
       return matchesSearch && matchesPortal && matchesStatus && matchesCategory;
     });
@@ -100,6 +140,7 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
   }, [brands]);
 
   const handleAddNew = () => {
+    const defaultCatId = categoryList[0]?.id || categoryList[0]?.slug || "";
     setEditForm({
       nameEn: "",
       nameAr: "",
@@ -124,7 +165,7 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
       detailMediaUrl: "",
       fallbackImageUrl: "",
       thumbnailUrl: "",
-      categoryId: categories[0]?.id || "",
+      categoryId: defaultCatId,
       showOnB2C: true,
       showInWorldsCreated: true,
       featureOnB2C: false,
@@ -152,7 +193,10 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
   };
 
   const handleEdit = (brand: any) => {
-    setEditForm({ ...brand });
+    setEditForm({
+      ...brand,
+      categoryId: brand.categoryId || brand.category?.id || brand.category?.slug || "",
+    });
     setActiveTab("identity");
     setErrorMessage(null);
     setIsEditing(brand.id);
@@ -212,6 +256,41 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
       setErrorMessage(err.message || "An unexpected error occurred while saving.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCatNameEn || !newCatNameAr) {
+      alert(isAr ? "يرجى إدخال اسم الفئة بالإنجليزية والعربية" : "Please enter category name in both English and Arabic");
+      return;
+    }
+
+    setIsCreatingCategory(true);
+    try {
+      const res = await fetch("/api/b2c/brand-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nameEn: newCatNameEn.trim(),
+          nameAr: newCatNameAr.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || "Failed to create category");
+      }
+
+      const newCategory = await res.json();
+      setCategoryList([...categoryList, newCategory]);
+      setEditForm({ ...editForm, categoryId: newCategory.id });
+      setNewCatNameEn("");
+      setNewCatNameAr("");
+      setShowAddCategoryModal(false);
+    } catch (err: any) {
+      alert(err.message || "Error creating category");
+    } finally {
+      setIsCreatingCategory(false);
     }
   };
 
@@ -378,15 +457,15 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
           </select>
 
           {/* Category Filter */}
-          {categories && categories.length > 0 && (
+          {categoryList && categoryList.length > 0 && (
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="bg-[var(--bg-level-1)] border border-[var(--border-level-2)] text-[var(--text-primary)] text-xs font-bold rounded-xl px-3 py-2 outline-none cursor-pointer"
             >
               <option value="ALL">{isAr ? "كافة الفئات" : "All Categories"}</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+              {categoryList.map((cat) => (
+                <option key={cat.id || cat.slug} value={cat.id || cat.slug}>
                   {isAr ? cat.nameAr : cat.nameEn}
                 </option>
               ))}
@@ -634,18 +713,27 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1 block">
-                        Category
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                          Category / الفئة
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddCategoryModal(true)}
+                          className="text-[11px] font-bold text-blue-500 hover:text-blue-600 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" /> {isAr ? "فئة جديدة" : "New Category"}
+                        </button>
+                      </div>
                       <select
                         value={editForm.categoryId || ""}
                         onChange={(e) => setEditForm({ ...editForm, categoryId: e.target.value })}
                         className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500 cursor-pointer"
                       >
-                        <option value="">Select Category</option>
-                        {categories.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nameEn} ({c.nameAr})
+                        <option value="">{isAr ? "-- اختر الفئة --" : "-- Select Category --"}</option>
+                        {categoryList.map((c) => (
+                          <option key={c.id || c.slug} value={c.id || c.slug}>
+                            {isAr ? c.nameAr : c.nameEn} ({isAr ? c.nameEn : c.nameAr})
                           </option>
                         ))}
                       </select>
@@ -687,7 +775,7 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
                       </label>
                       <input
                         type="number"
-                        value={editForm.launchYear || 2024}
+                        value={editForm.launchYear || 2026}
                         onChange={(e) => setEditForm({ ...editForm, launchYear: e.target.value })}
                         className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
                       />
@@ -1008,6 +1096,75 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
                 className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold shadow-lg transition-colors cursor-pointer flex items-center gap-2"
               >
                 {isSaving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ التغييرات" : "Save Brand IP")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE NEW CATEGORY SUB-MODAL */}
+      {showAddCategoryModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-2xl p-6 text-start">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-level-1)]">
+              <div className="flex items-center gap-2">
+                <FolderPlus className="w-5 h-5 text-blue-500" />
+                <h4 className="text-base font-black text-[var(--text-primary)]">
+                  {isAr ? "إضافة فئة علامات تجارية جديدة" : "Add Brand Category"}
+                </h4>
+              </div>
+              <button
+                onClick={() => setShowAddCategoryModal(false)}
+                className="w-7 h-7 rounded-full bg-[var(--bg-level-1)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-xs text-[var(--text-secondary)] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1 block">
+                  Category Name (EN) *
+                </label>
+                <input
+                  type="text"
+                  value={newCatNameEn}
+                  onChange={(e) => setNewCatNameEn(e.target.value)}
+                  placeholder="e.g. Festivals & Parades"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1 block">
+                  اسم الفئة (AR) *
+                </label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={newCatNameAr}
+                  onChange={(e) => setNewCatNameAr(e.target.value)}
+                  placeholder="مثال: المهرجانات والكرنفالات"
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500 font-arabic"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-level-1)]">
+              <button
+                type="button"
+                onClick={() => setShowAddCategoryModal(false)}
+                className="px-4 py-2 rounded-xl border border-[var(--border-level-2)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] cursor-pointer"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                type="button"
+                disabled={isCreatingCategory || !newCatNameEn.trim() || !newCatNameAr.trim()}
+                onClick={handleCreateCategory}
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+              >
+                {isCreatingCategory ? (isAr ? "جاري الإنشاء..." : "Creating...") : (isAr ? "إضافة الفئة" : "Create Category")}
               </button>
             </div>
           </div>

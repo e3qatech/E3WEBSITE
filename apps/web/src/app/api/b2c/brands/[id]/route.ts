@@ -32,25 +32,33 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
-    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
+    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
     const data = await req.json();
 
-    // Safely exclude relation arrays if they are being updated via separate operations
-    // or handle nested writes.
     const { 
         category: _category, relationships: _relationships, placements: _placements, linkedHighlights: _linkedHighlights, 
         relationshipIds, categoryId, ...updateData 
     } = data;
 
+    let resolvedCategoryId: string | null = null;
+    if (categoryId && typeof categoryId === 'string' && !categoryId.startsWith('cat-fallback-')) {
+      const existingCat = await db.brandCategory.findFirst({
+        where: { OR: [{ id: categoryId }, { slug: categoryId }] }
+      });
+      if (existingCat) {
+        resolvedCategoryId = existingCat.id;
+      }
+    }
+
     const brand = await db.brandIP.update({
       where: { id },
       data: {
         ...updateData,
-        categoryId: categoryId || null,
+        categoryId: resolvedCategoryId,
         relationships: relationshipIds ? {
             set: relationshipIds.map((rid: string) => ({ id: rid }))
         } : undefined
@@ -72,7 +80,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
-    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
+    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
