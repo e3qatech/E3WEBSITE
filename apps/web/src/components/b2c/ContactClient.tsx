@@ -1,16 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Star, MessageSquare, HeadphonesIcon, HelpCircle, Phone, Mail, Clock, Search, ChevronDown, ChevronUp, FileUp, Quote, CheckCircle2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { 
   useB2CTheme, 
   B2CInput 
 } from "@/components/ui/B2CThemeComponents";
-import { AnimatedText } from "@/components/ui/AnimatedText";
-import { InteractiveCard } from "@/components/ui/InteractiveCard";
-import { MagneticButton } from "@/components/ui/MagneticButton";
 
 export function ContactClient({ 
   attractions, 
@@ -57,7 +53,7 @@ export function ContactClient({
       <div className="w-full relative text-[var(--text-primary)] font-poppins selection:bg-[rgba(26,31,214,0.3)]">
         
         {/* HERO SECTION */}
-        <div className="relative pt-24 pb-20 md:pt-32 md:pb-28 overflow-hidden border-b border-[var(--border-level-2)] z-10">
+        <div className="relative pt-20 pb-16 md:pt-28 md:pb-20 overflow-hidden border-b border-[var(--border-level-2)] z-10">
           <div className="absolute inset-0 z-0">
             {pageSettings.heroMediaType === "VIDEO" && pageSettings.heroMediaUrl && (
               <video autoPlay muted loop playsInline className="w-full h-full object-cover opacity-30 dark:opacity-40">
@@ -77,21 +73,14 @@ export function ContactClient({
           </div>
           
           <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 text-center flex flex-col items-center">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] text-[var(--e3-royal-blue)] mb-6 border border-[var(--e3-royal-blue)]/30 shadow-[0_4px_15px_rgba(26,31,214,0.06)]"
-            >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[rgba(26,31,214,0.1)] text-[var(--e3-royal-blue)] mb-6 border border-[var(--e3-royal-blue)]/30 shadow-[0_4px_15px_rgba(26,31,214,0.06)]">
               <HeadphonesIcon className="w-8 h-8" />
-            </motion.div>
-            <AnimatedText 
-              as="h1" 
-              text={pageSettings?.title || "Contact Us"}
-              className="text-4xl md:text-6xl font-black mb-6 tracking-tight font-display uppercase leading-tight justify-center"
-            />
+            </div>
+            <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight font-display uppercase leading-tight justify-center text-[var(--text-primary)]">
+              {pageSettings?.title || "Contact Us"}
+            </h1>
             <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl font-medium leading-relaxed">
-              {pageSettings?.tagline || ""}
+              {pageSettings?.tagline || "Need support with a ticket, want to leave feedback, or just have a general question? We're here for you."}
             </p>
           </div>
         </div>
@@ -105,25 +94,25 @@ export function ContactClient({
                 <TabsList className="grid grid-cols-3 bg-[var(--bg-level-1)] p-1.5 rounded-2xl mb-8 border border-[var(--border-level-2)]">
                   <TabsTrigger 
                     value="support" 
-                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-royal-blue)] data-[state=active]:shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2"
+                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-royal-blue)] data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
                   >
                     <HeadphonesIcon className="w-4 h-4" /> Support
                   </TabsTrigger>
                   <TabsTrigger 
                     value="feedback" 
-                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-magenta)] data-[state=active]:shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2"
+                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-magenta)] data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
                   >
                     <MessageSquare className="w-4 h-4" /> Feedback
                   </TabsTrigger>
                   <TabsTrigger 
                     value="faq" 
-                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-purple-accent)] data-[state=active]:shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2"
+                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-purple-accent)] data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
                   >
                     <HelpCircle className="w-4 h-4" /> FAQ
                   </TabsTrigger>
                 </TabsList>
               
-                <InteractiveCard className="p-6 md:p-8 border-[rgba(75,0,143,0.3)] shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
+                <div className="rounded-2xl bg-[var(--surface-default)] border border-[rgba(75,0,143,0.3)] shadow-[0_12px_30px_rgba(0,0,0,0.2)] p-6 md:p-8">
                   <TabsContent value="support"><SupportForm attractions={attractions} /></TabsContent>
                   <TabsContent value="feedback"><FeedbackForm attractions={attractions} /></TabsContent>
                   <TabsContent value="faq">
@@ -139,14 +128,14 @@ export function ContactClient({
                       switchToSupport={() => setActiveTab("support")}
                     />
                   </TabsContent>
-                </InteractiveCard>
+                </div>
               </Tabs>
             </div>
 
             {/* SIDEBAR DETAILS */}
             <div className="lg:col-span-4 space-y-6">
               {/* Contact Info Card */}
-              <InteractiveCard className="p-6 border-[rgba(75,0,143,0.3)]">
+              <div className="rounded-2xl bg-[var(--surface-default)] border border-[rgba(75,0,143,0.3)] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
                 <h3 className="text-xl font-bold mb-6 font-display uppercase tracking-wide">Contact Details</h3>
                 <div className="space-y-6 text-start">
                   <div className="flex items-start gap-4">
@@ -179,14 +168,14 @@ export function ContactClient({
                     </div>
                   </div>
                 </div>
-              </InteractiveCard>
+              </div>
 
               {/* Featured Testimonials */}
               {featuredFeedbacks && featuredFeedbacks.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-xs font-black uppercase text-[var(--text-tertiary)] tracking-widest text-start px-2">Visitor Stories</h3>
                   {featuredFeedbacks.map((f: any, idx: number) => (
-                    <InteractiveCard key={idx} className="p-6 border-[rgba(75,0,143,0.3)]">
+                    <div key={idx} className="rounded-2xl bg-[var(--surface-default)] border border-[rgba(75,0,143,0.3)] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
                       <Quote className="w-8 h-8 text-[var(--e3-purple)] opacity-35 mb-2" />
                       <p className="text-xs italic text-[var(--text-secondary)] font-medium mb-4 line-clamp-3">&quot;{f.comment}&quot;</p>
                       <div className="flex items-center justify-between">
@@ -197,7 +186,7 @@ export function ContactClient({
                           ))}
                         </div>
                       </div>
-                    </InteractiveCard>
+                    </div>
                   ))}
                 </div>
               )}
@@ -216,7 +205,6 @@ function SupportForm({ attractions }: { attractions: any[] }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [ticketNumber, setTicketNumber] = useState<string | null>(null);
-  const {} = useB2CTheme();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -248,7 +236,6 @@ function SupportForm({ attractions }: { attractions: any[] }) {
             }
           }
         } catch {
-          // If upload fails, continue with metadata note so inquiry is never blocked
           attachmentFileName = file.name;
         }
       }
@@ -295,9 +282,12 @@ function SupportForm({ attractions }: { attractions: any[] }) {
         <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">
           Your ticket reference is <strong className="font-mono text-[var(--e3-royal-blue)]">#{ticketNumber}</strong>. Our support team will follow up via email.
         </p>
-        <MagneticButton onClick={() => { setSuccess(false); setTicketNumber(null); setFile(null); }} variant="primary" size="sm">
+        <button 
+          onClick={() => { setSuccess(false); setTicketNumber(null); setFile(null); }} 
+          className="rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-bold px-6 py-3 text-sm hover:opacity-90 transition-opacity cursor-pointer shadow-md"
+        >
           Submit Another Request
-        </MagneticButton>
+        </button>
       </div>
     );
   }
@@ -314,7 +304,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
         <div className="flex flex-col gap-2 w-full">
           <label className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)]">Category</label>
           <div className="relative flex items-center">
-            <select name="category" className="w-full px-4 py-3 rounded-xl border text-sm transition-all duration-300 outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer">
+            <select name="category" className="w-full px-4 py-3 rounded-xl border text-sm transition-colors outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer">
               <option value="ticket_issue">Ticket Issue</option>
               <option value="venue_question">Venue Question</option>
               <option value="complaint">Complaint</option>
@@ -328,7 +318,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
       <div className="flex flex-col gap-2 w-full">
         <label className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)]">Related Attraction (Optional)</label>
         <div className="relative flex items-center">
-          <select name="attractionId" className="w-full px-4 py-3 rounded-xl border text-sm transition-all duration-300 outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer">
+          <select name="attractionId" className="w-full px-4 py-3 rounded-xl border text-sm transition-colors outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer">
             <option value="">General / Not specified</option>
             {attractions.map((a: any) => <option key={a.id || a.attractionId} value={a.id || a.attractionId}>{a.nameEn || a.attractionNameEn}</option>)}
           </select>
@@ -346,7 +336,7 @@ function SupportForm({ attractions }: { attractions: any[] }) {
 
       <div className="flex flex-col gap-2 w-full">
         <label className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)]">Attachment (Optional)</label>
-        <label className={`flex items-center justify-center w-full h-32 border-2 border-dashed border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] rounded-xl cursor-pointer hover:bg-[var(--surface-hover)] transition-all duration-300`}>
+        <label className="flex items-center justify-center w-full h-28 border-2 border-dashed border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] rounded-xl cursor-pointer hover:bg-[var(--surface-hover)] transition-colors">
           <div className="flex flex-col items-center">
             <FileUp className="w-8 h-8 text-[var(--text-tertiary)] mb-2" />
             <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">{file ? file.name : "Click to upload (Max 5MB)"}</span>
@@ -371,9 +361,13 @@ function SupportForm({ attractions }: { attractions: any[] }) {
       )}
 
       <div className="pt-4">
-        <MagneticButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4" disabled={isSubmitting}>
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="w-full rounded-xl bg-gradient-to-r from-[var(--e3-royal-blue)] to-[var(--e3-purple)] text-white font-black uppercase py-4 px-6 hover:opacity-90 active:scale-[0.99] transition-all cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           {isSubmitting ? "Submitting..." : "Submit Support Request"}
-        </MagneticButton>
+        </button>
       </div>
     </form>
   );
@@ -421,9 +415,12 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
         </div>
         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-display uppercase">Thank You!</h3>
         <p className="text-sm text-[var(--text-secondary)] font-medium mb-8">Your feedback helps us improve our experiences.</p>
-        <MagneticButton onClick={() => { setSuccess(false); setRating(0); }} variant="primary" size="sm">
+        <button 
+          onClick={() => { setSuccess(false); setRating(0); }} 
+          className="rounded-xl bg-gradient-to-r from-[var(--e3-magenta)] to-[var(--e3-purple)] text-white font-bold px-6 py-3 text-sm hover:opacity-90 transition-opacity cursor-pointer shadow-md"
+        >
           Submit More Feedback
-        </MagneticButton>
+        </button>
       </div>
     );
   }
@@ -453,7 +450,7 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
       <div className="flex flex-col gap-2 w-full">
         <label className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)]">Attraction</label>
         <div className="relative flex items-center">
-          <select name="attractionId" className="w-full px-4 py-3 rounded-xl border text-sm transition-all duration-300 outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer">
+          <select name="attractionId" className="w-full px-4 py-3 rounded-xl border text-sm transition-colors outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer">
             <option value="">General Feedback</option>
             {attractions.map((a: any) => <option key={a.id || a.attractionId} value={a.id || a.attractionId}>{a.nameEn || a.attractionNameEn}</option>)}
           </select>
@@ -475,9 +472,13 @@ function FeedbackForm({ attractions }: { attractions: any[] }) {
       </div>
 
       <div className="pt-4">
-        <MagneticButton type="submit" variant="primary" size="md" className="w-full uppercase font-black py-4" disabled={isSubmitting || rating === 0}>
+        <button 
+          type="submit" 
+          disabled={isSubmitting || rating === 0}
+          className="w-full rounded-xl bg-gradient-to-r from-[var(--e3-magenta)] to-[var(--e3-purple)] text-white font-black uppercase py-4 px-6 hover:opacity-90 active:scale-[0.99] transition-all cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           Submit Feedback
-        </MagneticButton>
+        </button>
       </div>
     </form>
   );
@@ -541,9 +542,12 @@ function FaqSection({ faqs, attractions, search, setSearch, filter, setFilter, a
 
       <div className="text-center pt-8 border-t border-[var(--border-level-2)]">
         <p className="text-[var(--text-secondary)] font-medium mb-4">Still need help?</p>
-        <MagneticButton onClick={switchToSupport} variant="outline" size="sm">
+        <button 
+          onClick={switchToSupport} 
+          className="rounded-xl border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--e3-royal-blue)] text-[var(--text-primary)] font-bold px-6 py-2.5 text-sm transition-colors cursor-pointer"
+        >
           Contact Support
-        </MagneticButton>
+        </button>
       </div>
     </div>
   );
