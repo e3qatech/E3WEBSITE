@@ -36,10 +36,11 @@ function SafeBrandLogo({
     const initial = (alt || "E3").charAt(0).toUpperCase();
     return (
       <div
-        className="w-full h-full rounded-xl flex items-center justify-center font-black text-lg select-none"
+        className="w-full h-full rounded-2xl flex items-center justify-center font-black text-xl select-none shadow-inner"
         style={{
-          backgroundColor: brandColor ? `${brandColor}20` : "rgba(59, 130, 246, 0.15)",
+          backgroundColor: brandColor ? `${brandColor}25` : "rgba(59, 130, 246, 0.2)",
           color: brandColor || "#3b82f6",
+          border: `1px solid ${brandColor ? `${brandColor}50` : 'rgba(59, 130, 246, 0.3)'}`
         }}
       >
         {initial}
@@ -53,7 +54,7 @@ function SafeBrandLogo({
       alt={alt}
       loading="lazy"
       onError={() => setError(true)}
-      className={className}
+      className={`${className} drop-shadow-[0_8px_20px_rgba(0,0,0,0.65)] filter transition-transform duration-300 group-hover:scale-105`}
     />
   );
 }
@@ -388,9 +389,9 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                     </motion.div>
                   )}
 
-                  {/* High-Contrast Crisp Logo Placeholder */}
+                  {/* Brand Logo Container (Transparent background with drop shadow) */}
                   <div className="flex items-center justify-between">
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-white/95 border border-white/30 shadow-md p-2.5 flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center p-1">
                       <SafeBrandLogo
                         src={brand.logoPrimary}
                         alt={brandName}
@@ -429,7 +430,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
               {/* Left Info & Description (7 Cols) */}
               <div className="lg:col-span-7 space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white dark:bg-white/95 border border-white/30 p-3 shrink-0 shadow-lg flex items-center justify-center">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 shrink-0 flex items-center justify-center">
                     <SafeBrandLogo
                       src={activeBrand.logoPrimary}
                       alt={activeName}
