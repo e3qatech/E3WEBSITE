@@ -65,35 +65,35 @@ export function EventCard({ events, isFeatured = false, spanClass = "" }: EventC
 
   if (minsLeft < 0) {
     statusBadge = (
-      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-500/20 text-zinc-400 rounded-sm border border-zinc-500/30">
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-500/15 text-zinc-600 dark:text-zinc-400 rounded-sm border border-zinc-500/30">
         {isAr ? 'غير متاح' : 'Not Available'}
       </div>
     );
   } else if (minsLeft <= 90) {
     statusBadge = (
-      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/20 text-amber-400 rounded-sm border border-amber-500/30">
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-300 rounded-sm border border-amber-500/30">
         {isAr ? 'ينتهي قريباً' : 'Closing Soon'}
       </div>
     );
   } else if (totalRemaining <= 0) {
     statusBadge = (
-      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/20 text-red-500 rounded-sm border border-red-500/30">
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-red-500/15 text-red-600 dark:text-red-400 rounded-sm border border-red-500/30">
         {isAr ? 'نفدت التذاكر' : 'Sold Out'}
       </div>
     );
   } else {
     statusBadge = (
-      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-500 rounded-sm border border-emerald-500/30">
+      <div className="px-2 py-1 text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 rounded-sm border border-emerald-500/30">
         {isAr ? 'متاح' : 'Available'}
       </div>
     );
   }
 
   const typeColors = {
-    REGULAR: 'bg-zinc-800 text-zinc-300',
-    SPECIAL: 'bg-emerald-500 text-zinc-950 font-bold',
-    FESTIVAL: 'bg-indigo-500 text-white font-bold',
-    PRIVATE: 'bg-rose-500 text-white font-bold',
+    REGULAR: 'bg-[var(--surface-default)]/90 text-[var(--text-primary)] border border-[var(--border-level-2)] shadow-sm',
+    SPECIAL: 'bg-emerald-500 text-white dark:text-zinc-950 font-bold shadow-sm',
+    FESTIVAL: 'bg-indigo-500 text-white font-bold shadow-sm',
+    PRIVATE: 'bg-rose-500 text-white font-bold shadow-sm',
   };
 
   const coverImg = event.thumbnail || DEFAULT_COVER_IMAGE;

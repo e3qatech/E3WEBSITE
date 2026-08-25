@@ -132,11 +132,11 @@ export function SmartPackageFinderModal({
 
           {/* Header */}
           <div className="mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono font-bold uppercase tracking-wider mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-mono font-bold uppercase tracking-wider mb-2">
               <Compass className="w-3.5 h-3.5" />
               {isAr ? "المستكشف الذكي للباقات" : "Smart Package Finder"}
             </span>
-            <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-white">
+            <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-[var(--text-primary)]">
               {currentStep <= totalSteps
                 ? (isAr ? "اعثر على الباقة المثالية لفعاليتك" : "Find the Perfect Experience Package")
                 : (isAr ? "أفضل الباقات الموصى بها لك" : "Top Recommended Packages for You")
@@ -144,13 +144,13 @@ export function SmartPackageFinderModal({
             </h2>
             {currentStep <= totalSteps && (
               <div className="flex items-center gap-3 mt-3">
-                <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-[var(--surface-active)] rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-emerald-500 to-sky-500 transition-all duration-300 rounded-full"
                     style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                   />
                 </div>
-                <span className="text-xs font-mono font-bold text-slate-400">
+                <span className="text-xs font-mono font-bold text-[var(--text-secondary)]">
                   {currentStep} / {totalSteps}
                 </span>
               </div>
@@ -160,7 +160,7 @@ export function SmartPackageFinderModal({
           {/* Step 1: Occasion */}
           {currentStep === 1 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "ما هي المناسبة التي تخطط لها؟" : "1. What kind of event are you planning?"}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -175,16 +175,16 @@ export function SmartPackageFinderModal({
                   <button
                     key={item.id}
                     onClick={() => setAnswers({ ...answers, occasion: item.id })}
-                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-start gap-3 ${
+                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-start gap-3 shadow-sm ${
                       answers.occasion === item.id
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-white shadow-lg ring-1 ring-emerald-500/30"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-[var(--text-primary)] shadow-md ring-1 ring-emerald-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     <span className="text-2xl shrink-0">{item.icon}</span>
                     <div>
-                      <div className="text-sm font-bold text-white">{isAr ? item.labelAr : item.labelEn}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{isAr ? item.descAr : item.descEn}</div>
+                      <div className="text-sm font-bold text-[var(--text-primary)]">{isAr ? item.labelAr : item.labelEn}</div>
+                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{isAr ? item.descAr : item.descEn}</div>
                     </div>
                   </button>
                 ))}
@@ -195,7 +195,7 @@ export function SmartPackageFinderModal({
           {/* Step 2: Audience */}
           {currentStep === 2 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "من هو الجمهور المستهدف للفعالية؟" : "2. Who is this experience for?"}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -212,13 +212,13 @@ export function SmartPackageFinderModal({
                     <button
                       key={item.id}
                       onClick={() => setAnswers({ ...answers, audience: item.id })}
-                      className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-2 ${
+                      className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-2 shadow-sm ${
                         answers.audience === item.id
-                          ? "bg-emerald-500/15 border-emerald-500/50 text-white shadow ring-1 ring-emerald-500/30"
-                          : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                          ? "bg-emerald-500/15 border-emerald-500/50 text-[var(--text-primary)] shadow ring-1 ring-emerald-500/30"
+                          : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                       }`}
                     >
-                      <Icon className="w-5 h-5 text-emerald-400" />
+                      <Icon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                       <span className="text-xs font-bold">{isAr ? item.labelAr : item.labelEn}</span>
                     </button>
                   )
@@ -230,7 +230,7 @@ export function SmartPackageFinderModal({
           {/* Step 3: Guest Count */}
           {currentStep === 3 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "كم عدد الضيوف المتوقع حضورهم؟" : "3. How many guests are you expecting?"}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -243,14 +243,14 @@ export function SmartPackageFinderModal({
                   <button
                     key={item.id}
                     onClick={() => setAnswers({ ...answers, guests: item.id })}
-                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer shadow-sm ${
                       answers.guests === item.id
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-white shadow ring-1 ring-emerald-500/30"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-[var(--text-primary)] shadow ring-1 ring-emerald-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    <div className="text-sm font-bold text-white">{isAr ? item.labelAr : item.labelEn}</div>
-                    <div className="text-xs text-slate-400 mt-1">{item.descEn}</div>
+                    <div className="text-sm font-bold text-[var(--text-primary)]">{isAr ? item.labelAr : item.labelEn}</div>
+                    <div className="text-xs text-[var(--text-secondary)] mt-1">{item.descEn}</div>
                   </button>
                 ))}
               </div>
@@ -260,7 +260,7 @@ export function SmartPackageFinderModal({
           {/* Step 4: Venue */}
           {currentStep === 4 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "أي وجهة أو معلم ترفيهي تفضل؟" : "4. Which venue or attraction do you prefer?"}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -274,14 +274,14 @@ export function SmartPackageFinderModal({
                   <button
                     key={item.id}
                     onClick={() => setAnswers({ ...answers, venue: item.id })}
-                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer shadow-sm ${
                       answers.venue === item.id
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-white shadow ring-1 ring-emerald-500/30"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-[var(--text-primary)] shadow ring-1 ring-emerald-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    <div className="text-sm font-bold text-white">{isAr ? item.labelAr : item.labelEn}</div>
-                    <div className="text-xs text-slate-400 mt-1">{item.descEn}</div>
+                    <div className="text-sm font-bold text-[var(--text-primary)]">{isAr ? item.labelAr : item.labelEn}</div>
+                    <div className="text-xs text-[var(--text-secondary)] mt-1">{item.descEn}</div>
                   </button>
                 ))}
               </div>
@@ -291,7 +291,7 @@ export function SmartPackageFinderModal({
           {/* Step 5: Budget */}
           {currentStep === 5 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "ما هي الميزانية التقريبية للفعالية؟" : "5. What is your approximate target budget?"}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -303,15 +303,15 @@ export function SmartPackageFinderModal({
                   <button
                     key={item.id}
                     onClick={() => setAnswers({ ...answers, budget: item.id })}
-                    className={`p-4 rounded-2xl border text-center transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-center transition-all cursor-pointer shadow-sm ${
                       answers.budget === item.id
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-white shadow ring-1 ring-emerald-500/30"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-[var(--text-primary)] shadow ring-1 ring-emerald-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    <DollarSign className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-                    <div className="text-sm font-bold text-white">{isAr ? item.labelAr : item.labelEn}</div>
-                    <div className="text-xs text-slate-400 mt-1">{item.descEn}</div>
+                    <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
+                    <div className="text-sm font-bold text-[var(--text-primary)]">{isAr ? item.labelAr : item.labelEn}</div>
+                    <div className="text-xs text-[var(--text-secondary)] mt-1">{item.descEn}</div>
                   </button>
                 ))}
               </div>
@@ -321,7 +321,7 @@ export function SmartPackageFinderModal({
           {/* Step 6: Timing Preference */}
           {currentStep === 6 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "متى تفضل إقامة الفعالية؟" : "6. When would you like to host this?"}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -334,14 +334,14 @@ export function SmartPackageFinderModal({
                   <button
                     key={item.id}
                     onClick={() => setAnswers({ ...answers, timing: item.id })}
-                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer shadow-sm ${
                       answers.timing === item.id
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-white shadow ring-1 ring-emerald-500/30"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-[var(--text-primary)] shadow ring-1 ring-emerald-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    <Calendar className="w-4 h-4 text-emerald-400 mb-2" />
-                    <div className="text-sm font-bold text-white">{isAr ? item.labelAr : item.labelEn}</div>
+                    <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-2" />
+                    <div className="text-sm font-bold text-[var(--text-primary)]">{isAr ? item.labelAr : item.labelEn}</div>
                   </button>
                 ))}
               </div>
@@ -355,41 +355,41 @@ export function SmartPackageFinderModal({
                 {topRecommendations.map((pkg, idx) => (
                   <div
                     key={pkg.id}
-                    className="p-5 rounded-2xl border border-slate-800 bg-slate-900/80 flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
+                    className="p-5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)] flex flex-col justify-between hover:border-emerald-500/40 shadow-sm transition-all group"
                   >
                     <div>
                       {idx === 0 && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full mb-2">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full mb-2">
                           <Check className="w-3 h-3" />
                           {isAr ? "أعلى تطابق ٩٨٪" : "Top Match 98%"}
                         </span>
                       )}
-                      <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                         {isAr ? (pkg.titleAr || pkg.titleEn) : pkg.titleEn}
                       </h4>
-                      <p className="text-xs text-slate-400 line-clamp-2 mt-1">
+                      <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mt-1">
                         {isAr ? (pkg.shortDescriptionAr || pkg.shortDescriptionEn) : pkg.shortDescriptionEn}
                       </p>
-                      <div className="mt-3 text-xs font-mono font-bold text-slate-300">
+                      <div className="mt-3 text-xs font-mono font-bold text-[var(--text-primary)]">
                         {isAr ? `يبدأ من ${pkg.startingPrice} ر.ق` : `From QAR ${pkg.startingPrice}`}
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-col gap-2">
+                    <div className="mt-4 pt-3 border-t border-[var(--border-level-1)] flex flex-col gap-2">
                       <Button
                         size="sm"
                         onClick={() => {
                           onClose()
                           onSelectPackage(pkg)
                         }}
-                        className="w-full text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950"
+                        className="w-full text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white"
                       >
                         {isAr ? "طلب حجز واستفسار" : "Request This Package"}
                       </Button>
                       <Link
                         href={`/${locale}/b2c/packages/${pkg.slug}`}
                         onClick={onClose}
-                        className="text-center text-[11px] font-semibold text-slate-400 hover:text-white transition-colors"
+                        className="text-center text-[11px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         {isAr ? "عرض التفاصيل الكاملة ←" : "View Full Details →"}
                       </Link>
@@ -399,12 +399,12 @@ export function SmartPackageFinderModal({
               </div>
 
               {/* Custom Proposal Fallback Banner */}
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm font-bold text-white">
+                  <div className="text-sm font-bold text-[var(--text-primary)]">
                     {isAr ? "تبحث عن تجربة مخصصة تجمع عدة وجهات؟" : "Looking for a custom multi-attraction package?"}
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-[var(--text-secondary)]">
                     {isAr ? "صمّم باقتك مع فريق تخطيط الفعاليات في إي ثري" : "Our event engineering team can build a custom proposal tailored to your needs."}
                   </div>
                 </div>
@@ -415,7 +415,7 @@ export function SmartPackageFinderModal({
                     onClose()
                     if (onOpenCustomBuilder) onOpenCustomBuilder()
                   }}
-                  className="shrink-0 text-xs font-bold border-purple-500/40 text-purple-300 hover:bg-purple-500/20"
+                  className="shrink-0 text-xs font-bold border-purple-500/40 text-purple-600 dark:text-purple-300 hover:bg-purple-500/20"
                 >
                   {isAr ? "صمّم باقة خاصة" : "Build Custom Proposal"}
                 </Button>
@@ -424,13 +424,13 @@ export function SmartPackageFinderModal({
           )}
 
           {/* Navigation Controls */}
-          <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+          <div className="mt-6 pt-4 border-t border-[var(--border-level-2)] flex items-center justify-between">
             {currentStep > 1 && currentStep <= totalSteps ? (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleBack}
-                className="gap-1.5 text-xs text-slate-400 hover:text-white"
+                className="gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 <ArrowLeft className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
                 {isAr ? "السابق" : "Back"}
@@ -440,7 +440,7 @@ export function SmartPackageFinderModal({
                 variant="ghost"
                 size="sm"
                 onClick={handleReset}
-                className="text-xs text-slate-400 hover:text-white"
+                className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 {isAr ? "إعادة الاستكشاف" : "Start Over"}
               </Button>
@@ -454,14 +454,14 @@ export function SmartPackageFinderModal({
                   variant="ghost"
                   size="sm"
                   onClick={handleNext}
-                  className="text-xs text-slate-400 hover:text-white"
+                  className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   {isAr ? "تخطي" : "Skip"}
                 </Button>
                 <Button
                   size="sm"
                   onClick={handleNext}
-                  className="gap-1.5 text-xs font-bold bg-gradient-to-r from-emerald-500 to-sky-500 hover:opacity-95 text-slate-950"
+                  className="gap-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white"
                 >
                   {currentStep === totalSteps ? (isAr ? "عرض النتائج" : "Show Matches") : (isAr ? "التالي" : "Next")}
                   <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />

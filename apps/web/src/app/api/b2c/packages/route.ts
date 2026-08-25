@@ -2,6 +2,82 @@ import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
+function sanitizePackageData(body: any, isUpdate = false) {
+  const {
+    id: _id,
+    attraction: _attraction,
+    brand: _brand,
+    location: _location,
+    categoryRel: _categoryRel,
+    leads: _leads,
+    quotations: _quotations,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    seo,
+    metaTitleEn,
+    metaTitleAr,
+    metaDescriptionEn,
+    metaDescriptionAr,
+    attractionId,
+    locationId,
+    categoryId,
+    brandId,
+    ...rest
+  } = body
+
+  const data: any = { ...rest }
+
+  // Assemble `seo` JSON object safely
+  const seoObj: any = typeof seo === "object" && seo !== null ? { ...seo } : {}
+  if (metaTitleEn !== undefined) seoObj.metaTitleEn = metaTitleEn
+  if (metaTitleAr !== undefined) seoObj.metaTitleAr = metaTitleAr
+  if (metaDescriptionEn !== undefined) seoObj.metaDescriptionEn = metaDescriptionEn
+  if (metaDescriptionAr !== undefined) seoObj.metaDescriptionAr = metaDescriptionAr
+  if (Object.keys(seoObj).length > 0) {
+    data.seo = seoObj
+  }
+
+  // Relations: connect or disconnect safely
+  if (attractionId) {
+    data.attraction = { connect: { id: attractionId } }
+  } else if (isUpdate && attractionId === "") {
+    data.attraction = { disconnect: true }
+  }
+
+  if (locationId) {
+    data.location = { connect: { id: locationId } }
+  } else if (isUpdate && locationId === "") {
+    data.location = { disconnect: true }
+  }
+
+  if (categoryId) {
+    data.categoryRel = { connect: { id: categoryId } }
+  } else if (isUpdate && categoryId === "") {
+    data.categoryRel = { disconnect: true }
+  }
+
+  if (brandId) {
+    data.brand = { connect: { id: brandId } }
+  } else if (isUpdate && brandId === "") {
+    data.brand = { disconnect: true }
+  }
+
+  // Numeric sanitization
+  if (data.startingPrice !== undefined) data.startingPrice = parseFloat(data.startingPrice) || 0
+  if (data.internalCost !== undefined) data.internalCost = data.internalCost ? parseFloat(data.internalCost) : null
+  if (data.estimatedMargin !== undefined) data.estimatedMargin = data.estimatedMargin ? parseFloat(data.estimatedMargin) : null
+  if (data.depositAmount !== undefined) data.depositAmount = data.depositAmount ? parseFloat(data.depositAmount) : null
+  if (data.extraGuestPrice !== undefined) data.extraGuestPrice = data.extraGuestPrice ? parseFloat(data.extraGuestPrice) : null
+  if (data.minGuests !== undefined) data.minGuests = parseInt(data.minGuests) || 1
+  if (data.maxGuests !== undefined) data.maxGuests = parseInt(data.maxGuests) || 100
+  if (data.durationMinutes !== undefined) data.durationMinutes = parseInt(data.durationMinutes) || 60
+  if (data.minAge !== undefined) data.minAge = data.minAge ? parseInt(data.minAge) : null
+  if (data.maxAge !== undefined) data.maxAge = data.maxAge ? parseInt(data.maxAge) : null
+  if (data.bookingNoticeHours !== undefined) data.bookingNoticeHours = parseInt(data.bookingNoticeHours) || 24
+
+  return data
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -173,10 +249,8 @@ export async function POST(req: NextRequest) {
       titleAr,
       slug,
       code,
-      categoryId,
       category,
-      startingPrice,
-      ...rest
+      ...rawFields
     } = body
 
     if (!titleEn) {
@@ -184,12 +258,14 @@ export async function POST(req: NextRequest) {
     }
 
     const generatedSlug = slug
-      ? slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/(^-|-$)/g, "")
-      : titleEn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+      ? String(slug).toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/(^-|-$)/g, "")
+      : String(titleEn).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
 
     // Verify slug uniqueness
     const existingSlug = await db.package.findUnique({ where: { slug: generatedSlug } })
     const finalSlug = existingSlug ? `${generatedSlug}-${Date.now()}` : generatedSlug
+
+    const packageData = sanitizePackageData(rawFields, false)
 
     const newPackage = await db.package.create({
       data: {
@@ -197,15 +273,14 @@ export async function POST(req: NextRequest) {
         titleAr: titleAr ? String(titleAr).trim() : String(titleEn).trim(),
         slug: finalSlug,
         code: code ? String(code).trim() : `PKG-${Date.now().toString().slice(-6)}`,
-        categoryId: categoryId || undefined,
         category: category || "BIRTHDAY",
-        startingPrice: startingPrice !== undefined ? parseFloat(startingPrice) : 0,
-        ...rest
+        ...packageData
       },
       include: {
         categoryRel: true,
         attraction: true,
-        location: true
+        location: true,
+        brand: true
       }
     })
 

@@ -130,11 +130,11 @@ export function CustomPackageBuilder({
 
           {/* Header */}
           <div className="mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-mono font-bold uppercase tracking-wider mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-mono font-bold uppercase tracking-wider mb-2">
               <Wand2 className="w-3.5 h-3.5" />
               {isAr ? "مصمم الباقات المخصصة" : "Custom Package Architect"}
             </span>
-            <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-white">
+            <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-[var(--text-primary)]">
               {step <= totalSteps 
                 ? (isAr ? "صمّم باقتك وفعاليتك الخاصة" : "Build Your Custom E3 Experience")
                 : (isAr ? "تم استلام طلب باقتك المخصصة بنجاح!" : "Custom Proposal Request Received!")
@@ -142,19 +142,19 @@ export function CustomPackageBuilder({
             </h2>
             {step <= totalSteps && (
               <div className="flex items-center gap-3 mt-3">
-                <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-[var(--surface-active)] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-300 rounded-full"
                     style={{ width: `${(step / totalSteps) * 100}%` }}
                   />
                 </div>
-                <span className="text-xs font-mono font-bold text-slate-400">{step} / {totalSteps}</span>
+                <span className="text-xs font-mono font-bold text-[var(--text-secondary)]">{step} / {totalSteps}</span>
               </div>
             )}
           </div>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs">
               {error}
             </div>
           )}
@@ -162,7 +162,7 @@ export function CustomPackageBuilder({
           {/* Step 1: Occasion */}
           {step === 1 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "١. ما هو نوع الفعالية أو الهدف من التجربة؟" : "1. What is the scope of your custom event?"}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -177,10 +177,10 @@ export function CustomPackageBuilder({
                   <button
                     key={item.id}
                     onClick={() => setFormData({ ...formData, occasion: item.id })}
-                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-start transition-all cursor-pointer shadow-sm ${
                       formData.occasion === item.id
-                        ? "bg-purple-500/15 border-purple-500/50 text-white shadow ring-1 ring-purple-500/30"
-                        : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                        ? "bg-purple-500/15 border-purple-500/50 text-[var(--text-primary)] shadow ring-1 ring-purple-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     <div className="text-sm font-bold">{isAr ? item.labelAr : item.labelEn}</div>
@@ -193,7 +193,7 @@ export function CustomPackageBuilder({
           {/* Step 2: Select Attractions */}
           {step === 2 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "٢. اختر الوجهات الترفيهية المراد تضمينها (يمكن اختيار أكثر من وجهة):" : "2. Select target E3 destinations & attractions:"}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -208,14 +208,14 @@ export function CustomPackageBuilder({
                     <button
                       key={item.id}
                       onClick={() => toggleAttraction(item.id)}
-                      className={`p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                      className={`p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-3 shadow-sm ${
                         selected
-                          ? "bg-purple-500/15 border-purple-500/50 text-white shadow ring-1 ring-purple-500/30"
-                          : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                          ? "bg-purple-500/15 border-purple-500/50 text-[var(--text-primary)] shadow ring-1 ring-purple-500/30"
+                          : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       <span className="text-sm font-bold">{isAr ? item.labelAr : item.labelEn}</span>
-                      {selected && <Check className="w-4 h-4 text-purple-400 shrink-0" />}
+                      {selected && <Check className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />}
                     </button>
                   )
                 })}
@@ -227,9 +227,9 @@ export function CustomPackageBuilder({
           {step === 3 && (
             <div className="space-y-6">
               <div>
-                <div className="flex items-center justify-between text-sm font-semibold text-slate-300 mb-2">
+                <div className="flex items-center justify-between text-sm font-semibold text-[var(--text-secondary)] mb-2">
                   <span>{isAr ? "عدد الضيوف المتوقع:" : "3. Expected Guest Count:"}</span>
-                  <span className="font-mono font-bold text-purple-400 text-base">{formData.guestCount} {isAr ? "ضيوف" : "Guests"}</span>
+                  <span className="font-mono font-bold text-purple-600 dark:text-purple-400 text-base">{formData.guestCount} {isAr ? "ضيوف" : "Guests"}</span>
                 </div>
                 <input
                   type="range"
@@ -243,7 +243,7 @@ export function CustomPackageBuilder({
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-slate-300 mb-3">
+                <p className="text-sm font-semibold text-[var(--text-secondary)] mb-3">
                   {isAr ? "مدة الفعالية المقترحة:" : "Proposed Event Duration:"}
                 </p>
                 <div className="grid grid-cols-4 gap-2">
@@ -256,10 +256,10 @@ export function CustomPackageBuilder({
                     <button
                       key={item.hours}
                       onClick={() => setFormData({ ...formData, durationHours: item.hours })}
-                      className={`p-3 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer shadow-sm ${
                         formData.durationHours === item.hours
-                          ? "bg-purple-500/20 border-purple-500 text-white"
-                          : "bg-slate-900 border-slate-800 text-slate-400"
+                          ? "bg-purple-500/20 border-purple-500 text-purple-700 dark:text-purple-300"
+                          : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
                       }`}
                     >
                       {isAr ? item.labelAr : item.labelEn}
@@ -273,7 +273,7 @@ export function CustomPackageBuilder({
           {/* Step 4: Add-Ons */}
           {step === 4 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "٤. حدد الخدمات والإضافات المطلوبة للفعالية:" : "4. Select desired entertainment & production add-ons:"}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -291,17 +291,17 @@ export function CustomPackageBuilder({
                     <button
                       key={item.id}
                       onClick={() => toggleAddOn(item.id)}
-                      className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                      className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-3 shadow-sm ${
                         selected
-                          ? "bg-purple-500/15 border-purple-500/50 text-white shadow ring-1 ring-purple-500/30"
-                          : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                          ? "bg-purple-500/15 border-purple-500/50 text-[var(--text-primary)] shadow ring-1 ring-purple-500/30"
+                          : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon className="w-4 h-4 text-purple-400 shrink-0" />
+                        <Icon className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                         <span className="text-xs font-bold">{isAr ? item.labelAr : item.labelEn}</span>
                       </div>
-                      {selected && <Check className="w-4 h-4 text-purple-400 shrink-0" />}
+                      {selected && <Check className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />}
                     </button>
                   )
                 })}
@@ -322,13 +322,13 @@ export function CustomPackageBuilder({
                 autoComplete="off"
               />
 
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">
                 {isAr ? "٥. بيانات الاتصال وتفاصيل المقترح:" : "5. Contact & Proposal Delivery Details:"}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                  <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">
                     {isAr ? "الاسم الكامل *" : "Full Name *"}
                   </label>
                   <input
@@ -336,26 +336,26 @@ export function CustomPackageBuilder({
                     required
                     value={formData.customerName}
                     onChange={e => setFormData({ ...formData, customerName: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-purple-500"
                     placeholder="e.g. Nasser Al-Kuwari"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                  <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">
                     {isAr ? "الشركة / الجهة (اختياري)" : "Company / Organization"}
                   </label>
                   <input
                     type="text"
                     value={formData.companyOrOrg}
                     onChange={e => setFormData({ ...formData, companyOrOrg: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-purple-500"
                     placeholder="e.g. Qatar Airways"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                  <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">
                     {isAr ? "البريد الإلكتروني *" : "Email Address *"}
                   </label>
                   <input
@@ -363,13 +363,13 @@ export function CustomPackageBuilder({
                     required
                     value={formData.email}
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-purple-500"
                     placeholder="nasser@example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                  <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">
                     {isAr ? "رقم الهاتف / الجوال *" : "Phone / Mobile *"}
                   </label>
                   <input
@@ -377,20 +377,20 @@ export function CustomPackageBuilder({
                     required
                     value={formData.phone}
                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-purple-500"
                     placeholder="+974 5500 0000"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">
                   {isAr ? "الميزانية التقريبية" : "Target Budget Range"}
                 </label>
                 <select
                   value={formData.budgetRange}
                   onChange={e => setFormData({ ...formData, budgetRange: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-purple-500"
                 >
                   <option value="Under 10,000 QAR">Under 10,000 QAR</option>
                   <option value="10,000 - 25,000 QAR">10,000 - 25,000 QAR</option>
@@ -400,14 +400,14 @@ export function CustomPackageBuilder({
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">
                   {isAr ? "متطلبات أو ملاحظات إضافية" : "Special Requirements / Objectives"}
                 </label>
                 <textarea
                   rows={2}
                   value={formData.specialRequests}
                   onChange={e => setFormData({ ...formData, specialRequests: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-purple-500 resize-none"
+                  className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-purple-500 resize-none"
                   placeholder={isAr ? "اذكر أي تفاصيل إضافية مثل أهداف الفعالية أو التواريخ المفضلة..." : "Tell us any specific requirements or event objectives..."}
                 />
               </div>
@@ -430,13 +430,13 @@ export function CustomPackageBuilder({
           {/* Step 6: Confirmation Screen */}
           {step > totalSteps && (
             <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
                 <Check className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-xl font-bold text-[var(--text-primary)]">
                 {isAr ? "تم استلام طلب المقترح المخصص بنجاح!" : "Custom Proposal Brief Received!"}
               </h3>
-              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto leading-relaxed">
                 {isAr 
                   ? "يقوم مهندسو الفعاليات في E3 حالياً بمراجعة خياراتك وإعداد عرض أسعار مفصل يلبي أهداف مناسبتك بدقة."
                   : "Our E3 experience architects are now reviewing your tailored configuration to craft a personalized proposal."
@@ -444,7 +444,7 @@ export function CustomPackageBuilder({
               </p>
 
               {submittedResult?.referenceNumber && (
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 inline-block font-mono text-xs text-emerald-400 font-bold">
+                <div className="p-4 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] inline-block font-mono text-xs text-emerald-600 dark:text-emerald-400 font-bold">
                   {isAr ? "رقم المرجع:" : "Inquiry Reference:"} {submittedResult.referenceNumber}
                 </div>
               )}
@@ -459,13 +459,13 @@ export function CustomPackageBuilder({
 
           {/* Navigation Controls */}
           {step <= totalSteps && step < 5 && (
-            <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-[var(--border-level-2)] flex items-center justify-between">
               {step > 1 ? (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setStep(prev => prev - 1)}
-                  className="gap-1.5 text-xs text-slate-400 hover:text-white"
+                  className="gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   <ArrowLeft className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
                   {isAr ? "السابق" : "Back"}
@@ -475,7 +475,7 @@ export function CustomPackageBuilder({
               <Button
                 size="sm"
                 onClick={() => setStep(prev => prev + 1)}
-                className="gap-1.5 text-xs font-bold bg-purple-500 hover:bg-purple-400 text-white"
+                className="gap-1.5 text-xs font-bold bg-purple-500 hover:bg-purple-600 text-white"
               >
                 {isAr ? "التالي" : "Next"}
                 <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />

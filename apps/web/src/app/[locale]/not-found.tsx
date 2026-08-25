@@ -1,6 +1,6 @@
 import React from "react";
 import { NotFoundView } from "@/components/shared/NotFoundView";
 
-export default function RootNotFound() {
-  return <NotFoundView locale="en" />;
+export default function LocalizedNotFound() {
+  return <NotFoundView />;
 }

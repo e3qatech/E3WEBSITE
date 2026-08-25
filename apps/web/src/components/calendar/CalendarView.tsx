@@ -305,8 +305,8 @@ export function CalendarView({
             {/* Partner Discounts Section (Scroll Ticker) */}
             {discounts && discounts.length > 0 && (
               <div className="mb-10 w-full overflow-hidden bg-emerald-500/10 border-y border-emerald-500/20 py-3.5 relative">
-                <div className="absolute start-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-950 to-transparent z-10 rtl:bg-gradient-to-l" />
-                <div className="absolute end-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-950 to-transparent z-10 rtl:bg-gradient-to-r" />
+                <div className="absolute start-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[var(--bg-level-1)] to-transparent z-10 rtl:bg-gradient-to-l" />
+                <div className="absolute end-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[var(--bg-level-1)] to-transparent z-10 rtl:bg-gradient-to-r" />
                 <motion.div 
                   className="flex gap-16 w-max px-8"
                   animate={{ x: isAr ? ["0%", "50%"] : ["0%", "-50%"] }}
@@ -314,12 +314,12 @@ export function CalendarView({
                 >
                   {[...discounts, ...discounts, ...discounts, ...discounts].map((discount: any, idx) => (
                     <div key={`${discount.id}-${idx}`} className="flex items-center gap-4 shrink-0">
-                      <span className="text-emerald-500 font-bold uppercase tracking-widest text-sm">{discount.title}</span>
-                      <span className="text-zinc-600 font-black">/</span>
-                      <span className="text-white font-black text-base">{discount.discount}</span>
-                      <span className="text-zinc-600 font-black">/</span>
-                      <span className="text-zinc-400 text-xs tracking-wider uppercase">
-                        {isAr ? 'الرمز:' : 'Code:'} <span className="text-white font-mono bg-white/10 px-2 py-0.5 rounded ms-1 border border-white/20">{discount.promoCode}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest text-sm">{discount.title}</span>
+                      <span className="text-[var(--text-tertiary)] font-black">/</span>
+                      <span className="text-[var(--text-primary)] font-black text-base">{discount.discount}</span>
+                      <span className="text-[var(--text-tertiary)] font-black">/</span>
+                      <span className="text-[var(--text-secondary)] text-xs tracking-wider uppercase">
+                        {isAr ? 'الرمز:' : 'Code:'} <span className="text-[var(--text-primary)] font-mono bg-[var(--surface-default)] px-2 py-0.5 rounded ms-1 border border-[var(--border-level-2)] shadow-sm">{discount.promoCode}</span>
                       </span>
                     </div>
                   ))}

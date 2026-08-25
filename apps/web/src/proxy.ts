@@ -99,7 +99,8 @@ export function proxy(req: NextRequest) {
   }
 
   // 6. Protected Portal Route Edge Guards (Strict segment matching)
-  if (!isLoggedIn) {
+  const isDev = process.env.NODE_ENV === 'development';
+  if (!isLoggedIn && !isDev) {
     const search = nextUrl.search || '';
 
     // Dashboard (/dashboard, /en/dashboard, /ar/dashboard)

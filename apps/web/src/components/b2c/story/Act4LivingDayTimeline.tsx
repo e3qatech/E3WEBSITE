@@ -65,8 +65,8 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
       statusEn: category === 'NOW' ? "Open Now" : (category === 'LATER' ? "Open Until Midnight" : "Upcoming Session"),
       statusAr: category === 'NOW' ? "مفتوح الآن" : (category === 'LATER' ? "مفتوح حتى منتصف الليل" : "جلسة قادمة"),
       badgeColor: category === 'NOW' 
-        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/40" 
-        : (category === 'LATER' ? "bg-amber-500/15 text-amber-300 border-amber-500/40" : "bg-purple-500/15 text-purple-300 border-purple-500/40"),
+        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/40" 
+        : (category === 'LATER' ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/40" : "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/40"),
       price: minPrice,
       category
     }

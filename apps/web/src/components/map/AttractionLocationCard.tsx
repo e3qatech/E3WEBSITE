@@ -28,10 +28,10 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
   }, [location.thumbnailUrl]);
 
   const statusColors: Record<string, string> = {
-    OPEN: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-    COMING_SOON: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
-    TEMPORARILY_CLOSED: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-    SEASONAL: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+    OPEN: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40',
+    COMING_SOON: 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/40',
+    TEMPORARILY_CLOSED: 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40',
+    SEASONAL: 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border-sky-500/40',
   };
 
   const statusLabel: Record<string, { en: string; ar: string }> = {
@@ -117,7 +117,7 @@ export function AttractionLocationCard({ location, isSelected, onSelect, locale 
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="py-2.5 px-3 rounded-xl bg-[var(--surface-hover)] hover:bg-zinc-800 text-[var(--text-primary)] border border-[var(--border-level-2)] hover:border-slate-600 text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+            className="py-2.5 px-3 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--surface-active)] text-[var(--text-primary)] border border-[var(--border-level-2)] text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
           >
             <span>{isAr ? "الاتجاهات" : "Directions"}</span>
             <ExternalLink className="w-3 h-3 text-[var(--text-tertiary)]" />

@@ -152,7 +152,7 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className={`group relative rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-xl hover:border-[var(--e3-royal-blue)] transition-all flex flex-col justify-between ${spanClass} ${isFeatured ? 'ring-1 ring-[var(--e3-royal-blue)]/40 bg-gradient-to-br from-[var(--surface-default)] via-black/40 to-[var(--surface-default)]' : ''}`}
+                className={`group relative rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-xl hover:border-[var(--e3-royal-blue)] transition-all flex flex-col justify-between ${spanClass} ${isFeatured ? 'ring-1 ring-[var(--e3-royal-blue)]/40 bg-gradient-to-br from-[var(--surface-default)] via-[var(--surface-hover)] to-[var(--surface-default)]' : ''}`}
               >
                 {/* Media Image Holder */}
                 <div className={`relative w-full overflow-hidden bg-black ${isWide ? 'h-64 lg:h-72' : isHalfRow ? 'h-52 md:h-56' : 'h-48 md:h-52'}`}>
@@ -161,23 +161,23 @@ export function AttractionsGridSection({ initialAttractions, locale }: Attractio
                     alt={name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-90" />
                   
                   {/* Category & Featured Badge */}
                   <div className="absolute top-4 start-4 flex items-center gap-2">
-                    <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold uppercase text-[var(--e3-royal-blue)]">
+                    <div className="px-3 py-1 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] text-[10px] font-mono font-bold uppercase text-[var(--e3-royal-blue)] shadow-sm">
                       {(attr as any).category || "ATTRACTION"}
                     </div>
                     {isFeatured && (
-                      <div className="px-3 py-1 rounded-full bg-[var(--e3-royal-blue)]/30 backdrop-blur-md border border-[var(--e3-royal-blue)]/50 text-[10px] font-mono font-bold uppercase text-white">
+                      <div className="px-3 py-1 rounded-full bg-[var(--e3-royal-blue)]/30 backdrop-blur-md border border-[var(--e3-royal-blue)]/50 text-[10px] font-mono font-bold uppercase text-white shadow-sm">
                         {isAr ? "وجهة مميزة" : "FEATURED WORLD"}
                       </div>
                     )}
                   </div>
 
                   {/* Status Indicator */}
-                  <div className="absolute top-4 end-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-[10px] font-mono font-bold uppercase text-emerald-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <div className="absolute top-4 end-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-[10px] font-mono font-bold uppercase text-emerald-700 dark:text-emerald-300 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                     <span>{isAr ? "مفتوح الآن" : "OPEN NOW"}</span>
                   </div>
                 </div>

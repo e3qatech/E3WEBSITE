@@ -2,6 +2,82 @@ import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
+function sanitizePackageData(body: any, isUpdate = true) {
+  const {
+    id: _id,
+    attraction: _attraction,
+    brand: _brand,
+    location: _location,
+    categoryRel: _categoryRel,
+    leads: _leads,
+    quotations: _quotations,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    seo,
+    metaTitleEn,
+    metaTitleAr,
+    metaDescriptionEn,
+    metaDescriptionAr,
+    attractionId,
+    locationId,
+    categoryId,
+    brandId,
+    ...rest
+  } = body
+
+  const data: any = { ...rest }
+
+  // Assemble `seo` JSON object safely
+  const seoObj: any = typeof seo === "object" && seo !== null ? { ...seo } : {}
+  if (metaTitleEn !== undefined) seoObj.metaTitleEn = metaTitleEn
+  if (metaTitleAr !== undefined) seoObj.metaTitleAr = metaTitleAr
+  if (metaDescriptionEn !== undefined) seoObj.metaDescriptionEn = metaDescriptionEn
+  if (metaDescriptionAr !== undefined) seoObj.metaDescriptionAr = metaDescriptionAr
+  if (Object.keys(seoObj).length > 0) {
+    data.seo = seoObj
+  }
+
+  // Relations: connect or disconnect safely
+  if (attractionId) {
+    data.attraction = { connect: { id: attractionId } }
+  } else if (isUpdate && attractionId === "") {
+    data.attraction = { disconnect: true }
+  }
+
+  if (locationId) {
+    data.location = { connect: { id: locationId } }
+  } else if (isUpdate && locationId === "") {
+    data.location = { disconnect: true }
+  }
+
+  if (categoryId) {
+    data.categoryRel = { connect: { id: categoryId } }
+  } else if (isUpdate && categoryId === "") {
+    data.categoryRel = { disconnect: true }
+  }
+
+  if (brandId) {
+    data.brand = { connect: { id: brandId } }
+  } else if (isUpdate && brandId === "") {
+    data.brand = { disconnect: true }
+  }
+
+  // Numeric sanitization
+  if (data.startingPrice !== undefined) data.startingPrice = parseFloat(data.startingPrice) || 0
+  if (data.internalCost !== undefined) data.internalCost = data.internalCost ? parseFloat(data.internalCost) : null
+  if (data.estimatedMargin !== undefined) data.estimatedMargin = data.estimatedMargin ? parseFloat(data.estimatedMargin) : null
+  if (data.depositAmount !== undefined) data.depositAmount = data.depositAmount ? parseFloat(data.depositAmount) : null
+  if (data.extraGuestPrice !== undefined) data.extraGuestPrice = data.extraGuestPrice ? parseFloat(data.extraGuestPrice) : null
+  if (data.minGuests !== undefined) data.minGuests = parseInt(data.minGuests) || 1
+  if (data.maxGuests !== undefined) data.maxGuests = parseInt(data.maxGuests) || 100
+  if (data.durationMinutes !== undefined) data.durationMinutes = parseInt(data.durationMinutes) || 60
+  if (data.minAge !== undefined) data.minAge = data.minAge ? parseInt(data.minAge) : null
+  if (data.maxAge !== undefined) data.maxAge = data.maxAge ? parseInt(data.maxAge) : null
+  if (data.bookingNoticeHours !== undefined) data.bookingNoticeHours = parseInt(data.bookingNoticeHours) || 24
+
+  return data
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
@@ -69,21 +145,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
     const body = await req.json().catch(() => ({}))
-    const {
-      attraction: _attraction,
-      brand: _brand,
-      location: _location,
-      categoryRel: _categoryRel,
-      leads: _leads,
-      quotations: _quotations,
-      createdAt: _createdAt,
-      updatedAt: _updatedAt,
-      ...updateData
-    } = body
 
-    if (updateData.startingPrice !== undefined) {
-      updateData.startingPrice = parseFloat(updateData.startingPrice) || 0
-    }
+    const updateData = sanitizePackageData(body, true)
 
     const updated = await db.package.update({
       where: { id },
