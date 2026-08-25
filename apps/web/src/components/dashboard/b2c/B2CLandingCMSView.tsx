@@ -32,6 +32,10 @@ import {
   Radio,
   Send,
   ShieldCheck,
+  Plus,
+  Trash2,
+  Share2,
+  MessageCircle,
 } from "lucide-react";
 import { UniversalMediaRenderer, UniversalMediaType } from "@/components/shared/UniversalMediaRenderer";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
@@ -40,6 +44,12 @@ import {
   DEFAULT_B2C_SECTION_SEQUENCE,
   B2CSectionItem,
 } from "@/lib/cms-default-pages";
+import {
+  DEFAULT_SOCIAL_CHANNELS,
+  DEFAULT_SOCIAL_POSTS,
+  SocialChannelRecord,
+  SocialPostRecord,
+} from "@/lib/cms-social";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import {
@@ -125,8 +135,13 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         icon: <Layers className="w-3.5 h-3.5" />,
       },
       {
+        id: "happening-now",
+        label: isAr ? "٩. يحدث الآن — اللحظات الحية" : "9. Happening Now — Live Moments",
+        icon: <Radio className="w-3.5 h-3.5" />,
+      },
+      {
         id: "spatial-experience",
-        label: isAr ? "٩. الأسطوانة المكانية التفاعلية" : "9. Octagonal Spatial Experience",
+        label: isAr ? "١٠. الأسطوانة المكانية التفاعلية" : "10. Octagonal Spatial Experience",
         icon: <Box className="w-3.5 h-3.5" />,
       },
     ],
@@ -1636,7 +1651,510 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
         </DashboardSectionCard>
       )}
 
-      {/* 8. FOOTER FRAMING & UNIVERSAL MEDIA */}
+      {/* 8. E3 HAPPENING NOW — LIVE MOMENTS / SOCIAL MEDIA PULSE */}
+      {activeSectionId === "happening-now" && (
+        <DashboardSectionCard
+          title={isAr ? "يحدث الآن — جدار اللحظات الحية وشبكات التواصل" : "E3 Happening Now — Live Moments & Social Media Wall"}
+          description={
+            isAr
+              ? "تحكم بنصوص جدار الذكريات الحي، الحسابات الرسمية المربوطة (إنستغرام، يوتيوب، تيك توك)، وبطاقات اللحظات والتغطيات المباشرة للفعاليات."
+              : "Configure the live social pulse, official connected accounts (Instagram, YouTube, TikTok), and live moment cards streamed to guests."
+          }
+          icon={<Radio className="w-5 h-5 text-emerald-400" />}
+          badge={
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              {(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS).filter((p: any) => p.isVisible !== false).length} {isAr ? "لحظة نشطة" : "Active Moments"}
+            </span>
+          }
+        >
+          {/* Sub-section 1: Section Eyebrow & Headlines */}
+          <div className="space-y-4 pb-6 border-b border-[var(--border-level-1)]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  {isAr ? "١. العناوين والنصوص التعريفية" : "1. Section Headlines & Subtitles"}
+                </h4>
+              </div>
+              <a
+                href={`/${locale}/b2c#social-feed`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-purple-400 hover:underline"
+              >
+                <span>{isAr ? "معاينة القسم المباشر" : "View Live Section"}</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            <DashboardBilingualField
+              label={isAr ? "شارة القسم العلوية (Eyebrow)" : "Section Eyebrow Badge"}
+              valueEn={content.socialFeed?.eyebrowEn || "LIVE MEMORY WALL — HAPPENING NOW"}
+              valueAr={content.socialFeed?.eyebrowAr || "جدار الذكريات التفاعلي — LIVE MEMORY WALL"}
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  socialFeed: { ...(p.socialFeed || {}), eyebrowEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  socialFeed: { ...(p.socialFeed || {}), eyebrowAr: val },
+                }))
+              }
+              mode={languageMode}
+            />
+
+            <DashboardBilingualField
+              label={isAr ? "العنوان الرئيسي" : "Main Headline"}
+              valueEn={content.socialFeed?.headlineEn || "E3 Happening Now — Live Moments"}
+              valueAr={content.socialFeed?.headlineAr || "إي ثري الآن — لحظات حية مباشرة"}
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  socialFeed: { ...(p.socialFeed || {}), headlineEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  socialFeed: { ...(p.socialFeed || {}), headlineAr: val },
+                }))
+              }
+              mode={languageMode}
+            />
+
+            <DashboardBilingualField
+              label={isAr ? "النص الوصفي الفرعي" : "Subtext / Description"}
+              valueEn={
+                content.socialFeed?.subtextEn ||
+                "Real-time moments, live event highlights, and guest stories streaming across official E3 channels."
+              }
+              valueAr={
+                content.socialFeed?.subtextAr ||
+                "تابع أحدث الفعاليات واللحظات الترفيهية الحية عبر حساباتنا الرسمية."
+              }
+              onChangeEn={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  socialFeed: { ...(p.socialFeed || {}), subtextEn: val },
+                }))
+              }
+              onChangeAr={(val) =>
+                updateContent((p) => ({
+                  ...p,
+                  socialFeed: { ...(p.socialFeed || {}), subtextAr: val },
+                }))
+              }
+              mode={languageMode}
+            />
+          </div>
+
+          {/* Sub-section 2: Official Connected Social Channels */}
+          <div className="space-y-4 pb-6 border-b border-[var(--border-level-1)]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-blue-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  {isAr ? "٢. الحسابات والقنوات الرسمية المتصلة" : "2. Official Connected Social Channels"}
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const currentChannels = content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS;
+                  const newChan: SocialChannelRecord = {
+                    id: `channel-${Date.now()}`,
+                    platform: "INSTAGRAM",
+                    channelName: "E3 Qatar New Channel",
+                    handle: "@e3qatar",
+                    profileUrl: "https://instagram.com/e3qatar",
+                    feedMode: "CURATED_CMS",
+                    syncEnabled: true,
+                    isVisible: true,
+                    sortPriority: currentChannels.length + 1,
+                    ctaLabelEn: "Follow on Instagram",
+                    ctaLabelAr: "تابعنا على إنستغرام",
+                    status: "CONNECTED",
+                  };
+                  updateContent((p) => ({
+                    ...p,
+                    socialFeed: {
+                      ...(p.socialFeed || {}),
+                      channels: [...currentChannels, newChan],
+                    },
+                  }));
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 text-xs font-bold transition-colors cursor-pointer border border-blue-500/20"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{isAr ? "إضافة قناة رسمية" : "+ Add Channel"}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS).map((chan: SocialChannelRecord, idx: number) => (
+                <div
+                  key={chan.id || idx}
+                  className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] space-y-3 relative group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        {chan.platform}
+                      </span>
+                      <span className="text-xs font-mono font-bold text-[var(--text-primary)]">
+                        {chan.handle}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentChannels = [...(content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS)];
+                          currentChannels[idx] = { ...currentChannels[idx], isVisible: !currentChannels[idx].isVisible };
+                          updateContent((p) => ({
+                            ...p,
+                            socialFeed: { ...(p.socialFeed || {}), channels: currentChannels },
+                          }));
+                        }}
+                        className={cn(
+                          "p-1.5 rounded-lg text-xs transition-colors cursor-pointer",
+                          chan.isVisible !== false
+                            ? "text-emerald-400 hover:bg-emerald-500/10"
+                            : "text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)]"
+                        )}
+                        title={chan.isVisible !== false ? "Visible" : "Hidden"}
+                      >
+                        {chan.isVisible !== false ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentChannels = (content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS).filter(
+                            (_: any, i: number) => i !== idx
+                          );
+                          updateContent((p) => ({
+                            ...p,
+                            socialFeed: { ...(p.socialFeed || {}), channels: currentChannels },
+                          }));
+                        }}
+                        className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                        title="Delete Channel"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Platform</label>
+                      <select
+                        value={chan.platform}
+                        onChange={(e) => {
+                          const currentChannels = [...(content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS)];
+                          currentChannels[idx] = { ...currentChannels[idx], platform: e.target.value as any };
+                          updateContent((p) => ({
+                            ...p,
+                            socialFeed: { ...(p.socialFeed || {}), channels: currentChannels },
+                          }));
+                        }}
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none"
+                      >
+                        <option value="INSTAGRAM">Instagram</option>
+                        <option value="YOUTUBE">YouTube</option>
+                        <option value="TIKTOK">TikTok</option>
+                        <option value="FACEBOOK">Facebook</option>
+                        <option value="LINKEDIN">LinkedIn</option>
+                        <option value="X">X (Twitter)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Handle</label>
+                      <input
+                        type="text"
+                        value={chan.handle}
+                        onChange={(e) => {
+                          const currentChannels = [...(content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS)];
+                          currentChannels[idx] = { ...currentChannels[idx], handle: e.target.value };
+                          updateContent((p) => ({
+                            ...p,
+                            socialFeed: { ...(p.socialFeed || {}), channels: currentChannels },
+                          }));
+                        }}
+                        className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2 py-1 text-xs text-[var(--text-primary)] font-mono focus:outline-none"
+                        placeholder="@handle"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Profile URL</label>
+                    <input
+                      type="url"
+                      value={chan.profileUrl}
+                      onChange={(e) => {
+                        const currentChannels = [...(content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS)];
+                        currentChannels[idx] = { ...currentChannels[idx], profileUrl: e.target.value };
+                        updateContent((p) => ({
+                          ...p,
+                          socialFeed: { ...(p.socialFeed || {}), channels: currentChannels },
+                        }));
+                      }}
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2 py-1 text-xs text-[var(--text-primary)] font-mono focus:outline-none"
+                      placeholder="https://instagram.com/..."
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sub-section 3: Live Moments & Social Posts Feed */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Radio className="w-4 h-4 text-pink-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  {isAr ? "٣. بطاقات وتغطيات اللحظات الحية (Moments Cards)" : "3. Live Moment & Social Cards Feed"}
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const currentPosts = content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS;
+                  const newPost: SocialPostRecord = {
+                    id: `post-${Date.now()}`,
+                    platform: "INSTAGRAM",
+                    postUrl: "https://instagram.com/e3qatar",
+                    mediaType: "IMAGE",
+                    mediaUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop",
+                    posterUrl: "",
+                    captionEn: "Exciting live energy streaming from E3 Entertainment Qatar!",
+                    captionAr: "طاقة وحماس لا ينتهي في فعاليات إي ثري الترفيهية في قطر!",
+                    platformPostId: `post_${Date.now()}`,
+                    postDate: new Date().toISOString(),
+                    isApproved: true,
+                    isFeatured: false,
+                    isVisible: true,
+                    relatedAttractionSlug: "urban-arena",
+                  };
+                  updateContent((p) => ({
+                    ...p,
+                    socialFeed: {
+                      ...(p.socialFeed || {}),
+                      posts: [newPost, ...currentPosts],
+                    },
+                  }));
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{isAr ? "إضافة لحظة حية جديدة" : "+ Add Live Moment"}</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS).map((post: SocialPostRecord, idx: number) => (
+                <div
+                  key={post.id || idx}
+                  className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] flex flex-col md:flex-row gap-5 items-start"
+                >
+                  {/* Media Preview Thumbnail */}
+                  <div className="w-full md:w-44 h-32 rounded-xl overflow-hidden bg-black border border-[var(--border-level-2)] shrink-0 relative flex items-center justify-center">
+                    {post.mediaType === "VIDEO" && post.mediaUrl ? (
+                      <video
+                        src={post.mediaUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                      />
+                    ) : post.mediaUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={post.mediaUrl}
+                        alt="Moment Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-2 text-xs text-[var(--text-tertiary)]">
+                        No Media URL
+                      </div>
+                    )}
+                    <span className="absolute top-2 start-2 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-black/70 text-white backdrop-blur-md">
+                      {post.platform}
+                    </span>
+                  </div>
+
+                  {/* Form Controls */}
+                  <div className="flex-1 space-y-3 w-full">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={post.platform}
+                          onChange={(e) => {
+                            const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                            currentPosts[idx] = { ...currentPosts[idx], platform: e.target.value as any };
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2.5 py-1 text-xs font-bold text-[var(--text-primary)] focus:outline-none"
+                        >
+                          <option value="INSTAGRAM">Instagram</option>
+                          <option value="YOUTUBE">YouTube</option>
+                          <option value="TIKTOK">TikTok</option>
+                          <option value="X">X (Twitter)</option>
+                          <option value="FACEBOOK">Facebook</option>
+                        </select>
+
+                        <select
+                          value={post.mediaType || "IMAGE"}
+                          onChange={(e) => {
+                            const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                            currentPosts[idx] = { ...currentPosts[idx], mediaType: e.target.value as any };
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2.5 py-1 text-xs font-bold text-[var(--text-secondary)] focus:outline-none"
+                        >
+                          <option value="IMAGE">Image</option>
+                          <option value="VIDEO">Video</option>
+                        </select>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={post.isVisible !== false}
+                            onChange={(e) => {
+                              const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                              currentPosts[idx] = { ...currentPosts[idx], isVisible: e.target.checked };
+                              updateContent((p) => ({
+                                ...p,
+                                socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                              }));
+                            }}
+                            className="rounded text-purple-600 focus:ring-purple-500"
+                          />
+                          <span>{isAr ? "مرئي" : "Visible"}</span>
+                        </label>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const currentPosts = (content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS).filter(
+                              (_: any, i: number) => i !== idx
+                            );
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                          title="Delete Moment Card"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Media Asset URL *</label>
+                        <input
+                          type="url"
+                          value={post.mediaUrl}
+                          onChange={(e) => {
+                            const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                            currentPosts[idx] = { ...currentPosts[idx], mediaUrl: e.target.value };
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none"
+                          placeholder="https://...image.jpg or video.mp4"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Original Post Link URL</label>
+                        <input
+                          type="url"
+                          value={post.postUrl}
+                          onChange={(e) => {
+                            const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                            currentPosts[idx] = { ...currentPosts[idx], postUrl: e.target.value };
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none"
+                          placeholder="https://instagram.com/p/..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Caption (EN)</label>
+                        <textarea
+                          rows={2}
+                          value={post.captionEn}
+                          onChange={(e) => {
+                            const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                            currentPosts[idx] = { ...currentPosts[idx], captionEn: e.target.value };
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none"
+                          placeholder="English moment caption..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold uppercase text-[var(--text-tertiary)]">Caption (AR)</label>
+                        <textarea
+                          dir="rtl"
+                          rows={2}
+                          value={post.captionAr}
+                          onChange={(e) => {
+                            const currentPosts = [...(content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS)];
+                            currentPosts[idx] = { ...currentPosts[idx], captionAr: e.target.value };
+                            updateContent((p) => ({
+                              ...p,
+                              socialFeed: { ...(p.socialFeed || {}), posts: currentPosts },
+                            }));
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] text-right focus:outline-none"
+                          placeholder="نص اللحظة بالعربية..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DashboardSectionCard>
+      )}
+
+      {/* 9. FOOTER FRAMING & UNIVERSAL MEDIA */}
       {activeSectionId === "footer-cta" && (
         <DashboardSectionCard
           title={isAr ? "خاتمة الصفحة ووسائط الفوتر الشامل" : "Footer Framing, Universal Media & Final Call to Action"}
