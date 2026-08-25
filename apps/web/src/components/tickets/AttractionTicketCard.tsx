@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, Ticket, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 
+import { isAddonPricingTier } from "@/lib/operating-schedule-helper"
+
 interface PricingTier {
   id: string
   ticketType: {
@@ -38,9 +40,13 @@ export function AttractionTicketCard({ attraction, locale }: AttractionTicketCar
   const displayTagline = attraction.tagline?.[locale] || attraction.tagline?.en
   
   const activePricing = attraction.pricing.filter(p => p.isActive)
-  const minPrice = activePricing.length > 0 
-    ? Math.min(...activePricing.map(p => p.price))
-    : 0
+  const admissionPricing = activePricing.filter(p => {
+    const title = p.ticketType?.name?.en || p.ticketType?.name?.ar || ''
+    return !isAddonPricingTier({ titleEn: title }) && p.price > 0
+  })
+  const minPrice = admissionPricing.length > 0 
+    ? Math.min(...admissionPricing.map(p => p.price))
+    : (activePricing.length > 0 ? Math.min(...activePricing.map(p => p.price)) : 0)
 
   return (
     <div className="bg-[var(--surface-default)] rounded-3xl overflow-hidden border border-[var(--border-default)] hover:border-[var(--color-primary)]/30 transition-all shadow-sm hover:shadow-xl">

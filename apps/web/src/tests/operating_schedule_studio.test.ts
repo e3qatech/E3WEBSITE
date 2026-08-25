@@ -124,4 +124,37 @@ describe("Operating Schedule Helper & Studio Tests", () => {
     expect(saturdayTiming.timingsEn).toBe("10:00 AM – 10:00 PM");
     expect(saturdayTiming.todayLabelEn).toBe("Today (Sat)");
   });
+
+  it("filters out add-on tickets (e.g. grip socks, lockers) when calculating starting admission price", async () => {
+    const { isAddonPricingTier, calculateAttractionStartingPrice } = await import("@/lib/operating-schedule-helper");
+
+    expect(isAddonPricingTier({ titleEn: "Grip Socks", price: 5, type: "ADD_ON" })).toBe(true);
+    expect(isAddonPricingTier({ titleEn: "Locker Rental", price: 10, type: "ACCESS_PASS" })).toBe(true);
+    expect(isAddonPricingTier({ titleAr: "جوارب السلامة", price: 5, type: "GENERAL" })).toBe(true);
+    expect(isAddonPricingTier({ titleEn: "25-Minute Session", price: 35, type: "ACCESS_PASS" })).toBe(false);
+    expect(isAddonPricingTier({ titleEn: "Pro Pass – 90 Minutes", price: 90, type: "ACCESS_PASS" })).toBe(false);
+
+    // Test InflataPark pricing with 5 QAR addon socks and 35 QAR session pass
+    const inflataPark = {
+      nameEn: "InflataPark",
+      accessModel: "PAID",
+      pricing: [
+        { titleEn: "Safety Grip Socks", price: 5, type: "ADD_ON" },
+        { titleEn: "25-Minute Session", price: 35, type: "ACCESS_PASS" },
+        { titleEn: "50-Minute Session", price: 65, type: "ACCESS_PASS" },
+        { titleEn: "Birthday / Group Package", price: 0, type: "ACCESS_PASS" }
+      ]
+    };
+
+    const startingPrice = calculateAttractionStartingPrice(inflataPark);
+    expect(startingPrice).toBe(35); // MUST be 35 QAR, NOT 5 QAR addon or 0 QAR inquiry package!
+
+    // Test Free Attraction
+    const freeAttraction = {
+      nameEn: "Free Plaza Event",
+      accessModel: "FREE",
+      pricing: []
+    };
+    expect(calculateAttractionStartingPrice(freeAttraction)).toBe(0);
+  });
 });

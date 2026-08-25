@@ -152,14 +152,12 @@ export default async function B2CLandingPage(props: {
 
   if (cmsData) {
     if (attractions.length > 0) {
-      const { calculateQatarOperatingStatus, getTodayTimingDisplay } = await import('@/lib/operating-schedule-helper');
+      const { calculateQatarOperatingStatus, getTodayTimingDisplay, calculateAttractionStartingPrice } = await import('@/lib/operating-schedule-helper');
       const { resolveBookingUrl } = await import('@/lib/cms-attractions');
 
       cmsData.attractions = attractions;
       cmsData.act3Worlds = attractions.map((attr: any) => {
-        const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
-          ? Math.min(...attr.pricing.map((p: any) => p.price))
-          : (attr.accessModel === 'FREE' ? 0 : 45);
+        const minPrice = calculateAttractionStartingPrice(attr, attr.price || 35);
 
         const ops = (attr.operations as any) || {};
         const primaryLoc = attr.attractionLocations?.[0]?.location;

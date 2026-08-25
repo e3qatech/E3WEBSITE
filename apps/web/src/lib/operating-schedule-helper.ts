@@ -438,3 +438,90 @@ export function getTodayTimingDisplay(
     isClosed: false
   };
 }
+
+/**
+ * Identifies whether a pricing tier is an Add-on / Auxiliary item
+ * (such as grip socks, lockers, wristbands, tokens, or merchandise)
+ * rather than a primary admission / entry ticket.
+ */
+export function isAddonPricingTier(tier: any): boolean {
+  if (!tier) return false;
+  
+  const type = String(tier.type || '').toUpperCase().trim();
+  if (
+    type === 'ADD_ON' || 
+    type === 'ADDON' || 
+    type === 'ADD-ON' || 
+    type === 'MERCHANDISE' || 
+    type === 'EXTRA' || 
+    type === 'EXTRAS' ||
+    type === 'AUXILIARY' ||
+    type === 'EQUIPMENT'
+  ) {
+    return true;
+  }
+
+  const title = `${tier.titleEn || ''} ${tier.titleAr || ''} ${tier.descriptionEn || ''} ${tier.descriptionAr || ''}`.toLowerCase();
+  
+  const addonKeywords = [
+    'sock',
+    'grip sock',
+    'locker',
+    'wristband',
+    'addon',
+    'add-on',
+    'add on',
+    'token',
+    'merchandise',
+    'rental',
+    'shoe rental',
+    'جوارب',
+    'خزانة',
+    'إضافة',
+    'اضافة',
+    'سوار',
+    'رمز'
+  ];
+
+  return addonKeywords.some(kw => title.includes(kw));
+}
+
+/**
+ * Calculates the legitimate starting ticket price for an attraction,
+ * strictly filtering out add-on items (e.g. 5 QAR socks) and zero-priced inquiry packages.
+ */
+export function calculateAttractionStartingPrice(attr: any, fallbackPrice = 35): number {
+  if (!attr) return fallbackPrice;
+  if (attr.accessModel === 'FREE') return 0;
+
+  const rawPricing = Array.isArray(attr.pricing) ? attr.pricing : [];
+  
+  // Filter for valid admission passes: not an add-on and price > 0
+  const validAdmissionTiers = rawPricing.filter((p: any) => {
+    const priceNum = typeof p?.price === 'number' ? p.price : parseFloat(p?.price);
+    return !isNaN(priceNum) && priceNum > 0 && !isAddonPricingTier(p);
+  });
+
+  if (validAdmissionTiers.length > 0) {
+    const prices = validAdmissionTiers.map((p: any) => typeof p.price === 'number' ? p.price : parseFloat(p.price));
+    return Math.min(...prices);
+  }
+
+  // If there are only non-addon passes with price 0 (e.g. free sessions)
+  const zeroAdmissionTiers = rawPricing.filter((p: any) => {
+    const priceNum = typeof p?.price === 'number' ? p.price : parseFloat(p?.price);
+    return priceNum === 0 && !isAddonPricingTier(p);
+  });
+
+  if (zeroAdmissionTiers.length > 0 && attr.accessModel !== 'PAID') {
+    return 0;
+  }
+
+  // Fallback to explicit attraction price if available and positive, or default
+  if (typeof attr.price === 'number' && attr.price > 0) {
+    return attr.price;
+  }
+
+  return fallbackPrice;
+}
+

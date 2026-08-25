@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
-import { getTodayTimingDisplay } from '@/lib/operating-schedule-helper'
+import { getTodayTimingDisplay, calculateAttractionStartingPrice } from '@/lib/operating-schedule-helper'
 
 interface Act4LivingDayTimelineProps {
   content: any
@@ -31,9 +31,7 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
 
   // Map real database attractions to schedule items
   const realAttractionItems = dbAttractions.map(attr => {
-    const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
-      ? Math.min(...attr.pricing.map((p: any) => p.price))
-      : (attr.accessModel === 'FREE' ? 0 : 45)
+    const minPrice = calculateAttractionStartingPrice(attr, attr.price || 35)
 
     const primaryLoc = attr.attractionLocations?.[0]?.location
     const venueEn = primaryLoc?.nameEn || primaryLoc?.addressEn || attr.operations?.venueName || attr.operations?.venueAddressEn || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
