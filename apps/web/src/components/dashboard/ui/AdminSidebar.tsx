@@ -80,6 +80,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "b2c.content.read",
     subItems: [
       { label: "Attractions Roster", labelAr: "قائمة التجارب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage" },
+      { label: "Brand IP & Worlds", labelAr: "العلامات وحقوق الملكية", href: "/dashboard/brands", capability: "b2c.content.read" },
       { label: "Packages & Birthdays", labelAr: "الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.manage" },
       { label: "Locations & Map GIS", labelAr: "المواقع وخريطة قطر", href: "/dashboard/b2c/locations", capability: "b2c.content.read" },
       { label: "Story Discovery", labelAr: "محرر مسار الاستكشاف", href: "/dashboard/b2c/content/story-discovery", capability: "b2c.content.write" },
@@ -116,6 +117,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "b2b.content.read",
     subItems: [
       { label: "Services Catalog", labelAr: "دليل الخدمات والحلول", href: "/dashboard/b2b/services", capability: "b2b.services.manage" },
+      { label: "Brand IP Portfolio", labelAr: "محفظة العلامات وحقوق الملكية", href: "/dashboard/brands", capability: "b2b.content.read" },
       { label: "Case Studies Portfolio", labelAr: "معرض المشاريع ودراسات الحالة", href: "/dashboard/b2b/cases", capability: "b2b.cases.manage" },
       { label: "Clients Directory", labelAr: "دليل العملاء والشركاء", href: "/dashboard/b2b/clients", capability: "b2b.clients.manage" },
       { label: "Leadership Page Editor", labelAr: "محرر صفحة القيادة", href: "/dashboard/b2b/leadership", capability: "b2b.content.write" },
