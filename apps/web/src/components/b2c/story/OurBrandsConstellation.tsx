@@ -1,154 +1,261 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ArrowRight, Ticket, Compass, Pause, Play, ChevronLeft, ChevronRight } from 'lucide-react'
-import { E3ArrowHeroDevice } from './E3ArrowHeroDevice'
-import { formatLocalizedText } from '@/lib/utils'
-import { localizeHref } from '@/lib/url-helper'
+import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, ArrowRight, Ticket, Compass, Pause, Play, ChevronLeft, ChevronRight } from 'lucide-react';
+import { E3ArrowHeroDevice } from './E3ArrowHeroDevice';
+import { formatLocalizedText } from '@/lib/utils';
+import { localizeHref } from '@/lib/url-helper';
 
 interface OurBrandsConstellationProps {
-  content?: any
-  locale?: string
+  content?: any;
+  locale?: string;
+}
+
+function SafeBrandLogo({
+  src,
+  alt,
+  brandColor,
+  className = "w-full h-full object-contain",
+}: {
+  src?: string;
+  alt: string;
+  brandColor?: string;
+  className?: string;
+}) {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  const cleanSrc = src ? encodeURI(decodeURI(src)) : "";
+
+  if (!cleanSrc || error) {
+    const initial = (alt || "E3").charAt(0).toUpperCase();
+    return (
+      <div
+        className="w-full h-full rounded-xl flex items-center justify-center font-black text-sm select-none"
+        style={{
+          backgroundColor: brandColor ? `${brandColor}20` : "rgba(59, 130, 246, 0.15)",
+          color: brandColor || "#3b82f6",
+        }}
+      >
+        {initial}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={cleanSrc}
+      alt={alt}
+      loading="lazy"
+      onError={() => setError(true)}
+      className={className}
+    />
+  );
+}
+
+function SafeBrandCover({
+  src,
+  alt,
+  fallbackColor,
+}: {
+  src?: string;
+  alt: string;
+  fallbackColor?: string;
+}) {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  const cleanSrc = src ? encodeURI(decodeURI(src)) : "";
+
+  if (!cleanSrc || error) {
+    return (
+      <div
+        className="w-full h-full flex flex-col items-center justify-center p-6 text-center"
+        style={{
+          background: `radial-gradient(circle at center, ${fallbackColor || '#3b82f6'}30, var(--surface-default))`
+        }}
+      >
+        <span className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{alt}</span>
+        <span className="text-xs text-[var(--text-tertiary)] mt-1">E3 Flagship Realm</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={cleanSrc}
+      alt={alt}
+      loading="lazy"
+      onError={() => setError(true)}
+      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+    />
+  );
 }
 
 export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsConstellationProps) {
-  const isAr = locale === 'ar'
-  const brandSectionData = content?.ourBrands || {}
+  const isAr = locale === 'ar';
+  const brandSectionData = content?.ourBrands || {};
 
   const heading = formatLocalizedText(
     isAr
       ? (brandSectionData.headlineAr || "عوالم من ابتكار E3")
       : (brandSectionData.headlineEn || "Worlds created by E3"),
     locale
-  )
+  );
 
   const subtext = formatLocalizedText(
     isAr
       ? (brandSectionData.subtextAr || "استكشف منظومة الوجهات والساحات الترفيهية والتطبيقات الرقمية التي ابتكرتها وطوّرتها E3.")
       : (brandSectionData.subtextEn || "Explore flagship entertainment worlds, kinetic arenas, and digital platforms created and operated by E3."),
     locale
-  )
+  );
 
-  const [brands, setBrands] = useState<any[]>(brandSectionData.brands || [])
-  const [activeBrandId, setActiveBrandId] = useState<string>("")
-  const [isPaused, setIsPaused] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const cardRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
-
-  // Update brands from content prop if provided
-  useEffect(() => {
+  const [brands, setBrands] = useState<any[]>(() => {
     if (Array.isArray(brandSectionData.brands) && brandSectionData.brands.length > 0) {
-      setBrands(brandSectionData.brands)
-    } else {
-      // Dynamic client-side fetch from live DB API endpoint (/api/b2c/brands)
-      setIsLoading(true)
-      fetch('/api/b2c/brands?published=true&portal=b2c')
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data) && data.length > 0) {
-            const palette = ["#f59e0b", "#10b981", "#ec4899", "#3b82f6", "#06b6d4", "#8b5cf6"];
-            const mapped = data.map((b: any, idx: number) => ({
-              id: b.id,
-              slug: b.slug,
-              nameEn: b.b2cTitleOverrideEn || b.nameEn,
-              nameAr: b.b2cTitleOverrideAr || b.nameAr,
-              taglineEn: b.b2cShortDescOverrideEn || b.taglineEn || b.shortDescriptionEn || "",
-              taglineAr: b.b2cShortDescOverrideAr || b.taglineAr || b.shortDescriptionAr || "",
-              descriptionEn: b.b2cDetailCopyEn || b.fullStoryEn || b.shortDescriptionEn || b.b2cShortDescOverrideEn || "",
-              descriptionAr: b.b2cDetailCopyAr || b.fullStoryAr || b.shortDescriptionAr || b.b2cShortDescOverrideAr || "",
-              logoPrimary: b.primaryLogoUrl || b.lightLogoUrl || b.darkLogoUrl || b.compactLogoUrl || "",
-              logoLight: b.lightLogoUrl || b.primaryLogoUrl || "",
-              logoDark: b.darkLogoUrl || b.primaryLogoUrl || "",
-              brandColor: palette[idx % palette.length],
-              relationship: b.primaryRelationshipId || b.lifecycleStatus || "OWNED",
-              heroImage: b.primaryMediaUrl || b.coverMediaUrl || b.primaryLogoUrl || "",
-              ctaUrl: b.b2cCtaUrl || `/b2c/brands/${b.slug}`,
-              bookingUrl: b.b2cCtaUrl || `/b2c/brands/${b.slug}`,
-              internalRoute: b.b2cCtaUrl || `/b2c/brands/${b.slug}`
-            }))
-            setBrands(mapped)
-          }
-        })
-        .catch(err => console.error("[OUR_BRANDS_FETCH_ERROR]", err))
-        .finally(() => setIsLoading(false))
+      return brandSectionData.brands;
     }
-  }, [brandSectionData.brands])
+    return [];
+  });
+  const [activeBrandId, setActiveBrandId] = useState<string>("");
+  const [isPaused, setIsPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+  const mapDbBrandToDisplay = (data: any[]) => {
+    const palette = ["#f59e0b", "#10b981", "#ec4899", "#3b82f6", "#06b6d4", "#8b5cf6", "#14b8a6", "#f43f5e"];
+    return data.map((b: any, idx: number) => ({
+      id: b.id || b.slug,
+      slug: b.slug,
+      nameEn: b.b2cTitleOverrideEn || b.nameEn,
+      nameAr: b.b2cTitleOverrideAr || b.nameAr || b.nameEn,
+      taglineEn: b.b2cShortDescOverrideEn || b.taglineEn || b.shortDescriptionEn || "",
+      taglineAr: b.b2cShortDescOverrideAr || b.taglineAr || b.shortDescriptionAr || "",
+      descriptionEn: b.b2cDetailCopyEn || b.fullStoryEn || b.shortDescriptionEn || b.b2cShortDescOverrideEn || "",
+      descriptionAr: b.b2cDetailCopyAr || b.fullStoryAr || b.shortDescriptionAr || b.b2cShortDescOverrideAr || "",
+      logoPrimary: b.primaryLogoUrl || b.lightLogoUrl || b.darkLogoUrl || b.compactLogoUrl || "",
+      logoLight: b.lightLogoUrl || b.primaryLogoUrl || "",
+      logoDark: b.darkLogoUrl || b.primaryLogoUrl || "",
+      brandColor: palette[idx % palette.length],
+      relationship: b.primaryRelationshipId || b.lifecycleStatus || "OWNED",
+      heroImage: b.primaryMediaUrl || b.coverMediaUrl || b.primaryLogoUrl || "",
+      ctaUrl: b.b2cCtaUrl || `/b2c/brands/${b.slug}`,
+      bookingUrl: b.b2cCtaUrl || `/b2c/brands/${b.slug}`,
+      internalRoute: b.b2cCtaUrl || `/b2c/brands/${b.slug}`,
+    }));
+  };
+
+  // Fetch live brands from authoritative database endpoint
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+
+    fetch('/api/b2c/brands?published=true&portal=b2c')
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch brands");
+        return res.json();
+      })
+      .then(data => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          const mapped = mapDbBrandToDisplay(data);
+          setBrands(mapped);
+        }
+      })
+      .catch(err => {
+        console.warn("[OUR_BRANDS_FETCH_WARN]", err);
+        if (isMounted && Array.isArray(brandSectionData.brands) && brandSectionData.brands.length > 0) {
+          setBrands(brandSectionData.brands);
+        }
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Keep active index in sync with available brands
   useEffect(() => {
     if (brands.length > 0 && (!activeBrandId || !brands.some(b => b.id === activeBrandId))) {
-      setActiveBrandId(brands[0].id)
+      setActiveBrandId(brands[0].id);
     }
-  }, [brands, activeBrandId])
+  }, [brands, activeBrandId]);
 
-  const activeIndex = brands.findIndex(b => b.id === activeBrandId)
-  const safeActiveIndex = activeIndex >= 0 ? activeIndex : 0
-  const activeBrand = brands[safeActiveIndex] || brands[0]
+  const activeIndex = brands.findIndex(b => b.id === activeBrandId);
+  const safeActiveIndex = activeIndex >= 0 ? activeIndex : 0;
+  const activeBrand = brands[safeActiveIndex] || brands[0];
 
-  // Auto-scroll ticker cycle: steps every 1.8 seconds if not paused
+  // Auto-scroll ticker cycle: steps every 2.4 seconds if not paused
   useEffect(() => {
-    if (isPaused || brands.length <= 1) return
+    if (isPaused || brands.length <= 1) return;
 
     const interval = setInterval(() => {
       setActiveBrandId((prevId) => {
-        const currentIdx = brands.findIndex(b => b.id === prevId)
-        const nextIdx = (currentIdx + 1) % brands.length
-        return brands[nextIdx].id
-      })
-    }, 1800)
+        const currentIdx = brands.findIndex(b => b.id === prevId);
+        const nextIdx = (currentIdx + 1) % brands.length;
+        return brands[nextIdx].id;
+      });
+    }, 2400);
 
-    return () => clearInterval(interval)
-  }, [isPaused, brands])
+    return () => clearInterval(interval);
+  }, [isPaused, brands]);
 
   // Center the active brand card in the running ticker view
   useEffect(() => {
-    if (!activeBrandId) return
-    const activeEl = cardRefs.current[activeBrandId]
-    const container = scrollContainerRef.current
+    if (!activeBrandId) return;
+    const activeEl = cardRefs.current[activeBrandId];
+    const container = scrollContainerRef.current;
 
     if (activeEl && container) {
-      const containerWidth = container.offsetWidth
-      const elOffsetLeft = activeEl.offsetLeft
-      const elWidth = activeEl.offsetWidth
+      const containerWidth = container.offsetWidth;
+      const elOffsetLeft = activeEl.offsetLeft;
+      const elWidth = activeEl.offsetWidth;
 
-      const targetScroll = elOffsetLeft - (containerWidth / 2) + (elWidth / 2)
+      const targetScroll = elOffsetLeft - (containerWidth / 2) + (elWidth / 2);
 
       container.scrollTo({
         left: targetScroll,
         behavior: 'smooth'
-      })
+      });
     }
-  }, [activeBrandId])
+  }, [activeBrandId]);
 
   const handlePrev = () => {
-    if (brands.length === 0) return
-    const prevIdx = (safeActiveIndex - 1 + brands.length) % brands.length
-    setActiveBrandId(brands[prevIdx].id)
-  }
+    if (brands.length === 0) return;
+    const prevIdx = (safeActiveIndex - 1 + brands.length) % brands.length;
+    setActiveBrandId(brands[prevIdx].id);
+  };
 
   const handleNext = () => {
-    if (brands.length === 0) return
-    const nextIdx = (safeActiveIndex + 1) % brands.length
-    setActiveBrandId(brands[nextIdx].id)
-  }
+    if (brands.length === 0) return;
+    const nextIdx = (safeActiveIndex + 1) % brands.length;
+    setActiveBrandId(brands[nextIdx].id);
+  };
 
-  const activeName = activeBrand ? formatLocalizedText(isAr ? activeBrand.nameAr : activeBrand.nameEn, locale) : ""
+  const activeName = activeBrand ? formatLocalizedText(isAr ? activeBrand.nameAr : activeBrand.nameEn, locale) : "";
 
-  const rawTaglineEn = activeBrand?.taglineEn || activeBrand?.shortDescEn || activeBrand?.shortDescriptionEn || activeBrand?.tagline
-  const rawTaglineAr = activeBrand?.taglineAr || activeBrand?.shortDescAr || activeBrand?.shortDescriptionAr || activeBrand?.tagline
+  const rawTaglineEn = activeBrand?.taglineEn || activeBrand?.shortDescEn || activeBrand?.shortDescriptionEn || activeBrand?.tagline;
+  const rawTaglineAr = activeBrand?.taglineAr || activeBrand?.shortDescAr || activeBrand?.shortDescriptionAr || activeBrand?.tagline;
 
-  const rawDescEn = activeBrand?.descriptionEn || activeBrand?.detailCopyEn || activeBrand?.shortDescEn || activeBrand?.shortDescriptionEn || activeBrand?.description
-  const rawDescAr = activeBrand?.descriptionAr || activeBrand?.detailCopyAr || activeBrand?.shortDescAr || activeBrand?.shortDescriptionAr || activeBrand?.description
+  const rawDescEn = activeBrand?.descriptionEn || activeBrand?.detailCopyEn || activeBrand?.shortDescEn || activeBrand?.shortDescriptionEn || activeBrand?.description;
+  const rawDescAr = activeBrand?.descriptionAr || activeBrand?.detailCopyAr || activeBrand?.shortDescAr || activeBrand?.shortDescriptionAr || activeBrand?.description;
 
-  const activeTagline = activeBrand ? (formatLocalizedText(isAr ? (rawTaglineAr || rawTaglineEn) : (rawTaglineEn || rawTaglineAr), locale) || (activeBrand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة لـ E3' : 'Owned E3 Concept') : (isAr ? 'منظومة إي ثري الترفيهية' : 'E3 Entertainment Realm'))) : ""
-  const activeDesc = activeBrand ? (formatLocalizedText(isAr ? (rawDescAr || rawDescEn) : (rawDescEn || rawDescAr), locale) || (isAr ? 'وجهة ترفيهية تفاعلية مبتكرة ومصممة بعناية لتقديم تجارب لا تُنسى في قطر.' : 'An innovative interactive entertainment destination engineered by E3 to deliver unforgettable experiences in Qatar.')) : ""
+  const activeTagline = activeBrand ? (formatLocalizedText(isAr ? (rawTaglineAr || rawTaglineEn) : (rawTaglineEn || rawTaglineAr), locale) || (activeBrand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة لـ E3' : 'Owned E3 Concept') : (isAr ? 'منظومة إي ثري الترفيهية' : 'E3 Entertainment Realm'))) : "";
+  const activeDesc = activeBrand ? (formatLocalizedText(isAr ? (rawDescAr || rawDescEn) : (rawDescEn || rawDescAr), locale) || (isAr ? 'وجهة ترفيهية تفاعلية مبتكرة ومصممة بعناية لتقديم تجارب لا تُنسى في قطر.' : 'An innovative interactive entertainment destination engineered by E3 to deliver unforgettable experiences in Qatar.')) : "";
 
   if (!isLoading && brands.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -234,20 +341,20 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
             className="flex items-center gap-4 overflow-x-auto hide-scrollbar py-6 px-4 scroll-smooth snap-x snap-mandatory"
           >
             {brands.map((brand) => {
-              const isActive = brand.id === activeBrandId
-              const brandName = formatLocalizedText(isAr ? brand.nameAr : brand.nameEn, locale)
+              const isActive = brand.id === activeBrandId;
+              const brandName = formatLocalizedText(isAr ? brand.nameAr : brand.nameEn, locale);
 
               return (
                 <button
                   key={brand.id}
                   ref={(el) => { cardRefs.current[brand.id] = el; }}
                   onClick={() => {
-                    setActiveBrandId(brand.id)
-                    setIsPaused(true)
+                    setActiveBrandId(brand.id);
+                    setIsPaused(true);
                   }}
                   onMouseEnter={() => {
-                    setActiveBrandId(brand.id)
-                    setIsPaused(true)
+                    setActiveBrandId(brand.id);
+                    setIsPaused(true);
                   }}
                   className={`relative shrink-0 w-56 p-5 rounded-3xl border text-start transition-all duration-500 cursor-pointer flex flex-col justify-between h-40 group snap-center ${
                     isActive
@@ -270,11 +377,12 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-1">
-                      <img
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-1.5 flex items-center justify-center">
+                      <SafeBrandLogo
                         src={brand.logoPrimary}
                         alt={brandName}
-                        className="w-full h-full object-cover rounded-xl"
+                        brandColor={brand.brandColor}
+                        className="w-full h-full object-contain"
                       />
                     </div>
                     {isActive && (
@@ -294,7 +402,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                     </h3>
                   </div>
                 </button>
-              )
+              );
             })}
           </div>
         </div>
@@ -314,8 +422,13 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
               {/* Left Info & Description (7 Cols) */}
               <div className="lg:col-span-7 space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-1 shrink-0 shadow-lg">
-                    <img src={activeBrand.logoPrimary} alt={activeName} className="w-full h-full object-cover rounded-xl" />
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-2 shrink-0 shadow-lg flex items-center justify-center">
+                    <SafeBrandLogo
+                      src={activeBrand.logoPrimary}
+                      alt={activeName}
+                      brandColor={activeBrand.brandColor}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   <div>
                     {activeTagline && (
@@ -343,7 +456,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                       style={{ backgroundColor: activeBrand.brandColor || '#a855f7', color: '#090417' }}
                     >
                       <Compass className="w-4 h-4" />
-                      <span>{isAr ? "استكشف الوجهة" : "Explore Experience"}</span>
+                      <span>{isAr ? "استكشف التجربة" : "Explore Experience"}</span>
                       <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
                     </Link>
                   )}
@@ -362,18 +475,12 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
               {/* Right Brand Hero Cover Image Stage (5 Cols) */}
               <div className="lg:col-span-5 relative aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] shadow-2xl group">
-                {activeBrand.heroImage || activeBrand.logoPrimary ? (
-                  <img
-                    src={activeBrand.heroImage || activeBrand.logoPrimary}
-                    alt={activeName}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[var(--surface-hover)] flex items-center justify-center p-6 text-center">
-                    <span className="text-xs font-mono text-[var(--text-tertiary)] uppercase">{activeName}</span>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/80 via-transparent to-transparent" />
+                <SafeBrandCover
+                  src={activeBrand.heroImage || activeBrand.logoPrimary}
+                  alt={activeName}
+                  fallbackColor={activeBrand.brandColor}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/80 via-transparent to-transparent pointer-events-none" />
               </div>
 
             </motion.div>
@@ -381,5 +488,5 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
         )}
       </div>
     </section>
-  )
+  );
 }
