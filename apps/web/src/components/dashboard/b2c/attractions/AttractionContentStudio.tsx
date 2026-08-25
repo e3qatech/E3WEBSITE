@@ -55,6 +55,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { OperatingScheduleStudio } from "@/components/dashboard/attractions/OperatingScheduleStudio";
 import { localizeHref } from "@/lib/url-helper"
 
 import { Button } from "@/components/ui/Button"
@@ -1470,56 +1471,16 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                   </div>
                 </div>
 
-                {/* Operating Timings */}
-                <div className="pt-6 border-t border-[var(--border-level-1)] space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-purple-400" />
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Operating Timings (Qatar Time GMT+3)</h3>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1">Opening Time</label>
-                      <input
-                        type="time"
-                        value={temporalStatus.openTime}
-                        onChange={e => { setTemporalStatus({ ...temporalStatus, openTime: e.target.value }); markDirty(); }}
-                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1">Closing Time</label>
-                      <input
-                        type="time"
-                        value={temporalStatus.closeTime}
-                        onChange={e => { setTemporalStatus({ ...temporalStatus, closeTime: e.target.value }); markDirty(); }}
-                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1">Display Hours (EN)</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Daily: 10:00 AM - 10:00 PM"
-                        value={temporalStatus.operatingHoursEn}
-                        onChange={e => { setTemporalStatus({ ...temporalStatus, operatingHoursEn: e.target.value }); markDirty(); }}
-                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)] block mb-1" dir="rtl">أوقات العمل (العربية)</label>
-                      <input
-                        type="text"
-                        dir="rtl"
-                        placeholder="مثال: يومياً: ١٠:٠٠ ص - ١٠:٠٠ م"
-                        value={temporalStatus.operatingHoursAr}
-                        onChange={e => { setTemporalStatus({ ...temporalStatus, operatingHoursAr: e.target.value }); markDirty(); }}
-                        className="w-full bg-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs text-right"
-                      />
-                    </div>
-                  </div>
+                {/* Operating Timings & Schedule Studio */}
+                <div className="pt-6 border-t border-[var(--border-level-1)]">
+                  <OperatingScheduleStudio
+                    temporalStatus={temporalStatus}
+                    onChange={(updated) => {
+                      setTemporalStatus(updated);
+                      markDirty();
+                    }}
+                    markDirty={markDirty}
+                  />
                 </div>
 
                 {/* Pricing Passes (Hidden if Free Access Model) */}
