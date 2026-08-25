@@ -438,19 +438,61 @@ export async function publishAllContent() {
   }
 }
 
-export async function inspectMediaState() {
+export async function cleanupSyntheticSmokeRecords(prefixes: string[] = ['E3-PROD-SMOKE', 'E3-PROD-B2C-CLOSURE']) {
   try {
-    const team: any[] = await db.$queryRawUnsafe(`SELECT "id", "firstName", "lastName", "designation", "profileImage", "showOnTeamPage" FROM "EmployeeProfile" ORDER BY "createdAt" ASC`);
-    const settings: any[] = await db.$queryRawUnsafe(`SELECT "key", "value" FROM "Setting" WHERE "key" IN ('lightLogoUrl', 'darkLogoUrl', 'faviconUrl', 'gateway_customization_published')`);
-    const pages: any[] = await db.$queryRawUnsafe(`SELECT "slug", "status", "updatedAt" FROM "Pages" ORDER BY "slug" ASC`);
-    const attractions: any[] = await db.$queryRawUnsafe(`SELECT "id", "slug", "nameEn", "isPublished", "heroImageUrl" FROM "Attraction" ORDER BY "nameEn" ASC`);
+    let deletedInquiries = 0;
+    let deletedLeads = 0;
+    let deletedRfpUploads = 0;
+
+    for (const prefix of prefixes) {
+      const inq = await db.$executeRawUnsafe(`DELETE FROM "Inquiry" WHERE "name" LIKE '%${prefix}%' OR "message" LIKE '%${prefix}%'`);
+      const lds = await db.$executeRawUnsafe(`DELETE FROM "Lead" WHERE "name" LIKE '%${prefix}%' OR "company" LIKE '%${prefix}%'`);
+      const rfps = await db.$executeRawUnsafe(`DELETE FROM "RfpUpload" WHERE "originalFileName" LIKE '%${prefix}%'`);
+      deletedInquiries += inq;
+      deletedLeads += lds;
+      deletedRfpUploads += rfps;
+    }
 
     return {
       success: true,
-      team,
-      settings,
-      pages,
-      attractions
+      deletedInquiries,
+      deletedLeads,
+      deletedRfpUploads
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message
+    };
+  }
+}
+
+export async function sendDedicatedTestEmail(recipient: string = 'amaan@eeeqa.com', sha: string = '8702696') {
+  try {
+    const { sendEmail } = await import('@/lib/email');
+    const result = await sendEmail({
+      to: recipient,
+      subject: `E3 Production Final Email Verification — ${sha}`,
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #111;">
+          <h2 style="color: #0f172a;">E3 Production Email Verification</h2>
+          <p>This is the verified Production test email dispatched from <strong>noreply@notifications.eeeqa.com</strong>.</p>
+          <p><strong>Target:</strong> Production (https://e3-qatar.vercel.app)</p>
+          <p><strong>Git SHA:</strong> ${sha}</p>
+          <p><strong>Recipient:</strong> ${recipient}</p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">Event Engineering Experts (E3 Qatar) • Automated Production Verification</p>
+        </div>
+      `,
+      category: 'CONTACT'
+    });
+
+    return {
+      success: result.success,
+      provider: result.provider,
+      messageId: result.messageId ? `${result.messageId.slice(0, 8)}...${result.messageId.slice(-6)}` : 'accepted_by_resend',
+      sender: 'E3 Qatar <noreply@notifications.eeeqa.com>',
+      recipient
     };
   } catch (err: any) {
     return {
