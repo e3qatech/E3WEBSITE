@@ -256,8 +256,8 @@ export function PackagesClient({
                 className={cn(
                   "flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border select-none",
                   isActive
-                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-lg shadow-emerald-950/20 scale-[1.02]"
-                    : "bg-slate-900/60 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white"
+                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-lg scale-[1.02]"
+                    : "bg-[var(--surface-default)] text-[var(--text-secondary)] border-[var(--border-level-2)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0" />
@@ -268,21 +268,21 @@ export function PackagesClient({
         </div>
 
         {/* 3. SEARCH & ADVANCED FILTER BAR */}
-        <div className="p-4 rounded-3xl bg-slate-900/70 border border-slate-800 backdrop-blur-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
+        <div className="p-4 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-sm backdrop-blur-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
           {/* Search Input */}
           <div className="relative col-span-1 sm:col-span-2 lg:col-span-2">
-            <Search className="w-4 h-4 text-slate-400 absolute top-1/2 -translate-y-1/2 left-3.5 rtl:left-auto rtl:right-3.5 pointer-events-none" />
+            <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute top-1/2 -translate-y-1/2 left-3.5 rtl:left-auto rtl:right-3.5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder={isAr ? "ابحث بالاسم أو الميزات أو الوجهة..." : "Search packages, inclusions or venues..."}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-2.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-emerald-500 transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 text-slate-500 hover:text-white"
+                className="absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -294,7 +294,7 @@ export function PackagesClient({
             <select
               value={audienceFilter}
               onChange={e => setAudienceFilter(e.target.value)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl px-3.5 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
+              className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
             >
               <option value="ALL">{isAr ? "جميع الفئات المستهدفة" : "All Audiences"}</option>
               <option value="KIDS">{isAr ? "الأطفال (٤-١٢ سنة)" : "Kids (Ages 4-12)"}</option>
@@ -304,7 +304,7 @@ export function PackagesClient({
               <option value="CORPORATE">{isAr ? "فرق الشركات والمؤسسات" : "Corporate Teams"}</option>
               <option value="SCHOOLS">{isAr ? "المدارس والحضانات" : "Schools & Nurseries"}</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[var(--text-tertiary)] absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 pointer-events-none" />
           </div>
 
           {/* Guest Count Selector */}
@@ -312,7 +312,7 @@ export function PackagesClient({
             <select
               value={guestCountFilter}
               onChange={e => setGuestCountFilter(e.target.value)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl px-3.5 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
+              className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
             >
               <option value="ALL">{isAr ? "طاقة استيعابية مرنة" : "Any Guest Count"}</option>
               <option value="UNDER_15">{isAr ? "حتى ١٥ ضيفاً" : "Up to 15 Guests"}</option>
@@ -320,7 +320,7 @@ export function PackagesClient({
               <option value="30_75">{isAr ? "٣٠ إلى ٧٥ ضيفاً" : "30 - 75 Guests"}</option>
               <option value="75_PLUS">{isAr ? "٧٥+ / حجز كامل" : "75+ / Full Buyout"}</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[var(--text-tertiary)] absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 pointer-events-none" />
           </div>
 
           {/* Sort Selector */}
@@ -328,7 +328,7 @@ export function PackagesClient({
             <select
               value={priceSort}
               onChange={e => setPriceSort(e.target.value)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl px-3.5 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
+              className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-2xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
             >
               <option value="recommended">{isAr ? "الترتيب: الموصى به" : "Sort: Recommended"}</option>
               <option value="price-asc">{isAr ? "السعر: من الأقل للأعلى" : "Price: Low to High"}</option>
@@ -336,20 +336,20 @@ export function PackagesClient({
               <option value="popularity">{isAr ? "الأكثر طلباً وشهرة" : "Most Popular"}</option>
               <option value="newest">{isAr ? "الأحدث أولاً" : "Newest First"}</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[var(--text-tertiary)] absolute top-1/2 -translate-y-1/2 right-3 rtl:right-auto rtl:left-3 pointer-events-none" />
           </div>
         </div>
 
         {/* Active Filter Chips & Counter */}
-        <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
           <div className="flex items-center gap-2">
-            <span className="font-mono font-bold text-emerald-400">
+            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
               {isAr ? `${filteredPackages.length} باقة متاحة` : `${filteredPackages.length} packages found`}
             </span>
             {(activeCategory !== "ALL" || searchQuery || audienceFilter !== "ALL" || guestCountFilter !== "ALL") && (
               <button
                 onClick={clearAllFilters}
-                className="text-[11px] text-slate-500 hover:text-white underline cursor-pointer"
+                className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] underline cursor-pointer"
               >
                 {isAr ? "إعادة ضبط الفلاتر" : "Reset Filters"}
               </button>
@@ -359,7 +359,7 @@ export function PackagesClient({
           {/* Quick Trigger for Package Finder */}
           <button
             onClick={() => setIsFinderOpen(true)}
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{isAr ? "جرب مستكشف الباقات الذكي" : "Need help choosing? Try Package Finder"}</span>
@@ -377,7 +377,7 @@ export function PackagesClient({
               return (
                 <InteractiveCard
                   key={pkg.id}
-                  className="rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden flex flex-col justify-between hover:border-slate-700 transition-all group"
+                  className="rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-xl transition-all group"
                 >
                   {/* Card Media Banner */}
                   <div className="relative h-48 w-full overflow-hidden bg-slate-950">
@@ -386,37 +386,39 @@ export function PackagesClient({
                       alt={pkg.titleEn}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent opacity-90" />
 
                     {/* Top Badges */}
                     <div className="absolute top-3 inset-x-3 flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                      <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-[var(--surface-default)]/90 backdrop-blur-md text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm">
                         {pkg.categoryRel ? (isAr ? pkg.categoryRel.nameAr : pkg.categoryRel.nameEn) : pkg.category}
                       </span>
 
                       <div className="flex items-center gap-1.5">
                         {pkg.badgeTextEn && (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 backdrop-blur-md">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 backdrop-blur-md shadow-sm">
                             {isAr ? (pkg.badgeTextAr || pkg.badgeTextEn) : pkg.badgeTextEn}
                           </span>
                         )}
                         <button
                           onClick={() => toggleSave(pkg.id)}
                           className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer",
-                            isSaved ? "bg-rose-500/30 text-rose-400" : "bg-slate-900/70 text-slate-400 hover:text-white"
+                            "w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer border shadow-sm",
+                            isSaved 
+                              ? "bg-rose-500/20 text-rose-500 border-rose-500/30" 
+                              : "bg-[var(--surface-default)]/80 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-level-2)]"
                           )}
                           title={isAr ? "حفظ الباقة" : "Save package"}
                         >
-                          <Heart className={cn("w-4 h-4", isSaved && "fill-rose-400")} />
+                          <Heart className={cn("w-4 h-4", isSaved && "fill-rose-500 text-rose-500")} />
                         </button>
                       </div>
                     </div>
 
                     {/* Venue / Attraction Link Badge */}
                     {pkg.attraction && (
-                      <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 flex items-center gap-1.5 text-[11px] font-bold text-slate-300 bg-slate-950/80 px-2.5 py-1 rounded-full backdrop-blur-md border border-slate-800">
-                        <Building className="w-3 h-3 text-emerald-400" />
+                      <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)] bg-[var(--surface-default)]/90 px-2.5 py-1 rounded-full backdrop-blur-md border border-[var(--border-level-2)] shadow-sm">
+                        <Building className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         <span>{isAr ? (pkg.attraction.nameAr || pkg.attraction.nameEn) : pkg.attraction.nameEn}</span>
                       </div>
                     )}
@@ -425,21 +427,21 @@ export function PackagesClient({
                   {/* Card Content Body */}
                   <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">
+                      <h3 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                         {isAr ? (pkg.titleAr || pkg.titleEn) : pkg.titleEn}
                       </h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mt-1.5 leading-relaxed">
                         {isAr ? (pkg.shortDescriptionAr || pkg.shortDescriptionEn) : pkg.shortDescriptionEn}
                       </p>
 
                       {/* Specs Row */}
-                      <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400">
+                      <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-[var(--border-level-1)] text-[11px] text-[var(--text-secondary)]">
                         <div className="flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5 text-slate-500" />
+                          <Users className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                           <span>{pkg.minGuests}–{pkg.maxGuests} {isAr ? "ضيوف" : "Guests"}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                          <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                           <span>{pkg.durationMinutes} {isAr ? "دقيقة" : "Mins"}</span>
                         </div>
                       </div>
@@ -448,8 +450,8 @@ export function PackagesClient({
                       {inclusions.length > 0 && (
                         <div className="mt-3 space-y-1">
                           {inclusions.slice(0, 3).map((inc: any, i: number) => (
-                            <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-300">
-                              <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                            <div key={i} className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)]">
+                              <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                               <span className="truncate">{isAr ? (inc.titleAr || inc.titleEn) : inc.titleEn}</span>
                             </div>
                           ))}
@@ -458,15 +460,15 @@ export function PackagesClient({
                     </div>
 
                     {/* Price & Actions Row */}
-                    <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <div className="pt-4 border-t border-[var(--border-level-2)] flex items-center justify-between">
                       <div>
-                        <div className="text-[10px] text-slate-500 uppercase font-mono">
+                        <div className="text-[10px] text-[var(--text-tertiary)] uppercase font-mono">
                           {pkg.priceDisplayMode === "PER_GUEST"
                             ? (isAr ? "لكل ضيف" : "Per Guest Rate")
                             : (isAr ? "يبدأ من" : "Starting Rate")
                           }
                         </div>
-                        <div className="text-base font-black font-mono text-white">
+                        <div className="text-base font-black font-mono text-[var(--text-primary)]">
                           {pkg.startingPrice > 0 
                             ? (isAr ? `${pkg.startingPrice.toLocaleString()} ر.ق` : `QAR ${pkg.startingPrice.toLocaleString()}`)
                             : (isAr ? "حسب المتطلبات" : "Custom Quote")
@@ -480,10 +482,10 @@ export function PackagesClient({
                           type="button"
                           onClick={() => toggleCompare(pkg)}
                           className={cn(
-                            "p-2 rounded-xl border text-xs transition-colors cursor-pointer flex items-center gap-1",
+                            "p-2 rounded-xl border text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-sm",
                             isCompared 
-                              ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
-                              : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                              ? "bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                              : "bg-[var(--surface-hover)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                           )}
                           title={isAr ? "مقارنة" : "Compare"}
                         >
@@ -505,7 +507,7 @@ export function PackagesClient({
 
                         <Link
                           href={`/${locale}/b2c/packages/${pkg.slug}`}
-                          className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow"
+                          className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all shadow-md"
                         >
                           {isAr ? "عرض التفاصيل" : "View Details"}
                         </Link>
@@ -517,14 +519,14 @@ export function PackagesClient({
             })}
           </div>
         ) : (
-          <div className="text-center py-16 px-4 bg-slate-900/40 rounded-3xl border border-slate-800/60 space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+          <div className="text-center py-16 px-4 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--surface-hover)] text-[var(--text-tertiary)] flex items-center justify-center mx-auto">
               <Search className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white">
+            <h3 className="text-lg font-bold text-[var(--text-primary)]">
               {isAr ? "لم نجد باقات تطابق الفلاتر المحددة" : "No packages found matching your criteria"}
             </h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
+            <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto">
               {isAr 
                 ? "يمكنك إعادة ضبط خيارات البحث أو استخدام مصمم الباقات المخصصة للحصول على عرض سعر فوري مخصص لفعاليتك."
                 : "Try resetting your search filters, or use our Custom Package Architect to build a tailored proposal."
@@ -534,7 +536,7 @@ export function PackagesClient({
               <Button size="sm" variant="outline" onClick={clearAllFilters} className="text-xs">
                 {isAr ? "مسح كافة الفلاتر" : "Clear All Filters"}
               </Button>
-              <Button size="sm" onClick={() => setIsCustomBuilderOpen(true)} className="text-xs font-bold bg-emerald-500 text-slate-950">
+              <Button size="sm" onClick={() => setIsCustomBuilderOpen(true)} className="text-xs font-bold bg-emerald-500 text-white">
                 {isAr ? "صمّم باقة خاصة الآن" : "Build Custom Package"}
               </Button>
             </div>
@@ -542,16 +544,16 @@ export function PackagesClient({
         )}
 
         {/* 5. SEASONAL CAMPAIGN & HIGHLIGHT BANNER */}
-        <div className="relative rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/40 to-slate-950 p-8 md:p-12 shadow-2xl">
+        <div className="relative rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-r from-emerald-950 via-slate-950 to-emerald-950 text-white p-8 md:p-12 shadow-2xl">
           <div className="max-w-2xl space-y-4 relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono font-bold uppercase tracking-wider">
-              <Calendar className="w-3.5 h-3.5" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold uppercase tracking-wider">
+              <Calendar className="w-3.5 h-3.5 text-emerald-400" />
               {isAr ? "عروض الموسم الحصرية" : "Seasonal Special & Group Offers"}
             </span>
             <h3 className="text-2xl md:text-4xl font-black font-display tracking-tight text-white">
               {isAr ? "خطط لعطلتكم القادمة مع باقات إي ثري التوفيرية" : "Book Early & Save on Group & Holiday Packages"}
             </h3>
-            <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs md:text-sm text-slate-200 leading-relaxed">
               {isAr 
                 ? "احصل على خصومات حصرية للمجموعات الكبرى وحجوزات المدارس المبكرة مع مزايا مجانية تشمل مضيفي الحفل، الضيافة، والتصوير الرقمي."
                 : "Enjoy exclusive benefits for corporate team building and school excursions, with complimentary event facilitators, digital photo packages, and catering upgrades."
@@ -567,7 +569,7 @@ export function PackagesClient({
               <Button
                 variant="outline"
                 onClick={() => setIsCustomBuilderOpen(true)}
-                className="text-xs font-bold border-slate-700 text-slate-200 hover:bg-slate-800"
+                className="text-xs font-bold border-white/20 text-white hover:bg-white/10"
               >
                 {isAr ? "طلب عرض سعر خاص" : "Request Custom Quote"}
               </Button>
@@ -578,10 +580,10 @@ export function PackagesClient({
         {/* 6. TRUST, SAFETY & SUPPORT PILLARS */}
         <div className="pt-8 space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h3 className="text-xl md:text-2xl font-black font-display tracking-tight text-white uppercase">
+            <h3 className="text-xl md:text-2xl font-black font-display tracking-tight text-[var(--text-primary)] uppercase">
               {isAr ? "لماذا تختار باقات وفعاليات إي ثري؟" : "Why Choose E3 Experience Packages?"}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-secondary)]">
               {isAr 
                 ? "معايير هندسة فعاليات احترافية تضمن الأمان، السلاسة، والذكريات الاستثنائية لضيوفكم."
                 : "Engineered event excellence combining top safety standards, dedicated event concierges, and flexible venue spaces."
@@ -636,12 +638,12 @@ export function PackagesClient({
             ].map((pillar, idx) => {
               const Icon = pillar.icon
               return (
-                <div key={idx} className="p-6 rounded-3xl bg-slate-900/50 border border-slate-800 space-y-2">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                <div key={idx} className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] space-y-2 shadow-sm">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h4 className="text-sm font-bold text-white">{isAr ? pillar.titleAr : pillar.titleEn}</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">{isAr ? pillar.descAr : pillar.descEn}</p>
+                  <h4 className="text-sm font-bold text-[var(--text-primary)]">{isAr ? pillar.titleAr : pillar.titleEn}</h4>
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? pillar.descAr : pillar.descEn}</p>
                 </div>
               )
             })}
@@ -651,10 +653,10 @@ export function PackagesClient({
         {/* 7. BILINGUAL FAQ ACCORDION */}
         <div className="pt-8 space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h3 className="text-xl md:text-2xl font-black font-display tracking-tight text-white uppercase">
+            <h3 className="text-xl md:text-2xl font-black font-display tracking-tight text-[var(--text-primary)] uppercase">
               {isAr ? "الأسئلة الشائعة حول الباقات" : "Frequently Asked Questions"}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-secondary)]">
               {isAr ? "كل ما تحتاج لمعرفته قبل حجز وتنسيق باقتك الترفيهية" : "Everything you need to know about booking and hosting with E3 Qatar"}
             </p>
           </div>
@@ -665,19 +667,19 @@ export function PackagesClient({
               return (
                 <div
                   key={faq.id}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition-colors"
+                  className="rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden transition-colors shadow-sm"
                 >
                   <button
                     onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
                     className="w-full p-4 text-start flex items-center justify-between gap-4 cursor-pointer"
                   >
-                    <span className="text-xs font-bold text-white">
+                    <span className="text-xs font-bold text-[var(--text-primary)]">
                       {isAr ? faq.questionAr : faq.questionEn}
                     </span>
-                    <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform shrink-0", isOpen && "rotate-180 text-emerald-400")} />
+                    <ChevronDown className={cn("w-4 h-4 text-[var(--text-tertiary)] transition-transform shrink-0", isOpen && "rotate-180 text-emerald-600 dark:text-emerald-400")} />
                   </button>
                   {isOpen && (
-                    <div className="px-4 pb-4 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
+                    <div className="px-4 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed border-t border-[var(--border-level-1)] pt-3">
                       {isAr ? faq.answerAr : faq.answerEn}
                     </div>
                   )}
@@ -688,12 +690,12 @@ export function PackagesClient({
         </div>
 
         {/* 8. FINAL CLOSING CONVERSION CTA */}
-        <div className="rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-8 md:p-12 text-center space-y-6">
+        <div className="rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] shadow-xl p-8 md:p-12 text-center space-y-6">
           <div className="max-w-xl mx-auto space-y-3">
-            <h3 className="text-2xl md:text-3xl font-black font-display tracking-tight text-white">
+            <h3 className="text-2xl md:text-3xl font-black font-display tracking-tight text-[var(--text-primary)]">
               {isAr ? "جاهز لتحويل مناسبتك القادمة إلى تجربة لا تُنسى؟" : "Ready to Engineer Your Next Unforgettable Event?"}
             </h3>
-            <p className="text-xs md:text-sm text-slate-400">
+            <p className="text-xs md:text-sm text-[var(--text-secondary)]">
               {isAr 
                 ? "تواصل مع فريق حجز الفعاليات في إي ثري أو صمّم باقتك الخاصة فوراً."
                 : "Speak with our dedicated event architects or build your custom package proposal in minutes."
@@ -704,14 +706,14 @@ export function PackagesClient({
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button
               onClick={() => setIsFinderOpen(true)}
-              className="text-xs font-bold bg-gradient-to-r from-emerald-500 to-sky-500 hover:opacity-95 text-slate-950 h-10 px-6 shadow-lg"
+              className="text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white h-10 px-6 shadow-md"
             >
               {isAr ? "اعثر على باقتي" : "Find My Package"}
             </Button>
             <Button
               variant="outline"
               onClick={() => setIsCustomBuilderOpen(true)}
-              className="text-xs font-bold border-slate-700 text-slate-200 hover:bg-slate-800 h-10 px-6"
+              className="text-xs font-bold border-[var(--border-level-2)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] h-10 px-6"
             >
               {isAr ? "صمّم باقة مخصصة" : "Build Custom Proposal"}
             </Button>

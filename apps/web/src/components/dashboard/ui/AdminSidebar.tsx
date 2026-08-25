@@ -85,6 +85,7 @@ const sidebarConfig: NavGroupItem[] = [
       { label: "Locations & Map GIS", labelAr: "المواقع وخريطة قطر", href: "/dashboard/b2c/locations", capability: "b2c.content.read" },
       { label: "Story Discovery", labelAr: "محرر مسار الاستكشاف", href: "/dashboard/b2c/content/story-discovery", capability: "b2c.content.write" },
       { label: "Pulse Orbit (B2C)", labelAr: "نبض الفعاليات (B2C)", href: "/dashboard/b2c/pulse-orbit", capability: "b2c.content.write" },
+      { label: "Insights & Press Articles", labelAr: "المقالات والأخبار الصحفية", href: "/dashboard/insights", capability: "b2c.content.write" },
       { label: "Everlasting Memories", labelAr: "الذكريات الخالدة", href: "/dashboard/b2c/content/memories", capability: "b2c.content.write" },
       { label: "Visitor Feedback", labelAr: "آراء وتقييمات الزوار", href: "/dashboard/crm/inquiries", capability: "b2c.feedback.manage" },
     ],
@@ -133,6 +134,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "media.read",
     subItems: [
       { label: "Media Library", labelAr: "مكتبة الوسائط والأصول", href: "/dashboard/cms/media", capability: "media.read" },
+      { label: "Insights & Press Articles", labelAr: "المقالات والأخبار الصحفية", href: "/dashboard/insights", capability: "b2c.content.write" },
       { label: "CMS Pages Index", labelAr: "فهرس صفحات إدارة المحتوى", href: "/dashboard/cms/pages", capability: "b2c.content.read" },
       { label: "Social Media Hub", labelAr: "إدارة التواصل الاجتماعي", href: "/dashboard/social-media", capability: "media.read", roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "HR_ADMIN", "OPERATIONS_ADMIN"] },
     ],
