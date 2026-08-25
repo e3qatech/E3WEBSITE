@@ -150,12 +150,20 @@ export async function GET(req: NextRequest) {
       dbAttractions = await db.attraction.findMany({
         where: attrWhere,
         include: {
-          pricing: { orderBy: { price: 'asc' }, take: 1 },
+          pricing: { orderBy: { price: 'asc' } },
           offers: true,
           gallery: { orderBy: { orderIndex: 'asc' }, take: 1 },
           temporalRules: true,
+          attractionLocations: {
+            include: {
+              location: true
+            }
+          }
         },
-        orderBy: { isFeatured: 'desc' },
+        orderBy: [
+          { isFeatured: 'desc' },
+          { createdAt: 'desc' }
+        ],
       }).catch(() => []);
     } catch (e: any) {
       console.warn('[CALENDAR_API_NOTICE] Failed to query attraction table:', e?.message || e);
@@ -338,35 +346,37 @@ export async function GET(req: NextRequest) {
       }
 
       const ops = (attr?.operations as any) || {};
-      const rawHours = ops.hours?.en || ops.hours || '';
+      const temporal = (attr?.temporalStatus as any) || {};
+      const DAYS_MAP = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const targetDayKey = DAYS_MAP[startBounds.startUtc.getDay()];
+      const daySlot = temporal?.weeklySchedule?.[targetDayKey]?.slots?.[0];
+
       let openHour = 10;
       let openMin = 0;
       let closeHour = 22;
       let closeMin = 0;
 
-      if (ops.openingTime) {
-        const parts = String(ops.openingTime).split(':').map(Number);
-        if (!isNaN(parts[0])) openHour = parts[0];
-        if (!isNaN(parts[1])) openMin = parts[1];
-      } else if (typeof rawHours === 'string' && rawHours.includes(':')) {
-        const timeMatches = rawHours.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/gi);
-        if (timeMatches && timeMatches.length >= 2) {
-          // Parse start and end time
-          const startMatch = timeMatches[0];
-          const endMatch = timeMatches[1];
-          if (startMatch) {
-            const isPM = /PM/i.test(startMatch);
-            const digits = startMatch.replace(/[^0-9:]/g, '').split(':').map(Number);
-            openHour = isPM && digits[0] < 12 ? digits[0] + 12 : digits[0];
-            openMin = digits[1] || 0;
-          }
-          if (endMatch) {
-            const isPM = /PM/i.test(endMatch);
-            const digits = endMatch.replace(/[^0-9:]/g, '').split(':').map(Number);
-            closeHour = isPM && digits[0] < 12 ? digits[0] + 12 : digits[0];
-            closeMin = digits[1] || 0;
-          }
-        }
+      if (daySlot?.openTime && daySlot?.closeTime) {
+        const oParts = String(daySlot.openTime).split(':').map(Number);
+        const cParts = String(daySlot.closeTime).split(':').map(Number);
+        if (!isNaN(oParts[0])) openHour = oParts[0];
+        if (!isNaN(oParts[1])) openMin = oParts[1];
+        if (!isNaN(cParts[0])) closeHour = cParts[0];
+        if (!isNaN(cParts[1])) closeMin = cParts[1];
+      } else if (temporal.openTime && temporal.closeTime) {
+        const oParts = String(temporal.openTime).split(':').map(Number);
+        const cParts = String(temporal.closeTime).split(':').map(Number);
+        if (!isNaN(oParts[0])) openHour = oParts[0];
+        if (!isNaN(oParts[1])) openMin = oParts[1];
+        if (!isNaN(cParts[0])) closeHour = cParts[0];
+        if (!isNaN(cParts[1])) closeMin = cParts[1];
+      } else if (ops.openingTime && ops.closingTime) {
+        const oParts = String(ops.openingTime).split(':').map(Number);
+        const cParts = String(ops.closingTime).split(':').map(Number);
+        if (!isNaN(oParts[0])) openHour = oParts[0];
+        if (!isNaN(oParts[1])) openMin = oParts[1];
+        if (!isNaN(cParts[0])) closeHour = cParts[0];
+        if (!isNaN(cParts[1])) closeMin = cParts[1];
       }
 
       // Calculate UTC start and end timestamps in Qatar timezone (UTC+3)
@@ -381,9 +391,13 @@ export async function GET(req: NextRequest) {
         attr?.logoUrl ||
         DEFAULT_COVER;
 
-      const lowestPrice = attr?.pricing?.[0]
-        ? `${attr.pricing[0].currency || 'QAR'} ${attr.pricing[0].price}`
+      const minPricingPass = Array.isArray(attr?.pricing) && attr.pricing.length > 0
+        ? attr.pricing.reduce((min: any, curr: any) => (!min || curr.price < min.price ? curr : min), null)
         : null;
+
+      const lowestPrice = minPricingPass
+        ? `${minPricingPass.currency || 'QAR'} ${minPricingPass.price}`
+        : (attr?.accessModel === 'FREE' ? (isAr ? 'دخول مجاني' : 'Free Entry') : null);
 
       const bookingAction = resolveBookingAction(
         attr?.ticketingUrl,
@@ -392,8 +406,9 @@ export async function GET(req: NextRequest) {
         attr?.nameEn
       );
 
-      const locationNameEn = ops.locationNameEn || (typeof ops.venueName === 'string' ? ops.venueName : ops.venueName?.en) || 'Doha, Qatar';
-      const locationNameAr = ops.locationNameAr || (typeof ops.venueName === 'string' ? ops.venueName : ops.venueName?.ar) || 'الدوحة، قطر';
+      const primaryLoc = attr?.attractionLocations?.[0]?.location;
+      const locationNameEn = primaryLoc?.nameEn || primaryLoc?.addressEn || ops.locationNameEn || (typeof ops.venueName === 'string' ? ops.venueName : ops.venueName?.en) || 'Doha, Qatar';
+      const locationNameAr = primaryLoc?.nameAr || primaryLoc?.addressAr || ops.locationNameAr || (typeof ops.venueName === 'string' ? ops.venueName : ops.venueName?.ar) || 'الدوحة، قطر';
 
       const openingTimeString = `${String(openHour).padStart(2, '0')}:${String(openMin).padStart(2, '0')}`;
       const closingTimeString = `${String(closeHour).padStart(2, '0')}:${String(closeMin).padStart(2, '0')}`;
@@ -423,6 +438,7 @@ export async function GET(req: NextRequest) {
         locationNameAr,
         openingTime: openingTimeString,
         closingTime: closingTimeString,
+        isFeatured: Boolean(attr.isFeatured),
         ticketingUrl: bookingAction.url,
         bookingAction,
       });

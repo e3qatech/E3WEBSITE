@@ -55,7 +55,28 @@ export function isAttractionActiveByDate(item: any, targetDateInput?: Date | str
     if (adminStatus === 'live' || adminStatus === 'active') return true
   }
 
-  if (temporal.isPermanent || temporal.isPermanentAttraction) return true
+  if (temporal.isPermanent || temporal.isPermanentAttraction || temporal.lifespanType === 'PERMANENT') {
+    // Check if a special date exception or weekly closed day overrides it on this specific date
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+
+    if (Array.isArray(temporal.specialDates)) {
+      const specialOverride = temporal.specialDates.find((s: any) => s.date === dateStr);
+      if (specialOverride && specialOverride.isClosed) {
+        return false;
+      }
+    }
+
+    const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayKey = DAYS[now.getDay()];
+    if (temporal.weeklySchedule && temporal.weeklySchedule[dayKey] && temporal.weeklySchedule[dayKey].isOpen === false) {
+      return false;
+    }
+
+    return true;
+  }
 
   // 3. Date Boundaries Verification (Start Date <= Target Date <= End Date)
   const startDateStr = temporal.startDate || item.startDate || item.operations?.startDate
@@ -73,6 +94,25 @@ export function isAttractionActiveByDate(item: any, targetDateInput?: Date | str
     if (!isNaN(end.getTime()) && now > end) {
       return false // Expired (past event)
     }
+  }
+
+  // 4. Special Dates Exception & Weekly Closed Days
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const dateStr = `${year}-${month}-${day}`;
+
+  if (Array.isArray(temporal.specialDates)) {
+    const specialOverride = temporal.specialDates.find((s: any) => s.date === dateStr);
+    if (specialOverride && specialOverride.isClosed) {
+      return false;
+    }
+  }
+
+  const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const dayKey = DAYS[now.getDay()];
+  if (temporal.weeklySchedule && temporal.weeklySchedule[dayKey] && temporal.weeklySchedule[dayKey].isOpen === false) {
+    return false;
   }
 
   return true
@@ -232,8 +272,18 @@ export async function getCanonicalAttractions() {
       include: {
         gallery: { orderBy: { orderIndex: 'asc' } },
         pricing: { orderBy: { price: 'asc' } },
+        offers: true,
+        featuresList: { orderBy: { orderIndex: 'asc' } },
+        attractionLocations: {
+          include: {
+            location: true
+          }
+        }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: [
+        { isFeatured: 'desc' },
+        { createdAt: 'desc' }
+      ]
     })
     return records
   } catch (_e) {
