@@ -20,6 +20,7 @@ import { useNearestLocations } from '@/hooks/useNearestLocations';
 import { MapGeoJSONCollection, MapGeoJSONFeature } from '../map/map-types';
 import { getBentoCardSpan } from '@/lib/bento-grid';
 import { localizeHref } from '@/lib/url-helper';
+import { isAttractionActiveByDate } from '@/lib/cms-attractions';
 
 interface AttractionsDirectoryProps {
   initialAttractions: Attraction[];
@@ -242,7 +243,7 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
       let mapFeatures: MapGeoJSONFeature[] = [];
 
       try {
-        const res = await fetch(`/api/public/locations/map?locale=${locale}`);
+        const res = await fetch(`/api/public/locations/map?locale=${locale}&activeOnly=true`);
         if (res.ok) {
           const json = await res.json();
           if (json?.features && json.features.length > 0) {
@@ -253,82 +254,44 @@ export function AttractionsMapSection({ initialAttractions, locale }: Attraction
         console.error('Failed to load public map GeoJSON', e);
       }
 
-      // Guaranteed Fallback: Construct GeoJSON from attractions list if API returns empty
+      // Guaranteed Fallback: Construct GeoJSON from active attractions list if API returns empty
       if (mapFeatures.length === 0) {
-        mapFeatures = attractionsList.map((attr, idx) => ({
-          type: 'Feature',
-          id: attr.id || `attr-${idx}`,
-          geometry: {
-            type: 'Point',
-            coordinates: [
-              attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
-              attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01)
-            ]
-          },
-          properties: {
-            locationId: attr.id || `attr-${idx}`,
-            slug: attr.slug || 'attraction',
-            name: (locale === 'ar' ? attr.nameAr : attr.nameEn) || attr.nameEn || 'Attraction',
-            nameEn: attr.nameEn || 'Attraction',
-            nameAr: attr.nameAr || 'وجهة ترفيهية',
-            venue: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || attr.operations?.locationNameEn || 'Qatar',
-            address: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || 'Qatar',
-            locationType: 'PERMANENT_ATTRACTION',
-            operationalStatus: 'OPEN',
-            thumbnailUrl: attr.heroMediaUrl || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
-            pinColorToken: idx === 0 ? 'CYAN' : idx === 1 ? 'GOLD' : idx === 2 ? 'PURPLE' : 'AMBER',
-            featured: true,
-            attractionCount: 1,
-            latitude: attr.operations?.lat || attr.coordinates?.lat || (25.4180 - idx * 0.01),
-            longitude: attr.operations?.lng || attr.coordinates?.lng || (51.5305 + idx * 0.01),
-            ticketingUrl: attr.ticketingUrl || `/${locale}/b2c/calendar`,
-            googleMapsUrl: `https://maps.google.com/?q=${attr.operations?.lat || 25.4180},${attr.operations?.lng || 51.5305}`
-          }
-        }));
-      }
+        const activeAttractions = attractionsList.filter(isAttractionActiveByDate);
+        mapFeatures = activeAttractions.map((attr, idx) => {
+          const defaultLng = attr.slug.includes('vendome') ? 51.5208 : attr.slug.includes('doha-mall') || attr.slug.includes('urban') ? 51.506754 : 51.530592;
+          const defaultLat = attr.slug.includes('vendome') ? 25.4043 : attr.slug.includes('doha-mall') || attr.slug.includes('urban') ? 25.233187 : 25.325963;
+          const lng = attr.operations?.lng || attr.coordinates?.lng || defaultLng;
+          const lat = attr.operations?.lat || attr.coordinates?.lat || defaultLat;
 
-      // Fetch active calendar events to guarantee all active scheduled events display as map pins
-      try {
-        const calRes = await fetch(`/api/calendar?availableNow=true`);
-        if (calRes.ok) {
-          const calEvents = await calRes.json();
-          if (Array.isArray(calEvents)) {
-            const existingIds = new Set(mapFeatures.map(f => f.properties.locationId || f.id));
-            calEvents.forEach((ev: any, idx: number) => {
-              if (!existingIds.has(ev.id) && !existingIds.has(ev.attractionId)) {
-                mapFeatures.push({
-                  type: 'Feature',
-                  id: `ev-${ev.id || idx}`,
-                  geometry: {
-                    type: 'Point',
-                    coordinates: [51.5320 + (idx * 0.008), 25.4190 - (idx * 0.005)]
-                  },
-                  properties: {
-                    locationId: `ev-${ev.id}`,
-                    slug: ev.attractionSlug || 'calendar',
-                    name: (locale === 'ar' ? ev.attractionNameAr : ev.attractionNameEn) || ev.title,
-                    nameEn: ev.attractionNameEn || ev.title,
-                    nameAr: ev.attractionNameAr || ev.title,
-                    venue: (locale === 'ar' ? ev.locationNameAr : ev.locationNameEn) || 'Qatar',
-                    address: (locale === 'ar' ? ev.locationNameAr : ev.locationNameEn) || 'Qatar',
-                    locationType: 'EVENT',
-                    operationalStatus: 'OPEN',
-                    thumbnailUrl: ev.thumbnail || 'https://images.unsplash.com/photo-1513151233558-d860c5398176',
-                    pinColorToken: 'GOLD',
-                    featured: true,
-                    attractionCount: 1,
-                    latitude: 25.4190 - (idx * 0.005),
-                    longitude: 51.5320 + (idx * 0.008),
-                    ticketingUrl: ev.ticketingUrl || `/${locale}/b2c/calendar`,
-                    directionsUrl: `https://maps.google.com/?q=25.4190,51.5320`
-                  }
-                });
-              }
-            });
-          }
-        }
-      } catch (e) {
-        console.warn('Calendar events map fetch notice:', e);
+          return {
+            type: 'Feature',
+            id: attr.id || `attr-${idx}`,
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]
+            },
+            properties: {
+              locationId: attr.id || `attr-${idx}`,
+              slug: attr.slug || 'attraction',
+              name: (locale === 'ar' ? attr.nameAr : attr.nameEn) || attr.nameEn || 'Attraction',
+              nameEn: attr.nameEn || 'Attraction',
+              nameAr: attr.nameAr || 'وجهة ترفيهية',
+              venue: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || attr.operations?.locationNameEn || 'Qatar',
+              address: (locale === 'ar' ? attr.operations?.locationNameAr : attr.operations?.locationNameEn) || 'Qatar',
+              locationType: 'PERMANENT_ATTRACTION',
+              operationalStatus: 'OPEN',
+              thumbnailUrl: attr.heroMediaUrl || attr.heroThumbnailUrl || 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/18840624-4dec-488f-a735-758d1468ae14.jpg',
+              pinColorToken: idx === 0 ? 'CYAN' : idx === 1 ? 'GOLD' : idx === 2 ? 'PURPLE' : 'AMBER',
+              featured: true,
+              attractionCount: 1,
+              latitude: lat,
+              longitude: lng,
+              ticketingUrl: attr.ticketingUrl || `/${locale}/b2c/attractions/${attr.slug || ''}`,
+              directionsUrl: `https://maps.google.com/?q=${lat},${lng}`,
+              googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`
+            }
+          };
+        });
       }
 
       setGeoJson({ type: 'FeatureCollection', features: mapFeatures });
