@@ -51,7 +51,8 @@ import {
   Upload,
   Download,
   UploadCloud,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Edit2
 } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -286,6 +287,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   })
 
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
+  const [selectedEditingLocation, setSelectedEditingLocation] = useState<any | null>(null)
   const [availableLocations, setAvailableLocations] = useState<any[]>([])
   const [availableStoryTypes, setAvailableStoryTypes] = useState<any[]>([])
   const [availableBrands, setAvailableBrands] = useState<any[]>([])
@@ -1561,8 +1563,8 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                          <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer me-2">
                             <input
                               type="radio"
                               name="primaryLocationRadio"
@@ -1579,10 +1581,24 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                           <button
                             type="button"
                             onClick={() => {
+                              const fullLoc = availableLocations.find(a => a.id === link.locationId) || link.location || link
+                              setSelectedEditingLocation(fullLoc)
+                              setIsLocationModalOpen(true)
+                            }}
+                            className="p-2 rounded-xl text-purple-400 hover:bg-purple-500/10 transition-colors cursor-pointer"
+                            title="Edit Venue Details & GPS Coordinates"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
                               setLinkedLocations(linkedLocations.filter((_, i) => i !== idx))
                               markDirty()
                             }}
-                            className="p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors"
+                            className="p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            title="Remove Location"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1940,10 +1956,30 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
       {isLocationModalOpen && (
         <LocationSelectorModal
           isOpen={isLocationModalOpen}
-          onClose={() => setIsLocationModalOpen(false)}
+          initialEditingLocation={selectedEditingLocation}
+          onClose={() => {
+            setIsLocationModalOpen(false)
+            setSelectedEditingLocation(null)
+          }}
           availableLocations={availableLocations}
           currentlyLinkedIds={linkedLocations.map(l => l.locationId)}
           onRefreshLocations={loadData}
+          onUpdateLocation={(updatedLoc: any) => {
+            setLinkedLocations(linkedLocations.map(l => {
+              if (l.locationId === updatedLoc.id) {
+                return {
+                  ...l,
+                  location: updatedLoc,
+                  nameEn: updatedLoc.nameEn,
+                  nameAr: updatedLoc.nameAr,
+                  venueEn: updatedLoc.venueEn,
+                  venueAr: updatedLoc.venueAr
+                }
+              }
+              return l
+            }))
+            markDirty()
+          }}
           onLinkLocation={(loc: any) => {
             const already = linkedLocations.find(l => l.locationId === loc.id)
             if (!already) {
@@ -1959,6 +1995,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
               markDirty()
             }
             setIsLocationModalOpen(false)
+            setSelectedEditingLocation(null)
           }}
         />
       )}
