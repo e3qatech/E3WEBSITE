@@ -36,7 +36,7 @@ function SafeBrandLogo({
     const initial = (alt || "E3").charAt(0).toUpperCase();
     return (
       <div
-        className="w-full h-full rounded-xl flex items-center justify-center font-black text-sm select-none"
+        className="w-full h-full rounded-xl flex items-center justify-center font-black text-lg select-none"
         style={{
           backgroundColor: brandColor ? `${brandColor}20` : "rgba(59, 130, 246, 0.15)",
           color: brandColor || "#3b82f6",
@@ -127,6 +127,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
   const [activeBrandId, setActiveBrandId] = useState<string>("");
   const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
@@ -189,14 +190,20 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
   useEffect(() => {
     if (brands.length > 0 && (!activeBrandId || !brands.some(b => b.id === activeBrandId))) {
       setActiveBrandId(brands[0].id);
+      setIsExpanded(false);
     }
   }, [brands, activeBrandId]);
+
+  // Reset read-more state on brand change
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [activeBrandId]);
 
   const activeIndex = brands.findIndex(b => b.id === activeBrandId);
   const safeActiveIndex = activeIndex >= 0 ? activeIndex : 0;
   const activeBrand = brands[safeActiveIndex] || brands[0];
 
-  // Auto-scroll ticker cycle: steps every 2.4 seconds if not paused
+  // Auto-scroll ticker cycle: steps gently every 3.8 seconds if not paused
   useEffect(() => {
     if (isPaused || brands.length <= 1) return;
 
@@ -206,7 +213,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
         const nextIdx = (currentIdx + 1) % brands.length;
         return brands[nextIdx].id;
       });
-    }, 2400);
+    }, 3800);
 
     return () => clearInterval(interval);
   }, [isPaused, brands]);
@@ -253,6 +260,11 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
   const activeTagline = activeBrand ? (formatLocalizedText(isAr ? (rawTaglineAr || rawTaglineEn) : (rawTaglineEn || rawTaglineAr), locale) || (activeBrand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة لـ E3' : 'Owned E3 Concept') : (isAr ? 'منظومة إي ثري الترفيهية' : 'E3 Entertainment Realm'))) : "";
   const activeDesc = activeBrand ? (formatLocalizedText(isAr ? (rawDescAr || rawDescEn) : (rawDescEn || rawDescAr), locale) || (isAr ? 'وجهة ترفيهية تفاعلية مبتكرة ومصممة بعناية لتقديم تجارب لا تُنسى في قطر.' : 'An innovative interactive entertainment destination engineered by E3 to deliver unforgettable experiences in Qatar.')) : "";
+
+  // Truncation threshold for long descriptions
+  const DESC_LIMIT = 200;
+  const isDescLong = activeDesc.length > DESC_LIMIT;
+  const renderedDesc = isExpanded || !isDescLong ? activeDesc : `${activeDesc.slice(0, DESC_LIMIT).trim()}...`;
 
   if (!isLoading && brands.length === 0) {
     return null;
@@ -338,7 +350,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
 
           <div 
             ref={scrollContainerRef}
-            className="flex items-center gap-4 overflow-x-auto hide-scrollbar py-6 px-4 scroll-smooth snap-x snap-mandatory"
+            className="flex items-center gap-5 overflow-x-auto hide-scrollbar py-6 px-4 scroll-smooth snap-x snap-mandatory"
           >
             {brands.map((brand) => {
               const isActive = brand.id === activeBrandId;
@@ -353,13 +365,13 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                     setIsPaused(true);
                   }}
                   onMouseEnter={() => {
-                    setActiveBrandId(brand.id);
+                    // Only pause on hover without rapidly jumping between items
                     setIsPaused(true);
                   }}
-                  className={`relative shrink-0 w-56 p-5 rounded-3xl border text-start transition-all duration-500 cursor-pointer flex flex-col justify-between h-40 group snap-center ${
+                  className={`relative shrink-0 w-60 p-5 rounded-3xl border text-start transition-all duration-300 cursor-pointer flex flex-col justify-between h-44 group snap-center ${
                     isActive
                       ? 'border-purple-500 bg-[var(--surface-default)] shadow-2xl scale-105 z-10'
-                      : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/70 hover:border-purple-400 hover:bg-[var(--surface-default)] opacity-80 hover:opacity-100 shadow-sm'
+                      : 'border-[var(--border-level-2)] bg-[var(--surface-default)]/70 hover:border-purple-400 hover:bg-[var(--surface-default)] opacity-85 hover:opacity-100 shadow-sm'
                   }`}
                   style={{
                     borderColor: isActive ? (brand.brandColor || '#a855f7') : undefined,
@@ -376,8 +388,9 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                     </motion.div>
                   )}
 
+                  {/* High-Contrast Crisp Logo Placeholder */}
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-1.5 flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-white/95 border border-white/30 shadow-md p-2.5 flex items-center justify-center">
                       <SafeBrandLogo
                         src={brand.logoPrimary}
                         alt={brandName}
@@ -386,18 +399,12 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                       />
                     </div>
                     {isActive && (
-                      <span className="w-2 h-2 rounded-full animate-ping" style={{ backgroundColor: brand.brandColor || '#a855f7' }} />
+                      <span className="w-2.5 h-2.5 rounded-full animate-ping" style={{ backgroundColor: brand.brandColor || '#a855f7' }} />
                     )}
                   </div>
 
-                  <div>
-                    <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase tracking-widest block">
-                      {brand.relationship === 'SUBSIDIARY' ? (isAr ? 'شركة تابعة' : 'Subsidiary') :
-                       brand.relationship === 'OWNED' ? (isAr ? 'فكرة مملوكة' : 'Owned Concept') :
-                       brand.relationship === 'OPERATED' ? (isAr ? 'مفهوم مُشغّل' : 'Operated Concept') :
-                       (isAr ? 'تجربة منفّذة' : 'Delivered Experience')}
-                    </span>
-                    <h3 className="text-base font-extrabold text-[var(--text-primary)] line-clamp-1 mt-0.5">
+                  <div className="pt-2">
+                    <h3 className="text-base font-extrabold text-[var(--text-primary)] line-clamp-1">
                       {brandName}
                     </h3>
                   </div>
@@ -422,7 +429,7 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
               {/* Left Info & Description (7 Cols) */}
               <div className="lg:col-span-7 space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] p-2 shrink-0 shadow-lg flex items-center justify-center">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white dark:bg-white/95 border border-white/30 p-3 shrink-0 shadow-lg flex items-center justify-center">
                     <SafeBrandLogo
                       src={activeBrand.logoPrimary}
                       alt={activeName}
@@ -443,9 +450,20 @@ export function OurBrandsConstellation({ content, locale = 'en' }: OurBrandsCons
                 </div>
 
                 {activeDesc && (
-                  <p className="text-sm sm:text-base text-[var(--text-secondary)] font-light leading-relaxed">
-                    {activeDesc}
-                  </p>
+                  <div className="text-sm sm:text-base text-[var(--text-secondary)] font-light leading-relaxed">
+                    <p className="inline">
+                      {renderedDesc}
+                    </p>
+                    {isDescLong && (
+                      <button
+                        type="button"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="inline-flex items-center ms-2 text-xs font-bold text-emerald-400 hover:text-emerald-300 underline cursor-pointer transition-colors"
+                      >
+                        {isExpanded ? (isAr ? "عرض أقل" : "Read less") : (isAr ? "اقرأ المزيد" : "Read more")}
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 <div className="flex flex-wrap items-center gap-4 pt-2">
