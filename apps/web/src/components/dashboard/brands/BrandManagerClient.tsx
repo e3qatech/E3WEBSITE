@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   Star,
   FolderPlus,
+  Folders,
   Check,
 } from "lucide-react";
 import {
@@ -81,23 +82,36 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Category Manager Modal
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
+  const [catEditNameEn, setCatEditNameEn] = useState("");
+  const [catEditNameAr, setCatEditNameAr] = useState("");
+
   // New Category Inline Creator
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [newCatNameEn, setNewCatNameEn] = useState("");
   const [newCatNameAr, setNewCatNameAr] = useState("");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
-  // Fetch categories on mount if empty
+  // Refresh categories from API
+  const refreshCategories = async () => {
+    try {
+      const res = await fetch("/api/b2c/brand-categories");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setCategoryList(data);
+        }
+      }
+    } catch (err) {
+      console.warn("[LOAD_CATEGORIES_ERR]", err);
+    }
+  };
+
   useEffect(() => {
     if (!categories || categories.length === 0) {
-      fetch("/api/b2c/brand-categories")
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data) && data.length > 0) {
-            setCategoryList(data);
-          }
-        })
-        .catch((err) => console.warn("[LOAD_CATEGORIES_ERR]", err));
+      refreshCategories();
     }
   }, [categories]);
 
@@ -136,8 +150,9 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
       b2cActive: brands.filter((b) => b.showOnB2C && b.isActive).length,
       b2bActive: brands.filter((b) => b.showOnB2B && b.isActive).length,
       featured: brands.filter((b) => b.featureOnB2C || b.featureOnB2B).length,
+      categoriesCount: categoryList.length,
     };
-  }, [brands]);
+  }, [brands, categoryList]);
 
   const handleAddNew = () => {
     const defaultCatId = categoryList[0]?.id || categoryList[0]?.slug || "";
@@ -283,7 +298,9 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
 
       const newCategory = await res.json();
       setCategoryList([...categoryList, newCategory]);
-      setEditForm({ ...editForm, categoryId: newCategory.id });
+      if (editForm && isEditing) {
+        setEditForm({ ...editForm, categoryId: newCategory.id });
+      }
       setNewCatNameEn("");
       setNewCatNameAr("");
       setShowAddCategoryModal(false);
@@ -291,6 +308,42 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
       alert(err.message || "Error creating category");
     } finally {
       setIsCreatingCategory(false);
+    }
+  };
+
+  const handleUpdateCategory = async (catId: string) => {
+    if (!catEditNameEn || !catEditNameAr) return;
+    try {
+      const res = await fetch(`/api/b2c/brand-categories/${catId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nameEn: catEditNameEn, nameAr: catEditNameAr }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setCategoryList(categoryList.map((c) => (c.id === catId ? updated : c)));
+        setEditingCategory(null);
+      }
+    } catch (e) {
+      console.error("Update category error:", e);
+    }
+  };
+
+  const handleDeleteCategory = async (catId: string) => {
+    if (!confirm(isAr ? "هل أنت متأكد من حذف هذه الفئة؟" : "Are you sure you want to delete this category?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/b2c/brand-categories/${catId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to delete category");
+      }
+      setCategoryList(categoryList.filter((c) => c.id !== catId));
+    } catch (e: any) {
+      alert(e.message || "Failed to delete category");
     }
   };
 
@@ -351,8 +404,18 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
           { label: isAr ? "لوحة التحكم" : "Dashboard", href: "/dashboard" },
           { label: isAr ? "العلامات التجارية" : "Brand IP" },
         ]}
+        secondaryAction={
+          <button
+            type="button"
+            onClick={() => setShowCategoryManager(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-xs font-bold text-[var(--text-primary)] shadow-sm transition-colors cursor-pointer"
+          >
+            <Folders className="w-4 h-4 text-blue-500" />
+            {isAr ? "إدارة الفئات" : "Manage Categories"}
+          </button>
+        }
         primaryAction={{
-          label: isAr ? "إضافة علامة تجارية جديدة" : "Add New Brand IP",
+          label: isAr ? "إضافة علامة تجارية" : "Add Brand IP",
           onClick: handleAddNew,
           icon: <Plus className="w-4 h-4" />,
         }}
@@ -392,11 +455,11 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
 
         <div className="p-5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-1)] shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">{isAr ? "العلامات المميزة" : "Featured Brands"}</p>
-            <p className="text-2xl font-black text-amber-500 mt-1">{stats.featured}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">{isAr ? "فئات التصنيف" : "Taxonomy Categories"}</p>
+            <p className="text-2xl font-black text-amber-500 mt-1">{stats.categoriesCount}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
-            <Star className="w-6 h-6" />
+            <Folders className="w-6 h-6" />
           </div>
         </div>
       </div>
@@ -590,7 +653,163 @@ export function BrandManagerClient({ initialBrands, categories }: BrandManagerPr
         </div>
       )}
 
-      {/* CREATE / EDIT MODAL */}
+      {/* CATEGORY MANAGEMENT MODAL / STUDIO */}
+      {showCategoryManager && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-2xl p-6 md:p-8 text-start my-8 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-4 border-b border-[var(--border-level-1)] shrink-0">
+              <div className="flex items-center gap-2.5">
+                <Folders className="w-6 h-6 text-blue-500" />
+                <div>
+                  <h3 className="text-lg font-black text-[var(--text-primary)]">
+                    {isAr ? "إدارة فئات وتصنيفات العلامات" : "Brand Taxonomy Categories"}
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {isAr ? "التحكم في فئات العلامات التجارية وحقوق الملكية" : "Manage entertainment, technology, and IP taxonomy sectors"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCategoryManager(false);
+                  setEditingCategory(null);
+                }}
+                className="w-8 h-8 rounded-full bg-[var(--bg-level-1)] hover:bg-[var(--surface-hover)] flex items-center justify-center text-[var(--text-secondary)] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Category List */}
+            <div className="flex-1 overflow-y-auto py-4 space-y-3 pe-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
+                  {isAr ? `الفئات المتاحة (${categoryList.length})` : `Available Categories (${categoryList.length})`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCategoryModal(true)}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-500 hover:text-blue-600 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> {isAr ? "إضافة فئة جديدة" : "Add New"}
+                </button>
+              </div>
+
+              {categoryList.map((cat) => {
+                const linkedCount = brands.filter(
+                  (b) => b.categoryId === cat.id || b.category?.id === cat.id || b.category?.slug === cat.slug
+                ).length;
+                const isItemEditing = editingCategory?.id === cat.id;
+
+                return (
+                  <div
+                    key={cat.id || cat.slug}
+                    className="p-4 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-2)] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    {isItemEditing ? (
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={catEditNameEn}
+                          onChange={(e) => setCatEditNameEn(e.target.value)}
+                          placeholder="Category Name (EN)"
+                          className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                        />
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={catEditNameAr}
+                          onChange={(e) => setCatEditNameAr(e.target.value)}
+                          placeholder="اسم الفئة (AR)"
+                          className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] font-arabic"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-[var(--text-primary)]">{cat.nameEn}</span>
+                          <span className="text-xs text-[var(--text-secondary)] font-arabic">({cat.nameAr})</span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1 text-[11px] text-[var(--text-tertiary)]">
+                          <span className="font-mono">/{cat.slug}</span>
+                          <span>•</span>
+                          <span className="text-blue-500 font-semibold">{linkedCount} brand(s)</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isItemEditing ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateCategory(cat.id)}
+                            className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 cursor-pointer"
+                            title="Save"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingCategory(null)}
+                            className="p-2 rounded-xl bg-gray-500/10 text-gray-400 hover:bg-gray-500/20 cursor-pointer"
+                            title="Cancel"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCategory(cat);
+                              setCatEditNameEn(cat.nameEn);
+                              setCatEditNameAr(cat.nameAr);
+                            }}
+                            className="p-2 rounded-xl text-[var(--text-secondary)] hover:text-blue-500 hover:bg-[var(--surface-hover)] cursor-pointer"
+                            title="Edit"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            className="p-2 rounded-xl text-[var(--text-secondary)] hover:text-rose-500 hover:bg-rose-500/10 cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-4 border-t border-[var(--border-level-1)] flex items-center justify-between shrink-0">
+              <button
+                onClick={() => setShowAddCategoryModal(true)}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" /> {isAr ? "إضافة فئة جديدة" : "Add New Category"}
+              </button>
+              <button
+                onClick={() => {
+                  setShowCategoryManager(false);
+                  setEditingCategory(null);
+                }}
+                className="px-5 py-2 rounded-xl border border-[var(--border-level-2)] hover:bg-[var(--surface-hover)] text-xs font-bold text-[var(--text-secondary)] cursor-pointer"
+              >
+                {isAr ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE / EDIT BRAND MODAL */}
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="relative w-full max-w-3xl rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-2xl p-6 md:p-8 text-start my-8 max-h-[90vh] flex flex-col">
