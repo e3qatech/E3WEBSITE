@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
+import { getTodayTimingDisplay } from '@/lib/operating-schedule-helper'
 
 interface Act4LivingDayTimelineProps {
   content: any
@@ -32,15 +33,15 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
   const realAttractionItems = dbAttractions.map(attr => {
     const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
       ? Math.min(...attr.pricing.map((p: any) => p.price))
-      : 45
+      : (attr.accessModel === 'FREE' ? 0 : 45)
 
-    const venue = attr.operations?.venueName 
-      || attr.operations?.venueAddressEn 
-      || attr.attractionLocations?.[0]?.location?.addressEn 
-      || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
+    const primaryLoc = attr.attractionLocations?.[0]?.location
+    const venueEn = primaryLoc?.nameEn || primaryLoc?.addressEn || attr.operations?.venueName || attr.operations?.venueAddressEn || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
+    const venueAr = primaryLoc?.nameAr || primaryLoc?.addressAr || attr.operations?.venueNameAr || attr.operations?.venueAddressAr || venueEn
 
-    const timingsEn = attr.operations?.timingsEn || "10:00 AM - 10:00 PM"
-    const timingsAr = attr.operations?.timingsAr || "١٠:٠٠ ص - ١٠:٠٠ م"
+    const todayTiming = getTodayTimingDisplay(attr.temporalStatus, locale)
+    const timingsEn = todayTiming.timingsEn
+    const timingsAr = todayTiming.timingsAr
 
     const isLateNight = timingsEn.includes("12:00 AM") || timingsEn.includes("11:00 PM")
     const isSpecialActivation = attr.slug.includes("spongebob") || attr.operations?.materialType === "CHARACTER ACTIVATION"
@@ -59,8 +60,8 @@ export function Act4LivingDayTimeline({ content, locale }: Act4LivingDayTimeline
       slug: attr.slug,
       titleEn: attr.nameEn,
       titleAr: attr.nameAr || attr.nameEn,
-      venueEn: venue,
-      venueAr: venue,
+      venueEn: venueEn,
+      venueAr: venueAr,
       timeEn: timingsEn,
       timeAr: timingsAr,
       statusEn: category === 'NOW' ? "Open Now" : (category === 'LATER' ? "Open Until Midnight" : "Upcoming Session"),

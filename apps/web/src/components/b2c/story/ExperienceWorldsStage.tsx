@@ -7,7 +7,7 @@ import { Users, Clock, Ticket, ChevronLeft, ChevronRight, Pause, Play, Sparkles,
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
-import { calculateQatarOperatingStatus } from '@/lib/operating-schedule-helper'
+import { calculateQatarOperatingStatus, getTodayTimingDisplay } from '@/lib/operating-schedule-helper'
 import { resolveBookingUrl } from '@/lib/cms-attractions'
 
 export const DEFAULT_ATTRACTION_WORLDS = [
@@ -176,15 +176,9 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
     const rawBadge = attr.operations?.materialType || (attr.isFeatured ? "FEATURED ATTRACTION" : "E3 WORLD")
     const safeBadge = (rawBadge === "STAGE_RIBBON" || !rawBadge) ? (attr.isFeatured ? "FEATURED WORLD" : "E3 WORLD") : rawBadge
 
-    const timingsEn = attr.temporalStatus?.operatingHoursEn 
-      || attr.operations?.operatingHoursEn 
-      || attr.operations?.timingsEn 
-      || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "Daily: 10:00 AM - 10:00 PM")
-
-    const timingsAr = attr.temporalStatus?.operatingHoursAr 
-      || attr.operations?.operatingHoursAr 
-      || attr.operations?.timingsAr 
-      || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "يومياً: ١٠:٠٠ ص - ١٠:٠٠ م")
+    const todayTiming = getTodayTimingDisplay(attr.temporalStatus, locale)
+    const timingsEn = todayTiming.timingsEn
+    const timingsAr = todayTiming.timingsAr
 
     const liveStatus = calculateQatarOperatingStatus(attr.temporalStatus)
     const statusEn = liveStatus.statusTextEn || (attr.isPublished ? "OPEN NOW" : "COMING SOON")
@@ -450,7 +444,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                     <Clock className="w-4 h-4 text-emerald-500" />
                   </div>
                   <div>
-                    <span className="text-[11px] text-[var(--text-secondary)] font-medium block">{isAr ? "أوقات العمل" : "Timings"}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)] font-medium block">{isAr ? "أوقات العمل اليوم" : "Today's Timings"}</span>
                     <span className="text-xs font-bold text-[var(--text-primary)]">{timingsVal}</span>
                   </div>
                 </div>

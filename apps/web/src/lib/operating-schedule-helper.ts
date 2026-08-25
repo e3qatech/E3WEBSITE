@@ -323,3 +323,118 @@ export function calculateQatarOperatingStatus(
     nextEventTextAr: 'مغلق للفترة الليلية',
   };
 }
+
+/**
+ * Returns clean, un-cluttered single-day operating hours for the current day in Qatar (GMT+3).
+ */
+export function getTodayTimingDisplay(
+  temporalStatus?: AdvancedTemporalStatus | any | null,
+  locale: string = 'en',
+  dateOverride?: Date
+): {
+  timingsEn: string;
+  timingsAr: string;
+  todayLabelEn: string;
+  todayLabelAr: string;
+  isClosed: boolean;
+} {
+  const isAr = locale === 'ar';
+  const now = dateOverride || new Date();
+  
+  // Calculate Qatar Time (GMT+3)
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const qatarTime = new Date(utc + (3600000 * 3));
+  const dayOfWeekIndex = qatarTime.getDay();
+  const dayKey = DAYS_ORDER[dayOfWeekIndex];
+
+  const year = qatarTime.getFullYear();
+  const month = String(qatarTime.getMonth() + 1).padStart(2, '0');
+  const dateStr = `${year}-${month}-${String(qatarTime.getDate()).padStart(2, '0')}`;
+
+  const dayLabel = DAY_LABELS[dayKey] || { shortEn: 'Today', shortAr: 'اليوم' };
+
+  // 1. Check special date override
+  if (Array.isArray(temporalStatus?.specialDates)) {
+    const specialOverride = temporalStatus.specialDates.find((s: any) => s.date === dateStr);
+    if (specialOverride) {
+      if (specialOverride.isClosed) {
+        return {
+          timingsEn: `Closed (${specialOverride.reasonEn || 'Holiday'})`,
+          timingsAr: `مغلق (${specialOverride.reasonAr || 'عطلة'})`,
+          todayLabelEn: `Today (${dayLabel.shortEn})`,
+          todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+          isClosed: true
+        };
+      }
+      if (specialOverride.slots && specialOverride.slots.length > 0) {
+        const slotsEn = specialOverride.slots.map((s: any) => `${formatTime12h(s.openTime, false)} – ${formatTime12h(s.closeTime, false)}`).join(' & ');
+        const slotsAr = specialOverride.slots.map((s: any) => `${formatTime12h(s.openTime, true)} – ${formatTime12h(s.closeTime, true)}`).join(' و ');
+        return {
+          timingsEn: slotsEn,
+          timingsAr: slotsAr,
+          todayLabelEn: `Today (${dayLabel.shortEn})`,
+          todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+          isClosed: false
+        };
+      }
+    }
+  }
+
+  // 2. Check weekly schedule
+  const daySchedule = temporalStatus?.weeklySchedule?.[dayKey];
+  if (daySchedule) {
+    if (!daySchedule.isOpen || !daySchedule.slots || daySchedule.slots.length === 0) {
+      return {
+        timingsEn: 'Closed Today',
+        timingsAr: 'مغلق اليوم',
+        todayLabelEn: `Today (${dayLabel.shortEn})`,
+        todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+        isClosed: true
+      };
+    }
+
+    const slotsEn = daySchedule.slots.map((s: any) => `${formatTime12h(s.openTime, false)} – ${formatTime12h(s.closeTime, false)}`).join(' & ');
+    const slotsAr = daySchedule.slots.map((s: any) => `${formatTime12h(s.openTime, true)} – ${formatTime12h(s.closeTime, true)}`).join(' و ');
+
+    return {
+      timingsEn: slotsEn,
+      timingsAr: slotsAr,
+      todayLabelEn: `Today (${dayLabel.shortEn})`,
+      todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+      isClosed: false
+    };
+  }
+
+  // 3. Fallback to openTime / closeTime if specified
+  if (temporalStatus?.openTime && temporalStatus?.closeTime) {
+    const sEn = `${formatTime12h(temporalStatus.openTime, false)} – ${formatTime12h(temporalStatus.closeTime, false)}`;
+    const sAr = `${formatTime12h(temporalStatus.openTime, true)} – ${formatTime12h(temporalStatus.closeTime, true)}`;
+    return {
+      timingsEn: sEn,
+      timingsAr: sAr,
+      todayLabelEn: `Today (${dayLabel.shortEn})`,
+      todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+      isClosed: false
+    };
+  }
+
+  // 4. Fallback to operatingHours string if it's already a single short time (e.g. 10:00 AM - 10:00 PM)
+  if (typeof temporalStatus?.operatingHoursEn === 'string' && !temporalStatus.operatingHoursEn.includes('|')) {
+    return {
+      timingsEn: temporalStatus.operatingHoursEn,
+      timingsAr: temporalStatus.operatingHoursAr || temporalStatus.operatingHoursEn,
+      todayLabelEn: `Today (${dayLabel.shortEn})`,
+      todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+      isClosed: false
+    };
+  }
+
+  // 5. Default standard fallback
+  return {
+    timingsEn: '10:00 AM – 10:00 PM',
+    timingsAr: '١٠:٠٠ ص – ١٠:٠٠ م',
+    todayLabelEn: `Today (${dayLabel.shortEn})`,
+    todayLabelAr: `اليوم (${dayLabel.shortAr})`,
+    isClosed: false
+  };
+}

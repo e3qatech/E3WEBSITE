@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   generateBilingualScheduleSummary,
   calculateQatarOperatingStatus,
+  getTodayTimingDisplay,
   SCHEDULE_PRESETS,
   getDefaultTemporalStatus,
   formatTime12h,
@@ -99,5 +100,28 @@ describe("Operating Schedule Helper & Studio Tests", () => {
     const resultAfter = calculateQatarOperatingStatus(seasonalData, afterSeason);
     expect(resultAfter.isOpen).toBe(false);
     expect(resultAfter.statusTextEn).toBe("SEASON CONCLUDED");
+  });
+
+  it("resolves clean single-day timing for the current day without clutter", () => {
+    const statusData = getDefaultTemporalStatus();
+
+    // Test a Sunday
+    const testSunday = new Date("2026-10-18T11:00:00.000Z"); // Sunday in Qatar
+    const sundayTiming = getTodayTimingDisplay(statusData, "en", testSunday);
+    expect(sundayTiming.timingsEn).toBe("12:00 PM – 10:00 PM");
+    expect(sundayTiming.isClosed).toBe(false);
+    expect(sundayTiming.todayLabelEn).toBe("Today (Sun)");
+
+    // Test a Friday
+    const testFriday = new Date("2026-10-23T11:00:00.000Z"); // Friday in Qatar
+    const fridayTiming = getTodayTimingDisplay(statusData, "en", testFriday);
+    expect(fridayTiming.timingsEn).toBe("1:00 PM – 11:00 PM");
+    expect(fridayTiming.todayLabelEn).toBe("Today (Fri)");
+
+    // Test a Saturday
+    const testSaturday = new Date("2026-10-24T11:00:00.000Z"); // Saturday in Qatar
+    const saturdayTiming = getTodayTimingDisplay(statusData, "en", testSaturday);
+    expect(saturdayTiming.timingsEn).toBe("10:00 AM – 10:00 PM");
+    expect(saturdayTiming.todayLabelEn).toBe("Today (Sat)");
   });
 });

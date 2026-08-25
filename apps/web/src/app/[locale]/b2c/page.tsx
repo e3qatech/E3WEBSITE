@@ -152,7 +152,7 @@ export default async function B2CLandingPage(props: {
 
   if (cmsData) {
     if (attractions.length > 0) {
-      const { calculateQatarOperatingStatus } = await import('@/lib/operating-schedule-helper');
+      const { calculateQatarOperatingStatus, getTodayTimingDisplay } = await import('@/lib/operating-schedule-helper');
       const { resolveBookingUrl } = await import('@/lib/cms-attractions');
 
       cmsData.attractions = attractions;
@@ -171,8 +171,10 @@ export default async function B2CLandingPage(props: {
         const taglineAr = formatLocalizedText(attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية", 'ar');
         const audienceEn = formatLocalizedText(ops.audienceEn || "Families & Groups", 'en');
         const audienceAr = formatLocalizedText(ops.audienceAr || "العائلات والأصدقاء", 'ar');
-        const timingsEn = formatLocalizedText(attr.temporalStatus?.operatingHoursEn || ops.timingsEn || ops.operatingHoursEn || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "Daily: 10:00 AM - 10:00 PM"), 'en');
-        const timingsAr = formatLocalizedText(attr.temporalStatus?.operatingHoursAr || ops.timingsAr || ops.operatingHoursAr || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "يومياً: ١٠:٠٠ ص - ١٠:٠٠ م"), 'ar');
+        
+        const todayTiming = getTodayTimingDisplay(attr.temporalStatus, locale);
+        const timingsEn = formatLocalizedText(todayTiming.timingsEn, 'en');
+        const timingsAr = formatLocalizedText(todayTiming.timingsAr, 'ar');
 
         const liveStatus = calculateQatarOperatingStatus(attr.temporalStatus);
         const statusEn = liveStatus.statusTextEn || (attr.isPublished ? "OPEN NOW" : "COMING SOON");
