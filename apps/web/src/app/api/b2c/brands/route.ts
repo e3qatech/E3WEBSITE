@@ -167,24 +167,44 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
-    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN'].includes(userRole)) {
+    if (!session?.user || !['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN'].includes(userRole)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const data = await req.json();
 
     // Default values mapping
-    const slug = data.slug || data.nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const slug = (data.slug || data.nameEn || 'brand')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
     const { category: _category, relationships: _relationships, placements: _placements, linkedHighlights: _linkedHighlights, relationshipIds, categoryId, ...brandData } = data;
     
+    // Resolve categoryId safely
+    let resolvedCategoryId: string | null = null;
+    if (categoryId && typeof categoryId === 'string' && !categoryId.startsWith('cat-fallback-')) {
+      const existingCat = await db.brandCategory.findFirst({
+        where: { OR: [{ id: categoryId }, { slug: categoryId }] }
+      });
+      if (existingCat) {
+        resolvedCategoryId = existingCat.id;
+      }
+    }
+
     const brand = await db.brandIP.create({
       data: {
         ...brandData,
         slug,
-        categoryId: categoryId || null,
+        categoryId: resolvedCategoryId,
         relationships: relationshipIds ? {
             connect: relationshipIds.map((id: string) => ({ id }))
         } : undefined
+      },
+      include: {
+        category: true,
+        relationships: true,
       }
     });
 
