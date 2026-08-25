@@ -206,7 +206,7 @@ export function generateBilingualScheduleSummary(schedule: Record<DayKey, DayOfW
 }
 
 export function calculateQatarOperatingStatus(
-  temporalStatus?: AdvancedTemporalStatus | null,
+  temporalStatus?: AdvancedTemporalStatus | any | null,
   dateOverride?: Date
 ): {
   isOpen: boolean;
@@ -227,6 +227,7 @@ export function calculateQatarOperatingStatus(
 
   const dayOfWeekIndex = qatarTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   const dayKey = DAYS_ORDER[dayOfWeekIndex];
+  const nextDayKey = DAYS_ORDER[(dayOfWeekIndex + 1) % 7];
 
   const year = qatarTime.getFullYear();
   const month = String(qatarTime.getMonth() + 1).padStart(2, '0');
@@ -237,8 +238,8 @@ export function calculateQatarOperatingStatus(
     if (temporalStatus.startDate && dateStr < temporalStatus.startDate) {
       return {
         isOpen: false,
-        statusTextEn: 'SEASONAL - COMING SOON',
-        statusTextAr: 'موسمي - قريباً',
+        statusTextEn: `OPENS ${temporalStatus.startDate}`,
+        statusTextAr: `يفتح ${temporalStatus.startDate}`,
         nextEventTextEn: `Opens on ${temporalStatus.startDate}`,
         nextEventTextAr: `يفتح بتاريخ ${temporalStatus.startDate}`,
       };
@@ -254,34 +255,53 @@ export function calculateQatarOperatingStatus(
     }
   }
 
-  // 2. Check Special Holiday / Date Exception
-  const specialOverride = temporalStatus?.specialDates?.find(s => s.date === dateStr);
+  // 2. Resolve Today's Operating Slots (supporting weeklySchedule, legacy openTime/closeTime, or standard 10:00-22:00 fallback)
+  let todaySlots: DayScheduleSlot[] = [];
+  
+  const specialOverride = temporalStatus?.specialDates?.find((s: any) => s.date === dateStr);
   if (specialOverride) {
     if (specialOverride.isClosed) {
+      const tomorrowSchedule = temporalStatus?.weeklySchedule?.[nextDayKey];
+      const tomorrowOpen = tomorrowSchedule?.slots?.[0]?.openTime || temporalStatus?.openTime || '10:00';
       return {
         isOpen: false,
-        statusTextEn: 'CLOSED (SPECIAL DATE)',
-        statusTextAr: 'مغلق (مناسبة خاصة)',
-        nextEventTextEn: specialOverride.reasonEn || 'Special closure',
-        nextEventTextAr: specialOverride.reasonAr || 'إغلاق خاص',
+        statusTextEn: `OPENS AT ${formatTime12h(tomorrowOpen, false)}`,
+        statusTextAr: `يفتح الساعة ${formatTime12h(tomorrowOpen, true)}`,
+        nextEventTextEn: specialOverride.reasonEn || 'Special closure today',
+        nextEventTextAr: specialOverride.reasonAr || 'إغلاق خاص اليوم',
       };
+    }
+    if (specialOverride.slots && specialOverride.slots.length > 0) {
+      todaySlots = specialOverride.slots;
     }
   }
 
-  // 3. Check Day of Week Schedule
-  const daySchedule = temporalStatus?.weeklySchedule?.[dayKey];
-  if (!daySchedule || !daySchedule.isOpen || !daySchedule.slots || daySchedule.slots.length === 0) {
-    return {
-      isOpen: false,
-      statusTextEn: 'CLOSED TODAY',
-      statusTextAr: 'مغلق اليوم',
-      nextEventTextEn: 'Closed all day',
-      nextEventTextAr: 'مغلق طوال اليوم',
-    };
+  if (todaySlots.length === 0) {
+    const daySchedule = temporalStatus?.weeklySchedule?.[dayKey];
+    if (daySchedule?.isOpen && daySchedule.slots && daySchedule.slots.length > 0) {
+      todaySlots = daySchedule.slots;
+    } else if (temporalStatus?.openTime && temporalStatus?.closeTime) {
+      todaySlots = [{
+        id: 'legacy-slot',
+        openTime: temporalStatus.openTime,
+        closeTime: temporalStatus.closeTime
+      }];
+    } else {
+      // Default Qatar entertainment venue hours (10:00 AM - 10:00 PM)
+      todaySlots = [{
+        id: 'default-slot',
+        openTime: '10:00',
+        closeTime: '22:00'
+      }];
+    }
   }
 
-  // Check matching slots
-  for (const slot of daySchedule.slots) {
+  // Resolve tomorrow's opening time for after-hours reference
+  const tomorrowSchedule = temporalStatus?.weeklySchedule?.[nextDayKey];
+  const tomorrowOpen = tomorrowSchedule?.slots?.[0]?.openTime || temporalStatus?.openTime || todaySlots[0]?.openTime || '10:00';
+
+  // 3. Check if currently inside any active slot
+  for (const slot of todaySlots) {
     const [openH, openM] = (slot.openTime || '10:00').split(':').map(Number);
     const [closeH, closeM] = (slot.closeTime || '22:00').split(':').map(Number);
     const openMinutes = openH * 60 + (openM || 0);
@@ -289,38 +309,49 @@ export function calculateQatarOperatingStatus(
 
     if (currentTimeMinutes >= openMinutes && currentTimeMinutes < closeMinutes) {
       const closesInMins = closeMinutes - currentTimeMinutes;
+      if (closesInMins <= 60 && closesInMins > 0) {
+        return {
+          isOpen: true,
+          statusTextEn: 'CLOSING SOON',
+          statusTextAr: 'يغلق قريباً',
+          nextEventTextEn: `Open until ${formatTime12h(slot.closeTime, false)}`,
+          nextEventTextAr: `مفتوح حتى ${formatTime12h(slot.closeTime, true)}`,
+        };
+      }
+
       return {
         isOpen: true,
-        statusTextEn: closesInMins <= 60 ? 'CLOSING SOON' : 'OPEN NOW',
-        statusTextAr: closesInMins <= 60 ? 'يغلق قريباً' : 'مفتوح الآن',
+        statusTextEn: 'OPEN NOW',
+        statusTextAr: 'مفتوح الآن',
         nextEventTextEn: `Open until ${formatTime12h(slot.closeTime, false)}`,
         nextEventTextAr: `مفتوح حتى ${formatTime12h(slot.closeTime, true)}`,
       };
     }
   }
 
-  // Find next opening slot
-  const nextSlot = daySchedule.slots.find(s => {
+  // 4. If before an upcoming slot today:
+  const upcomingSlotToday = todaySlots.find(s => {
     const [openH, openM] = (s.openTime || '10:00').split(':').map(Number);
     return (openH * 60 + (openM || 0)) > currentTimeMinutes;
   });
 
-  if (nextSlot) {
+  if (upcomingSlotToday) {
     return {
       isOpen: false,
-      statusTextEn: 'CLOSED - OPENS LATER TODAY',
-      statusTextAr: 'مغلق - يفتح لاحقاً اليوم',
-      nextEventTextEn: `Opens at ${formatTime12h(nextSlot.openTime, false)}`,
-      nextEventTextAr: `يفتح في ${formatTime12h(nextSlot.openTime, true)}`,
+      statusTextEn: `OPENS AT ${formatTime12h(upcomingSlotToday.openTime, false)}`,
+      statusTextAr: `يفتح الساعة ${formatTime12h(upcomingSlotToday.openTime, true)}`,
+      nextEventTextEn: `Opens today at ${formatTime12h(upcomingSlotToday.openTime, false)}`,
+      nextEventTextAr: `يفتح اليوم الساعة ${formatTime12h(upcomingSlotToday.openTime, true)}`,
     };
   }
 
+  // 5. When time is up for the day (after closing), NEVER show "CLOSED", display "OPENS AT [X TIME]"!
   return {
     isOpen: false,
-    statusTextEn: 'CLOSED NOW',
-    statusTextAr: 'مغلق الآن',
-    nextEventTextEn: 'Closed for the night',
-    nextEventTextAr: 'مغلق للفترة الليلية',
+    statusTextEn: `OPENS AT ${formatTime12h(tomorrowOpen, false)}`,
+    statusTextAr: `يفتح الساعة ${formatTime12h(tomorrowOpen, true)}`,
+    nextEventTextEn: `Opens tomorrow at ${formatTime12h(tomorrowOpen, false)}`,
+    nextEventTextAr: `يفتح غداً الساعة ${formatTime12h(tomorrowOpen, true)}`,
   };
 }
 
@@ -359,11 +390,11 @@ export function getTodayTimingDisplay(
     if (specialOverride) {
       if (specialOverride.isClosed) {
         return {
-          timingsEn: `Closed (${specialOverride.reasonEn || 'Holiday'})`,
-          timingsAr: `مغلق (${specialOverride.reasonAr || 'عطلة'})`,
+          timingsEn: `Holiday (${specialOverride.reasonEn || 'Special Event'})`,
+          timingsAr: `عطلة (${specialOverride.reasonAr || 'مناسبة خاصة'})`,
           todayLabelEn: `Today (${dayLabel.shortEn})`,
           todayLabelAr: `اليوم (${dayLabel.shortAr})`,
-          isClosed: true
+          isClosed: false
         };
       }
       if (specialOverride.slots && specialOverride.slots.length > 0) {
@@ -382,17 +413,7 @@ export function getTodayTimingDisplay(
 
   // 2. Check weekly schedule
   const daySchedule = temporalStatus?.weeklySchedule?.[dayKey];
-  if (daySchedule) {
-    if (!daySchedule.isOpen || !daySchedule.slots || daySchedule.slots.length === 0) {
-      return {
-        timingsEn: 'Closed Today',
-        timingsAr: 'مغلق اليوم',
-        todayLabelEn: `Today (${dayLabel.shortEn})`,
-        todayLabelAr: `اليوم (${dayLabel.shortAr})`,
-        isClosed: true
-      };
-    }
-
+  if (daySchedule && daySchedule.slots && daySchedule.slots.length > 0) {
     const slotsEn = daySchedule.slots.map((s: any) => `${formatTime12h(s.openTime, false)} – ${formatTime12h(s.closeTime, false)}`).join(' & ');
     const slotsAr = daySchedule.slots.map((s: any) => `${formatTime12h(s.openTime, true)} – ${formatTime12h(s.closeTime, true)}`).join(' و ');
 
@@ -419,7 +440,7 @@ export function getTodayTimingDisplay(
   }
 
   // 4. Fallback to operatingHours string if it's already a single short time (e.g. 10:00 AM - 10:00 PM)
-  if (typeof temporalStatus?.operatingHoursEn === 'string' && !temporalStatus.operatingHoursEn.includes('|')) {
+  if (typeof temporalStatus?.operatingHoursEn === 'string' && !temporalStatus.operatingHoursEn.includes('|') && temporalStatus.operatingHoursEn.trim()) {
     return {
       timingsEn: temporalStatus.operatingHoursEn,
       timingsAr: temporalStatus.operatingHoursAr || temporalStatus.operatingHoursEn,
@@ -429,7 +450,7 @@ export function getTodayTimingDisplay(
     };
   }
 
-  // 5. Default standard fallback
+  // 5. Standard Qatar Entertainment default
   return {
     timingsEn: '10:00 AM – 10:00 PM',
     timingsAr: '١٠:٠٠ ص – ١٠:٠٠ م',

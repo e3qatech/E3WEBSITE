@@ -374,10 +374,21 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/90 via-transparent to-transparent" />
-
-              <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] text-xs font-bold text-emerald-500 backdrop-blur-md shadow-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              {/* Operational Status Pill Badge (Dynamic Status: OPEN NOW, CLOSING SOON, OPENS AT X) */}
+              <div className={`absolute top-4 start-4 flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold backdrop-blur-md shadow-md ${
+                statusVal.toUpperCase().includes('CLOSING') || statusVal.includes('يغلق')
+                  ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
+                  : statusVal.toUpperCase().includes('OPEN NOW') || statusVal.includes('مفتوح الآن')
+                  ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
+                  : 'bg-sky-950/80 border-sky-500/50 text-sky-300'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${
+                  statusVal.toUpperCase().includes('CLOSING') || statusVal.includes('يغلق')
+                    ? 'bg-amber-400'
+                    : statusVal.toUpperCase().includes('OPEN NOW') || statusVal.includes('مفتوح الآن')
+                    ? 'bg-emerald-400 animate-ping'
+                    : 'bg-sky-400'
+                }`} />
                 <span>{statusVal}</span>
               </div>
 

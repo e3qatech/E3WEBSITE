@@ -46,38 +46,34 @@ describe("Operating Schedule Helper & Studio Tests", () => {
     expect(summary.ar).toContain("و");
   });
 
-  it("calculates live Qatar operating status correctly for open, closed, and special dates", () => {
+  it("calculates live Qatar operating status correctly for open, closing soon, and future opening times", () => {
     const statusData = getDefaultTemporalStatus();
 
-    // Test a specific time on a Sunday at 14:00 (Qatar Time) -> Should be OPEN
+    // Test a specific time on a Sunday at 14:00 (Qatar Time) -> Should be OPEN NOW
     const testSundayOpen = new Date("2026-10-18T11:00:00.000Z"); // 11:00 UTC = 14:00 Qatar GMT+3 (Sunday)
     const resultOpen = calculateQatarOperatingStatus(statusData, testSundayOpen);
     expect(resultOpen.isOpen).toBe(true);
     expect(resultOpen.statusTextEn).toBe("OPEN NOW");
 
-    // Test a specific time on a Sunday at 08:00 (Qatar Time) -> Should be CLOSED - OPENS LATER TODAY
-    const testSundayMorning = new Date("2026-10-18T05:00:00.000Z"); // 05:00 UTC = 08:00 Qatar GMT+3
-    const resultClosed = calculateQatarOperatingStatus(statusData, testSundayMorning);
-    expect(resultClosed.isOpen).toBe(false);
-    expect(resultClosed.statusTextEn).toContain("OPENS LATER");
+    // Test a specific time on a Sunday within 1h of closing (e.g. 21:30 Qatar Time) -> Should be CLOSING SOON
+    const testSundayClosingSoon = new Date("2026-10-18T18:30:00.000Z"); // 18:30 UTC = 21:30 Qatar GMT+3 (Sunday closes at 22:00)
+    const resultClosingSoon = calculateQatarOperatingStatus(statusData, testSundayClosingSoon);
+    expect(resultClosingSoon.isOpen).toBe(true);
+    expect(resultClosingSoon.statusTextEn).toBe("CLOSING SOON");
 
-    // Test a special holiday exception
-    const holidayData = {
-      ...statusData,
-      specialDates: [
-        {
-          id: "nd-1",
-          date: "2026-12-18",
-          reasonEn: "Qatar National Day",
-          reasonAr: "اليوم الوطني لدولة قطر",
-          isClosed: true,
-        }
-      ]
-    };
-    const testNationalDay = new Date("2026-12-18T11:00:00.000Z"); // 18 Dec 2026
-    const resultHoliday = calculateQatarOperatingStatus(holidayData, testNationalDay);
-    expect(resultHoliday.isOpen).toBe(false);
-    expect(resultHoliday.statusTextEn).toBe("CLOSED (SPECIAL DATE)");
+    // Test a specific time on a Sunday before opening at 08:00 (Qatar Time) -> Should be OPENS AT 12:00 PM (never CLOSED)
+    const testSundayMorning = new Date("2026-10-18T05:00:00.000Z"); // 05:00 UTC = 08:00 Qatar GMT+3
+    const resultMorning = calculateQatarOperatingStatus(statusData, testSundayMorning);
+    expect(resultMorning.isOpen).toBe(false);
+    expect(resultMorning.statusTextEn).toContain("OPENS AT");
+    expect(resultMorning.statusTextEn).not.toContain("CLOSED");
+
+    // Test after closing hours at 23:30 (Qatar Time) -> Should be OPENS AT [Tomorrow Opening Time] (never CLOSED)
+    const testSundayNight = new Date("2026-10-18T20:30:00.000Z"); // 20:30 UTC = 23:30 Qatar GMT+3
+    const resultNight = calculateQatarOperatingStatus(statusData, testSundayNight);
+    expect(resultNight.isOpen).toBe(false);
+    expect(resultNight.statusTextEn).toContain("OPENS AT");
+    expect(resultNight.statusTextEn).not.toContain("CLOSED");
   });
 
   it("evaluates seasonal date-range lifespan", () => {
@@ -89,11 +85,11 @@ describe("Operating Schedule Helper & Studio Tests", () => {
       isOngoing: false,
     };
 
-    // Before start date
+    // Before start date -> Displays OPENS with start date
     const beforeSeason = new Date("2026-10-15T10:00:00.000Z");
     const resultBefore = calculateQatarOperatingStatus(seasonalData, beforeSeason);
     expect(resultBefore.isOpen).toBe(false);
-    expect(resultBefore.statusTextEn).toBe("SEASONAL - COMING SOON");
+    expect(resultBefore.statusTextEn).toContain("OPENS 2026-11-01");
 
     // After end date
     const afterSeason = new Date("2027-01-10T10:00:00.000Z");
