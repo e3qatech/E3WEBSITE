@@ -25,15 +25,20 @@ import { formatLocalizedText } from "@/lib/utils"
 import { resolveBookingUrl } from "@/lib/cms-attractions"
 import { getPublicCaseStudies } from "@/lib/case-studies"
 import { normalizeServerPartnerData } from "@/lib/partners/partner-resolver"
+import { getCuratedAttractionDetails } from "@/lib/attraction-curated-defaults"
 
 async function getAttractionData(slug: string) {
-  const baseSlugKey = (slug || "").split('-')[0] || slug;
+  const normalizedSlug = (slug || "").toLowerCase().trim()
+  const baseSlugKey = normalizedSlug.split('-')[0] || normalizedSlug
+
   const attraction = await db.attraction.findFirst({
     where: {
       OR: [
+        { slug: normalizedSlug },
         { slug: slug },
-        { slug: { startsWith: slug } },
-        { slug: { contains: baseSlugKey, mode: 'insensitive' } }
+        { slug: { startsWith: normalizedSlug } },
+        { slug: { contains: baseSlugKey, mode: 'insensitive' } },
+        { nameEn: { contains: baseSlugKey, mode: 'insensitive' } }
       ]
     },
     include: {
@@ -176,26 +181,50 @@ async function getAttractionData(slug: string) {
     }
   }
 
-  const resolvedFeatures = Array.isArray(attraction.featuresList) && attraction.featuresList.length > 0
-    ? attraction.featuresList
-    : (Array.isArray(attraction.features) ? attraction.features : [])
+  const curated = getCuratedAttractionDetails(attraction.slug || slug)
 
-  const sanitizedAttraction = normalizeServerPartnerData(attraction)
+  const resolvedFeatures = (Array.isArray(attraction.featuresList) && attraction.featuresList.length > 0)
+    ? attraction.featuresList
+    : (Array.isArray(attraction.features) && attraction.features.length > 0)
+      ? attraction.features
+      : (curated?.features || [])
+
+  const resolvedPricing = (Array.isArray(attraction.pricing) && attraction.pricing.length > 0)
+    ? attraction.pricing
+    : (curated?.pricing || [])
+
+  const resolvedFaqs = (Array.isArray(attraction.faqs) && attraction.faqs.length > 0)
+    ? attraction.faqs
+    : (curated?.faqs || [])
+
+  const resolvedTicketingUrl = attraction.ticketingUrl || (attraction as any).bookingUrl || curated?.ticketingUrl || ''
+
+  const resolvedSocialPreviews = (Array.isArray((attraction as any).socialPreviews) && (attraction as any).socialPreviews.length > 0)
+    ? (attraction as any).socialPreviews
+    : (curated?.socialLinks?.map(s => ({ platform: s.platform, url: s.url, title: s.handle || s.platform })) || [])
+
+  const sanitizedAttraction = normalizeServerPartnerData({
+    ...attraction,
+    ticketingUrl: resolvedTicketingUrl,
+    socialPreviews: resolvedSocialPreviews
+  })
   const sanitizedOperations = normalizeServerPartnerData(operations)
   const sanitizedBrandPlacements = normalizeServerPartnerData(attraction.brandPlacements || [])
 
   return { 
     attraction: sanitizedAttraction, 
     features: resolvedFeatures,
-    pricing: attraction.pricing, 
+    pricing: resolvedPricing, 
     gallery: attraction.gallery, 
-    faq: attraction.faqs, 
+    faq: resolvedFaqs, 
     schedule: null, 
     operations: sanitizedOperations,
     projects,
     brandPlacements: sanitizedBrandPlacements,
     coordinates: { lat, lng },
-    primaryLocation
+    primaryLocation,
+    ticketingUrl: resolvedTicketingUrl,
+    socialPreviews: resolvedSocialPreviews
   }
 }
 
@@ -265,7 +294,6 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     "rush-action-park": "urban-arena",
     "inflatarun-qatar": "inflatarun-2025",
     "inflatacity-city-center": "inflatapark-city-center-doha",
-    "crayons-and-bricks-place-vendome": "crayons-bricks-place-vendome",
     "spongebob-squarepants-paw-patrol-activation-meryal": "winter-activation-place-vendome",
   };
 
@@ -337,7 +365,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         status={attraction.isFeatured ? (locale === 'ar' ? "تجربة متميزة" : "Featured Experience") : undefined}
         logoUrl={attraction.logoUrl}
         ctaText={locale === 'ar' ? "احجز التذاكر" : "Get Tickets"}
-        ctaLink={resolveBookingUrl({ ...attraction, slug: params.slug || attraction.slug }, locale)}
+        ctaLink={resolveBookingUrl(attraction, locale)}
         motionPreset={(attraction as any).motionPreset || "MEDIA_CINEMATIC"}
         rotatingWordsEn={(attraction as any).rotatingWordsEn || (attraction as any).rotatingPhrasesEn || []}
         rotatingWordsAr={(attraction as any).rotatingWordsAr || (attraction as any).rotatingPhrasesAr || []}
@@ -370,7 +398,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       <PricingCards 
         pricing={pricing}
         offers={attraction.offers || []}
-        bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+        bookingUrl={resolveBookingUrl(attraction, locale)}
         pricingNoteEn={(operations as any)?.pricingNoteEn}
         pricingNoteAr={(operations as any)?.pricingNoteAr}
         locale={locale}
@@ -407,7 +435,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         mapImageFallback={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
         schedule={schedule}
         operations={operations}
-        bookingUrl={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+        bookingUrl={resolveBookingUrl(attraction, locale)}
         locale={locale}
       />
 
@@ -433,7 +461,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
           </h2>
           <div className="flex flex-col sm:flex-row justify-center gap-6 items-center">
             <a 
-              href={attraction.ticketingUrl || `${process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'}/book?attraction=${attraction.id}`}
+              href={resolveBookingUrl(attraction, locale)}
               target="_blank"
               rel="noopener noreferrer"
               className="relative group px-10 py-5 bg-emerald-500 text-slate-950 font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-400 transition-all duration-300 overflow-hidden shadow-2xl"

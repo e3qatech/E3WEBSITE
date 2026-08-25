@@ -316,6 +316,9 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
     }
   })
 
+  // Ticket Booking URL & Direct Portal Link
+  const [ticketingUrl, setTicketingUrl] = useState(initialData?.ticketingUrl || initialData?.bookingUrl || "")
+
   // Pricing Tiers
   const [pricingTiers, setPricingTiers] = useState<any[]>(initialData?.pricing || [])
 
@@ -323,7 +326,19 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   const [galleryItems, setGalleryItems] = useState<any[]>(initialData?.gallery || [])
   const [faqs, setFaqs] = useState<any[]>(initialData?.faqs || [])
   const [partners, setPartners] = useState<any[]>(Array.isArray(initialData?.partners) ? initialData.partners : [])
-  const [socialLinks, setSocialLinks] = useState<any[]>(initialData?.socialLinks || [])
+  const [socialLinks, setSocialLinks] = useState<any[]>(() => {
+    if (Array.isArray(initialData?.socialLinks) && initialData.socialLinks.length > 0) {
+      return initialData.socialLinks.map((s: any) => ({
+        platform: s.platform || 'INSTAGRAM',
+        url: s.url || '',
+        handle: s.handle || ''
+      }))
+    }
+    return [
+      { platform: 'INSTAGRAM', url: '', handle: '' },
+      { platform: 'TIKTOK', url: '', handle: '' }
+    ]
+  })
   const [newsCoverage, setNewsCoverage] = useState<any[]>(Array.isArray(initialData?.newsCoverage) ? initialData.newsCoverage : [])
   const [testimonials, setTestimonials] = useState<any[]>(Array.isArray(initialData?.testimonials) ? initialData.testimonials : [])
 
@@ -670,6 +685,8 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
           startingPriceOverride: ll.startingPriceOverride
         })),
         temporalStatus,
+        ticketingUrl: ticketingUrl.trim(),
+        bookingUrl: ticketingUrl.trim(),
         pricing: pricingTiers.filter(p => p && (p.titleEn || p.titleAr)),
         gallery: galleryItems.filter(g => g && g.url),
         faqs: faqs.filter(f => f && (f.questionEn || f.questionAr)),
@@ -1635,6 +1652,50 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                   />
                 </div>
 
+                {/* Ticket Booking URL & Direct Deep Link Management */}
+                <div className="pt-6 border-t border-[var(--border-level-1)] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Ticket className="w-4 h-4 text-purple-400" />
+                        <h3 className="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]">
+                          Ticket Booking URL & BookingQube Deep Link
+                        </h3>
+                      </div>
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                        Custom ticketing platform link (e.g. BookingQube product URL or external ticketing portal). Used for all "Get Tickets" and "Book Now" buttons on the microsite.
+                      </p>
+                    </div>
+                    {ticketingUrl && (
+                      <a
+                        href={ticketingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-purple-500/40 text-purple-400 text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
+                      >
+                        <span>Test Link</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={ticketingUrl}
+                      onChange={e => {
+                        setTicketingUrl(e.target.value)
+                        markDirty()
+                      }}
+                      placeholder="https://bookingqube.com/e3/your-attraction-slug"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-sm font-mono text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <p className="text-[11px] text-[var(--text-tertiary)]">
+                    If left blank, the booking button automatically anchors visitors directly to the on-page Pricing Passes section (<code className="text-purple-400">#pricing</code>).
+                  </p>
+                </div>
+
                 {/* Pricing Passes (Hidden if Free Access Model) */}
                 {accessModel !== 'FREE' ? (
                   <div className="pt-6 border-t border-[var(--border-level-1)]">
@@ -1750,6 +1811,111 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                     markDirty()
                   }}
                 />
+              </div>
+
+              {/* Official Social Media Channels & Links */}
+              <div className="p-6 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Share2 className="w-4 h-4 text-purple-400" />
+                      <h3 className="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]">
+                        Official Social Media Channels & Links
+                      </h3>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                      Connect official Instagram, TikTok, YouTube, Facebook, X, and Website handles for this attraction.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSocialLinks([...socialLinks, { platform: 'INSTAGRAM', url: '', handle: '' }])
+                      markDirty()
+                    }}
+                    className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Social Link</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {socialLinks.map((link, sIdx) => (
+                    <div key={sIdx} className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-level-2)] flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                      <div className="w-full md:w-44">
+                        <select
+                          value={link.platform || 'INSTAGRAM'}
+                          onChange={e => {
+                            const next = [...socialLinks]
+                            next[sIdx] = { ...next[sIdx], platform: e.target.value }
+                            setSocialLinks(next)
+                            markDirty()
+                          }}
+                          className="w-full px-3 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
+                        >
+                          <option value="INSTAGRAM">Instagram</option>
+                          <option value="TIKTOK">TikTok</option>
+                          <option value="YOUTUBE">YouTube</option>
+                          <option value="FACEBOOK">Facebook</option>
+                          <option value="X">X (Twitter)</option>
+                          <option value="LINKEDIN">LinkedIn</option>
+                          <option value="SNAPCHAT">Snapchat</option>
+                          <option value="WEBSITE">Official Website</option>
+                        </select>
+                      </div>
+
+                      <div className="flex-1">
+                        <input
+                          type="url"
+                          value={link.url || ''}
+                          onChange={e => {
+                            const next = [...socialLinks]
+                            next[sIdx] = { ...next[sIdx], url: e.target.value }
+                            setSocialLinks(next)
+                            markDirty()
+                          }}
+                          placeholder="https://instagram.com/yourhandle"
+                          className="w-full px-3 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs font-mono text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-purple-500"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSocialLinks(socialLinks.filter((_, i) => i !== sIdx))
+                          markDirty()
+                        }}
+                        className="p-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer self-end md:self-auto"
+                        title="Remove Social Link"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {socialLinks.length === 0 && (
+                    <div className="p-6 text-center border-2 border-dashed border-[var(--border-level-2)] rounded-2xl space-y-2">
+                      <Share2 className="w-6 h-6 text-purple-400 mx-auto" />
+                      <p className="text-xs text-[var(--text-secondary)]">No social links configured yet.</p>
+                      <div className="flex justify-center gap-2 pt-2">
+                        {['INSTAGRAM', 'TIKTOK', 'YOUTUBE'].map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => {
+                              setSocialLinks([...socialLinks, { platform: p, url: '' }])
+                              markDirty()
+                            }}
+                            className="px-3 py-1 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[11px] font-bold text-purple-400 hover:border-purple-500/40 cursor-pointer"
+                          >
+                            + {p}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

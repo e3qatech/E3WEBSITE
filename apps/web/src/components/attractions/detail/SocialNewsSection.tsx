@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Quote, Newspaper, Star, Sparkles, Globe } from 'lucide-react';
+import { Quote, Newspaper, Star, Sparkles, Globe, Share2 } from 'lucide-react';
 
 interface SocialPreview {
   platform?: string;
@@ -179,31 +179,65 @@ export function SocialNewsSection({
           ))}
 
           {/* Social Previews */}
-          {activeSocial.map((social, idx) => (
-            <motion.a
-              key={`social-${idx}`}
-              href={social.url || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="group bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-sky-500/40 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between space-y-4 shadow-lg transition-all hover:bg-[var(--surface-hover)]"
-            >
-              {social.imageUrl && (
-                <div className="aspect-video w-full rounded-2xl overflow-hidden border border-[var(--border-level-2)] relative bg-[var(--surface-hover)]">
-                  <img src={social.imageUrl} alt={social.title || 'Social media'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-3 end-3 p-2 rounded-full bg-[var(--surface-default)]/80 backdrop-blur-md text-sky-500 shadow-md">
-                    <Globe className="w-4 h-4" />
+          {(activeTab === 'ALL' || activeTab === 'SOCIAL') && activeSocial.map((social, idx) => {
+            const platform = String(social.platform || 'INSTAGRAM').toUpperCase()
+            const isInstagram = platform.includes('INSTAGRAM')
+            const isTikTok = platform.includes('TIKTOK')
+            const isYouTube = platform.includes('YOUTUBE')
+            const isFacebook = platform.includes('FACEBOOK')
+
+            return (
+              <motion.a
+                key={`social-${idx}`}
+                href={social.url || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="group bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-purple-500/50 rounded-3xl p-7 backdrop-blur-xl flex flex-col justify-between space-y-6 shadow-lg transition-all hover:bg-[var(--surface-hover)] hover:shadow-2xl"
+              >
+                {social.imageUrl ? (
+                  <div className="aspect-video w-full rounded-2xl overflow-hidden border border-[var(--border-level-2)] relative bg-[var(--surface-hover)]">
+                    <img src={social.imageUrl} alt={social.title || 'Social media'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-3 end-3 p-2 rounded-full bg-[var(--surface-default)]/80 backdrop-blur-md text-purple-400 shadow-md">
+                      <Globe className="w-4 h-4" />
+                    </div>
                   </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className={`p-3 rounded-2xl border shadow-sm ${
+                      isInstagram ? 'bg-pink-500/10 border-pink-500/30 text-pink-400' :
+                      isTikTok ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' :
+                      isYouTube ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                      isFacebook ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
+                      'bg-purple-500/10 border-purple-500/30 text-purple-400'
+                    }`}>
+                      <Share2 className="w-5 h-5" />
+                    </div>
+                    <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--surface-subtle)] border border-[var(--border-level-2)] text-[var(--text-secondary)]">
+                      {platform}
+                    </span>
+                  </div>
+                )}
+                <div>
+                  <h4 className="font-bold text-[var(--text-primary)] text-base group-hover:text-purple-400 transition-colors">
+                    {social.title || social.url}
+                  </h4>
+                  {social.snippet ? (
+                    <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{social.snippet}</p>
+                  ) : (
+                    <p className="text-xs text-[var(--text-tertiary)] mt-1 font-mono">{social.url}</p>
+                  )}
                 </div>
-              )}
-              <div>
-                <h4 className="font-bold text-[var(--text-primary)] text-sm group-hover:text-sky-500 transition-colors">{social.title}</h4>
-                {social.snippet && <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{social.snippet}</p>}
-              </div>
-            </motion.a>
-          ))}
+
+                <div className="pt-4 border-t border-[var(--border-level-2)] flex items-center justify-between text-xs text-purple-400 font-bold">
+                  <span>{isAr ? "متابعة الحساب" : "Follow Channel"}</span>
+                  <span>↗</span>
+                </div>
+              </motion.a>
+            )
+          })}
 
         </div>
       </div>
