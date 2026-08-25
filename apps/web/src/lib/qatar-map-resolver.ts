@@ -289,15 +289,27 @@ export function resolveQatarMapPins({
       });
     }
 
-    const primaryAttr = linkedAttrObjs[0] || {};
+    // Filter active linked attractions
+    const activeLinkedAttrs = linkedAttrObjs.filter(
+      (attr) => attr && attr.isPublished !== false && isAttractionActiveByDate(attr)
+    );
 
     // Active by date check
     if (activeOnly) {
-      const isDateActive =
-        isAttractionActiveByDate(loc) ||
-        (linkedAttrObjs.length > 0 && linkedAttrObjs.some(isAttractionActiveByDate));
-      if (!isDateActive) continue;
+      if (linkedAttrObjs.length > 0) {
+        // Location has linked attraction(s) — must have at least one active, published, non-expired attraction
+        if (activeLinkedAttrs.length === 0) {
+          continue;
+        }
+      } else {
+        // Standalone location with no linked attractions
+        if (!isAttractionActiveByDate(loc)) {
+          continue;
+        }
+      }
     }
+
+    const primaryAttr = (activeLinkedAttrs.length > 0 ? activeLinkedAttrs[0] : linkedAttrObjs[0]) || {};
 
     // Presentation override (colors / badges from landing settings only)
     const override = presentationOverrides[loc.id] || presentationOverrides[loc.slug] || {};

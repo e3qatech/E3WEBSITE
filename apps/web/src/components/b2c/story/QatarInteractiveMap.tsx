@@ -38,11 +38,7 @@ export function QatarInteractiveMap({ content, locale }: QatarInteractiveMapProp
         if (res.ok) {
           const json = await res.json()
           if (json?.features && Array.isArray(json.features)) {
-            // Filter API GeoJSON features by date
-            activeFeatures = json.features.filter((feat: MapGeoJSONFeature) => {
-              const props = feat.properties
-              return isAttractionActiveByDate(props)
-            })
+            activeFeatures = json.features
           }
         }
       } catch (e) {
