@@ -8,6 +8,34 @@ interface MigrationDefinition {
 
 export const PENDING_MIGRATIONS: MigrationDefinition[] = [
   {
+    name: '20260812000003_sync_casestudy_fields',
+    sql: [
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "resultEn" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "resultAr" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "challengeEn" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "challengeAr" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "solutionEn" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "solutionAr" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "metrics" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "gallery" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "beforeAfter" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "servicesUsed" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "technicalSpecs" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "testimonials" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "heroMediaType" TEXT DEFAULT 'IMAGE'`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "thumbnailMediaType" TEXT DEFAULT 'IMAGE'`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "seo" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "attractionId" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "clientLogoUrl" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "isFeatured" BOOLEAN NOT NULL DEFAULT false`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "isPublished" BOOLEAN NOT NULL DEFAULT false`,
+      `CREATE INDEX IF NOT EXISTS "CaseStudy_isPublished_idx" ON "CaseStudy"("isPublished")`,
+      `CREATE INDEX IF NOT EXISTS "CaseStudy_category_idx" ON "CaseStudy"("category")`,
+      `CREATE INDEX IF NOT EXISTS "CaseStudy_year_idx" ON "CaseStudy"("year")`,
+      `CREATE INDEX IF NOT EXISTS "CaseStudy_attractionId_idx" ON "CaseStudy"("attractionId")`
+    ]
+  },
+  {
     name: '20260813130000_add_b2b_attraction_fields',
     sql: [
       `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "isB2bVisible" BOOLEAN NOT NULL DEFAULT true`,
