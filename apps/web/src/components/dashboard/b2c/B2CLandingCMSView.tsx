@@ -373,6 +373,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
 
       const payload = {
         content: {
+          ...content,
           sectionSequence: sequence,
           sequence: sequence,
           e3LivingHero: content.e3LivingHero || {
@@ -456,6 +457,15 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
             headlineAr: content.coreTeam?.headlineAr || "الفريق الذي يصنع التجربة",
             selectedMemberIds: selectedTeamIds,
           },
+          socialFeed: {
+            ...(content.socialFeed || {}),
+            channels: content.socialFeed?.channels || DEFAULT_SOCIAL_CHANNELS,
+            posts: content.socialFeed?.posts || DEFAULT_SOCIAL_POSTS,
+          },
+          spatialExperience: content.spatialExperience || {},
+          qatarMap: content.qatarMap || {},
+          memories: content.memories || {},
+          parallaxGallery: content.parallaxGallery || {},
           cta: {
             ...currentCta,
             titleEn: currentCta.titleEn || "",
