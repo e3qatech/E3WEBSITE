@@ -186,10 +186,7 @@ export async function GET(request: Request) {
         heroMediaUrl: true,
         features: true,
         temporalStatus: true,
-        status: true,
-        operationalStatus: true,
-        startDate: true,
-        endDate: true,
+        operations: true,
       }
     });
 
