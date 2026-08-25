@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
 import { useCapabilityTier } from '@/lib/motion/capability-context'
+import { isAttractionActiveByDate } from '@/lib/cms-attractions'
 
 interface StoryTaxonomyPortalsProps {
   content: any
@@ -302,7 +303,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       .filter((st: any) => st && st.isActive !== false)
       .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
       .map(st => {
-        const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || f.attraction.isPublished !== false)
+        const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || (f.attraction.isPublished !== false && isAttractionActiveByDate(f.attraction)))
         const jsonActivations = st.activations || st.activities || []
         
         const explicitActivities = [
@@ -323,7 +324,7 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
 
         const uniqueAttractionsMap = new Map()
         publishedFeatures.forEach((f: any) => {
-          if (f.attraction && !uniqueAttractionsMap.has(f.attraction.slug)) {
+          if (f.attraction && isAttractionActiveByDate(f.attraction) && !uniqueAttractionsMap.has(f.attraction.slug)) {
             uniqueAttractionsMap.set(f.attraction.slug, f.attraction)
           }
         })

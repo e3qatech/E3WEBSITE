@@ -233,26 +233,46 @@ export function calculateQatarOperatingStatus(
   const month = String(qatarTime.getMonth() + 1).padStart(2, '0');
   const dateStr = `${year}-${month}-${String(qatarTime.getDate()).padStart(2, '0')}`;
 
-  // 1. Check Lifespan (Seasonal Date Range)
-  if (temporalStatus?.lifespanType === 'SEASONAL' || temporalStatus?.lifespanType === 'POPUP') {
-    if (temporalStatus.startDate && dateStr < temporalStatus.startDate) {
-      return {
-        isOpen: false,
-        statusTextEn: `OPENS ${temporalStatus.startDate}`,
-        statusTextAr: `يفتح ${temporalStatus.startDate}`,
-        nextEventTextEn: `Opens on ${temporalStatus.startDate}`,
-        nextEventTextAr: `يفتح بتاريخ ${temporalStatus.startDate}`,
-      };
+  // 1. Check Lifespan / Event Date Range
+  const rawStart = temporalStatus?.startDate || temporalStatus?.eventDetails?.startDate || temporalStatus?.operations?.startDate;
+  const rawEnd = temporalStatus?.endDate || temporalStatus?.eventDetails?.endDate || temporalStatus?.operations?.endDate;
+
+  const parseFlex = (val?: string | null): Date | null => {
+    if (!val || typeof val !== 'string') return null;
+    const trimmed = val.trim();
+    const dmy = trimmed.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (dmy) {
+      return new Date(parseInt(dmy[3], 10), parseInt(dmy[2], 10) - 1, parseInt(dmy[1], 10), 23, 59, 59, 999);
     }
-    if (temporalStatus.endDate && dateStr > temporalStatus.endDate) {
-      return {
-        isOpen: false,
-        statusTextEn: 'SEASON CONCLUDED',
-        statusTextAr: 'انتهى الموسم',
-        nextEventTextEn: `Concluded on ${temporalStatus.endDate}`,
-        nextEventTextAr: `انتهى بتاريخ ${temporalStatus.endDate}`,
-      };
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) {
+      if (trimmed.length <= 10) d.setHours(23, 59, 59, 999);
+      return d;
     }
+    return null;
+  };
+
+  const parsedStart = parseFlex(rawStart);
+  const parsedEnd = parseFlex(rawEnd);
+
+  if (parsedStart && qatarTime < parsedStart) {
+    return {
+      isOpen: false,
+      statusTextEn: `OPENS ${rawStart}`,
+      statusTextAr: `يفتح ${rawStart}`,
+      nextEventTextEn: `Opens on ${rawStart}`,
+      nextEventTextAr: `يفتح بتاريخ ${rawStart}`,
+    };
+  }
+
+  if (parsedEnd && qatarTime > parsedEnd) {
+    return {
+      isOpen: false,
+      statusTextEn: 'SEASON CONCLUDED',
+      statusTextAr: 'انتهى الموسم',
+      nextEventTextEn: `Concluded on ${rawEnd}`,
+      nextEventTextAr: `انتهى بتاريخ ${rawEnd}`,
+    };
   }
 
   // 2. Resolve Today's Operating Slots (supporting weeklySchedule, legacy openTime/closeTime, or standard 10:00-22:00 fallback)

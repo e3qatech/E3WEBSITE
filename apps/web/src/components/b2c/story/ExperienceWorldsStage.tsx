@@ -8,7 +8,7 @@ import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
 import { calculateQatarOperatingStatus, getTodayTimingDisplay, calculateAttractionStartingPrice } from '@/lib/operating-schedule-helper'
-import { resolveBookingUrl } from '@/lib/cms-attractions'
+import { resolveBookingUrl, isAttractionActiveByDate } from '@/lib/cms-attractions'
 
 export const DEFAULT_ATTRACTION_WORLDS = [
   {
@@ -163,8 +163,9 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   const rawWorlds = content?.act3Worlds
   const cmsWorlds = (Array.isArray(rawWorlds) && rawWorlds.length > 0) ? rawWorlds : []
 
-  // Combine database attractions with CMS worlds
-  const dbMappedWorlds = dbAttractions.map(attr => {
+  // Combine active database attractions with CMS worlds
+  const activeDbAttractions = dbAttractions.filter(attr => attr && attr.isPublished !== false && isAttractionActiveByDate(attr))
+  const dbMappedWorlds = activeDbAttractions.map(attr => {
     const minPrice = calculateAttractionStartingPrice(attr, attr.price || 35)
 
     const primaryLoc = attr.attractionLocations?.[0]?.location
