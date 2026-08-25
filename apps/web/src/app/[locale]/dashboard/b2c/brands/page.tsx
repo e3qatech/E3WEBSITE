@@ -1,5 +1,4 @@
-import BrandsManager from '@/components/dashboard/b2c/BrandsManager';
+import DashboardBrandsPage, { metadata, dynamic } from "../../brands/page";
 
-export default function BrandsPage() {
-  return <BrandsManager />;
-}
+export { metadata, dynamic };
+export default DashboardBrandsPage;

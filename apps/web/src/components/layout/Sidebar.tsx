@@ -42,6 +42,7 @@ const sidebarConfig = [
     { label: "Media Manager", href: "/dashboard/b2c/content/media" },
     { label: "Social Media Hub", href: "/dashboard/social-media" },
     { label: "Attractions Roster", href: "/dashboard/b2c/attractions" },
+    { label: "Brand IP & Worlds", href: "/dashboard/brands" },
     { label: "Packages & Birthday CMS", href: "/dashboard/b2c/packages" },
     { label: "Pulse Orbit (B2C)", href: "/dashboard/b2c/pulse-orbit" }
   ] },
@@ -58,6 +59,7 @@ const sidebarConfig = [
   ] },
   { label: "B2B Content", icon: Briefcase, href: "/dashboard/b2b/services", badge: 12, roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [
     { label: "Service Manager", href: "/dashboard/b2b/services" },
+    { label: "Brand IP Portfolio", href: "/dashboard/brands" },
     { label: "Case Studies", href: "/dashboard/b2b/cases" },
     { label: "Leadership Page Editor", href: "/dashboard/b2b/leadership" },
     { label: "Clients CMS", href: "/dashboard/b2b/clients" },
