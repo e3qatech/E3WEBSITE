@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Quote, ArrowRight, UserCheck } from "lucide-react";
+import { Quote, ArrowRight, ArrowUpRight, UserCheck } from "lucide-react";
 
 export interface BehindTheBuildTeamProps {
   config: {
@@ -73,18 +73,18 @@ export function BehindTheBuildTeam({
     : config.titleEn || "The Stories You Don’t See on Stage.";
 
   return (
-    <section className="py-24 bg-zinc-900/30 border-b border-zinc-900 relative overflow-hidden">
+    <section className="py-24 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] relative overflow-hidden transition-colors">
       <div className="container mx-auto px-4 md:px-8 max-w-6xl relative z-10">
         {/* Header */}
         <div className="max-w-3xl mb-16">
-          <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest block mb-2">
+          <span className="text-xs font-mono font-bold text-purple-500 uppercase tracking-widest block mb-2">
             {eyebrow}
           </span>
-          <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight">
             {title}
           </h2>
           {(config.descriptionEn || config.descriptionAr) && (
-            <p className="text-zinc-400 text-sm md:text-base mt-4 max-w-2xl leading-relaxed">
+            <p className="text-[var(--text-secondary)] text-sm md:text-base mt-4 max-w-2xl leading-relaxed">
               {isAr ? config.descriptionAr : config.descriptionEn}
             </p>
           )}
@@ -137,59 +137,59 @@ export function BehindTheBuildTeam({
             return (
               <div
                 key={i}
-                className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors shadow-lg"
+                className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors shadow-sm"
               >
-                <Quote className="w-12 h-12 text-zinc-900 absolute top-6 end-6 -rotate-6 pointer-events-none" />
+                <Quote className="w-12 h-12 text-[var(--border-level-2)]/50 absolute top-6 end-6 -rotate-6 pointer-events-none" />
 
                 <div className="relative z-10 mb-8">
-                  <div className="text-xs font-mono font-bold text-purple-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <div className="text-xs font-mono font-bold text-purple-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                     <UserCheck className="w-3.5 h-3.5" />
                     <span>{role}</span>
                   </div>
 
                   {storyTitle && (
-                    <h3 className="text-lg font-bold font-syne text-zinc-100 mb-3">
+                    <h3 className="text-lg font-bold font-syne text-[var(--text-primary)] mb-3">
                       {storyTitle}
                     </h3>
                   )}
 
-                  <p className="text-base text-zinc-300 italic leading-relaxed">
+                  <p className="text-base text-[var(--text-secondary)] italic leading-relaxed">
                     &quot;{quote}&quot;
                   </p>
                 </div>
 
-                <div className="pt-5 border-t border-zinc-900 flex flex-wrap items-center justify-between gap-4 relative z-10">
+                <div className="relative z-10 pt-6 border-t border-[var(--border-level-2)] flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     {profileImg ? (
                       <img
                         src={profileImg}
                         alt={memberName}
-                        className="w-10 h-10 rounded-full object-cover border border-zinc-800"
+                        className="w-11 h-11 rounded-full object-cover border border-[var(--border-level-2)]"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 font-bold font-mono text-xs">
-                        {memberName.slice(0, 2).toUpperCase()}
+                      <div className="w-11 h-11 rounded-full bg-[var(--bg-level-2)] border border-[var(--border-level-2)] flex items-center justify-center font-bold text-xs text-[var(--text-secondary)]">
+                        {memberName.substring(0, 2).toUpperCase()}
                       </div>
                     )}
                     <div>
-                      <div className="text-sm font-bold text-zinc-200">
+                      <div className="text-sm font-bold font-syne text-[var(--text-primary)]">
                         {memberName}
                       </div>
-                      {department && (
-                        <div className="text-[10px] font-mono text-zinc-500 uppercase">
-                          {department}
-                        </div>
-                      )}
+                      <div className="text-xs text-[var(--text-secondary)]">
+                        {department ? `${department} • ` : ""}{designation}
+                      </div>
                     </div>
                   </div>
 
-                  {caseSlug && caseTitle && (
+                  {caseTitle && caseSlug && (
                     <Link
                       href={`/${locale}/b2b/cases/${caseSlug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-purple-400 hover:text-purple-300 uppercase tracking-wider group/link transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-purple-500 hover:text-purple-600 transition-colors"
                     >
-                      <span className="max-w-[180px] truncate">{caseTitle}</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 rtl:group-hover/link:-translate-x-1 rtl:-scale-x-100 transition-transform" />
+                      <span className="hidden sm:inline line-clamp-1 max-w-[140px]">
+                        {caseTitle}
+                      </span>
+                      <ArrowUpRight className="w-4 h-4 shrink-0" />
                     </Link>
                   )}
                 </div>

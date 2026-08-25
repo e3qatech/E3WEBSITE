@@ -237,10 +237,10 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   }
 
   return (
-    <div className="flex flex-col w-full bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500 selection:text-zinc-950" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full bg-[var(--bg-level-1)] text-[var(--text-primary)] font-sans selection:bg-emerald-500 selection:text-white transition-colors duration-300" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* 1. CINEMATIC HERO SECTION */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80">
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden border-b border-[var(--border-level-1)]">
         <div className="absolute inset-0 z-0">
           <UniversalMediaRenderer 
             type={hero.media?.mediaType || hero.mediaType || "IMAGE"} 
@@ -249,9 +249,9 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             alt="E3 Enterprise Hero"
             className="w-full h-full object-cover filter brightness-[0.7] contrast-[1.1]"
           />
-          {/* OLED Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/40 to-transparent rtl:bg-gradient-to-l" />
+          {/* OLED / Light Adaptive Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)]/90 via-[var(--bg-level-1)]/50 to-transparent rtl:bg-gradient-to-l" />
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-15 mix-blend-overlay pointer-events-none" />
         </div>
 
@@ -259,7 +259,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
           <div className="max-w-5xl">
             {/* Indicator Eyebrow */}
             <Reveal direction="fade">
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -280,22 +280,22 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                   animationSpeed={content.hero?.animationSpeed || 2800}
                   locale={locale}
                   align={isAr ? "start" : "start"}
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-zinc-100 tracking-tight leading-[1.08] drop-shadow-lg"
-                  gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-[var(--text-primary)] tracking-tight leading-[1.08] drop-shadow-md"
+                  gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600"
                 />
               </div>
             </Reveal>
 
             {/* Subtitle */}
             <Reveal direction="slide-up" delay={0.15}>
-              <p className="text-xl md:text-2xl text-zinc-200 font-medium max-w-3xl mb-4 leading-relaxed">
+              <p className="text-xl md:text-2xl text-[var(--text-primary)]/90 font-medium max-w-3xl mb-4 leading-relaxed">
                 {hero.subtitle}
               </p>
             </Reveal>
 
             {/* Description */}
             <Reveal direction="slide-up" delay={0.25}>
-              <p className="text-base md:text-lg text-zinc-400 max-w-2xl mb-10 leading-relaxed">
+              <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl mb-10 leading-relaxed">
                 {hero.description}
               </p>
             </Reveal>
@@ -326,19 +326,19 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       </section>
 
       {/* 2. CREDIBILITY STATS BOARD */}
-      <section className="py-16 bg-zinc-950/90 border-b border-zinc-900 relative z-10">
+      <section className="py-16 bg-[var(--surface-default)] border-b border-[var(--border-level-1)] relative z-10 transition-colors">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat: any, i: number) => (
               <div 
                 key={i} 
-                className="group p-6 rounded-2xl bg-gradient-to-b from-zinc-900/50 to-zinc-950 border border-zinc-800/80 hover:border-emerald-500/40 transition-all duration-300"
+                className="group p-6 rounded-2xl bg-[var(--bg-level-2)] border border-[var(--border-level-2)] hover:border-emerald-500/40 transition-all duration-300 shadow-xs"
               >
                 <div className="flex flex-col border-s-2 border-emerald-500/50 ps-4">
-                  <span className="text-4xl md:text-5xl font-black font-syne tracking-tight text-zinc-100 mb-1 group-hover:text-emerald-400 transition-colors">
+                  <span className="text-4xl md:text-5xl font-black font-syne tracking-tight text-[var(--text-primary)] mb-1 group-hover:text-emerald-500 transition-colors">
                     {stat.value}
                   </span>
-                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-mono">
                     {stat.label}
                   </span>
                 </div>
@@ -349,41 +349,41 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       </section>
 
       {/* 3. THE WOW & THE HOW PILLAR SPLIT */}
-      <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden">
+      <section className="py-24 md:py-32 bg-[var(--bg-level-1)] relative overflow-hidden transition-colors">
         <div className="absolute top-1/2 start-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 end-0 w-[500px] h-[500px] bg-amber-500/5 blur-[160px] rounded-full pointer-events-none" />
 
         <div className="container relative z-10 mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-xs uppercase tracking-widest mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? "منهجية إي ثري" : "E3 METHODOLOGY"}</span>
             </div>
-            <h2 className="text-4xl md:text-6xl font-black font-syne text-zinc-100 tracking-tight mb-6">
+            <h2 className="text-4xl md:text-6xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-6">
               {wowAndHow.title}
             </h2>
-            <p className="text-lg text-zinc-400 leading-relaxed">
+            <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
               {wowAndHow.description}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             {/* The WOW */}
-            <div className="group p-8 md:p-12 rounded-3xl bg-zinc-900/60 border border-zinc-800/80 hover:border-emerald-500/50 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+            <div className="group p-8 md:p-12 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/50 backdrop-blur-md transition-all duration-500 shadow-sm hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-emerald-400 uppercase tracking-widest">{isAr ? "الرؤية الإبداعية" : "CREATIVE VISION"}</span>
-                  <h3 className="text-3xl font-black font-syne text-emerald-400 tracking-tight">
+                  <span className="text-xs font-mono text-emerald-500 uppercase tracking-widest">{isAr ? "الرؤية الإبداعية" : "CREATIVE VISION"}</span>
+                  <h3 className="text-3xl font-black font-syne text-emerald-500 tracking-tight">
                     {isAr ? "الإبهار (The WOW)" : "The WOW"}
                   </h3>
                 </div>
               </div>
               <ul className="space-y-5">
                 {(wowAndHow.wowBullets || []).map((item: string, i: number) => (
-                  <li key={i} className="flex items-center gap-4 text-lg font-medium text-zinc-300">
+                  <li key={i} className="flex items-center gap-4 text-lg font-medium text-[var(--text-primary)]">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                     <span>{item}</span>
                   </li>
@@ -392,21 +392,21 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             </div>
 
             {/* The HOW */}
-            <div className="group p-8 md:p-12 rounded-3xl bg-zinc-900/60 border border-zinc-800/80 hover:border-amber-500/50 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_50px_rgba(245,158,11,0.1)]">
+            <div className="group p-8 md:p-12 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-amber-500/50 backdrop-blur-md transition-all duration-500 shadow-sm hover:shadow-[0_0_50px_rgba(245,158,11,0.1)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
                   <Layers className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-amber-400 uppercase tracking-widest">{isAr ? "الهندسة التشغيلية" : "OPERATIONAL ENGINEERING"}</span>
-                  <h3 className="text-3xl font-black font-syne text-amber-400 tracking-tight">
+                  <span className="text-xs font-mono text-amber-500 uppercase tracking-widest">{isAr ? "الهندسة التشغيلية" : "OPERATIONAL ENGINEERING"}</span>
+                  <h3 className="text-3xl font-black font-syne text-amber-500 tracking-tight">
                     {isAr ? "التنفيذ (The HOW)" : "The HOW"}
                   </h3>
                 </div>
               </div>
               <ul className="space-y-5">
                 {(wowAndHow.howBullets || []).map((item: string, i: number) => (
-                  <li key={i} className="flex items-center gap-4 text-lg font-medium text-zinc-300">
+                  <li key={i} className="flex items-center gap-4 text-lg font-medium text-[var(--text-primary)]">
                     <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0" />
                     <span>{item}</span>
                   </li>
@@ -421,24 +421,24 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       <B2BBlueprintDepthSection locale={locale} />
 
       {/* 4. CORE CAPABILITIES BENTO GRID */}
-      <section className="py-24 bg-zinc-900/40 border-y border-zinc-800/80">
+      <section className="py-24 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)] transition-colors">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-3">
                 <Cpu className="w-3.5 h-3.5" />
                 <span>{isAr ? "الخدمات والحلول" : "SOLUTIONS & SERVICES"}</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
                 {capabilities.title}
               </h2>
-              <p className="text-lg text-zinc-400 max-w-xl">
+              <p className="text-lg text-[var(--text-secondary)] max-w-xl">
                 {capabilities.description}
               </p>
             </div>
             <Link 
               href={`/${locale}/b2b/services`} 
-              className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
+              className="inline-flex items-center gap-2 text-emerald-500 font-bold text-base hover:text-emerald-600 transition-colors group"
             >
               <span>{capabilities.cta}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
@@ -455,7 +455,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                     key={i} 
                     href={`/${locale}/b2b/services/${service.slug}`}
                     className={cn(
-                      "group relative rounded-3xl bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-8 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]",
+                      "group relative rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-8 shadow-xs hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]",
                       i === 0 ? "md:col-span-2 md:row-span-2 min-h-[440px]" : "min-h-[280px]"
                     )}
                   >
@@ -466,29 +466,29 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                           type="IMAGE"
                           src={service.thumbnail}
                           alt={name}
-                          className="w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-700 group-hover:scale-105"
+                          className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-all duration-700 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-950" />
+                        <div className="w-full h-full bg-gradient-to-br from-[var(--bg-level-1)] to-[var(--bg-level-2)]" />
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/80 to-transparent" />
                     </div>
 
                     <div className="relative z-10 h-full flex flex-col justify-between">
                       <div className="flex items-center justify-between">
                         {service.category && (
-                          <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full backdrop-blur-md">
+                          <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full backdrop-blur-md">
                             {service.category}
                           </span>
                         )}
-                        <ArrowUpRight className="w-6 h-6 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+                        <ArrowUpRight className="w-6 h-6 text-[var(--text-tertiary)] group-hover:text-emerald-500 transition-colors" />
                       </div>
 
                       <div className="mt-auto pt-8">
-                        <h3 className={cn("font-black font-syne text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-400 transition-colors", i === 0 ? "text-3xl" : "text-xl")}>
+                        <h3 className={cn("font-black font-syne text-[var(--text-primary)] tracking-tight mb-2 group-hover:text-emerald-500 transition-colors", i === 0 ? "text-3xl" : "text-xl")}>
                           {name}
                         </h3>
-                        <p className={cn("text-zinc-400 font-medium line-clamp-2 leading-relaxed", i === 0 ? "text-base" : "text-xs")}>
+                        <p className={cn("text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed", i === 0 ? "text-base" : "text-xs")}>
                           {desc}
                         </p>
                       </div>
@@ -497,7 +497,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                 )
               })
             ) : (
-              <div className="col-span-4 text-center py-16 border border-zinc-800/80 rounded-3xl text-zinc-500">
+              <div className="col-span-4 text-center py-16 border border-[var(--border-level-2)] rounded-3xl text-[var(--text-tertiary)]">
                 {isAr ? "لم يتم إضافة خدمات مميزة بعد. قم بإضافتها عبر لوحة التحكم!" : "No featured services configured yet. Add them in the Dashboard!"}
               </div>
             )}
@@ -506,24 +506,24 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       </section>
 
       {/* 5. FEATURED CASE STUDIES */}
-      <section className="py-24 bg-zinc-950">
+      <section className="py-24 bg-[var(--bg-level-1)] transition-colors">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-xs uppercase tracking-widest mb-3">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-3">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                 <span>{isAr ? "دراسات الحالة والنتائج" : "PROVEN PORTFOLIO"}</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
                 {caseStudiesHeader.title}
               </h2>
-              <p className="text-lg text-zinc-400 max-w-xl">
+              <p className="text-lg text-[var(--text-secondary)] max-w-xl">
                 {caseStudiesHeader.description}
               </p>
             </div>
             <Link 
               href={localizeHref('/b2b/cases', locale)} 
-              className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
+              className="inline-flex items-center gap-2 text-emerald-500 font-bold text-base hover:text-emerald-600 transition-colors group"
             >
               <span>{caseStudiesHeader.cta}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
@@ -536,36 +536,36 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                 const title = isAr ? (project.titleAr || project.titleEn || project.slug) : (project.titleEn || project.slug)
                 return (
                   <Link key={i} href={localizeHref(`/b2b/cases/${project.slug}`, locale)} className="group block">
-                    <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 mb-6 border border-zinc-800/80 group-hover:border-emerald-500/50 transition-all duration-500">
+                    <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-[var(--surface-default)] mb-6 border border-[var(--border-level-2)] group-hover:border-emerald-500/50 transition-all duration-500 shadow-sm">
                       {(project.thumbnailUrl || project.heroImageUrl) ? (
                         <UniversalMediaRenderer 
                           type={project.thumbnailMediaType || project.heroMediaType || "IMAGE"}
                           src={project.thumbnailUrl || project.heroImageUrl}
                           alt={title}
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600 font-medium">
+                        <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-default)] text-[var(--text-tertiary)] font-medium">
                           [Case Study Cover: {title}]
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-transparent" />
                       
                       <div className="absolute top-4 end-4">
-                        <span className="px-3 py-1 text-xs font-mono font-bold bg-zinc-950/80 border border-zinc-800 text-emerald-400 rounded-full backdrop-blur-md">
+                        <span className="px-3 py-1 text-xs font-mono font-bold bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] text-emerald-500 rounded-full backdrop-blur-md shadow-xs">
                           {project.year || '2026'}
                         </span>
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold font-syne text-zinc-100 group-hover:text-emerald-400 transition-colors mb-2">{title}</h3>
-                    <div className="flex items-center gap-3 text-sm font-mono text-zinc-400">
+                    <h3 className="text-2xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors mb-2">{title}</h3>
+                    <div className="flex items-center gap-3 text-sm font-mono text-[var(--text-secondary)]">
                       <span>{project.clientName || 'E3 Project'}</span>
                     </div>
                   </Link>
                 )
               })
             ) : (
-              <div className="col-span-3 text-center py-16 border border-zinc-800/80 rounded-3xl text-zinc-500">
+              <div className="col-span-3 text-center py-16 border border-[var(--border-level-2)] rounded-3xl text-[var(--text-tertiary)]">
                 {isAr ? "لم يتم إضافة دراسات حالة بعد." : "No featured case studies yet. Publish some from the Dashboard!"}
               </div>
             )}
@@ -579,27 +579,27 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       )}
 
       {/* 7. INTERACTIVE 5-STEP DELIVERY PIPELINE */}
-      <section className="py-24 md:py-32 bg-zinc-900/40 border-y border-zinc-800/80">
+      <section className="py-24 md:py-32 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)] transition-colors">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">{isAr ? "خطوات العمل والتشغيل" : "OPERATIONAL PIPELINE"}</span>
-            <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+            <span className="text-xs font-mono font-bold text-emerald-500 uppercase tracking-widest block mb-2">{isAr ? "خطوات العمل والتشغيل" : "OPERATIONAL PIPELINE"}</span>
+            <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
               {deliveryProcess.title}
             </h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
             {deliveryProcess.steps.map((step: any, i: number) => (
-              <div key={i} className="group relative p-6 rounded-3xl bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between">
+              <div key={i} className="group relative p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between shadow-xs">
                 <div className="flex items-center justify-between mb-6">
-                  <span className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-400">
+                  <span className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-500">
                     {step.stepNumber}
                   </span>
-                  <span className="text-xs font-mono text-zinc-600">STAGE 0{i + 1}</span>
+                  <span className="text-xs font-mono text-[var(--text-tertiary)]">STAGE 0{i + 1}</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold font-syne text-zinc-100 group-hover:text-emerald-400 transition-colors mb-2">{step.name}</h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed font-medium">{step.desc}</p>
+                  <h3 className="text-xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors mb-2">{step.name}</h3>
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -608,9 +608,9 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       </section>
 
       {/* 8. PARTNER MARQUEE RIBBON */}
-      <section className="py-16 bg-zinc-950 overflow-hidden border-b border-zinc-900">
+      <section className="py-16 bg-[var(--bg-level-1)] overflow-hidden border-b border-[var(--border-level-1)] transition-colors">
         <div className="container mx-auto px-4 md:px-8 mb-10 text-center">
-          <span className="text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest">
+          <span className="text-xs font-mono font-bold text-[var(--text-secondary)] uppercase tracking-widest">
             {partnerRibbon.title}
           </span>
         </div>
@@ -623,10 +623,10 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 
-                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain opacity-75 hover:opacity-100 transition-all duration-300"
                   />
                 ) : (
-                  <span className="text-xl md:text-2xl font-mono font-bold text-zinc-600 whitespace-nowrap hover:text-zinc-300 transition-colors">
+                  <span className="text-xl md:text-2xl font-mono font-bold text-[var(--text-secondary)] whitespace-nowrap hover:text-[var(--text-primary)] transition-colors">
                     {p.name}
                   </span>
                 )}
@@ -640,10 +640,10 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 
-                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain filter grayscale brightness-200 opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain opacity-75 hover:opacity-100 transition-all duration-300"
                   />
                 ) : (
-                  <span className="text-xl md:text-2xl font-mono font-bold text-zinc-600 whitespace-nowrap hover:text-zinc-300 transition-colors">
+                  <span className="text-xl md:text-2xl font-mono font-bold text-[var(--text-secondary)] whitespace-nowrap hover:text-[var(--text-primary)] transition-colors">
                     {p.name}
                   </span>
                 )}

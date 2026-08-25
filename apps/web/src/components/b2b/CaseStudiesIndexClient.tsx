@@ -117,7 +117,7 @@ export function CaseStudiesIndexClient({
 
   return (
     <div
-      className="flex flex-col w-full min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500 selection:text-zinc-950"
+      className="flex flex-col w-full min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] font-sans selection:bg-emerald-500 selection:text-white transition-colors duration-300"
       dir={isAr ? "rtl" : "ltr"}
     >
       {/* 1. Cinematic Hero Section with live count */}
@@ -129,9 +129,9 @@ export function CaseStudiesIndexClient({
 
       {/* 2. Interactive Showreel (When Configured) */}
       {showreel.enabled !== false && showreel.mediaUrl && (
-        <section className="py-20 bg-zinc-950 border-b border-zinc-900 relative">
+        <section className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] relative transition-colors">
           <div className="container mx-auto px-4 md:px-8">
-            <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-900/40 backdrop-blur-md relative group shadow-2xl">
+            <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-default)] backdrop-blur-md relative group shadow-2xl">
               <UniversalMediaRenderer
                 type={
                   (showreel.mediaType as any) ||
@@ -148,11 +148,11 @@ export function CaseStudiesIndexClient({
                 loop
                 className="w-full aspect-video object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12 pointer-events-none">
-                <div className="text-xs font-mono font-bold text-indigo-400 uppercase tracking-widest mb-2">
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-transparent flex flex-col justify-end p-8 md:p-12 pointer-events-none">
+                <div className="text-xs font-mono font-bold text-indigo-500 uppercase tracking-widest mb-2">
                   {isAr ? showreel.eyebrowAr || "عرض مرئي استثنائي" : showreel.eyebrowEn || "CINEMATIC SHOWCASE"}
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+                <h2 className="text-3xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight">
                   {isAr ? showreel.titleAr || "نظرة إلى التجارب التي نصنعها" : showreel.titleEn || "A Glimpse Inside the Experiences We Build"}
                 </h2>
               </div>

@@ -86,10 +86,10 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
   const finalMediaUrl = storyMediaUrl || legacyImageMediaId || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 pt-20" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] pt-20 transition-colors" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* Header */}
-      <section className="relative min-h-[50vh] flex flex-col justify-center py-20 border-b border-zinc-900 overflow-hidden">
+      <section className="relative min-h-[50vh] flex flex-col justify-center py-20 border-b border-[var(--border-level-1)] overflow-hidden">
         {headerMediaUrl ? (
           <div className="absolute inset-0 z-0">
             <UniversalMediaRenderer 
@@ -98,17 +98,17 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
               alt="About Hero Background"
               poster={headerFallbackImageUrl}
             />
-            <div className="absolute inset-0 bg-zinc-950/70" />
+            <div className="absolute inset-0 bg-[var(--bg-level-1)]/70 backdrop-blur-xs" />
           </div>
         ) : (
-          <div className="absolute inset-0 z-0 bg-zinc-900/50" />
+          <div className="absolute inset-0 z-0 bg-[var(--bg-level-2)]/50" />
         )}
         
         <div className="container relative z-10 mx-auto px-4 md:px-8">
-          <h1 className="text-5xl md:text-7xl font-black text-zinc-100 tracking-tight mb-6 drop-shadow-xl">
+          <h1 className="text-5xl md:text-7xl font-black text-[var(--text-primary)] tracking-tight mb-6 drop-shadow-xl">
             {headerTitle}
           </h1>
-          <p className="text-xl text-zinc-300 max-w-2xl font-medium drop-shadow-md">
+          <p className="text-xl text-[var(--text-secondary)] max-w-2xl font-medium drop-shadow-md">
             {headerSubtitle}
           </p>
         </div>
@@ -119,8 +119,8 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-black text-zinc-100 mb-6 tracking-tight">{storyTitle}</h2>
-              <div className="space-y-6 text-lg text-zinc-400 leading-relaxed whitespace-pre-wrap">
+              <h2 className="text-3xl font-black text-[var(--text-primary)] mb-6 tracking-tight">{storyTitle}</h2>
+              <div className="space-y-6 text-lg text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
                 {storyContent || `E3 was founded in Doha with a simple premise: the region's rapidly growing events sector needed a partner that understood both the creative ambition of mega-events and the hard engineering required to deliver them.
 
 Over the past decade, we have grown from a boutique staging company into a comprehensive ecosystem of event engineering, immersive technology, and venue operations. 
@@ -128,14 +128,14 @@ Over the past decade, we have grown from a boutique staging company into a compr
 Today, we employ over 120 full-time specialists and maintain one of the largest inventories of staging, rigging, and XR hardware in the Middle East.`}
               </div>
             </div>
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-md">
                <UniversalMediaRenderer 
                 type={storyMediaType as any}
                 src={finalMediaUrl}
                 alt="E3 Headquarters"
                 poster={storyFallbackImageUrl}
                />
-               <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-bold mix-blend-difference pointer-events-none">
+               <div className="absolute inset-0 flex items-center justify-center text-[var(--text-tertiary)] font-bold mix-blend-difference pointer-events-none">
                  [E3]
                </div>
             </div>
@@ -144,18 +144,18 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
       </section>
 
       {/* Values */}
-      <section className="py-24 bg-zinc-900 border-y border-zinc-800">
+      <section className="py-24 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)]">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-black text-zinc-100 mb-12 tracking-tight text-center">{isAr ? 'قيمنا الأساسية' : 'Our Core Values'}</h2>
+          <h2 className="text-3xl font-black text-[var(--text-primary)] mb-12 tracking-tight text-center">{isAr ? 'قيمنا الأساسية' : 'Our Core Values'}</h2>
           
           <div className="grid md:grid-cols-3 gap-8">
             {values.map((val: any, i: number) => (
-              <div key={i} className="p-8 rounded-lg bg-zinc-950 border border-zinc-800">
-                <div className="w-12 h-12 rounded-sm bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-black text-xl mb-6">
+              <div key={i} className="p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-black text-xl mb-6">
                   0{i + 1}
                 </div>
-                <h3 className="text-2xl font-bold text-zinc-100 mb-4">{val.title}</h3>
-                <p className="text-zinc-400">{val.desc}</p>
+                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-4">{val.title}</h3>
+                <p className="text-[var(--text-secondary)]">{val.desc}</p>
               </div>
             ))}
           </div>
@@ -165,20 +165,20 @@ Today, we employ over 120 full-time specialists and maintain one of the largest 
       {/* Leadership */}
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-black text-zinc-100 mb-12 tracking-tight">{isAr ? 'القيادة' : 'Leadership'}</h2>
+          <h2 className="text-3xl font-black text-[var(--text-primary)] mb-12 tracking-tight">{isAr ? 'القيادة' : 'Leadership'}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {leadership.map((leader, i) => (
               <div key={i} className="group">
-                <div className="aspect-[3/4] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 mb-6 relative">
+                <div className="aspect-[3/4] bg-[var(--surface-default)] rounded-2xl overflow-hidden border border-[var(--border-level-2)] mb-6 relative shadow-xs">
                   <UniversalMediaRenderer 
                     type="IMAGE"
                     src={leader.image}
                     alt={leader.name}
                   />
-                  <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors" />
+                  <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-colors" />
                 </div>
-                <h3 className="text-2xl font-bold text-zinc-100 mb-1 group-hover:text-emerald-400 transition-colors">
+                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-1 group-hover:text-emerald-500 transition-colors">
                   {leader.name}
                 </h3>
                 <div className="text-emerald-500 font-bold uppercase tracking-widest text-sm">

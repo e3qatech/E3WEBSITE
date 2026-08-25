@@ -122,7 +122,7 @@ function SingleComparisonSlider({
       {/* Interactive Comparison Canvas */}
       <div
         ref={containerRef}
-        className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-950 select-none touch-none cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xl"
+        className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-default)] select-none touch-none cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xl"
         tabIndex={0}
         role="slider"
         aria-label={`${item.titleEn || "Transformation"} comparison slider`}
@@ -245,7 +245,7 @@ export function BeforeAfterTransformationStage({
   const currentPosition = positionsMap[currentKey] ?? 50;
 
   return (
-    <section className="py-24 bg-zinc-950 border-b border-zinc-900 relative overflow-hidden">
+    <section className="py-24 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] relative overflow-hidden transition-colors">
       <div className="container mx-auto px-4 md:px-8 max-w-6xl relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -253,7 +253,7 @@ export function BeforeAfterTransformationStage({
             <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
             <span>{sectionEyebrow}</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight">
             {sectionTitle}
           </h2>
         </div>

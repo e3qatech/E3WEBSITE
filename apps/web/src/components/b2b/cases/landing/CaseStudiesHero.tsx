@@ -85,7 +85,7 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
   const heroMobileMediaUrl = (hero.mobileMediaUrl || "").replace("/hero-b2b.jpg", "/hero-bg.png");
 
   return (
-    <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80 pt-32 pb-20 bg-zinc-950">
+    <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden border-b border-[var(--border-level-1)] pt-32 pb-20 bg-[var(--bg-level-1)] transition-colors">
       {/* Background Media Container */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Desktop Media */}
@@ -114,10 +114,10 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
 
         {/* Atmospheric Overlays */}
         <div
-          className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/75 to-zinc-950/40"
+          className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/75 to-transparent"
           style={{ opacity: overlayOpacity }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/60 to-transparent rtl:bg-gradient-to-l" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)]/90 via-[var(--bg-level-1)]/60 to-transparent rtl:bg-gradient-to-l" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-60" />
       </div>
 
@@ -125,7 +125,7 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
       <div className="container relative z-10 mx-auto px-4 md:px-8">
         <div className="max-w-5xl">
           {/* Live Metric Counter Pill */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
             <Trophy className="w-3.5 h-3.5" />
             <span>{eyebrow}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -144,17 +144,17 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
               animationSpeed={hero.animationSpeed || 2800}
               locale={locale}
               align={isAr ? "start" : "start"}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-zinc-100 tracking-tight leading-[1.08] drop-shadow-2xl"
-              gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-[var(--text-primary)] tracking-tight leading-[1.08] drop-shadow-md"
+              gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600"
             />
           </div>
 
-          <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-3xl leading-relaxed mb-4">
+          <p className="text-xl md:text-2xl text-[var(--text-primary)]/90 font-medium max-w-3xl leading-relaxed mb-4">
             {subtitle}
           </p>
 
           {description && (
-            <p className="text-sm md:text-base text-zinc-400 max-w-2xl leading-relaxed mb-8">
+            <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-2xl leading-relaxed mb-8">
               {description}
             </p>
           )}
@@ -163,7 +163,7 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <a
               href={primaryHref}
-              className="px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-syne font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] inline-flex items-center gap-2.5 group cursor-pointer"
+              className="px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-syne font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] inline-flex items-center gap-2.5 group cursor-pointer"
             >
               <span>{primaryCta}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
@@ -174,14 +174,14 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
                 href={secondaryHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 font-syne font-bold text-sm uppercase tracking-widest transition-all duration-300 backdrop-blur-md"
+                className="px-8 py-4 rounded-full bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-level-2)] font-syne font-bold text-sm uppercase tracking-widest transition-all duration-300 backdrop-blur-md shadow-xs"
               >
                 {secondaryCta}
               </a>
             ) : (
               <Link
                 href={secondaryHref}
-                className="px-8 py-4 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 font-syne font-bold text-sm uppercase tracking-widest transition-all duration-300 backdrop-blur-md"
+                className="px-8 py-4 rounded-full bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-level-2)] font-syne font-bold text-sm uppercase tracking-widest transition-all duration-300 backdrop-blur-md shadow-xs"
               >
                 {secondaryCta}
               </Link>

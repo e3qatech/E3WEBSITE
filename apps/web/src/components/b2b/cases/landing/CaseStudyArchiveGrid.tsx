@@ -90,9 +90,9 @@ export function CaseStudyArchiveGrid({
   if (config?.enabled === false) return null;
 
   return (
-    <section id="archive" className="relative bg-zinc-950">
+    <section id="archive" className="relative bg-[var(--bg-level-1)] transition-colors">
       {/* Sticky Interactive Filter Bar */}
-      <div className="py-6 bg-zinc-950/85 sticky top-16 z-30 backdrop-blur-xl border-y border-zinc-900 shadow-xl">
+      <div className="py-6 bg-[var(--bg-level-1)]/90 sticky top-16 z-30 backdrop-blur-xl border-y border-[var(--border-level-1)] shadow-sm">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Category Tabs Container */}
@@ -131,7 +131,7 @@ export function CaseStudyArchiveGrid({
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-zinc-900/90 border border-zinc-800 rounded-full px-4 py-2 text-xs font-mono text-zinc-200 focus:border-emerald-500 focus:outline-none cursor-pointer"
+                  className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-full px-4 py-2 text-xs font-mono text-[var(--text-primary)] focus:border-emerald-500 focus:outline-none cursor-pointer shadow-xs"
                   aria-label="Filter by Year"
                 >
                   <option value="ALL">
@@ -145,182 +145,167 @@ export function CaseStudyArchiveGrid({
                 </select>
               )}
 
-              <div className="relative flex-1 lg:w-72">
-                <Search className="w-4 h-4 text-zinc-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="relative flex-1 lg:w-64">
+                <Search className="w-3.5 h-3.5 text-[var(--text-tertiary)] absolute top-1/2 start-3.5 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
+                  placeholder={
+                    isAr ? "ابحث بالاسم أو العميل..." : "Search project, client..."
+                  }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={
-                    isAr
-                      ? "ابحث باسم المشروع أو العميل..."
-                      : "Search project or client..."
-                  }
-                  className="w-full bg-zinc-900/90 border border-zinc-800 rounded-full ps-10 pe-4 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-500 focus:outline-none transition-colors"
+                  className="w-full bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-full py-2 ps-9 pe-4 text-xs text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:border-emerald-500 focus:outline-none transition-colors shadow-xs"
                 />
               </div>
             </div>
           </div>
-
-          {/* Dynamic Result Counter */}
-          <div className="flex items-center justify-between text-xs font-mono text-zinc-500 pt-3 border-t border-zinc-900/60 mt-3">
-            <span>
-              {isAr
-                ? `عرض ${filteredCases.length} من أصل ${caseStudies.length} مشروعاً موثقاً`
-                : `Showing ${filteredCases.length} of ${caseStudies.length} Landmark Projects`}
-            </span>
-            {(selectedCategory !== "ALL" || selectedYear !== "ALL" || searchQuery) && (
-              <button
-                onClick={() => {
-                  setSelectedCategory("ALL");
-                  setSelectedYear("ALL");
-                  setSearchQuery("");
-                }}
-                className="text-emerald-400 hover:underline cursor-pointer"
-              >
-                {isAr ? "إعادة ضبط التصفية" : "Reset Filters"}
-              </button>
-            )}
-          </div>
         </div>
       </div>
 
-      {/* Grid Display */}
-      <div className="py-16 md:py-24 border-b border-zinc-900">
-        <div className="container mx-auto px-4 md:px-8">
-          {filteredCases.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredCases.map((cs) => {
-                const title = isAr ? cs.titleAr || cs.titleEn : cs.titleEn;
-                const mediaUrl = cs.heroImageUrl || cs.thumbnailUrl || "";
-                const mediaType =
-                  cs.thumbnailMediaType || cs.heroMediaType || "IMAGE";
-                const firstMetric =
-                  Array.isArray(cs.metrics) && cs.metrics.length > 0
-                    ? cs.metrics[0]
-                    : null;
+      {/* Grid Container */}
+      <div className="container mx-auto px-4 md:px-8 py-20">
+        {filteredCases.length === 0 ? (
+          <div className="py-24 text-center border border-dashed border-[var(--border-level-2)] rounded-3xl p-8 bg-[var(--surface-default)]/50">
+            <Trophy className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+            <h3 className="text-xl font-bold font-syne text-[var(--text-primary)] mb-2">
+              {isAr ? "لم نجد نتائج مطابقة" : "No Case Studies Found"}
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] max-w-md mx-auto mb-6">
+              {isAr
+                ? "جرب إعادة تعيين الفلاتر أو استخدام كلمات بحث أخرى."
+                : "Try resetting your filters or search for different keywords."}
+            </p>
+            <button
+              onClick={() => {
+                setSelectedCategory("ALL");
+                setSelectedYear("ALL");
+                setSearchQuery("");
+              }}
+              className="px-6 py-2.5 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-emerald-400 transition-colors"
+            >
+              {isAr ? "إعادة تعيين الفلاتر" : "Reset All Filters"}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="text-xs font-mono font-medium text-[var(--text-tertiary)] flex items-center justify-between">
+              <span>
+                {isAr
+                  ? `عرض ${filteredCases.length} من أصل ${caseStudies.length} مشروعاً موثقاً`
+                  : `Showing ${filteredCases.length} of ${caseStudies.length} Landmark Projects`}
+              </span>
+            </div>
 
-                return (
-                  <Link
-                    key={cs.id}
-                    href={`/${locale}/b2b/cases/${cs.slug}`}
-                    className="group relative rounded-3xl bg-zinc-900/50 border border-zinc-800/80 hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-7 backdrop-blur-md min-h-[420px] hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]"
-                  >
-                    {/* Media Thumbnail with hover zoom */}
-                    <div className="absolute inset-0 z-0 overflow-hidden">
-                      {mediaUrl ? (
-                        <UniversalMediaRenderer
-                          type={mediaType as any}
-                          src={mediaUrl}
-                          alt={title}
-                          className="w-full h-full object-cover filter brightness-[0.65] group-hover:brightness-[0.8] group-hover:scale-105 transition-all duration-700"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-950 flex items-center justify-center">
-                          <Trophy className="w-12 h-12 text-zinc-700" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredCases.map((cs) => {
+              const title = isAr
+                ? cs.titleAr || cs.titleEn || cs.slug
+                : cs.titleEn || cs.slug;
+              const mediaUrl =
+                cs.thumbnailUrl || cs.heroImageUrl;
+              const mediaType =
+                cs.thumbnailMediaType || cs.heroMediaType || "IMAGE";
+              const firstMetric =
+                cs.metrics && cs.metrics.length > 0
+                  ? cs.metrics[0]
+                  : null;
+
+              return (
+                <Link
+                  key={cs.id}
+                  href={`/${locale}/b2b/cases/${cs.slug}`}
+                  className="group relative rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-7 backdrop-blur-md min-h-[420px] shadow-xs hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]"
+                >
+                  {/* Media Thumbnail with hover zoom */}
+                  <div className="absolute inset-0 z-0 overflow-hidden">
+                    {mediaUrl ? (
+                      <UniversalMediaRenderer
+                        type={mediaType as any}
+                        src={mediaUrl}
+                        alt={title}
+                        className="w-full h-full object-cover filter brightness-[0.65] group-hover:brightness-[0.8] group-hover:scale-105 transition-all duration-700"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[var(--bg-level-1)] to-[var(--bg-level-2)] flex items-center justify-center">
+                        <Trophy className="w-12 h-12 text-[var(--text-tertiary)]" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/75 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--surface-default)]/40 via-transparent to-transparent" />
+                  </div>
+
+                  {/* Content Overlay */}
+                  <div className="relative z-10 h-full flex flex-col justify-between">
+                    {/* Top Badges */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        {cs.category && (
+                          <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-[var(--surface-default)]/90 text-emerald-500 border border-emerald-500/30 rounded-full backdrop-blur-md flex items-center gap-1 shadow-xs">
+                            <Layers className="w-3 h-3" />
+                            <span>{cs.category}</span>
+                          </span>
+                        )}
+                        {cs.isFeatured && (
+                          <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full backdrop-blur-md flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            <span>FEATURED</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {cs.year && (
+                        <span className="px-3 py-1 text-xs font-mono font-bold text-[var(--text-primary)] bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] rounded-full backdrop-blur-md flex items-center gap-1.5 shadow-xs">
+                          <Calendar className="w-3 h-3 text-emerald-500" />
+                          <span>{cs.year}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Bottom Info */}
+                    <div className="mt-auto pt-10">
+                      {cs.clientName && (
+                        <div className="flex items-center gap-2 text-xs font-mono text-[var(--text-secondary)] mb-2">
+                          <Building2 className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>{cs.clientName}</span>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/75 to-transparent" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/40 via-transparent to-transparent" />
-                    </div>
 
-                    {/* Content Overlay */}
-                    <div className="relative z-10 h-full flex flex-col justify-between">
-                      {/* Top Badges */}
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          {cs.category && (
-                            <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-zinc-950/80 text-emerald-400 border border-emerald-500/30 rounded-full backdrop-blur-md flex items-center gap-1">
-                              <Layers className="w-3 h-3" />
-                              <span>{cs.category}</span>
-                            </span>
-                          )}
-                          {cs.isFeatured && (
-                            <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full backdrop-blur-md flex items-center gap-1">
-                              <Sparkles className="w-3 h-3" />
-                              <span>FEATURED</span>
-                            </span>
-                          )}
-                        </div>
+                      <h3 className="text-2xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-3 group-hover:text-emerald-500 transition-colors leading-snug">
+                        {title}
+                      </h3>
 
-                        {cs.year && (
-                          <span className="px-3 py-1 text-xs font-mono font-bold text-zinc-300 bg-zinc-950/80 border border-zinc-800 rounded-full backdrop-blur-md flex items-center gap-1.5">
-                            <Calendar className="w-3 h-3 text-emerald-400" />
-                            <span>{cs.year}</span>
+                      {firstMetric && (
+                        <div className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-mono font-bold mb-4">
+                          <span>
+                            {firstMetric.valueEn || firstMetric.value}
                           </span>
-                        )}
-                      </div>
-
-                      {/* Bottom Info */}
-                      <div className="mt-auto pt-10">
-                        {cs.clientName && (
-                          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mb-2">
-                            <Building2 className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>{cs.clientName}</span>
-                          </div>
-                        )}
-
-                        <h3 className="text-2xl font-black font-syne text-zinc-100 tracking-tight mb-3 group-hover:text-emerald-400 transition-colors leading-snug">
-                          {title}
-                        </h3>
-
-                        {firstMetric && (
-                          <div className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-bold mb-4">
-                            <span>
-                              {firstMetric.valueEn || firstMetric.value}
-                            </span>
-                            <span>•</span>
-                            <span>
-                              {isAr
-                                ? firstMetric.labelAr ||
-                                  firstMetric.labelEn ||
-                                  firstMetric.label
-                                : firstMetric.labelEn || firstMetric.label}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest opacity-80 group-hover:opacity-100 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-all duration-300 pt-3 border-t border-zinc-800/80">
+                          <span>•</span>
                           <span>
                             {isAr
-                              ? "عرض دراسة الحالة كاملة"
-                              : "Read Full Case Study"}
+                              ? firstMetric.labelAr ||
+                                firstMetric.labelEn ||
+                                firstMetric.label
+                              : firstMetric.labelEn || firstMetric.label}
                           </span>
-                          <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                         </div>
+                      )}
+
+                      <div className="inline-flex items-center gap-2 text-xs font-syne font-bold uppercase tracking-wider text-emerald-500 group-hover:text-emerald-600 transition-colors">
+                        <span>
+                          {isAr
+                            ? "استكشف تفاصيل المشروع"
+                            : "Explore Case Study"}
+                        </span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
                       </div>
                     </div>
-                  </Link>
-                );
-              })}
+                  </div>
+                </Link>
+              );
+            })}
             </div>
-          ) : (
-            /* Localized Empty State */
-            <div className="text-center py-24 border border-zinc-800/80 rounded-3xl bg-zinc-900/20 max-w-2xl mx-auto p-8">
-              <Trophy className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-              <h4 className="text-xl font-bold font-syne text-zinc-200 mb-2">
-                {isAr
-                  ? "لم يتم العثور على مشاريع تطابق البحث"
-                  : "No Projects Found"}
-              </h4>
-              <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                {isAr
-                  ? "جرّب تغيير فئة العرض أو تعديل كلمات البحث لاستكشاف مشاريع إي ثري الأخرى."
-                  : "Try clearing your filters or changing your search terms to explore other E3 landmark projects."}
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedCategory("ALL");
-                  setSelectedYear("ALL");
-                  setSearchQuery("");
-                }}
-                className="px-6 py-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                {isAr ? "مسح التصفية" : "Clear All Filters"}
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -48,11 +48,11 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
     <div className="relative w-full overflow-hidden">
       
       {/* 1. HERO SECTION (80vh) */}
-      <section ref={heroRef} className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden bg-zinc-950 text-white">
+      <section ref={heroRef} className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden bg-[var(--bg-level-1)] text-[var(--text-primary)] transition-colors">
         {/* Animated Background wireframe grid */}
         <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-          <div className="absolute top-0 start-0 end-0 h-full bg-gradient-to-b from-transparent via-transparent to-black" />
+          <div className="absolute top-0 start-0 end-0 h-full bg-gradient-to-b from-transparent via-transparent to-[var(--bg-level-1)]" />
         </motion.div>
         
         <div className="relative z-10 text-center max-w-4xl px-4 flex flex-col items-center">
@@ -61,10 +61,10 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 text-white drop-shadow-lg">
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 text-[var(--text-primary)] drop-shadow-md">
               We Build <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]">Experiences</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 font-light mb-12 max-w-3xl mx-auto drop-shadow-md">
+            <p className="text-xl md:text-2xl text-[var(--text-secondary)] font-light mb-12 max-w-3xl mx-auto">
               End-to-end event engineering, entertainment solutions, and immersive installations.
             </p>
           </motion.div>
@@ -73,21 +73,21 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="flex flex-wrap justify-center gap-6 md:gap-12 py-6 px-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10"
+            className="flex flex-wrap justify-center gap-6 md:gap-12 py-6 px-8 rounded-2xl bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-sm"
           >
             <div className="text-center">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--color-primary)]">9+</h3>
-              <p className="text-sm text-gray-400 uppercase tracking-wider mt-1">Services</p>
+              <p className="text-sm text-[var(--text-secondary)] uppercase tracking-wider mt-1">Services</p>
             </div>
-            <div className="w-px bg-white/20 hidden md:block" />
+            <div className="w-px bg-[var(--border-level-2)] hidden md:block" />
             <div className="text-center">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--color-primary)]">200+</h3>
-              <p className="text-sm text-gray-400 uppercase tracking-wider mt-1">Projects</p>
+              <p className="text-sm text-[var(--text-secondary)] uppercase tracking-wider mt-1">Projects</p>
             </div>
-            <div className="w-px bg-white/20 hidden md:block" />
+            <div className="w-px bg-[var(--border-level-2)] hidden md:block" />
             <div className="text-center">
               <h3 className="text-3xl md:text-4xl font-bold text-[var(--color-primary)]">15+</h3>
-              <p className="text-sm text-gray-400 uppercase tracking-wider mt-1">Years</p>
+              <p className="text-sm text-[var(--text-secondary)] uppercase tracking-wider mt-1">Years</p>
             </div>
           </motion.div>
         </div>
@@ -95,7 +95,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-          className="absolute bottom-10 start-1/2 -translate-x-1/2 z-10 text-white/50"
+          className="absolute bottom-10 start-1/2 -translate-x-1/2 z-10 text-[var(--text-tertiary)]"
         >
           <ChevronDown size={32} />
         </motion.div>
@@ -249,30 +249,30 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
       </section>
 
       {/* 5. CTA SECTION */}
-      <section className="py-32 px-4 relative overflow-hidden bg-zinc-950 text-white">
+      <section className="py-32 px-4 relative overflow-hidden bg-[var(--bg-level-1)] text-[var(--text-primary)] border-t border-[var(--border-level-1)] transition-colors">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-0 end-0 w-1/2 h-full bg-gradient-to-l from-[var(--color-primary)] to-transparent" />
           <div className="absolute bottom-0 start-0 w-1/2 h-full bg-gradient-to-r from-[var(--color-accent)] to-transparent" />
         </div>
         
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl font-black mb-8">Ready to Start?</h2>
-          <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+          <h2 className="text-5xl md:text-7xl font-black mb-8 text-[var(--text-primary)]">Ready to Start?</h2>
+          <p className="text-xl text-[var(--text-secondary)] mb-12 max-w-2xl mx-auto">
             Partner with E3 Qatar to bring your next monumental event or immersive installation to life with unparalleled precision.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" variant="primary" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full">
               <Link href={localizeHref('/b2b/contact')}>Start a Project</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full border-white/20 hover:bg-white hover:text-zinc-950">
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)]">
               <Link href={localizeHref('/b2b/cases')}>View Our Work</Link>
             </Button>
           </div>
         </div>
 
         {/* Marquee Logos */}
-        <div className="mt-24 pt-12 border-t border-white/10 relative z-10 w-full overflow-hidden flex flex-col items-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-gray-500 mb-8">Trusted By Industry Leaders</p>
+        <div className="mt-24 pt-12 border-t border-[var(--border-level-1)] relative z-10 w-full overflow-hidden flex flex-col items-center">
+          <p className="text-sm font-medium uppercase tracking-widest text-[var(--text-tertiary)] mb-8">Trusted By Industry Leaders</p>
           <div className="flex flex-nowrap w-full mask-image-edges">
             <motion.div 
               animate={{ x: ["0%", "-50%"] }}

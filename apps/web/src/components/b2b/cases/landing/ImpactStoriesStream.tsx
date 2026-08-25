@@ -105,7 +105,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
 
   return (
     <section
-      className="py-20 bg-zinc-900/40 border-b border-zinc-900 relative overflow-hidden"
+      className="py-20 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] relative overflow-hidden transition-colors"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
@@ -116,22 +116,22 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
       <div className="container mx-auto px-4 md:px-8 max-w-6xl relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs uppercase tracking-widest mb-3">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 font-mono text-xs uppercase tracking-widest mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{sectionLabel}</span>
           </span>
-          <h2 className="text-3xl md:text-4xl font-black font-syne text-zinc-100 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-black font-syne text-[var(--text-primary)] tracking-tight">
             {sectionTitle}
           </h2>
         </div>
 
         {/* Carousel Showcase Card */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-2xl backdrop-blur-xl">
+        <div className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-md backdrop-blur-xl">
           {/* Progress Bar Top Edge */}
           {facts.length > 1 && (
-            <div className="absolute top-0 inset-x-0 h-1 bg-zinc-900">
+            <div className="absolute top-0 inset-x-0 h-1 bg-[var(--border-level-2)]">
               <div
-                className="h-full bg-amber-400 transition-all ease-linear"
+                className="h-full bg-amber-500 transition-all ease-linear"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -142,7 +142,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
             <div className="md:col-span-8 space-y-5">
               {/* Huge Metric Number */}
               <div className="flex flex-wrap items-baseline gap-4">
-                <div className="text-5xl sm:text-6xl md:text-7xl font-black font-syne text-amber-400 tracking-tight">
+                <div className="text-5xl sm:text-6xl md:text-7xl font-black font-syne text-amber-500 tracking-tight">
                   {activeFact.prefix || ""}
                   {activeFact.value}
                   {activeFact.suffix || ""}
@@ -151,7 +151,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
                 {config.showProjectTitle !== false && projectTitle && (
                   <Link
                     href={`/${locale}/b2b/cases/${activeFact.caseStudySlug}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-zinc-900/90 border border-zinc-800 rounded-full text-xs font-mono text-amber-300 font-bold hover:border-amber-400/60 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--bg-level-2)] border border-[var(--border-level-2)] rounded-full text-xs font-mono text-amber-500 font-bold hover:border-amber-500/60 transition-colors shadow-xs"
                   >
                     <span>{projectTitle}</span>
                     <ArrowRight className="w-3 h-3 rtl:-scale-x-100" />
@@ -161,11 +161,11 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
 
               {/* Headline & Narrative */}
               <div>
-                <h3 className="text-2xl md:text-3xl font-bold font-syne text-zinc-100 mb-2">
+                <h3 className="text-2xl md:text-3xl font-bold font-syne text-[var(--text-primary)] mb-2">
                   {headline}
                 </h3>
                 {desc && (
-                  <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-2xl">
+                  <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed max-w-2xl">
                     {desc}
                   </p>
                 )}
@@ -175,7 +175,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
               <div className="pt-2">
                 <Link
                   href={`/${locale}/b2b/cases/${activeFact.caseStudySlug}`}
-                  className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-400 hover:text-amber-300 uppercase tracking-widest group/link transition-colors"
+                  className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-500 hover:text-amber-600 uppercase tracking-widest group/link transition-colors"
                 >
                   <span>{isAr ? "استكشف المشروع بالكامل" : "Explore the Project"}</span>
                   <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 rtl:group-hover/link:-translate-x-1 rtl:-scale-x-100 transition-transform" />
@@ -186,14 +186,14 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
             {/* Project Thumbnail & Controls (4 Cols) */}
             <div className="md:col-span-4 flex flex-col items-center md:items-end justify-between gap-6">
               {config.showProjectMedia !== false && activeFact.caseStudyMedia ? (
-                <div className="w-full max-w-[280px] aspect-video rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 relative group">
+                <div className="w-full max-w-[280px] aspect-video rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--bg-level-2)] relative group">
                   <UniversalMediaRenderer
                     type="IMAGE"
                     src={activeFact.caseStudyMedia}
                     alt={projectTitle}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/80 via-transparent to-transparent pointer-events-none" />
                 </div>
               ) : null}
 
@@ -202,19 +202,19 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
                 <div className="flex items-center gap-3">
                   <button
                     onClick={prevSlide}
-                    className="w-11 h-11 rounded-full border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 hover:border-amber-400/50 flex items-center justify-center text-zinc-300 hover:text-amber-400 transition-all cursor-pointer"
+                    className="w-11 h-11 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] hover:border-amber-500/50 flex items-center justify-center text-[var(--text-secondary)] hover:text-amber-500 transition-all cursor-pointer shadow-xs"
                     aria-label="Previous Story"
                   >
                     <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
                   </button>
 
-                  <div className="text-xs font-mono font-bold text-zinc-500 px-2">
+                  <div className="text-xs font-mono font-bold text-[var(--text-secondary)] px-2">
                     {currentIndex + 1} / {facts.length}
                   </div>
 
                   <button
                     onClick={nextSlide}
-                    className="w-11 h-11 rounded-full border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 hover:border-amber-400/50 flex items-center justify-center text-zinc-300 hover:text-amber-400 transition-all cursor-pointer"
+                    className="w-11 h-11 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] hover:border-amber-500/50 flex items-center justify-center text-[var(--text-secondary)] hover:text-amber-500 transition-all cursor-pointer shadow-xs"
                     aria-label="Next Story"
                   >
                     <ChevronRight className="w-5 h-5 rtl:rotate-180" />

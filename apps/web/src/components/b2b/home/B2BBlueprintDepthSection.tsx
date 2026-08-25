@@ -48,7 +48,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
   };
 
   return (
-    <section className="py-24 md:py-32 bg-zinc-950 border-y border-zinc-900 relative overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
+    <section className="py-24 md:py-32 bg-[var(--bg-level-1)] border-y border-[var(--border-level-1)] relative overflow-hidden transition-colors" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Ambient background glows */}
       <div className="absolute top-1/3 start-1/4 w-96 h-96 bg-emerald-500/5 blur-[140px] rounded-full pointer-events-none" />
       <div className="absolute bottom-1/4 end-1/4 w-96 h-96 bg-cyan-500/5 blur-[140px] rounded-full pointer-events-none" />
@@ -58,20 +58,20 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Reveal direction="slide-up">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-4">
               <Cpu className="w-3.5 h-3.5" />
               <span>{isAr ? "الهندسة المعمارية التفاعلية" : "SPATIAL ARCHITECTURE & DEPTH"}</span>
             </div>
           </Reveal>
 
           <Reveal direction="slide-up" delay={0.1}>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
               {isAr ? "من المخطط الهندسي إلى الواقع الحي" : "From Blueprint to Landmark Reality"}
             </h2>
           </Reveal>
 
           <Reveal direction="slide-up" delay={0.2}>
-            <p className="text-base md:text-lg text-zinc-400 leading-relaxed">
+            <p className="text-base md:text-lg text-[var(--text-secondary)] leading-relaxed">
               {isAr
                 ? "شاهد كيف تتحول الحسابات الإنشائية ومخططات تدفق الجماهير ثلاثية الأبعاد إلى تجارب ترفيهية متكاملة تنبض بالحياة."
                 : "Explore how rigorous structural engineering, spatial telemetry, and crowd logistics transform into world-class entertainment destinations."}
@@ -84,8 +84,8 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
               onClick={() => { setMode('blueprint'); setSliderPosition(100); }}
               className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
                 mode === 'blueprint'
-                  ? 'bg-cyan-500 text-zinc-950 shadow-[0_0_20px_rgba(6,182,212,0.4)]'
-                  : 'bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-cyan-500 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+                  : 'bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span className="flex items-center gap-1.5">
@@ -98,8 +98,8 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
               onClick={() => { setMode('split'); setSliderPosition(50); }}
               className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
                 mode === 'split'
-                  ? 'bg-emerald-500 text-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
-                  : 'bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                  : 'bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span className="flex items-center gap-1.5">
@@ -112,8 +112,8 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
               onClick={() => { setMode('live'); setSliderPosition(0); }}
               className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
                 mode === 'live'
-                  ? 'bg-amber-500 text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
-                  : 'bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
+                  : 'bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span className="flex items-center gap-1.5">
@@ -141,7 +141,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
               ref={containerRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              className="relative max-w-5xl mx-auto aspect-[16/9] min-h-[460px] md:min-h-[540px] rounded-3xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl transition-shadow duration-500 hover:shadow-[0_0_60px_rgba(16,185,129,0.12)] group perspective-1000"
+              className="relative max-w-5xl mx-auto aspect-[16/9] min-h-[460px] md:min-h-[540px] rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-hidden shadow-2xl transition-shadow duration-500 hover:shadow-[0_0_60px_rgba(16,185,129,0.12)] group perspective-1000"
             >
               <motion.div
                 style={{

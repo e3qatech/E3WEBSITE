@@ -18,7 +18,6 @@ import { QatarInteractiveMap } from '@/components/b2c/story/QatarInteractiveMap'
 import { SocialFeedSection } from '@/components/b2c/story/SocialFeedSection';
 import { HorizontalGPUParallaxGallery } from '@/components/b2c/story/HorizontalGPUParallaxGallery';
 import { TactileDigitalTicket } from '@/components/b2c/story/TactileDigitalTicket';
-import { StoryTrailControl } from '@/components/b2c/story/StoryTrailControl';
 
 interface B2CLandingClientProps {
   locale: string;
@@ -161,15 +160,6 @@ export function B2CLandingClient({
   return (
     <div className="relative min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] selection:bg-purple-500 selection:text-white">
       {activeSections.map((sec) => renderSection(sec.id))}
-
-      {/* Persistent Story Trail Journey Indicator */}
-      <StoryTrailControl
-        currentStoryLabelEn="Drive"
-        currentStoryLabelAr="قيادة"
-        currentWorldNameEn="Kids City Driving School"
-        currentWorldNameAr="مدينة قيادة الأطفال"
-        locale={locale}
-      />
     </div>
   );
 }

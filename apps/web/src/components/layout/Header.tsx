@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon, LogIn } from "lucide-react";
+import { Menu, X, Sun, Moon, LogIn, Home } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { useLocale } from "./LocaleProvider";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
@@ -69,8 +69,8 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
         )}
       >
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          {/* Logo & Portal Badge */}
-          <div className="flex items-center gap-4">
+          {/* Logo, Home Button & Portal Badge */}
+          <div className="flex items-center gap-3">
             <Link href={`/${portal}`} className="relative z-50 flex items-center gap-2">
               <E3Logo
                 isLight={theme === "light"}
@@ -78,6 +78,13 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
                 darkLogoUrl={darkLogoUrl}
                 size="md"
               />
+            </Link>
+            <Link
+              href="/"
+              className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)]/90 hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors shadow-xs"
+              title="Home Gateway"
+            >
+              <Home className="w-4 h-4" />
             </Link>
             <Link 
               href={`/${portal === 'b2c' ? 'b2b' : 'b2c'}`}
