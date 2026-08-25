@@ -42,6 +42,8 @@ export async function GET(req: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    const includePast = searchParams.get('includePast') === 'true' || searchParams.get('all') === 'true';
+
     const [attractions, total] = await Promise.all([
       db.attraction.findMany({
         where,
@@ -64,6 +66,11 @@ export async function GET(req: NextRequest) {
           heroThumbnailUrl: true,
           isPublished: true,
           isFeatured: true,
+          durationModel: true,
+          entityType: true,
+          eventDetails: true,
+          temporalStatus: true,
+          operations: true,
           createdAt: true,
           gallery: { select: { url: true, captionEn: true, captionAr: true } },
           pricing: { select: { price: true, currency: true, type: true } },
@@ -78,13 +85,18 @@ export async function GET(req: NextRequest) {
       db.attraction.count({ where }),
     ]);
 
+    const { isAttractionActiveByDate } = await import('@/lib/cms-attractions');
+    const filteredAttractions = includePast
+      ? attractions
+      : attractions.filter((attr: any) => isAttractionActiveByDate(attr));
+
     const result = {
-      data: attractions,
+      data: filteredAttractions,
       pagination: {
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: includePast ? total : filteredAttractions.length,
+        totalPages: Math.ceil((includePast ? total : filteredAttractions.length) / limit),
       },
     };
 

@@ -2,10 +2,22 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 
-export async function GET(_request: Request) {
+import { isAttractionActiveByDate } from "@/lib/cms-attractions"
+
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const includePast = searchParams.get('includePast') === 'true' || searchParams.get('all') === 'true'
+    const includeDrafts = searchParams.get('includeDrafts') === 'true'
+
+    const whereClause: any = {}
+    if (!includeDrafts) {
+      whereClause.isPublished = true
+      whereClause.isHidden = false
+    }
+
     let attractions = await db.attraction.findMany({
-      where: { isPublished: true },
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
       orderBy: { createdAt: "desc" },
       include: {
         pricing: true,
@@ -26,7 +38,7 @@ export async function GET(_request: Request) {
         await publishAllContent();
 
         attractions = await db.attraction.findMany({
-          where: { isPublished: true },
+          where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
           orderBy: { createdAt: "desc" },
           include: {
             pricing: true,
@@ -44,7 +56,12 @@ export async function GET(_request: Request) {
       }
     }
 
-    return NextResponse.json(attractions || []);
+    // Filter out past/expired events unless specifically requested
+    const filteredAttractions = includePast
+      ? attractions
+      : (attractions || []).filter((attr: any) => isAttractionActiveByDate(attr))
+
+    return NextResponse.json(filteredAttractions || []);
   } catch (error: any) {
     console.error("[ATTRACTIONS_GET_ERROR]", error);
     return NextResponse.json({ error: "Failed to fetch attractions" }, { status: 500 });

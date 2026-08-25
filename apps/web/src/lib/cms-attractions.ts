@@ -26,37 +26,110 @@ export interface AttractionFilterParams {
   sortBy?: 'relevance' | 'soonest' | 'name'
 }
 
-/**
- * Strict active attraction verification by current/target date
- */
-export function isAttractionActiveByDate(item: any, targetDateInput?: Date | string | null | unknown): boolean {
-  if (!item) return false
-  const targetDate = typeof targetDateInput === 'string' || targetDateInput instanceof Date
-    ? new Date(targetDateInput)
-    : new Date()
-  const now = isNaN(targetDate.getTime()) ? new Date() : targetDate
+export function parseFlexibleDate(dateInput?: string | Date | null): Date | null {
+  if (!dateInput) return null;
+  if (dateInput instanceof Date) return isNaN(dateInput.getTime()) ? null : dateInput;
+  if (typeof dateInput !== 'string') return null;
 
-  // 1. Explicit Operational Status Check
-  const status = item.operationalStatus || item.status || item.computedStatus
-  if (status === 'ENDED' || status === 'INACTIVE' || status === 'PAST' || status === 'CLOSED' || status === 'TEMPORARILY_CLOSED') {
-    return false
+  const trimmed = dateInput.trim();
+  if (!trimmed) return null;
+
+  // DD-MM-YYYY or DD/MM/YYYY (e.g. 13-08-2025 or 13/08/2025)
+  const dmyMatch = trimmed.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    const d = new Date(year, month, day, 23, 59, 59, 999);
+    if (!isNaN(d.getTime())) return d;
   }
 
-  // 2. Temporal Override and Permanent Checks
-  const temporal = item.temporalStatus || item.temporal || {}
+  // YYYY-MM-DD
+  const ymdMatch = trimmed.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (ymdMatch) {
+    const year = parseInt(ymdMatch[1], 10);
+    const month = parseInt(ymdMatch[2], 10) - 1;
+    const day = parseInt(ymdMatch[3], 10);
+    const d = new Date(year, month, day, 23, 59, 59, 999);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  const d = new Date(trimmed);
+  if (!isNaN(d.getTime())) {
+    if (trimmed.length <= 10) {
+      d.setHours(23, 59, 59, 999);
+    }
+    return d;
+  }
+  return null;
+}
+
+/**
+ * Strict active attraction verification by current/target date
+ * Excludes drafts, inactive/closed attractions, and past/expired events.
+ */
+export function isAttractionActiveByDate(item: any, targetDateInput?: Date | string | null | unknown): boolean {
+  if (!item) return false;
+
+  // 1. Explicit Published & Draft Checks
+  if (item.isPublished === false) return false;
+  if (item.isHidden === true) return false;
+
+  const status = String(item.operationalStatus || item.status || item.computedStatus || item.lifecycleStatus || '').toUpperCase().trim();
+  if (['ENDED', 'INACTIVE', 'PAST', 'CLOSED', 'TEMPORARILY_CLOSED', 'DRAFT', 'ARCHIVED'].includes(status)) {
+    return false;
+  }
+
+  const targetDate = typeof targetDateInput === 'string' || targetDateInput instanceof Date
+    ? new Date(targetDateInput)
+    : new Date();
+  const now = isNaN(targetDate.getTime()) ? new Date() : targetDate;
+
+  // 2. Temporal Status / Override Checks
+  const temporal = item.temporalStatus || item.temporal || {};
   if (temporal.statusOverride) {
-    if (temporal.statusOverride === 'FORCE_ACTIVE') return true
-    if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') return false
+    if (temporal.statusOverride === 'FORCE_ACTIVE') return true;
+    if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') return false;
   }
 
   if (temporal.adminStatusOverride) {
-    const adminStatus = String(temporal.adminStatusOverride).toLowerCase().trim()
-    if (adminStatus === 'closed' || adminStatus === 'archived' || adminStatus === 'inactive') return false
-    if (adminStatus === 'live' || adminStatus === 'active') return true
+    const adminStatus = String(temporal.adminStatusOverride).toLowerCase().trim();
+    if (['closed', 'archived', 'inactive', 'draft'].includes(adminStatus)) return false;
+    if (['live', 'active'].includes(adminStatus)) return true;
   }
 
-  if (temporal.isPermanent || temporal.isPermanentAttraction || temporal.lifespanType === 'PERMANENT') {
-    // Check if a special date exception or weekly closed day overrides it on this specific date
+  // 3. Date Boundaries (Check Event Schedule, Session Settings, Temporal, Operations)
+  const eventDetails = item.eventDetails || {};
+  const operations = item.operations || {};
+
+  const rawStartDate = eventDetails.startDate || temporal.startDate || item.startDate || operations.startDate || eventDetails.date;
+  const rawEndDate = eventDetails.endDate || temporal.endDate || item.endDate || operations.endDate;
+
+  const parsedStart = parseFlexibleDate(rawStartDate);
+  const parsedEnd = parseFlexibleDate(rawEndDate);
+
+  // If Start Date is in the future for current view
+  if (parsedStart && now < parsedStart) {
+    return false; // Not active yet
+  }
+
+  // If End Date has passed (Expired / Past event)
+  if (parsedEnd && now > parsedEnd) {
+    return false; // Expired / Past event
+  }
+
+  // If seasonal / pop-up / event duration model without dates or has expired
+  const durationModel = String(item.durationModel || temporal.lifespanType || '').toUpperCase().trim();
+  const entityType = String(item.entityType || '').toUpperCase().trim();
+
+  if (durationModel === 'SEASONAL' || durationModel === 'TEMPORARY' || durationModel === 'POPUP' || entityType === 'EVENT' || entityType === 'ACTIVATION') {
+    if (parsedEnd && now > parsedEnd) {
+      return false;
+    }
+  }
+
+  // 4. Permanent Attraction Weekly Schedules & Special Date Overrides
+  if (temporal.isPermanent || temporal.isPermanentAttraction || temporal.lifespanType === 'PERMANENT' || durationModel === 'PERMANENT') {
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
@@ -78,44 +151,7 @@ export function isAttractionActiveByDate(item: any, targetDateInput?: Date | str
     return true;
   }
 
-  // 3. Date Boundaries Verification (Start Date <= Target Date <= End Date)
-  const startDateStr = temporal.startDate || item.startDate || item.operations?.startDate
-  const endDateStr = temporal.endDate || item.endDate || item.operations?.endDate
-
-  if (startDateStr) {
-    const start = new Date(startDateStr)
-    if (!isNaN(start.getTime()) && now < start) {
-      return false // Not active yet (future event)
-    }
-  }
-
-  if (endDateStr) {
-    const end = new Date(endDateStr)
-    if (!isNaN(end.getTime()) && now > end) {
-      return false // Expired (past event)
-    }
-  }
-
-  // 4. Special Dates Exception & Weekly Closed Days
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const dateStr = `${year}-${month}-${day}`;
-
-  if (Array.isArray(temporal.specialDates)) {
-    const specialOverride = temporal.specialDates.find((s: any) => s.date === dateStr);
-    if (specialOverride && specialOverride.isClosed) {
-      return false;
-    }
-  }
-
-  const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const dayKey = DAYS[now.getDay()];
-  if (temporal.weeklySchedule && temporal.weeklySchedule[dayKey] && temporal.weeklySchedule[dayKey].isOpen === false) {
-    return false;
-  }
-
-  return true
+  return true;
 }
 
 /**
@@ -285,7 +321,8 @@ export async function getCanonicalAttractions() {
         { createdAt: 'desc' }
       ]
     })
-    return records
+    const activeRecords = records.filter((r: any) => isAttractionActiveByDate(r))
+    return activeRecords.length > 0 ? activeRecords : records.filter((r: any) => r.isPublished !== false)
   } catch (_e) {
     return []
   }
