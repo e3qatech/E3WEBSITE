@@ -126,6 +126,20 @@ export const ENVIRONMENT_MODELS = [
   { value: "HYBRID", labelEn: "Hybrid (Indoor & Outdoor)", labelAr: "مزدوج (داخلي وخارجي)" },
 ]
 
+export const E3_SERVICE_TYPES = [
+  { value: "Family Entertainment Centers (FEC)", slug: "family-entertainment-centers", labelEn: "Family Entertainment Centers (FEC)", labelAr: "مراكز الترفيه العائلي (FEC)" },
+  { value: "Mega Events", slug: "mega-events", labelEn: "Mega Events & Festivals", labelAr: "الفعاليات الكبرى والمهرجانات" },
+  { value: "Experiential Activations", slug: "experiential-activations", labelEn: "Experiential & Brand Activations", labelAr: "التجارب التفاعلية وتنشيط العلامات" },
+  { value: "Kids Play Concepts", slug: "kids-play-concepts", labelEn: "Kids Play Concepts & Edutainment", labelAr: "مفاهيم لعب الأطفال والترفيه التعليمي" },
+  { value: "E3 Rentals", slug: "e3-rentals", labelEn: "E3 Rentals & Inflatables Fleet", labelAr: "تأجير المعدات والهياكل الهوائية E3" },
+  { value: "Shows & Performances", slug: "shows-performances", labelEn: "Shows, Stunts & Live Performances", labelAr: "العروض الحية والفقرات البهلوانية" },
+  { value: "Audio Visual & Stage", slug: "audio-visual-stage", labelEn: "Audio Visual & Stage Production", labelAr: "الصوتيات والمرئيات والإنتاج المسرحي" },
+  { value: "Fabrication & Branding", slug: "fabrication-branding", labelEn: "Scenic Fabrication & Branding", labelAr: "التصنيع المسرحي والهوية البصرية" },
+  { value: "Feasibility, Design & Research", slug: "feasibility-design-research", labelEn: "Feasibility, Masterplanning & Design", labelAr: "دراسات الجدوى والتخطيط والتصميم" },
+  { value: "Ticketing Solutions", slug: "ticketing-solutions", labelEn: "Turnkey Ticketing & Access Solutions", labelAr: "حلول التذاكر وإدارة الدخول" },
+  { value: "Custom Experience Partnership", slug: "custom", labelEn: "Custom Experience Partnership", labelAr: "شراكة تجارب وخدمات مخصصة" },
+]
+
 export function AttractionContentStudio({ initialData }: { initialData?: any }) {
   const router = useRouter()
   const isEditing = Boolean(initialData?.id)
@@ -168,7 +182,21 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
   const [isB2bVisible, setIsB2bVisible] = useState(initialData?.isB2bVisible !== false)
 
-  // 5-Dimensional Classification Controlled Fields
+  // Service Binding & B2B Service Line Classification
+  const [b2bCategory, setB2bCategory] = useState(
+    initialData?.b2bCategory ||
+    (initialData?.experienceFormat === 'PERMANENT_FEC' ? 'Family Entertainment Centers (FEC)' :
+     initialData?.entityType === 'EVENT' ? 'Mega Events' :
+     initialData?.entityType === 'ACTIVATION' ? 'Experiential Activations' : 'Family Entertainment Centers (FEC)')
+  )
+  const [servicesDelivered, setServicesDelivered] = useState<string[]>(
+    Array.isArray(initialData?.servicesDelivered) && initialData.servicesDelivered.length > 0
+      ? initialData.servicesDelivered
+      : (initialData?.b2bCategory ? [initialData.b2bCategory] : ['Family Entertainment Centers (FEC)'])
+  )
+  const [availableServices, setAvailableServices] = useState<any[]>([])
+
+  // 6-Dimensional Classification Controlled Fields
   const [entityType, setEntityType] = useState(initialData?.entityType || "ATTRACTION")
   const [experienceFormat, setExperienceFormat] = useState(initialData?.experienceFormat || "PERMANENT_FEC")
   const [accessModel, setAccessModel] = useState(initialData?.accessModel || "PAID")
@@ -327,10 +355,11 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
   // Load auxiliary data
   const loadData = async () => {
     try {
-      const [locRes, storyRes, brandRes] = await Promise.all([
+      const [locRes, storyRes, brandRes, servRes] = await Promise.all([
         fetch('/api/b2c/locations'),
         fetch('/api/b2c/story-types?active=true'),
-        fetch('/api/b2c/brands')
+        fetch('/api/b2c/brands'),
+        fetch('/api/b2b/services?all=true')
       ])
       if (locRes.ok) {
         const json = await locRes.json()
@@ -343,6 +372,10 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
       if (brandRes.ok) {
         const data = await brandRes.json()
         setAvailableBrands(Array.isArray(data) ? data : [])
+      }
+      if (servRes.ok) {
+        const data = await servRes.json()
+        setAvailableServices(data.services || [])
       }
     } catch (err) {
       console.error("Error loading auxiliary data", err)
@@ -603,6 +636,8 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
         isPublished: nextIsPublished,
         isFeatured,
         isB2bVisible,
+        b2bCategory,
+        servicesDelivered,
         entityType,
         experienceFormat,
         accessModel,
@@ -1000,6 +1035,49 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                         {ENVIRONMENT_MODELS.map(env => (
                           <option key={env.value} value={env.value}>{env.labelEn}</option>
                         ))}
+                      </select>
+                    </div>
+
+                    {/* 6. Service Offering / Service Type (Binding with E3 Services) */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold text-[var(--text-secondary)] flex items-center gap-1">
+                          <span>Service Type *</span>
+                        </label>
+                        <span className="text-[10px] text-purple-400 font-bold bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/20">
+                          E3 Services Binding
+                        </span>
+                      </div>
+                      <select
+                        value={b2bCategory}
+                        onChange={e => { 
+                          const val = e.target.value;
+                          setB2bCategory(val);
+                          if (val && !servicesDelivered.includes(val)) {
+                            setServicesDelivered(prev => [...prev, val]);
+                          }
+                          markDirty(); 
+                        }}
+                        className="w-full h-10 px-3 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] font-bold focus:border-purple-500"
+                      >
+                        <optgroup label="E3 Service Offerings">
+                          {E3_SERVICE_TYPES.map(s => (
+                            <option key={s.value} value={s.value}>
+                              {isAr ? s.labelAr : s.labelEn}
+                            </option>
+                          ))}
+                        </optgroup>
+                        {availableServices.length > 0 && (
+                          <optgroup label="Configured Database Services">
+                            {availableServices
+                              .filter((srv: any) => !E3_SERVICE_TYPES.some(s => s.value.toLowerCase() === (srv.titleEn || '').toLowerCase()))
+                              .map((srv: any) => (
+                                <option key={srv.id} value={srv.titleEn}>
+                                  {isAr ? (srv.titleAr || srv.titleEn) : srv.titleEn}
+                                </option>
+                              ))}
+                          </optgroup>
+                        )}
                       </select>
                     </div>
                   </div>

@@ -141,6 +141,7 @@ export async function POST(request: Request) {
         heroMediaType, heroMediaUrl, heroFallbackUrl, heroThumbnailUrl,
         motionPreset, motionIntensity, heroSceneType, particleDensity,
         isPublished, isFeatured, isHidden, isB2bVisible,
+        b2bCategory, projectType, clientName, servicesDelivered,
         entityType, experienceFormat, accessModel, durationModel, environment, eventDetails,
         features, partnerOffers, partners, socialPreviews, newsCoverage, operations, temporalStatus, testimonials,
         pricing, faqs, socialLinks, gallery, seo
@@ -166,6 +167,10 @@ export async function POST(request: Request) {
           isFeatured: Boolean(isFeatured),
           isHidden: Boolean(isHidden),
           isB2bVisible: isB2bVisible !== false,
+          b2bCategory: b2bCategory || null,
+          projectType: projectType || null,
+          clientName: clientName || null,
+          servicesDelivered: Array.isArray(servicesDelivered) ? servicesDelivered : (b2bCategory ? [b2bCategory] : []),
           entityType: entityType || "ATTRACTION",
           experienceFormat: experienceFormat || "PERMANENT_FEC",
           accessModel: accessModel || "PAID",
