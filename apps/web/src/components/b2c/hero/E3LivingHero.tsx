@@ -544,7 +544,7 @@ export function E3LivingHero({
 
         {/* Active Animated Word */}
         <span
-          className="relative inline-flex items-baseline overflow-hidden"
+          className="relative inline-flex items-baseline overflow-hidden py-1 -my-1 px-1 -mx-1"
           style={{ gridArea: 'stack' }}
         >
           <AnimatePresence mode="wait" initial={false}>

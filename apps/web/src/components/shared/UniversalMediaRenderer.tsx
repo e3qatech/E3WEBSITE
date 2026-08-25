@@ -1,6 +1,6 @@
 "use client"
 
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useState } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils'
 export type UniversalMediaType = 'IMAGE' | 'VIDEO' | 'YOUTUBE' | 'VIMEO' | 'IFRAME' | 'THREE_D' | 'SPLINE' | 'SLIDES'
 
 export interface UniversalMediaProps {
-  type: UniversalMediaType
-  src: string
+  type?: UniversalMediaType | string
+  src?: string | null
   alt?: string
   className?: string
   autoPlay?: boolean
@@ -59,7 +59,7 @@ export function parseVideoEmbedUrl(url: string, autoPlay = true, muted = true, l
       const id = vimeoMatch[1];
       const autoPlayParam = autoPlay ? '1' : '0';
       const muteParam = muted ? '1' : '0';
-      const loopParam = loop ? '1' : '0';
+      const loopParam = loop ? `1&playlist=${id}` : '0';
       return `https://player.vimeo.com/video/${id}?autoplay=${autoPlayParam}&muted=${muteParam}&loop=${loopParam}`;
     }
   }
@@ -68,7 +68,7 @@ export function parseVideoEmbedUrl(url: string, autoPlay = true, muted = true, l
 }
 
 export function UniversalMediaRenderer({
-  type,
+  type = 'IMAGE',
   src,
   alt = "Media content",
   className,
@@ -78,13 +78,21 @@ export function UniversalMediaRenderer({
   controls = false,
   poster
 }: UniversalMediaProps) {
-  const [hasError, setHasError] = React.useState(false)
+  const [hasError, setHasError] = useState(false)
   
   if (!src || hasError) {
     const fallbackSrc = poster || "/hero-bg.png";
     return (
       <div className={cn("relative w-full h-full overflow-hidden bg-zinc-950", className)}>
-        <img src={fallbackSrc} alt={alt} className="w-full h-full object-cover" />
+        <img 
+          src={fallbackSrc} 
+          alt={alt} 
+          className="w-full h-full object-cover" 
+          onError={(e) => {
+            // Prevent infinite loop if fallback image also fails
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
+        />
       </div>
     );
   }
@@ -97,13 +105,41 @@ export function UniversalMediaRenderer({
     }
   }
 
-  // Detect YouTube or Vimeo URLs inside VIDEO or IFRAME type
-  const isExternalVideo = effectiveSrc.includes('youtube.com') || 
-                          effectiveSrc.includes('youtu.be') || 
-                          effectiveSrc.includes('youtube-nocookie.com') || 
-                          effectiveSrc.includes('vimeo.com');
+  // Detect image extensions & Vercel storage images
+  const isImageExtension =
+    /\.(jpg|jpeg|png|webp|svg|gif|avif)(\?.*)?$/i.test(effectiveSrc) ||
+    effectiveSrc.includes('public.blob.vercel-storage.com') ||
+    effectiveSrc.startsWith('data:image/');
 
-  if (type === 'YOUTUBE' || type === 'VIMEO' || (isExternalVideo && (type === 'VIDEO' || type === 'IFRAME'))) {
+  // Detect direct video files (.mp4, .webm, .mov)
+  const isDirectVideo = /\.(mp4|webm|mov)(\?.*)?$/i.test(effectiveSrc);
+
+  // Detect Spline links
+  const isSpline = effectiveSrc.includes('spline.design') || effectiveSrc.includes('.splinecode');
+
+  // Detect YouTube or Vimeo URLs
+  const isExternalVideo =
+    effectiveSrc.includes('youtube.com') || 
+    effectiveSrc.includes('youtu.be') || 
+    effectiveSrc.includes('youtube-nocookie.com') || 
+    effectiveSrc.includes('vimeo.com');
+
+  // Intelligently resolve media type based on content to prevent broken iframes & img tags
+  let resolvedType = (type || 'IMAGE').toString().toUpperCase() as UniversalMediaType;
+  
+  if (isExternalVideo) {
+    resolvedType = effectiveSrc.includes('vimeo') ? 'VIMEO' : 'YOUTUBE';
+  } else if (isDirectVideo) {
+    resolvedType = 'VIDEO';
+  } else if (isSpline) {
+    resolvedType = 'SPLINE';
+  } else if (isImageExtension && (resolvedType === 'IFRAME' || resolvedType === 'THREE_D' || resolvedType === 'VIDEO')) {
+    // Avoid X-Frame-Options: DENY error on cloud images
+    resolvedType = 'IMAGE';
+  }
+
+  // Handle Video Embeds (YouTube / Vimeo)
+  if (resolvedType === 'YOUTUBE' || resolvedType === 'VIMEO') {
     const embedUrl = parseVideoEmbedUrl(effectiveSrc, autoPlay, muted, loop);
     return (
       <div className={cn("relative w-full h-full overflow-hidden bg-zinc-950", className)}>
@@ -122,15 +158,13 @@ export function UniversalMediaRenderer({
     );
   }
 
-  switch (type) {
+  switch (resolvedType) {
     case 'IMAGE': {
-      const isSpline = effectiveSrc.includes('spline.design') || effectiveSrc.includes('.splinecode') || effectiveSrc.includes('<iframe');
-      const finalImgSrc = isSpline ? (poster || '/hero-bg.png') : effectiveSrc;
       return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
           <img 
-            key={finalImgSrc}
-            src={finalImgSrc}
+            key={effectiveSrc}
+            src={effectiveSrc}
             alt={alt}
             onError={() => setHasError(true)}
             className="w-full h-full object-cover"
@@ -143,8 +177,8 @@ export function UniversalMediaRenderer({
       return (
         <div className={cn("relative w-full h-full overflow-hidden flex items-center justify-center bg-zinc-950", className)}>
           <video
-            key={src}
-            src={src}
+            key={effectiveSrc}
+            src={effectiveSrc}
             poster={poster}
             autoPlay={autoPlay}
             loop={loop}
@@ -158,19 +192,8 @@ export function UniversalMediaRenderer({
       );
       
     case 'IFRAME':
-      if (hasError) {
-        return (
-          <div className={cn("relative w-full h-full overflow-hidden", className)}>
-            <img
-              src={poster || "/hero-bg.png"}
-              alt={alt}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        );
-      }
       return (
-        <div className={cn("relative w-full h-full", className)}>
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
           <iframe
             key={effectiveSrc}
             src={effectiveSrc}
@@ -183,32 +206,8 @@ export function UniversalMediaRenderer({
         </div>
       );
       
-    case 'SPLINE':
-      if (!src.includes('.splinecode') && !src.includes('spline.design')) {
-        return (
-          <div className={cn("relative w-full h-full", className)}>
-            <iframe src={src} title={alt} className="w-full h-full border-0" allow="autoplay; fullscreen" loading="lazy" />
-          </div>
-        );
-      }
-      return (
-        <div className={cn("relative w-full h-full min-h-[300px]", className)}>
-          <Suspense fallback={
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
-              {poster ? (
-                 <Image src={poster} alt={alt} fill className="object-cover opacity-50" />
-              ) : (
-                 <div className="animate-pulse w-10 h-10 rounded-full bg-emerald-500/20" />
-              )}
-            </div>
-          }>
-            <SplineViewer scene={src} onError={() => setHasError(true)} />
-          </Suspense>
-        </div>
-      )
-      
-    case 'THREE_D':
-      if (src.includes('.splinecode') || (src.includes('spline.design') && !src.includes('/embed/'))) {
+    case 'SPLINE': {
+      if (effectiveSrc.includes('.splinecode')) {
         return (
           <div className={cn("relative w-full h-full min-h-[300px]", className)}>
             <Suspense fallback={
@@ -220,53 +219,77 @@ export function UniversalMediaRenderer({
                 )}
               </div>
             }>
-              <SplineViewer scene={src} onError={() => setHasError(true)} />
+              <SplineViewer scene={effectiveSrc} onError={() => setHasError(true)} />
             </Suspense>
           </div>
-        )
+        );
       }
-      if (src.endsWith('.mp4') || src.endsWith('.webm')) {
+      // Interactive Spline webpage embed
+      return (
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
+          <iframe
+            key={effectiveSrc}
+            src={effectiveSrc}
+            title={alt}
+            onError={() => setHasError(true)}
+            className="w-full h-full border-0 pointer-events-auto"
+            allow="autoplay; fullscreen"
+            loading="lazy"
+          />
+        </div>
+      );
+    }
+      
+    case 'THREE_D': {
+      if (effectiveSrc.includes('.splinecode')) {
         return (
-          <div className={cn("relative w-full h-full overflow-hidden flex items-center justify-center bg-zinc-950", className)}>
-            <video
-              key={src}
-              src={src}
-              poster={poster}
-              autoPlay={autoPlay}
-              loop={loop}
-              muted={muted}
-              controls={controls}
-              playsInline
-              className="w-full h-full object-cover"
-            />
+          <div className={cn("relative w-full h-full min-h-[300px]", className)}>
+            <Suspense fallback={
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
+                {poster ? (
+                  <Image src={poster} alt={alt} fill className="object-cover opacity-50" />
+                ) : (
+                  <div className="animate-pulse w-10 h-10 rounded-full bg-emerald-500/20" />
+                )}
+              </div>
+            }>
+              <SplineViewer scene={effectiveSrc} onError={() => setHasError(true)} />
+            </Suspense>
           </div>
-        )
+        );
       }
       return (
-        <div className={cn("relative w-full h-full", className)}>
-          {src.startsWith('http') || src.startsWith('/') ? (
-            <iframe
-              key={src}
-              src={src}
-              title={alt}
-              className="w-full h-full border-0"
-              allow="autoplay; fullscreen; picture-in-picture"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex items-center justify-center w-full h-full text-zinc-500">3D Model: {src}</div>
-          )}
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
+          <iframe
+            key={effectiveSrc}
+            src={effectiveSrc}
+            title={alt}
+            onError={() => setHasError(true)}
+            className="w-full h-full border-0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            loading="lazy"
+          />
         </div>
-      )
+      );
+    }
       
     case 'SLIDES':
       return (
         <div className={cn("relative w-full h-full bg-zinc-900 flex items-center justify-center", className)}>
-          <p className="text-zinc-500">Slides: {src}</p>
+          <p className="text-zinc-500">Slides: {effectiveSrc}</p>
         </div>
-      )
+      );
       
     default:
-      return null
+      return (
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
+          <img 
+            src={effectiveSrc} 
+            alt={alt} 
+            onError={() => setHasError(true)} 
+            className="w-full h-full object-cover" 
+          />
+        </div>
+      );
   }
 }
