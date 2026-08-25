@@ -13,9 +13,19 @@ export default async function CasesPage() {
     redirect("/login")
   }
 
-  const caseStudies = await db.caseStudy.findMany({
-    orderBy: { year: 'desc' }
-  })
+  let caseStudies: any[] = []
+  try {
+    caseStudies = await db.caseStudy.findMany({
+      orderBy: { year: 'desc' }
+    })
+  } catch (error) {
+    console.error("[CASES_PAGE_DB_ERROR]", error)
+    try {
+      caseStudies = await (db as any).$queryRawUnsafe(`SELECT * FROM "CaseStudy" ORDER BY "year" DESC`).catch(() => [])
+    } catch (_fallbackErr) {
+      caseStudies = []
+    }
+  }
 
-  return <CasesListClient initialData={caseStudies} />
+  return <CasesListClient initialData={caseStudies || []} />
 }
