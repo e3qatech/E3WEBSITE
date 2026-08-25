@@ -48,7 +48,7 @@ export function ContactClient({
   const [activeTab, setActiveTab] = useState("support");
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
-  const [faqFilter, setFaqFilter] = useState("all");
+  const [faqFilter, setFaqFilter] = useState("general");
   useB2CTheme();
 
   // Dynamic Contact Details sourced from Central Platform Settings (with safe defaults)
@@ -74,18 +74,36 @@ export function ContactClient({
   };
 
   const allFaqs = [
-    ...(Array.isArray(generalFaqs) ? generalFaqs : []).map((f) => ({ ...f, type: "general", attractionId: null })),
-    ...(Array.isArray(attractionFaqs) ? attractionFaqs : []).map((f) => ({ ...f, type: "attraction" })),
+    ...(Array.isArray(generalFaqs) ? generalFaqs : []).map((f) => ({
+      ...f,
+      type: "general",
+      attractionId: "general",
+      categoryNameEn: "General Platform",
+      categoryNameAr: "أسئلة عامة",
+    })),
+    ...(Array.isArray(attractionFaqs) ? attractionFaqs : []).map((f) => ({
+      ...f,
+      type: "attraction",
+      attractionId: String(f.attractionId || f.attraction?.id || ""),
+      categoryNameEn: f.attraction?.nameEn || "Attraction",
+      categoryNameAr: f.attraction?.nameAr || f.attraction?.nameEn || "الوجهة",
+    })),
   ];
 
+  // Filter strictly by selected category (General by default, or the specific attraction selected)
   const filteredFaqs = allFaqs.filter((faq) => {
     const qStr = isAr ? faq.questionAr || faq.questionEn || "" : faq.questionEn || "";
     const aStr = isAr ? faq.answerAr || faq.answerEn || "" : faq.answerEn || "";
     const matchesSearch =
+      !faqSearch ||
       qStr.toLowerCase().includes(faqSearch.toLowerCase()) ||
       aStr.toLowerCase().includes(faqSearch.toLowerCase());
+
     const matchesFilter =
-      faqFilter === "all" || (faqFilter === "general" && faq.type === "general") || faq.attractionId === faqFilter;
+      faqFilter === "general"
+        ? faq.type === "general" || faq.attractionId === "general"
+        : faq.attractionId === faqFilter;
+
     return matchesSearch && matchesFilter;
   });
 
@@ -749,28 +767,93 @@ function FaqSection({
   switchToSupport,
   isAr,
 }: any) {
+  const selectedAttraction = attractions.find((a: any) => (a.id || a.attractionId) === filter);
+  const currentCategoryTitle =
+    filter === "general"
+      ? isAr
+        ? "الأسئلة العامة للمنصة"
+        : "General Platform Questions"
+      : isAr
+      ? selectedAttraction?.nameAr || selectedAttraction?.nameEn || "أسئلة الوجهة"
+      : selectedAttraction?.nameEn || "Attraction FAQs";
+
   return (
-    <div className="space-y-8 text-start">
-      <div className="flex flex-col md:flex-row gap-4">
+    <div className="space-y-6 text-start">
+      {/* Category Pills Selector */}
+      <div className="space-y-2">
+        <label className="block text-[11px] font-black uppercase text-[var(--text-tertiary)] tracking-wider">
+          {isAr ? "اختر موضوع أو وجهة الأسئلة:" : "Select FAQ Topic or Attraction:"}
+        </label>
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("general");
+              setSearch("");
+            }}
+            className={cn(
+              "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border",
+              filter === "general"
+                ? "bg-[var(--e3-royal-blue)] text-white border-[var(--e3-royal-blue)] shadow-md"
+                : "bg-[var(--bg-level-1)] text-[var(--text-secondary)] border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--text-primary)]"
+            )}
+          >
+            <span>{isAr ? "أسئلة عامة" : "General FAQs"}</span>
+          </button>
+
+          {attractions.map((a: any) => {
+            const id = a.id || a.attractionId;
+            const isSelected = filter === id;
+            const name = isAr ? a.nameAr || a.attractionNameAr || a.nameEn : a.nameEn || a.attractionNameEn;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  setFilter(id);
+                  setSearch("");
+                }}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border",
+                  isSelected
+                    ? "bg-[var(--e3-royal-blue)] text-white border-[var(--e3-royal-blue)] shadow-md"
+                    : "bg-[var(--bg-level-1)] text-[var(--text-secondary)] border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                <span>{name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Search & Dropdown Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={isAr ? "ابحث في الأسئلة الشائعة..." : "Search FAQs..."}
-            className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl py-3 ps-10 pr-4 text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] focus:ring-2 focus:ring-[var(--e3-royal-blue)]/20 transition-all text-sm"
+            placeholder={
+              isAr
+                ? `البحث في ${currentCategoryTitle}...`
+                : `Search in ${currentCategoryTitle}...`
+            }
+            className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl py-2.5 ps-10 pe-4 text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] transition-all text-xs"
           />
         </div>
-        <div className="w-full md:w-64">
+        <div className="w-full sm:w-56">
           <div className="relative flex items-center">
             <select
               value={filter}
-              onChange={(e: any) => setFilter(e.target.value)}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer text-sm"
+              onChange={(e: any) => {
+                setFilter(e.target.value);
+                setSearch("");
+              }}
+              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-2)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer text-xs font-bold"
             >
-              <option value="all">{isAr ? "جميع المواضيع" : "All Topics"}</option>
-              <option value="general">{isAr ? "أسئلة عامة" : "General"}</option>
+              <option value="general">{isAr ? "أسئلة عامة (الافتراضي)" : "General FAQs (Default)"}</option>
               {attractions.map((a: any) => (
                 <option key={a.id || a.attractionId} value={a.id || a.attractionId}>
                   {isAr ? a.nameAr || a.attractionNameAr || a.nameEn : a.nameEn || a.attractionNameEn}
@@ -782,11 +865,50 @@ function FaqSection({
         </div>
       </div>
 
-      <div className="space-y-4">
+      {/* Current Active Category Context Header */}
+      <div className="flex items-center justify-between px-1 py-1 border-b border-[var(--border-level-2)]">
+        <div className="flex items-center gap-2">
+          <HelpCircle className="w-4 h-4 text-[var(--e3-royal-blue)]" />
+          <span className="text-xs font-bold text-[var(--text-primary)]">
+            {currentCategoryTitle}
+          </span>
+        </div>
+        <span className="text-[11px] font-mono text-[var(--text-tertiary)] font-bold">
+          {faqs.length} {isAr ? "سؤال" : faqs.length === 1 ? "question" : "questions"}
+        </span>
+      </div>
+
+      {/* FAQ Accordion Items */}
+      <div className="space-y-3">
         {faqs.length === 0 ? (
-          <p className="text-center py-8 text-[var(--text-secondary)] font-medium text-sm">
-            {isAr ? "لم يتم العثور على نتائج مطابقة لبحثك." : "No FAQs found matching your search."}
-          </p>
+          <div className="text-center py-10 px-4 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-2)] space-y-2">
+            <p className="text-sm font-bold text-[var(--text-primary)]">
+              {search
+                ? isAr
+                  ? "لا توجد نتائج مطابقة لبحثك في هذا القسم."
+                  : "No questions found matching your search."
+                : isAr
+                ? "لا توجد أسئلة شائعة مضافة لهذه الوجهة حالياً."
+                : "No FAQs added for this attraction yet."}
+            </p>
+            <p className="text-xs text-[var(--text-secondary)]">
+              {isAr
+                ? "يمكنك الانتقال إلى الأسئلة العامة أو إرسال استفسار مباشر لفريق الدعم."
+                : "You can switch to General FAQs or reach out directly via Support."}
+            </p>
+            {filter !== "general" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter("general");
+                  setSearch("");
+                }}
+                className="mt-2 text-xs font-bold text-[var(--e3-royal-blue)] hover:underline cursor-pointer"
+              >
+                {isAr ? "← العودة إلى الأسئلة العامة" : "← Back to General FAQs"}
+              </button>
+            )}
+          </div>
         ) : (
           faqs.map((faq: any) => {
             const isActive = activeFaq === faq.id;
@@ -795,22 +917,24 @@ function FaqSection({
             return (
               <div
                 key={faq.id}
-                className="border border-[var(--border-level-2)] rounded-2xl overflow-hidden bg-[var(--surface-default)] transition-colors hover:border-[var(--e3-royal-blue)]"
+                className="border border-[var(--border-level-2)] rounded-2xl overflow-hidden bg-[var(--surface-default)] transition-colors hover:border-[var(--e3-royal-blue)] shadow-2xs"
               >
                 <button
                   onClick={() => toggleFaq(faq.id)}
-                  className="w-full flex items-center justify-between p-5 text-start hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between p-4 text-start hover:bg-[var(--surface-hover)] transition-colors cursor-pointer gap-4"
                 >
-                  <span className="font-bold text-[var(--text-primary)] pe-8">{question}</span>
+                  <span className="font-bold text-sm text-[var(--text-primary)] leading-snug">
+                    {question}
+                  </span>
                   {isActive ? (
-                    <ChevronUp className="w-5 h-5 text-[var(--e3-royal-blue)] shrink-0" />
+                    <ChevronUp className="w-4 h-4 text-[var(--e3-royal-blue)] shrink-0" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-[var(--text-tertiary)] shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
                   )}
                 </button>
                 {isActive && (
-                  <div className="p-5 pt-0 text-[var(--text-secondary)] border-t border-[var(--border-level-1)] leading-relaxed font-medium">
-                    <div className="pt-4">{answer}</div>
+                  <div className="p-4 pt-0 text-[var(--text-secondary)] border-t border-[var(--border-level-2)] leading-relaxed text-xs font-medium bg-[var(--bg-level-1)]/40">
+                    <div className="pt-3">{answer}</div>
                   </div>
                 )}
               </div>
@@ -819,15 +943,15 @@ function FaqSection({
         )}
       </div>
 
-      <div className="text-center pt-8 border-t border-[var(--border-level-2)]">
-        <p className="text-[var(--text-secondary)] font-medium mb-4">
-          {isAr ? "هل ما زلت بحاجة إلى مساعدة؟" : "Still need help?"}
+      <div className="text-center pt-6 border-t border-[var(--border-level-2)] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p className="text-xs text-[var(--text-secondary)] font-medium">
+          {isAr ? "لم تجد إجابة لاستفسارك؟" : "Didn't find what you're looking for?"}
         </p>
         <button
           onClick={switchToSupport}
-          className="rounded-xl border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--e3-royal-blue)] text-[var(--text-primary)] font-bold px-6 py-2.5 text-sm transition-colors cursor-pointer"
+          className="rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] hover:text-[var(--e3-royal-blue)] text-[var(--text-primary)] font-bold px-5 py-2 text-xs transition-colors cursor-pointer shadow-2xs"
         >
-          {isAr ? "تواصل مع الدعم الفني" : "Contact Support"}
+          {isAr ? "تواصل مع فريق الدعم" : "Contact Support Team"}
         </button>
       </div>
     </div>
