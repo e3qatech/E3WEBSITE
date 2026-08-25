@@ -438,8 +438,80 @@ export async function applyPendingDatabaseMigrations() {
   return results;
 }
 
+export async function populateAllAttractions() {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const jsonPath = path.join(process.cwd(), 'prisma', 'data', 'e3_34_attractions_full.json');
+    
+    if (fs.existsSync(jsonPath)) {
+      const raw = fs.readFileSync(jsonPath, 'utf8');
+      const data = JSON.parse(raw);
+      const attractions = data.attractions || [];
+
+      for (const item of attractions) {
+        const slug = item.slug;
+        const core = item.core || {};
+        const hero = item.hero || {};
+        const booking = item.booking || {};
+        const operations = item.operations || {};
+        const visibility = item.visibility || {};
+
+        const attractionPayload = {
+          nameEn: core.nameEn || slug,
+          nameAr: core.nameAr || core.nameEn || slug,
+          taglineEn: core.taglineEn || null,
+          taglineAr: core.taglineAr || null,
+          descriptionEn: core.descriptionEn || null,
+          descriptionAr: core.descriptionAr || null,
+          
+          heroMediaType: hero.mediaType || 'IMAGE',
+          heroMediaUrl: hero.mediaUrl || null,
+          heroFallbackUrl: hero.fallbackImageUrl || null,
+          heroThumbnailUrl: hero.thumbnailImageUrl || null,
+          
+          mapUrl: booking.mapUrl || null,
+          ticketingUrl: booking.ticketingUrl || null,
+          
+          features: item.whatsInside || [],
+          partnerOffers: item.partnerOffers || [],
+          partners: item.partners || [],
+          socialPreviews: item.socialPosts || [],
+          newsCoverage: item.news || [],
+          operations: operations,
+          temporalStatus: visibility.temporalStatus || item.timingRules || {},
+          
+          isPublished: true,
+          isHidden: false,
+        };
+
+        const existing = await db.attraction.findUnique({ where: { slug } });
+        if (existing) {
+          await db.attraction.update({
+            where: { slug },
+            data: attractionPayload as any
+          });
+        } else {
+          await db.attraction.create({
+            data: {
+              slug,
+              ...(attractionPayload as any)
+            }
+          });
+        }
+      }
+    }
+
+    const total = await db.attraction.count();
+    return { success: true, totalAttractions: total };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
 export async function publishAllContent() {
   try {
+    await populateAllAttractions();
     const publishedAttractions = await db.$executeRawUnsafe(`UPDATE "Attraction" SET "isPublished" = true, "isHidden" = false, "updatedAt" = NOW()`);
     const publishedPages = await db.$executeRawUnsafe(`UPDATE "Pages" SET "status" = 'PUBLISHED', "updatedAt" = NOW()`);
     
