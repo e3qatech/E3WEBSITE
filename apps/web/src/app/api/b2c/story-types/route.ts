@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { isAttractionActiveByDate } from "@/lib/cms-attractions";
 
 const MAX_BATCH_SIZE = 20;
 const HEX_COLOR_REGEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -173,7 +174,7 @@ export async function GET(request: Request) {
       }
     });
 
-    // Fetch published attractions to extract JSON features activations
+    // Fetch published attractions to extract JSON features activations for currently active destinations
     const publishedAttractions = await db.attraction.findMany({
       where: { isPublished: true },
       select: {
@@ -184,14 +185,21 @@ export async function GET(request: Request) {
         heroThumbnailUrl: true,
         heroMediaUrl: true,
         features: true,
+        temporalStatus: true,
+        status: true,
+        operationalStatus: true,
+        startDate: true,
+        endDate: true,
       }
     });
 
-    // Attach matching JSON features activations to each story type
+    const activeAttractions = publishedAttractions.filter(isAttractionActiveByDate);
+
+    // Attach matching JSON features activations from active attractions to each story type
     const enrichedStoryTypes = storyTypes.map((st: any) => {
       const jsonActivations: any[] = [];
 
-      publishedAttractions.forEach((attraction: any) => {
+      activeAttractions.forEach((attraction: any) => {
         const featList = Array.isArray(attraction.features) ? attraction.features : [];
         featList.forEach((feat: any, idx: number) => {
           const storyTypeIds = Array.isArray(feat.storyTypeIds) 
