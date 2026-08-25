@@ -7,6 +7,8 @@ import { Users, Clock, Ticket, ChevronLeft, ChevronRight, Pause, Play, Sparkles,
 import { resolveMediaType } from '@/lib/media-resolver'
 import { formatLocalizedText } from '@/lib/utils'
 import { localizeHref } from '@/lib/url-helper'
+import { calculateQatarOperatingStatus } from '@/lib/operating-schedule-helper'
+import { resolveBookingUrl } from '@/lib/cms-attractions'
 
 export const DEFAULT_ATTRACTION_WORLDS = [
   {
@@ -165,15 +167,30 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   const dbMappedWorlds = dbAttractions.map(attr => {
     const minPrice = Array.isArray(attr.pricing) && attr.pricing.length > 0
       ? Math.min(...attr.pricing.map((p: any) => p.price))
-      : 45
+      : (attr.accessModel === 'FREE' ? 0 : 45)
 
-    const venue = attr.operations?.venueName 
-      || attr.operations?.venueAddressEn 
-      || attr.attractionLocations?.[0]?.location?.addressEn 
-      || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
+    const primaryLoc = attr.attractionLocations?.[0]?.location
+    const venueEn = primaryLoc?.nameEn || primaryLoc?.addressEn || attr.operations?.venueName || attr.operations?.venueAddressEn || (isAr ? "الدوحة، قطر" : "Doha, Qatar")
+    const venueAr = primaryLoc?.nameAr || primaryLoc?.addressAr || attr.operations?.venueNameAr || attr.operations?.venueAddressAr || venueEn
 
-    const rawBadge = attr.operations?.materialType || "E3 WORLD"
-    const safeBadge = (rawBadge === "STAGE_RIBBON" || !rawBadge) ? "E3 WORLD" : rawBadge
+    const rawBadge = attr.operations?.materialType || (attr.isFeatured ? "FEATURED ATTRACTION" : "E3 WORLD")
+    const safeBadge = (rawBadge === "STAGE_RIBBON" || !rawBadge) ? (attr.isFeatured ? "FEATURED WORLD" : "E3 WORLD") : rawBadge
+
+    const timingsEn = attr.temporalStatus?.operatingHoursEn 
+      || attr.operations?.operatingHoursEn 
+      || attr.operations?.timingsEn 
+      || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "Daily: 10:00 AM - 10:00 PM")
+
+    const timingsAr = attr.temporalStatus?.operatingHoursAr 
+      || attr.operations?.operatingHoursAr 
+      || attr.operations?.timingsAr 
+      || (attr.temporalStatus?.openTime && attr.temporalStatus?.closeTime ? `${attr.temporalStatus.openTime} - ${attr.temporalStatus.closeTime}` : "يومياً: ١٠:٠٠ ص - ١٠:٠٠ م")
+
+    const liveStatus = calculateQatarOperatingStatus(attr.temporalStatus)
+    const statusEn = liveStatus.statusTextEn || (attr.isPublished ? "OPEN NOW" : "COMING SOON")
+    const statusAr = liveStatus.statusTextAr || (attr.isPublished ? "مفتوح الآن" : "قريباً")
+
+    const ctaLink = resolveBookingUrl(attr, locale)
 
     return {
       id: attr.id,
@@ -182,22 +199,24 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
       nameAr: attr.nameAr || attr.nameEn,
       taglineEn: attr.taglineEn || attr.descriptionEn?.substring(0, 90) || "Flagship E3 Interactive World",
       taglineAr: attr.taglineAr || attr.descriptionAr?.substring(0, 90) || "وجهة إي ثري التفاعلية",
-      locationEn: venue,
-      locationAr: venue,
-      statusEn: "OPEN NOW",
-      statusAr: "مفتوح الآن",
+      locationEn: venueEn,
+      locationAr: venueAr,
+      statusEn,
+      statusAr,
       materialType: safeBadge,
       accentColor: attr.operations?.accentColor || "#10b981",
       mediaUrl: attr.heroThumbnailUrl || attr.heroMediaUrl || attr.heroFallbackUrl || attr.gallery?.[0]?.url || attr.mediaUrl || "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg",
       mediaType: attr.heroMediaType || "IMAGE",
       audienceEn: attr.operations?.audienceEn || (isAr ? "العائلات والأصدقاء" : "Families & Groups"),
       audienceAr: attr.operations?.audienceAr || (isAr ? "العائلات والأصدقاء" : "Families & Groups"),
-      timingsEn: attr.operations?.timingsEn || "02:00 PM - 12:00 AM",
-      timingsAr: attr.operations?.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص",
+      timingsEn,
+      timingsAr,
       price: minPrice,
       currency: "QAR",
       ctaEn: "Book Pass & Ticket",
-      ctaAr: "احجز التذكرة والمواعيد"
+      ctaAr: "احجز التذكرة والمواعيد",
+      ticketingUrl: ctaLink,
+      isFeatured: Boolean(attr.isFeatured),
     }
   })
 
@@ -232,7 +251,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
   const taglineVal = formatLocalizedText(isAr ? currentWorld.taglineAr : currentWorld.taglineEn, locale)
   const locationVal = formatLocalizedText(isAr ? currentWorld.locationAr : currentWorld.locationEn, locale)
   const audienceVal = formatLocalizedText(isAr ? (currentWorld.audienceAr || "جميع الأعمار") : (currentWorld.audienceEn || "All Ages"), locale)
-  const timingsVal = formatLocalizedText(isAr ? (currentWorld.timingsAr || "٠٢:٠٠ م - ١٢:٠٠ ص") : (currentWorld.timingsEn || "02:00 PM - 12:00 AM"), locale)
+  const timingsVal = formatLocalizedText(isAr ? (currentWorld.timingsAr || "١٠:٠٠ ص - ١٠:٠٠ م") : (currentWorld.timingsEn || "10:00 AM - 10:00 PM"), locale)
   const statusVal = formatLocalizedText(isAr ? (currentWorld.statusAr || "مفتوح الآن") : (currentWorld.statusEn || "OPEN NOW"), locale)
   const ctaVal = formatLocalizedText(isAr ? (currentWorld.ctaAr || "احجز التذكرة") : (currentWorld.ctaEn || "Book Pass & Ticket"), locale)
 
@@ -298,9 +317,9 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
         </div>
 
         {/* ============================================================ */}
-        {/* QATAR-CENTRED CONSTELLATION STRIP (Selected moves forward, neighbours recede) */}
+        {/* QATAR-CENTRED CONSTELLATION STRIP (Clean pill tabs with 0 clipping) */}
         {/* ============================================================ */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x">
+        <div className="flex gap-2.5 overflow-x-auto py-2 px-1 scrollbar-none snap-x items-center w-full">
           {worlds.map((w, idx) => {
             const isSelected = idx === selectedIndex
             const wName = formatLocalizedText(isAr ? w.nameAr : w.nameEn, locale)
@@ -309,21 +328,21 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
               <button
                 key={w.id || idx}
                 onClick={() => setSelectedIndex(idx)}
-                className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2 rounded-2xl border text-xs font-bold transition-all duration-500 cursor-pointer snap-center ${
+                className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all duration-300 cursor-pointer snap-center select-none ${
                   isSelected
-                    ? 'bg-[var(--surface-default)] border-emerald-500 text-[var(--text-primary)] scale-105 shadow-xl z-10'
-                    : 'bg-[var(--surface-default)]/70 border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-emerald-500/50 opacity-80 hover:opacity-100 scale-95'
+                    ? 'bg-[var(--surface-default)] border-emerald-500 text-[var(--text-primary)] shadow-md'
+                    : 'bg-[var(--surface-default)]/70 border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-emerald-500/50 opacity-80 hover:opacity-100'
                 }`}
                 style={{
-                  borderColor: isSelected ? w.accentColor : undefined,
-                  boxShadow: isSelected ? `0 0 20px ${w.accentColor}35` : undefined
+                  borderColor: isSelected ? (w.accentColor || '#10b981') : undefined,
+                  boxShadow: isSelected ? `0 0 12px ${(w.accentColor || '#10b981')}30` : undefined
                 }}
               >
-                <div
-                  className="w-2 h-2 rounded-full"
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: w.accentColor || '#10b981' }}
                 />
-                <span>{wName}</span>
+                <span className="whitespace-nowrap">{wName}</span>
               </button>
             )
           })}
@@ -448,7 +467,7 @@ export function ExperienceWorldsStage({ content, locale }: ExperienceWorldsStage
                 </div>
 
                 <Link
-                  href={localizeHref(`/b2c/attractions/${currentWorld.slug || 'urban-arena-doha'}`, locale)}
+                  href={currentWorld.ticketingUrl ? (currentWorld.ticketingUrl.startsWith('http') ? currentWorld.ticketingUrl : localizeHref(currentWorld.ticketingUrl, locale)) : localizeHref(`/b2c/attractions/${currentWorld.slug || 'urban-arena'}`, locale)}
                   className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />
