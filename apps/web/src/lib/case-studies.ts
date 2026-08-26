@@ -350,6 +350,62 @@ export const CANONICAL_CASE_STUDIES_FALLBACKS: Record<string, Partial<CaseStudyL
       metaDescriptionAr: "استكشف كيف أنتجت إي ثري موكب بالونات كورنيش الدوحة الأيقوني لـ 760 ألف زائر.",
     },
   },
+  "summer-splash-2026-paw-patrol-spongebob": {
+    titleEn: "Summer Splash 2026 with PAW Patrol & SpongeBob",
+    titleAr: "سمر سبلاش 2026 مع باو باترول وسبونج بوب",
+    clientName: "Meryal Waterpark / Visit Qatar",
+    category: "Global IP & Family Entertainment",
+    categoryAr: "الشخصيات العالمية والترفيه العائلي",
+    year: 2026,
+    isFeatured: true,
+    isPublished: true,
+    heroMediaType: "IMAGE",
+    heroImageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/hero_banner.jpg",
+    thumbnailMediaType: "IMAGE",
+    thumbnailUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/hero_banner.jpg",
+    clientLogoUrl: "https://eeeqa.com/assets/partners/meryal-logo.svg",
+    challengeEn: "Designing and operating an integrated multi-brand Nickelodeon immersive activation within Qatar's premier waterpark destination, delivering simultaneous meet-and-greets, interactive splash zones, live performance stages, and crowd-safe visitor routing under peak summer conditions.",
+    challengeAr: "تصميم وتشغيل تجربة نيكلوديون تفاعلية متعددة العلامات التجارية داخل أبرز حديقة مائية في قطر، مع إدارة متزامنة للقاء الشخصيات ومناطق الرشاشات التفاعلية وعروض المسرح الحي وتوجيه آمن للزوار في ذروة الصيف.",
+    solutionEn: "Engineered branded experiential zones featuring SpongeBob SquarePants and PAW Patrol, with synchronized water effects, shaded interactive queue lines, specialized character management protocols, and multi-lingual family event hosting.",
+    solutionAr: "هندسة مناطق تجارب تفاعلية مرخصة تضم سبونج بوب وباو باترول مع تأثيرات مائية متزامنة، ومسارات مظللة، وبروتوكولات متطورة لإدارة الشخصيات واستضافة العروض العائلية ثنائية اللغة.",
+    resultEn: "Delivered landmark family festival attendance exceeding 450,000 visitors, maintained 100% safety compliance across 60 daily show sessions, and achieved a 96.8% positive family satisfaction rating.",
+    resultAr: "تحقيق حضور عائلي قياسي تجاوز 450 ألف زائر، والحفاظ على نسبة أمان 100% عبر 60 جلسة عرض يومية مع تقييم رضا عائلي بلغ 96.8%.",
+    metrics: [
+      { valueEn: "450K+", valueAr: "450K+", labelEn: "Total Family Visitors", labelAr: "إجمالي الزوار والعائلات" },
+      { valueEn: "60", valueAr: "60", labelEn: "Daily Interactive Shows", labelAr: "عرض تفاعلي يومي" },
+      { valueEn: "100%", valueAr: "100%", labelEn: "Safety Compliance", labelAr: "معايير السلامة المعتمدة" },
+      { valueEn: "96.8%", valueAr: "96.8%", labelEn: "Family Approval Rating", labelAr: "نسبة رضا العائلات" },
+    ],
+    gallery: [
+      {
+        url: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/hero_banner.jpg",
+        type: "IMAGE",
+        captionEn: "Main stage live activation and character showcase",
+        captionAr: "المسرح الرئيسي للعروض الحية وتفاعل الشخصيات",
+      },
+      {
+        url: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/spongebob-01.jpg",
+        type: "IMAGE",
+        captionEn: "SpongeBob Bikini Bottom interactive splash station",
+        captionAr: "محطة سبونج بوب التفاعلية بيكيني بوتوم للألعاب المائية",
+      },
+    ],
+    testimonials: [
+      {
+        quoteEn: "E3 created an extraordinary Nickelodeon destination experience that engaged hundreds of thousands of children and families with flawless operational safety.",
+        quoteAr: "صنعت إي ثري تجربة وجهة استثنائية لنيكلوديون جذبت مئات الآلاف من الأطفال والعائلات مع أمان تشغيلي منقطع النظير.",
+        authorName: "Marketing Director",
+        authorRole: "Meryal Waterpark Management",
+        isVisible: true,
+      },
+    ],
+    seo: {
+      metaTitleEn: "Summer Splash 2026 Case Study | E3 Qatar",
+      metaTitleAr: "دراسة حالة سمر سبلاش 2026 | إي ثري قطر",
+      metaDescriptionEn: "Discover how E3 delivered Qatar's premier Nickelodeon waterpark activation for 450,000+ visitors.",
+      metaDescriptionAr: "استكشف كيف أنتجت إي ثري أكبر فعالية ترفيهية مائية مع شخصيات نيكلوديون لـ 450 ألف زائر.",
+    },
+  },
 };
 
 /**

@@ -22,14 +22,11 @@ const SECTIONS: EditorSectionItem[] = [
   { id: "showreel", label: "2. Master Showreel", labelAr: "2. فيديو العرض الرئيسي (Showreel)" },
   { id: "factStream", label: "3. Fact Stream", labelAr: "3. شريط الحقائق والمؤشرات" },
   { id: "featuredCases", label: "4. Featured Cases", labelAr: "4. المشاريع المميزة" },
-  { id: "archive", label: "5. Projects Archive", labelAr: "5. أرشيف المشاريع الكامل" },
-  { id: "teamStories", label: "6. Team Stories", labelAr: "6. قصص الكوادر وفريق العمل" },
-  { id: "timeline", label: "7. Production Timeline", labelAr: "7. الخط الزمني للإنتاج" },
-  { id: "transformations", label: "8. Transformations", labelAr: "8. قصص التحول والإنجاز" },
-  { id: "impactOverview", label: "9. ROI & Impact", labelAr: "9. العائد على الاستثمار والأثر" },
-  { id: "servicesSection", label: "10. Linked Services", labelAr: "10. الخدمات والحلول المرتبطة" },
-  { id: "cta", label: "11. RFP CTA", labelAr: "11. دعوة طلب العروض (CTA)" },
-  { id: "seo", label: "12. SEO Settings", labelAr: "12. بيانات محركات البحث (SEO)" },
+  { id: "teamStories", label: "5. Team Stories", labelAr: "5. قصص الكوادر وفريق العمل" },
+  { id: "transformations", label: "6. Transformations", labelAr: "6. قصص التحول والإنجاز" },
+  { id: "impactOverview", label: "7. ROI & Impact", labelAr: "7. العائد على الاستثمار والأثر" },
+  { id: "cta", label: "8. Commercial CTA", labelAr: "8. دعوة طلب العروض (CTA)" },
+  { id: "seo", label: "9. SEO Settings", labelAr: "9. بيانات محركات البحث (SEO)" },
 ]
 
 export function B2BCasesEditor({ 
@@ -334,7 +331,7 @@ export function B2BCasesEditor({
 
       <AdminFormLayout>
         {/* 1. HERO SECTION & TWO-LINE LIVING HEADLINE COMPOSER */}
-        <div id="hero" className="space-y-6">
+        <div id="hero" className="space-y-6 scroll-mt-24">
           <E3LivingHeroEditor
             title="Two-Line Living Hero Headline Composer & Atmospheric Media"
             description="Configure the landmark cases living headline with {{animated}} token interpolation, rotating words, custom atmospheric media, and interactive CTAs."
@@ -404,7 +401,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* 2. SHOWREEL SECTION */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="showreel" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Video className="w-5 h-5 text-indigo-400" />
@@ -493,7 +490,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* 3. VERIFIED FACT STREAM (AUTOMATICALLY FETCHED FROM CASESTUDY METRICS) */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="factStream" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Sparkles className="w-5 h-5 text-amber-400" />
@@ -624,7 +621,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* 4. FEATURED CASE STUDIES (EXPLICIT MANUAL SELECTION & ORDERING) */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="featuredCases" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Trophy className="w-5 h-5 text-emerald-400" />
@@ -805,7 +802,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* 5. TEAM STORIES - BEHIND THE BUILD */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="teamStories" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Users className="w-5 h-5 text-purple-400" />
@@ -920,7 +917,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* BEFORE & AFTER TRANSFORMATIONS */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="transformations" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <Flame className="w-5 h-5 text-amber-400" />
@@ -1040,7 +1037,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* 6. IMPACT OVERVIEW / STATISTICS */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="impactOverview" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <div className="flex items-center gap-2.5">
               <BarChart3 className="w-5 h-5 text-emerald-400" />
@@ -1116,7 +1113,7 @@ export function B2BCasesEditor({
         </div>
 
         {/* 7. FOOTER CTA */}
-        <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+        <div id="cta" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6 scroll-mt-24">
           <div className="flex items-center justify-between border-b border-border-default pb-4">
             <h2 className="text-lg font-bold text-text-primary">7. Final Commercial CTA</h2>
             <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
@@ -1186,7 +1183,9 @@ export function B2BCasesEditor({
         </div>
 
         {/* SEO Customizer */}
-        <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
+        <div id="seo" className="space-y-6 scroll-mt-24">
+          <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
+        </div>
 
       </AdminFormLayout>
 

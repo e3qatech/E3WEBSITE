@@ -159,8 +159,15 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       dbServices = await db.service.findMany({
         where: { isVisible: true, isFeatured: true },
         orderBy: { createdAt: 'desc' },
-        take: 4
+        take: 6
       })
+      if (dbServices.length === 0) {
+        dbServices = await db.service.findMany({
+          where: { isVisible: true },
+          orderBy: { createdAt: 'desc' },
+          take: 6
+        })
+      }
     }
   } catch (error) {
     console.error("Error loading services for B2B home:", error)
@@ -259,7 +266,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             src={(hero.media?.mediaUrl || hero.mediaUrl || (hero as any).backgroundImage || "/hero-bg.png").replace("/hero-b2b.jpg", "/hero-bg.png")}
             poster={(hero.media?.posterUrl || (hero as any).posterImage || "").replace("/hero-b2b.jpg", "/hero-bg.png") || undefined}
             alt="E3 Enterprise Hero"
-            className="w-full h-full object-cover filter brightness-[0.7] contrast-[1.1]"
+            className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.1]"
           />
           {/* OLED / Light Adaptive Gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/70 to-transparent" />
@@ -271,7 +278,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
           <div className="max-w-5xl">
             {/* Indicator Eyebrow */}
             <Reveal direction="fade">
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md shadow-xs">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -300,7 +307,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
             {/* Subtitle */}
             <Reveal direction="slide-up" delay={0.15}>
-              <p className="text-xl md:text-2xl text-[var(--text-primary)]/90 font-medium max-w-3xl mb-4 leading-relaxed">
+              <p className="text-xl md:text-2xl text-[var(--text-primary)] font-medium max-w-3xl mb-4 leading-relaxed drop-shadow-sm">
                 {hero.subtitle}
               </p>
             </Reveal>
@@ -344,10 +351,10 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             {stats.map((stat: any, i: number) => (
               <div 
                 key={i} 
-                className="group p-6 rounded-2xl bg-[var(--bg-level-2)] border border-[var(--border-level-2)] hover:border-emerald-500/40 transition-all duration-300 shadow-xs"
+                className="group p-6 rounded-2xl bg-[var(--bg-level-2)] border border-[var(--border-level-2)] hover:border-emerald-500/50 transition-all duration-300 shadow-sm"
               >
-                <div className="flex flex-col border-s-2 border-emerald-500/50 ps-4">
-                  <span className="text-4xl md:text-5xl font-black font-syne tracking-tight text-[var(--text-primary)] mb-1 group-hover:text-emerald-500 transition-colors">
+                <div className="flex flex-col border-s-2 border-emerald-500/70 ps-4">
+                  <span className="text-4xl md:text-5xl font-black font-syne tracking-tight text-[var(--text-primary)] mb-1 group-hover:text-emerald-400 transition-colors drop-shadow-sm">
                     {stat.value}
                   </span>
                   <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-mono">
@@ -367,8 +374,8 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
         <div className="container relative z-10 mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-4 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>{isAr ? "منهجية إي ثري" : "E3 METHODOLOGY"}</span>
             </div>
             <h2 className="text-4xl md:text-6xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-6">
@@ -381,14 +388,14 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             {/* The WOW */}
-            <div className="group p-8 md:p-12 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/50 backdrop-blur-md transition-all duration-500 shadow-sm hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+            <div className="group p-8 md:p-12 rounded-3xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] hover:border-emerald-500/60 backdrop-blur-md transition-all duration-500 shadow-md hover:shadow-[0_0_50px_rgba(16,185,129,0.15)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-xs">
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-emerald-500 uppercase tracking-widest">{isAr ? "الرؤية الإبداعية" : "CREATIVE VISION"}</span>
-                  <h3 className="text-3xl font-black font-syne text-emerald-500 tracking-tight">
+                  <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-widest">{isAr ? "الرؤية الإبداعية" : "CREATIVE VISION"}</span>
+                  <h3 className="text-3xl font-black font-syne text-emerald-400 tracking-tight drop-shadow-sm">
                     {isAr ? "الإبهار (The WOW)" : "The WOW"}
                   </h3>
                 </div>
@@ -396,7 +403,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               <ul className="space-y-5">
                 {(wowAndHow.wowBullets || []).map((item: string, i: number) => (
                   <li key={i} className="flex items-center gap-4 text-lg font-medium text-[var(--text-primary)]">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -404,14 +411,14 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             </div>
 
             {/* The HOW */}
-            <div className="group p-8 md:p-12 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-amber-500/50 backdrop-blur-md transition-all duration-500 shadow-sm hover:shadow-[0_0_50px_rgba(245,158,11,0.1)]">
+            <div className="group p-8 md:p-12 rounded-3xl bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] hover:border-amber-500/60 backdrop-blur-md transition-all duration-500 shadow-md hover:shadow-[0_0_50px_rgba(245,158,11,0.15)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-xs">
                   <Layers className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-amber-500 uppercase tracking-widest">{isAr ? "الهندسة التشغيلية" : "OPERATIONAL ENGINEERING"}</span>
-                  <h3 className="text-3xl font-black font-syne text-amber-500 tracking-tight">
+                  <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest">{isAr ? "الهندسة التشغيلية" : "OPERATIONAL ENGINEERING"}</span>
+                  <h3 className="text-3xl font-black font-syne text-amber-400 tracking-tight drop-shadow-sm">
                     {isAr ? "التنفيذ (The HOW)" : "The HOW"}
                   </h3>
                 </div>
@@ -419,7 +426,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               <ul className="space-y-5">
                 {(wowAndHow.howBullets || []).map((item: string, i: number) => (
                   <li key={i} className="flex items-center gap-4 text-lg font-medium text-[var(--text-primary)]">
-                    <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -432,12 +439,12 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       {/* 3.5 BLUEPRINT-TO-LIVE DEPTH TRANSITION PILOT */}
       <B2BBlueprintDepthSection locale={locale} />
 
-      {/* 4. CORE CAPABILITIES BENTO GRID */}
+      {/* 4. CORE CAPABILITIES BENTO GRID (HIGH VISIBILITY & RICH SLEEK AESTHETICS) */}
       <section className="py-24 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)] transition-colors">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3 shadow-xs">
                 <Cpu className="w-3.5 h-3.5" />
                 <span>{isAr ? "الخدمات والحلول" : "SOLUTIONS & SERVICES"}</span>
               </div>
@@ -450,14 +457,14 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             </div>
             <Link 
               href={`/${locale}/b2b/services`} 
-              className="inline-flex items-center gap-2 text-emerald-500 font-bold text-base hover:text-emerald-600 transition-colors group"
+              className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
             >
               <span>{capabilities.cta}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {dbServices.length > 0 ? (
               dbServices.map((service, i) => {
                 const name = isAr ? (service.titleAr || service.titleEn || service.slug) : (service.titleEn || service.slug)
@@ -467,40 +474,43 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                     key={i} 
                     href={`/${locale}/b2b/services/${service.slug}`}
                     className={cn(
-                      "group relative rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-8 shadow-xs hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]",
-                      i === 0 ? "md:col-span-2 md:row-span-2 min-h-[440px]" : "min-h-[280px]"
+                      "group relative rounded-3xl bg-zinc-950/90 border border-white/15 hover:border-emerald-500/80 transition-all duration-500 overflow-hidden flex flex-col justify-between p-7 sm:p-8 shadow-xl hover:shadow-[0_0_50px_rgba(16,185,129,0.25)] hover:scale-[1.01]",
+                      i === 0 ? "md:col-span-2 lg:col-span-2 min-h-[380px]" : "min-h-[320px]"
                     )}
                   >
-                    {/* Media Thumbnail Background */}
-                    <div className="absolute inset-0 z-0">
+                    {/* Media Thumbnail Background with High Visibility */}
+                    <div className="absolute inset-0 z-0 overflow-hidden">
                       {service.thumbnail ? (
                         <UniversalMediaRenderer 
                           type="IMAGE"
                           src={service.thumbnail}
                           alt={name}
-                          className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-all duration-700 group-hover:scale-105"
+                          className="w-full h-full object-cover opacity-65 group-hover:opacity-90 group-hover:scale-105 filter brightness-105 contrast-105 transition-all duration-700"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[var(--bg-level-1)] to-[var(--bg-level-2)]" />
+                        <div className="w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black" />
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/80 to-transparent" />
+                      {/* High contrast gradient protecting text readability while showcasing imagery */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/20" />
                     </div>
 
                     <div className="relative z-10 h-full flex flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        {service.category && (
-                          <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full backdrop-blur-md">
+                      <div className="flex items-center justify-between gap-3">
+                        {service.category ? (
+                          <span className="px-3.5 py-1.5 text-[11px] font-mono font-bold tracking-widest uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full backdrop-blur-xl shadow-xs">
                             {service.category}
                           </span>
-                        )}
-                        <ArrowUpRight className="w-6 h-6 text-[var(--text-tertiary)] group-hover:text-emerald-500 transition-colors" />
+                        ) : <div />}
+                        <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-emerald-500 group-hover:text-slate-950 group-hover:border-emerald-400 transition-all duration-300 shadow-sm shrink-0">
+                          <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </div>
                       </div>
 
                       <div className="mt-auto pt-8">
-                        <h3 className={cn("font-black font-syne text-[var(--text-primary)] tracking-tight mb-2 group-hover:text-emerald-500 transition-colors", i === 0 ? "text-3xl" : "text-xl")}>
+                        <h3 className={cn("font-black font-syne text-white tracking-tight mb-2.5 drop-shadow-md group-hover:text-emerald-300 transition-colors", i === 0 ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl")}>
                           {name}
                         </h3>
-                        <p className={cn("text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed", i === 0 ? "text-base" : "text-xs")}>
+                        <p className={cn("text-white/85 font-medium line-clamp-2 leading-relaxed drop-shadow-sm", i === 0 ? "text-base sm:text-lg" : "text-xs sm:text-sm")}>
                           {desc}
                         </p>
                       </div>
@@ -509,7 +519,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                 )
               })
             ) : (
-              <div className="col-span-4 text-center py-16 border border-[var(--border-level-2)] rounded-3xl text-[var(--text-tertiary)]">
+              <div className="col-span-3 text-center py-16 border border-[var(--border-level-2)] rounded-3xl text-[var(--text-tertiary)]">
                 {isAr ? "لم يتم إضافة خدمات مميزة بعد. قم بإضافتها عبر لوحة التحكم!" : "No featured services configured yet. Add them in the Dashboard!"}
               </div>
             )}
@@ -522,8 +532,8 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-3">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-3 shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{isAr ? "دراسات الحالة والنتائج" : "PROVEN PORTFOLIO"}</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
@@ -535,7 +545,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
             </div>
             <Link 
               href={localizeHref('/b2b/cases', locale)} 
-              className="inline-flex items-center gap-2 text-emerald-500 font-bold text-base hover:text-emerald-600 transition-colors group"
+              className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
             >
               <span>{caseStudiesHeader.cta}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
@@ -548,13 +558,13 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                 const title = isAr ? (project.titleAr || project.titleEn || project.slug) : (project.titleEn || project.slug)
                 return (
                   <Link key={i} href={localizeHref(`/b2b/cases/${project.slug}`, locale)} className="group block">
-                    <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-[var(--surface-default)] mb-6 border border-[var(--border-level-2)] group-hover:border-emerald-500/50 transition-all duration-500 shadow-sm">
+                    <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-[var(--surface-default)] mb-6 border border-[var(--border-level-2)] group-hover:border-emerald-500/60 transition-all duration-500 shadow-md hover:shadow-[0_0_40px_rgba(16,185,129,0.2)]">
                       {(project.thumbnailUrl || project.heroImageUrl) ? (
                         <UniversalMediaRenderer 
                           type={project.thumbnailMediaType || project.heroMediaType || "IMAGE"}
                           src={project.thumbnailUrl || project.heroImageUrl}
                           alt={title}
-                          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 filter brightness-105"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-default)] text-[var(--text-tertiary)] font-medium">
@@ -564,12 +574,12 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
                       <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-transparent to-transparent" />
                       
                       <div className="absolute top-4 end-4">
-                        <span className="px-3 py-1 text-xs font-mono font-bold bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] text-emerald-500 rounded-full backdrop-blur-md shadow-xs">
+                        <span className="px-3 py-1 text-xs font-mono font-bold bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] text-emerald-400 rounded-full backdrop-blur-md shadow-xs">
                           {project.year || '2026'}
                         </span>
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors mb-2">{title}</h3>
+                    <h3 className="text-2xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-400 transition-colors mb-2">{title}</h3>
                     <div className="flex items-center gap-3 text-sm font-mono text-[var(--text-secondary)]">
                       <span>{project.clientName || 'E3 Project'}</span>
                     </div>
@@ -594,7 +604,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       <section className="py-24 md:py-32 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)] transition-colors">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <span className="text-xs font-mono font-bold text-emerald-500 uppercase tracking-widest block mb-2">{isAr ? "خطوات العمل والتشغيل" : "OPERATIONAL PIPELINE"}</span>
+            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">{isAr ? "خطوات العمل والتشغيل" : "OPERATIONAL PIPELINE"}</span>
             <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
               {deliveryProcess.title}
             </h2>
@@ -602,15 +612,15 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
           
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
             {deliveryProcess.steps.map((step: any, i: number) => (
-              <div key={i} className="group relative p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between shadow-xs">
+              <div key={i} className="group relative p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/60 transition-all duration-300 flex flex-col justify-between shadow-xs hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]">
                 <div className="flex items-center justify-between mb-6">
-                  <span className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-500">
+                  <span className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-400 shadow-xs">
                     {step.stepNumber}
                   </span>
                   <span className="text-xs font-mono text-[var(--text-tertiary)]">STAGE 0{i + 1}</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors mb-2">{step.name}</h3>
+                  <h3 className="text-xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-400 transition-colors mb-2">{step.name}</h3>
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">{step.desc}</p>
                 </div>
               </div>
@@ -619,43 +629,31 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      {/* 8. PARTNER MARQUEE RIBBON */}
-      <section className="py-16 bg-[var(--bg-level-1)] overflow-hidden border-b border-[var(--border-level-1)] transition-colors">
+      {/* 8. PARTNER MARQUEE RIBBON (CONTINUOUS RUNNING INFINITE LOOP) */}
+      <section className="py-20 bg-[var(--bg-level-1)] overflow-hidden border-b border-[var(--border-level-1)] relative transition-colors">
         <div className="container mx-auto px-4 md:px-8 mb-10 text-center">
-          <span className="text-xs font-mono font-bold text-[var(--text-secondary)] uppercase tracking-widest">
-            {partnerRibbon.title}
-          </span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs uppercase tracking-widest shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{partnerRibbon.title}</span>
+          </div>
         </div>
         
-        <div className="flex w-[200%] animate-marquee">
-          <div className="flex flex-1 justify-around items-center gap-12 px-4">
-            {partnersList.map((p: any, idx: number) => (
-              <div key={p.id || idx} className="flex items-center justify-center shrink-0 mx-6">
+        {/* Left and Right Fade Gradients */}
+        <div className="relative w-full overflow-hidden">
+          <div className="pointer-events-none absolute inset-y-0 start-0 w-24 md:w-56 bg-gradient-to-r from-[var(--bg-level-1)] to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 end-0 w-24 md:w-56 bg-gradient-to-l from-[var(--bg-level-1)] to-transparent z-10" />
+
+          <div className="animate-marquee py-3">
+            {[...partnersList, ...partnersList, ...partnersList, ...partnersList].map((p: any, idx: number) => (
+              <div key={idx} className="flex items-center justify-center shrink-0 px-8 md:px-14">
                 {p.logoUrl ? (
                   <img 
                     src={p.logoUrl} 
                     alt={p.name} 
-                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain opacity-75 hover:opacity-100 transition-all duration-300"
+                    className="h-10 md:h-14 max-w-[160px] md:max-w-[210px] object-contain opacity-75 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer filter dark:brightness-125"
                   />
                 ) : (
-                  <span className="text-xl md:text-2xl font-mono font-bold text-[var(--text-secondary)] whitespace-nowrap hover:text-[var(--text-primary)] transition-colors">
-                    {p.name}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-1 justify-around items-center gap-12 px-4">
-            {partnersList.map((p: any, idx: number) => (
-              <div key={`clone-${p.id || idx}`} className="flex items-center justify-center shrink-0 mx-6">
-                {p.logoUrl ? (
-                  <img 
-                    src={p.logoUrl} 
-                    alt={p.name} 
-                    className="h-10 md:h-14 max-w-[160px] md:max-w-[200px] object-contain opacity-75 hover:opacity-100 transition-all duration-300"
-                  />
-                ) : (
-                  <span className="text-xl md:text-2xl font-mono font-bold text-[var(--text-secondary)] whitespace-nowrap hover:text-[var(--text-primary)] transition-colors">
+                  <span className="text-lg md:text-xl font-mono font-bold text-[var(--text-secondary)] whitespace-nowrap hover:text-emerald-400 hover:scale-105 transition-all duration-300 cursor-pointer px-4 py-2 rounded-2xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)] shadow-xs">
                     {p.name}
                   </span>
                 )}

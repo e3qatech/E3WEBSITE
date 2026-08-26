@@ -1,5 +1,30 @@
 process.env.TURBOPACK = '0';
 process.env.NEXT_PRIVATE_LOCAL_WEBPACK = 'true';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Auto-load local environment file if not set
+if (!process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
+  const candidateFiles = ['.env.local', '.env.production', '.env'];
+  for (const file of candidateFiles) {
+    const filePath = path.resolve(process.cwd(), file);
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const idx = trimmed.indexOf('=');
+          const key = trimmed.slice(0, idx).trim();
+          const val = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+    }
+  }
+}
+
 import { createServer } from 'http'
 import { parse } from 'url'
 import next from 'next'

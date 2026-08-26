@@ -87,6 +87,16 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
             href: localizeHref("/dashboard/b2b/cases/new", locale),
             icon: <Plus className="w-4 h-4" />,
           }}
+          secondaryAction={
+            <Link href={localizeHref("/dashboard/b2b/cases-page#featuredCases", locale)}>
+              <AdminButton
+                variant="outline"
+                leftIcon={<Sparkles className="w-4 h-4 text-emerald-400" />}
+              >
+                {isAr ? "تخصيص المشاريع المميزة والصفحة" : "Featured Cases & Page Editor"}
+              </AdminButton>
+            </Link>
+          }
         />
 
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">

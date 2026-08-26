@@ -658,4 +658,53 @@ html[dir="rtl"] .icon-flip {
   pointer-events: none !important;
 }
 
+/* --------------------------------------------------------------------------
+   11. INFINITE RUNNING LOGO MARQUEE
+   -------------------------------------------------------------------------- */
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes marquee-rtl {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(50%, 0, 0);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+
+[dir="rtl"] .animate-marquee,
+.rtl .animate-marquee {
+  animation-name: marquee-rtl;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-fast {
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
+  will-change: transform;
+}
+
+[dir="rtl"] .animate-marquee-fast,
+.rtl .animate-marquee-fast {
+  animation-name: marquee-rtl;
+}
+
 

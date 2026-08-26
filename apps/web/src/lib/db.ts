@@ -17,6 +17,39 @@ const prismaClientSingleton = () => {
     return createBrowserProxy()
   }
 
+  // Auto-load local environment file if DATABASE_URL is not yet in process.env
+  if (!process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const candidateFiles = [
+        path.resolve(process.cwd(), '.env.local'),
+        path.resolve(process.cwd(), '.env.production'),
+        path.resolve(process.cwd(), '.env'),
+        path.resolve(process.cwd(), '..', '..', '.env.local'),
+        path.resolve(process.cwd(), '..', '..', '.env')
+      ];
+      for (const f of candidateFiles) {
+        if (fs.existsSync(f)) {
+          const content = fs.readFileSync(f, 'utf8');
+          for (const line of content.split('\n')) {
+            const trimmed = line.trim();
+            if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+              const idx = trimmed.indexOf('=');
+              const key = trimmed.slice(0, idx).trim();
+              const val = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+              if (!process.env[key]) {
+                process.env[key] = val;
+              }
+            }
+          }
+        }
+      }
+    } catch (_loadErr) {
+      // Ignore env file reading errors
+    }
+  }
+
   const candidateUrls = [
     process.env.POSTGRES_PRISMA_URL,
     process.env.E3_DATABASE_URL,
