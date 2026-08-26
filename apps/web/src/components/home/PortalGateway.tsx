@@ -254,7 +254,7 @@ export function PortalGateway({
         ref={containerRef}
         onMouseMove={handlePointerMove}
         className={cn(
-          "relative w-full min-h-[100svh] h-screen overflow-hidden flex flex-col justify-between font-jakarta select-none transition-colors duration-350",
+          "relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden flex flex-col justify-between font-jakarta select-none transition-colors duration-350",
           isLight ? "bg-[#F7F3FF] text-[#171326]" : "bg-[#03000a] text-white"
         )}
         dir={activeDir}
@@ -292,29 +292,29 @@ export function PortalGateway({
         </div>
 
         {/* ============================================================ */}
-        {/* 1. FLOATING ISLAND NAVIGATION HEADER */}
+        {/* 1. TOP NAVIGATION HEADER (IN-FLOW ON MOBILE, FLOATING ON DESKTOP) */}
         {/* ============================================================ */}
-        <header className="absolute top-0 inset-x-0 z-50 w-full px-4 pt-3.5 md:relative md:px-10 md:pt-6 pointer-events-none">
+        <header className="relative md:absolute md:top-0 inset-x-0 z-50 w-full shrink-0 px-3 py-2 md:px-10 md:pt-6 pointer-events-none">
           <div
             className={cn(
-              "w-full flex items-center justify-between p-3 md:p-3.5 md:px-8 md:py-4 rounded-2xl md:rounded-full border backdrop-blur-2xl shadow-2xl transition-all duration-350 pointer-events-auto",
+              "w-full flex items-center justify-between px-3 py-1.5 md:p-3.5 md:px-8 md:py-4 rounded-xl md:rounded-full border backdrop-blur-2xl shadow-xl transition-all duration-350 pointer-events-auto",
               isLight
-                ? "bg-white/85 border-slate-200 text-slate-900 shadow-slate-200/50"
-                : "bg-black/65 border-white/15 text-white"
+                ? "bg-white/90 border-slate-200 text-slate-900 shadow-slate-200/50"
+                : "bg-black/75 border-white/15 text-white"
             )}
           >
             {/* Logo (Top Left in LTR / Top Right in RTL) */}
             <a
               href={logo?.destinationUrl || "/"}
               onClick={(e) => { if (previewMode) e.preventDefault(); }}
-              className="inline-flex items-center gap-3 transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 rounded-lg min-w-[44px] min-h-[44px]"
+              className="inline-flex items-center gap-2 transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 rounded-lg min-w-[36px] min-h-[36px]"
               aria-label={isAr ? logo?.altAr || "شعار إي ثري قطر الرسمي" : logo?.altEn || "Official E3 Qatar Logo"}
             >
               <E3Logo
                 isLight={isLight}
                 lightLogoUrl={isLight ? logo?.lightLogoUrl || logo?.defaultLogoUrl : undefined}
                 darkLogoUrl={!isLight ? logo?.darkLogoUrl || logo?.defaultLogoUrl : undefined}
-                size={effectiveIsMobile ? "sm" : "md"}
+                size="sm"
               />
             </a>
 
@@ -362,7 +362,7 @@ export function PortalGateway({
             </div>
 
             {/* Controls: Language & Theme Switcher */}
-            <div className="flex items-center gap-2.5 md:gap-4">
+            <div className="flex items-center gap-2">
               {visual.languageSwitcherVisible !== false && (
                 <button
                   onClick={() => {
@@ -381,14 +381,14 @@ export function PortalGateway({
                     }
                   }}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2.5 rounded-xl border backdrop-blur-md text-xs md:text-sm font-bold transition-all cursor-pointer shadow-md min-w-[44px] min-h-[44px] focus-visible:ring-2 focus-visible:ring-purple-400 focus:outline-none",
+                    "flex items-center gap-1.5 px-2.5 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl border backdrop-blur-md text-[11px] md:text-sm font-bold transition-all cursor-pointer shadow-sm min-h-[34px] md:min-h-[44px] focus-visible:ring-2 focus-visible:ring-purple-400 focus:outline-none",
                     isLight
                       ? "border-slate-300 bg-white/90 hover:bg-slate-100 text-slate-900"
                       : "border-white/15 bg-white/10 hover:bg-white/20 text-white"
                   )}
                   aria-label={activeLocale === "en" ? "التبديل إلى اللغة العربية" : "Switch to English"}
                 >
-                  <Globe className="w-4 h-4 text-purple-500" />
+                  <Globe className="w-3.5 h-3.5 text-purple-400" />
                   <span>{activeLocale === "en" ? "العربية" : "ENGLISH"}</span>
                 </button>
               )}
@@ -404,7 +404,7 @@ export function PortalGateway({
                     }
                   }}
                   className={cn(
-                    "p-2.5 md:p-3 rounded-xl border backdrop-blur-md transition-all cursor-pointer shadow-md min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-purple-400 focus:outline-none",
+                    "p-1.5 md:p-3 rounded-lg md:rounded-xl border backdrop-blur-md transition-all cursor-pointer shadow-sm min-w-[34px] min-h-[34px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-purple-400 focus:outline-none",
                     isLight
                       ? "border-slate-300 bg-white/90 hover:bg-slate-100 text-slate-900"
                       : "border-white/15 bg-white/10 hover:bg-white/20 text-white"
@@ -412,7 +412,7 @@ export function PortalGateway({
                   title={isAr ? "تبديل المظهر النهاري والليلي" : "Toggle Light/Dark Theme"}
                   aria-label={isAr ? "تبديل المظهر" : "Toggle Theme"}
                 >
-                  {isLight ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+                  {isLight ? <Moon className="w-3.5 h-3.5 text-indigo-600" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
                 </button>
               )}
             </div>
@@ -422,24 +422,24 @@ export function PortalGateway({
         {/* ============================================================ */}
         {/* 2. DUAL PORTAL CANVAS & SLANTED DIAGONAL BOUNDARY */}
         {/* ============================================================ */}
-        <main className="relative flex-1 w-full h-full overflow-hidden z-10 flex flex-col">
+        <main className="relative flex-1 min-h-0 w-full h-full overflow-hidden z-10 flex flex-col">
           
-          {/* MOBILE VIEW (< 768px): EDITORIAL 50/50 SPLIT (01 EXPERIENCE / 02 CREATE) */}
+          {/* MOBILE VIEW (< 768px): CLEAN ZERO-OVERLAP 50/50 SPLIT (01 EXPERIENCE / 02 CREATE) */}
           {effectiveIsMobile ? (
-            <div className="flex flex-col w-full h-full relative flex-1">
+            <div className="flex flex-col w-full h-full flex-1 min-h-0 relative">
               
               {/* SUB-HEADER TAGLINE */}
-              <div className="w-full px-5 py-2 z-30 bg-black/60 backdrop-blur-md border-b border-white/10 shrink-0">
-                <p className="text-[10px] sm:text-xs font-mono font-bold tracking-[0.25em] text-neutral-300 uppercase text-center sm:text-start">
+              <div className="w-full px-4 py-1 z-30 bg-black/40 backdrop-blur-sm border-b border-white/5 shrink-0">
+                <p className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.2em] text-neutral-300 uppercase text-center sm:text-start">
                   {headline}
                 </p>
               </div>
 
-              {/* B2C EXPERIENCE (TOP HALF: 50%) */}
+              {/* B2C EXPERIENCE (TOP HALF: EXACT 50% OF REMAINING CANVAS) */}
               <div
                 onClick={() => handleSelect("b2c")}
                 className={cn(
-                  "relative h-1/2 w-full overflow-hidden flex flex-col justify-between p-6 sm:p-8 cursor-pointer group select-none",
+                  "relative flex-1 h-1/2 min-h-0 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6 cursor-pointer group select-none",
                   isLight ? "bg-[#F7F3FF]" : "bg-[#0B1020]"
                 )}
                 role="button"
@@ -465,38 +465,38 @@ export function PortalGateway({
                 {/* Top: 01 Indicator Tag */}
                 <div className="relative z-30 flex items-center justify-between w-full">
                   <div className="flex flex-col items-start">
-                    <span className="text-sm sm:text-base font-black font-mono tracking-widest text-white drop-shadow">
+                    <span className="text-xs sm:text-sm font-black font-mono tracking-widest text-white drop-shadow">
                       {b2cNumberTag}
                     </span>
-                    <div className="w-6 h-[2px] bg-pink-400 mt-1 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                    <div className="w-5 h-[2px] bg-pink-400 mt-0.5 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
                   </div>
                 </div>
 
-                {/* Bottom: Huge Editorial Title + Subtitle + Corner Arrow */}
-                <div className="relative z-30 w-full flex items-end justify-between gap-4">
-                  <div className="space-y-1 max-w-[80%]">
-                    <h2 className="text-4xl sm:text-5xl xs:text-6xl font-black font-syne uppercase tracking-tight leading-[0.9] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                {/* Bottom: Editorial Title + Subtitle + Corner Arrow */}
+                <div className="relative z-30 w-full flex items-end justify-between gap-3">
+                  <div className="space-y-0.5 max-w-[78%]">
+                    <h2 className="text-2xl sm:text-3xl xs:text-4xl font-black font-syne uppercase tracking-tight leading-[0.95] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                       {b2cTitle}
                     </h2>
-                    <p className="text-xs sm:text-sm font-medium text-white/90 leading-snug drop-shadow line-clamp-2">
+                    <p className="text-[11px] sm:text-xs font-medium text-white/90 leading-tight drop-shadow line-clamp-1">
                       {b2cTagline}
                     </p>
                     <span className="sr-only">{b2cCta}</span>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-pink-500 group-hover:border-pink-400 transition-colors shadow-lg">
-                    <ArrowUpRight className={cn("w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-pink-500 transition-colors shadow-lg">
+                    <ArrowUpRight className={cn("w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
                   </div>
                 </div>
               </div>
 
               {/* CLEAN HORIZONTAL SEAM DIVIDER (EXACT 50/50 SEAM) */}
-              <div className="relative z-40 w-full h-[2px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none shrink-0" />
+              <div className="relative z-40 w-full h-[1.5px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none shrink-0" />
 
-              {/* B2B CREATE (BOTTOM HALF: 50%) */}
+              {/* B2B CREATE (BOTTOM HALF: EXACT 50% OF REMAINING CANVAS) */}
               <div
                 onClick={() => handleSelect("b2b")}
                 className={cn(
-                  "relative h-1/2 w-full overflow-hidden flex flex-col justify-between p-6 sm:p-8 cursor-pointer group select-none",
+                  "relative flex-1 h-1/2 min-h-0 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6 cursor-pointer group select-none",
                   isLight ? "bg-[#EEF4F8]" : "bg-[#070A12]"
                 )}
                 role="button"
@@ -522,26 +522,26 @@ export function PortalGateway({
                 {/* Top: 02 Indicator Tag */}
                 <div className="relative z-30 flex items-center justify-between w-full">
                   <div className="flex flex-col items-start">
-                    <span className="text-sm sm:text-base font-black font-mono tracking-widest text-white drop-shadow">
+                    <span className="text-xs sm:text-sm font-black font-mono tracking-widest text-white drop-shadow">
                       {b2bNumberTag}
                     </span>
-                    <div className="w-6 h-[2px] bg-cyan-400 mt-1 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                    <div className="w-5 h-[2px] bg-cyan-400 mt-0.5 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
                   </div>
                 </div>
 
-                {/* Bottom: Huge Editorial Title + Subtitle + Corner Arrow */}
-                <div className="relative z-30 w-full flex items-end justify-between gap-4">
-                  <div className="space-y-1 max-w-[80%]">
-                    <h2 className="text-4xl sm:text-5xl xs:text-6xl font-black font-syne uppercase tracking-tight leading-[0.9] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                {/* Bottom: Editorial Title + Subtitle + Corner Arrow */}
+                <div className="relative z-30 w-full flex items-end justify-between gap-3">
+                  <div className="space-y-0.5 max-w-[78%]">
+                    <h2 className="text-2xl sm:text-3xl xs:text-4xl font-black font-syne uppercase tracking-tight leading-[0.95] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                       {b2bTitle}
                     </h2>
-                    <p className="text-xs sm:text-sm font-medium text-white/90 leading-snug drop-shadow line-clamp-2">
+                    <p className="text-[11px] sm:text-xs font-medium text-white/90 leading-tight drop-shadow line-clamp-1">
                       {b2bTagline}
                     </p>
                     <span className="sr-only">{b2bCta}</span>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-cyan-500 group-hover:border-cyan-400 transition-colors shadow-lg">
-                    <ArrowUpRight className={cn("w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-cyan-500 transition-colors shadow-lg">
+                    <ArrowUpRight className={cn("w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
                   </div>
                 </div>
               </div>
