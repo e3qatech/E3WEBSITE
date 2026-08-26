@@ -185,11 +185,11 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   const ctaPrimaryBtn = isAr ? (ctaConfig.primaryCtaAr || ctaConfig.primaryCtaEn) : ctaConfig.primaryCtaEn
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500 selection:text-zinc-950" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="flex flex-col w-full min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] font-sans selection:bg-emerald-500 selection:text-zinc-950 transition-colors" dir={isAr ? 'rtl' : 'ltr'}>
       
       {/* 1. HERO SECTION */}
       {hero.enabled !== false && (
-        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-zinc-900/80 pt-24 pb-16">
+        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-[var(--border-level-1)] pt-24 pb-16">
           <div className="absolute inset-0 z-0">
             <UniversalMediaRenderer 
               type={(hero.media?.mediaType || hero.mediaType || "IMAGE") as any} 
@@ -198,14 +198,14 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
               alt="E3 Capabilities Hero"
               className="w-full h-full object-cover filter brightness-[0.65] contrast-[1.1]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
-            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/50 to-transparent rtl:bg-gradient-to-l" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/70 to-[var(--bg-level-1)]/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)]/90 via-[var(--bg-level-1)]/50 to-transparent rtl:bg-gradient-to-l" />
           </div>
 
           <div className="container relative z-10 mx-auto px-4 md:px-8">
             <div className="max-w-5xl">
               {heroEyebrow && (
-                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
+                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6 backdrop-blur-md">
                   <Cpu className="w-3.5 h-3.5" />
                   <span>{heroEyebrow}</span>
                 </div>
@@ -221,13 +221,13 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                   animationSpeed={hero.animationSpeed || 2800}
                   locale={locale}
                   align={isAr ? "start" : "start"}
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-zinc-100 tracking-tight leading-[1.08] drop-shadow-xl"
-                  gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500"
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] font-black font-syne text-[var(--text-primary)] tracking-tight leading-[1.08] drop-shadow-xl"
+                  gradientClass="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-500"
                 />
               </div>
 
               {heroSubtitle && (
-                <p className="text-xl md:text-2xl text-zinc-300 font-medium max-w-3xl mb-10 leading-relaxed">
+                <p className="text-lg sm:text-xl md:text-2xl text-[var(--text-secondary)] font-medium max-w-3xl mb-10 leading-relaxed">
                   {heroSubtitle}
                 </p>
               )}
@@ -246,10 +246,10 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 {heroSecondaryCta && (
                   <Link 
                     href={hero.secondaryLink || `/${locale}/b2b/contact`} 
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-zinc-900/80 backdrop-blur-md border border-zinc-700/80 text-zinc-100 font-bold text-base rounded-full hover:border-zinc-500 hover:bg-zinc-800 transition-all duration-300 hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold text-base rounded-full hover:bg-[var(--surface-hover)] transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                   >
                     <span>{heroSecondaryCta}</span>
-                    <ArrowUpRight className="w-5 h-5 text-zinc-400" />
+                    <ArrowUpRight className="w-5 h-5 text-[var(--text-secondary)]" />
                   </Link>
                 )}
               </div>
@@ -260,11 +260,11 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 2. DYNAMIC INTEGRATED CAPABILITY STATEMENT */}
       {capCountConfig.enabled !== false && (
-        <section className="py-12 bg-zinc-950 border-b border-zinc-900">
+        <section className="py-12 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)]">
           <div className="container mx-auto px-4 md:px-8 text-center">
-            <div className="inline-flex items-center justify-center gap-3 py-3 px-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-md">
+            <div className="inline-flex items-center justify-center gap-3 py-3 px-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] backdrop-blur-md shadow-sm">
               <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xl md:text-2xl font-black font-syne tracking-tight text-zinc-100">
+              <span className="text-xl md:text-2xl font-black font-syne tracking-tight text-[var(--text-primary)]">
                 {formattedCountStatement}
               </span>
             </div>
@@ -274,19 +274,19 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 3. SERVICE PHILOSOPHY SPLIT-SCREEN */}
       {phil.enabled !== false && (
-        <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden">
+        <section className="py-24 md:py-32 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] relative overflow-hidden transition-colors">
           <div className="container relative z-10 mx-auto px-4 md:px-8">
             <div className="text-center max-w-3xl mx-auto mb-20">
               {phil.eyebrowEn && (
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+                <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block mb-2">
                   {isAr ? (phil.eyebrowAr || phil.eyebrowEn) : phil.eyebrowEn}
                 </span>
               )}
-              <h2 className="text-4xl md:text-6xl font-black font-syne text-zinc-100 tracking-tight mb-6">
+              <h2 className="text-4xl md:text-6xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-6">
                 {philTitle}
               </h2>
               {philSubtitle && (
-                <p className="text-lg text-zinc-400 leading-relaxed">
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
                   {philSubtitle}
                 </p>
               )}
@@ -294,14 +294,14 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
             <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
               {/* Creative Pillar */}
-              <div className="p-8 md:p-12 rounded-3xl bg-zinc-900/60 border border-zinc-800/80 hover:border-emerald-500/50 backdrop-blur-md transition-all duration-500">
+              <div className="p-8 md:p-12 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/50 backdrop-blur-md transition-all duration-500 shadow-sm">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                     <Sparkles className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="text-xs font-mono text-emerald-400 uppercase tracking-widest">{creativeSub}</span>
-                    <h3 className="text-3xl font-black font-syne text-emerald-400 tracking-tight">
+                    <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{creativeSub}</span>
+                    <h3 className="text-3xl font-black font-syne text-emerald-600 dark:text-emerald-400 tracking-tight">
                       {creativeTitle}
                     </h3>
                   </div>
@@ -310,7 +310,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                   {creativeBullets.map((bullet: any, i: number) => {
                     const text = isAr ? (bullet.textAr || bullet.textEn) : bullet.textEn
                     return (
-                      <li key={bullet.id || i} className="flex items-center gap-3 text-base font-medium text-zinc-300">
+                      <li key={bullet.id || i} className="flex items-center gap-3 text-base font-medium text-[var(--text-secondary)]">
                         <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                         <span>{text}</span>
                       </li>
@@ -320,14 +320,14 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
               </div>
 
               {/* Operational Pillar */}
-              <div className="p-8 md:p-12 rounded-3xl bg-zinc-900/60 border border-zinc-800/80 hover:border-amber-500/50 backdrop-blur-md transition-all duration-500">
+              <div className="p-8 md:p-12 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-amber-500/50 backdrop-blur-md transition-all duration-500 shadow-sm">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
                     <Layers className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="text-xs font-mono text-amber-400 uppercase tracking-widest">{engineeringSub}</span>
-                    <h3 className="text-3xl font-black font-syne text-amber-400 tracking-tight">
+                    <span className="text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest">{engineeringSub}</span>
+                    <h3 className="text-3xl font-black font-syne text-amber-600 dark:text-amber-400 tracking-tight">
                       {engineeringTitle}
                     </h3>
                   </div>
@@ -336,7 +336,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                   {engineeringBullets.map((bullet: any, i: number) => {
                     const text = isAr ? (bullet.textAr || bullet.textEn) : bullet.textEn
                     return (
-                      <li key={bullet.id || i} className="flex items-center gap-3 text-base font-medium text-zinc-300">
+                      <li key={bullet.id || i} className="flex items-center gap-3 text-base font-medium text-[var(--text-secondary)]">
                         <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0" />
                         <span>{text}</span>
                       </li>
@@ -351,21 +351,21 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 4. DYNAMIC CAPABILITY NAVIGATOR (BENTO GRID) */}
       {nav.enabled !== false && (
-        <section id="capability-navigator" className="py-24 bg-zinc-900/40 border-y border-zinc-800/80">
+        <section id="capability-navigator" className="py-24 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
           <div className="container mx-auto px-4 md:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
               <div>
                 {navEyebrow && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
                     <Workflow className="w-3.5 h-3.5" />
                     <span>{navEyebrow}</span>
                   </div>
                 )}
-                <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+                <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
                   {navTitle}
                 </h2>
                 {navDesc && (
-                  <p className="text-lg text-zinc-400 max-w-xl">
+                  <p className="text-lg text-[var(--text-secondary)] max-w-xl">
                     {navDesc}
                   </p>
                 )}
@@ -387,7 +387,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                       key={service.id} 
                       href={`/${locale}/b2b/services/${service.slug}`}
                       className={cn(
-                        "group relative rounded-3xl bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-8 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]",
+                        "group relative rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-6 sm:p-8 hover:shadow-xl shadow-sm",
                         isAnchorTile ? "md:col-span-2 md:row-span-2 min-h-[440px]" : "min-h-[290px]"
                       )}
                     >
@@ -397,36 +397,36 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                             type="IMAGE"
                             src={service.thumbnail}
                             alt={name}
-                            className="w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-all duration-700 group-hover:scale-105"
+                            className="w-full h-full object-cover opacity-20 dark:opacity-30 group-hover:opacity-40 dark:group-hover:opacity-50 transition-all duration-700 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-950" />
+                          <div className="w-full h-full bg-[var(--surface-raised)]" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/85 to-transparent" />
                       </div>
 
                       <div className="relative z-10 h-full flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                          <span className="w-10 h-10 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-center font-mono font-bold text-xs text-emerald-400 backdrop-blur-md">
+                          <span className="w-10 h-10 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-level-2)] flex items-center justify-center font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 backdrop-blur-md shadow-xs">
                             {String(i + 1).padStart(2, '0')}
                           </span>
                           
                           {service.category && (
-                            <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full backdrop-blur-md">
+                            <span className="px-3 py-1 text-[10px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full backdrop-blur-md">
                               {service.category}
                             </span>
                           )}
                         </div>
 
                         <div className="mt-auto pt-8">
-                          <h3 className={cn("font-black font-syne text-zinc-100 tracking-tight mb-2 group-hover:text-emerald-400 transition-colors", isAnchorTile ? "text-3xl" : "text-xl")}>
+                          <h3 className={cn("font-black font-syne text-[var(--text-primary)] tracking-tight mb-2 group-hover:text-emerald-500 transition-colors", isAnchorTile ? "text-2xl sm:text-3xl" : "text-xl")}>
                             {name}
                           </h3>
-                          <p className={cn("text-zinc-400 font-medium line-clamp-2 leading-relaxed mb-4", isAnchorTile ? "text-base" : "text-xs")}>
+                          <p className={cn("text-[var(--text-secondary)] font-medium line-clamp-2 leading-relaxed mb-4", isAnchorTile ? "text-base" : "text-xs")}>
                             {tagline}
                           </p>
 
-                          <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest opacity-80 group-hover:opacity-100 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-all duration-300">
+                          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-widest opacity-80 group-hover:opacity-100 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-all duration-300">
                             <span>{navCardCta || (isAr ? "عرض التفاصيل والخدمات" : "Explore Capability")}</span>
                             <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                           </div>
@@ -436,7 +436,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                   )
                 })
               ) : (
-                <div className="col-span-4 text-center py-20 border border-zinc-800/80 rounded-3xl text-zinc-500">
+                <div className="col-span-4 text-center py-20 border border-[var(--border-level-2)] rounded-3xl text-[var(--text-tertiary)] bg-[var(--surface-default)]">
                   {isAr ? "جاري تحديث قائمة الخدمات والتخصصات." : "Services directory is currently being updated."}
                 </div>
               )}
@@ -447,13 +447,13 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 5. FEATURED SERVICE SPOTLIGHTS */}
       {spotlightsConfig.enabled !== false && spotlightServices.length > 0 && (
-        <section className="py-24 bg-zinc-950 border-b border-zinc-900">
+        <section className="py-24 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] transition-colors">
           <div className="container mx-auto px-4 md:px-8">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+              <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block mb-2">
                 {isAr ? (spotlightsConfig.eyebrowAr || spotlightsConfig.eyebrowEn) : spotlightsConfig.eyebrowEn}
               </span>
-              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight">
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight">
                 {spotlightTitle}
               </h2>
             </div>
@@ -464,37 +464,37 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 const fsTagline = isAr ? (fs.taglineAr || fs.contentAr?.substring(0, 200)) : (fs.taglineEn || fs.contentEn?.substring(0, 200))
 
                 return (
-                  <div key={fs.id} className="relative rounded-3xl bg-zinc-900/60 border border-zinc-800/80 p-8 md:p-12 overflow-hidden flex flex-col lg:flex-row items-center gap-12 backdrop-blur-md">
+                  <div key={fs.id} className="relative rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] p-6 sm:p-8 md:p-12 overflow-hidden flex flex-col lg:flex-row items-center gap-8 md:gap-12 backdrop-blur-md shadow-md">
                     <div className="w-full lg:w-1/2 space-y-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs uppercase tracking-widest">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest">
                         <Trophy className="w-3.5 h-3.5" />
                         <span>SPOTLIGHT 0{idx + 1}</span>
                       </div>
-                      <h3 className="text-3xl md:text-4xl font-black font-syne text-zinc-100 tracking-tight">
+                      <h3 className="text-3xl md:text-4xl font-black font-syne text-[var(--text-primary)] tracking-tight">
                         {fsTitle}
                       </h3>
-                      <p className="text-base text-zinc-300 leading-relaxed font-medium">
+                      <p className="text-base text-[var(--text-secondary)] leading-relaxed font-medium">
                         {fsTagline}
                       </p>
                       
                       <div className="pt-4 flex flex-wrap gap-4">
                         <Link 
                           href={`/${locale}/b2b/services/${fs.slug}`}
-                          className="px-6 py-3 bg-emerald-500 text-zinc-950 font-bold rounded-full hover:bg-emerald-400 transition-colors inline-flex items-center gap-2 text-sm"
+                          className="px-6 py-3 bg-emerald-500 text-zinc-950 font-bold rounded-full hover:bg-emerald-400 transition-colors inline-flex items-center gap-2 text-sm shadow-sm"
                         >
                           <span>{spotlightCta || (isAr ? "عرض تفاصيل الخدمة" : "View Service Scope")}</span>
                           <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                         </Link>
                         <Link 
                           href={`/${locale}/b2b/contact`}
-                          className="px-6 py-3 bg-zinc-800 text-zinc-100 font-bold rounded-full hover:bg-zinc-700 transition-colors text-sm"
+                          className="px-6 py-3 bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-level-2)] font-bold rounded-full hover:bg-[var(--surface-hover)] transition-colors text-sm"
                         >
                           {requestCta || (isAr ? "اطلب هذا التخصص" : "Request This Discipline")}
                         </Link>
                       </div>
                     </div>
 
-                    <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800 relative">
+                    <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden bg-[var(--surface-sunken)] border border-[var(--border-level-2)] relative">
                       {fs.heroMediaUrl || fs.thumbnail ? (
                         <UniversalMediaRenderer 
                           type={fs.heroMediaType as any || "IMAGE"}
@@ -503,7 +503,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-600 font-mono">[Featured Media: {fsTitle}]</div>
+                        <div className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)] font-mono">[Featured Media: {fsTitle}]</div>
                       )}
                     </div>
                   </div>
@@ -516,13 +516,13 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 6. DELIVERY METHODOLOGY PIPELINE */}
       {methodology.enabled !== false && pipelineSteps.length > 0 && (
-        <section className="py-24 md:py-32 bg-zinc-900/40 border-b border-zinc-800/80">
+        <section className="py-24 md:py-32 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
           <div className="container mx-auto px-4 md:px-8">
             <div className="text-center max-w-3xl mx-auto mb-20">
               {methEyebrow && (
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-2">{methEyebrow}</span>
+                <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block mb-2">{methEyebrow}</span>
               )}
-              <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+              <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
                 {methTitle}
               </h2>
             </div>
@@ -532,16 +532,16 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 const stepName = isAr ? (step.nameAr || step.nameEn) : step.nameEn
                 const stepDesc = isAr ? (step.descAr || step.descEn) : step.descEn
                 return (
-                  <div key={step.id || i} className="group relative p-6 rounded-3xl bg-zinc-950 border border-zinc-800/80 hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between">
+                  <div key={step.id || i} className="group relative p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md">
                     <div className="flex items-center justify-between mb-6">
-                      <span className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-400">
+                      <span className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-xl text-emerald-600 dark:text-emerald-400">
                         {step.stepNumber || String(i + 1).padStart(2, '0')}
                       </span>
-                      <span className="text-xs font-mono text-zinc-600">PHASE 0{i + 1}</span>
+                      <span className="text-xs font-mono text-[var(--text-tertiary)]">PHASE 0{i + 1}</span>
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold font-syne text-zinc-100 group-hover:text-emerald-400 transition-colors mb-2">{stepName}</h3>
-                      <p className="text-xs text-zinc-400 leading-relaxed font-medium">{stepDesc}</p>
+                      <h3 className="text-xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors mb-2">{stepName}</h3>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">{stepDesc}</p>
                     </div>
                   </div>
                 )
@@ -553,23 +553,23 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 7. RELATED PROOF & CASE STUDIES */}
       {proofConfig.enabled !== false && displayCaseStudies.length > 0 && (
-        <section className="py-24 bg-zinc-950 border-b border-zinc-900">
+        <section className="py-24 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] transition-colors">
           <div className="container mx-auto px-4 md:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
               <div>
                 {proofEyebrow && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-xs uppercase tracking-widest mb-3">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest mb-3 shadow-xs">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>{proofEyebrow}</span>
                   </div>
                 )}
-                <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-4">
+                <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
                   {proofTitle}
                 </h2>
               </div>
               <Link 
                 href={proofConfig.viewAllLink || `/${locale}/b2b/cases`} 
-                className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
+                className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-base hover:text-emerald-500 transition-colors group"
               >
                 <span>{viewAllCaseStudiesCta || (isAr ? "عرض جميع المشاريع" : "View All Case Studies")}</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100 transition-transform" />
@@ -581,7 +581,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 const title = isAr ? (cs.titleAr || cs.titleEn) : cs.titleEn
                 return (
                   <Link key={cs.id} href={`/${locale}/b2b/cases/${cs.slug}`} className="group block">
-                    <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-900 mb-6 border border-zinc-800/80 group-hover:border-emerald-500/50 transition-all duration-500">
+                    <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-[var(--surface-default)] mb-6 border border-[var(--border-level-2)] group-hover:border-emerald-500/50 transition-all duration-500 shadow-sm">
                       {(cs.thumbnailUrl || cs.heroImageUrl) ? (
                         <UniversalMediaRenderer 
                           type={cs.thumbnailMediaType || cs.heroMediaType || "IMAGE"}
@@ -590,19 +590,19 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600 font-medium">
+                        <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-raised)] text-[var(--text-tertiary)] font-medium">
                           [Cover: {title}]
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-transparent to-transparent" />
                       <div className="absolute top-4 end-4">
-                        <span className="px-3 py-1 text-xs font-mono font-bold bg-zinc-950/80 border border-zinc-800 text-emerald-400 rounded-full backdrop-blur-md">
+                        <span className="px-3 py-1 text-xs font-mono font-bold bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] text-emerald-600 dark:text-emerald-400 rounded-full backdrop-blur-md shadow-sm">
                           {cs.year || '2026'}
                         </span>
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold font-syne text-zinc-100 group-hover:text-emerald-400 transition-colors mb-2">{title}</h3>
-                    <div className="flex items-center gap-3 text-sm font-mono text-zinc-400">
+                    <h3 className="text-2xl font-bold font-syne text-[var(--text-primary)] group-hover:text-emerald-500 transition-colors mb-2">{title}</h3>
+                    <div className="flex items-center gap-3 text-sm font-mono text-[var(--text-secondary)]">
                       <span>{cs.clientName || 'E3 Project'}</span>
                     </div>
                   </Link>
@@ -615,20 +615,20 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
       {/* 8. FINAL INQUIRY & RFP SECTION */}
       {ctaConfig.enabled !== false && (
-        <section className="py-24 border-t border-zinc-900 bg-zinc-950 relative overflow-hidden">
+        <section className="py-24 border-t border-[var(--border-level-1)] bg-[var(--bg-level-1)] relative overflow-hidden transition-colors">
           <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl relative z-10">
             {ctaEyebrow && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-6">
                 <Building2 className="w-3.5 h-3.5" />
                 <span>{ctaEyebrow}</span>
               </div>
             )}
 
-            <h2 className="text-4xl md:text-5xl font-black font-syne text-zinc-100 tracking-tight mb-6">
+            <h2 className="text-4xl md:text-5xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-6">
               {ctaTitle}
             </h2>
             {ctaDesc && (
-              <p className="text-lg text-zinc-400 mb-10 leading-relaxed">
+              <p className="text-lg text-[var(--text-secondary)] mb-10 leading-relaxed">
                 {ctaDesc}
               </p>
             )}

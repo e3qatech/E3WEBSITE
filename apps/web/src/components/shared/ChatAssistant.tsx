@@ -139,17 +139,17 @@ export function ChatAssistant({ portal = "b2c" }: { portal?: "b2c" | "b2b" }) {
   const contactLink = `/${locale}/${portal}/contact`;
 
   return (
-    <div className="fixed bottom-6 end-6 z-50 font-sans" dir={dir}>
+    <div className="fixed bottom-4 sm:bottom-6 end-4 sm:end-6 z-50 font-sans" dir={dir}>
       {/* Floating Action Button */}
       {!isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
           aria-label={isAr ? "فتح المساعد الآلي لـ إي ثري" : "Open E3 Support Assistant"}
-          className="flex items-center gap-3 px-5 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 font-bold cursor-pointer focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
+          className="flex items-center gap-2.5 sm:gap-3 px-4 py-3 sm:px-5 sm:py-3.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 font-bold cursor-pointer focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
         >
-          <MessageSquare className="w-6 h-6" />
-          <span className="text-sm font-black tracking-wide uppercase">
+          <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+          <span className="text-xs sm:text-sm font-black tracking-wide uppercase">
             {isAr ? "مساعد إي ثري" : "E3 Support"}
           </span>
         </button>
@@ -162,7 +162,7 @@ export function ChatAssistant({ portal = "b2c" }: { portal?: "b2c" | "b2b" }) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="chat-title"
-          className="flex flex-col w-[360px] sm:w-[420px] h-[580px] max-h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300"
+          className="flex flex-col w-[calc(100vw-2rem)] sm:w-[420px] max-w-[420px] h-[540px] max-h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-950 border-b border-zinc-800">

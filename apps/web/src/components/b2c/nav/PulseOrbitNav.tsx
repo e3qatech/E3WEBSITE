@@ -21,6 +21,7 @@ import {
   ChevronRight,
   ArrowRight,
   User as UserIcon,
+  Home,
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -405,9 +406,9 @@ export function PulseOrbitNav({
                 : 'bg-gradient-to-b from-slate-950/80 to-transparent py-5 text-white')
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-          {/* Main Navigation Bar Logo: Always uses Global General Settings Light/Dark Logo */}
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto flex items-center justify-between px-4 sm:px-6">
+          {/* Main Navigation Bar Logo & Home Switcher */}
+          <div className="flex items-center gap-3">
             <Link
               href={`/${locale}${type === 'b2c' ? '/b2c' : '/b2b'}`}
               className="flex items-center group cursor-pointer"
@@ -420,6 +421,22 @@ export function PulseOrbitNav({
                 showText={false}
                 size="md"
               />
+            </Link>
+
+            {/* Dedicated Gateway / Home Icon */}
+            <Link
+              href={`/${locale}`}
+              onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
+              className={cn(
+                "inline-flex items-center justify-center h-8.5 w-8.5 rounded-full border transition-all cursor-pointer select-none",
+                isLight
+                  ? "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 hover:text-emerald-600 hover:border-emerald-300 shadow-xs"
+                  : "border-slate-800 bg-slate-900/80 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-400 hover:bg-slate-800"
+              )}
+              title={isAr ? "الرئيسية / بوابة الدخول" : "Home / Portal Gateway"}
+              aria-label={isAr ? "الرئيسية" : "Home Gateway"}
+            >
+              <Home className="h-4 w-4" />
             </Link>
           </div>
 
@@ -492,18 +509,6 @@ export function PulseOrbitNav({
               {isLight ? <Moon className="h-4 w-4 text-indigo-600" /> : <Sun className="h-4 w-4 text-amber-400" />}
             </button>
 
-            {/* B2B Client Portal Entry (QF-07) */}
-            {(type === 'b2b' || activePortalTab === 'b2b') && (
-              <Link
-                href={isAuthenticated ? `/${locale}/business` : `/${locale}/login/business?callbackUrl=/${locale}/business`}
-                onMouseEnter={() => playSpatialHoverSound(0.1, 'tab')}
-                className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 text-xs font-bold text-amber-300 hover:border-amber-500/60 hover:bg-amber-500/20 transition-all select-none cursor-pointer"
-              >
-                <Building2 className="h-3.5 w-3.5 text-amber-400" />
-                <span>{isAr ? 'بوابة العملاء' : 'Client Portal'}</span>
-              </Link>
-            )}
-
             {/* Quick Ticket / Proposal CTA */}
             {isBookTicketsEnabled && (
               isExternalBookUrl ? (
@@ -565,7 +570,7 @@ export function PulseOrbitNav({
       {menuOpen && (
         <div
           className={cn(
-            "fixed inset-0 z-50 flex flex-col justify-between backdrop-blur-xl p-6 sm:p-10 animate-fade-in transition-colors duration-300",
+            "fixed inset-0 z-50 flex flex-col justify-between backdrop-blur-xl p-4 sm:p-6 md:p-10 overflow-y-auto min-h-full animate-fade-in transition-colors duration-300",
             isLight
               ? "bg-[#FFF8EC]/98 text-slate-900 shadow-2xl"
               : "bg-slate-950/95 text-slate-100"
@@ -576,7 +581,7 @@ export function PulseOrbitNav({
         >
           {/* Top Bar inside Overlay - Managed EXCLUSIVELY by Pulse Orbit CMS Hub Logo */}
           <div className={cn(
-            "flex flex-wrap items-center justify-between gap-4 border-b pb-6",
+            "flex flex-wrap items-center justify-between gap-3 border-b pb-4 sm:pb-6",
             isLight ? "border-slate-200" : "border-slate-800/80"
           )}>
             <div className="flex items-center gap-3">

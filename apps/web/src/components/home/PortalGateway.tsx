@@ -65,9 +65,6 @@ export function PortalGateway({
   const [isMobileViewport, setIsMobileViewport] = useState<boolean>(false);
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
 
-  // E3 Logo Intro Sequence State
-  const [introState, setIntroState] = useState<"active" | "fading" | "complete">("complete");
-
   // Ripple Trail State (Max 8 active ripples, ~55ms throttle)
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const lastRippleTimeRef = useRef<number>(0);
@@ -83,7 +80,7 @@ export function PortalGateway({
   const isReducedMotion = simulation?.reducedMotion || initialCmsData.visual?.reducedMotionDefault || effectiveTier === "minimal";
   const isFullTier = effectiveTier === "full" && !isReducedMotion && isWebGLSupported();
 
-  // Viewport & Session Intro Detection
+  // Viewport Detection
   useEffect(() => {
     const checkViewport = () => {
       setIsMobileViewport(window.innerWidth < 768);
@@ -92,30 +89,8 @@ export function PortalGateway({
     checkViewport();
     window.addEventListener("resize", checkViewport);
 
-    // Check if intro has already been seen this session
-    if (!previewMode) {
-      const introSeen = typeof window !== "undefined" ? sessionStorage.getItem("e3_gateway_intro_seen") : "true";
-      if (!introSeen) {
-        setIntroState("active");
-        const duration = isReducedMotion ? 250 : 1400;
-        const fadeTimer = setTimeout(() => {
-          setIntroState("fading");
-        }, duration - 400);
-        const completeTimer = setTimeout(() => {
-          setIntroState("complete");
-          sessionStorage.setItem("e3_gateway_intro_seen", "true");
-        }, duration);
-
-        return () => {
-          clearTimeout(fadeTimer);
-          clearTimeout(completeTimer);
-          window.removeEventListener("resize", checkViewport);
-        };
-      }
-    }
-
     return () => window.removeEventListener("resize", checkViewport);
-  }, [previewMode, isReducedMotion]);
+  }, []);
 
   const isSimulatedMobile = previewMode && simulation?.viewport === "mobile-390";
   const effectiveIsMobile = isSimulatedMobile || isMobileViewport;
@@ -268,19 +243,6 @@ export function PortalGateway({
           pointer-events: none;
           animation: e3RippleExpand 620ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        /* E3 Logo Intro Animations */
-        @keyframes e3LogoIntroPulse {
-          0% { transform: scale(0.9); opacity: 0; filter: drop-shadow(0 0 0px rgba(139,92,246,0)); }
-          50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 25px rgba(34,211,238,0.8)); }
-          100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 10px rgba(139,92,246,0.4)); }
-        }
-        @keyframes e3LogoIntroFadeOut {
-          0% { opacity: 1; transform: scale(1); }
-          100% { opacity: 0; transform: scale(0.95); pointer-events: none; }
-        }
-        .anim-logo-intro { animation: e3LogoIntroPulse 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .anim-intro-fading { animation: e3LogoIntroFadeOut 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}} />
 
       <div
@@ -294,26 +256,6 @@ export function PortalGateway({
         role="region"
         aria-label={isAr ? (seo.ariaGatewayLabelAr || "بوابة الاختيار الرئيسية لمنصة إي ثري قطر") : (seo.ariaGatewayLabelEn || "E3 Qatar main gateway portal selection")}
       >
-        {/* ============================================================ */}
-        {/* E3 LOGO INTRO OVERLAY (Plays once per browser session) */}
-        {/* ============================================================ */}
-        {introState !== "complete" && !previewMode && (
-          <div
-            className={cn(
-              "fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-400",
-              isLight ? "bg-[#F7F3FF]" : "bg-[#03000a]",
-              introState === "fading" && "anim-intro-fading"
-            )}
-          >
-            <div className="relative flex flex-col items-center justify-center p-8">
-              <div className="anim-logo-intro">
-                <E3Logo isLight={isLight} size="lg" />
-              </div>
-              <div className="w-24 h-0.5 mt-6 rounded-full bg-gradient-to-r from-purple-500 via-cyan-400 to-pink-500 animate-pulse" />
-            </div>
-          </div>
-        )}
-
         {/* Optional 3D Wireframe Background for Full Tier */}
         {isFullTier && visual.backgroundStyle === "wireframe" && (
           <WebGLBoundary fallback={null} minHeight="100%">

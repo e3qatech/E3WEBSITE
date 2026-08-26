@@ -100,6 +100,7 @@ const sidebarConfig: NavGroupItem[] = [
     subItems: [
       { label: "Homepage Editor", labelAr: "محرر الصفحة الرئيسية للشركات", href: "/dashboard/b2b/home", capability: "b2b.content.write" },
       { label: "About Us Editor", labelAr: "محرر من نحن", href: "/dashboard/b2b/about", capability: "b2b.content.write" },
+      { label: "Careers Page Editor", labelAr: "محرر صفحة التوظيف للشركات", href: "/dashboard/b2b/careers", capability: "b2b.content.write" },
       { label: "Leadership Page Editor", labelAr: "محرر صفحة القيادة", href: "/dashboard/b2b/leadership", capability: "b2b.content.write" },
       { label: "Contact & RFP Editor", labelAr: "محرر التواصل وطلبات العروض", href: "/dashboard/b2b/contact", capability: "b2b.content.write" },
       { label: "Services Landing Page", labelAr: "محرر صفحة الخدمات", href: "/dashboard/b2b/services-page", capability: "b2b.content.write" },
