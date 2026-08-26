@@ -72,14 +72,32 @@ const DEFAULT_LIFE_AT_E3: LifeAtE3Item[] = [
 
 interface LifeAtE3SectionProps {
   locale?: string;
+  eyebrowEn?: string;
+  eyebrowAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  subtitleEn?: string;
+  subtitleAr?: string;
   items?: LifeAtE3Item[];
 }
 
 export function LifeAtE3Section({
   locale = "en",
+  eyebrowEn,
+  eyebrowAr,
+  titleEn,
+  titleAr,
+  subtitleEn,
+  subtitleAr,
   items = DEFAULT_LIFE_AT_E3,
 }: LifeAtE3SectionProps) {
   const isAr = locale === "ar";
+
+  const resolvedEyebrow = isAr ? (eyebrowAr || eyebrowEn || "بيئة العمل وكواليس الإنجاز") : (eyebrowEn || eyebrowAr || "ATELIER CULTURE & PRODUCTION");
+  const resolvedTitle = isAr ? (titleAr || titleEn || "الحياة والابتكار في إي ثري") : (titleEn || titleAr || "Life Inside the Engineering Atelier");
+  const resolvedSubtitle = isAr
+    ? (subtitleAr || subtitleEn || "نحن نجمع بين أحدث التقنيات الهندسية وأرفع معايير الإبداع الفني لنصنع ذكريات لا تُنسى في قطر والمنطقة.")
+    : (subtitleEn || subtitleAr || "Where architectural rigor meets boundless creative ambition. Experience the disciplines that power our landmark productions.");
 
   const renderIcon = (icon: string) => {
     switch (icon) {
@@ -105,15 +123,13 @@ export function LifeAtE3Section({
       <div className="text-center max-w-3xl mx-auto mb-14">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-3">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>{isAr ? "بيئة العمل وكواليس الإنجاز" : "ATELIER CULTURE & PRODUCTION"}</span>
+          <span>{resolvedEyebrow}</span>
         </div>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-          {isAr ? "الحياة والابتكار في إي ثري" : "Life Inside the Engineering Atelier"}
+          {resolvedTitle}
         </h2>
         <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 font-medium">
-          {isAr
-            ? "نحن نجمع بين أحدث التقنيات الهندسية وأرفع معايير الإبداع الفني لنصنع ذكريات لا تُنسى في قطر والمنطقة."
-            : "Where architectural rigor meets boundless creative ambition. Experience the disciplines that power our landmark productions."}
+          {resolvedSubtitle}
         </p>
       </div>
 

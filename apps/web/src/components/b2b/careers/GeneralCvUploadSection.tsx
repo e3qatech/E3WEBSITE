@@ -19,12 +19,34 @@ import { cn } from "@/lib/utils";
 
 interface GeneralCvUploadSectionProps {
   locale?: string;
+  eyebrowEn?: string;
+  eyebrowAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  buttonTextEn?: string;
+  buttonTextAr?: string;
 }
 
 export function GeneralCvUploadSection({
   locale = "en",
+  eyebrowEn,
+  eyebrowAr,
+  titleEn,
+  titleAr,
+  descriptionEn,
+  descriptionAr,
+  buttonTextEn,
+  buttonTextAr,
 }: GeneralCvUploadSectionProps) {
   const isAr = locale === "ar";
+
+  const resolvedEyebrow = isAr ? (eyebrowAr || eyebrowEn || "الطلب العام وقاعدة الكفاءات") : (eyebrowEn || eyebrowAr || "TALENT POOL & GENERAL APPLICATION");
+  const resolvedTitle = isAr ? (titleAr || titleEn || "لم تجد شاغراً مطابقاً؟ أرسل سيرتك الذاتية") : (titleEn || titleAr || "Don't See a Direct Match? Upload Your CV");
+  const resolvedDesc = isAr
+    ? (descriptionAr || descriptionEn || "نستقبل طلبات المبدعين والمهندسين بشكل مستمر. قدم سيرتك الذاتية لنقوم بإنشاء حساب المترشح الخاص بك ومطابقة خبراتك فور توفر الفرصة المناسبة.")
+    : (descriptionEn || descriptionAr || "We continuously scout exceptional specialists. Upload your CV to create your verified candidate profile for future roster openings.");
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -130,15 +152,13 @@ export function GeneralCvUploadSection({
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-3">
             <UploadCloud className="w-3.5 h-3.5" />
-            <span>{isAr ? "الطلب العام وقاعدة الكفاءات" : "TALENT POOL & GENERAL APPLICATION"}</span>
+            <span>{resolvedEyebrow}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-            {isAr ? "لم تجد شاغراً مطابقاً؟ أرسل سيرتك الذاتية" : "Don't See a Direct Match? Upload Your CV"}
+            {resolvedTitle}
           </h2>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 font-medium">
-            {isAr
-              ? "نستقبل طلبات المبدعين والمهندسين بشكل مستمر. قدم سيرتك الذاتية لنقوم بإنشاء حساب المترشح الخاص بك ومطابقة خبراتك فور توفر الفرصة المناسبة."
-              : "We continuously scout exceptional specialists. Upload your CV to create your verified candidate profile for future roster openings."}
+            {resolvedDesc}
           </p>
         </div>
 

@@ -5,12 +5,30 @@ import { Send, CheckCircle2, MessageSquare, User, Mail, Phone, HelpCircle, Alert
 
 interface CareerEnquirySectionProps {
   locale?: string;
+  eyebrowEn?: string;
+  eyebrowAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  subtitleEn?: string;
+  subtitleAr?: string;
 }
 
 export function CareerEnquirySection({
   locale = "en",
+  eyebrowEn,
+  eyebrowAr,
+  titleEn,
+  titleAr,
+  subtitleEn,
+  subtitleAr,
 }: CareerEnquirySectionProps) {
   const isAr = locale === "ar";
+
+  const resolvedEyebrow = isAr ? (eyebrowAr || eyebrowEn || "التواصل واستفسارات التوظيف") : (eyebrowEn || eyebrowAr || "TALENT ACQUISITION SUPPORT");
+  const resolvedTitle = isAr ? (titleAr || titleEn || "هل لديك استفسار لفريق التوظيف؟") : (titleEn || titleAr || "Have a Career Enquiry?");
+  const resolvedSubtitle = isAr
+    ? (subtitleAr || subtitleEn || "تواصل مباشرة مع فريق الموارد البشرية واستقطاب الكفاءات لأي استفسار يخص الشواغر، التدريب التعاوني، أو الشراكات الأكاديمية.")
+    : (subtitleEn || subtitleAr || "Directly reach our Talent Acquisition team regarding role specifics, executive searches, or academic internships.");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -83,15 +101,13 @@ export function CareerEnquirySection({
       <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-3">
           <HelpCircle className="w-3.5 h-3.5" />
-          <span>{isAr ? "التواصل واستفسارات التوظيف" : "TALENT ACQUISITION SUPPORT"}</span>
+          <span>{resolvedEyebrow}</span>
         </div>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-          {isAr ? "هل لديك استفسار لفريق التوظيف؟" : "Have a Career Enquiry?"}
+          {resolvedTitle}
         </h2>
         <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 font-medium">
-          {isAr
-            ? "تواصل مباشرة مع فريق الموارد البشرية واستقطاب الكفاءات لأي استفسار يخص الشواغر، التدريب التعاوني، أو الشراكات الأكاديمية."
-            : "Directly reach our Talent Acquisition team regarding role specifics, executive searches, or academic internships."}
+          {resolvedSubtitle}
         </p>
       </div>
 

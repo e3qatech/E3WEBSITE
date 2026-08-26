@@ -5,7 +5,8 @@ import { ArrowRight, CheckCircle2, Sparkles, Layers, ShieldCheck, Cpu, ArrowUpRi
 import { cn } from '@/lib/utils'
 import db from '@/lib/db'
 import { B2BBrandPortfolio } from '@/components/b2b/brands/B2BBrandPortfolio'
-import { DEFAULT_B2B_HOME_CONTENT } from '@/lib/cms-default-pages'
+import { Metadata } from 'next'
+import { getMergedCMSPageContent, DEFAULT_B2B_HOME_CONTENT } from '@/lib/cms-default-pages'
 import { localizeHref } from '@/lib/url-helper'
 import { Reveal } from '@/components/motion/Reveal'
 import { SplitHeadline } from '@/components/motion/SplitHeadline'
@@ -17,6 +18,52 @@ import { filterAndResolvePublicPartners } from '@/lib/partners/partner-resolver'
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isAr = locale === 'ar';
+
+  let page: any = null;
+  try {
+    page = await db.pages.findUnique({
+      where: { slug: 'b2b-home' }
+    });
+  } catch (error) {
+    console.warn('[B2B Home Metadata] Failed to query database:', error);
+  }
+
+  const cms = getMergedCMSPageContent('b2b-home', page?.content);
+  const seo = cms.seo || {};
+
+  const title = isAr
+    ? seo.metaTitleAr || cms.hero?.titleAr || "إي ثري قطر | شريك الفعاليات الكبرى وتطوير الوجهات الترفيهية"
+    : seo.metaTitleEn || cms.hero?.titleEn || "E3 Qatar | Enterprise Event Engineering & Destination Atelier";
+
+  const description = isAr
+    ? seo.metaDescriptionAr || cms.hero?.subtitleAr || "نحن نصمم ونبني ونشغل ونوسع تجارب الترفيه الغامرة في جميع أنحاء قطر."
+    : seo.metaDescriptionEn || cms.hero?.subtitleEn || "We design, build, operate, and scale immersive entertainment experiences across Qatar.";
+
+  return {
+    title,
+    description,
+    keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
+    alternates: {
+      canonical: `/${locale}/b2b`,
+      languages: {
+        en: "/en/b2b",
+        ar: "/ar/b2b",
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `https://e3.qa/${locale}/b2b`,
+      siteName: isAr ? "إي ثري قطر" : "E3 Qatar",
+      locale: isAr ? "ar_QA" : "en_US",
+      type: "website",
+    },
+  };
+}
 
 export default async function B2BHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -32,27 +79,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     console.error("Error loading b2b-home page:", error)
   }
   
-  const rawContent = (page?.content as any) || {}
-  
-  // Deep merge rawContent with DEFAULT_B2B_HOME_CONTENT so no section is ever empty or hardcoded
-  const content = {
-    ...DEFAULT_B2B_HOME_CONTENT,
-    ...rawContent,
-    hero: { ...DEFAULT_B2B_HOME_CONTENT.hero, ...(rawContent.hero || {}) },
-    stats: (rawContent.stats && rawContent.stats.length > 0) ? rawContent.stats : DEFAULT_B2B_HOME_CONTENT.stats,
-    wowAndHow: { ...DEFAULT_B2B_HOME_CONTENT.wowAndHow, ...(rawContent.wowAndHow || {}) },
-    capabilities: { ...DEFAULT_B2B_HOME_CONTENT.capabilities, ...(rawContent.capabilities || {}) },
-    caseStudies: { ...DEFAULT_B2B_HOME_CONTENT.caseStudies, ...(rawContent.caseStudies || {}) },
-    blueprintDepth: { ...DEFAULT_B2B_HOME_CONTENT.blueprintDepth, ...(rawContent.blueprintDepth || {}) },
-    deliveryProcess: { 
-      ...DEFAULT_B2B_HOME_CONTENT.deliveryProcess, 
-      ...(rawContent.deliveryProcess || {}),
-      steps: (rawContent.deliveryProcess?.steps && rawContent.deliveryProcess.steps.length > 0) 
-        ? rawContent.deliveryProcess.steps 
-        : DEFAULT_B2B_HOME_CONTENT.deliveryProcess.steps
-    },
-    partnerRibbon: { ...DEFAULT_B2B_HOME_CONTENT.partnerRibbon, ...(rawContent.partnerRibbon || {}) }
-  }
+  const content = getMergedCMSPageContent('b2b-home', page?.content);
 
   // 1. Hero Data
   const hero = {

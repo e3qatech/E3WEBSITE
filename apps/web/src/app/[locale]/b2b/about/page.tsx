@@ -1,195 +1,91 @@
-import React from 'react'
-import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
+import { Metadata } from "next";
+import { db } from "@/lib/db";
+import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
+import { B2BAboutClient } from "@/components/b2b/about/B2BAboutClient";
 
-import prisma from '@/lib/db'
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export const metadata = {
-  title: 'About Us - E3 Corporate',
-  description: 'Learn about E3, our leadership, values, and our mission to engineer landmark experiences across the MENA region.',
+interface PageProps {
+  params: Promise<{ locale: string }>;
 }
 
-export const dynamic = 'force-dynamic'
-
-export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const isAr = locale === 'ar';
+  const isAr = locale === "ar";
 
-  let employeeProfiles: any[] = []
-  let page: any = null
-
+  let pageData: any = null;
   try {
-    employeeProfiles = await prisma.employeeProfile.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      take: 3
-    })
-    page = await prisma.pages.findUnique({
-      where: { slug: "b2b-about" }
+    pageData = await db.pages.findUnique({
+      where: { slug: "b2b-about" },
     });
   } catch (error) {
-    console.error("Error fetching b2b about page data:", error)
+    console.warn("[B2B About Metadata] Failed to query page from database:", error);
   }
 
-  const leadership = employeeProfiles.map((emp) => ({
-    name: `${emp.firstName} ${emp.lastName}`,
-    title: emp.designation,
-    image: emp.profileImage || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  }))
+  const cmsContent = getMergedCMSPageContent("b2b-about", pageData?.content);
+  const seo = cmsContent?.seo || {};
 
-  const cmsData = (page?.content as any) || {};
+  const title = isAr
+    ? seo.metaTitleAr || cmsContent?.header?.titleAr || "من نحن | إي ثري قطر لهندسة الفعاليات والوجهات"
+    : seo.metaTitleEn || cmsContent?.header?.titleEn || "About Us | E3 Qatar Event Engineering & Attractions";
 
-  const headerTitle = isAr ? (cmsData?.header?.titleAr || 'نحن اي ثري.') : (cmsData?.header?.titleEn || 'We are E3.');
-  const headerSubtitle = isAr ? (cmsData?.header?.subtitleAr || 'خبراء هندسة الفعاليات. نحول الرؤى الإبداعية الطموحة إلى واقع تشغيلي لا تشوبه شائبة.') : (cmsData?.header?.subtitleEn || 'Event Engineering Experts. We turn ambitious creative visions into flawless operational reality.');
-  const headerMediaType = cmsData?.header?.mediaType || 'IMAGE';
-  const headerMediaUrl = cmsData?.header?.mediaUrl || null;
-  const headerFallbackImageUrl = cmsData?.header?.fallbackImageUrl || null;
+  const description = isAr
+    ? seo.metaDescriptionAr || cmsContent?.header?.subtitleAr || "تعرف على إي ثري قطر، مسيرتنا، فريق القيادة، قيمنا ورؤيتنا في هندسة وتطوير كبرى الوجهات الترفيهية."
+    : seo.metaDescriptionEn || cmsContent?.header?.subtitleEn || "Learn about E3 Qatar, our story, leadership, core values, and our mission to engineer mega-scale entertainment destinations.";
 
-  const storyTitle = isAr ? (cmsData?.story?.titleAr || 'قصتنا') : (cmsData?.story?.titleEn || 'Our Story');
-
-  const defaultStoryAr = `تأسست E3 في الدوحة برؤية واضحة: قطاع الفعاليات السريع النمو في المنطقة بحاجة إلى شريك يفهم الطموح الإبداعي للفعاليات الضخمة والهندسة التشغيلية المطلوبة لتقديمها.
-
-على مدار العقد الماضي، نمونا من شركة تنفيذ منصات إلى منظومة متكاملة من هندسة الفعاليات، التكنولوجيا الغامرة، وتشغيل الوجهات.
-
-اليوم، نضم أكثر من 120 متخصصاً ونمتلك إحدى أكبر مستودعات المعدات والتقنيات في الشرق الأوسط.`;
-
-  const defaultStoryEn = `E3 was founded in Doha with a simple premise: the region's rapidly growing events sector needed a partner that understood both the creative ambition of mega-events and the hard engineering required to deliver them.
-
-Over the past decade, we have grown from a boutique staging company into a comprehensive ecosystem of event engineering, immersive technology, and venue operations. 
-
-Today, we employ over 120 full-time specialists and maintain one of the largest inventories of staging, rigging, and XR hardware in the Middle East.`;
-
-  const storyContent = isAr ? (cmsData?.story?.contentAr || defaultStoryAr) : (cmsData?.story?.contentEn || defaultStoryEn);
-  const storyMediaType = cmsData?.story?.mediaType || 'IMAGE';
-  const storyMediaUrl = cmsData?.story?.mediaUrl || null;
-  const legacyImageMediaId = cmsData?.story?.imageMediaId || null;
-  const storyFallbackImageUrl = cmsData?.story?.fallbackImageUrl || null;
-
-  const values = cmsData?.values && cmsData.values.length > 0 ? cmsData.values.map((v: any) => ({
-    title: isAr ? (v.titleAr || v.titleEn) : v.titleEn,
-    desc: isAr ? (v.descAr || v.descEn) : v.descEn
-  })) : [
-    { 
-      title: isAr ? 'الدقة الهندسية' : 'Engineering Precision', 
-      desc: isAr ? 'نتعامل مع الإبداع بصرامة الهندسة الإنشائية. لا تفاصيل صغيرة جداً، ولا هامش أمان يتساهل به.' : 'We treat creativity with the rigor of structural engineering. No detail is too small, no safety margin too tight.' 
+  return {
+    title,
+    description,
+    keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
+    alternates: {
+      canonical: `/${locale}/b2b/about`,
+      languages: {
+        en: "/en/b2b/about",
+        ar: "/ar/b2b/about",
+      },
     },
-    { 
-      title: isAr ? 'التميز التشغيلي' : 'Operational Excellence', 
-      desc: isAr ? 'التصاميم الجميلة لا تعني شيئاً إذا فشل التنفيذ. نحن نتحمل المسؤولية الكاملة عن التشغيل المباشر.' : 'Beautiful designs mean nothing if the execution fails. We take extreme ownership of the live operation.' 
+    openGraph: {
+      title,
+      description,
+      url: `https://e3.qa/${locale}/b2b/about`,
+      siteName: isAr ? "إي ثري قطر" : "E3 Qatar",
+      locale: isAr ? "ar_QA" : "en_US",
+      type: "website",
     },
-    { 
-      title: isAr ? 'الأصالة الثقافية' : 'Cultural Resonance', 
-      desc: isAr ? 'جذورنا في قطر، وبنينا للعالم. نحترم السياق المحلي مع وضع معايير عالمية.' : 'Rooted in Qatar, built for the world. Our experiences respect local context while setting global benchmarks.' 
-    },
-  ];
+  };
+}
 
-  // Fetch story image if it's a media URL
-  const finalMediaUrl = storyMediaUrl || legacyImageMediaId || 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+export default async function AboutPage({ params }: PageProps) {
+  const { locale } = await params;
+
+  let employeeProfiles: any[] = [];
+  let pageData: any = null;
+
+  try {
+    const [profiles, page] = await Promise.all([
+      db.employeeProfile.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+        take: 12,
+      }),
+      db.pages.findUnique({
+        where: { slug: "b2b-about" },
+      }),
+    ]);
+    employeeProfiles = profiles;
+    pageData = page;
+  } catch (error) {
+    console.error("[B2B About Server Loader] Error fetching database records:", error);
+  }
+
+  const cmsContent = getMergedCMSPageContent("b2b-about", pageData?.content);
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[var(--bg-level-1)] text-[var(--text-primary)] pt-20 transition-colors" dir={isAr ? 'rtl' : 'ltr'}>
-      
-      {/* Header */}
-      <section className="relative min-h-[50vh] flex flex-col justify-center py-20 border-b border-[var(--border-level-1)] overflow-hidden">
-        {headerMediaUrl ? (
-          <div className="absolute inset-0 z-0">
-            <UniversalMediaRenderer 
-              type={headerMediaType as any}
-              src={headerMediaUrl}
-              alt="About Hero Background"
-              poster={headerFallbackImageUrl}
-            />
-            <div className="absolute inset-0 bg-[var(--bg-level-1)]/70 backdrop-blur-xs" />
-          </div>
-        ) : (
-          <div className="absolute inset-0 z-0 bg-[var(--bg-level-2)]/50" />
-        )}
-        
-        <div className="container relative z-10 mx-auto px-4 md:px-8">
-          <h1 className="text-5xl md:text-7xl font-black text-[var(--text-primary)] tracking-tight mb-6 drop-shadow-xl">
-            {headerTitle}
-          </h1>
-          <p className="text-xl text-[var(--text-secondary)] max-w-2xl font-medium drop-shadow-md">
-            {headerSubtitle}
-          </p>
-        </div>
-      </section>
-
-      {/* The Story */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-3xl font-black text-[var(--text-primary)] mb-6 tracking-tight">{storyTitle}</h2>
-              <div className="space-y-6 text-lg text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
-                {storyContent || `E3 was founded in Doha with a simple premise: the region's rapidly growing events sector needed a partner that understood both the creative ambition of mega-events and the hard engineering required to deliver them.
-
-Over the past decade, we have grown from a boutique staging company into a comprehensive ecosystem of event engineering, immersive technology, and venue operations. 
-
-Today, we employ over 120 full-time specialists and maintain one of the largest inventories of staging, rigging, and XR hardware in the Middle East.`}
-              </div>
-            </div>
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-md">
-               <UniversalMediaRenderer 
-                type={storyMediaType as any}
-                src={finalMediaUrl}
-                alt="E3 Headquarters"
-                poster={storyFallbackImageUrl}
-               />
-               <div className="absolute inset-0 flex items-center justify-center text-[var(--text-tertiary)] font-bold mix-blend-difference pointer-events-none">
-                 [E3]
-               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="py-24 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)]">
-        <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-black text-[var(--text-primary)] mb-12 tracking-tight text-center">{isAr ? 'قيمنا الأساسية' : 'Our Core Values'}</h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {values.map((val: any, i: number) => (
-              <div key={i} className="p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-black text-xl mb-6">
-                  0{i + 1}
-                </div>
-                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-4">{val.title}</h3>
-                <p className="text-[var(--text-secondary)]">{val.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Leadership */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-black text-[var(--text-primary)] mb-12 tracking-tight">{isAr ? 'القيادة' : 'Leadership'}</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {leadership.map((leader, i) => (
-              <div key={i} className="group">
-                <div className="aspect-[3/4] bg-[var(--surface-default)] rounded-2xl overflow-hidden border border-[var(--border-level-2)] mb-6 relative shadow-xs">
-                  <UniversalMediaRenderer 
-                    type="IMAGE"
-                    src={leader.image}
-                    alt={leader.name}
-                  />
-                  <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-colors" />
-                </div>
-                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-1 group-hover:text-emerald-500 transition-colors">
-                  {leader.name}
-                </h3>
-                <div className="text-emerald-500 font-bold uppercase tracking-widest text-sm">
-                  {leader.title}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-    </div>
-  )
+    <B2BAboutClient
+      cmsData={cmsContent}
+      employeeProfiles={employeeProfiles}
+      locale={locale}
+    />
+  );
 }

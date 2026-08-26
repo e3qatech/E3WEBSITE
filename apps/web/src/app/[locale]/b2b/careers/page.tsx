@@ -2,6 +2,7 @@ import React from "react";
 import { Metadata } from "next";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import {
   filterPubliclyEligibleJobs,
   formatJobPresentation,
@@ -16,19 +17,53 @@ import { HiringJourneySection } from "@/components/b2b/careers/HiringJourneySect
 import { CareerEnquirySection } from "@/components/b2b/careers/CareerEnquirySection";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await props.params;
   const isAr = locale === "ar";
+
+  let pageData: any = null;
+  try {
+    pageData = await db.pages.findUnique({
+      where: { slug: "b2b-careers" },
+    });
+  } catch (e) {
+    console.warn("[B2B Careers Metadata] Error querying page:", e);
+  }
+
+  const cms = getMergedCMSPageContent("b2b-careers", pageData?.content);
+  const seo = cms.seo || {};
+
+  const title = isAr
+    ? seo.metaTitleAr || cms.hero?.titleAr || "الوظائف وفرص الانضمام | إي ثري قطر"
+    : seo.metaTitleEn || cms.hero?.titleEn || "Careers & Opportunities | E3 Qatar";
+
+  const description = isAr
+    ? seo.metaDescriptionAr || cms.hero?.subtitleAr || "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر."
+    : seo.metaDescriptionEn || cms.hero?.subtitleEn || "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.";
+
   return {
-    title: isAr
-      ? "الوظائف وفرص الانضمام | إي ثري قطر"
-      : "Careers & Opportunities | E3 Qatar",
-    description: isAr
-      ? "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر."
-      : "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.",
+    title,
+    description,
+    keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
+    alternates: {
+      canonical: `/${locale}/b2b/careers`,
+      languages: {
+        en: "/en/b2b/careers",
+        ar: "/ar/b2b/careers",
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `https://e3.qa/${locale}/b2b/careers`,
+      siteName: isAr ? "إي ثري قطر" : "E3 Qatar",
+      locale: isAr ? "ar_QA" : "en_US",
+      type: "website",
+    },
   };
 }
 
@@ -42,43 +77,39 @@ export default async function B2BCareersPage({
 
   // 1. Fetch CMS content for 'b2b-careers'
   let pageData: any = null;
-  try {
-    pageData = await db.pages.findUnique({
-      where: { slug: "b2b-careers" },
-    });
-  } catch (error) {
-    console.error("Error loading b2b-careers CMS page:", error);
-  }
-
-  const content = (pageData?.content as any) || {};
-
-  // 2. Fetch published, non-expired jobs from db.job
-  let displayJobs: FormattedPublicJob[] = [];
-  try {
-    const rawDbJobs = await db.job.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const eligibleDbJobs = filterPubliclyEligibleJobs(rawDbJobs);
-    if (eligibleDbJobs.length > 0) {
-      displayJobs = eligibleDbJobs.map((j) =>
-        formatJobPresentation(j, isAr ? "ar" : "en")
-      );
-    }
-  } catch (err) {
-    console.error("Error fetching db.job for B2B careers:", err);
-  }
-
-  // 3. Fetch session to determine candidate auth state
+  let rawDbJobs: any[] = [];
   let sessionUser: any = null;
+
   try {
-    const session = await auth();
-    if (session?.user) {
-      sessionUser = session.user;
+    const [pageResult, jobsResult, sessionResult] = await Promise.all([
+      db.pages.findUnique({
+        where: { slug: "b2b-careers" },
+      }),
+      db.job.findMany({
+        where: { isPublished: true },
+        orderBy: { createdAt: "desc" },
+      }),
+      auth(),
+    ]);
+
+    pageData = pageResult;
+    rawDbJobs = jobsResult;
+    if (sessionResult?.user) {
+      sessionUser = sessionResult.user;
     }
-  } catch (err) {
-    console.error("Error resolving session on B2B careers page:", err);
+  } catch (error) {
+    console.error("[B2B Careers Server Loader] Error querying data:", error);
+  }
+
+  const content = getMergedCMSPageContent("b2b-careers", pageData?.content);
+
+  // 2. Format eligible published jobs
+  let displayJobs: FormattedPublicJob[] = [];
+  const eligibleDbJobs = filterPubliclyEligibleJobs(rawDbJobs);
+  if (eligibleDbJobs.length > 0) {
+    displayJobs = eligibleDbJobs.map((j) =>
+      formatJobPresentation(j, isAr ? "ar" : "en")
+    );
   }
 
   const mediaType = content?.hero?.mediaType || "IMAGE";
@@ -103,37 +134,83 @@ export default async function B2BCareersPage({
         totalVacancies={displayJobs.length}
       />
 
-      {/* 2. Active Jobs Section (Filters, Vacancy count, Cards & Fallback) */}
+      {/* 2. Active Jobs Section */}
       <ActiveJobsSection
         jobs={displayJobs}
         locale={locale}
       />
 
       {/* 3. General Application & CV Upload Section */}
-      <GeneralCvUploadSection
-        locale={locale}
-      />
+      {content?.generalApplication?.enabled !== false && (
+        <GeneralCvUploadSection
+          locale={locale}
+          eyebrowEn={content?.generalApplication?.eyebrowEn}
+          eyebrowAr={content?.generalApplication?.eyebrowAr}
+          titleEn={content?.generalApplication?.titleEn}
+          titleAr={content?.generalApplication?.titleAr}
+          descriptionEn={content?.generalApplication?.descriptionEn}
+          descriptionAr={content?.generalApplication?.descriptionAr}
+          buttonTextEn={content?.generalApplication?.buttonTextEn}
+          buttonTextAr={content?.generalApplication?.buttonTextAr}
+        />
+      )}
 
       {/* 4. Candidate Portal Banner (Sign In / View Applications) */}
-      <CandidatePortalBanner
-        locale={locale}
-        user={sessionUser}
-      />
+      {content?.portalBanner?.enabled !== false && (
+        <CandidatePortalBanner
+          locale={locale}
+          eyebrowEn={content?.portalBanner?.eyebrowEn}
+          eyebrowAr={content?.portalBanner?.eyebrowAr}
+          titleEn={content?.portalBanner?.titleEn}
+          titleAr={content?.portalBanner?.titleAr}
+          descriptionEn={content?.portalBanner?.descriptionEn}
+          descriptionAr={content?.portalBanner?.descriptionAr}
+          signInTextEn={content?.portalBanner?.signInTextEn}
+          signInTextAr={content?.portalBanner?.signInTextAr}
+          user={sessionUser}
+        />
+      )}
 
       {/* 5. Life at E3 (Culture & Behind-the-Scenes Production) */}
-      <LifeAtE3Section
-        locale={locale}
-      />
+      {content?.lifeAtE3?.enabled !== false && (
+        <LifeAtE3Section
+          locale={locale}
+          eyebrowEn={content?.lifeAtE3?.eyebrowEn}
+          eyebrowAr={content?.lifeAtE3?.eyebrowAr}
+          titleEn={content?.lifeAtE3?.titleEn}
+          titleAr={content?.lifeAtE3?.titleAr}
+          subtitleEn={content?.lifeAtE3?.subtitleEn}
+          subtitleAr={content?.lifeAtE3?.subtitleAr}
+          items={content?.lifeAtE3?.items}
+        />
+      )}
 
       {/* 6. Hiring Journey (4-Step Process) */}
-      <HiringJourneySection
-        locale={locale}
-      />
+      {content?.hiringJourney?.enabled !== false && (
+        <HiringJourneySection
+          locale={locale}
+          eyebrowEn={content?.hiringJourney?.eyebrowEn}
+          eyebrowAr={content?.hiringJourney?.eyebrowAr}
+          titleEn={content?.hiringJourney?.titleEn}
+          titleAr={content?.hiringJourney?.titleAr}
+          subtitleEn={content?.hiringJourney?.subtitleEn}
+          subtitleAr={content?.hiringJourney?.subtitleAr}
+          steps={content?.hiringJourney?.steps}
+        />
+      )}
 
-      {/* 7. Career Enquiries Section (Connected to Contact/Inquiries API) */}
-      <CareerEnquirySection
-        locale={locale}
-      />
+      {/* 7. Career Enquiries Section */}
+      {content?.enquiries?.enabled !== false && (
+        <CareerEnquirySection
+          locale={locale}
+          eyebrowEn={content?.enquiries?.eyebrowEn}
+          eyebrowAr={content?.enquiries?.eyebrowAr}
+          titleEn={content?.enquiries?.titleEn}
+          titleAr={content?.enquiries?.titleAr}
+          subtitleEn={content?.enquiries?.subtitleEn}
+          subtitleAr={content?.enquiries?.subtitleAr}
+        />
+      )}
     </div>
   );
 }

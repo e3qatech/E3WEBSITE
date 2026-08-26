@@ -57,12 +57,32 @@ const HIRING_STEPS: HiringStep[] = [
 
 interface HiringJourneySectionProps {
   locale?: string;
+  eyebrowEn?: string;
+  eyebrowAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  subtitleEn?: string;
+  subtitleAr?: string;
+  steps?: HiringStep[];
 }
 
 export function HiringJourneySection({
   locale = "en",
+  eyebrowEn,
+  eyebrowAr,
+  titleEn,
+  titleAr,
+  subtitleEn,
+  subtitleAr,
+  steps = HIRING_STEPS,
 }: HiringJourneySectionProps) {
   const isAr = locale === "ar";
+
+  const resolvedEyebrow = isAr ? (eyebrowAr || eyebrowEn || "رحلة المترشح والتقييم") : (eyebrowEn || eyebrowAr || "TRANSPARENT PROCESS");
+  const resolvedTitle = isAr ? (titleAr || titleEn || "مراحل وخطوات الانضمام إلى إي ثري") : (titleEn || titleAr || "Our Four-Step Hiring Journey");
+  const resolvedSubtitle = isAr
+    ? (subtitleAr || subtitleEn || "مسار واضح وشفاف يضمن اختيار أفضل الكفاءات وتوفير تجربة انضمام سلسة ومهنية.")
+    : (subtitleEn || subtitleAr || "From initial credential submission to your first live activation — clear milestones at every step.");
 
   const renderIcon = (icon: string) => {
     switch (icon) {
@@ -88,15 +108,13 @@ export function HiringJourneySection({
       <div className="text-center max-w-3xl mx-auto mb-14">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
           <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>{isAr ? "رحلة المترشح والتقييم" : "TRANSPARENT PROCESS"}</span>
+          <span>{resolvedEyebrow}</span>
         </div>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-          {isAr ? "مراحل وخطوات الانضمام إلى إي ثري" : "Our Four-Step Hiring Journey"}
+          {resolvedTitle}
         </h2>
         <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 font-medium">
-          {isAr
-            ? "مسار واضح وشفاف يضمن اختيار أفضل الكفاءات وتوفير تجربة انضمام سلسة ومهنية."
-            : "From initial credential submission to your first live activation — clear milestones at every step."}
+          {resolvedSubtitle}
         </p>
       </div>
 

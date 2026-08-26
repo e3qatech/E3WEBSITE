@@ -7,6 +7,14 @@ import { cn } from "@/lib/utils";
 
 interface CandidatePortalBannerProps {
   locale?: string;
+  eyebrowEn?: string;
+  eyebrowAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  signInTextEn?: string;
+  signInTextAr?: string;
   user?: {
     name?: string | null;
     email?: string | null;
@@ -16,12 +24,29 @@ interface CandidatePortalBannerProps {
 
 export function CandidatePortalBanner({
   locale = "en",
+  eyebrowEn,
+  eyebrowAr,
+  titleEn,
+  titleAr,
+  descriptionEn,
+  descriptionAr,
+  signInTextEn,
+  signInTextAr,
   user,
 }: CandidatePortalBannerProps) {
   const isAr = locale === "ar";
   const isAuthenticated = Boolean(user && user.role === "CANDIDATE");
   const loginUrl = `/${locale}/login/careers?callbackUrl=/${locale}/candidate`;
   const portalUrl = `/${locale}/candidate`;
+
+  const resolvedEyebrow = isAr ? (eyebrowAr || eyebrowEn || "بوابة المترشحين والمتابعة الفورية") : (eyebrowEn || eyebrowAr || "CANDIDATE TRACKING PORTAL");
+  const resolvedTitle = isAr ? (titleAr || titleEn || "هل تقدمت بطلب وظيفي مسبقاً؟") : (titleEn || titleAr || "Already Applied to E3?");
+  const resolvedDesc = isAr
+    ? (descriptionAr || descriptionEn || "سجّل الدخول إلى بوابة المترشحين للاطلاع الفوري على حالة طلبك، مرحلة التقييم، وتحديث ملفك الشخصي.")
+    : (descriptionEn || descriptionAr || "Sign in to track your submission progress, evaluation stage, and update your uploaded credentials in real-time.");
+  const resolvedSignInText = isAr
+    ? (signInTextAr || signInTextEn || "تسجيل الدخول لمتابعة الطلب")
+    : (signInTextEn || signInTextAr || "Already Applied? Sign In");
 
   return (
     <section
@@ -46,7 +71,7 @@ export function CandidatePortalBanner({
           <div className="text-start">
             <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-cyan-400 mb-1">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{isAr ? "بوابة المترشحين والمتابعة الفورية" : "CANDIDATE TRACKING PORTAL"}</span>
+              <span>{resolvedEyebrow}</span>
             </div>
 
             <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight">
@@ -54,9 +79,7 @@ export function CandidatePortalBanner({
                 ? isAr
                   ? `مرحباً بك مجدداً، ${user?.name || "المترشح"}!`
                   : `Welcome back, ${user?.name || "Candidate"}!`
-                : isAr
-                ? "هل تقدمت بطلب وظيفي مسبقاً؟"
-                : "Already Applied to E3?"}
+                : resolvedTitle}
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1 max-w-xl">
@@ -64,9 +87,7 @@ export function CandidatePortalBanner({
                 ? isAr
                   ? "يمكنك متابعة حالة طلباتك، تحديث سيرتك الذاتية، ومراجعة مواعيد المقابلات مباشرة من لوحة تحكم ملفك."
                   : "Track the review stage of your applications, update credentials, and review schedule invitations in real-time."
-                : isAr
-                ? "سجّل الدخول إلى بوابة المترشحين للاطلاع الفوري على حالة طلبك، مرحلة التقييم، وتحديث ملفك الشخصي."
-                : "Sign in to track your submission progress, evaluation stage, and update your uploaded credentials."}
+                : resolvedDesc}
             </p>
           </div>
         </div>

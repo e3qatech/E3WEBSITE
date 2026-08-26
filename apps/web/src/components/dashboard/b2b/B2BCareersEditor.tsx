@@ -1,286 +1,629 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { AdminFormLayout } from "../ui/AdminFormLayout"
-import { AdminButton } from "../ui/AdminButton"
-import { useToast } from "@/components/dashboard/ui/ToastProvider"
-import { MediaUploader } from "@/components/shared/MediaUploader"
-import { Plus, Trash2, Save, ExternalLink } from "lucide-react"
-import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer"
+import React, { useState } from "react";
+import { Plus, Trash2, Save, Globe, Users, FileCheck, HelpCircle, Sparkles, Briefcase } from "lucide-react";
+import { AdminMediaPicker } from "../ui/AdminMediaPicker";
+import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
+import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import {
   DashboardPageShell,
   DashboardPageHeader,
-} from "@/components/dashboard/ui"
+  DashboardSectionNavigator,
+  DashboardSectionCard,
+  DashboardBilingualField,
+  DashboardLanguageSwitch,
+  DashboardStickyActions,
+  DashboardUnsavedChangesGuard,
+  LanguageEditMode,
+  EditorSectionItem,
+  AdminButton,
+} from "@/components/dashboard/ui";
+
+const SECTIONS: EditorSectionItem[] = [
+  { id: "hero", label: "1. Hero Section", labelAr: "1. قسم البداية والواجهة" },
+  { id: "generalApplication", label: "2. General CV Intake", labelAr: "2. التقديم العام وبنك الكفاءات" },
+  { id: "portalBanner", label: "3. Candidate Portal Banner", labelAr: "3. بوابة المترشحين والمتابعة" },
+  { id: "lifeAtE3", label: "4. Life at E3 & Culture", labelAr: "4. بيئة العمل وكواليس الإنتاج" },
+  { id: "hiringJourney", label: "5. 4-Step Hiring Journey", labelAr: "5. مراحل وخطوات التوظيف" },
+  { id: "enquiries", label: "6. HR & Career Enquiries", labelAr: "6. استفسارات التوظيف والتواصل" },
+  { id: "seo", label: "7. SEO Metadata", labelAr: "7. بيانات محركات البحث (SEO)" },
+];
 
 export function B2BCareersEditor({ initialData }: { initialData: any }) {
+  const { toast } = useToast();
+  const [activeSectionId, setActiveSectionId] = useState<string>("hero");
+  const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   const [data, setData] = useState({
     hero: {
-      titleEn: initialData?.hero?.titleEn || "Join Our Team",
-      titleAr: initialData?.hero?.titleAr || "انضم لفريقنا",
-      subtitleEn: initialData?.hero?.subtitleEn || "Build the future of entertainment with us.",
-      subtitleAr: initialData?.hero?.subtitleAr || "اصنع مستقبل الترفيه معنا.",
+      eyebrowEn: initialData?.hero?.eyebrowEn || "CAREERS AT E3 QATAR",
+      eyebrowAr: initialData?.hero?.eyebrowAr || "فرص العمل في إي ثري قطر",
+      titleEn: initialData?.hero?.titleEn || "Build the Future of Live Experiences",
+      titleAr: initialData?.hero?.titleAr || "اصنع مستقبل الفعاليات والتجارب الحية",
+      subtitleEn: initialData?.hero?.subtitleEn || "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.",
+      subtitleAr: initialData?.hero?.subtitleAr || "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر.",
       mediaType: initialData?.hero?.mediaType || "IMAGE",
       mediaUrl: initialData?.hero?.mediaUrl || "",
     },
-    background: {
-      mediaType: initialData?.background?.mediaType || "IMAGE",
-      mediaUrl: initialData?.background?.mediaUrl || "",
+    generalApplication: {
+      enabled: initialData?.generalApplication?.enabled !== false,
+      eyebrowEn: initialData?.generalApplication?.eyebrowEn || "GENERAL INQUIRY & TALENT POOL",
+      eyebrowAr: initialData?.generalApplication?.eyebrowAr || "بنك الكفاءات والتقديم العام",
+      titleEn: initialData?.generalApplication?.titleEn || "Don't See the Right Role?",
+      titleAr: initialData?.generalApplication?.titleAr || "لم تجد التخصص المناسب؟",
+      descriptionEn: initialData?.generalApplication?.descriptionEn || "Submit your resume to our executive talent pool for future mega projects, kinetic productions, and attraction launches.",
+      descriptionAr: initialData?.generalApplication?.descriptionAr || "أرسل سيرتك الذاتية إلى قاعدة بيانات الكفاءات للمشاريع الكبرى والعروض الحركية والوجهات القادمة.",
+      buttonTextEn: initialData?.generalApplication?.buttonTextEn || "Submit General CV",
+      buttonTextAr: initialData?.generalApplication?.buttonTextAr || "تقديم السيرة الذاتية العامة",
     },
-    footer: {
-      mediaType: initialData?.footer?.mediaType || "IMAGE",
-      mediaUrl: initialData?.footer?.mediaUrl || "",
+    portalBanner: {
+      enabled: initialData?.portalBanner?.enabled !== false,
+      eyebrowEn: initialData?.portalBanner?.eyebrowEn || "CANDIDATE TRACKING PORTAL",
+      eyebrowAr: initialData?.portalBanner?.eyebrowAr || "بوابة المترشحين والمتابعة الفورية",
+      titleEn: initialData?.portalBanner?.titleEn || "Already Applied to E3?",
+      titleAr: initialData?.portalBanner?.titleAr || "هل تقدمت بطلب وظيفي مسبقاً؟",
+      descriptionEn: initialData?.portalBanner?.descriptionEn || "Sign in to track your submission progress, evaluation stage, and update your uploaded credentials in real time.",
+      descriptionAr: initialData?.portalBanner?.descriptionAr || "سجّل الدخول إلى بوابة المترشحين للاطلاع الفوري على حالة طلبك، مرحلة التقييم، وتحديث ملفك الشخصي.",
+      signInTextEn: initialData?.portalBanner?.signInTextEn || "Already Applied? Sign In",
+      signInTextAr: initialData?.portalBanner?.signInTextAr || "تسجيل الدخول لمتابعة الطلب",
     },
-    jobs: Array.isArray(initialData?.jobs) ? initialData.jobs : []
-  })
+    lifeAtE3: {
+      enabled: initialData?.lifeAtE3?.enabled !== false,
+      eyebrowEn: initialData?.lifeAtE3?.eyebrowEn || "ATELIER CULTURE & PRODUCTION",
+      eyebrowAr: initialData?.lifeAtE3?.eyebrowAr || "بيئة العمل وكواليس الإنجاز",
+      titleEn: initialData?.lifeAtE3?.titleEn || "Life Inside the Engineering Atelier",
+      titleAr: initialData?.lifeAtE3?.titleAr || "الحياة والابتكار في إي ثري",
+      subtitleEn: initialData?.lifeAtE3?.subtitleEn || "Where architectural rigor meets boundless creative ambition. Experience the disciplines that power our landmark productions.",
+      subtitleAr: initialData?.lifeAtE3?.subtitleAr || "نحن نجمع بين أحدث التقنيات الهندسية وأرفع معايير الإبداع الفني لنصنع ذكريات لا تُنسى في قطر والمنطقة.",
+      items: Array.isArray(initialData?.lifeAtE3?.items) && initialData.lifeAtE3.items.length > 0
+        ? initialData.lifeAtE3.items
+        : [
+            {
+              id: "kinetic-production",
+              titleEn: "Master Kinetic Stage Engineering",
+              titleAr: "هندسة المسارح والعروض الحركية الكبرى",
+              categoryEn: "Technical Production",
+              categoryAr: "الإنتاج التقني والهندسي",
+              descriptionEn: "Our engineers design and deploy synchronized kinetic rigs, projection mapping, and ultra-high-definition laser systems across Qatar's flagship venues.",
+              descriptionAr: "يقوم مهندسونا بتصميم وتنفيذ مسارح حركية متزامنة، عروض إسقاط ضوئي متطورة، وأنظمة ليزر فائقة الدقة في أبرز وجهات قطر.",
+              icon: "cpu",
+              imageUrl: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7",
+            },
+            {
+              id: "spatial-architecture",
+              titleEn: "Spatial & Multisensory Narrative Design",
+              titleAr: "التصميم المكاني والتجارب متعددة الحواس",
+              categoryEn: "Creative Architecture",
+              categoryAr: "العمارة الإبداعية",
+              descriptionEn: "Atelier teams transform raw spaces into living, breathing emotional environments connecting audiences with rich cultural stories.",
+              descriptionAr: "يحول استوديو التصميم المساحات الصامتة إلى بيئات حسية غامرة تربط الجماهير بروايات ثقافية وتجارب استثنائية.",
+              icon: "compass",
+              imageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30",
+            },
+          ],
+    },
+    hiringJourney: {
+      enabled: initialData?.hiringJourney?.enabled !== false,
+      eyebrowEn: initialData?.hiringJourney?.eyebrowEn || "TRANSPARENT PROCESS",
+      eyebrowAr: initialData?.hiringJourney?.eyebrowAr || "رحلة المترشح والتقييم",
+      titleEn: initialData?.hiringJourney?.titleEn || "Our Four-Step Hiring Journey",
+      titleAr: initialData?.hiringJourney?.titleAr || "مراحل وخطوات الانضمام إلى إي ثري",
+      subtitleEn: initialData?.hiringJourney?.subtitleEn || "From initial credential submission to your first live activation — clear milestones at every step.",
+      subtitleAr: initialData?.hiringJourney?.subtitleAr || "مسار واضح وشفاف يضمن اختيار أفضل الكفاءات وتوفير تجربة انضمام سلسة ومهنية.",
+      steps: Array.isArray(initialData?.hiringJourney?.steps) && initialData.hiringJourney.steps.length > 0
+        ? initialData.hiringJourney.steps
+        : [
+            {
+              number: "01",
+              titleEn: "Application & CV Submission",
+              titleAr: "التقديم وإرسال السيرة الذاتية",
+              descEn: "Submit your resume for an active vacancy or join our general talent pool.",
+              descAr: "قدّم سيرتك الذاتية لشواغرنا الحالية أو سجّل في قاعدة الكفاءات العامة.",
+              icon: "file",
+            },
+            {
+              number: "02",
+              titleEn: "Technical & Creative Screening",
+              titleAr: "التقييم الفني والإبداعي",
+              descEn: "Our practice leads evaluate your portfolio and past project execution track record.",
+              descAr: "يقوم قادة الأقسام بمراجعة سابقة أعمالك وخبراتك الهندسية والميدانية.",
+              icon: "search",
+            },
+          ],
+    },
+    enquiries: {
+      enabled: initialData?.enquiries?.enabled !== false,
+      eyebrowEn: initialData?.enquiries?.eyebrowEn || "TALENT ACQUISITION SUPPORT",
+      eyebrowAr: initialData?.enquiries?.eyebrowAr || "التواصل واستفسارات التوظيف",
+      titleEn: initialData?.enquiries?.titleEn || "Have a Career Enquiry?",
+      titleAr: initialData?.enquiries?.titleAr || "هل لديك استفسار لفريق التوظيف؟",
+      subtitleEn: initialData?.enquiries?.subtitleEn || "Directly reach our Talent Acquisition team regarding role specifics, executive searches, or academic internships.",
+      subtitleAr: initialData?.enquiries?.subtitleAr || "تواصل مباشرة مع فريق الموارد البشرية واستقطاب الكفاءات لأي استفسار يخص الشواغر، التدريب التعاوني، أو الشراكات الأكاديمية.",
+    },
+  });
 
-  const [seo, setSeo] = useState<any>(initialData?.seo || {})
-
-  const { toast } = useToast()
-  const [saving, setSaving] = useState(false)
+  const [seo, setSeo] = useState<any>(initialData?.seo || {});
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const res = await fetch('/api/cms/pages/b2b-careers', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data, seo })
-      })
-      if (!res.ok) throw new Error("Failed to save")
-      toast("B2B Careers page updated successfully.", "success")
-    } catch (e) {
-      console.error(e)
-      toast("Failed to save B2B Careers page.", "error")
+      const res = await fetch("/api/cms/pages/b2b-careers", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: data, seo }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setIsDirty(false);
+      setLastSaved(new Date());
+      toast("B2B Careers page updated successfully.", "success");
+    } catch (_e) {
+      toast("Failed to save B2B Careers page.", "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
-  const handleHeroChange = (field: string, value: any) => {
-    setData(prev => ({
+  const handleChange = (section: string, field: string, value: any) => {
+    setIsDirty(true);
+    setData((prev: any) => ({
       ...prev,
-      hero: { ...prev.hero, [field]: value }
-    }))
-  }
+      [section]: {
+        ...(prev[section] as any),
+        [field]: value,
+      },
+    }));
+  };
 
-  const handleBackgroundChange = (field: string, value: any) => {
-    setData(prev => ({
+  // Life At E3 Handlers
+  const addLifeItem = () => {
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
-      background: { ...prev.background, [field]: value }
-    }))
-  }
+      lifeAtE3: {
+        ...prev.lifeAtE3,
+        items: [
+          ...prev.lifeAtE3.items,
+          {
+            id: `life_${Date.now()}`,
+            titleEn: "",
+            titleAr: "",
+            categoryEn: "",
+            categoryAr: "",
+            descriptionEn: "",
+            descriptionAr: "",
+            icon: "cpu",
+            imageUrl: "",
+          },
+        ],
+      },
+    }));
+  };
 
-  const handleFooterChange = (field: string, value: any) => {
-    setData(prev => ({
+  const removeLifeItem = (idx: number) => {
+    setIsDirty(true);
+    setData((prev) => ({
       ...prev,
-      footer: { ...prev.footer, [field]: value }
-    }))
-  }
+      lifeAtE3: {
+        ...prev.lifeAtE3,
+        items: prev.lifeAtE3.items.filter((_: any, i: number) => i !== idx),
+      },
+    }));
+  };
 
-  const addJob = () => {
-    setData(prev => ({
-      ...prev,
-      jobs: [...prev.jobs, { titleEn: "", titleAr: "", department: "", location: "", type: "Full-time" }]
-    }))
-  }
-
-  const removeJob = (index: number) => {
-    setData(prev => {
-      const newJobs = [...prev.jobs]
-      newJobs.splice(index, 1)
-      return { ...prev, jobs: newJobs }
-    })
-  }
-
-  const updateJob = (index: number, field: string, value: string) => {
-    setData(prev => {
-      const newJobs = [...prev.jobs]
-      newJobs[index] = { ...newJobs[index], [field]: value }
-      return { ...prev, jobs: newJobs }
-    })
-  }
+  const updateLifeItem = (idx: number, field: string, value: any) => {
+    setIsDirty(true);
+    setData((prev) => {
+      const newItems = [...prev.lifeAtE3.items];
+      newItems[idx] = { ...newItems[idx], [field]: value };
+      return {
+        ...prev,
+        lifeAtE3: { ...prev.lifeAtE3, items: newItems },
+      };
+    });
+  };
 
   return (
-    <DashboardPageShell variant="wide">
-      <DashboardPageHeader 
+    <DashboardPageShell variant="focused">
+      <DashboardUnsavedChangesGuard isDirty={isDirty} />
+
+      <DashboardPageHeader
         title="B2B Careers Page Editor"
-        description="Manage B2B career opportunities, hero media assets, open job listings, and SEO metadata."
+        description="Manage the recruitment narrative, talent pool intake, culture stories, hiring process, and SEO for the careers portal (/b2b/careers)."
         breadcrumbs={[
           { label: "B2B Pages", href: "/dashboard/b2b/home" },
-          { label: "Careers Editor" }
+          { label: "Careers Page Editor" },
         ]}
-        badge={{ label: `${data.jobs.length} Positions`, variant: "purple" }}
+        badge={{ label: "B2B Public", variant: "purple" }}
+        previewUrl="/b2b/careers"
+        isUnsaved={isDirty}
+        lastSavedAt={lastSaved || undefined}
         primaryAction={{
           label: saving ? "Saving..." : "Save Changes",
           onClick: handleSave,
           isLoading: saving,
-          icon: <Save className="w-4 h-4" />
+          icon: <Save className="w-4 h-4" />,
         }}
+        secondaryAction={
+          <DashboardLanguageSwitch mode={languageMode} onModeChange={setLanguageMode} />
+        }
       />
 
-      <AdminFormLayout sidebar={
-        <div className="flex flex-col gap-2">
-          <div className="p-4 bg-bg-level-2 border border-border-default rounded-xl">
-            <h3 className="text-sm font-semibold text-text-primary mb-2">Page Structure</h3>
-            <ul className="space-y-1 text-[13px] text-text-secondary">
-              <li className="flex items-center gap-2 text-accent"><span className="w-1.5 h-1.5 rounded-full bg-accent" /> Hero Section</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> Background & Footer</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> Open Roles</li>
-              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-border-strong" /> SEO Settings</li>
-            </ul>
-          </div>
-        </div>
-      }>
-        
-        {/* Hero Section */}
-        <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
-          <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Hero Section</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (En)</label>
-                <input type="text" value={data.hero.titleEn} onChange={e => handleHeroChange('titleEn', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Title (Ar)</label>
-                <input type="text" dir="rtl" value={data.hero.titleAr} onChange={e => handleHeroChange('titleAr', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (En)</label>
-                <textarea value={data.hero.subtitleEn} onChange={e => handleHeroChange('subtitleEn', e.target.value)} className="w-full h-24 bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm resize-none" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Subtitle (Ar)</label>
-                <textarea dir="rtl" value={data.hero.subtitleAr} onChange={e => handleHeroChange('subtitleAr', e.target.value)} className="w-full h-24 bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm resize-none" />
-              </div>
-            </div>
-            
-            <div className="space-y-4 border-t lg:border-t-0 lg:border-s border-border-default pt-4 lg:pt-0 lg:ps-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Hero Media Type</label>
-                <select value={data.hero.mediaType} onChange={e => handleHeroChange('mediaType', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Hero Background</label>
-                <MediaUploader value={data.hero.mediaUrl} onChange={(url) => handleHeroChange('mediaUrl', url)} accept={data.hero.mediaType === 'VIDEO' ? "video/*" : "image/*"} />
-              </div>
-            </div>
-          </div>
-        </div>
+      <DashboardSectionNavigator
+        sections={SECTIONS}
+        activeSectionId={activeSectionId}
+        onSectionChange={setActiveSectionId}
+      />
 
-        {/* Background & Footer Media Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Background Media</h2>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
-                <select value={data.background.mediaType} onChange={e => handleBackgroundChange('mediaType', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Background</label>
-                <MediaUploader value={data.background.mediaUrl} onChange={(url) => handleBackgroundChange('mediaUrl', url)} accept={data.background.mediaType === 'VIDEO' ? "video/*" : "image/*"} />
-              </div>
-            </div>
+      {/* 1. HERO SECTION */}
+      {activeSectionId === "hero" && (
+        <DashboardSectionCard
+          title="Hero Header Section"
+          description="Main opening headline, mission statement, and background media banner."
+          icon={<Globe className="w-5 h-5 text-cyan-400" />}
+        >
+          <DashboardBilingualField
+            label="Hero Eyebrow Tag"
+            valueEn={data.hero.eyebrowEn}
+            valueAr={data.hero.eyebrowAr}
+            onChangeEn={(val) => handleChange("hero", "eyebrowEn", val)}
+            onChangeAr={(val) => handleChange("hero", "eyebrowAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Hero Title"
+            valueEn={data.hero.titleEn}
+            valueAr={data.hero.titleAr}
+            onChangeEn={(val) => handleChange("hero", "titleEn", val)}
+            onChangeAr={(val) => handleChange("hero", "titleAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Hero Subtitle"
+            type="textarea"
+            rows={3}
+            valueEn={data.hero.subtitleEn}
+            valueAr={data.hero.subtitleAr}
+            onChangeEn={(val) => handleChange("hero", "subtitleEn", val)}
+            onChangeAr={(val) => handleChange("hero", "subtitleAr", val)}
+            mode={languageMode}
+          />
+          <div className="pt-2 border-t border-[var(--border-level-1)] space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              Hero Media Asset
+            </label>
+            <AdminMediaPicker
+              value={data.hero.mediaUrl}
+              onChange={(url) => handleChange("hero", "mediaUrl", url)}
+            />
           </div>
-          
-          <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
-            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Footer Media</h2>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Media Type</label>
-                <select value={data.footer.mediaType} onChange={e => handleFooterChange('mediaType', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
-                  <option value="IMAGE">Image</option>
-                  <option value="VIDEO">Video</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Upload Footer</label>
-                <MediaUploader value={data.footer.mediaUrl} onChange={(url) => handleFooterChange('mediaUrl', url)} accept={data.footer.mediaType === 'VIDEO' ? "video/*" : "image/*"} />
-              </div>
-            </div>
-          </div>
-        </div>
+        </DashboardSectionCard>
+      )}
 
-        {/* Jobs Section */}
-        <div className="bg-bg-level-2 border border-border-default rounded-xl p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-text-primary tracking-tight">Open Roles (Page Fallback)</h2>
-            <div className="flex items-center gap-2">
-              <Link
-                href="/dashboard/careers"
-                className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-medium px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 transition-colors"
+      {/* 2. GENERAL CV INTAKE */}
+      {activeSectionId === "generalApplication" && (
+        <DashboardSectionCard
+          title="General Application & Talent Pool Intake"
+          description="Configuration for the open CV submission card."
+          icon={<Briefcase className="w-5 h-5 text-cyan-400" />}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="genAppEnabled"
+              checked={data.generalApplication.enabled}
+              onChange={(e) => handleChange("generalApplication", "enabled", e.target.checked)}
+              className="w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400"
+            />
+            <label htmlFor="genAppEnabled" className="text-xs font-bold text-[var(--text-primary)]">
+              Enable General Application Section
+            </label>
+          </div>
+          <DashboardBilingualField
+            label="Eyebrow"
+            valueEn={data.generalApplication.eyebrowEn}
+            valueAr={data.generalApplication.eyebrowAr}
+            onChangeEn={(val) => handleChange("generalApplication", "eyebrowEn", val)}
+            onChangeAr={(val) => handleChange("generalApplication", "eyebrowAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Title"
+            valueEn={data.generalApplication.titleEn}
+            valueAr={data.generalApplication.titleAr}
+            onChangeEn={(val) => handleChange("generalApplication", "titleEn", val)}
+            onChangeAr={(val) => handleChange("generalApplication", "titleAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Description"
+            type="textarea"
+            rows={2}
+            valueEn={data.generalApplication.descriptionEn}
+            valueAr={data.generalApplication.descriptionAr}
+            onChangeEn={(val) => handleChange("generalApplication", "descriptionEn", val)}
+            onChangeAr={(val) => handleChange("generalApplication", "descriptionAr", val)}
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
+
+      {/* 3. CANDIDATE PORTAL BANNER */}
+      {activeSectionId === "portalBanner" && (
+        <DashboardSectionCard
+          title="Candidate Portal Gateway Banner"
+          description="Banner guiding candidates to check existing application statuses."
+          icon={<Users className="w-5 h-5 text-cyan-400" />}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="portalBannerEnabled"
+              checked={data.portalBanner.enabled}
+              onChange={(e) => handleChange("portalBanner", "enabled", e.target.checked)}
+              className="w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400"
+            />
+            <label htmlFor="portalBannerEnabled" className="text-xs font-bold text-[var(--text-primary)]">
+              Enable Candidate Portal Banner
+            </label>
+          </div>
+          <DashboardBilingualField
+            label="Eyebrow"
+            valueEn={data.portalBanner.eyebrowEn}
+            valueAr={data.portalBanner.eyebrowAr}
+            onChangeEn={(val) => handleChange("portalBanner", "eyebrowEn", val)}
+            onChangeAr={(val) => handleChange("portalBanner", "eyebrowAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Title"
+            valueEn={data.portalBanner.titleEn}
+            valueAr={data.portalBanner.titleAr}
+            onChangeEn={(val) => handleChange("portalBanner", "titleEn", val)}
+            onChangeAr={(val) => handleChange("portalBanner", "titleAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Description"
+            type="textarea"
+            rows={2}
+            valueEn={data.portalBanner.descriptionEn}
+            valueAr={data.portalBanner.descriptionAr}
+            onChangeEn={(val) => handleChange("portalBanner", "descriptionEn", val)}
+            onChangeAr={(val) => handleChange("portalBanner", "descriptionAr", val)}
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
+
+      {/* 4. LIFE AT E3 */}
+      {activeSectionId === "lifeAtE3" && (
+        <DashboardSectionCard
+          title="Life at E3 & Production Culture"
+          description="Showcase disciplines, backstage rigor, and culture cards."
+          icon={<Sparkles className="w-5 h-5 text-cyan-400" />}
+          headerAction={
+            <AdminButton
+              variant="outline"
+              size="sm"
+              onClick={addLifeItem}
+              leftIcon={<Plus className="w-3.5 h-3.5 text-cyan-500" />}
+              className="text-xs"
+            >
+              Add Culture Card
+            </AdminButton>
+          }
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="lifeAtE3Enabled"
+              checked={data.lifeAtE3.enabled}
+              onChange={(e) => handleChange("lifeAtE3", "enabled", e.target.checked)}
+              className="w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400"
+            />
+            <label htmlFor="lifeAtE3Enabled" className="text-xs font-bold text-[var(--text-primary)]">
+              Enable Life at E3 Section
+            </label>
+          </div>
+          <DashboardBilingualField
+            label="Section Eyebrow"
+            valueEn={data.lifeAtE3.eyebrowEn}
+            valueAr={data.lifeAtE3.eyebrowAr}
+            onChangeEn={(val) => handleChange("lifeAtE3", "eyebrowEn", val)}
+            onChangeAr={(val) => handleChange("lifeAtE3", "eyebrowAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Section Title"
+            valueEn={data.lifeAtE3.titleEn}
+            valueAr={data.lifeAtE3.titleAr}
+            onChangeEn={(val) => handleChange("lifeAtE3", "titleEn", val)}
+            onChangeAr={(val) => handleChange("lifeAtE3", "titleAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Section Subtitle"
+            type="textarea"
+            rows={2}
+            valueEn={data.lifeAtE3.subtitleEn}
+            valueAr={data.lifeAtE3.subtitleAr}
+            onChangeEn={(val) => handleChange("lifeAtE3", "subtitleEn", val)}
+            onChangeAr={(val) => handleChange("lifeAtE3", "subtitleAr", val)}
+            mode={languageMode}
+          />
+
+          <div className="space-y-4 pt-4 border-t border-[var(--border-level-1)]">
+            {data.lifeAtE3.items.map((item: any, idx: number) => (
+              <div
+                key={item.id || idx}
+                className="p-4 rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)]/60 space-y-3"
               >
-                <span>Manage Canonical Jobs</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
-              <AdminButton variant="outline" size="sm" onClick={addJob}>
-                <Plus className="w-4 h-4 me-2" />
-                Add Fallback Role
-              </AdminButton>
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-lg bg-surface-default border border-border-default text-xs text-text-secondary">
-            Positions published in the <Link href="/dashboard/careers" className="text-primary hover:underline font-bold">Canonical Careers Manager</Link> automatically appear on the public B2B and B2C Careers portals.
-          </div>
-          
-          <div className="space-y-4">
-            {data.jobs.length === 0 ? (
-              <div className="text-center py-8 text-text-secondary border border-dashed border-border-default rounded-lg bg-surface-default/50">
-                No open roles added yet.
-              </div>
-            ) : (
-              data.jobs.map((job: any, index: number) => (
-                <div key={index} className="border border-border-default rounded-lg p-4 bg-surface-default space-y-4 relative group">
-                  <button onClick={() => removeJob(index)} className="absolute top-4 end-4 text-text-secondary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Card #{idx + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeLifeItem(idx)}
+                    className="p-1.5 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+                    title="Remove Item"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wider">Job {index + 1}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Job Title (En)</label>
-                      <input type="text" value={job.titleEn} onChange={e => updateJob(index, 'titleEn', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Job Title (Ar)</label>
-                      <input type="text" dir="rtl" value={job.titleAr} onChange={e => updateJob(index, 'titleAr', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Department</label>
-                      <input type="text" placeholder="e.g. Engineering, Design..." value={job.department} onChange={e => updateJob(index, 'department', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Location</label>
-                      <input type="text" placeholder="e.g. Doha, Qatar" value={job.location} onChange={e => updateJob(index, 'location', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Job Type</label>
-                      <select value={job.type} onChange={e => updateJob(index, 'type', e.target.value)} className="w-full bg-surface-default border border-border-default rounded-lg px-4 py-2 text-[13px] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all shadow-sm">
-                        <option value="Full-time">Full-time</option>
-                        <option value="Part-time">Part-time</option>
-                        <option value="Contract">Contract</option>
-                        <option value="Internship">Internship</option>
-                      </select>
-                    </div>
-                  </div>
                 </div>
-              ))
-            )}
+                <DashboardBilingualField
+                  label="Title"
+                  valueEn={item.titleEn}
+                  valueAr={item.titleAr}
+                  onChangeEn={(v) => updateLifeItem(idx, "titleEn", v)}
+                  onChangeAr={(v) => updateLifeItem(idx, "titleAr", v)}
+                  mode={languageMode}
+                />
+                <DashboardBilingualField
+                  label="Category Badge"
+                  valueEn={item.categoryEn}
+                  valueAr={item.categoryAr}
+                  onChangeEn={(v) => updateLifeItem(idx, "categoryEn", v)}
+                  onChangeAr={(v) => updateLifeItem(idx, "categoryAr", v)}
+                  mode={languageMode}
+                />
+                <DashboardBilingualField
+                  label="Description"
+                  type="textarea"
+                  rows={2}
+                  valueEn={item.descriptionEn}
+                  valueAr={item.descriptionAr}
+                  onChangeEn={(v) => updateLifeItem(idx, "descriptionEn", v)}
+                  onChangeAr={(v) => updateLifeItem(idx, "descriptionAr", v)}
+                  mode={languageMode}
+                />
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
+                    Card Image Asset
+                  </label>
+                  <AdminMediaPicker
+                    value={item.imageUrl}
+                    onChange={(url) => updateLifeItem(idx, "imageUrl", url)}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </DashboardSectionCard>
+      )}
 
-        {/* SEO Customizer */}
+      {/* 5. HIRING JOURNEY */}
+      {activeSectionId === "hiringJourney" && (
+        <DashboardSectionCard
+          title="4-Step Hiring Journey"
+          description="Headlines and stage details explaining the recruitment workflow."
+          icon={<FileCheck className="w-5 h-5 text-cyan-400" />}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="hiringJourneyEnabled"
+              checked={data.hiringJourney.enabled}
+              onChange={(e) => handleChange("hiringJourney", "enabled", e.target.checked)}
+              className="w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400"
+            />
+            <label htmlFor="hiringJourneyEnabled" className="text-xs font-bold text-[var(--text-primary)]">
+              Enable Hiring Journey Section
+            </label>
+          </div>
+          <DashboardBilingualField
+            label="Section Eyebrow"
+            valueEn={data.hiringJourney.eyebrowEn}
+            valueAr={data.hiringJourney.eyebrowAr}
+            onChangeEn={(val) => handleChange("hiringJourney", "eyebrowEn", val)}
+            onChangeAr={(val) => handleChange("hiringJourney", "eyebrowAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Section Title"
+            valueEn={data.hiringJourney.titleEn}
+            valueAr={data.hiringJourney.titleAr}
+            onChangeEn={(val) => handleChange("hiringJourney", "titleEn", val)}
+            onChangeAr={(val) => handleChange("hiringJourney", "titleAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Section Subtitle"
+            type="textarea"
+            rows={2}
+            valueEn={data.hiringJourney.subtitleEn}
+            valueAr={data.hiringJourney.subtitleAr}
+            onChangeEn={(val) => handleChange("hiringJourney", "subtitleEn", val)}
+            onChangeAr={(val) => handleChange("hiringJourney", "subtitleAr", val)}
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
+
+      {/* 6. ENQUIRIES */}
+      {activeSectionId === "enquiries" && (
+        <DashboardSectionCard
+          title="HR & Career Enquiries"
+          description="Headings for the talent acquisition support and direct question form."
+          icon={<HelpCircle className="w-5 h-5 text-cyan-400" />}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="enquiriesEnabled"
+              checked={data.enquiries.enabled}
+              onChange={(e) => handleChange("enquiries", "enabled", e.target.checked)}
+              className="w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400"
+            />
+            <label htmlFor="enquiriesEnabled" className="text-xs font-bold text-[var(--text-primary)]">
+              Enable Career Enquiries Section
+            </label>
+          </div>
+          <DashboardBilingualField
+            label="Eyebrow"
+            valueEn={data.enquiries.eyebrowEn}
+            valueAr={data.enquiries.eyebrowAr}
+            onChangeEn={(val) => handleChange("enquiries", "eyebrowEn", val)}
+            onChangeAr={(val) => handleChange("enquiries", "eyebrowAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Title"
+            valueEn={data.enquiries.titleEn}
+            valueAr={data.enquiries.titleAr}
+            onChangeEn={(val) => handleChange("enquiries", "titleEn", val)}
+            onChangeAr={(val) => handleChange("enquiries", "titleAr", val)}
+            mode={languageMode}
+          />
+          <DashboardBilingualField
+            label="Subtitle"
+            type="textarea"
+            rows={2}
+            valueEn={data.enquiries.subtitleEn}
+            valueAr={data.enquiries.subtitleAr}
+            onChangeEn={(val) => handleChange("enquiries", "subtitleEn", val)}
+            onChangeAr={(val) => handleChange("enquiries", "subtitleAr", val)}
+            mode={languageMode}
+          />
+        </DashboardSectionCard>
+      )}
+
+      {/* 7. SEO */}
+      {activeSectionId === "seo" && (
         <AdminSeoCustomizer seo={seo} setSeo={setSeo} formData={null} setFormData={() => {}} />
+      )}
 
-      </AdminFormLayout>
+      <DashboardStickyActions
+        onSave={handleSave}
+        isSaving={saving}
+        isUnsaved={isDirty}
+        onDiscard={() => {
+          if (confirm("Discard unsaved changes?")) {
+            window.location.reload();
+          }
+        }}
+      />
     </DashboardPageShell>
-  )
+  );
 }

@@ -14,15 +14,25 @@ export async function generateMetadata(props: {
   const { locale } = await props.params;
   const isAr = locale === 'ar';
 
-  const titleEn = 'Experiences | E3 Qatar';
-  const titleAr = 'التجارب | إي ثري قطر | خبراء هندسة الفعاليات';
+  let cmsData: any = null;
+  try {
+    cmsData = await getCMSPageContentServer("b2c-landing");
+  } catch (error) {
+    console.warn("[B2C Landing Metadata] Failed to query CMS content:", error);
+  }
 
-  const descEn = 'Immersive entertainment landmarks, InflataRUN world records, and kinetic attraction worlds in Qatar.';
-  const descAr = 'وجهات ترفيهية غامرة، أرقام قياسية عالمية مع إنفلاتارن، وعوالم تفاعلية حركية في قطر.';
+  const seo = cmsData?.seo || {};
+
+  const titleEn = seo.metaTitleEn || 'Experiences | E3 Qatar';
+  const titleAr = seo.metaTitleAr || 'التجارب | إي ثري قطر | خبراء هندسة الفعاليات';
+
+  const descEn = seo.metaDescriptionEn || 'Immersive entertainment landmarks, InflataRUN world records, and kinetic attraction worlds in Qatar.';
+  const descAr = seo.metaDescriptionAr || 'وجهات ترفيهية غامرة، أرقام قياسية عالمية مع إنفلاتارن، وعوالم تفاعلية حركية في قطر.';
 
   return {
     title: isAr ? { absolute: titleAr } : titleEn,
     description: isAr ? descAr : descEn,
+    keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
     alternates: {
       canonical: `/${locale}/b2c`,
       languages: {

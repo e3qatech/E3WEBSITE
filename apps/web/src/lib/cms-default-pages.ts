@@ -1835,6 +1835,381 @@ export const DEFAULT_B2C_CALENDAR_PAGE_CONTENT = {
   }
 };
 
+export const DEFAULT_B2B_CONTACT_CONTENT = {
+  header: {
+    titleEn: "Contact Us / Submit RFP",
+    titleAr: "تواصل معنا / تقديم طلب عروض",
+    subtitleEn: "Planning a major event, venue, or activation? Let us help you engineer a successful delivery plan.",
+    subtitleAr: "هل لديك مشروع أو فعاليات كبرى تخطط لها؟ دعنا نساعدك في بناء خطة تنفيذ ناجحة.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    eyebrowEn: "DIRECT ENGAGEMENT & RFP INTAKE",
+    eyebrowAr: "التواصل المباشر وتقديم طلبات العروض"
+  },
+  inquiries: {
+    business: "info@eeeqa.com",
+    careers: "info@eeeqa.com",
+    press: "info@eeeqa.com",
+    phone: "+974 3048 9955",
+    whatsapp: "+974 3048 9955",
+    workingHoursEn: "Sunday - Thursday: 8:00 AM - 5:00 PM AST",
+    workingHoursAr: "الأحد - الخميس: 8:00 صباحاً - 5:00 مساءً بتوقيت الدوحة"
+  },
+  headquarters: {
+    addressEn: "Doha, State of Qatar",
+    addressAr: "الدوحة، دولة قطر",
+    mapLink: "https://maps.google.com"
+  },
+  formConfig: {
+    inquiryTypes: [
+      { id: "rfp", value: "RFP Submission", labelEn: "RFP Submission", labelAr: "تقديم طلب عروض" },
+      { id: "business", value: "General Business", labelEn: "General Business", labelAr: "أعمال عامة" },
+      { id: "partnership", value: "Partnership", labelEn: "Partnership", labelAr: "شراكة" },
+      { id: "other", value: "Other", labelEn: "Other", labelAr: "أخرى" }
+    ],
+    labels: {
+      inquiryTypeEn: "Inquiry Type",
+      inquiryTypeAr: "نوع الاستفسار",
+      fullNameEn: "Full Name",
+      fullNameAr: "الاسم الكامل",
+      fullNamePlaceholderEn: "Jane Doe",
+      fullNamePlaceholderAr: "فلان الفلاني",
+      companyEn: "Company / Organization",
+      companyAr: "الشركة / المنظمة",
+      companyPlaceholderEn: "Organization Name",
+      companyPlaceholderAr: "اسم المنظمة",
+      emailEn: "Corporate Email Address",
+      emailAr: "البريد الإلكتروني للعمل",
+      emailPlaceholderEn: "name@company.com",
+      emailPlaceholderAr: "name@company.com",
+      phoneEn: "Phone / WhatsApp Number",
+      phoneAr: "رقم الهاتف / الواتساب",
+      phonePlaceholderEn: "+974 XXXX XXXX",
+      phonePlaceholderAr: "+974 XXXX XXXX",
+      messageEn: "Project Details or Scope Brief",
+      messageAr: "تفاصيل المشروع أو نطاق العمل",
+      messagePlaceholderEn: "Tell us about your requirements, timeline, and scale...",
+      messagePlaceholderAr: "أخبرنا عن متطلباتك والجدول الزمني والنطاق...",
+      uploadTitleEn: "RFP Document / Brief (Optional)",
+      uploadTitleAr: "وثيقة طلب العروض / المرفقات (اختياري)",
+      uploadHelpEn: "PDF, DOCX up to 25MB (Encrypted & Qatar PDPL Compliant)",
+      uploadHelpAr: "ملفات PDF, DOCX حتى 25 ميجابايت (مشفرة ومتوافقة مع قانون حماية البيانات القطري)",
+      privacyNoticeEn: "By submitting this form, you agree to our Privacy Policy and consent to us storing your data to process this inquiry.",
+      privacyNoticeAr: "من خلال إرسال هذا النموذج، فإنك توافق على سياسة الخصوصية الخاصة بنا وتوافق على تخزين بياناتك لمعالجة هذا الاستفسار.",
+      submitButtonEn: "Submit Inquiry / RFP",
+      submitButtonAr: "إرسال الاستفسار / طلب العروض",
+      submittingButtonEn: "Submitting Request...",
+      submittingButtonAr: "جاري إرسال الطلب..."
+    },
+    successState: {
+      titleEn: "Request Received",
+      titleAr: "تم استلام الطلب بنجاح",
+      messageEn: "Our executive enterprise team will review your inquiry and connect with you within 24 hours.",
+      messageAr: "سيقوم فريقنا التنفيذي بمراجعة استفسارك والتواصل معك خلال 24 ساعة.",
+      buttonEn: "Submit Another Inquiry",
+      buttonAr: "إرسال استفسار آخر"
+    }
+  },
+  careersCta: {
+    enabled: true,
+    titleEn: "Join Our Team",
+    titleAr: "انضم لفريقنا",
+    descriptionEn: "Discover new opportunities to build extraordinary entertainment and attraction experiences.",
+    descriptionAr: "اكتشف فرصاً جديدة لبناء تجارب ترفيهية ووجهات جذب استثنائية.",
+    ctaTextEn: "Explore Careers",
+    ctaTextAr: "استكشف الوظائف",
+    ctaLink: "/b2b/careers",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  },
+  feedbackCta: {
+    enabled: true,
+    titleEn: "Suggestions & Feedback",
+    titleAr: "اقتراحات وملاحظات",
+    descriptionEn: "Help us refine our operations and elevate visitor standards by sharing your thoughts.",
+    descriptionAr: "ساعدنا في الارتقاء بمعايير التشغيل وتجارب الزوار من خلال مشاركة أفكارك.",
+    ctaTextEn: "Share Feedback",
+    ctaTextAr: "شارك الملاحظات",
+    ctaLink: "/b2b/feedback",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  },
+  faqCta: {
+    enabled: true,
+    titleEn: "B2B FAQs",
+    titleAr: "الأسئلة الشائعة",
+    descriptionEn: "Find comprehensive answers to commonly asked questions about our engineering, procurement, and turnkey delivery.",
+    descriptionAr: "ابحث عن إجابات وافية للأسئلة الشائعة حول خدماتنا وعملياتنا الهندسية والتوريد والإدارة المتكاملة.",
+    ctaTextEn: "View FAQs",
+    ctaTextAr: "عرض الأسئلة",
+    ctaLink: "/b2b/faqs",
+    mediaType: "IMAGE",
+    mediaUrl: ""
+  },
+  seo: {
+    metaTitleEn: "Contact & RFP Intake | E3 Qatar B2B",
+    metaTitleAr: "تواصل معنا وتقديم طلب العروض | إي ثري قطر",
+    metaDescriptionEn: "Partner with E3 Qatar for world-class entertainment engineering, live activations, and turnkey attractions.",
+    metaDescriptionAr: "تواصل مع إي ثري قطر لتنفيذ المشاريع الترفيهية الكبرى والفعاليات الحية والوجهات السياحية في قطر.",
+    keywordsEn: "E3 contact, RFP submission, entertainment procurement Qatar, event production Doha",
+    keywordsAr: "تواصل مع إي ثري, طلب عروض, فعاليات قطر, ترفيه الدوحة"
+  }
+};
+
+export const DEFAULT_B2B_ABOUT_CONTENT = {
+  header: {
+    eyebrowEn: "WHO WE ARE & OUR HERITAGE",
+    eyebrowAr: "من نحن وإرثنا الريادي",
+    titleEn: "We Are E3.",
+    titleAr: "نحن إي ثري.",
+    subtitleEn: "Event Engineering & Destination Experts. We turn ambitious creative visions into flawless operational reality across Qatar and the region.",
+    subtitleAr: "خبراء هندسة الفعاليات وتطوير الوجهات. نحول الرؤى الإبداعية الطموحة إلى واقع تشغيلي استثنائي في قطر والمنطقة.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    fallbackImageUrl: ""
+  },
+  story: {
+    eyebrowEn: "OUR STORY & JOURNEY",
+    eyebrowAr: "مسيرتنا وقصة التأسيس",
+    titleEn: "Engineering Landmark Experiences",
+    titleAr: "هندسة تجارب رائدة لا تُنسى",
+    contentEn: "E3 was founded in Doha with a clear purpose: the region's rapidly expanding entertainment and events ecosystem required an engineering-grade partner capable of executing mega-scale concepts with flawless operational rigor.\n\nOver the past decade, we have evolved from a specialized staging and structural powerhouse into an end-to-end turnkey experiential enterprise—delivering immersive technology, world-class family attractions, kinetic arenas, and major public parades.\n\nToday, we operate with a dedicated team of over 120 cross-functional specialists, state-of-the-art staging assets, and certified safety protocols powering Qatar's most memorable landmark moments.",
+    contentAr: "تأسست إي ثري في الدوحة برؤية واضحة: قطاع الترفيه والفعاليات المتنامي في المنطقة بحاجة إلى شريك هندسي متكامل يجمع بين الطموح الإبداعي للفعاليات الضخمة والدقة التشغيلية الصارمة.\n\nعلى مدار العقد الماضي، تطورنا من شركة متخصصة في تنفيذ الهياكل والمسارح إلى منظومة شاملة لهندسة التجارب الترفيهية—نقدم التكنولوجيا التفاعلية، مدن الألعاب العائلية، الوجهات الحركية، والاستعراضات الجماهيرية الكبرى.\n\nاليوم، يضم فريقنا أكثر من 120 متخصصاً وخبيراً يديرون كبرى الوجهات والفعاليات في قطر بأعلى معايير السلامة والجودة العالمية.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    fallbackImageUrl: ""
+  },
+  stats: {
+    enabled: true,
+    eyebrowEn: "BY THE NUMBERS",
+    eyebrowAr: "إنجازاتنا بالأرقام",
+    titleEn: "Operational Scale & Milestone Impact",
+    titleAr: "حجم العمليات والأثر المحقق",
+    items: [
+      { id: "stat_1", value: "10+", labelEn: "Years in MENA", labelAr: "سنوات من الريادة في المنطقة", prefix: "", suffix: "" },
+      { id: "stat_2", value: "120+", labelEn: "Industry Specialists", labelAr: "خبير ومتخصص", prefix: "", suffix: "" },
+      { id: "stat_3", value: "25+", labelEn: "Mega Landmarks Delivered", labelAr: "مشروع ووجهة كبرى", prefix: "", suffix: "" },
+      { id: "stat_4", value: "1M+", labelEn: "Visitors Hosted", labelAr: "زائر استمتع بتجاربنا", prefix: "", suffix: "" }
+    ]
+  },
+  values: [
+    {
+      titleEn: "Engineering Precision",
+      titleAr: "الدقة الهندسية",
+      descEn: "We treat creativity with the rigor of structural engineering. No detail is too small, no safety margin compromised.",
+      descAr: "نتعامل مع الإبداع بصرامة الهندسة الإنشائية. لا تفاصيل صغيرة جداً، ولا مساومة على معايير الأمان والسلامة."
+    },
+    {
+      titleEn: "Operational Excellence",
+      titleAr: "التميز التشغيلي",
+      descEn: "Visionary designs create lasting impact through flawless live execution. We take complete ownership of the guest journey.",
+      descAr: "التصاميم الإبداعية تكتسب قيمتها بالتنفيذ المتقن. نتحمل المسؤولية الكاملة عن سير العمليات وتجربة الضيوف."
+    },
+    {
+      titleEn: "Cultural Resonance",
+      titleAr: "الأصالة الثقافية",
+      descEn: "Rooted in Qatar, built for the world. Our experiences honor local identity while setting international industry benchmarks.",
+      descAr: "جذورنا في قطر، وصنعنا للعالم. نحترم الهوية والسياق المحلي مع وضع معايير عالمية المستوى."
+    }
+  ],
+  leadership: {
+    enabled: true,
+    eyebrowEn: "EXECUTIVE TEAM",
+    eyebrowAr: "فريق القيادة",
+    titleEn: "The Visionaries Behind E3",
+    titleAr: "القيادة والخبرات خلف إي ثري",
+    subtitleEn: "A multidisciplinary leadership team combining global experiential knowledge with local execution precision.",
+    subtitleAr: "فريق قيادي متعدد التخصصات يجمع بين الخبرة الترفيهية العالمية والدقة التنفيذية المحلية.",
+    maxProfiles: 6
+  },
+  cta: {
+    enabled: true,
+    eyebrowEn: "COLLABORATION & PROCUREMENT",
+    eyebrowAr: "التعاون والشراكات",
+    headlineEn: "Ready to Engineer Your Next Landmark Project?",
+    headlineAr: "هل أنت مستعد لتنفيذ مشروعك الترفيهي القادم؟",
+    descriptionEn: "Partner with E3 Qatar to conceptualize, engineer, and operate unforgettable entertainment destinations.",
+    descriptionAr: "شارك إي ثري قطر لتصميم وهندسة وتشغيل وجهات وفعاليات ترفيهية استثنائية تلهم الجماهير.",
+    primaryCtaTextEn: "Submit RFP Inquiry",
+    primaryCtaTextAr: "تقديم طلب عروض",
+    primaryCtaUrl: "/b2b/contact",
+    secondaryCtaTextEn: "Explore Our Case Studies",
+    secondaryCtaTextAr: "استكشف دراسات الحالة",
+    secondaryCtaUrl: "/b2b/cases"
+  },
+  seo: {
+    metaTitleEn: "About Us | E3 Qatar Event Engineering & Attractions",
+    metaTitleAr: "من نحن | إي ثري قطر لهندسة الفعاليات والوجهات",
+    metaDescriptionEn: "Learn about E3 Qatar, our story, leadership, core values, and our mission to engineer mega-scale entertainment destinations.",
+    metaDescriptionAr: "تعرف على إي ثري قطر، مسيرتنا، فريق القيادة، قيمنا ورؤيتنا في هندسة وتطوير كبرى الوجهات الترفيهية.",
+    keywordsEn: "about E3, entertainment company Qatar, event engineering Doha, experiential leadership",
+    keywordsAr: "عن إي ثري, شركة ترفيه قطر, هندسة فعاليات الدوحة, إدارة الوجهات"
+  }
+};
+
+export const DEFAULT_B2B_CAREERS_CONTENT = {
+  hero: {
+    eyebrowEn: "CAREERS AT E3 QATAR",
+    eyebrowAr: "فرص العمل في إي ثري قطر",
+    titleEn: "Build the Future of Live Experiences",
+    titleAr: "اصنع مستقبل الفعاليات والتجارب الحية",
+    subtitleEn: "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.",
+    subtitleAr: "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر.",
+    descriptionEn: "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.",
+    descriptionAr: "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    fallbackImageUrl: ""
+  },
+  activeJobs: {
+    eyebrowEn: "OPEN POSITIONS",
+    eyebrowAr: "الوظائف المتاحة حالياً",
+    titleEn: "Explore Available Opportunities",
+    titleAr: "استكشف الفرص المتاحة",
+    emptyStateTitleEn: "No Open Vacancies Right Now",
+    emptyStateTitleAr: "لا توجد شواغر معلنة حالياً",
+    emptyStateDescEn: "We are always scouting exceptional talent. Submit your general application below to join our talent pool.",
+    emptyStateDescAr: "نحن نبحث دائماً عن الكفاءات المتميزة. يمكنك تقديم طلبك العام وسيرتك الذاتية أدناه للانضمام لبنك المواهب."
+  },
+  generalApplication: {
+    enabled: true,
+    eyebrowEn: "GENERAL INQUIRY & TALENT POOL",
+    eyebrowAr: "بنك الكفاءات والتقديم العام",
+    titleEn: "Don't See the Right Role?",
+    titleAr: "لم تجد التخصص المناسب؟",
+    descriptionEn: "Submit your resume to our executive talent pool for future mega projects, kinetic productions, and attraction launches.",
+    descriptionAr: "أرسل سيرتك الذاتية إلى قاعدة بيانات الكفاءات للمشاريع الكبرى والعروض الحركية والوجهات القادمة.",
+    buttonTextEn: "Submit General CV",
+    buttonTextAr: "تقديم السيرة الذاتية العامة"
+  },
+  portalBanner: {
+    enabled: true,
+    eyebrowEn: "CANDIDATE TRACKING PORTAL",
+    eyebrowAr: "بوابة المترشحين والمتابعة الفورية",
+    titleEn: "Already Applied to E3?",
+    titleAr: "هل تقدمت بطلب وظيفي مسبقاً؟",
+    descriptionEn: "Sign in to track your submission progress, evaluation stage, and update your uploaded credentials in real time.",
+    descriptionAr: "سجّل الدخول إلى بوابة المترشحين للاطلاع الفوري على حالة طلبك، مرحلة التقييم، وتحديث ملفك الشخصي.",
+    signInTextEn: "Already Applied? Sign In",
+    signInTextAr: "تسجيل الدخول لمتابعة الطلب"
+  },
+  lifeAtE3: {
+    enabled: true,
+    eyebrowEn: "ATELIER CULTURE & PRODUCTION",
+    eyebrowAr: "بيئة العمل وكواليس الإنجاز",
+    titleEn: "Life Inside the Engineering Atelier",
+    titleAr: "الحياة والابتكار في إي ثري",
+    subtitleEn: "Where architectural rigor meets boundless creative ambition. Experience the disciplines that power our landmark productions.",
+    subtitleAr: "نحن نجمع بين أحدث التقنيات الهندسية وأرفع معايير الإبداع الفني لنصنع ذكريات لا تُنسى في قطر والمنطقة.",
+    items: [
+      {
+        id: "kinetic-production",
+        titleEn: "Master Kinetic Stage Engineering",
+        titleAr: "هندسة المسارح والعروض الحركية الكبرى",
+        categoryEn: "Technical Production",
+        categoryAr: "الإنتاج التقني والهندسي",
+        descriptionEn: "Our engineers design and deploy synchronized kinetic rigs, projection mapping, and ultra-high-definition laser systems across Qatar's flagship venues.",
+        descriptionAr: "يقوم مهندسونا بتصميم وتنفيذ مسارح حركية متزامنة، عروض إسقاط ضوئي متطورة، وأنظمة ليزر فائقة الدقة في أبرز وجهات قطر.",
+        icon: "cpu",
+        imageUrl: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7"
+      },
+      {
+        id: "spatial-architecture",
+        titleEn: "Spatial & Multisensory Narrative Design",
+        titleAr: "التصميم المكاني والتجارب متعددة الحواس",
+        categoryEn: "Creative Architecture",
+        categoryAr: "العمارة الإبداعية",
+        descriptionEn: "Atelier teams transform raw spaces into living, breathing emotional environments connecting audiences with rich cultural stories.",
+        descriptionAr: "يحول استوديو التصميم المساحات الصامتة إلى بيئات حسية غامرة تربط الجماهير بروايات ثقافية وتجارب استثنائية.",
+        icon: "compass",
+        imageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
+      },
+      {
+        id: "live-event-ops",
+        titleEn: "Mega-Scale Live Event Synchronization",
+        titleAr: "تزامن وإدارة الفعاليات الجماهيرية الكبرى",
+        categoryEn: "Operations & Logistics",
+        categoryAr: "العمليات الميدانية واللوجستية",
+        descriptionEn: "Operating live with zero margin for error — synchronizing high-throughput crowd dynamics, protocol dignitary hospitality, and site safety.",
+        descriptionAr: "إدارة العمليات الميدانية الحية بدقة متناهية تشمل بروتوكولات كبار الشخصيات، حركة الحشود، والسلامة الهندسية المتكاملة.",
+        icon: "layers",
+        imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87"
+      },
+      {
+        id: "creative-direction",
+        titleEn: "World-Class Show Direction & Media Production",
+        titleAr: "الإخراج الفني والإنتاج الإعلامي العالمي",
+        categoryEn: "Creative Direction",
+        categoryAr: "الإخراج الإبداعي",
+        descriptionEn: "Conceptualizing original musical scores, volumetric holographic visuals, and international protocol opening ceremonies.",
+        descriptionAr: "ابتكار المقطوعات الموسيقية الأصلية، المؤثرات الهولوغرافية ثلاثية الأبعاد، وإخراج حفلات الافتتاح الرسمية العالمية.",
+        icon: "clapperboard",
+        imageUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745"
+      }
+    ]
+  },
+  hiringJourney: {
+    enabled: true,
+    eyebrowEn: "TRANSPARENT PROCESS",
+    eyebrowAr: "رحلة المترشح والتقييم",
+    titleEn: "Our Four-Step Hiring Journey",
+    titleAr: "مراحل وخطوات الانضمام إلى إي ثري",
+    subtitleEn: "From initial credential submission to your first live activation — clear milestones at every step.",
+    subtitleAr: "مسار واضح وشفاف يضمن اختيار أفضل الكفاءات وتوفير تجربة انضمام سلسة ومهنية.",
+    steps: [
+      {
+        number: "01",
+        titleEn: "Application & CV Submission",
+        titleAr: "التقديم وإرسال السيرة الذاتية",
+        descEn: "Submit your resume for an active vacancy or join our general talent pool. Your candidate profile is generated instantly.",
+        descAr: "قدّم سيرتك الذاتية لشواغرنا الحالية أو سجّل في قاعدة الكفاءات العامة ليتم إنشاء ملف المترشح فوراً.",
+        icon: "file"
+      },
+      {
+        number: "02",
+        titleEn: "Technical & Creative Screening",
+        titleAr: "التقييم الفني والإبداعي",
+        descEn: "Our practice leads evaluate your portfolio, technical proficiency, and past project execution track record.",
+        descAr: "يقوم قادة الأقسام بمراجعة سابقة أعمالك وخبراتك الهندسية والميدانية لتقييم ملاءمتها لمشاريعنا الكبرى.",
+        icon: "search"
+      },
+      {
+        number: "03",
+        titleEn: "Interactive Specialist Interview",
+        titleAr: "المقابلة التخصصية التفاعلية",
+        descEn: "A deep-dive technical conversation and situational problem solving session with department directors.",
+        descAr: "جلسة نقاش معمقة مع مديري الإنتاج والتصميم لاستعراض التحديات الهندسية وطرق حل المشكلات الميدانية.",
+        icon: "users"
+      },
+      {
+        number: "04",
+        titleEn: "Executive Offer & Onboarding",
+        titleAr: "العرض الوظيفي والانضمام للفريق",
+        descEn: "Finalize terms, complete verified credential checks, and begin orchestrating Qatar's premier live experiences.",
+        descAr: "اعتماد العرض الوظيفي، إنهاء إجراءات الانضمام، والبدء فوراً في قيادة أضخم الفعاليات والتجارب الحية.",
+        icon: "sparkles"
+      }
+    ]
+  },
+  enquiries: {
+    enabled: true,
+    eyebrowEn: "TALENT ACQUISITION SUPPORT",
+    eyebrowAr: "التواصل واستفسارات التوظيف",
+    titleEn: "Have a Career Enquiry?",
+    titleAr: "هل لديك استفسار لفريق التوظيف؟",
+    subtitleEn: "Directly reach our Talent Acquisition team regarding role specifics, executive searches, or academic internships.",
+    subtitleAr: "تواصل مباشرة مع فريق الموارد البشرية واستقطاب الكفاءات لأي استفسار يخص الشواغر، التدريب التعاوني، أو الشراكات الأكاديمية."
+  },
+  seo: {
+    metaTitleEn: "Careers & Opportunities | E3 Qatar",
+    metaTitleAr: "الوظائف وفرص الانضمام | إي ثري قطر",
+    metaDescriptionEn: "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.",
+    metaDescriptionAr: "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر.",
+    keywordsEn: "careers at E3, event jobs Qatar, entertainment engineering jobs Doha, live production careers",
+    keywordsAr: "وظائف إي ثري, وظائف فعاليات قطر, وظائف ترفيه الدوحة, مهندس صوت وإضاءة"
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
@@ -2034,6 +2409,81 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       caseStudies: { ...defaults.caseStudies, ...(raw.caseStudies || {}) },
       partnerRibbon: { ...defaults.partnerRibbon, ...(raw.partnerRibbon || {}) },
       cta: { ...defaults.cta, ...(raw.cta || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
+  if (slug === 'b2b-contact' || slug === 'contact') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_CONTACT_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      header: { ...defaults.header, ...(raw.header || {}) },
+      inquiries: { ...defaults.inquiries, ...(raw.inquiries || {}) },
+      headquarters: { ...defaults.headquarters, ...(raw.headquarters || {}) },
+      formConfig: {
+        ...defaults.formConfig,
+        ...(raw.formConfig || {}),
+        inquiryTypes: Array.isArray(raw.formConfig?.inquiryTypes) && raw.formConfig.inquiryTypes.length > 0
+          ? raw.formConfig.inquiryTypes
+          : defaults.formConfig.inquiryTypes,
+        labels: { ...defaults.formConfig.labels, ...(raw.formConfig?.labels || {}) },
+        successState: { ...defaults.formConfig.successState, ...(raw.formConfig?.successState || {}) }
+      },
+      careersCta: { ...defaults.careersCta, ...(raw.careersCta || {}) },
+      feedbackCta: { ...defaults.feedbackCta, ...(raw.feedbackCta || {}) },
+      faqCta: { ...defaults.faqCta, ...(raw.faqCta || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
+  if (slug === 'b2b-about' || slug === 'about') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_ABOUT_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      header: { ...defaults.header, ...(raw.header || {}) },
+      story: { ...defaults.story, ...(raw.story || {}) },
+      stats: {
+        ...defaults.stats,
+        ...(raw.stats || {}),
+        items: Array.isArray(raw.stats?.items) && raw.stats.items.length > 0
+          ? raw.stats.items
+          : defaults.stats.items,
+      },
+      values: Array.isArray(raw.values) && raw.values.length > 0
+        ? raw.values
+        : defaults.values,
+      leadership: { ...defaults.leadership, ...(raw.leadership || {}) },
+      cta: { ...defaults.cta, ...(raw.cta || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
+  if (slug === 'b2b-careers' || slug === 'careers') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_CAREERS_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      hero: { ...defaults.hero, ...(raw.hero || {}) },
+      activeJobs: { ...defaults.activeJobs, ...(raw.activeJobs || {}) },
+      generalApplication: { ...defaults.generalApplication, ...(raw.generalApplication || {}) },
+      portalBanner: { ...defaults.portalBanner, ...(raw.portalBanner || {}) },
+      lifeAtE3: {
+        ...defaults.lifeAtE3,
+        ...(raw.lifeAtE3 || {}),
+        items: Array.isArray(raw.lifeAtE3?.items) && raw.lifeAtE3.items.length > 0
+          ? raw.lifeAtE3.items
+          : defaults.lifeAtE3.items,
+      },
+      hiringJourney: {
+        ...defaults.hiringJourney,
+        ...(raw.hiringJourney || {}),
+        steps: Array.isArray(raw.hiringJourney?.steps) && raw.hiringJourney.steps.length > 0
+          ? raw.hiringJourney.steps
+          : defaults.hiringJourney.steps,
+      },
+      enquiries: { ...defaults.enquiries, ...(raw.enquiries || {}) },
       seo: { ...defaults.seo, ...(raw.seo || {}) }
     };
   }
