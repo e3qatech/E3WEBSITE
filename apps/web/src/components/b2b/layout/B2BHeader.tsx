@@ -61,9 +61,10 @@ export function B2BHeader({ settings = {}, locale: propLocale }: { settings?: Re
     { label: isAr ? 'الرئيسية' : 'Home', href: `/${currentLocale}/b2b` },
     { label: isAr ? 'الخدمات' : 'Services', href: `/${currentLocale}/b2b/services` },
     { label: isAr ? 'أعمالنا' : 'Case Studies', href: `/${currentLocale}/b2b/cases` },
+    { label: isAr ? 'استكشف' : 'Discover', href: `/${currentLocale}/b2c/discover` },
     { label: isAr ? 'العملاء والشركاء' : 'Clients', href: `/${currentLocale}/b2b/clients` },
     { label: isAr ? 'من نحن' : 'About', href: `/${currentLocale}/b2b/about` },
-    { label: isAr ? 'تواصل معنا' : 'Contact', href: `/${currentLocale}/b2b/contact` }
+    { label: isAr ? 'تواصل معنا' : 'Contact Us', href: `/${currentLocale}/b2b/contact` }
   ]
 
   const lightLogoUrl = settings.lightLogoUrl;
