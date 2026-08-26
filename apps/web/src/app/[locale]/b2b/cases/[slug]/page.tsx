@@ -100,8 +100,9 @@ export default async function CaseStudyPage({
   const metrics = Array.isArray(project.metrics) ? (project.metrics as any[]) : [];
   const gallery = Array.isArray(project.gallery) ? (project.gallery as any[]) : [];
   const testimonials = Array.isArray(project.testimonials)
-    ? (project.testimonials as any[]).filter((t) => t.isVisible !== false)
+    ? (project.testimonials as any[]).filter((t) => t && t.isVisible !== false)
     : [];
+  const teamMembers = Array.isArray(project.teamMembers) ? (project.teamMembers as any[]) : [];
 
   const title = isAr ? project.titleAr || project.titleEn : project.titleEn;
   const challengeText = isAr ? project.challengeAr || project.challengeEn : project.challengeEn;
@@ -120,7 +121,7 @@ export default async function CaseStudyPage({
       {/* 1. Cinematic Hero */}
       <CinematicCaseHero
         locale={locale}
-        title={title}
+        title={title || "Case Study"}
         clientName={project.clientName}
         category={category}
         year={project.year}
@@ -145,7 +146,7 @@ export default async function CaseStudyPage({
         hasSolution={Boolean(solutionText)}
         hasResult={Boolean(resultText)}
         hasImpact={metrics.length > 0}
-        hasTeam={project.teamMembers.length > 0}
+        hasTeam={teamMembers.length > 0}
         hasTestimonials={testimonials.length > 0}
         hasGallery={gallery.length > 0}
       />
@@ -183,7 +184,7 @@ export default async function CaseStudyPage({
       {/* 7. Project Team ("People Behind the Build") */}
       <ProjectTeamSection
         locale={locale}
-        teamMembers={project.teamMembers}
+        teamMembers={teamMembers}
       />
 
       {/* 8. Client Testimonials */}

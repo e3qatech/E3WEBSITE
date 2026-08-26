@@ -19,20 +19,21 @@ interface ImpactMetricsGridProps {
   metrics?: MetricItem[] | null;
 }
 
-function AnimatedCounter({ value, inView }: { value: string; inView: boolean }) {
+function AnimatedCounter({ value, inView }: { value: any; inView: boolean }) {
   const shouldReduceMotion = useReducedMotion();
-  const [displayValue, setDisplayValue] = useState(value);
+  const valStr = String(value ?? "");
+  const [displayValue, setDisplayValue] = useState(valStr);
 
   useEffect(() => {
     if (!inView || shouldReduceMotion) {
-      setDisplayValue(value);
+      setDisplayValue(valStr);
       return;
     }
 
     // Match leading/trailing units (e.g., "+", "%", "K", "M", " QAR")
-    const match = value.match(/^([^\d]*)([\d,.]+)([^\d]*)$/);
+    const match = valStr.match(/^([^\d]*)([\d,.]+)([^\d]*)$/);
     if (!match) {
-      setDisplayValue(value);
+      setDisplayValue(valStr);
       return;
     }
 
@@ -42,7 +43,7 @@ function AnimatedCounter({ value, inView }: { value: string; inView: boolean }) 
     const targetNum = parseFloat(rawNumberStr);
 
     if (isNaN(targetNum)) {
-      setDisplayValue(value);
+      setDisplayValue(valStr);
       return;
     }
 
