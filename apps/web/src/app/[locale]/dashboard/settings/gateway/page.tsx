@@ -354,6 +354,16 @@ export default function GatewayCustomizationPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Number Index Tag</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cNumberTagEn || ''}
+                    onChange={(e) => updateEnglish('b2cNumberTagEn', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="01"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Eyebrow Label</label>
                   <input
                     type="text"
@@ -370,11 +380,21 @@ export default function GatewayCustomizationPage() {
                     value={formData.english.b2cTitleEn || ''}
                     onChange={(e) => updateEnglish('b2cTitleEn', e.target.value)}
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="EXPERIENCE WHAT’S NEXT"
+                    placeholder="EXPERIENCE"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Tagline / Subtitle</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2cTaglineEn || ''}
+                    onChange={(e) => updateEnglish('b2cTaglineEn', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Events, attractions & tickets"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Desktop Full Description</label>
                   <textarea
                     rows={2}
                     value={formData.english.b2cDescEn || ''}
@@ -433,6 +453,16 @@ export default function GatewayCustomizationPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Number Index Tag</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bNumberTagEn || ''}
+                    onChange={(e) => updateEnglish('b2bNumberTagEn', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="02"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Eyebrow Label</label>
                   <input
                     type="text"
@@ -449,11 +479,21 @@ export default function GatewayCustomizationPage() {
                     value={formData.english.b2bTitleEn || ''}
                     onChange={(e) => updateEnglish('b2bTitleEn', e.target.value)}
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="BUILD WHAT’S NEXT"
+                    placeholder="CREATE"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Tagline / Subtitle</label>
+                  <input
+                    type="text"
+                    value={formData.english.b2bTaglineEn || ''}
+                    onChange={(e) => updateEnglish('b2bTaglineEn', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="Production, brands & partnerships"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Desktop Full Description</label>
                   <textarea
                     rows={2}
                     value={formData.english.b2bDescEn || ''}
@@ -532,7 +572,7 @@ export default function GatewayCustomizationPage() {
                     value={formData.arabic.headlineAr || ''}
                     onChange={(e) => updateArabic('headlineAr', e.target.value)}
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="عالمان. وجهة واحدة: E3"
+                    placeholder="جانبان. E3 واحدة."
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -555,6 +595,16 @@ export default function GatewayCustomizationPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الرقم التعريفي</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2cNumberTagAr || ''}
+                    onChange={(e) => updateArabic('b2cNumberTagAr', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="01"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التصنيف</label>
                   <input
                     type="text"
@@ -571,11 +621,21 @@ export default function GatewayCustomizationPage() {
                     value={formData.arabic.b2cTitleAr || ''}
                     onChange={(e) => updateArabic('b2cTitleAr', e.target.value)}
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="عِش التجربة القادمة"
+                    placeholder="عِش التجربة"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">العنوان الفرعي للهاتف</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2cTaglineAr || ''}
+                    onChange={(e) => updateArabic('b2cTaglineAr', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="الفعاليات والوجهات والتذاكر"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوصف</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوصف الكامل للحاسوب</label>
                   <textarea
                     rows={2}
                     value={formData.arabic.b2cDescAr || ''}
@@ -634,6 +694,16 @@ export default function GatewayCustomizationPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الرقم التعريفي</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bNumberTagAr || ''}
+                    onChange={(e) => updateArabic('b2bNumberTagAr', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="02"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التصنيف</label>
                   <input
                     type="text"
@@ -650,11 +720,21 @@ export default function GatewayCustomizationPage() {
                     value={formData.arabic.b2bTitleAr || ''}
                     onChange={(e) => updateArabic('b2bTitleAr', e.target.value)}
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="لنصنع القادم"
+                    placeholder="اصنع الفارق"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">العنوان الفرعي للهاتف</label>
+                  <input
+                    type="text"
+                    value={formData.arabic.b2bTaglineAr || ''}
+                    onChange={(e) => updateArabic('b2bTaglineAr', e.target.value)}
+                    className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
+                    placeholder="الإنتاج والشراكات المؤسسية"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوصف</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوصف الكامل للحاسوب</label>
                   <textarea
                     rows={2}
                     value={formData.arabic.b2bDescAr || ''}
@@ -700,7 +780,7 @@ export default function GatewayCustomizationPage() {
                     value={formData.arabic.b2bAriaLabelAr || ''}
                     onChange={(e) => updateArabic('b2bAriaLabelAr', e.target.value)}
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border border-[#D7DEE8] dark:border-slate-800 px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="الانتقال إلى حلول إي ثري للشركات"
+                    placeholder="الانتقال إلى حلول وخدمات الشركات"
                   />
                 </div>
               </div>

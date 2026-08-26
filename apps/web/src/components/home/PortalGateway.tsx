@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Globe, Moon, Sun, Sparkles, Building2, Home } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Globe, Moon, Sun, Sparkles, Building2, Home } from "lucide-react";
 import Link from "next/link";
 
 import { useLocale } from "@/components/layout/LocaleProvider";
@@ -120,11 +120,13 @@ export function PortalGateway({
   const visual = activeCmsData.visual || DEFAULT_GATEWAY_CMS_PAYLOAD.visual;
   const seo = activeCmsData.seoAccess || DEFAULT_GATEWAY_CMS_PAYLOAD.seoAccess;
 
-  const headline = isAr ? (ar.headlineAr || "عالمان. وجهة واحدة: E3") : (en.headlineEn || "TWO WORLDS. ONE E3.");
+  const headline = isAr ? (ar.headlineAr || "جانبان. E3 واحدة.") : (en.headlineEn || "TWO SIDES. ONE E3.");
 
   // B2C Content
+  const b2cNumberTag = isAr ? (ar.b2cNumberTagAr || "01") : (en.b2cNumberTagEn || "01");
   const b2cLabel = isAr ? (ar.b2cLabelAr || "التجارب والوجهات") : (en.b2cLabelEn || "EXPERIENCES & ATTRACTIONS");
-  const b2cTitle = isAr ? (ar.b2cTitleAr || "عِش التجربة القادمة") : (en.b2cTitleEn || "EXPERIENCE WHAT’S NEXT");
+  const b2cTitle = isAr ? (ar.b2cTitleAr || "عِش التجربة") : (en.b2cTitleEn || "EXPERIENCE");
+  const b2cTagline = isAr ? (ar.b2cTaglineAr || ar.b2cDescAr || "الفعاليات والوجهات والتذاكر") : (en.b2cTaglineEn || en.b2cDescEn || "Events, attractions & tickets");
   const b2cDesc = isAr ? (ar.b2cDescAr || "اكتشف الفعاليات الحية والوجهات العائلية وتجارب الترفيه الاستثنائية في مختلف أنحاء قطر.") : (en.b2cDescEn || "Discover live events, family attractions and unforgettable entertainment experiences across Qatar.");
   const b2cCta = isAr ? (ar.b2cCtaLabelAr || "استكشف التجارب") : (en.b2cCtaLabelEn || "Explore Experiences");
   const b2cStat = isAr ? (ar.b2cStatLabelAr ?? "+١.٢ مليون زائر سنوياً") : (en.b2cStatLabelEn ?? "1.2M+ Annual Visitors");
@@ -133,8 +135,10 @@ export function PortalGateway({
   const b2cAria = isAr ? (ar.b2cAriaLabelAr || "بوابة تجارب الأفراد والجمهور") : (en.b2cAriaLabelEn || "E3 B2C Experiences Portal");
 
   // B2B Content
+  const b2bNumberTag = isAr ? (ar.b2bNumberTagAr || "02") : (en.b2bNumberTagEn || "02");
   const b2bLabel = isAr ? (ar.b2bLabelAr || "للعلامات التجارية والمؤسسات") : (en.b2bLabelEn || "FOR BRANDS & ORGANIZATIONS");
-  const b2bTitle = isAr ? (ar.b2bTitleAr || "لنصنع القادم") : (en.b2bTitleEn || "BUILD WHAT’S NEXT");
+  const b2bTitle = isAr ? (ar.b2bTitleAr || "اصنع الفارق") : (en.b2bTitleEn || "CREATE");
+  const b2bTagline = isAr ? (ar.b2bTaglineAr || ar.b2bDescAr || "الإنتاج والشراكات المؤسسية") : (en.b2bTaglineEn || en.b2bDescEn || "Production, brands & partnerships");
   const b2bDesc = isAr ? (ar.b2bDescAr || "تعاون مع E3 لتصميم وإنتاج وتشغيل فعاليات ووجهات وتجارب غامرة تترك أثراً استثنائياً.") : (en.b2bDescEn || "Partner with E3 to design, produce and operate remarkable events, destinations and immersive brand experiences.");
   const b2bCta = isAr ? (ar.b2bCtaLabelAr || "تعاون مع E3") : (en.b2bCtaLabelEn || "Work With E3");
   const b2bStat = isAr ? (ar.b2bStatLabelAr ?? "+٤٥٠ مشروع مؤسسي") : (en.b2bStatLabelEn ?? "450+ Corporate Activations");
@@ -420,15 +424,22 @@ export function PortalGateway({
         {/* ============================================================ */}
         <main className="relative flex-1 w-full h-full overflow-hidden z-10 flex flex-col">
           
-          {/* MOBILE VIEW (< 768px): EQUAL 50/50 HORIZONTAL SPLIT WITH ONLY CTA IN EACH HALF */}
+          {/* MOBILE VIEW (< 768px): EDITORIAL 50/50 SPLIT (01 EXPERIENCE / 02 CREATE) */}
           {effectiveIsMobile ? (
             <div className="flex flex-col w-full h-full relative flex-1">
               
-              {/* B2C WONDER IN MOTION (TOP HALF: 50%) */}
+              {/* SUB-HEADER TAGLINE */}
+              <div className="w-full px-5 py-2 z-30 bg-black/60 backdrop-blur-md border-b border-white/10 shrink-0">
+                <p className="text-[10px] sm:text-xs font-mono font-bold tracking-[0.25em] text-neutral-300 uppercase text-center sm:text-start">
+                  {headline}
+                </p>
+              </div>
+
+              {/* B2C EXPERIENCE (TOP HALF: 50%) */}
               <div
                 onClick={() => handleSelect("b2c")}
                 className={cn(
-                  "relative h-1/2 w-full overflow-hidden flex flex-col items-center justify-end pb-7 px-5 cursor-pointer group",
+                  "relative h-1/2 w-full overflow-hidden flex flex-col justify-between p-6 sm:p-8 cursor-pointer group select-none",
                   isLight ? "bg-[#F7F3FF]" : "bg-[#0B1020]"
                 )}
                 role="button"
@@ -440,59 +451,52 @@ export function PortalGateway({
                   config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2cMedia}
                   locale={activeLocale}
                   className={cn(
-                    "absolute inset-0 h-full w-full object-cover opacity-100 transition-transform duration-500",
-                    !isReducedMotion && "group-hover:scale-105"
+                    "absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out",
+                    !isReducedMotion && "group-hover:scale-105 group-active:scale-98"
                   )}
                 />
                 
-                {/* Pearl/White in Light Mode vs Dark in Dark Mode */}
+                {/* Magenta Ambient Gradient Overlay */}
                 <div
-                  className={cn(
-                    "absolute inset-0 pointer-events-none transition-opacity duration-350",
-                    isLight
-                      ? "bg-gradient-to-t from-[#F7F3FF]/90 via-[#F7F3FF]/25 to-transparent"
-                      : "bg-gradient-to-t from-[#0B1020]/95 via-[#0B1020]/30 to-transparent"
-                  )}
-                  style={{ opacity: visual?.overlayStrength ?? 0.45 }}
+                  className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-[#0B1020]/90 via-[#E11D48]/35 to-transparent transition-opacity duration-350"
+                  style={{ opacity: visual?.overlayStrength ?? 0.5 }}
                 />
 
-                {/* Mobile B2C: Clean Single CTA & Homepage Tab */}
-                <div className="relative z-30 w-full max-w-xs sm:max-w-sm space-y-2">
-                  <a
-                    href={b2cDest}
-                    onClick={(e) => {
-                      if (previewMode) e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-2xl flex items-center justify-between min-h-[48px] cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-300 focus:outline-none"
-                  >
-                    <span>{b2cCta}</span>
-                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                      {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-                    </div>
-                  </a>
-                  <a
-                    href={`/${activeLocale}/b2c`}
-                    onClick={(e) => {
-                      if (previewMode) e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className="w-full py-2 px-4 rounded-full bg-black/40 border border-purple-500/30 text-purple-200 text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Home className="w-3 h-3" />
-                    <span>{isAr ? "رئيسية B2C" : "B2C Homepage"}</span>
-                  </a>
+                {/* Top: 01 Indicator Tag */}
+                <div className="relative z-30 flex items-center justify-between w-full">
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm sm:text-base font-black font-mono tracking-widest text-white drop-shadow">
+                      {b2cNumberTag}
+                    </span>
+                    <div className="w-6 h-[2px] bg-pink-400 mt-1 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                  </div>
+                </div>
+
+                {/* Bottom: Huge Editorial Title + Subtitle + Corner Arrow */}
+                <div className="relative z-30 w-full flex items-end justify-between gap-4">
+                  <div className="space-y-1 max-w-[80%]">
+                    <h2 className="text-4xl sm:text-5xl xs:text-6xl font-black font-syne uppercase tracking-tight leading-[0.9] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                      {b2cTitle}
+                    </h2>
+                    <p className="text-xs sm:text-sm font-medium text-white/90 leading-snug drop-shadow line-clamp-2">
+                      {b2cTagline}
+                    </p>
+                    <span className="sr-only">{b2cCta}</span>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-pink-500 group-hover:border-pink-400 transition-colors shadow-lg">
+                    <ArrowUpRight className={cn("w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
+                  </div>
                 </div>
               </div>
 
-              {/* CLEAN HORIZONTAL DIVIDING LINE (EXACT 50/50 SEAM) */}
+              {/* CLEAN HORIZONTAL SEAM DIVIDER (EXACT 50/50 SEAM) */}
               <div className="relative z-40 w-full h-[2px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none shrink-0" />
 
-              {/* B2B ENGINEERED SPECTACLE (BOTTOM HALF: 50%) */}
+              {/* B2B CREATE (BOTTOM HALF: 50%) */}
               <div
                 onClick={() => handleSelect("b2b")}
                 className={cn(
-                  "relative h-1/2 w-full overflow-hidden flex flex-col items-center justify-start pt-7 px-5 cursor-pointer group",
+                  "relative h-1/2 w-full overflow-hidden flex flex-col justify-between p-6 sm:p-8 cursor-pointer group select-none",
                   isLight ? "bg-[#EEF4F8]" : "bg-[#070A12]"
                 )}
                 role="button"
@@ -504,48 +508,41 @@ export function PortalGateway({
                   config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2bMedia}
                   locale={activeLocale}
                   className={cn(
-                    "absolute inset-0 h-full w-full object-cover opacity-95 transition-transform duration-500",
-                    !isReducedMotion && "group-hover:scale-105"
+                    "absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out",
+                    !isReducedMotion && "group-hover:scale-105 group-active:scale-98"
                   )}
                 />
                 
-                {/* Pearl/White in Light Mode vs Dark in Dark Mode */}
+                {/* Cyan/Blue Ambient Blueprint Gradient Overlay */}
                 <div
-                  className={cn(
-                    "absolute inset-0 pointer-events-none transition-opacity duration-350",
-                    isLight
-                      ? "bg-gradient-to-b from-[#EEF4F8]/90 via-[#EEF4F8]/25 to-transparent"
-                      : "bg-gradient-to-b from-[#070A12]/95 via-[#070A12]/30 to-transparent"
-                  )}
-                  style={{ opacity: visual?.overlayStrength ?? 0.45 }}
+                  className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[#070A12]/90 via-[#0284C7]/35 to-transparent transition-opacity duration-350"
+                  style={{ opacity: visual?.overlayStrength ?? 0.5 }}
                 />
 
-                {/* Mobile B2B: Clean Single CTA & Homepage Tab */}
-                <div className="relative z-30 w-full max-w-xs sm:max-w-sm space-y-2">
-                  <a
-                    href={b2bDest}
-                    onClick={(e) => {
-                      if (previewMode) e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-2xl flex items-center justify-between min-h-[48px] cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300 focus:outline-none"
-                  >
-                    <span>{b2bCta}</span>
-                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                      {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-                    </div>
-                  </a>
-                  <a
-                    href={`/${activeLocale}/b2b`}
-                    onClick={(e) => {
-                      if (previewMode) e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className="w-full py-2 px-4 rounded-full bg-black/40 border border-cyan-500/30 text-cyan-200 text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Home className="w-3 h-3" />
-                    <span>{isAr ? "رئيسية B2B" : "B2B Homepage"}</span>
-                  </a>
+                {/* Top: 02 Indicator Tag */}
+                <div className="relative z-30 flex items-center justify-between w-full">
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm sm:text-base font-black font-mono tracking-widest text-white drop-shadow">
+                      {b2bNumberTag}
+                    </span>
+                    <div className="w-6 h-[2px] bg-cyan-400 mt-1 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                  </div>
+                </div>
+
+                {/* Bottom: Huge Editorial Title + Subtitle + Corner Arrow */}
+                <div className="relative z-30 w-full flex items-end justify-between gap-4">
+                  <div className="space-y-1 max-w-[80%]">
+                    <h2 className="text-4xl sm:text-5xl xs:text-6xl font-black font-syne uppercase tracking-tight leading-[0.9] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                      {b2bTitle}
+                    </h2>
+                    <p className="text-xs sm:text-sm font-medium text-white/90 leading-snug drop-shadow line-clamp-2">
+                      {b2bTagline}
+                    </p>
+                    <span className="sr-only">{b2bCta}</span>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-cyan-500 group-hover:border-cyan-400 transition-colors shadow-lg">
+                    <ArrowUpRight className={cn("w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
+                  </div>
                 </div>
               </div>
             </div>

@@ -35,16 +35,20 @@ export interface GatewayContentEn {
   eyebrowEn: string;
   headlineEn: string;
   supportingTextEn: string;
+  b2cNumberTagEn?: string;
   b2cLabelEn: string;
   b2cTitleEn: string;
+  b2cTaglineEn?: string;
   b2cDescEn: string;
   b2cCtaLabelEn: string;
   b2cDestinationUrl?: string;
   b2cStatLabelEn?: string;
   b2cStatVisible?: boolean;
   b2cAriaLabelEn?: string;
+  b2bNumberTagEn?: string;
   b2bLabelEn: string;
   b2bTitleEn: string;
+  b2bTaglineEn?: string;
   b2bDescEn: string;
   b2bCtaLabelEn: string;
   b2bDestinationUrl?: string;
@@ -58,16 +62,20 @@ export interface GatewayContentAr {
   eyebrowAr: string;
   headlineAr: string;
   supportingTextAr: string;
+  b2cNumberTagAr?: string;
   b2cLabelAr: string;
   b2cTitleAr: string;
+  b2cTaglineAr?: string;
   b2cDescAr: string;
   b2cCtaLabelAr: string;
   b2cDestinationUrl?: string;
   b2cStatLabelAr?: string;
   b2cStatVisible?: boolean;
   b2cAriaLabelAr?: string;
+  b2bNumberTagAr?: string;
   b2bLabelAr: string;
   b2bTitleAr: string;
+  b2bTaglineAr?: string;
   b2bDescAr: string;
   b2bCtaLabelAr: string;
   b2bDestinationUrl?: string;
@@ -153,16 +161,20 @@ export const DEFAULT_GATEWAY_CMS_PAYLOAD: GatewayCustomizationPayload = {
     eyebrowEn: 'WELCOME TO E3',
     headlineEn: 'TWO WORLDS. ONE E3.',
     supportingTextEn: 'Whether you’re looking for your next unforgettable experience or a trusted partner to create one, your journey starts here.',
+    b2cNumberTagEn: '01',
     b2cLabelEn: 'EXPERIENCES & ATTRACTIONS',
     b2cTitleEn: 'EXPERIENCE WHAT’S NEXT',
+    b2cTaglineEn: 'Events, attractions & tickets',
     b2cDescEn: 'Discover live events, family attractions and unforgettable entertainment experiences across Qatar.',
     b2cCtaLabelEn: 'Explore Experiences',
     b2cDestinationUrl: '/b2c',
     b2cStatLabelEn: '1.2M+ Annual Visitors',
     b2cStatVisible: true,
     b2cAriaLabelEn: 'E3 B2C Experiences Portal',
+    b2bNumberTagEn: '02',
     b2bLabelEn: 'FOR BRANDS & ORGANIZATIONS',
     b2bTitleEn: 'BUILD WHAT’S NEXT',
+    b2bTaglineEn: 'Production, brands & partnerships',
     b2bDescEn: 'Partner with E3 to design, produce and operate remarkable events, destinations and immersive brand experiences.',
     b2bCtaLabelEn: 'Work With E3',
     b2bDestinationUrl: '/b2b',
@@ -175,16 +187,20 @@ export const DEFAULT_GATEWAY_CMS_PAYLOAD: GatewayCustomizationPayload = {
     eyebrowAr: 'مرحباً بكم في E3',
     headlineAr: 'عالمان. وجهة واحدة: E3',
     supportingTextAr: 'سواء كنت تبحث عن تجربتك القادمة أو عن شريك موثوق لصناعتها، رحلتك تبدأ من هنا.',
+    b2cNumberTagAr: '01',
     b2cLabelAr: 'التجارب والوجهات',
     b2cTitleAr: 'عِش التجربة القادمة',
+    b2cTaglineAr: 'الفعاليات والوجهات والتذاكر',
     b2cDescAr: 'اكتشف الفعاليات الحية والوجهات العائلية وتجارب الترفيه الاستثنائية في مختلف أنحاء قطر.',
     b2cCtaLabelAr: 'استكشف التجارب',
     b2cDestinationUrl: '/ar/b2c',
     b2cStatLabelAr: '+١.٢ مليون زائر سنوياً',
     b2cStatVisible: true,
     b2cAriaLabelAr: 'بوابة تجارب الأفراد والجمهور',
+    b2bNumberTagAr: '02',
     b2bLabelAr: 'للعلامات التجارية والمؤسسات',
     b2bTitleAr: 'لنصنع القادم',
+    b2bTaglineAr: 'الإنتاج والشراكات المؤسسية',
     b2bDescAr: 'تعاون مع E3 لتصميم وإنتاج وتشغيل فعاليات ووجهات وتجارب غامرة تترك أثراً استثنائياً.',
     b2bCtaLabelAr: 'تعاون مع E3',
     b2bDestinationUrl: '/ar/b2b',
