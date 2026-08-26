@@ -18,6 +18,7 @@ import {
   Clock,
   Layers,
   ArrowLeft,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { MediaUploader } from "@/components/ui/MediaUploader";
@@ -234,33 +235,61 @@ export function InsightsManager() {
             return (
               <div
                 key={item.id}
-                className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-5 hover:border-[var(--color-primary)] transition-all shadow-sm flex flex-col justify-between space-y-4"
+                className="bg-[var(--surface-default)] rounded-2xl border border-[var(--border-default)] p-5 hover:border-[var(--color-primary)] transition-all shadow-sm flex flex-col justify-between space-y-4 group"
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="px-2.5 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20">
-                      {item.contentType}
-                    </span>
-                    <button
-                      onClick={() => handleTogglePublish(item)}
-                      className={cn(
-                        "px-2.5 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1",
-                        isPublished
-                          ? "bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25"
-                          : "bg-amber-500/15 text-amber-600 hover:bg-amber-500/25"
+                  {/* Article Preview Thumbnail Banner */}
+                  <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-[var(--surface-subtle)] border border-[var(--border-default)] shrink-0 mb-3.5">
+                    {item.featuredMediaUrl || item.featuredMediaId ? (
+                      <img
+                        src={item.featuredMediaUrl || item.featuredMediaId}
+                        alt={item.titleEn || "Article Preview"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-[var(--text-tertiary)] gap-1.5 p-4 bg-gradient-to-br from-[var(--surface-subtle)] to-[var(--surface-default)]">
+                        <ImageIcon className="w-8 h-8 opacity-30 text-[var(--color-primary)]" />
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-tertiary)]">No Preview Thumbnail</span>
+                      </div>
+                    )}
+
+                    {/* Floating Badges */}
+                    <div className="absolute top-2.5 start-2.5 flex items-center gap-1.5 z-10">
+                      <span className="px-2.5 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider bg-black/75 backdrop-blur-md text-white border border-white/10 shadow-sm">
+                        {item.contentType}
+                      </span>
+                      {item.featured && (
+                        <span className="px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wider bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5" /> Spotlight
+                        </span>
                       )}
-                      title="Click to toggle publish status"
-                    >
-                      {isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                      <span>{item.publishStatus}</span>
-                    </button>
+                    </div>
+
+                    <div className="absolute top-2.5 end-2.5 z-10">
+                      <button
+                        onClick={() => handleTogglePublish(item)}
+                        className={cn(
+                          "px-2.5 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shadow-sm backdrop-blur-md",
+                          isPublished
+                            ? "bg-emerald-500/90 text-white hover:bg-emerald-600"
+                            : "bg-amber-500/90 text-slate-950 hover:bg-amber-600"
+                        )}
+                        title="Click to toggle publish status"
+                      >
+                        {isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                        <span>{item.publishStatus}</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <h3 className="font-extrabold text-base text-[var(--text-primary)] line-clamp-2 leading-snug">
+                  <h3 className="font-extrabold text-base text-[var(--text-primary)] line-clamp-2 leading-snug group-hover:text-[var(--color-primary)] transition-colors">
                     {item.titleEn}
                   </h3>
                   {item.titleAr && (
-                    <p className="text-xs text-[var(--text-secondary)] font-arabic text-right mt-0.5 line-clamp-1">
+                    <p className="text-xs text-[var(--text-secondary)] font-arabic text-right mt-1 line-clamp-1">
                       {item.titleAr}
                     </p>
                   )}
@@ -271,7 +300,11 @@ export function InsightsManager() {
 
                   {item.author && (
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--border-default)]/60 text-xs text-[var(--text-secondary)]">
-                      <User className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" />
+                      {item.author.profileImage ? (
+                        <img src={item.author.profileImage} alt="" className="w-5 h-5 rounded-full object-cover" />
+                      ) : (
+                        <User className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" />
+                      )}
                       <span className="truncate">
                         {item.author.firstName} {item.author.lastName} ({item.author.designation || "Team"})
                       </span>
@@ -331,7 +364,7 @@ function InsightEditor({
   const isEditing = !!initialData?.id;
   const [isSaving, setIsSaving] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
-  const [activeLangTab, setActiveLangTab] = useState<"EN" | "AR">("EN");
+  const [activeLangTab, setActiveLangTab] = useState<"EN" | "AR" | "PREVIEW">("EN");
 
   const [titleEn, setTitleEn] = useState(initialData?.titleEn || "");
   const [titleAr, setTitleAr] = useState(initialData?.titleAr || "");
@@ -445,7 +478,7 @@ function InsightEditor({
 
       {/* Language Switcher Tab Bar */}
       <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => setActiveLangTab("EN")}
@@ -470,6 +503,18 @@ function InsightEditor({
           >
             <Globe className="w-3.5 h-3.5" /> المحتوى العربي (Arabic)
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveLangTab("PREVIEW")}
+            className={cn(
+              "px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+              activeLangTab === "PREVIEW"
+                ? "bg-purple-600 text-white shadow-sm"
+                : "bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            )}
+          >
+            <Eye className="w-3.5 h-3.5" /> Live Preview & Thumbnail
+          </button>
         </div>
 
         {isEditing && slugEn && (
@@ -479,7 +524,7 @@ function InsightEditor({
             rel="noopener noreferrer"
             className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1"
           >
-            <span>Live Article Preview</span>
+            <span>Live Web Page</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         )}
@@ -488,7 +533,136 @@ function InsightEditor({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
         {/* Left Column (2 Cols) — Content Fields */}
         <div className="lg:col-span-2 space-y-5">
-          {activeLangTab === "EN" ? (
+          {activeLangTab === "PREVIEW" ? (
+            <div className="space-y-6">
+              {/* Card Thumbnail Preview */}
+              <div className="bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[var(--color-primary)]" />
+                    Public Article Card & Thumbnail Preview
+                  </h4>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-tertiary)] bg-[var(--surface-subtle)] px-2.5 py-1 rounded-md border border-[var(--border-default)]">
+                    Live B2C Layout
+                  </span>
+                </div>
+
+                <div className="max-w-md mx-auto">
+                  <div className="group flex flex-col justify-between rounded-3xl overflow-hidden border border-[var(--border-default)] bg-[var(--surface-default)] shadow-lg hover:border-[var(--color-primary)] transition-all">
+                    {/* Thumbnail Image Header */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-black shrink-0">
+                      {featuredMediaId ? (
+                        <img
+                          src={featuredMediaId}
+                          alt={titleEn || "Article Preview"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 gap-2 p-6 bg-zinc-900">
+                          <ImageIcon className="w-10 h-10 opacity-30 text-purple-400" />
+                          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">Cover Image Pending</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                      {/* Category Floating Pill */}
+                      <div className="absolute top-3 start-3 z-10">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border backdrop-blur-md shadow-md text-purple-300 bg-purple-500/20 border-purple-500/30">
+                          {contentType.replace(/_/g, " ")}
+                        </span>
+                      </div>
+
+                      {/* Reading Time */}
+                      <div className="absolute top-3 end-3 px-2 py-0.5 rounded-md bg-black/75 border border-white/10 text-white text-[10px] font-mono backdrop-blur-md flex items-center gap-1 shadow-md">
+                        <Clock className="w-3 h-3 text-cyan-400" />
+                        <span>{Math.max(2, Math.ceil((bodyEn || excerptEn || "").trim().split(/\s+/).filter(Boolean).length / 180))} min read</span>
+                      </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2.5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
+                          <Calendar className="w-3 h-3 text-[var(--color-primary)]" />
+                          <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+                        </div>
+
+                        <h4 className="text-lg font-bold font-display uppercase tracking-tight text-[var(--text-primary)] leading-snug line-clamp-2">
+                          {titleEn || "Article Title Preview"}
+                        </h4>
+
+                        {titleAr && (
+                          <p className="text-xs text-[var(--text-secondary)] font-arabic text-right line-clamp-1">
+                            {titleAr}
+                          </p>
+                        )}
+
+                        <p className="text-xs text-[var(--text-secondary)] font-normal line-clamp-3 leading-relaxed">
+                          {excerptEn || bodyEn?.slice(0, 140) || "Article summary or excerpt preview will appear here..."}
+                        </p>
+                      </div>
+
+                      {/* Footer with Author Attribution */}
+                      <div className="pt-4 border-t border-[var(--border-default)] flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-7 h-7 rounded-full bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-[var(--text-secondary)]">
+                            <User className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-[var(--text-primary)] truncate">
+                              {teamMembers.find((t) => t.id === authorEmployeeProfileId)?.firstName || "E3 Editorial Team"}
+                            </div>
+                            <div className="text-[10px] text-[var(--text-tertiary)] truncate">
+                              {teamMembers.find((t) => t.id === authorEmployeeProfileId)?.designation || "Editorial Specialist"}
+                            </div>
+                          </div>
+                        </div>
+
+                        <span className="text-xs font-bold text-[var(--color-primary)] flex items-center gap-1">
+                          Read Story <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Full Article Hero Header Preview */}
+              <div className="bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm space-y-4">
+                <h4 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[var(--color-primary)]" />
+                  Full Article Hero Header Preview
+                </h4>
+
+                <div className="rounded-2xl overflow-hidden border border-[var(--border-default)] p-6 sm:p-8 bg-gradient-to-b from-[var(--surface-subtle)] to-[var(--surface-default)] space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 border border-purple-500/20 text-xs font-mono font-bold uppercase">
+                      {contentType.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-xs text-[var(--text-tertiary)] font-mono">
+                      {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-4xl font-black font-display uppercase tracking-tight text-[var(--text-primary)] leading-tight">
+                    {titleEn || "Full Article Headline"}
+                  </h1>
+
+                  {excerptEn && (
+                    <p className="text-sm sm:text-base text-[var(--text-secondary)] font-normal leading-relaxed border-s-4 border-[var(--color-primary)] ps-4">
+                      {excerptEn}
+                    </p>
+                  )}
+
+                  {featuredMediaId && (
+                    <div className="rounded-xl overflow-hidden aspect-video border border-[var(--border-default)] bg-black shadow-md mt-4">
+                      <img src={featuredMediaId} alt={titleEn} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : activeLangTab === "EN" ? (
             <div className="space-y-4 bg-[var(--surface-default)] p-6 rounded-2xl border border-[var(--border-default)] shadow-sm">
               <h4 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
                 <FileText className="w-4 h-4 text-[var(--color-primary)]" /> English Article Content

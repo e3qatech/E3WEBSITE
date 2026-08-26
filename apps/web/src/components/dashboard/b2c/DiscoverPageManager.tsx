@@ -20,7 +20,8 @@ import {
   FileText,
   Save,
   Compass,
-  ArrowRight
+  ArrowRight,
+  Image as ImageIcon
 } from "lucide-react"
 import {
   DashboardPageShell,
@@ -1463,8 +1464,9 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                     {insights.map((ins: any) => {
                       const selected = (data.latestInsights?.selectedArticleIds || []).includes(ins.id)
                       const title = ins.titleEn || ins.titleAr || ins.headline || ins.id;
+                      const thumb = ins.featuredMediaUrl || ins.featuredMediaId;
                       return (
-                        <label key={ins.id} className="flex items-center gap-3 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-2 rounded-lg border border-border-subtle">
+                        <label key={ins.id} className="flex items-center gap-3 text-xs text-text-primary cursor-pointer hover:bg-surface-subtle p-2.5 rounded-xl border border-border-subtle transition-all">
                           <input
                             type="checkbox"
                             checked={selected}
@@ -1473,9 +1475,19 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                               const updated = e.target.checked ? [...cur, ins.id] : cur.filter((id: string) => id !== ins.id)
                               updateSectionField("latestInsights", "selectedArticleIds", updated)
                             }}
-                            className="w-4 h-4 rounded text-blue-600"
+                            className="w-4 h-4 rounded text-blue-600 shrink-0"
                           />
-                          <span className="font-semibold">{title} ({ins.contentType || "NEWS"})</span>
+                          <div className="w-12 h-9 rounded-lg overflow-hidden bg-black/10 border border-border-default shrink-0 flex items-center justify-center">
+                            {thumb ? (
+                              <img src={thumb} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageIcon className="w-4 h-4 opacity-40 text-text-tertiary" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold truncate">{title}</div>
+                            <span className="text-[10px] text-text-tertiary uppercase font-mono">{ins.contentType || "ARTICLE"}</span>
+                          </div>
                         </label>
                       )
                     })}
