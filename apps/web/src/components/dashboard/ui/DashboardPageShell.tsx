@@ -31,7 +31,7 @@ export function DashboardPageShell({
   return (
     <div
       className={cn(
-        "mx-auto w-full transition-all duration-300 space-y-6 pb-36 animate-in fade-in-50",
+        "mx-auto w-full transition-all duration-300 space-y-6 pb-48 animate-in fade-in-50 overflow-x-clip",
         maxWidthClass,
         !noPadding && "p-4 sm:p-6 md:p-8",
         className

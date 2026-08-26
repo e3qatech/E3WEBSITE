@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Check, AlertCircle, ChevronDown, ListFilter } from "lucide-react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  AlertCircle,
+  ChevronDown,
+  ListFilter,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
 
@@ -45,13 +52,38 @@ export function DashboardSectionNavigator({
     },
     [onSectionChange, onSelectSection]
   );
-  const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const desktopDropdownRef = React.useRef<HTMLDivElement>(null);
-  const mobileDropdownRef = React.useRef<HTMLDivElement>(null);
-  const tabsContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
 
   const currentIndex = sections.findIndex((s) => s.id === activeSectionId);
   const activeSection = sections[currentIndex] || sections[0];
+
+  // Check scroll bounds for gradient indicators
+  const updateScrollBounds = useCallback(() => {
+    const el = tabsContainerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(Math.abs(scrollLeft) > 5);
+    setCanScrollRight(Math.abs(scrollLeft) + clientWidth < scrollWidth - 5);
+  }, []);
+
+  useEffect(() => {
+    const el = tabsContainerRef.current;
+    if (!el) return;
+    updateScrollBounds();
+    el.addEventListener("scroll", updateScrollBounds);
+    window.addEventListener("resize", updateScrollBounds);
+    return () => {
+      el.removeEventListener("scroll", updateScrollBounds);
+      window.removeEventListener("resize", updateScrollBounds);
+    };
+  }, [updateScrollBounds, sections]);
 
   // URL Hash synchronization
   useEffect(() => {
@@ -70,6 +102,14 @@ export function DashboardSectionNavigator({
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, [sections, handleChange]);
 
+  // Automatically center active tab
+  useEffect(() => {
+    const tabEl = document.getElementById(`section-tab-${activeSectionId}`);
+    if (tabEl && tabsContainerRef.current) {
+      tabEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [activeSectionId]);
+
   // Update hash when active section changes
   const handleSelectSection = (sectionId: string) => {
     handleChange(sectionId);
@@ -78,7 +118,6 @@ export function DashboardSectionNavigator({
     }
     setDropdownOpen(false);
 
-    // Scroll active tab into view horizontally
     const tabEl = document.getElementById(`section-tab-${sectionId}`);
     if (tabEl && tabsContainerRef.current) {
       tabEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
@@ -95,6 +134,13 @@ export function DashboardSectionNavigator({
     if (currentIndex < sections.length - 1) {
       handleSelectSection(sections[currentIndex + 1].id);
     }
+  };
+
+  const scrollTabs = (direction: "left" | "right") => {
+    if (!tabsContainerRef.current) return;
+    const distance = 240;
+    const scrollAmount = direction === "left" ? (isAr ? distance : -distance) : (isAr ? -distance : distance);
+    tabsContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
   // Close dropdown on outside click
@@ -121,73 +167,108 @@ export function DashboardSectionNavigator({
     >
       {/* Desktop & Tablet Navigation */}
       <div className="hidden md:flex items-center justify-between p-2 gap-2 w-full min-w-0">
-        {/* Horizontal Tabs Scroll Area */}
-        <div
-          ref={tabsContainerRef}
-          className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 px-1 min-w-0 flex-1"
-        >
-          {sections.map((section, index) => {
-            const isActive = section.id === activeSectionId;
-            const displayLabel = isAr ? (section.labelAr || section.label) : section.label;
-            const isUnsaved = section.isUnsaved || (dirtySections && dirtySections.includes(section.id));
+        {/* Horizontal Tabs Scroll Area with Scroll Chevrons */}
+        <div className="relative flex items-center min-w-0 flex-1 overflow-hidden">
+          {/* Left Tab Scroll Trigger */}
+          {canScrollLeft && (
+            <button
+              type="button"
+              onClick={() => scrollTabs("left")}
+              className="absolute start-0 z-10 flex items-center justify-center w-7 h-8 rounded-lg bg-[var(--surface-default)]/90 border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-white shadow-md backdrop-blur-md transition-all cursor-pointer"
+              title="Scroll left"
+            >
+              <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
+            </button>
+          )}
 
-            return (
-              <button
-                key={section.id}
-                id={`section-tab-${section.id}`}
-                onClick={() => handleSelectSection(section.id)}
-                type="button"
-                className={cn(
-                  "relative flex items-center gap-2 h-10 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all select-none cursor-pointer shrink-0 border",
-                  isActive
-                    ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md shadow-purple-950/30"
-                    : "bg-[var(--bg-level-1)] text-[var(--text-secondary)] border-[var(--border-level-1)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] hover:border-[var(--color-primary)]/40"
-                )}
-              >
-                {/* Index / Icon */}
-                <span
+          {/* Tab Strip */}
+          <div
+            ref={tabsContainerRef}
+            onWheel={(e) => {
+              if (tabsContainerRef.current && e.deltaY !== 0) {
+                tabsContainerRef.current.scrollLeft += e.deltaY;
+              }
+            }}
+            className="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5 px-1 pe-4 min-w-0 flex-1 scroll-smooth"
+          >
+            {sections.map((section, index) => {
+              const isActive = section.id === activeSectionId;
+              const displayLabel = isAr ? section.labelAr || section.label : section.label;
+              const isUnsaved = section.isUnsaved || (dirtySections && dirtySections.includes(section.id));
+
+              return (
+                <button
+                  key={section.id}
+                  id={`section-tab-${section.id}`}
+                  onClick={() => handleSelectSection(section.id)}
+                  type="button"
                   className={cn(
-                    "flex items-center justify-center w-5 h-5 rounded-md text-[10px] font-mono font-bold shrink-0",
-                    isActive ? "bg-white/20 text-white" : "bg-[var(--surface-active)] text-[var(--text-tertiary)]"
+                    "relative flex items-center gap-2 h-10 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all select-none cursor-pointer shrink-0 border",
+                    isActive
+                      ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md shadow-purple-950/30"
+                      : "bg-[var(--bg-level-1)] text-[var(--text-secondary)] border-[var(--border-level-1)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] hover:border-[var(--color-primary)]/40"
                   )}
                 >
-                  {section.icon ? section.icon : index + 1}
-                </span>
-
-                <span className="truncate">{displayLabel}</span>
-
-                {/* Unsaved indicator dot */}
-                {isUnsaved && (
+                  {/* Index / Icon */}
                   <span
                     className={cn(
-                      "w-2 h-2 rounded-full shrink-0",
-                      isActive ? "bg-white animate-pulse" : "bg-amber-400"
-                    )}
-                    title={isAr ? "يحتوي هذا القسم على تعديلات غير محفوظة" : "Section contains unsaved edits"}
-                  />
-                )}
-
-                {/* Validation Error badge */}
-                {section.hasError && (
-                  <span title={isAr ? "توجد أخطاء تحقق في هذا القسم" : "Section contains validation errors"} className="shrink-0 flex items-center">
-                    <AlertCircle className={cn("w-3.5 h-3.5", isActive ? "text-white" : "text-rose-400")} />
-                  </span>
-                )}
-
-                {/* Optional count badge */}
-                {section.badge !== undefined && (
-                  <span
-                    className={cn(
-                      "px-1.5 py-0.5 rounded text-[10px] font-mono shrink-0",
+                      "flex items-center justify-center w-5 h-5 rounded-md text-[10px] font-mono font-bold shrink-0",
                       isActive ? "bg-white/20 text-white" : "bg-[var(--surface-active)] text-[var(--text-tertiary)]"
                     )}
                   >
-                    {section.badge}
+                    {section.icon ? section.icon : index + 1}
                   </span>
-                )}
-              </button>
-            );
-          })}
+
+                  <span className="truncate">{displayLabel}</span>
+
+                  {/* Unsaved indicator dot */}
+                  {isUnsaved && (
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full shrink-0",
+                        isActive ? "bg-white animate-pulse" : "bg-amber-400"
+                      )}
+                      title={isAr ? "يحتوي هذا القسم على تعديلات غير محفوظة" : "Section contains unsaved edits"}
+                    />
+                  )}
+
+                  {/* Validation Error badge */}
+                  {section.hasError && (
+                    <span
+                      title={isAr ? "توجد أخطاء تحقق في هذا القسم" : "Section contains validation errors"}
+                      className="shrink-0 flex items-center"
+                    >
+                      <AlertCircle className={cn("w-3.5 h-3.5", isActive ? "text-white" : "text-rose-400")} />
+                    </span>
+                  )}
+
+                  {/* Optional count badge */}
+                  {section.badge !== undefined && (
+                    <span
+                      className={cn(
+                        "px-1.5 py-0.5 rounded text-[10px] font-mono shrink-0",
+                        isActive ? "bg-white/20 text-white" : "bg-[var(--surface-active)] text-[var(--text-tertiary)]"
+                      )}
+                    >
+                      {section.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right Tab Scroll Trigger */}
+          {canScrollRight && (
+            <button
+              type="button"
+              onClick={() => scrollTabs("right")}
+              className="absolute end-0 z-10 flex items-center justify-center w-7 h-8 rounded-lg bg-[var(--surface-default)]/90 border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-white shadow-md backdrop-blur-md transition-all cursor-pointer"
+              title="Scroll right"
+            >
+              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+            </button>
+          )}
         </div>
 
         {/* Dropdown Quick Selector & Step Controls */}
@@ -213,7 +294,7 @@ export function DashboardSectionNavigator({
                 </div>
                 {sections.map((section, idx) => {
                   const isCur = section.id === activeSectionId;
-                  const displayLabel = isAr ? (section.labelAr || section.label) : section.label;
+                  const displayLabel = isAr ? section.labelAr || section.label : section.label;
 
                   return (
                     <button
@@ -263,7 +344,7 @@ export function DashboardSectionNavigator({
         </div>
       </div>
 
-      {/* Mobile View Navigation: Current Section Name + Prev/Next Selector */}
+      {/* Mobile View Navigation */}
       <div className="flex md:hidden items-center justify-between p-3 gap-2">
         <div className="relative flex-1 min-w-0" ref={mobileDropdownRef}>
           <button
@@ -277,7 +358,13 @@ export function DashboardSectionNavigator({
                 {currentIndex + 1}
               </span>
               <span className="truncate">
-                {activeSection ? (isAr ? (activeSection.labelAr || activeSection.label) : activeSection.label) : (isAr ? "اختر القسم" : "Select Section")}
+                {activeSection
+                  ? isAr
+                    ? activeSection.labelAr || activeSection.label
+                    : activeSection.label
+                  : isAr
+                  ? "اختر القسم"
+                  : "Select Section"}
               </span>
             </div>
             <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] shrink-0 ms-2" />
@@ -286,7 +373,7 @@ export function DashboardSectionNavigator({
           {dropdownOpen && (
             <div className="absolute start-0 end-0 top-full mt-2 rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200 max-h-72 overflow-y-auto">
               {sections.map((section, idx) => {
-                const displayLabel = isAr ? (section.labelAr || section.label) : section.label;
+                const displayLabel = isAr ? section.labelAr || section.label : section.label;
                 return (
                   <button
                     key={section.id}
@@ -302,7 +389,9 @@ export function DashboardSectionNavigator({
                     <span className="truncate">
                       #{idx + 1} {displayLabel}
                     </span>
-                    {section.id === activeSectionId && <Check className="w-4 h-4 text-[var(--color-primary)] shrink-0" />}
+                    {section.id === activeSectionId && (
+                      <Check className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
+                    )}
                   </button>
                 );
               })}
